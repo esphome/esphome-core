@@ -1,4 +1,4 @@
-# esphomelib
+# esphomelib [![Build Status](https://travis-ci.org/OttoWinter/esphomelib.svg?branch=master)](https://travis-ci.org/OttoWinter/esphomelib)
 
 **esphomelib** is a library designed to greatly simplify your firmware code for ESP32-based devices with full MQTT
 support so that you can focus on creating the hardware, not the software. It seamlessly integrates with Home Assistant
