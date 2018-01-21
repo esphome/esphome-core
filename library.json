@@ -1,0 +1,60 @@
+{
+  "name": "esphomelib",
+  "keywords": "esp32, home-assistant, ir, ledc, mqtt, iot",
+  "description": "esphomelib is a library designed to greatly simplify your firmware code for ESP32-based devices with full MQTT and Home Assistant support.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OttoWinter/esphomelib.git"
+  },
+  "version": "0.1",
+  "authors": [
+    {
+      "name": "Otto Winter",
+      "email": "contact@otto-winter.com",
+      "url": "https://otto-winter.com",
+      "maintainer": true
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "PubSubClient",
+      "version": "~2.6"
+    },
+    {
+      "name": "ESPmDNS"
+    },
+    {
+      "name": "ArduinoJSON",
+      "version": "~5.13.0"
+    },
+    {
+      "name": "DHT",
+      "version": "~1.0.0"
+    },
+    {
+      "name": "DallasTemperature",
+      "version": "~3.7.8"
+    },
+    {
+      "name": "https://github.com/OttoWinter/PCA9685-Arduino.git"
+    }
+  ],
+  "build": {
+    "flags": [
+      "-DLOG_LOCAL_LEVEL=ESP_LOG_VERBOSE",
+      "-DMQTT_MAX_PACKET_SIZE=512",
+      "-DCONFIG_ARDUHAL_LOG_COLORS=1",
+      "-DCORE_DEBUG_LEVEL=5"
+    ]
+  },
+  "export": {
+    "include": [
+      "esphomelib",
+      "esphomelib.h"
+    ]
+  },
+  "license": "GPL-3.0",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "examples": "examples/*.cpp"
+}
