@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/OttoWinter/esphomelib.git"
   },
-  "version": "0.1",
+  "version": "0.1.1",
   "authors": [
     {
       "name": "Otto Winter",
@@ -24,7 +24,7 @@
       "name": "ESPmDNS"
     },
     {
-      "name": "ArduinoJSON",
+      "name": "ArduinoJson",
       "version": "~5.13.0"
     },
     {
@@ -49,10 +49,9 @@
     ]
   },
   "export": {
-    "include": "esphomelib"
+    "include": "src"
   },
   "license": "GPL-3.0",
   "frameworks": "arduino",
-  "platforms": "espressif32",
-  "examples": "examples/*.cpp"
+  "platforms": "espressif32"
 }
