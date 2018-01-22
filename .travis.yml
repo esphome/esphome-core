@@ -30,7 +30,9 @@ python:
 install:
   - pip install -U platformio
 script:
-  - platformio run
+  - platformio run -e livingroom
+  - platformio run -e dht-dallas-sensors
+  - platformio run -e switch-binarysensor
 
 
 #

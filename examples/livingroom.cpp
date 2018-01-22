@@ -21,6 +21,8 @@ void setup() {
   auto *blue = app.make_ledc_component(34);
   app.make_rgb_light("Livingroom Light", red, green, blue);
 
+  app.make_dht_component(12, "Livingroom Temperature", "Livingroom Humidity");
+
   app.setup();
 }
 

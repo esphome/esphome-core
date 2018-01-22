@@ -5,7 +5,8 @@ support so that you can focus on creating the hardware, not the software. It sea
 by providing many of its components out-of-the-box with reasonable defaults set automatically.
 
 ## Example
-For example, the software for a device with an RGB light using the internal PWM can be as simple as this:
+For example, the software for a device with an RGB light using the internal PWM and a 
+[DHT22](https://www.adafruit.com/product/385) temperature sensor can be as simple as this:
 
 ```cpp
 #include "esphomelib/application.h"
@@ -26,6 +27,8 @@ void setup() {
     auto *green = app.make_ledc_component(33);
     auto *blue = app.make_ledc_component(34);
     app.make_rgb_light("Livingroom Light", red, green, blue);
+    
+    app.make_dht_component(12, "Livingroom Temperature", "Livingroom Humidity");
 
     app.setup();
 }
