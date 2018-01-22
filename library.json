@@ -36,7 +36,7 @@
       "version": "~3.7.8"
     },
     {
-      "name": "PCA9685-Arduino",
+      "name": "PCA9685 16-Channel PWM Driver Module Library",
       "version": "https://github.com/OttoWinter/PCA9685-Arduino.git"
     }
   ],
