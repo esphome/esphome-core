@@ -36,7 +36,8 @@
       "version": "~3.7.8"
     },
     {
-      "name": "https://github.com/OttoWinter/PCA9685-Arduino.git"
+      "name": "PCA9685-Arduino",
+      "version": "https://github.com/OttoWinter/PCA9685-Arduino.git"
     }
   ],
   "build": {
@@ -48,10 +49,7 @@
     ]
   },
   "export": {
-    "include": [
-      "esphomelib",
-      "esphomelib.h"
-    ]
+    "include": "esphomelib"
   },
   "license": "GPL-3.0",
   "frameworks": "arduino",
