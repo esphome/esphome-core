@@ -2,7 +2,7 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include "mqtt_json_light_component.h"
 
 namespace esphomelib {
@@ -59,7 +59,6 @@ void MQTTJSONLightComponent::parse_light_json(const JsonObject &root) {
   LightColorValues v = this->state_->get_remote_values(); // use remote values for fallback
   v.parse_json(root);
   v.normalize_color(this->state_->get_traits());
-  ESP_LOGV(TAG, "New Color: %s", v.to_string().c_str());
 
   if (root.containsKey("flash")) {
     auto length = uint32_t(float(root["flash"]) * 1000);

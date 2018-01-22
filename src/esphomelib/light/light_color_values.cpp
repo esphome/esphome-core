@@ -5,7 +5,7 @@
 #include "light_color_values.h"
 #include <esphomelib/helpers.h>
 #include <esphomelib/component.h>
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include <sstream>
 #include <iomanip>
 #include <esphomelib/espmath.h>
@@ -222,16 +222,6 @@ bool LightColorValues::operator==(const LightColorValues &rhs) const {
 
 bool LightColorValues::operator!=(const LightColorValues &rhs) const {
   return !(rhs == *this);
-}
-std::string LightColorValues::to_string() {
-  std::ostringstream os;
-  os << std::setprecision(2) << *this;
-  return os.str();
-}
-std::ostream &operator<<(std::ostream &os, const LightColorValues &values) {
-  os << "state: " << values.state_ << " brightness: " << values.brightness_ << " red: " << values.red_ << " green: "
-     << values.green_ << " blue: " << values.blue_ << " white: " << values.white_;
-  return os;
 }
 
 } // namespace light

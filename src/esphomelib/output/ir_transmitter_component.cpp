@@ -2,11 +2,12 @@
 // Created by Otto Winter on 01.12.17.
 //
 
+#ifdef ARDUINO_ARCH_ESP32
+
 #include <driver/rmt.h>
 #include <soc/rmt_struct.h>
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include <cstdlib>
-#include <sstream>
 #include <esp32-hal.h>
 #include "ir_transmitter_component.h"
 
@@ -277,3 +278,5 @@ rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 } // namespace output
 
 } // namespace esphomelib
+
+#endif

@@ -2,10 +2,9 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "component.h"
-
-#include <utility>
-#include <esp32-hal.h>
+#include <esphomelib/component.h>
+#include <esphomelib/hal.h>
+#include <esphomelib/log.h>
 
 namespace esphomelib {
 

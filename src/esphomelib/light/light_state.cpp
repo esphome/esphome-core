@@ -3,8 +3,8 @@
 //
 
 #include <esphomelib/helpers.h>
-#include <esp_log.h>
-#include <esp32-hal.h>
+#include <esphomelib/log.h>
+#include <esphomelib/hal.h>
 #include "light_state.h"
 #include "light_transformer.h"
 #include "light_effect.h"

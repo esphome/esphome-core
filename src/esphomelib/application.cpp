@@ -7,7 +7,7 @@
 
 #include <utility>
 #include <algorithm>
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include <esphomelib/output/gpio_binary_output_component.h>
 #include <esphomelib/esp_preferences.h>
 
@@ -156,10 +156,12 @@ sensor::MQTTSensorComponent *Application::make_mqtt_sensor_for(sensor::Sensor *s
   return mqtt;
 }
 
+#ifdef ARDUINO_ARCH_ESP32
 LEDCOutputComponent *Application::make_ledc_component(uint8_t pin, float frequency, uint8_t bit_depth) {
   auto *ledc = new LEDCOutputComponent(pin, frequency, bit_depth);
   return this->register_component(ledc);
 }
+#endif
 
 PCA9685OutputComponent *Application::make_pca9685_component(float frequency, TwoWire &i2c_wire) {
   auto *pca9685 = new PCA9685OutputComponent(frequency, i2c_wire);
@@ -239,11 +241,15 @@ void Application::connect_switch(switch_platform::Switch *switch_, switch_platfo
   switch_->set_on_new_state_callback(mqtt->create_on_new_state_callback());
   mqtt->set_write_value_callback(switch_->create_write_state_callback());
 }
+
+#ifdef ARDUINO_ARCH_ESP32
 IRTransmitterComponent *Application::make_ir_transmitter(uint8_t pin,
                                                          uint8_t carrier_duty_percent,
                                                          uint8_t clock_divider) {
   return this->register_component(new IRTransmitterComponent(pin, carrier_duty_percent, clock_divider));
 }
+#endif
+
 MQTTSwitchComponent *Application::make_mqtt_switch_for(const std::string &friendly_name,
                                                        switch_platform::Switch *switch_) {
   auto *mqtt = this->make_mqtt_switch(friendly_name);
@@ -262,6 +268,7 @@ input::DallasComponent *Application::make_dallas_component(uint8_t pin) {
 
 Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t pin,
                                                                          const std::string &friendly_name) {
+  auto *binary_output = this->make_gpio_output_component(pin);
   auto *binary_output = this->make_gpio_binary_output(pin);
   auto *simple_switch = new SimpleSwitch(binary_output);
   auto *mqtt = this->make_mqtt_switch_for(friendly_name, simple_switch);
@@ -270,6 +277,10 @@ Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t
       .simple_switch = simple_switch,
       .mqtt_switch = mqtt
   };
+}
+
+output::GPIOBinaryOutputComponent *Application::make_gpio_output_component(uint8_t pin, uint8_t mode) {
+  return this->register_component(new GPIOBinaryOutputComponent(pin, mode));
 }
 
 const std::string &Application::get_name() const {

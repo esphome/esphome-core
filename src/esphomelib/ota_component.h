@@ -56,7 +56,7 @@ class OTAComponent : public Component {
 
   uint16_t port_;
   std::string hostname_;
-  WiFiServer server_;
+  WiFiServer *server_;
 };
 
 } // namespace esphomelib

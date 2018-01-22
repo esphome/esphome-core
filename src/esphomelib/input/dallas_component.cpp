@@ -2,9 +2,8 @@
 // Created by Otto Winter on 28.12.17.
 //
 
-#include <iomanip>
-#include <sstream>
 #include <esphomelib/helpers.h>
+#include <esphomelib/log.h>
 #include "dallas_component.h"
 
 namespace esphomelib {

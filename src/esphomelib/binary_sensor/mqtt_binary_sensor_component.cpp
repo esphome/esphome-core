@@ -2,7 +2,8 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include "mqtt_binary_sensor_component.h"
+#include <esphomelib/binary_sensor/mqtt_binary_sensor_component.h>
+#include <esphomelib/log.h>
 
 namespace esphomelib {
 

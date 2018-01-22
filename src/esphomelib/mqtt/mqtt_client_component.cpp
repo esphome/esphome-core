@@ -2,8 +2,7 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include <esp_log.h>
-
+#include <esphomelib/log.h>
 #include <utility>
 #include "mqtt_client_component.h"
 #include "esphomelib/log_component.h"
@@ -106,7 +105,11 @@ void MQTTClientComponent::reconnect() {
     ESP_LOGV(TAG, "    Attempting MQTT connection...");
     if (millis() - start > 20000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
+#ifdef ARDUINO_ARCH_ESP32
       esp_restart();
+#else
+      ESP.restart();
+#endif
     }
 
     const char *id = this->credentials_.client_id.c_str();

@@ -3,7 +3,7 @@
 //
 
 #include <esphomelib/helpers.h>
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include "float_output.h"
 
 namespace esphomelib {

@@ -2,7 +2,8 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <esp32-hal-gpio.h>
+#include <esphomelib/hal.h>
+#include <esphomelib/log.h>
 #include "gpio_binary_sensor_component.h"
 
 namespace esphomelib {

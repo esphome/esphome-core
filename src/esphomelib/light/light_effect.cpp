@@ -3,7 +3,7 @@
 //
 
 #include <esphomelib/helpers.h>
-#include <esp32-hal.h>
+#include <esphomelib/hal.h>
 #include "light_effect.h"
 
 namespace esphomelib {

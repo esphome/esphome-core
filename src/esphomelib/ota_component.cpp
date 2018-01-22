@@ -2,7 +2,7 @@
 // Created by Otto Winter on 03.12.17.
 //
 
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include <ArduinoOTA.h>
 
 #include "ota_component.h"
@@ -13,8 +13,8 @@ static const char *TAG = "ota";
 
 void OTAComponent::setup() {
   ESP_LOGD(TAG, "Setting up OTA...");
-  this->server_ = WiFiServer(this->port_);
-  this->server_.begin();
+  this->server_ = new WiFiServer(this->port_);
+  this->server_->begin();
 
   if (!this->hostname_.empty())
     ArduinoOTA.setHostname(this->hostname_.c_str());
@@ -74,7 +74,8 @@ void OTAComponent::loop() {
 }
 
 OTAComponent::OTAComponent(uint16_t port, std::string hostname)
-    : port_(port), hostname_(std::move(hostname)), auth_type_(OPEN) {}
+    : port_(port), hostname_(std::move(hostname)), auth_type_(OPEN), server_(nullptr) {}
+
 void OTAComponent::set_auth_open() {
   this->auth_type_ = OPEN;
 }

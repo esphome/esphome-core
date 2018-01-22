@@ -5,6 +5,8 @@
 #ifndef ESPHOMELIB_OUTPUT_IR_TRANSMITTER_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_IR_TRANSMITTER_COMPONENT_H
 
+#ifdef ARDUINO_ARCH_ESP32
+
 #include <driver/rmt.h>
 #include <esphomelib/component.h>
 #include <esphomelib/switch_platform/switch.h>
@@ -136,5 +138,7 @@ extern rmt_channel_t next_rmt_channel;
 } // namespace output
 
 } // namespace esphomelib
+
+#endif
 
 #endif //ESPHOMELIB_OUTPUT_IR_TRANSMITTER_COMPONENT_H

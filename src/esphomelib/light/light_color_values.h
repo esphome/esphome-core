@@ -6,7 +6,6 @@
 #define ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 
 #include <ArduinoJson.h>
-#include <ostream>
 #include "light_traits.h"
 
 namespace esphomelib {
@@ -107,9 +106,6 @@ class LightColorValues {
 
   float get_white() const;
   void set_white(float white);
-
-  friend std::ostream &operator<<(std::ostream &os, const LightColorValues &values);
-  std::string to_string();
 
  protected:
   float state_; ///< ON / OFF, float for transition

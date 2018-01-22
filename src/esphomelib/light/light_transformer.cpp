@@ -4,7 +4,8 @@
 
 #include <esphomelib/helpers.h>
 #include <esphomelib/component.h>
-#include <esp32-hal.h>
+#include <esphomelib/log.h>
+#include <esphomelib/hal.h>
 #include "light_transformer.h"
 
 namespace esphomelib {

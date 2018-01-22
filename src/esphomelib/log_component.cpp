@@ -2,10 +2,13 @@
 // Created by Otto Winter on 25.11.17.
 //
 
+#ifdef ARDUINO_ARCH_ESP32
 #include <esp_log.h>
+#endif
 #include <HardwareSerial.h>
 #include "log_component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
+#include <esphomelib/log.h>
 #include "application.h"
 
 namespace esphomelib {
@@ -14,6 +17,9 @@ static const char *TAG = "log";
 
 int LogComponent::log_vprintf_(const char *format, va_list args) {
   auto *log = global_log_component;
+  if (log == nullptr)
+    return 0;
+
   int ret = vsnprintf(log->tx_buffer_.data(), log->tx_buffer_.capacity(), format, args);
 
   if (ret > 0) {
@@ -38,7 +44,9 @@ void LogComponent::pre_setup() {
     Serial.begin(this->baud_rate_);
 
   global_log_component = this;
+#ifdef ARDUINO_ARCH_ESP32
   esp_log_set_vprintf(LogComponent::log_vprintf_);
+#endif
 
 #ifdef LOG_LOCAL_LEVEL
   this->set_global_log_level(LOG_LOCAL_LEVEL);
@@ -52,11 +60,19 @@ uint32_t LogComponent::get_baud_rate() const {
 void LogComponent::set_baud_rate(uint32_t baud_rate) {
   this->baud_rate_ = baud_rate;
 }
-void LogComponent::set_global_log_level(esp_log_level_t log_level) {
+const std::string &LogComponent::get_mqtt_topic() const {
+  return this->mqtt_topic_;
+}
+void LogComponent::set_mqtt_topic(const std::string &mqtt_topic) {
+  this->mqtt_topic_ = mqtt_topic;
+}
+void LogComponent::set_global_log_level(log_level_t log_level) {
   this->set_log_level("*", log_level);
 }
-void LogComponent::set_log_level(const std::string &tag, esp_log_level_t log_level) {
-  esp_log_level_set(tag.c_str(), log_level);
+void LogComponent::set_log_level(const std::string &tag, log_level_t log_level) {
+#ifdef ARDUINO_ARCH_ESP32
+  esp_log_level_set(tag.c_str(), esp_log_level_t(log_level));
+#endif
 }
 size_t LogComponent::get_tx_buffer_size() const {
   return this->tx_buffer_.capacity();

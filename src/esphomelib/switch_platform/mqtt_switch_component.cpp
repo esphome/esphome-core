@@ -5,6 +5,7 @@
 #include "mqtt_switch_component.h"
 
 #include <utility>
+#include <esphomelib/log.h>
 #include <esphomelib/esp_preferences.h>
 
 namespace esphomelib {

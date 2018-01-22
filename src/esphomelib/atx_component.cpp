@@ -2,8 +2,8 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include <esp_log.h>
-#include <esp32-hal.h>
+#include <esphomelib/log.h>
+#include <esphomelib/hal.h>
 #include "atx_component.h"
 
 namespace esphomelib {

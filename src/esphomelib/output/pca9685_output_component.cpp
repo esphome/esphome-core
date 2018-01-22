@@ -2,7 +2,7 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include "pca9685_output_component.h"
 
 namespace esphomelib {

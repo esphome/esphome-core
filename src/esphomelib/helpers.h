@@ -9,11 +9,7 @@
 #include <IPAddress.h>
 #include <memory>
 #include <queue>
-#include <ostream>
 #include <functional>
-#include <sstream>
-#include <iomanip>
-#include <esp32-hal.h>
 
 namespace esphomelib {
 
@@ -232,9 +228,9 @@ void SlidingWindowMovingAverage<T>::set_max_size(size_t max_size) {
 
 template<typename T>
 std::string value_to_hex_string(T value) {
-  std::stringstream ss;
-  ss << std::hex << value;
-  return ss.str();
+  char buffer[32];
+  snprintf(buffer, sizeof(buffer), "%x", value);
+  return std::string(buffer);
 }
 
 template<typename T>

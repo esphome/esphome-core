@@ -12,12 +12,20 @@
 #include <vector>
 #include "component.h"
 #include "mqtt/mqtt_component.h"
-#include <esp_log.h>
 #include <cassert>
-#include "esp32-hal-log.h"
 #include "helpers.h"
 
 namespace esphomelib {
+
+/// Copied from esp-idf
+typedef enum {
+  ESP_LOG_NONE,       /*!< No log output */
+  ESP_LOG_ERROR,      /*!< Critical errors, software module can not recover on its own */
+  ESP_LOG_WARN,       /*!< Error conditions from which recovery measures have been taken */
+  ESP_LOG_INFO,       /*!< Information messages which describe normal flow of events */
+  ESP_LOG_DEBUG,      /*!< Extra information which is not necessary for normal use (values, pointers, sizes, etc). */
+  ESP_LOG_VERBOSE     /*!< Bigger chunks of debugging information, or frequent messages which can potentially flood the output. */
+} log_level_t;
 
 /** LogComponent - A simple component that enables logging to Serial and MQTT via ESP_LOG* macros.
  *
@@ -54,11 +62,11 @@ class LogComponent : public Component {
   size_t get_tx_buffer_size() const;
   void set_tx_buffer_size(size_t tx_buffer_size);
   /// Set the global log level.
-  void set_global_log_level(esp_log_level_t log_level);
+  void set_global_log_level(log_level_t log_level);
   /// Set the log level of the specified tag.
-  void set_log_level(const std::string &tag, esp_log_level_t log_level);
+  void set_log_level(const std::string &tag, log_level_t log_level);
 
- private:
+ protected:
   static int log_vprintf_(const char *format, va_list args);
 
   uint32_t baud_rate_;

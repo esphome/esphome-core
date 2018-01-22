@@ -5,10 +5,15 @@
 #include "wifi_component.h"
 #include "helpers.h"
 
-#include <esp_log.h>
-#include <esp32-hal.h>
+#include <esphomelib/log.h>
+#include <esphomelib/hal.h>
+#ifdef ARDUINO_ARCH_ESP32
 #include <WiFi.h>
 #include <esp_wifi.h>
+#else
+#include <ESP8266WiFi.h>
+#include <user_interface.h>
+#endif
 
 namespace esphomelib {
 
@@ -31,7 +36,11 @@ void WiFiComponent::setup() {
 
   if (!this->hostname_.empty()) {
     ESP_LOGV(TAG, "    Hostname: '%s'", this->hostname_.c_str());
+#ifdef ARDUINO_ARCH_ESP32
     WiFi.setHostname(this->hostname_.c_str());
+#else
+    WiFi.hostname(this->hostname_.c_str());
+#endif
   }
 
   if (this->manual_ip_) {
@@ -53,9 +62,11 @@ void WiFiComponent::setup() {
 void WiFiComponent::loop() {
   if (WiFi.status() != WL_CONNECTED) {
     ESP_LOGD(TAG, "Reconnecting WiFi...");
-    int return_value = esp_wifi_connect();
-    if (!return_value)
-      ESP_LOGW(TAG, "Reconnecting WiFi error: %d", return_value);
+#ifdef ARDUINO_ARCH_ESP32
+    esp_wifi_connect();
+#else
+    wifi_station_connect();
+#endif
     this->wait_for_connection();
   }
 }
@@ -66,6 +77,7 @@ WiFiComponent::WiFiComponent(std::string ssid, std::string password, std::string
 void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
   std::string event_name;
   switch (event) {
+#ifdef ARDUINO_ARCH_ESP32
     case SYSTEM_EVENT_WIFI_READY:event_name = "WiFi ready";
       break;
     case SYSTEM_EVENT_SCAN_DONE:event_name = "Scan done";
@@ -74,14 +86,26 @@ void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
       break;
     case SYSTEM_EVENT_STA_STOP:event_name = "STA stop";
       break;
-    case SYSTEM_EVENT_STA_CONNECTED:event_name = "STA IsConnected";
+    case SYSTEM_EVENT_STA_CONNECTED:event_name = "STA connected";
       break;
     case SYSTEM_EVENT_STA_DISCONNECTED:event_name = "STA disconnected";
       break;
-    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:event_name = "STA auth mode changed";
+    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:event_name = "STA auth mode change";
       break;
     case SYSTEM_EVENT_STA_GOT_IP:event_name = "STA got IP";
       break;
+#else
+    case WIFI_EVENT_STAMODE_CONNECTED: event_name = "STA connected";
+      break;
+    case WIFI_EVENT_STAMODE_DISCONNECTED: event_name = "STA disconnected";
+      break;
+    case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE: event_name = "STA auth mode change";
+      break;
+    case WIFI_EVENT_STAMODE_GOT_IP: event_name = "STA got IP";
+      break;
+    case WIFI_EVENT_STAMODE_DHCP_TIMEOUT: event_name = "STA DHCP timeout";
+      break;
+#endif
     default:event_name = "";
       break;
   }
@@ -107,9 +131,14 @@ void WiFiComponent::wait_for_connection() {
   while ((status = WiFi.status()) != WL_CONNECTED) {
     if (status == WL_CONNECT_FAILED || millis() - start > 10000) {
       ESP_LOGE(TAG, "    Can't connect to WiFi network, restarting...");
+#ifdef ARDUINO_ARCH_ESP32
       WiFi.disconnect(true);
       esp_wifi_stop();
       esp_restart();
+#else
+      WiFi.enableSTA(false);
+      ESP.restart();
+#endif
     }
 
     delay(500);

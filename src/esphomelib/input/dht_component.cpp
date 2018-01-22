@@ -2,6 +2,8 @@
 // Created by Otto Winter on 26.11.17.
 //
 
+#include <esphomelib/log.h>
+#include <cmath>
 #include <esp_log.h>
 #include <esphomelib/espmath.h>
 #include <esphomelib/helpers.h>

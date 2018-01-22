@@ -6,7 +6,7 @@
 #include "mqtt_client_component.h"
 #include <algorithm>
 #include <utility>
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include <esphomelib/helpers.h>
 #include <esphomelib/application.h>
 

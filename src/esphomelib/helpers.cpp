@@ -4,9 +4,14 @@
 
 #include "helpers.h"
 #include <cstdio>
-#include <Esp.h>
-#include <algorithm>
+#include <esphomelib/log.h>
 #include <esphomelib/espmath.h>
+#include <algorithm>
+#ifdef ARDUINO_ARCH_ESP8266
+  #include <ESP8266WiFi.h>
+#else
+  #include <Esp.h>
+#endif
 
 namespace esphomelib {
 
@@ -15,7 +20,11 @@ static const char *TAG = "helpers";
 std::string get_mac_address() {
   char tmp[20];
   uint8_t mac[6];
+#ifdef ARDUINO_ARCH_ESP32
   esp_efuse_mac_get_default(mac);
+#else
+  WiFi.macAddress(mac);
+#endif
   sprintf(tmp, "%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   return std::string(tmp);
 }
@@ -29,7 +38,11 @@ std::string generate_hostname(const std::string &base) {
 }
 
 double random_double() {
+#ifdef ARDUINO_ARCH_ESP32
   return double(esp_random()) / double(UINT32_MAX);
+#else
+  return double(os_random()) / double(UINT32_MAX);
+#endif
 }
 
 float random_float() {

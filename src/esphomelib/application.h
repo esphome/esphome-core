@@ -181,6 +181,8 @@ class Application {
   input::DallasComponent *make_dallas_component(uint8_t pin);
 
   // ======================= OUTPUT =======================
+
+#ifdef ARDUINO_ARCH_ESP32
   /** Create a ESP32 LEDC channel.
    *
    * @param pin The pin.
@@ -189,6 +191,7 @@ class Application {
    * @return The LEDC component. Use this for advanced settings.
    */
   output::LEDCOutputComponent *make_ledc_component(uint8_t pin, float frequency = 1000.0f, uint8_t bit_depth = 12);
+#endif
 
   /** Create a PCA9685 component.
    *
@@ -258,6 +261,7 @@ class Application {
   /// Connect the provided Switch to the MQTTSwitchComponent. Mostly for internal use.
   void connect_switch(switch_platform::Switch *switch_, switch_platform::MQTTSwitchComponent *mqtt);
 
+#ifdef ARDUINO_ARCH_ESP32
   /** Create an IR transmitter.
    *
    * @param pin The pin the IR led is connected to.
@@ -268,6 +272,7 @@ class Application {
   output::IRTransmitterComponent *make_ir_transmitter(uint8_t pin,
                                                       uint8_t carrier_duty_percent = 50,
                                                       uint8_t clock_divider = output::DEFAULT_CLOCK_DIVIDER);
+#endif
 
   struct SimpleGPIOSwitchStruct {
     switch_platform::SimpleSwitch *simple_switch;
