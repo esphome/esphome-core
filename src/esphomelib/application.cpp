@@ -270,4 +270,14 @@ Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t
   };
 }
 
+const std::string &Application::get_name() const {
+  return this->name_;
+}
+
+Application::Application() {
+  global_application = this;
+}
+
+Application *global_application;
+
 } // namespace esphomelib

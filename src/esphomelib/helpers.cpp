@@ -52,6 +52,14 @@ std::string to_lowercase_underscore(std::string s) {
   return s;
 }
 
+std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist) {
+  std::string out(s);
+  out.erase(std::remove_if(out.begin(), out.end(), [&out, &whitelist](const char &c) {
+    return whitelist.find(c) == std::string::npos;
+  }), out.end());
+  return out;
+}
+
 ExponentialMovingAverage::ExponentialMovingAverage(float alpha) : alpha_(alpha), accumulator_(0) {}
 
 float ExponentialMovingAverage::get_alpha() const {

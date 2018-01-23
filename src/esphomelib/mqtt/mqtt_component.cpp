@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <utility>
 #include <esp_log.h>
+#include <esphomelib/helpers.h>
+#include <esphomelib/application.h>
 
 namespace esphomelib {
 
@@ -22,12 +24,13 @@ std::string MQTTComponent::get_discovery_topic() const {
   const auto &discovery = global_mqtt_client->get_discovery_info();
   if (!discovery)
     return "";
-  return discovery->prefix + "/" + this->component_type() + "/" + global_mqtt_client->get_node_id() +
-      "/" + this->get_entity_id() + "/config";
+  std::string sanitized_name = sanitize_string_whitelist(global_application->get_name(), DISCOVERY_CHARACTER_WHITELIST);
+  return discovery->prefix + "/" + this->component_type() + "/" + sanitized_name + "/" + this->get_entity_id()
+      + "/config";
 }
 
 std::string MQTTComponent::get_default_topic_for(const std::string &suffix) const {
-  return global_mqtt_client->get_node_id() + "/" + this->component_type() + "/" + this->get_entity_id() + "/"
+  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_entity_id() + "/"
       + suffix;
 }
 
@@ -96,7 +99,7 @@ bool MQTTComponent::is_discovery_enabled() const {
 }
 
 std::string MQTTComponent::get_default_entity_id() const {
-  return to_lowercase_underscore(this->friendly_name_);
+  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name_), DISCOVERY_CHARACTER_WHITELIST);
 }
 
 const std::string &MQTTComponent::get_friendly_name() const {

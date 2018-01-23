@@ -38,6 +38,8 @@ namespace esphomelib {
  */
 class Application {
  public:
+  Application();
+
   /** Set the name of the item that is running this app.
    *
    * Note: This will automatically be converted to lowercase_underscore.
@@ -306,6 +308,9 @@ class Application {
   /// Assert that name has been set.
   void assert_name() const;
 
+  /// Get the name of this Application set by set_name().
+  const std::string &get_name() const;
+
  protected:
   std::vector<Component *> components_;
   mqtt::MQTTClientComponent *mqtt_client_;
@@ -313,6 +318,9 @@ class Application {
 
   std::string name_;
 };
+
+/// Global storage of Application pointer - only one Application can exist.
+extern Application *global_application;
 
 template<class C>
 C *Application::register_component(C *c) {

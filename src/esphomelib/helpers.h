@@ -69,6 +69,9 @@ float gamma_correct(float value, float gamma);
 template<typename T>
 std::string value_to_hex_string(T value);
 
+/// Sanitizes the input string with the whitelist.
+std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
+
 /// Helper class to represent an optional value.
 template<typename T>
 struct Optional {

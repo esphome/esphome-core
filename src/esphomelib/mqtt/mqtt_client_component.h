@@ -107,13 +107,17 @@ class MQTTClientComponent : public Component {
   /// Globally disable Home Assistant discovery.
   void disable_discovery();
 
-  /** Set the node_id used for creating state and command topics.
+  /** Set the topic prefix that will be prepended to all topics together with "/". This will, in most cases,
+   * be the name of your Application.
    *
-   * @param node_id The node_id, should be lower case and without spaces.
+   * For example, if "livingroom" is passed to this method, all state topics will, by default, look like
+   * "livingroom/.../state"
+   *
+   * @param topic_prefix The topic prefix. The last "/" is appended automatically.
    */
-  void set_node_id(const std::string &node_id);
-  /// Get the node_id of this device.
-  const std::string &get_node_id() const;
+  void set_topic_prefix(const std::string &topic_prefix);
+  /// Get the topic prefix of this device.
+  const std::string &get_topic_prefix() const;
 
   /** Subscribe to an MQTT topic and call callback when a message is received.
    *
@@ -170,7 +174,7 @@ class MQTTClientComponent : public Component {
   Optional<MQTTMessage> last_will_;
   Optional<MQTTMessage> birth_message_;
   Optional<MQTTDiscoveryInfo> discovery_info_;
-  std::string node_id_;
+  std::string topic_prefix_;
 
   std::vector<MQTTSubscription> subscriptions_;
   PubSubClient mqtt_client_;

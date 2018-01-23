@@ -18,7 +18,7 @@ MQTTClientComponent::MQTTClientComponent(MQTTCredentials credentials,
                                          std::string node_id)
     : credentials_(std::move(credentials)),
       discovery_info_(Optional<MQTTDiscoveryInfo>()),
-      node_id_(std::move(node_id)) {
+      topic_prefix_(std::move(node_id)) {
 
 }
 
@@ -191,11 +191,11 @@ float MQTTClientComponent::get_setup_priority() const {
 const Optional<MQTTDiscoveryInfo> &MQTTClientComponent::get_discovery_info() const {
   return this->discovery_info_;
 }
-void MQTTClientComponent::set_node_id(const std::string &node_id) {
-  this->node_id_ = node_id;
+void MQTTClientComponent::set_topic_prefix(const std::string &topic_prefix) {
+  this->topic_prefix_ = topic_prefix;
 }
-const std::string &MQTTClientComponent::get_node_id() const {
-  return this->node_id_;
+const std::string &MQTTClientComponent::get_topic_prefix() const {
+  return this->topic_prefix_;
 }
 const Optional<MQTTMessage> &MQTTClientComponent::get_birth_message() const {
   return this->birth_message_;
