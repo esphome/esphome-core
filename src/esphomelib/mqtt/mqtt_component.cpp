@@ -44,7 +44,7 @@ const std::string MQTTComponent::get_command_topic() const {
 
 void MQTTComponent::send_message(const std::string &topic, const std::string &payload, const Optional<bool> &retain) {
   bool actual_retain = this->retain_;
-  if (retain.defined)
+  if (retain)
     actual_retain = retain.value;
   global_mqtt_client->publish(topic, payload, actual_retain);
 }
@@ -64,7 +64,7 @@ void MQTTComponent::send_discovery(const json_build_t &f,
                                    bool state_topic, bool command_topic, const std::string &platform) {
   if (!this->is_discovery_enabled())
     return;
-  if (!global_mqtt_client->get_discovery_info().defined)
+  if (!global_mqtt_client->get_discovery_info())
     return;
   if (this->friendly_name_.empty()) // empty friendly name => no discovery
     return;

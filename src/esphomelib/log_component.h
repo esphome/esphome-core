@@ -44,7 +44,7 @@ class LogComponent : public Component {
   void set_custom_logging_topic(const std::string &custom_logging_topic);
 
   /// Return the logging topic, opting for the default if it hasn't been customized.
-  const std::string &get_logging_topic();
+  std::string get_logging_topic();
 
   /// Whether logging to MQTT is enabled.
   bool is_mqtt_logging_enabled() const;

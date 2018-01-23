@@ -21,7 +21,7 @@ int LogComponent::log_vprintf_(const char *format, va_list args) {
       Serial.print(log->tx_buffer_.data());
     }
 
-    if (log->mqtt_logging_enabled_ && mqtt::global_mqtt_client != nullptr)
+    if (log->mqtt_logging_enabled_ && mqtt::global_mqtt_client != nullptr && mqtt::global_mqtt_client->is_connected())
       mqtt::global_mqtt_client->publish(log->get_logging_topic(), log->tx_buffer_.data(), true);
   }
 
@@ -45,7 +45,6 @@ void LogComponent::pre_setup() {
 #endif
 
   ESP_LOGI(TAG, "Log initialized");
-  Serial.println("Log initialized (Serial)");
 }
 uint32_t LogComponent::get_baud_rate() const {
   return this->baud_rate_;
@@ -75,8 +74,8 @@ bool LogComponent::is_mqtt_logging_enabled() const {
 void LogComponent::set_mqtt_logging_enabled(bool mqtt_logging_enabled) {
   this->mqtt_logging_enabled_ = mqtt_logging_enabled;
 }
-const std::string &LogComponent::get_logging_topic() {
-  if (this->mqtt_logging_topic_.empty())
+std::string LogComponent::get_logging_topic() {
+  if (this->mqtt_logging_topic_.empty() && mqtt::global_mqtt_client != nullptr)
     return mqtt::global_mqtt_client->get_topic_prefix() + "/debug";
   return this->mqtt_logging_topic_;
 }

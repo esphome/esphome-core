@@ -319,6 +319,9 @@ ESP_LOGW(TAG, "This is a warning message.");
 > Note: use `set_global_log_level()` and `set_log_level` in `LogComponent` to adjust the global and 
 tag-specific log levels, respectively.
 
+When using the `platformio device monitor [...]` command, try adding the `--raw` argument - this will apply color to
+log messages in your terminal.
+
 ### Setting custom MQTT topics
 
 If esphomelib's default MQTT topics don't suit your needs, you can override them. For this, there are two options: 
@@ -352,3 +355,16 @@ Then do the upload as you would do normally via serial. You might want to [set a
 > Note: OTA is, by default, enabled without any authentication. If you're on a public WiFi network, it's highly
 > encouraged to set a paraphrase using the `set_auth_*()` methods on the object returned by `init_ota()`. Then also
 > include `upload_flags = -a `*`PASSPHRASE`* in your `platformio.ini`.
+
+### Help! I'm getting lots of `PubSubClient::publish() failed` warnings.
+
+This due to this libraries MQTT client library ([PubSubClient](https://github.com/knolleary/pubsubclient)) having a
+fixed-sized buffer for all MQTT messages. And if your messages are very long, they may not fit inside the buffer, so
+PubSubClient won't send the message. To fix this, increase the buffer size, by adding this to your `platformio.ini`:
+
+```ini
+build_flags =
+    -DMQTT_MAX_PACKET_SIZE=1024
+```
+
+Increase the number if it still doesn't fit.
