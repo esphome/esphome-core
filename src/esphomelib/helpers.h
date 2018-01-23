@@ -22,6 +22,14 @@ std::string get_mac_address();
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
 
+const std::string HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+
+/// Sanitize the hostname by removing characters that are not in the whitelist and truncating it to 63 chars.
+std::string sanitize_hostname(const std::string &hostname);
+
+/// Truncate a string to a specific length
+std::string truncate_string(const std::string &s, size_t length);
+
 /// Checks whether the provided IPAddress is empty (is 0.0.0.0).
 bool is_empty(const IPAddress &address);
 

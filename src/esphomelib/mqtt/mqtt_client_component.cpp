@@ -30,6 +30,7 @@ void MQTTClientComponent::setup() {
   ESP_LOGV(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
   ESP_LOGV(TAG, "    Username: '%s'", this->credentials_.username.c_str());
   ESP_LOGV(TAG, "    Password: '%s'", this->credentials_.password.c_str());
+  this->credentials_.client_id = truncate_string(this->credentials_.client_id, 23);
   ESP_LOGV(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
   this->mqtt_client_.setCallback(pub_sub_client_callback);
 

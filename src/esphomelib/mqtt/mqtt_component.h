@@ -25,7 +25,7 @@ struct Availability {
 
 /// All discovery friendly names and node_ids use this whitelist to match the Home Assistant
 /// <a href="https://github.com/home-assistant/home-assistant/blob/dev/homeassistant/components/mqtt/discovery.py#L21">regex</a>.
-const std::string DISCOVERY_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+const std::string DISCOVERY_CHARACTER_WHITELIST = HOSTNAME_CHARACTER_WHITELIST;
 
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.

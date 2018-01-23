@@ -60,6 +60,17 @@ std::string sanitize_string_whitelist(const std::string &s, const std::string &w
   return out;
 }
 
+std::string sanitize_hostname(const std::string &hostname) {
+  std::string s = sanitize_string_whitelist(hostname, HOSTNAME_CHARACTER_WHITELIST);
+  return truncate_string(s, 63);
+}
+
+std::string truncate_string(const std::string &s, size_t length) {
+  if (s.length() > length)
+    return s.substr(0, length);
+  return s;
+}
+
 ExponentialMovingAverage::ExponentialMovingAverage(float alpha) : alpha_(alpha), accumulator_(0) {}
 
 float ExponentialMovingAverage::get_alpha() const {

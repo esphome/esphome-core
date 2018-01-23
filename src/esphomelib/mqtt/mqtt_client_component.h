@@ -52,7 +52,7 @@ struct MQTTCredentials {
   uint16_t port; ///< The port number of the server.
   std::string username;
   std::string password;
-  std::string client_id;
+  std::string client_id; ///< The client ID. Will automatically be truncated to 23 characters.
 };
 
 /** internal struct for MQTT Home Assistant discovery
