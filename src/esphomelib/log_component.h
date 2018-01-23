@@ -11,9 +11,11 @@
 #include <utility>
 #include <vector>
 #include "component.h"
+#include "mqtt/mqtt_component.h"
 #include <esp_log.h>
 #include <cassert>
 #include "esp32-hal-log.h"
+#include "helpers.h"
 
 namespace esphomelib {
 
@@ -30,15 +32,25 @@ class LogComponent : public Component {
    * @param mqtt_topic The topic to push MQTT logs to. Empty string to disable MQTT logging.
    * @param tx_buffer_size The buffer size (in bytes) used for constructing log messages.
    */
-  explicit LogComponent(uint32_t baud_rate = 11520, std::string mqtt_topic = "", size_t tx_buffer_size = 512);
+  explicit LogComponent(uint32_t baud_rate = 11520, size_t tx_buffer_size = 512);
 
   /// Set up this component.
   void pre_setup();
 
   uint32_t get_baud_rate() const;
   void set_baud_rate(uint32_t baud_rate);
-  const std::string &get_mqtt_topic() const;
-  void set_mqtt_topic(const std::string &mqtt_topic);
+
+  /// Set a custom MQTT logging topic. Set to "" for default behavior. This will also enable logging.
+  void set_custom_logging_topic(const std::string &custom_logging_topic);
+
+  /// Return the logging topic, opting for the default if it hasn't been customized.
+  const std::string &get_logging_topic();
+
+  /// Whether logging to MQTT is enabled.
+  bool is_mqtt_logging_enabled() const;
+  /// Enable/Disable logging to MQTT
+  void set_mqtt_logging_enabled(bool mqtt_logging_enabled);
+
   size_t get_tx_buffer_size() const;
   void set_tx_buffer_size(size_t tx_buffer_size);
   /// Set the global log level.
@@ -51,7 +63,8 @@ class LogComponent : public Component {
 
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
-  std::string mqtt_topic_;
+  std::string mqtt_logging_topic_;
+  bool mqtt_logging_enabled_;
 };
 
 void __assert_func(const char *file, int lineno, const char *func, const char *exp);

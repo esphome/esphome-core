@@ -102,6 +102,8 @@ class MQTTComponent : public Component {
   /// Get the MQTT topic for listening to commands.
   const std::string get_command_topic() const;
 
+  /// Get the MQTT topic for a specific suffix/key, if a custom topic has been defined, that one will be used.
+  /// Otherwise, one will be generated with get_default_topic_for().
   const std::string get_topic_for(const std::string &key) const;
 
   /** Send discovery info.

@@ -291,11 +291,11 @@ wifi->set_manual_ip(ManualIP{
 
 ### Disable MQTT Logging
 
-The second argument to `init_log()` denotes the MQTT topic that logs will be written to, leaving this empty disables 
-MQTT Logging.
+The second argument to `init_log()` denotes the MQTT topic that logs will be written to, providing a disabled Optional
+disables MQTT Logging.
 
 ```cpp
-app.init_log(115200, "");
+app.init_log(115200, Optional());
 ```
 
 ### Logging
@@ -310,10 +310,10 @@ To use this in your own code, simply include `esp_log.h`, define a TAG, and use 
 static const char *TAG = "main";
 
 // in your code:
-ESP_LOGV(TAG, "verbose");
-ESP_LOGD(TAG, "debug");
-ESP_LOGI(TAG, "information");
-ESP_LOGW(TAG, "warning");
+ESP_LOGV(TAG, "This is a verbose message.");
+ESP_LOGD(TAG, "This is a debug message.");
+ESP_LOGI(TAG, "This is an informational message.");
+ESP_LOGW(TAG, "This is a warning message.");
 ``` 
 
 > Note: use `set_global_log_level()` and `set_log_level` in `LogComponent` to adjust the global and 

@@ -93,6 +93,15 @@ class MQTTClientComponent : public Component {
   void remove_birth_message();
   const Optional<MQTTMessage> &get_birth_message() const;
 
+  /// Getter for use_status_messages.
+  bool get_use_status_messages() const;
+  /// Set whether this client will automatically send topic_prefix/status on connect/disconnect.
+  /// This will also make all MQTTComponents use Home Assistant availability_topic feature.
+  void set_use_status_messages(bool use_status_messages);
+
+  /// Get the status message topic esphomelib will use by default if use_status_messages is enabled.
+  std::string get_default_status_message_topic() const;
+
   /** Set the Home Assistant discovery info
    *
    * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
@@ -171,7 +180,11 @@ class MQTTClientComponent : public Component {
   void reconnect();
 
   MQTTCredentials credentials_;
+  /// The last will message. Disabled optional denotes it being disabled and
+  /// an empty topic denotes the default value being used.
   Optional<MQTTMessage> last_will_;
+  /// The birth message (e.g. the message that's send on an established connection.
+  /// See last_will_ for what different values denote.
   Optional<MQTTMessage> birth_message_;
   Optional<MQTTDiscoveryInfo> discovery_info_;
   std::string topic_prefix_;
@@ -179,6 +192,7 @@ class MQTTClientComponent : public Component {
   std::vector<MQTTSubscription> subscriptions_;
   PubSubClient mqtt_client_;
   WiFiClient client_;
+  bool use_status_messages_;
 };
 
 extern MQTTClientComponent *global_mqtt_client;

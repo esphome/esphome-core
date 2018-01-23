@@ -65,8 +65,6 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t
       .client_id = generate_hostname(this->name_)
   }, this->name_);
   component->set_discovery_info(discovery_prefix, true);
-  component->set_birth_message(this->name_ + "/status", "online", true);
-  component->set_last_will(this->name_ + "/status", "offline", 0, true);
   this->mqtt_client_ = component;
 
   return this->register_component(component);
@@ -78,15 +76,18 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address,
   return this->init_mqtt(address, 1883, username, password, discovery_prefix);
 }
 
-LogComponent *Application::init_log(uint32_t baud_rate, const std::string &mqtt_topic, size_t tx_buffer_size) {
-  auto *log = new LogComponent(baud_rate, mqtt_topic, tx_buffer_size);
+LogComponent *Application::init_log(uint32_t baud_rate,
+                                    const Optional<std::string> &mqtt_topic,
+                                    size_t tx_buffer_size) {
+  auto *log = new LogComponent(baud_rate, tx_buffer_size);
+  if (mqtt_topic) {
+    if (!mqtt_topic->empty())
+      log->set_custom_logging_topic(mqtt_topic.value);
+  } else {
+    log->set_mqtt_logging_enabled(false);
+  }
   log->pre_setup();
   return this->register_component(log);
-}
-
-LogComponent *Application::init_log(uint32_t baud_rate) {
-  this->assert_name();
-  return this->init_log(baud_rate, this->name_ + "/debug");
 }
 
 ATXComponent *Application::make_atx(uint8_t pin, uint32_t enable_time, uint32_t keep_on_time) {
@@ -186,9 +187,6 @@ MQTTJSONLightComponent *Application::make_mqtt_light(const std::string &friendly
   auto *mqtt = new MQTTJSONLightComponent(friendly_name);
   mqtt->set_state(state);
   return this->register_mqtt_component(mqtt);
-}
-std::string Application::gen_availability_topic() {
-  return this->name_ + "/status";
 }
 WiFiComponent *Application::get_wifi() const {
   return this->wifi_;

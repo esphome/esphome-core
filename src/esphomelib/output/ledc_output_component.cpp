@@ -23,8 +23,6 @@ void LEDCOutputComponent::write_value_f(float adjusted_value) {
   if (duty_non_inverted > 0)
     this->enable_atx();
 
-  ESP_LOGV(TAG, "Setting duty %u on channel %u", duty, this->channel_);
-
   ledcWrite(this->channel_, duty);
 }
 
