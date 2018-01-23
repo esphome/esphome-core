@@ -319,11 +319,29 @@ ESP_LOGW(TAG, "warning");
 > Note: use `set_global_log_level()` and `set_log_level` in `LogComponent` to adjust the global and 
 tag-specific log levels, respectively.
 
-### Friendly Names with non-ASCII characters
+### Setting custom MQTT topics
 
-Home Assistant discovery only allows entity ids with lower/upper case [a-z] and numbers. If you want to use the
-discovery with other characters in the friendly name, you will have to call `set_custom_entity_id()` with the
-ASCII name for the corresponding `MQTTComponent`.  
+If esphomelib's default MQTT topics don't suit your needs, you can override them. For this, there are two options: 
+
+#### 1. Set the global MQTT topic prefix.
+
+By default, all MQTT topics are named with the application name (see `set_name()`), for example `livingroom/...`.
+However, if you want to use your own MQTT topic prefixes like `home/livingroom/node1/...`, this is possible:
+
+```cpp
+auto *mqtt = app.init_mqtt(...);
+mqtt->set_topic_prefix("home/livingroom/node1");
+```
+
+#### 2. Customize the MQTT topics of a MQTTComponent
+ 
+Customizing the MQTT state/command topics of a single MQTTComponent is also possible. Simple call the 
+`set_custom_*_topic()` on your MQTTComponent like this:
+
+```cpp
+auto dht = app.make_dht_component(12, "Livingroom Temperature", "Livingroom Humidity");
+dht.mqtt_temperature->set_custom_state_topic("home/livingroom/node1/temperature/state");
+```
 
 ### OTA Updates
 
