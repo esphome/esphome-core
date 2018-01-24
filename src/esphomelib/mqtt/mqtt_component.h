@@ -23,6 +23,10 @@ struct Availability {
   std::string payload_not_available;
 };
 
+/// All discovery friendly names and node_ids use this whitelist to match the Home Assistant
+/// <a href="https://github.com/home-assistant/home-assistant/blob/dev/homeassistant/components/mqtt/discovery.py#L21">regex</a>.
+const std::string DISCOVERY_CHARACTER_WHITELIST = HOSTNAME_CHARACTER_WHITELIST;
+
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
  *
@@ -98,6 +102,8 @@ class MQTTComponent : public Component {
   /// Get the MQTT topic for listening to commands.
   const std::string get_command_topic() const;
 
+  /// Get the MQTT topic for a specific suffix/key, if a custom topic has been defined, that one will be used.
+  /// Otherwise, one will be generated with get_default_topic_for().
   const std::string get_topic_for(const std::string &key) const;
 
   /** Send discovery info.

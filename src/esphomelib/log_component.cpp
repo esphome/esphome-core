@@ -6,6 +6,7 @@
 #include <HardwareSerial.h>
 #include "log_component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
+#include "application.h"
 
 namespace esphomelib {
 
@@ -20,15 +21,15 @@ int LogComponent::log_vprintf_(const char *format, va_list args) {
       Serial.print(log->tx_buffer_.data());
     }
 
-    if (!log->mqtt_topic_.empty() && mqtt::global_mqtt_client != nullptr)
-      mqtt::global_mqtt_client->publish(log->mqtt_topic_, log->tx_buffer_.data(), true);
+    if (log->mqtt_logging_enabled_ && mqtt::global_mqtt_client != nullptr && mqtt::global_mqtt_client->is_connected())
+      mqtt::global_mqtt_client->publish(log->get_logging_topic(), log->tx_buffer_.data(), true);
   }
 
   return ret;
 }
 
-LogComponent::LogComponent(uint32_t baud_rate, std::string mqtt_topic, size_t tx_buffer_size)
-    : baud_rate_(baud_rate), mqtt_topic_(std::move(mqtt_topic)) {
+LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size)
+    : baud_rate_(baud_rate),  mqtt_logging_enabled_(true) {
   this->set_tx_buffer_size(tx_buffer_size);
 }
 
@@ -44,19 +45,12 @@ void LogComponent::pre_setup() {
 #endif
 
   ESP_LOGI(TAG, "Log initialized");
-  Serial.println("Log initialized (Serial)");
 }
 uint32_t LogComponent::get_baud_rate() const {
   return this->baud_rate_;
 }
 void LogComponent::set_baud_rate(uint32_t baud_rate) {
   this->baud_rate_ = baud_rate;
-}
-const std::string &LogComponent::get_mqtt_topic() const {
-  return this->mqtt_topic_;
-}
-void LogComponent::set_mqtt_topic(const std::string &mqtt_topic) {
-  this->mqtt_topic_ = mqtt_topic;
 }
 void LogComponent::set_global_log_level(esp_log_level_t log_level) {
   this->set_log_level("*", log_level);
@@ -69,6 +63,21 @@ size_t LogComponent::get_tx_buffer_size() const {
 }
 void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) {
   this->tx_buffer_.reserve(tx_buffer_size);
+}
+void LogComponent::set_custom_logging_topic(const std::string &custom_logging_topic) {
+  this->mqtt_logging_topic_ = custom_logging_topic;
+  this->set_mqtt_logging_enabled(true);
+}
+bool LogComponent::is_mqtt_logging_enabled() const {
+  return this->mqtt_logging_enabled_;
+}
+void LogComponent::set_mqtt_logging_enabled(bool mqtt_logging_enabled) {
+  this->mqtt_logging_enabled_ = mqtt_logging_enabled;
+}
+std::string LogComponent::get_logging_topic() {
+  if (this->mqtt_logging_topic_.empty() && mqtt::global_mqtt_client != nullptr)
+    return mqtt::global_mqtt_client->get_topic_prefix() + "/debug";
+  return this->mqtt_logging_topic_;
 }
 
 LogComponent *global_log_component = nullptr;

@@ -87,8 +87,8 @@ void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
   ESP_LOGV(TAG, "[WiFi event] %s (%d)", event_name.c_str(), event);
 }
 
-void WiFiComponent::set_hostname(std::string hostname) {
-  this->hostname_ = std::move(hostname);
+void WiFiComponent::set_hostname(const std::string &hostname) {
+  this->hostname_ = sanitize_hostname(hostname);
 }
 
 void WiFiComponent::set_manual_ip(Optional<ManualIP> manual_ip) {

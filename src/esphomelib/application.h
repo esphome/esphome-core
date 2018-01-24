@@ -38,6 +38,8 @@ namespace esphomelib {
  */
 class Application {
  public:
+  Application();
+
   /** Set the name of the item that is running this app.
    *
    * Note: This will automatically be converted to lowercase_underscore.
@@ -49,20 +51,13 @@ class Application {
   /** Initialize the log system.
    *
    * @param baud_rate The serial baud rate. Set to 0 to disable UART debugging.
-   * @param mqtt_topic The MQTT debug topic. Set to "" to disable debugging via MQTT.
+   * @param mqtt_topic The MQTT debug topic. Set to "" to for default topic, and disable the optional for disabling this feature.
    * @param tx_buffer_size The size of the printf buffer.
    * @return The created and initialized LogComponent.
    */
-  LogComponent *init_log(uint32_t baud_rate, const std::string &mqtt_topic, size_t tx_buffer_size = 512);
-
-  /** Initialize the log system.
-   *
-   * Note: automatically enables MQTT debugging.
-   *
-   * @param baud_rate The serial baud rate. Set to 0 to disable UART debugging.
-   * @return The created and initialized LogComponent.
-   */
-  LogComponent *init_log(uint32_t baud_rate = 115200);
+  LogComponent *init_log(uint32_t baud_rate = 115200,
+                         const Optional<std::string> &mqtt_topic = Optional<std::string>(""),
+                         size_t tx_buffer_size = 512);
 
   /** Initialize the WiFi system.
    *
@@ -297,14 +292,14 @@ class Application {
   /// Make a loop iteration. Call this in your loop() function.
   void loop();
 
-  /// Generate a MQTT availability topic.
-  std::string gen_availability_topic();
-
   WiFiComponent *get_wifi() const;
   mqtt::MQTTClientComponent *get_mqtt_client() const;
 
   /// Assert that name has been set.
   void assert_name() const;
+
+  /// Get the name of this Application set by set_name().
+  const std::string &get_name() const;
 
  protected:
   std::vector<Component *> components_;
@@ -313,6 +308,9 @@ class Application {
 
   std::string name_;
 };
+
+/// Global storage of Application pointer - only one Application can exist.
+extern Application *global_application;
 
 template<class C>
 C *Application::register_component(C *c) {
@@ -324,11 +322,12 @@ C *Application::register_component(C *c) {
 template<class C>
 C *Application::register_mqtt_component(C *c) {
   mqtt::MQTTComponent *component = c;
-  component->set_availability(mqtt::Availability{
-      .topic = this->gen_availability_topic(),
-      .payload_available = "online",
-      .payload_not_available = "offline"
-  });
+  if (mqtt::global_mqtt_client->get_use_status_messages())
+    component->set_availability(mqtt::Availability{
+        .topic = mqtt::global_mqtt_client->get_default_status_message_topic(),
+        .payload_available = "online",
+        .payload_not_available = "offline"
+    });
   return this->register_component(c);
 }
 
