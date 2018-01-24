@@ -226,6 +226,11 @@ and the GPIO pin like this:
 app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class::MOTION, 36);
 ```
 
+#### Fan
+
+Fans can be created by first calling `app.make_fan("Friendly Name")` and then using the return value
+to set the output channels. See [`examples/fan-example.cpp`](examples/fan-example.cpp) for an example.
+
 ## Current Features
 
 * Powerful core that allows for easy creation of new, custom components
@@ -266,6 +271,7 @@ app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class
 * Refine default options
 * Pulse Counter
 * Status LED
+* Covers
 * **Suggestions?** Feel free to create an issue and tag it with feature-request.
 
 ## Advanced Options

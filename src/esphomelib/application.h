@@ -21,6 +21,9 @@
 #include <DallasTemperature.h>
 #include <esphomelib/input/dallas_component.h>
 #include <esphomelib/switch_platform/simple_switch.h>
+#include <src/esphomelib/fan/mqtt_fan_component.h>
+#include <src/esphomelib/fan/basic_fan_component.h>
+#include <src/esphomelib/output/gpio_binary_output_component.h>
 #include "component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "wifi_component.h"
@@ -276,6 +279,24 @@ class Application {
   /// Create a MQTTSwitchComponent for the provided Switch.
   switch_platform::MQTTSwitchComponent *make_mqtt_switch_for(const std::string &friendly_name,
                                                              switch_platform::Switch *switch_);
+
+  // ======================= FAN =======================
+
+  struct FanStruct {
+    fan::BasicFanComponent *output;
+    fan::FanState *state;
+    fan::MQTTFanComponent *mqtt;
+  };
+
+  /// Create a GPIO binary output component on the specified pin and pinMode.
+  output::GPIOBinaryOutputComponent *make_gpio_binary_output(uint8_t pin, uint8_t mode = OUTPUT);
+
+  /** Create and connect a Fan with the specified friendly name.
+   *
+   * @param friendly_name The friendly name of the Fan to advertise.
+   * @return A FanStruct, use the output field to set your output channels.
+   */
+  FanStruct make_fan(const std::string &friendly_name);
 
   // ======================= FUNCTIONS =======================
 

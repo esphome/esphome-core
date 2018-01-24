@@ -18,6 +18,7 @@ using namespace esphomelib::binary_sensor;
 using namespace esphomelib::sensor;
 using namespace esphomelib::output;
 using namespace esphomelib::light;
+using namespace esphomelib::fan;
 using namespace esphomelib::switch_platform;
 
 static const char *TAG = "app";
@@ -258,7 +259,7 @@ input::DallasComponent *Application::make_dallas_component(uint8_t pin) {
 
 Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t pin,
                                                                          const std::string &friendly_name) {
-  auto *binary_output = this->register_component(new GPIOBinaryOutputComponent(pin));
+  auto *binary_output = this->make_gpio_binary_output(pin);
   auto *simple_switch = new SimpleSwitch(binary_output);
   auto *mqtt = this->make_mqtt_switch_for(friendly_name, simple_switch);
 
@@ -270,6 +271,21 @@ Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t
 
 const std::string &Application::get_name() const {
   return this->name_;
+}
+
+
+Application::FanStruct Application::make_fan(const std::string &friendly_name) {
+  FanStruct s{};
+  s.state = new FanState();
+  s.mqtt = this->register_mqtt_component(new MQTTFanComponent(friendly_name));
+  s.output = this->register_component(new BasicFanComponent());
+  s.mqtt->set_state(s.state);
+  s.output->set_state(s.state);
+  return s;
+}
+
+output::GPIOBinaryOutputComponent *Application::make_gpio_binary_output(uint8_t pin, uint8_t mode) {
+  return this->register_component(new GPIOBinaryOutputComponent(pin, mode));
 }
 
 Application::Application() {

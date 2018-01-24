@@ -33,6 +33,7 @@ script:
   - platformio run -e livingroom
   - platformio run -e dht-dallas-sensors
   - platformio run -e switch-binarysensor
+  - platformio run -e fan-example
 
 
 #
