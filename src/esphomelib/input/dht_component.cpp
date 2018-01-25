@@ -3,7 +3,7 @@
 //
 
 #include <esp_log.h>
-#include <cmath>
+#include <esphomelib/espmath.h>
 #include "dht_component.h"
 
 namespace esphomelib {
@@ -34,11 +34,11 @@ void DHTComponent::setup() {
     }
     ESP_LOGV(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
-    if (!std::isnan(temperature))
+    if (!isnan(temperature))
       this->temperature_sensor_->push_new_value(temperature, this->dht_.getNumberOfDecimalsTemperature());
     else ESP_LOGE(TAG, "Invalid Temperature: %f", temperature);
 
-    if (!std::isnan(humidity))
+    if (!isnan(humidity))
       this->humidity_sensor_->push_new_value(humidity, this->dht_.getNumberOfDecimalsHumidity());
     else ESP_LOGE(TAG, "Invalid Humidity: %f", humidity);
   });

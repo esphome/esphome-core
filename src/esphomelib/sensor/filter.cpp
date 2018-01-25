@@ -3,8 +3,8 @@
 //
 
 #include "filter.h"
-#include <cmath>
 #include <esp_log.h>
+#include <esphomelib/espmath.h>
 
 namespace esphomelib {
 
@@ -63,7 +63,7 @@ void ExponentialMovingAverageFilter::new_value(float value, int8_t accuracy_deci
   if (++this->send_at_ >= this->send_every_) {
     this->send_at_ = 0;
     float av_value = this->value_average_.calculate_average();
-    auto av_accuracy = int8_t(std::roundf(this->accuracy_average_.calculate_average()));
+    auto av_accuracy = int8_t(lroundf(this->accuracy_average_.calculate_average()));
     this->send_value(av_value, av_accuracy);
   }
 }

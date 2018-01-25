@@ -3,12 +3,12 @@
 //
 
 #include "light_color_values.h"
-#include <cmath>
 #include <esphomelib/helpers.h>
 #include <esphomelib/component.h>
 #include <esp_log.h>
 #include <sstream>
 #include <iomanip>
+#include <esphomelib/espmath.h>
 
 namespace esphomelib {
 
@@ -170,15 +170,15 @@ void LightColorValues::from_xyz(float v_x, float v_y, float brightness) {
   float g = -X * 0.707196f + Y * 1.655397f + Z * 0.036152f;
   float b = X * 0.051713f - Y * 0.121364f + Z * 1.011530f;
 
-  r = (r <= 0.0031308f) ? (12.92f * r) : ((1.055f) * std::pow(r, (1.0f / 2.4f)) - 0.055f);
-  g = (g <= 0.0031308f) ? (12.92f * g) : ((1.055f) * std::pow(g, (1.0f / 2.4f)) - 0.055f);
-  b = (b <= 0.0031308f) ? (12.92f * b) : ((1.055f) * std::pow(b, (1.0f / 2.4f)) - 0.055f);
+  r = (r <= 0.0031308f) ? (12.92f * r) : ((1.055f) * powf(r, (1.0f / 2.4f)) - 0.055f);
+  g = (g <= 0.0031308f) ? (12.92f * g) : ((1.055f) * powf(g, (1.0f / 2.4f)) - 0.055f);
+  b = (b <= 0.0031308f) ? (12.92f * b) : ((1.055f) * powf(b, (1.0f / 2.4f)) - 0.055f);
 
   if (r < 0.0f) r = 0.0f;
   if (g < 0.0f) g = 0.0f;
   if (b < 0.0f) b = 0.0f;
 
-  float max_comp = std::max(r, std::max(g, b));
+  float max_comp = fmaxf(r, fmaxf(g, b));
   if (max_comp > 1.0f) {
     this->set_red(r / max_comp);
     this->set_green(g / max_comp);
@@ -189,9 +189,9 @@ void LightColorValues::from_xyz(float v_x, float v_y, float brightness) {
 
 void LightColorValues::normalize_color(const LightTraits &traits) {
   if (traits.supports_rgb()) {
-    float max_value = std::max(this->get_red(), std::max(this->get_green(), this->get_blue()));
+    float max_value = fmaxf(this->get_red(), fmaxf(this->get_green(), this->get_blue()));
     if (traits.supports_rgbw()) {
-      max_value = std::max(max_value, this->get_white());
+      max_value = fmaxf(max_value, this->get_white());
       this->set_white(this->get_white() / max_value);
     }
     this->set_red(this->get_red() / max_value);

@@ -5,10 +5,8 @@
 #include "helpers.h"
 #include <cstdio>
 #include <Esp.h>
-#include <cmath>
 #include <algorithm>
-#include <esp_log.h>
-#include <sstream>
+#include <esphomelib/espmath.h>
 
 namespace esphomelib {
 
@@ -44,7 +42,7 @@ float gamma_correct(float value, float gamma) {
   if (gamma <= 0.0f)
     return value;
 
-  return std::pow(value, gamma);
+  return powf(value, gamma);
 }
 std::string to_lowercase_underscore(std::string s) {
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);

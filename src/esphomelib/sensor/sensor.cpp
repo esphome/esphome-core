@@ -2,7 +2,6 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <cmath>
 #include <utility>
 #include "sensor.h"
 
