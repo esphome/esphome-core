@@ -21,9 +21,9 @@
 #include <DallasTemperature.h>
 #include <esphomelib/input/dallas_component.h>
 #include <esphomelib/switch_platform/simple_switch.h>
-#include <src/esphomelib/fan/mqtt_fan_component.h>
-#include <src/esphomelib/fan/basic_fan_component.h>
-#include <src/esphomelib/output/gpio_binary_output_component.h>
+#include <esphomelib/fan/mqtt_fan_component.h>
+#include <esphomelib/fan/basic_fan_component.h>
+#include <esphomelib/output/gpio_binary_output_component.h>
 #include "component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "wifi_component.h"
