@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <esphomelib/espmath.h>
+#include <esphomelib/esp_preferences.h>
 
 namespace esphomelib {
 
@@ -92,26 +93,22 @@ LightColorValues::LightColorValues(float state, float brightness, float red, flo
   this->set_white(white);
 }
 
-void LightColorValues::load_from_preferences(Preferences *preferences) {
-  if (preferences == nullptr)
-    return;
-  this->set_state(preferences->getFloat("state", this->get_state()));
-  this->set_brightness(preferences->getFloat("brightness", this->get_brightness()));
-  this->set_red(preferences->getFloat("red", this->get_red()));
-  this->set_green(preferences->getFloat("green", this->get_green()));
-  this->set_blue(preferences->getFloat("blue", this->get_blue()));
-  this->set_white(preferences->getFloat("white", this->get_white()));
+void LightColorValues::load_from_preferences(const std::string &friendly_name) {
+  this->set_state(global_preferences.get_float(friendly_name, "state", this->get_state()));
+  this->set_brightness(global_preferences.get_float(friendly_name, "brightness", this->get_brightness()));
+  this->set_red(global_preferences.get_float(friendly_name, "red", this->get_red()));
+  this->set_green(global_preferences.get_float(friendly_name, "green", this->get_green()));
+  this->set_blue(global_preferences.get_float(friendly_name, "blue", this->get_blue()));
+  this->set_white(global_preferences.get_float(friendly_name, "white", this->get_white()));
 }
 
-void LightColorValues::save_to_preferences(Preferences *preferences) const {
-  if (preferences == nullptr)
-    return;
-  preferences->putFloat("state", this->get_state());
-  preferences->putFloat("brightness", this->get_brightness());
-  preferences->putFloat("red", this->get_red());
-  preferences->putFloat("green", this->get_green());
-  preferences->putFloat("blue", this->get_blue());
-  preferences->putFloat("white", this->get_white());
+void LightColorValues::save_to_preferences(const std::string &friendly_name) const {
+  global_preferences.put_float(friendly_name, "state", this->get_state());
+  global_preferences.put_float(friendly_name, "brightness", this->get_brightness());
+  global_preferences.put_float(friendly_name, "red", this->get_red());
+  global_preferences.put_float(friendly_name, "green", this->get_green());
+  global_preferences.put_float(friendly_name, "blue", this->get_blue());
+  global_preferences.put_float(friendly_name, "white", this->get_white());
 }
 
 void LightColorValues::parse_json(const JsonObject &root) {

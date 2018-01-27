@@ -16,7 +16,7 @@ using fan_send_callback_t = std::function<void()>;
 
 class FanState {
  public:
-  enum Speed { SPEED_OFF, SPEED_LOW, SPEED_MEDIUM, SPEED_HIGH };
+  enum Speed { SPEED_OFF = 0, SPEED_LOW, SPEED_MEDIUM, SPEED_HIGH };
 
   void set_send_callback(const fan_send_callback_t &send_callback);
   void set_update_callback(const fan_send_callback_t &update_callback);
@@ -29,6 +29,9 @@ class FanState {
   void set_speed(Speed speed);
   const FanTraits &get_traits() const;
   void set_traits(const FanTraits &traits);
+
+  void load_from_preferences(const std::string &friendly_name);
+  void save_to_preferences(const std::string &friendly_name);
 
  protected:
   bool state_{false};

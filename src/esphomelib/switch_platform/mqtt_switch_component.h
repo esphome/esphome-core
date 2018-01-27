@@ -25,7 +25,8 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
  protected:
   std::string component_type() const override;
 
- private:
+  void send_state(bool state);
+
   binary_sensor::binary_callback_t write_value_callback_;
 };
 

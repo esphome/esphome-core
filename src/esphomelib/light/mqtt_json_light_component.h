@@ -28,8 +28,6 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
 
   void loop() override;
 
-  const Preferences &get_preferences() const;
-
  protected:
   std::string component_type() const override;
 
@@ -38,7 +36,6 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
   void send_light_values();
 
   LightState *state_;
-  Preferences preferences_;
   uint32_t default_transition_length_;
   bool next_send_;
 };

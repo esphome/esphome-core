@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <esp_log.h>
 #include <esphomelib/output/gpio_binary_output_component.h>
+#include <esphomelib/esp_preferences.h>
 
 namespace esphomelib {
 
@@ -52,7 +53,9 @@ WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string
 }
 
 void Application::set_name(const std::string &name) {
+  assert(this->name_.empty() && "name was already set!");
   this->name_ = to_lowercase_underscore(name);
+  global_preferences.begin(name);
 }
 
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,

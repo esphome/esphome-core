@@ -36,9 +36,8 @@ void MQTTJSONLightComponent::setup() {
     }
   }, true, true, "mqtt_json");
 
-  this->preferences_.begin(this->get_friendly_name().c_str());
   LightColorValues recovered_values;
-  recovered_values.load_from_preferences(&this->preferences_);
+  recovered_values.load_from_preferences(this->friendly_name_);
   this->state_->set_immediately(recovered_values);
 
   this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
@@ -86,7 +85,7 @@ MQTTJSONLightComponent::MQTTJSONLightComponent(std::string friendly_name)
 void MQTTJSONLightComponent::send_light_values() {
   assert_setup(this);
   LightColorValues remote_values = this->state_->get_remote_values();
-  remote_values.save_to_preferences(&this->preferences_);
+  remote_values.save_to_preferences(this->friendly_name_);
   this->send_json_message(this->get_state_topic(), [&](JsonBuffer &buffer, JsonObject &root) {
     assert_not_nullptr(this->state_);
     if (this->state_->supports_effects())
@@ -107,9 +106,6 @@ uint32_t MQTTJSONLightComponent::get_default_transition_length() const {
 }
 LightState *MQTTJSONLightComponent::get_state() const {
   return this->state_;
-}
-const Preferences &MQTTJSONLightComponent::get_preferences() const {
-  return this->preferences_;
 }
 void MQTTJSONLightComponent::loop() {
   if (this->next_send_) {

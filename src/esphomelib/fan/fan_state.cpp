@@ -3,6 +3,7 @@
 //
 
 #include "fan_state.h"
+#include <esphomelib/esp_preferences.h>
 
 namespace esphomelib {
 
@@ -49,6 +50,16 @@ void FanState::set_send_callback(const fan_send_callback_t &send_callback) {
 }
 void FanState::set_update_callback(const fan_send_callback_t &update_callback) {
   this->update_callback_ = update_callback;
+}
+void FanState::load_from_preferences(const std::string &friendly_name) {
+  this->set_state(global_preferences.get_bool(friendly_name, "state", false));
+  this->set_oscillating(global_preferences.get_bool(friendly_name, "oscillating", false));
+  this->set_speed(static_cast<Speed>(global_preferences.get_int32(friendly_name, "speed", SPEED_HIGH)));
+}
+void FanState::save_to_preferences(const std::string &friendly_name) {
+  global_preferences.put_bool(friendly_name, "state", this->get_state());
+  global_preferences.put_bool(friendly_name, "oscillating", this->is_oscillating());
+  global_preferences.put_int32(friendly_name, "speed", this->get_speed());
 }
 
 } // namespace fan
