@@ -38,8 +38,7 @@ void DallasComponent::setup() {
   ESP_LOGI(TAG, "Device Count: %d", this->dallas_.getDeviceCount());
   this->dallas_.setWaitForConversion(false);
 
-  for (int i = 0; i < this->sensors_.size(); i++) {
-    DallasTemperatureSensor *sensor = this->sensors_[i];
+  for (auto sensor : this->sensors_) {
     if (sensor->get_address() == 0) {
       bool result = this->dallas_.getAddress(sensor->get_address8(), sensor->get_index());
       assert(result);
@@ -92,19 +91,14 @@ DallasTemperatureSensor *DallasComponent::get_sensor_by_index(uint8_t index,
   return s;
 }
 void DallasComponent::request_temperature(DallasTemperatureSensor *sensor) {
-  {
-    portDISABLE_INTERRUPTS();
+  run_without_interrupts<void>([this, sensor] {
     this->dallas_.requestTemperaturesByAddress(sensor->get_address8());
-    portENABLE_INTERRUPTS();
-  }
+  });
 
   this->set_timeout(sensor->get_name(), sensor->millis_to_wait_for_conversion(), [this, sensor] {
-    float temperature;
-    {
-      portDISABLE_INTERRUPTS();
-      temperature = this->dallas_.getTempC(sensor->get_address8());
-      portENABLE_INTERRUPTS();
-    }
+    float temperature = run_without_interrupts<float>([this, sensor] {
+      return this->dallas_.getTempC(sensor->get_address8());
+    });
 
     if (temperature != DEVICE_DISCONNECTED_C) {
       ESP_LOGV(TAG, "0x%s: Got Temperature=%.1f°C", sensor->get_name().c_str(), temperature);

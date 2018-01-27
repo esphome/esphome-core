@@ -88,4 +88,11 @@ float ExponentialMovingAverage::next_value(float value) {
   return this->calculate_average();
 }
 
+template<>
+void run_without_interrupts<void>(const std::function<void()> &f) {
+  portDISABLE_INTERRUPTS();
+  f();
+  portENABLE_INTERRUPTS();
+}
+
 } // namespace esphomelib
