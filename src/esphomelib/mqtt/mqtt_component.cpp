@@ -82,8 +82,10 @@ void MQTTComponent::send_discovery(const json_build_t &f,
     if (this->get_availability()) {
       assert(!this->availability_->topic.empty());
       root["availability_topic"] = buffer.strdup(this->availability_->topic.c_str());
-      root["payload_available"] = buffer.strdup(this->availability_->payload_available.c_str());
-      root["payload_not_available"] = buffer.strdup(this->availability_->payload_not_available.c_str());
+      if (this->availability_->payload_available != "online")
+        root["payload_available"] = buffer.strdup(this->availability_->payload_available.c_str());
+      if (this->availability_->payload_not_available != "offline")
+        root["payload_not_available"] = buffer.strdup(this->availability_->payload_not_available.c_str());
     }
 
     f(buffer, root);

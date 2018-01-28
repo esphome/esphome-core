@@ -133,13 +133,11 @@ Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
                                                               const std::string &humidity_friendly_name,
                                                               uint32_t check_interval) {
   auto *dht = new DHTComponent(pin, check_interval);
+  // Expire after 30 missed values
+  uint32_t expire_after = check_interval * 30 / 1000;
   auto *mqtt_temperature =
-      this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name);
-  auto *mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name);
-  mqtt_temperature->set_filter(new SlidingWindowMovingAverageFilter(15, 15));
-  mqtt_temperature->set_expire_after(check_interval * 30 / 1000);
-  mqtt_humidity->set_filter(new SlidingWindowMovingAverageFilter(15, 15));
-  mqtt_humidity->set_expire_after(check_interval * 30 / 1000);
+      this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name, expire_after);
+  auto *mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name, expire_after);
   this->register_component(dht);
   return MakeDHTComponent{
       .dht = dht,
@@ -150,9 +148,12 @@ Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
 
 sensor::MQTTSensorComponent *Application::make_mqtt_sensor_for(sensor::Sensor *sensor,
                                                                std::string friendly_name,
-                                                               Optional<uint32_t> expire_after) {
+                                                               Optional<uint32_t> expire_after,
+                                                               Optional<size_t> moving_average_size) {
   auto *mqtt = this->make_mqtt_sensor(std::move(friendly_name), sensor->unit_of_measurement(), expire_after);
   sensor->set_new_value_callback(mqtt->create_new_data_callback());
+  if (moving_average_size)
+    mqtt->set_filter(new SlidingWindowMovingAverageFilter(moving_average_size.value, moving_average_size.value));
   return mqtt;
 }
 
@@ -275,7 +276,6 @@ Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t
 const std::string &Application::get_name() const {
   return this->name_;
 }
-
 
 Application::FanStruct Application::make_fan(const std::string &friendly_name) {
   FanStruct s{};

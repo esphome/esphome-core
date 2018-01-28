@@ -11,15 +11,12 @@ namespace esphomelib {
 void ESPPreferences::begin(const std::string &name) {
   this->preferences_.begin(truncate_string(name, 15).c_str());
 }
-std::string ESPPreferences::hash_friendly_name(const std::string &friendly_name) {
+std::string ESPPreferences::get_preference_key(const std::string &friendly_name, const std::string &key) {
   // TODO: Improve this - the hash function is less than ideal.
   size_t h = std::hash<std::string>{}(friendly_name);
-  char buffer[9];
+  char buffer[8];
   snprintf(buffer, sizeof(buffer), "%0zx", h);
-  return std::string(buffer);
-}
-std::string ESPPreferences::get_preference_key(const std::string &friendly_name, const std::string &key) {
-  std::string name_hash = this->hash_friendly_name(friendly_name);
+  std::string name_hash = std::string(buffer);
   std::string trunc_key = truncate_string(key, 7);
   return name_hash + "-" + trunc_key;
 }

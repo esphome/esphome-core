@@ -39,8 +39,6 @@ class ESPPreferences {
   double get_double(const std::string &friendly_name, const std::string &key, double default_value);
 
  private:
-  /// Hash the friendly name so that it fits in 8 characters.
-  std::string hash_friendly_name(const std::string &friendly_name);
 
   /// Return a key for the nvs storage by hashing the friendly name and truncating the key to 7 characters.
   std::string get_preference_key(const std::string &friendly_name, const std::string &key);

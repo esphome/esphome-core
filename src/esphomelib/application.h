@@ -151,7 +151,8 @@ class Application {
 
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
   sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string friendly_name,
-                                                    Optional<uint32_t> expire_after = Optional<uint32_t>());
+                                                    Optional<uint32_t> expire_after = Optional<uint32_t>(300),
+                                                    Optional<size_t> moving_average_size = Optional<size_t>(15));
 
   struct MakeDHTComponent {
     input::DHTComponent *dht;

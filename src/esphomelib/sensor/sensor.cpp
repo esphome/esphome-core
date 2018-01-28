@@ -16,7 +16,8 @@ void Sensor::set_new_value_callback(sensor_callback_t callback) {
 }
 
 void Sensor::push_new_value(float value, int8_t accuracy_decimals) {
-  this->callback_(value, accuracy_decimals);
+  if (this->callback_)
+    this->callback_(value, accuracy_decimals);
 }
 
 std::string TemperatureSensor::unit_of_measurement() {
