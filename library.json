@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/OttoWinter/esphomelib.git"
   },
-  "version": "0.3.3",
+  "version": "0.3.4",
   "authors": [
     {
       "name": "Otto Winter",
