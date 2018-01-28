@@ -17,7 +17,7 @@ std::string MQTTBinarySensorComponent::component_type() const {
 void MQTTBinarySensorComponent::setup() {
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     assert(!this->device_class_.empty());
-    root["device_class"] = this->get_device_class().c_str();
+    root["device_class"] = buffer.strdup(this->get_device_class().c_str());
   }, true, false);
 }
 

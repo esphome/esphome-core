@@ -21,7 +21,7 @@ MQTTSensorComponent::MQTTSensorComponent(std::string friendly_name,
 
 void MQTTSensorComponent::setup() {
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    root["unit_of_measurement"] = this->unit_of_measurement_.c_str();
+    root["unit_of_measurement"] = buffer.strdup(this->unit_of_measurement_.c_str());
     if (this->expire_after_)
       root["expire_after"] = this->expire_after_.value;
   }, true, false);
