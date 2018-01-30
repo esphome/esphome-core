@@ -38,7 +38,7 @@ void loop() {
 }
 ```
 
-And voilà - esphomelib will now automatically manage everything such as logging to MQTT, Home Assistant MQTT-discovery, 
+And voilà - esphomelib will now automatically manage everything such as logging to MQTT, Home Assistant MQTT discovery, 
 OTA updates, light effects/transitions, WiFi reconnects, etc. for you - amazing, right?
 
 ## Powerful Core
@@ -231,13 +231,24 @@ app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class
 Fans can be created by first calling `app.make_fan("Friendly Name")` and then using the return value
 to set the output channels. See [`examples/fan-example.cpp`](examples/fan-example.cpp) for an example.
 
+## Home Assistant Configuration
+
+To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/) must be enable with the topic `discovery/`.
+
+```yaml
+mqtt:
+  broker: 192.168.0.2
+  discovery: True
+  discovery_prefix: discovery
+```
+
 ## Current Features
 
 * Powerful core that allows for easy creation of new, custom components
 * Automatic WiFi handling (reconnects, etc.)
 * Automatic MQTT handling (birth messages, last will testaments, reconnects, etc.)
 * Powerful, (colored - yay) logging to Serial **and** MQTT
-* Over the Air updates
+* Over the Air (OTA) updates
 * Home Assistant automatic MQTT discovery
 * Binary Sensors
 * Switches
@@ -245,7 +256,7 @@ to set the output channels. See [`examples/fan-example.cpp`](examples/fan-exampl
     - ON/OFF
     - Speed
     - Oscillation
-* Dallas ds18b20 temperature sensors (with "DallasTemperature" library)
+* Dallas DS18b20 temperature sensors (with "DallasTemperature" library)
 * DHT11/DHT22 temperature/humidity sensors (with "DHT" library)
 * Lights
     - Binary/Brightness-only/RGB/RGBW
@@ -261,7 +272,7 @@ to set the output channels. See [`examples/fan-example.cpp`](examples/fan-exampl
 * Arduino IDE support (if possible)
 * ESP8266 support
 * Multiple WiFi Networks
-* internal ADC
+* Internal ADC
 * IR Receiver via remote control peripheral
 * Improve documentation
 * Testing
@@ -272,7 +283,7 @@ to set the output channels. See [`examples/fan-example.cpp`](examples/fan-exampl
 * Pulse Counter
 * Status LED
 * Covers
-* **Suggestions?** Feel free to create an issue and tag it with feature-request.
+* **Suggestions?** Feel free to create an issue and tag it with feature request.
 
 ## Advanced Options
 
