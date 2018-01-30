@@ -5,10 +5,8 @@
 #include "helpers.h"
 #include <cstdio>
 #include <Esp.h>
-#include <cmath>
 #include <algorithm>
-#include <esp_log.h>
-#include <sstream>
+#include <esphomelib/espmath.h>
 
 namespace esphomelib {
 
@@ -44,11 +42,30 @@ float gamma_correct(float value, float gamma) {
   if (gamma <= 0.0f)
     return value;
 
-  return std::pow(value, gamma);
+  return powf(value, gamma);
 }
 std::string to_lowercase_underscore(std::string s) {
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);
   std::replace(s.begin(), s.end(), ' ', '_');
+  return s;
+}
+
+std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist) {
+  std::string out(s);
+  out.erase(std::remove_if(out.begin(), out.end(), [&out, &whitelist](const char &c) {
+    return whitelist.find(c) == std::string::npos;
+  }), out.end());
+  return out;
+}
+
+std::string sanitize_hostname(const std::string &hostname) {
+  std::string s = sanitize_string_whitelist(hostname, HOSTNAME_CHARACTER_WHITELIST);
+  return truncate_string(s, 63);
+}
+
+std::string truncate_string(const std::string &s, size_t length) {
+  if (s.length() > length)
+    return s.substr(0, length);
   return s;
 }
 
@@ -69,6 +86,13 @@ float ExponentialMovingAverage::calculate_average() {
 float ExponentialMovingAverage::next_value(float value) {
   this->accumulator_ = (this->alpha_ * value) + (1.0f - this->alpha_) * this->accumulator_;
   return this->calculate_average();
+}
+
+template<>
+void run_without_interrupts<void>(const std::function<void()> &f) {
+  portDISABLE_INTERRUPTS();
+  f();
+  portENABLE_INTERRUPTS();
 }
 
 } // namespace esphomelib

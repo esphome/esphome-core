@@ -38,19 +38,19 @@ void DallasComponent::setup() {
   ESP_LOGI(TAG, "Device Count: %d", this->dallas_.getDeviceCount());
   this->dallas_.setWaitForConversion(false);
 
-  for (int i = 0; i < this->sensors_.size(); i++) {
-    DallasTemperatureSensor *sensor = this->sensors_[i];
+  for (auto sensor : this->sensors_) {
     if (sensor->get_address() == 0) {
       bool result = this->dallas_.getAddress(sensor->get_address8(), sensor->get_index());
-      assert(result);
+      assert(result && "Couldn't find sensor by index (probably because not all sensors are connected.)");
     }
     assert(this->dallas_.isConnected(sensor->get_address8()));
 
     ESP_LOGD(TAG, "Device 0x%s:", sensor->get_name().c_str());
+    if (sensor->get_address() == 0)
+      ESP_LOGD(TAG, "    Index: %u", sensor->get_index());
     ESP_LOGD(TAG, "    Resolution: %u", sensor->get_resolution());
     this->dallas_.setResolution(sensor->get_address8(), sensor->get_resolution(), true);
     ESP_LOGD(TAG, "    Accuracy Decimals: %u", sensor->get_accuracy_decimals());
-
     ESP_LOGD(TAG, "    Check Interval: %u", sensor->get_check_interval());
 
     this->set_interval(sensor->get_name(), sensor->get_check_interval(), [this, sensor]{
@@ -64,13 +64,15 @@ uint8_t DallasComponent::get_device_count() {
 
 std::vector<uint64_t> DallasComponent::scan_devices() {
   std::vector<uint64_t> v;
-  uint64_t address = 0;
-  auto *address8 = reinterpret_cast<uint8_t *>(&address);
-  OneWire *ow = this->one_wire_;
 
-  ow->reset_search();
-  while (ow->search(address8))
-    v.push_back(address);
+  run_without_interrupts<void>([&] {
+    uint64_t address = 0;
+    auto *address8 = reinterpret_cast<uint8_t *>(&address);
+    OneWire *ow = this->one_wire_;
+    ow->reset_search();
+    while (ow->search(address8))
+      v.push_back(address);
+  });
 
   return v;
 }
@@ -92,19 +94,14 @@ DallasTemperatureSensor *DallasComponent::get_sensor_by_index(uint8_t index,
   return s;
 }
 void DallasComponent::request_temperature(DallasTemperatureSensor *sensor) {
-  {
-    portDISABLE_INTERRUPTS();
+  run_without_interrupts<void>([this, sensor] {
     this->dallas_.requestTemperaturesByAddress(sensor->get_address8());
-    portENABLE_INTERRUPTS();
-  }
+  });
 
   this->set_timeout(sensor->get_name(), sensor->millis_to_wait_for_conversion(), [this, sensor] {
-    float temperature;
-    {
-      portDISABLE_INTERRUPTS();
-      temperature = this->dallas_.getTempC(sensor->get_address8());
-      portENABLE_INTERRUPTS();
-    }
+    auto temperature = run_without_interrupts<float>([this, sensor] {
+      return this->dallas_.getTempC(sensor->get_address8());
+    });
 
     if (temperature != DEVICE_DISCONNECTED_C) {
       ESP_LOGV(TAG, "0x%s: Got Temperature=%.1f°C", sensor->get_name().c_str(), temperature);

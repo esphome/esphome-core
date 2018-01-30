@@ -3,8 +3,7 @@
 //
 
 #include "mqtt_sensor_component.h"
-#include <cmath>
-#include <stdlib_noniso.h>
+#include "esphomelib/espmath.h"
 
 namespace esphomelib {
 
@@ -60,7 +59,7 @@ void MQTTSensorComponent::set_filter(Filter *filter) {
 
 void MQTTSensorComponent::push_out_value(float value, int8_t accuracy_decimals) {
   auto multiplier = float(pow10(accuracy_decimals));
-  float value_rounded = std::lroundf(value * multiplier) / multiplier;
+  float value_rounded = roundf(value * multiplier) / multiplier;
   char tmp[32];
   dtostrf(value_rounded, 0, uint8_t(std::max(0, int(accuracy_decimals))), tmp);
   this->send_message(this->get_state_topic(), tmp);

@@ -52,7 +52,7 @@ struct MQTTCredentials {
   uint16_t port; ///< The port number of the server.
   std::string username;
   std::string password;
-  std::string client_id;
+  std::string client_id; ///< The client ID. Will automatically be truncated to 23 characters.
 };
 
 /** internal struct for MQTT Home Assistant discovery
@@ -93,6 +93,15 @@ class MQTTClientComponent : public Component {
   void remove_birth_message();
   const Optional<MQTTMessage> &get_birth_message() const;
 
+  /// Getter for use_status_messages.
+  bool get_use_status_messages() const;
+  /// Set whether this client will automatically send topic_prefix/status on connect/disconnect.
+  /// This will also make all MQTTComponents use Home Assistant availability_topic feature.
+  void set_use_status_messages(bool use_status_messages);
+
+  /// Get the status message topic esphomelib will use by default if use_status_messages is enabled.
+  std::string get_default_status_message_topic() const;
+
   /** Set the Home Assistant discovery info
    *
    * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
@@ -107,13 +116,17 @@ class MQTTClientComponent : public Component {
   /// Globally disable Home Assistant discovery.
   void disable_discovery();
 
-  /** Set the node_id used for creating state and command topics.
+  /** Set the topic prefix that will be prepended to all topics together with "/". This will, in most cases,
+   * be the name of your Application.
    *
-   * @param node_id The node_id, should be lower case and without spaces.
+   * For example, if "livingroom" is passed to this method, all state topics will, by default, look like
+   * "livingroom/.../state"
+   *
+   * @param topic_prefix The topic prefix. The last "/" is appended automatically.
    */
-  void set_node_id(const std::string &node_id);
-  /// Get the node_id of this device.
-  const std::string &get_node_id() const;
+  void set_topic_prefix(const std::string &topic_prefix);
+  /// Get the topic prefix of this device.
+  const std::string &get_topic_prefix() const;
 
   /** Subscribe to an MQTT topic and call callback when a message is received.
    *
@@ -167,14 +180,19 @@ class MQTTClientComponent : public Component {
   void reconnect();
 
   MQTTCredentials credentials_;
+  /// The last will message. Disabled optional denotes it being disabled and
+  /// an empty topic denotes the default value being used.
   Optional<MQTTMessage> last_will_;
+  /// The birth message (e.g. the message that's send on an established connection.
+  /// See last_will_ for what different values denote.
   Optional<MQTTMessage> birth_message_;
   Optional<MQTTDiscoveryInfo> discovery_info_;
-  std::string node_id_;
+  std::string topic_prefix_;
 
   std::vector<MQTTSubscription> subscriptions_;
   PubSubClient mqtt_client_;
   WiFiClient client_;
+  bool use_status_messages_;
 };
 
 extern MQTTClientComponent *global_mqtt_client;

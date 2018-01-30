@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <utility>
 #include <esp_log.h>
+#include <esphomelib/helpers.h>
+#include <esphomelib/application.h>
 
 namespace esphomelib {
 
@@ -22,12 +24,13 @@ std::string MQTTComponent::get_discovery_topic() const {
   const auto &discovery = global_mqtt_client->get_discovery_info();
   if (!discovery)
     return "";
-  return discovery->prefix + "/" + this->component_type() + "/" + global_mqtt_client->get_node_id() +
-      "/" + this->get_entity_id() + "/config";
+  std::string sanitized_name = sanitize_string_whitelist(global_application->get_name(), DISCOVERY_CHARACTER_WHITELIST);
+  return discovery->prefix + "/" + this->component_type() + "/" + sanitized_name + "/" + this->get_entity_id()
+      + "/config";
 }
 
 std::string MQTTComponent::get_default_topic_for(const std::string &suffix) const {
-  return global_mqtt_client->get_node_id() + "/" + this->component_type() + "/" + this->get_entity_id() + "/"
+  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_entity_id() + "/"
       + suffix;
 }
 
@@ -41,7 +44,7 @@ const std::string MQTTComponent::get_command_topic() const {
 
 void MQTTComponent::send_message(const std::string &topic, const std::string &payload, const Optional<bool> &retain) {
   bool actual_retain = this->retain_;
-  if (retain.defined)
+  if (retain)
     actual_retain = retain.value;
   global_mqtt_client->publish(topic, payload, actual_retain);
 }
@@ -61,7 +64,7 @@ void MQTTComponent::send_discovery(const json_build_t &f,
                                    bool state_topic, bool command_topic, const std::string &platform) {
   if (!this->is_discovery_enabled())
     return;
-  if (!global_mqtt_client->get_discovery_info().defined)
+  if (!global_mqtt_client->get_discovery_info())
     return;
   if (this->friendly_name_.empty()) // empty friendly name => no discovery
     return;
@@ -79,8 +82,10 @@ void MQTTComponent::send_discovery(const json_build_t &f,
     if (this->get_availability()) {
       assert(!this->availability_->topic.empty());
       root["availability_topic"] = buffer.strdup(this->availability_->topic.c_str());
-      root["payload_available"] = buffer.strdup(this->availability_->payload_available.c_str());
-      root["payload_not_available"] = buffer.strdup(this->availability_->payload_not_available.c_str());
+      if (this->availability_->payload_available != "online")
+        root["payload_available"] = buffer.strdup(this->availability_->payload_available.c_str());
+      if (this->availability_->payload_not_available != "offline")
+        root["payload_not_available"] = buffer.strdup(this->availability_->payload_not_available.c_str());
     }
 
     f(buffer, root);
@@ -96,7 +101,7 @@ bool MQTTComponent::is_discovery_enabled() const {
 }
 
 std::string MQTTComponent::get_default_entity_id() const {
-  return to_lowercase_underscore(this->friendly_name_);
+  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name_), DISCOVERY_CHARACTER_WHITELIST);
 }
 
 const std::string &MQTTComponent::get_friendly_name() const {

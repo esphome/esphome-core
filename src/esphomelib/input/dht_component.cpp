@@ -3,7 +3,8 @@
 //
 
 #include <esp_log.h>
-#include <cmath>
+#include <esphomelib/espmath.h>
+#include <esphomelib/helpers.h>
 #include "dht_component.h"
 
 namespace esphomelib {
@@ -25,22 +26,23 @@ void DHTComponent::setup() {
   this->dht_.setup(this->pin_);
 
   this->set_interval("check", this->check_interval_, [&]() {
-    float temperature, humidity;
-    {
-      portDISABLE_INTERRUPTS();
-      temperature = this->dht_.getTemperature();
-      humidity = this->dht_.getHumidity();
-      portENABLE_INTERRUPTS();
-    }
+    auto temp_hum = run_without_interrupts<std::pair<float, float>>([this] {
+      return std::make_pair(this->dht_.getTemperature(), this->dht_.getHumidity());
+    });
+    float temperature = temp_hum.first;
+    float humidity = temp_hum.second;
+
     ESP_LOGV(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
-    if (!std::isnan(temperature))
+    if (!isnan(temperature))
       this->temperature_sensor_->push_new_value(temperature, this->dht_.getNumberOfDecimalsTemperature());
-    else ESP_LOGE(TAG, "Invalid Temperature: %f", temperature);
+    else
+      ESP_LOGE(TAG, "Invalid Temperature: %f", temperature);
 
-    if (!std::isnan(humidity))
+    if (!isnan(humidity))
       this->humidity_sensor_->push_new_value(humidity, this->dht_.getNumberOfDecimalsHumidity());
-    else ESP_LOGE(TAG, "Invalid Humidity: %f", humidity);
+    else
+      ESP_LOGE(TAG, "Invalid Humidity: %f", humidity);
   });
 }
 

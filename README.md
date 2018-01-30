@@ -38,7 +38,7 @@ void loop() {
 }
 ```
 
-And voilà - esphomelib will now automatically manage everything such as logging to MQTT, Home Assistant MQTT-discovery, 
+And voilà - esphomelib will now automatically manage everything such as logging to MQTT, Home Assistant MQTT discovery, 
 OTA updates, light effects/transitions, WiFi reconnects, etc. for you - amazing, right?
 
 ## Powerful Core
@@ -226,13 +226,29 @@ and the GPIO pin like this:
 app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class::MOTION, 36);
 ```
 
+#### Fan
+
+Fans can be created by first calling `app.make_fan("Friendly Name")` and then using the return value
+to set the output channels. See [`examples/fan-example.cpp`](examples/fan-example.cpp) for an example.
+
+## Home Assistant Configuration
+
+To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/) must be enabled with the topic `discovery/`.
+
+```yaml
+mqtt:
+  broker: 192.168.0.2
+  discovery: True
+  discovery_prefix: discovery
+```
+
 ## Current Features
 
 * Powerful core that allows for easy creation of new, custom components
 * Automatic WiFi handling (reconnects, etc.)
 * Automatic MQTT handling (birth messages, last will testaments, reconnects, etc.)
 * Powerful, (colored - yay) logging to Serial **and** MQTT
-* Over the Air updates
+* Over the Air (OTA) updates
 * Home Assistant automatic MQTT discovery
 * Binary Sensors
 * Switches
@@ -240,7 +256,7 @@ app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class
     - ON/OFF
     - Speed
     - Oscillation
-* Dallas ds18b20 temperature sensors (with "DallasTemperature" library)
+* Dallas DS18b20 temperature sensors (with "DallasTemperature" library)
 * DHT11/DHT22 temperature/humidity sensors (with "DHT" library)
 * Lights
     - Binary/Brightness-only/RGB/RGBW
@@ -256,7 +272,7 @@ app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class
 * Arduino IDE support (if possible)
 * ESP8266 support
 * Multiple WiFi Networks
-* internal ADC
+* Internal ADC
 * IR Receiver via remote control peripheral
 * Improve documentation
 * Testing
@@ -266,7 +282,8 @@ app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class
 * Refine default options
 * Pulse Counter
 * Status LED
-* **Suggestions?** Feel free to create an issue and tag it with feature-request.
+* Covers
+* **Suggestions?** Feel free to create an issue and tag it with feature request.
 
 ## Advanced Options
 
@@ -291,11 +308,11 @@ wifi->set_manual_ip(ManualIP{
 
 ### Disable MQTT Logging
 
-The second argument to `init_log()` denotes the MQTT topic that logs will be written to, leaving this empty disables 
-MQTT Logging.
+The second argument to `init_log()` denotes the MQTT topic that logs will be written to, providing a disabled Optional
+disables MQTT Logging.
 
 ```cpp
-app.init_log(115200, "");
+app.init_log(115200, Optional());
 ```
 
 ### Logging
@@ -310,20 +327,41 @@ To use this in your own code, simply include `esp_log.h`, define a TAG, and use 
 static const char *TAG = "main";
 
 // in your code:
-ESP_LOGV(TAG, "verbose");
-ESP_LOGD(TAG, "debug");
-ESP_LOGI(TAG, "information");
-ESP_LOGW(TAG, "warning");
+ESP_LOGV(TAG, "This is a verbose message.");
+ESP_LOGD(TAG, "This is a debug message.");
+ESP_LOGI(TAG, "This is an informational message.");
+ESP_LOGW(TAG, "This is a warning message.");
 ``` 
 
 > Note: use `set_global_log_level()` and `set_log_level` in `LogComponent` to adjust the global and 
 tag-specific log levels, respectively.
 
-### Friendly Names with non-ASCII characters
+When using the `platformio device monitor [...]` command, try adding the `--raw` argument - this will apply color to
+log messages in your terminal.
 
-Home Assistant discovery only allows entity ids with lower/upper case [a-z] and numbers. If you want to use the
-discovery with other characters in the friendly name, you will have to call `set_custom_entity_id()` with the
-ASCII name for the corresponding `MQTTComponent`.  
+### Setting custom MQTT topics
+
+If esphomelib's default MQTT topics don't suit your needs, you can override them. For this, there are two options: 
+
+#### 1. Set the global MQTT topic prefix.
+
+By default, all MQTT topics are named with the application name (see `set_name()`), for example `livingroom/...`.
+However, if you want to use your own MQTT topic prefixes like `home/livingroom/node1/...`, this is possible:
+
+```cpp
+auto *mqtt = app.init_mqtt(...);
+mqtt->set_topic_prefix("home/livingroom/node1");
+```
+
+#### 2. Customize the MQTT topics of a MQTTComponent
+ 
+Customizing the MQTT state/command topics of a single MQTTComponent is also possible. Simple call the 
+`set_custom_*_topic()` on your MQTTComponent like this:
+
+```cpp
+auto dht = app.make_dht_component(12, "Livingroom Temperature", "Livingroom Humidity");
+dht.mqtt_temperature->set_custom_state_topic("home/livingroom/node1/temperature/state");
+```
 
 ### OTA Updates
 
@@ -334,3 +372,16 @@ Then do the upload as you would do normally via serial. You might want to [set a
 > Note: OTA is, by default, enabled without any authentication. If you're on a public WiFi network, it's highly
 > encouraged to set a paraphrase using the `set_auth_*()` methods on the object returned by `init_ota()`. Then also
 > include `upload_flags = -a `*`PASSPHRASE`* in your `platformio.ini`.
+
+### Help! I'm getting lots of `PubSubClient::publish() failed` warnings.
+
+This due to this libraries MQTT client library ([PubSubClient](https://github.com/knolleary/pubsubclient)) having a
+fixed-sized buffer for all MQTT messages. And if your messages are very long, they may not fit inside the buffer, so
+PubSubClient won't send the message. To fix this, increase the buffer size, by adding this to your `platformio.ini`:
+
+```ini
+build_flags =
+    -DMQTT_MAX_PACKET_SIZE=1024
+```
+
+Increase the number if it still doesn't fit.

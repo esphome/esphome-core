@@ -21,6 +21,9 @@
 #include <DallasTemperature.h>
 #include <esphomelib/input/dallas_component.h>
 #include <esphomelib/switch_platform/simple_switch.h>
+#include <esphomelib/fan/mqtt_fan_component.h>
+#include <esphomelib/fan/basic_fan_component.h>
+#include <esphomelib/output/gpio_binary_output_component.h>
 #include "component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "wifi_component.h"
@@ -35,6 +38,8 @@ namespace esphomelib {
 /// This is the class that combines all components and handles them.
 class Application {
  public:
+  Application();
+
   /** Set the name of the item that is running this app.
    *
    * Note: The name will automatically internally be converted to lowercase_underscore format.
@@ -77,16 +82,9 @@ class Application {
    * @param tx_buffer_size The size of the printf buffer.
    * @return The created and initialized LogComponent.
    */
-  LogComponent *init_log(uint32_t baud_rate, const std::string &mqtt_topic, size_t tx_buffer_size = 512);
-
-  /** Initialize the log system and return the constructed LogComponent.
-   *
-   * Note: this method automatically enables MQTT debugging. See init_log() with mqtt_topic
-   *
-   * @param baud_rate The serial baud rate. Set to 0 to disable UART debugging.
-   * @return The created and initialized LogComponent.
-   */
-  LogComponent *init_log(uint32_t baud_rate = 115200);
+  LogComponent *init_log(uint32_t baud_rate = 115200,
+                         const Optional<std::string> &mqtt_topic = Optional<std::string>(""),
+                         size_t tx_buffer_size = 512);
 
   /** Initialize the WiFi system.
    *
@@ -193,7 +191,8 @@ class Application {
 
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
   sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string friendly_name,
-                                                    Optional<uint32_t> expire_after = Optional<uint32_t>());
+                                                    Optional<uint32_t> expire_after = Optional<uint32_t>(300),
+                                                    Optional<size_t> moving_average_size = Optional<size_t>(15));
 
   /// Struct to allow
   struct MakeDHTComponent {
@@ -323,16 +322,34 @@ class Application {
   switch_platform::MQTTSwitchComponent *make_mqtt_switch_for(const std::string &friendly_name,
                                                              switch_platform::Switch *switch_);
 
-  // ======================= FUNCTIONS =======================
+  // ======================= FAN =======================
 
-  /// Generate a MQTT availability topic.
-  std::string gen_availability_topic();
+  struct FanStruct {
+    fan::BasicFanComponent *output;
+    fan::FanState *state;
+    fan::MQTTFanComponent *mqtt;
+  };
+
+  /// Create a GPIO binary output component on the specified pin and pinMode.
+  output::GPIOBinaryOutputComponent *make_gpio_binary_output(uint8_t pin, uint8_t mode = OUTPUT);
+
+  /** Create and connect a Fan with the specified friendly name.
+   *
+   * @param friendly_name The friendly name of the Fan to advertise.
+   * @return A FanStruct, use the output field to set your output channels.
+   */
+  FanStruct make_fan(const std::string &friendly_name);
+
+  // ======================= FUNCTIONS =======================
 
   WiFiComponent *get_wifi() const;
   mqtt::MQTTClientComponent *get_mqtt_client() const;
 
   /// Assert that name has been set.
   void assert_name() const;
+
+  /// Get the name of this Application set by set_name().
+  const std::string &get_name() const;
 
  protected:
   std::vector<Component *> components_;
@@ -341,6 +358,9 @@ class Application {
 
   std::string name_;
 };
+
+/// Global storage of Application pointer - only one Application can exist.
+extern Application *global_application;
 
 // =========== IMPLEMENTATION ===========
 
@@ -354,11 +374,12 @@ C *Application::register_component(C *c) {
 template<class C>
 C *Application::register_mqtt_component(C *c) {
   mqtt::MQTTComponent *component = c;
-  component->set_availability(mqtt::Availability{
-      .topic = this->gen_availability_topic(),
-      .payload_available = "online",
-      .payload_not_available = "offline"
-  });
+  if (mqtt::global_mqtt_client->get_use_status_messages())
+    component->set_availability(mqtt::Availability{
+        .topic = mqtt::global_mqtt_client->get_default_status_message_topic(),
+        .payload_available = "online",
+        .payload_not_available = "offline"
+    });
   return this->register_component(c);
 }
 

@@ -105,7 +105,7 @@ std::vector<rmt_item32_t> SendData::get_rmt_data(uint16_t ticks_for_10_us) {
   for (uint32_t i = 0; i < this->data.size(); i++) {
     int16_t x = this->data[i];
     bool level = x >= 0;
-    auto duration = uint16_t(std::abs(x) / 10 * ticks_for_10_us);
+    auto duration = uint16_t(fabsf(x) / 10 * ticks_for_10_us);
 
     rmt_item32_t *item = &rmt_data[i / 2];
     if (i % 2 == 0) {
@@ -154,7 +154,7 @@ SendData SendData::repeat(uint16_t times, uint16_t wait_us) {
 uint32_t SendData::total_length_ms() const {
   uint32_t total = 0;
   for (auto &&v : this->data)
-    total += std::abs(v);
+    total += fabsf(v);
 
   uint32_t result = (this->repeat_times - 1) * (total + this->repeat_wait);
   result += total;

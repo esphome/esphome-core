@@ -5,6 +5,7 @@
 #include "mqtt_switch_component.h"
 
 #include <utility>
+#include <esphomelib/esp_preferences.h>
 
 namespace esphomelib {
 
@@ -25,13 +26,13 @@ void MQTTSwitchComponent::setup() {
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
     if (strcasecmp(payload.c_str(), "ON") == 0) {
-      ESP_LOGD(TAG, "Turning Switch on.");
-      this->write_value_callback_(true);
+      this->send_state(true);
     } else if (strcasecmp(payload.c_str(), "OFF") == 0) {
-      ESP_LOGD(TAG, "Turning Switch off.");
-      this->write_value_callback_(false);
+      this->send_state(false);
     }
   });
+
+  this->send_state(global_preferences.get_bool(this->friendly_name_, "state", false));
 }
 
 std::string MQTTSwitchComponent::component_type() const {
@@ -43,6 +44,14 @@ void MQTTSwitchComponent::set_write_value_callback(const binary_callback_t &writ
 }
 const binary_callback_t &MQTTSwitchComponent::get_write_value_callback() const {
   return this->write_value_callback_;
+}
+void MQTTSwitchComponent::send_state(bool state) {
+  if (state)
+    ESP_LOGD(TAG, "Turning Switch on.");
+  else
+    ESP_LOGD(TAG, "Turning Switch off.");
+  this->write_value_callback_(state);
+  global_preferences.put_bool(this->friendly_name_, "state", state);
 }
 
 } // namespace switch_platform

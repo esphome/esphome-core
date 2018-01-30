@@ -4,6 +4,7 @@
 
 #include <esphomelib/helpers.h>
 #include <esp_log.h>
+#include <esp32-hal.h>
 #include "light_state.h"
 #include "light_transformer.h"
 #include "light_effect.h"
@@ -33,9 +34,10 @@ void LightState::start_flash(const LightColorValues &target, uint32_t length) {
   if (length <= 0)
     return;
 
-  LightColorValues end_colors = this->get_remote_values();
-  this->transformer_ = make_unique<LightFlashTransformer>(millis(), length, end_colors,
-                                                          target);
+  LightColorValues end_colors = this->values_;
+  if (this->transformer_ != nullptr)
+    end_colors = this->transformer_->get_end_values();
+  this->transformer_ = make_unique<LightFlashTransformer>(millis(), length, end_colors, target);
   this->send_values();
 }
 

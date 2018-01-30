@@ -3,12 +3,13 @@
 //
 
 #include "light_color_values.h"
-#include <cmath>
 #include <esphomelib/helpers.h>
 #include <esphomelib/component.h>
 #include <esp_log.h>
 #include <sstream>
 #include <iomanip>
+#include <esphomelib/espmath.h>
+#include <esphomelib/esp_preferences.h>
 
 namespace esphomelib {
 
@@ -92,26 +93,22 @@ LightColorValues::LightColorValues(float state, float brightness, float red, flo
   this->set_white(white);
 }
 
-void LightColorValues::load_from_preferences(Preferences *preferences) {
-  if (preferences == nullptr)
-    return;
-  this->set_state(preferences->getFloat("state", this->get_state()));
-  this->set_brightness(preferences->getFloat("brightness", this->get_brightness()));
-  this->set_red(preferences->getFloat("red", this->get_red()));
-  this->set_green(preferences->getFloat("green", this->get_green()));
-  this->set_blue(preferences->getFloat("blue", this->get_blue()));
-  this->set_white(preferences->getFloat("white", this->get_white()));
+void LightColorValues::load_from_preferences(const std::string &friendly_name) {
+  this->set_state(global_preferences.get_float(friendly_name, "state", this->get_state()));
+  this->set_brightness(global_preferences.get_float(friendly_name, "brightness", this->get_brightness()));
+  this->set_red(global_preferences.get_float(friendly_name, "red", this->get_red()));
+  this->set_green(global_preferences.get_float(friendly_name, "green", this->get_green()));
+  this->set_blue(global_preferences.get_float(friendly_name, "blue", this->get_blue()));
+  this->set_white(global_preferences.get_float(friendly_name, "white", this->get_white()));
 }
 
-void LightColorValues::save_to_preferences(Preferences *preferences) const {
-  if (preferences == nullptr)
-    return;
-  preferences->putFloat("state", this->get_state());
-  preferences->putFloat("brightness", this->get_brightness());
-  preferences->putFloat("red", this->get_red());
-  preferences->putFloat("green", this->get_green());
-  preferences->putFloat("blue", this->get_blue());
-  preferences->putFloat("white", this->get_white());
+void LightColorValues::save_to_preferences(const std::string &friendly_name) const {
+  global_preferences.put_float(friendly_name, "state", this->get_state());
+  global_preferences.put_float(friendly_name, "brightness", this->get_brightness());
+  global_preferences.put_float(friendly_name, "red", this->get_red());
+  global_preferences.put_float(friendly_name, "green", this->get_green());
+  global_preferences.put_float(friendly_name, "blue", this->get_blue());
+  global_preferences.put_float(friendly_name, "white", this->get_white());
 }
 
 void LightColorValues::parse_json(const JsonObject &root) {
@@ -170,15 +167,15 @@ void LightColorValues::from_xyz(float v_x, float v_y, float brightness) {
   float g = -X * 0.707196f + Y * 1.655397f + Z * 0.036152f;
   float b = X * 0.051713f - Y * 0.121364f + Z * 1.011530f;
 
-  r = (r <= 0.0031308f) ? (12.92f * r) : ((1.055f) * std::pow(r, (1.0f / 2.4f)) - 0.055f);
-  g = (g <= 0.0031308f) ? (12.92f * g) : ((1.055f) * std::pow(g, (1.0f / 2.4f)) - 0.055f);
-  b = (b <= 0.0031308f) ? (12.92f * b) : ((1.055f) * std::pow(b, (1.0f / 2.4f)) - 0.055f);
+  r = (r <= 0.0031308f) ? (12.92f * r) : ((1.055f) * powf(r, (1.0f / 2.4f)) - 0.055f);
+  g = (g <= 0.0031308f) ? (12.92f * g) : ((1.055f) * powf(g, (1.0f / 2.4f)) - 0.055f);
+  b = (b <= 0.0031308f) ? (12.92f * b) : ((1.055f) * powf(b, (1.0f / 2.4f)) - 0.055f);
 
   if (r < 0.0f) r = 0.0f;
   if (g < 0.0f) g = 0.0f;
   if (b < 0.0f) b = 0.0f;
 
-  float max_comp = std::max(r, std::max(g, b));
+  float max_comp = fmaxf(r, fmaxf(g, b));
   if (max_comp > 1.0f) {
     this->set_red(r / max_comp);
     this->set_green(g / max_comp);
@@ -189,9 +186,9 @@ void LightColorValues::from_xyz(float v_x, float v_y, float brightness) {
 
 void LightColorValues::normalize_color(const LightTraits &traits) {
   if (traits.supports_rgb()) {
-    float max_value = std::max(this->get_red(), std::max(this->get_green(), this->get_blue()));
+    float max_value = fmaxf(this->get_red(), fmaxf(this->get_green(), this->get_blue()));
     if (traits.supports_rgbw()) {
-      max_value = std::max(max_value, this->get_white());
+      max_value = fmaxf(max_value, this->get_white());
       this->set_white(this->get_white() / max_value);
     }
     this->set_red(this->get_red() / max_value);

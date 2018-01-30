@@ -87,10 +87,6 @@ class Component {
   /** Internal loop() function.
    *
    * Basically, it handles stuff like interval/timeout functions and eventually calls loop().
-   *
-   * @see SetInterval()
-   * @see SetTimeout()
-   * @see loop()
    */
   void loop_();
   void setup_();

@@ -78,6 +78,8 @@ void MQTTFanComponent::setup() {
   }
 
   this->state_->set_send_callback([this]() { this->next_send_ = true; });
+
+  this->state_->load_from_preferences(this->friendly_name_);
 }
 void MQTTFanComponent::set_custom_oscillation_command_topic(const std::string &topic) {
   this->set_custom_topic("oscillation/command", topic);
@@ -135,6 +137,7 @@ void MQTTFanComponent::send_state() {
     }
     this->send_message(this->get_speed_state_topic(), payload);
   }
+  this->state_->save_to_preferences(this->friendly_name_);
   this->next_send_ = false;
 }
 

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <esp_log.h>
 #include <esphomelib/output/gpio_binary_output_component.h>
+#include <esphomelib/esp_preferences.h>
 
 namespace esphomelib {
 
@@ -18,6 +19,7 @@ using namespace esphomelib::binary_sensor;
 using namespace esphomelib::sensor;
 using namespace esphomelib::output;
 using namespace esphomelib::light;
+using namespace esphomelib::fan;
 using namespace esphomelib::switch_platform;
 
 static const char *TAG = "app";
@@ -51,7 +53,9 @@ WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string
 }
 
 void Application::set_name(const std::string &name) {
+  assert(this->name_.empty() && "name was already set!");
   this->name_ = to_lowercase_underscore(name);
+  global_preferences.begin(name);
 }
 
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
@@ -65,8 +69,6 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t
       .client_id = generate_hostname(this->name_)
   }, this->name_);
   component->set_discovery_info(discovery_prefix, true);
-  component->set_birth_message(this->name_ + "/status", "online", true);
-  component->set_last_will(this->name_ + "/status", "offline", 0, true);
   this->mqtt_client_ = component;
 
   return this->register_component(component);
@@ -78,15 +80,18 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address,
   return this->init_mqtt(address, 1883, username, password, discovery_prefix);
 }
 
-LogComponent *Application::init_log(uint32_t baud_rate, const std::string &mqtt_topic, size_t tx_buffer_size) {
-  auto *log = new LogComponent(baud_rate, mqtt_topic, tx_buffer_size);
+LogComponent *Application::init_log(uint32_t baud_rate,
+                                    const Optional<std::string> &mqtt_topic,
+                                    size_t tx_buffer_size) {
+  auto *log = new LogComponent(baud_rate, tx_buffer_size);
+  if (mqtt_topic) {
+    if (!mqtt_topic->empty())
+      log->set_custom_logging_topic(mqtt_topic.value);
+  } else {
+    log->set_mqtt_logging_enabled(false);
+  }
   log->pre_setup();
   return this->register_component(log);
-}
-
-LogComponent *Application::init_log(uint32_t baud_rate) {
-  this->assert_name();
-  return this->init_log(baud_rate, this->name_ + "/debug");
 }
 
 ATXComponent *Application::make_atx(uint8_t pin, uint32_t enable_time, uint32_t keep_on_time) {
@@ -128,13 +133,11 @@ Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
                                                               const std::string &humidity_friendly_name,
                                                               uint32_t check_interval) {
   auto *dht = new DHTComponent(pin, check_interval);
+  // Expire after 30 missed values
+  uint32_t expire_after = check_interval * 30 / 1000;
   auto *mqtt_temperature =
-      this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name);
-  auto *mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name);
-  mqtt_temperature->set_filter(new SlidingWindowMovingAverageFilter(15, 15));
-  mqtt_temperature->set_expire_after(check_interval * 30 / 1000);
-  mqtt_humidity->set_filter(new SlidingWindowMovingAverageFilter(15, 15));
-  mqtt_humidity->set_expire_after(check_interval * 30 / 1000);
+      this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name, expire_after);
+  auto *mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name, expire_after);
   this->register_component(dht);
   return MakeDHTComponent{
       .dht = dht,
@@ -145,9 +148,12 @@ Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
 
 sensor::MQTTSensorComponent *Application::make_mqtt_sensor_for(sensor::Sensor *sensor,
                                                                std::string friendly_name,
-                                                               Optional<uint32_t> expire_after) {
+                                                               Optional<uint32_t> expire_after,
+                                                               Optional<size_t> moving_average_size) {
   auto *mqtt = this->make_mqtt_sensor(std::move(friendly_name), sensor->unit_of_measurement(), expire_after);
   sensor->set_new_value_callback(mqtt->create_new_data_callback());
+  if (moving_average_size)
+    mqtt->set_filter(new SlidingWindowMovingAverageFilter(moving_average_size.value, moving_average_size.value));
   return mqtt;
 }
 
@@ -186,9 +192,6 @@ MQTTJSONLightComponent *Application::make_mqtt_light(const std::string &friendly
   auto *mqtt = new MQTTJSONLightComponent(friendly_name);
   mqtt->set_state(state);
   return this->register_mqtt_component(mqtt);
-}
-std::string Application::gen_availability_topic() {
-  return this->name_ + "/status";
 }
 WiFiComponent *Application::get_wifi() const {
   return this->wifi_;
@@ -260,7 +263,7 @@ input::DallasComponent *Application::make_dallas_component(uint8_t pin) {
 
 Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t pin,
                                                                          const std::string &friendly_name) {
-  auto *binary_output = this->register_component(new GPIOBinaryOutputComponent(pin));
+  auto *binary_output = this->make_gpio_binary_output(pin);
   auto *simple_switch = new SimpleSwitch(binary_output);
   auto *mqtt = this->make_mqtt_switch_for(friendly_name, simple_switch);
 
@@ -269,5 +272,29 @@ Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t
       .mqtt_switch = mqtt
   };
 }
+
+const std::string &Application::get_name() const {
+  return this->name_;
+}
+
+Application::FanStruct Application::make_fan(const std::string &friendly_name) {
+  FanStruct s{};
+  s.state = new FanState();
+  s.mqtt = this->register_mqtt_component(new MQTTFanComponent(friendly_name));
+  s.output = this->register_component(new BasicFanComponent());
+  s.mqtt->set_state(s.state);
+  s.output->set_state(s.state);
+  return s;
+}
+
+output::GPIOBinaryOutputComponent *Application::make_gpio_binary_output(uint8_t pin, uint8_t mode) {
+  return this->register_component(new GPIOBinaryOutputComponent(pin, mode));
+}
+
+Application::Application() {
+  global_application = this;
+}
+
+Application *global_application;
 
 } // namespace esphomelib

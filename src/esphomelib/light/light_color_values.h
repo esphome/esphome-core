@@ -6,7 +6,6 @@
 #define ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 
 #include <ArduinoJson.h>
-#include <Preferences.h>
 #include <ostream>
 #include "light_traits.h"
 
@@ -48,17 +47,17 @@ class LightColorValues {
 
   /** Load the color values from the non-volatile storage container preferences into the this object.
    *
-   * @param preferences The Preferences object. Should already be open.
+   * @param friendly_name The friendly name of the component that's calling this.
    * @see save_to_preferences()
    */
-  void load_from_preferences(Preferences *preferences);
+  void load_from_preferences(const std::string &friendly_name);
 
   /** Store these LightColorValues in the preferences object.
    *
-   * @param preferences The Preferences object. Should already be open.
+   * @param friendly_name The friendly name of the component that's calling this.
    * @see load_from_preferences()
    */
-  void save_to_preferences(Preferences *preferences) const;
+  void save_to_preferences(const std::string &friendly_name) const;
 
   /** Parse a color from the provided JsonObject.
    *

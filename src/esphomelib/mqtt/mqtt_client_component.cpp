@@ -18,8 +18,11 @@ MQTTClientComponent::MQTTClientComponent(MQTTCredentials credentials,
                                          std::string node_id)
     : credentials_(std::move(credentials)),
       discovery_info_(Optional<MQTTDiscoveryInfo>()),
-      node_id_(std::move(node_id)) {
-
+      topic_prefix_(std::move(node_id)),
+      birth_message_(Optional<MQTTMessage>(MQTTMessage{.topic = ""})),
+      last_will_(Optional<MQTTMessage>(MQTTMessage{.topic = ""})),
+      use_status_messages_(true) {
+  global_mqtt_client = this;
 }
 
 void MQTTClientComponent::setup() {
@@ -30,10 +33,18 @@ void MQTTClientComponent::setup() {
   ESP_LOGV(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
   ESP_LOGV(TAG, "    Username: '%s'", this->credentials_.username.c_str());
   ESP_LOGV(TAG, "    Password: '%s'", this->credentials_.password.c_str());
+  this->credentials_.client_id = truncate_string(this->credentials_.client_id, 23);
   ESP_LOGV(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
   this->mqtt_client_.setCallback(pub_sub_client_callback);
 
-  global_mqtt_client = this;
+  if (this->use_status_messages_) {
+    if (this->birth_message_ && this->birth_message_->topic.empty())
+      this->set_birth_message(this->get_default_status_message_topic(), "online", true);
+
+    if (this->last_will_ && this->last_will_->topic.empty()) {
+      this->set_last_will(this->get_default_status_message_topic(), "offline", 0, true);
+    }
+  }
 
   this->reconnect();
 }
@@ -55,7 +66,7 @@ void MQTTClientComponent::pub_sub_client_callback(char *topic, uint8_t *payload,
 
 void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
   ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u...", topic.c_str(), qos);
-  MQTTSubscription subscription {
+  MQTTSubscription subscription{
       .topic = topic,
       .qos = qos,
       .callback = std::move(callback),
@@ -68,7 +79,7 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
 
 void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
   ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u with JSON...", topic.c_str(), qos);
-  MQTTSubscription subscription {
+  MQTTSubscription subscription{
       .topic = topic,
       .qos = qos,
       .callback = [this, callback](const std::string &payload) {
@@ -105,7 +116,7 @@ void MQTTClientComponent::reconnect() {
     uint8_t will_qos = 0;
     bool will_retain = false;
     const char *will_message = nullptr;
-    if (this->last_will_.defined) {
+    if (this->last_will_) {
       will_topic = this->last_will_->topic.c_str();
       will_qos = this->last_will_->qos;
       will_retain = this->last_will_->retain;
@@ -123,7 +134,7 @@ void MQTTClientComponent::reconnect() {
     }
   } while (!this->is_connected());
 
-  if (this->birth_message_.defined)
+  if (this->birth_message_)
     this->publish(this->birth_message_.value);
 
   for (MQTTSubscription &subscription : this->subscriptions_)
@@ -131,14 +142,20 @@ void MQTTClientComponent::reconnect() {
 }
 
 void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, bool retain) {
-  if (topic != global_log_component->get_mqtt_topic()) {
+  if (topic != global_log_component->get_logging_topic()) {
     ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload.c_str(), retain);
   }
 
   const auto *payload_data = reinterpret_cast<const uint8_t *>(payload.data());
   this->reconnect();
-  this->mqtt_client_.publish(topic.c_str(), payload_data, payload.length(), retain);
-  this->mqtt_client_.loop();
+  bool ret = this->mqtt_client_.publish(topic.c_str(), payload_data, payload.length(), retain);
+  if (!ret)
+    ESP_LOGW(TAG, "PubSubClient::publish() failed (connected=%d, MQTT_MAX_PACKET_SIZE=%d)!", this->is_connected(),
+             MQTT_MAX_PACKET_SIZE);
+  ret = this->mqtt_client_.loop();
+  if (!ret)
+    ESP_LOGW(TAG, "PubSubClient::loop() failed!");
+  yield();
 }
 
 void MQTTClientComponent::publish(const MQTTMessage &message) {
@@ -191,11 +208,11 @@ float MQTTClientComponent::get_setup_priority() const {
 const Optional<MQTTDiscoveryInfo> &MQTTClientComponent::get_discovery_info() const {
   return this->discovery_info_;
 }
-void MQTTClientComponent::set_node_id(const std::string &node_id) {
-  this->node_id_ = node_id;
+void MQTTClientComponent::set_topic_prefix(const std::string &topic_prefix) {
+  this->topic_prefix_ = topic_prefix;
 }
-const std::string &MQTTClientComponent::get_node_id() const {
-  return this->node_id_;
+const std::string &MQTTClientComponent::get_topic_prefix() const {
+  return this->topic_prefix_;
 }
 const Optional<MQTTMessage> &MQTTClientComponent::get_birth_message() const {
   return this->birth_message_;
@@ -224,6 +241,15 @@ void MQTTClientComponent::parse_json(const std::string &message, const json_pars
   }
 
   f(root);
+}
+bool MQTTClientComponent::get_use_status_messages() const {
+  return this->use_status_messages_;
+}
+void MQTTClientComponent::set_use_status_messages(bool use_status_messages) {
+  this->use_status_messages_ = use_status_messages;
+}
+std::string MQTTClientComponent::get_default_status_message_topic() const {
+  return this->get_topic_prefix() + "/status";
 }
 
 MQTTClientComponent *global_mqtt_client = nullptr;

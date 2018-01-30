@@ -34,7 +34,8 @@ class WiFiComponent : public Component {
    */
   WiFiComponent(std::string ssid, std::string password, std::string hostname);
 
-  void set_hostname(std::string hostname);
+  /// Set the hostname, automatically sanitizes it.
+  void set_hostname(const std::string &hostname);
   const std::string &get_hostname() const;
 
   /// Manually set a static IP for this WiFi interface.
