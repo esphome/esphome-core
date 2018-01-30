@@ -233,7 +233,7 @@ to set the output channels. See [`examples/fan-example.cpp`](examples/fan-exampl
 
 ## Home Assistant Configuration
 
-To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/) must be enable with the topic `discovery/`.
+To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/) must be enabled with the topic `discovery/`.
 
 ```yaml
 mqtt:
