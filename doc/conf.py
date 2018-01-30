@@ -41,7 +41,7 @@ if on_rtd:
 # ones.
 extensions = ['breathe']
 
-breathe_projects = {"esphomelib": "./xml/"}
+breathe_projects = {"esphomelib": "./_doxyxml/"}
 breathe_default_project = "esphomelib"
 breathe_domain_by_extension = {"h" : "cpp"}
 
