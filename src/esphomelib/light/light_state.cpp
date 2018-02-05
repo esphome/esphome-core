@@ -123,6 +123,9 @@ void LightState::set_traits(const LightTraits &traits) {
 void LightState::set_transformer(std::unique_ptr<LightTransformer> transformer) {
   this->transformer_ = std::move(transformer);
 }
+void LightState::stop_effect() {
+  this->effect_ = std::move(NoneLightEffect::create());
+}
 
 } // namespace light
 

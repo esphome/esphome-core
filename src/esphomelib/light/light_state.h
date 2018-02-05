@@ -34,6 +34,9 @@ class LightState {
    */
   void start_effect(const std::string &name);
 
+  /// Stop the current effect (if one is active).
+  void stop_effect();
+
   /** Start a linear transition to the provided target values for a specific amount of time.
    *
    * If this light doesn't support transition (see set_traits()), sets the target values immediately.

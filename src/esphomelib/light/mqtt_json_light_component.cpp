@@ -65,10 +65,16 @@ void MQTTJSONLightComponent::parse_light_json(const JsonObject &root) {
     auto length = uint32_t(float(root["flash"]) * 1000);
     ESP_LOGD(TAG, "Starting flash with length=%u ms", length);
     this->state_->start_flash(v, length);
+
+    // Flashes can occur during effects, so don't stop the current effect.
   } else if (root.containsKey("transition")) {
     auto length = uint32_t(float(root["transition"]) * 1000);
     ESP_LOGD(TAG, "Starting transition with length=%u ms", length);
     this->state_->start_transition(v, length);
+
+    // Stop the current effect if transitioning to off.
+    if (v.get_state() == 0.0f)
+      this->state_->stop_effect();
   } else if (root.containsKey("effect")) {
     const char *effect = root["effect"];
     ESP_LOGD(TAG, "Starting effect '%s'", effect);
@@ -77,6 +83,10 @@ void MQTTJSONLightComponent::parse_light_json(const JsonObject &root) {
     uint32_t length = this->default_transition_length_;
     ESP_LOGD(TAG, "Starting default transition with length=%u ms", length);
     this->state_->start_transition(v, length);
+
+    // Stop the current effect if requesting turn_off.
+    if (v.get_state() == 0.0f)
+      this->state_->stop_effect();
   }
 }
 
