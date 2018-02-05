@@ -20,16 +20,20 @@ void MQTTJSONLightComponent::setup() {
   ESP_LOGD(TAG, "Setting up MQTT light...");
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    root["brightness"] = this->state_->get_traits().supports_brightness();
-    root["rgb"] = this->state_->get_traits().supports_rgb();
+    if (this->state_->get_traits().supports_brightness())
+      root["brightness"] = true;
+    if (this->state_->get_traits().supports_rgb()) {
+      root["rgb"] = true;
+      root["xy"] = true;
+    }
     root["flash"] = true;
-    root["xy"] = this->state_->get_traits().supports_rgb();
-    root["white_value"] = this->state_->get_traits().has_rgb_white_value();
+    if (this->state_->get_traits().has_rgb_white_value())
+      root["white_value"] = true;
     if (this->state_->supports_effects()) {
       root["effect"] = true;
       JsonArray &effect_list = root.createNestedArray("effect_list");
       for (const LightEffect::Entry &entry : light_effect_entries) {
-        if (this->state_->get_traits().supports_traits(entry.requirements))
+        if (!this->state_->get_traits().supports_traits(entry.requirements))
           continue;
         effect_list.add(buffer.strdup(entry.name.c_str()));
       }

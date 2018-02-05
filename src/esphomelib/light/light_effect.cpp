@@ -48,6 +48,9 @@ void RandomLightEffect::apply_effect(LightState *state) {
   if (now - this->last_color_change_ >= 10000) {
     LightColorValues v = state->get_current_values_lazy();
 
+    v.set_state(1.0f);
+    if (v.get_brightness() == 0.0f)
+      v.set_brightness(1.0f);
     v.set_red(random_float());
     v.set_green(random_float());
     v.set_blue(random_float());
