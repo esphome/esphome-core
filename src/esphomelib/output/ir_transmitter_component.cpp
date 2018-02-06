@@ -266,6 +266,7 @@ void IRTransmitterComponent::DataTransmitter::write_state(bool state) {
     return;
 
   this->parent_->send(this->send_data_);
+  this->publish_state(false);
 }
 IRTransmitterComponent::DataTransmitter::DataTransmitter(const ir::SendData &send_data,
                                                          IRTransmitterComponent *parent)

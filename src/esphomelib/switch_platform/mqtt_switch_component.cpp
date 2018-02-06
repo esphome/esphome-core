@@ -51,7 +51,14 @@ void MQTTSwitchComponent::send_state(bool state) {
   else
     ESP_LOGD(TAG, "Turning Switch off.");
   this->write_value_callback_(state);
-  global_preferences.put_bool(this->friendly_name_, "state", state);
+}
+binary_callback_t MQTTSwitchComponent::create_on_new_state_callback() {
+  return [&](bool enabled) {
+    assert_setup(this);
+    std::string state = enabled ? "ON" : "OFF";
+    this->send_message(this->get_state_topic(), state);
+    global_preferences.put_bool(this->friendly_name_, "state", enabled);
+  };
 }
 
 } // namespace switch_platform
