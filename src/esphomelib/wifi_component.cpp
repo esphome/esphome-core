@@ -53,7 +53,9 @@ void WiFiComponent::setup() {
 void WiFiComponent::loop() {
   if (WiFi.status() != WL_CONNECTED) {
     ESP_LOGD(TAG, "Reconnecting WiFi...");
-    esp_wifi_connect();
+    int return_value = esp_wifi_connect();
+    if (!return_value)
+      ESP_LOGW(TAG, "Reconnecting WiFi error: %d", return_value);
     this->wait_for_connection();
   }
 }
@@ -105,12 +107,13 @@ void WiFiComponent::wait_for_connection() {
   while ((status = WiFi.status()) != WL_CONNECTED) {
     if (status == WL_CONNECT_FAILED || millis() - start > 10000) {
       ESP_LOGE(TAG, "    Can't connect to WiFi network, restarting...");
+      WiFi.disconnect(true);
       esp_wifi_stop();
       esp_restart();
     }
 
     delay(500);
-    ESP_LOGV(TAG, ".");
+    ESP_LOGV(TAG, ". (status=%d)", status);
   }
 
   ESP_LOGV(TAG, "    WiFi connected.");
