@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <esphomelib/log.h>
 #include <esphomelib/espmath.h>
+#include <esphomelib/hal.h>
 #include <algorithm>
 #ifdef ARDUINO_ARCH_ESP8266
   #include <ESP8266WiFi.h>
@@ -103,9 +104,17 @@ float ExponentialMovingAverage::next_value(float value) {
 
 template<>
 void run_without_interrupts<void>(const std::function<void()> &f) {
+#ifdef ARDUINO_ARCH_ESP32
   portDISABLE_INTERRUPTS();
+#else
+  noInterrupts();
+#endif
   f();
+#ifdef ARDUINO_ARCH_ESP32
   portENABLE_INTERRUPTS();
+#else
+  interrupts();
+#endif
 }
 
 } // namespace esphomelib

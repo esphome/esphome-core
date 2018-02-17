@@ -7,6 +7,7 @@
 
 #include <ArduinoJson.h>
 #include "light_traits.h"
+#include <string>
 
 namespace esphomelib {
 

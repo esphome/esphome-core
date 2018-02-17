@@ -60,12 +60,6 @@ uint32_t LogComponent::get_baud_rate() const {
 void LogComponent::set_baud_rate(uint32_t baud_rate) {
   this->baud_rate_ = baud_rate;
 }
-const std::string &LogComponent::get_mqtt_topic() const {
-  return this->mqtt_topic_;
-}
-void LogComponent::set_mqtt_topic(const std::string &mqtt_topic) {
-  this->mqtt_topic_ = mqtt_topic;
-}
 void LogComponent::set_global_log_level(log_level_t log_level) {
   this->set_log_level("*", log_level);
 }

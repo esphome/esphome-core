@@ -3,7 +3,6 @@
 //
 
 #include <esphomelib/application.h>
-#include <esp_log.h>
 
 using namespace esphomelib;
 using namespace esphomelib::output::ir;

@@ -31,6 +31,14 @@ class DHTComponent : public Component {
   uint32_t get_check_interval() const;
   void set_check_interval(uint32_t check_interval);
 
+  /** Manually select the DHT model.
+   *
+   * Valid values are: DHT::AUTO_DETECT (default), DHT::DHT11, DHT::DHT22, DHT::AM2302, and DHT::RHT03.
+   *
+   * @param model The DHT model.
+   */
+  void set_dht_model(DHT::DHT_MODEL_t model);
+
   const DHT &get_dht() const;
 
   void setup() override;
@@ -40,6 +48,7 @@ class DHTComponent : public Component {
   uint8_t pin_;
   uint32_t check_interval_;
   DHT dht_;
+  DHT::DHT_MODEL_t model_{DHT::AUTO_DETECT};
   sensor::TemperatureSensor *temperature_sensor_;
   sensor::HumiditySensor *humidity_sensor_;
 };

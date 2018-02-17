@@ -9,6 +9,7 @@
 #include <esp32-hal.h>
 #else
 #include "Arduino.h"
+#include <esphomelib/espmath.h>
 #endif
 
 #endif //ESPHOMELIB_HAL_H

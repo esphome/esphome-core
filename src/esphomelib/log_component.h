@@ -66,9 +66,9 @@ class LogComponent : public Component {
   /// Set the log level of the specified tag.
   void set_log_level(const std::string &tag, log_level_t log_level);
 
- protected:
   static int log_vprintf_(const char *format, va_list args);
 
+ protected:
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
   std::string mqtt_logging_topic_;

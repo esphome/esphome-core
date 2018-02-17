@@ -10,6 +10,7 @@
 #include <memory>
 #include <queue>
 #include <functional>
+#include <esphomelib/hal.h>
 
 namespace esphomelib {
 
@@ -235,9 +236,17 @@ std::string value_to_hex_string(T value) {
 
 template<typename T>
 T run_without_interrupts(const std::function<T()> &f) {
+#ifdef ARDUINO_ARCH_ESP32
   portDISABLE_INTERRUPTS();
+#else
+  noInterrupts();
+#endif
   T ret = f();
+#ifdef ARDUINO_ARCH_ESP32
   portENABLE_INTERRUPTS();
+#else
+  interrupts();
+#endif
   return ret;
 }
 

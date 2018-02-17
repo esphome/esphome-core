@@ -293,7 +293,12 @@ class Application {
     fan::MQTTFanComponent *mqtt;
   };
 
-  /// Create a GPIO binary output component on the specified pin and pinMode.
+  /** Create a simple binary GPIO output component.
+   *
+   * @param pin The GPIO pin.
+   * @param mode The pinMode.
+   * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
+   */
   output::GPIOBinaryOutputComponent *make_gpio_binary_output(uint8_t pin, uint8_t mode = OUTPUT);
 
   /** Create and connect a Fan with the specified friendly name.

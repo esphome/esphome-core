@@ -3,11 +3,10 @@
 //
 
 #include <esphomelib/log.h>
-#include <cmath>
-#include <esp_log.h>
 #include <esphomelib/espmath.h>
 #include <esphomelib/helpers.h>
 #include "dht_component.h"
+#include <esphomelib/espmath.h>
 
 namespace esphomelib {
 
@@ -25,7 +24,9 @@ DHTComponent::DHTComponent(uint8_t pin, uint32_t check_interval)
 }
 
 void DHTComponent::setup() {
-  this->dht_.setup(this->pin_);
+  this->dht_.setup(this->pin_, this->model_);
+
+  ESP_LOGD(TAG, "DHT status %d", this->dht_.getStatus());
 
   this->set_interval("check", this->check_interval_, [&]() {
     auto temp_hum = run_without_interrupts<std::pair<float, float>>([this] {
@@ -74,6 +75,10 @@ void DHTComponent::set_check_interval(uint32_t check_interval) {
   assert_positive(check_interval);
   assert_construction_state(this);
   this->check_interval_ = check_interval;
+}
+void DHTComponent::set_dht_model(DHT::DHT_MODEL_t model) {
+  assert_construction_state(this);
+  this->model_ = model;
 }
 const DHT &DHTComponent::get_dht() const {
   return this->dht_;

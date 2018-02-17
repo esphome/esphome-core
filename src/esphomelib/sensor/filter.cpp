@@ -3,7 +3,7 @@
 //
 
 #include "filter.h"
-#include <esp_log.h>
+#include <esphomelib/log.h>
 #include <esphomelib/espmath.h>
 
 namespace esphomelib {
