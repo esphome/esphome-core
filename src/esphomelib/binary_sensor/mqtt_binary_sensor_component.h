@@ -48,7 +48,7 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
    * @param friendly_name The friendly name.
    * @param device_class The device class of this component (see esphomelib::binary_sensor::device_class)
    */
-  MQTTBinarySensorComponent(std::string friendly_name, std::string device_class);
+  explicit MQTTBinarySensorComponent(std::string friendly_name, std::string device_class = "");
 
   /// Creates a new callback for publishing state changes to MQTT.
   virtual binary_callback_t create_on_new_state_callback();

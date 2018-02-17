@@ -115,8 +115,7 @@ class Application {
   // ======================= BINARY SENSOR =======================
 
   /// Create a GPIOBinarySensorComponent. Mostly for internal use.
-  input::GPIOBinarySensorComponent *make_gpio_binary_sensor(uint8_t pin, uint8_t mode = INPUT,
-                                                            binary_sensor::binary_callback_t callback = nullptr);
+  input::GPIOBinarySensorComponent *make_gpio_binary_sensor(uint8_t pin, uint8_t mode = INPUT);
 
   /// Create a MQTTBinarySensorComponent. Mostly for internal use.
   binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor(std::string friendly_name,
@@ -136,13 +135,13 @@ class Application {
    * Note: advanced options such as inverted input are available in the return value.
    *
    * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
+   * @param pin The GPIO pin.
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
    *                     or esphomelib::binary_sensor::device_class
-   * @param pin The GPIO pin.
    */
   SimpleBinarySensor make_simple_gpio_binary_sensor(std::string friendly_name,
-                                                    std::string device_class,
-                                                    uint8_t pin);
+                                                    uint8_t pin,
+                                                    std::string device_class = "");
 
   // ======================= SENSOR =======================
   /// Create a MQTTSensorComponent. Mostly for internal use.

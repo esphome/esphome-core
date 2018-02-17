@@ -9,7 +9,10 @@ namespace esphomelib {
 
 namespace input {
 
+static const char *TAG = "binary_sensor";
+
 void GPIOBinarySensorComponent::setup() {
+  ESP_LOGD(TAG, "Setup pin=%d, mode=%d", this->pin_, this->mode_);
   pinMode(this->pin_, this->mode_);
 }
 

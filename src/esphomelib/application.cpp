@@ -99,9 +99,8 @@ ATXComponent *Application::make_atx(uint8_t pin, uint32_t enable_time, uint32_t 
   return this->register_component(atx);
 }
 
-GPIOBinarySensorComponent *Application::make_gpio_binary_sensor(uint8_t pin, uint8_t mode, binary_callback_t callback) {
+GPIOBinarySensorComponent *Application::make_gpio_binary_sensor(uint8_t pin, uint8_t mode) {
   auto *io = new GPIOBinarySensorComponent(pin, mode);
-  io->set_on_new_state_callback(std::move(callback));
   return this->register_component(io);
 }
 
@@ -112,8 +111,8 @@ MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor(std::string frie
 }
 
 Application::SimpleBinarySensor Application::make_simple_gpio_binary_sensor(std::string friendly_name,
-                                                                            std::string device_class,
-                                                                            uint8_t pin) {
+                                                                            uint8_t pin,
+                                                                            std::string device_class) {
   SimpleBinarySensor s{};
   s.mqtt = this->make_mqtt_binary_sensor(std::move(friendly_name), std::move(device_class));
   s.gpio = this->make_gpio_binary_sensor(pin);
