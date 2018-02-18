@@ -73,8 +73,6 @@ float random_float();
 /// Applies gamma correction with the provided gamma to value.
 float gamma_correct(float value, float gamma);
 
-template<typename T>
-std::string value_to_hex_string(T value);
 
 /// Sanitizes the input string with the whitelist.
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
@@ -225,13 +223,6 @@ void SlidingWindowMovingAverage<T>::set_max_size(size_t max_size) {
     this->sum_ -= this->queue_.front();
     this->queue_.pop();
   }
-}
-
-template<typename T>
-std::string value_to_hex_string(T value) {
-  char buffer[32];
-  snprintf(buffer, sizeof(buffer), "%x", value);
-  return std::string(buffer);
 }
 
 template<typename T>

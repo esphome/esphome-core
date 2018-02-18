@@ -161,7 +161,9 @@ std::string DallasTemperatureSensor::get_name() {
   if (!this->name_.empty())
     return this->name_;
 
-  return this->name_ = value_to_hex_string(this->address_);
+  char buffer[17];
+  snprintf(buffer, sizeof(buffer), "%0llx", this->address_);
+  return this->name_ = std::string(buffer);
 }
 
 } // namespace input

@@ -17,7 +17,11 @@ class OTAComponent : public Component {
    * @param port The port ArduinoOTA will listen on.
    * @param hostname The hostname ArduinoOTA will advertise.
    */
+#ifdef ARDUINO_ARCH_ESP32
   explicit OTAComponent(uint16_t port = 3232, std::string hostname = "");
+#else
+  explicit OTAComponent(uint16_t port = 8266, std::string hostname = "");
+#endif
 
   /// Set ArduinoOTA to accept updates without authentication.
   void set_auth_open();
