@@ -35,26 +35,50 @@
 
 namespace esphomelib {
 
-/** Application - This is the class that combines all components.
- *
- * Firstly, this class is used the register component
- */
+/// This is the class that combines all components and handles them.
 class Application {
  public:
   Application();
 
   /** Set the name of the item that is running this app.
    *
-   * Note: This will automatically be converted to lowercase_underscore.
+   * Note: The name will automatically internally be converted to lowercase_underscore format.
    *
-   * @param name The name of your app.
+   * @param name The name of your app. Should not contain non-ASCII characters.
    */
   void set_name(const std::string &name);
 
-  /** Initialize the log system.
+  /// Set up all the registered components. Call this at the end of your setup() function.
+  void setup();
+
+  /// Make a loop iteration. Call this in your loop() function.
+  void loop();
+
+  /** Register the Component in this Application instance.
+   *
+   * @tparam C The Component subclass.
+   * @param c A pointer to the Component to register.
+   * @return The Component you passed in for method chaining.
+   */
+  template<class C>
+  C *register_component(C *c);
+
+  /** Register the MQTTComponent in this Application instance.
+   *
+   * In principle you can also use register_component for MQTTComponents, though this also sets the appropriate
+   * availability_topic.
+   *
+   * @tparam C The MQTTComponent subclass.
+   * @param c A pointer to the MQTTComponent to register.
+   * @return The MQTTComponent you passed in for method chaining.
+   */
+  template<class C>
+  C *register_mqtt_component(C *c);
+
+  /** Initialize the log system and return the constructed LogComponent.
    *
    * @param baud_rate The serial baud rate. Set to 0 to disable UART debugging.
-   * @param mqtt_topic The MQTT debug topic. Set to "" to for default topic, and disable the optional for disabling this feature.
+   * @param mqtt_topic The MQTT debug topic. Set to "" to disable debugging via MQTT.
    * @param tx_buffer_size The size of the printf buffer.
    * @return The created and initialized LogComponent.
    */
@@ -85,13 +109,13 @@ class Application {
    * @param username The username.
    * @param password The password. Empty for no password.
    * @param discovery_prefix The discovery prefix for home assistant. Leave empty for no discovery.
-   * @return The MQTTClient. Use this to set advanced settings.
+   * @return The MQTTClientComponent. Use this to set advanced settings.
    */
   mqtt::MQTTClientComponent *init_mqtt(const std::string &address, uint16_t port,
                                        const std::string &username, const std::string &password,
                                        const std::string &discovery_prefix = "discovery");
 
-  /** Initialize the MQTT client.
+  /** Initialize the MQTT client. This assumes your port is set to 1883.
    *
    * @param address The address of your server.
    * @param username The username.
@@ -108,39 +132,55 @@ class Application {
    * @param pin The pin the power supply is connected to.
    * @param enable_time The time (in ms) the power supply needs until it can provide high power when powering on.
    * @param keep_on_time The time (in ms) the power supply should stay on when it is not used.
-   * @return The ATXComponent.
+   * @return The new and registered ATXComponent.
    */
   ATXComponent *make_atx(uint8_t pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
 
   // ======================= BINARY SENSOR =======================
 
-  /// Create a GPIOBinarySensorComponent. Mostly for internal use.
+  /** Create a GPIOBinarySensorComponent.
+   *
+   * Note: You probably want to use make_simple_gpio_binary_sensor() to initialize the MQTT sensor as well.
+   *
+   * @param pin The GPIO pin to poll for states.
+   * @param mode
+   * @param callback
+   * @return The new and registered GPIOBinarySensorComponent.
+   */
   input::GPIOBinarySensorComponent *make_gpio_binary_sensor(uint8_t pin, uint8_t mode = INPUT,
                                                             binary_sensor::binary_callback_t callback = nullptr);
 
-  /// Create a MQTTBinarySensorComponent. Mostly for internal use.
+  /** Create a MQTTBinarySensorComponent. Mostly for internal use.
+   *
+   * @param friendly_name The friendly name of the new MQTTBinarySensorComponent.
+   * @param device_class The device_class to be reported via MQTT discovery.
+   * @return The new and registered MQTTBinarySensorComponent.
+   */
   binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor(std::string friendly_name,
                                                                     std::string device_class);
 
-  /// Connect a BinarySensor to a MQTTBinarySensorComponent. Mostly for internal use.
+  /// Connect a BinarySensor to a MQTTBinarySensorComponent by setting the set_on_new_state_callback.
+  /// Mostly for internal use.
   void connect_binary_sensor_pair(binary_sensor::BinarySensor *binary_sensor,
                                   binary_sensor::MQTTBinarySensorComponent *mqtt);
 
-  struct SimpleBinarySensor {
-    input::GPIOBinarySensorComponent *gpio;
-    binary_sensor::MQTTBinarySensorComponent *mqtt;
+  /// Struct to allow make_simple_gpio_binary_sensor() to return both the gpio component and the MQTT component.
+  struct MakeSimpleBinarySensor {
+    input::GPIOBinarySensorComponent *gpio; ///< The new GPIOBinarySensorComponent.
+    binary_sensor::MQTTBinarySensorComponent *mqtt; ///< The new MQTTBinarySensorComponent.
   };
 
   /** Create a simple GPIO binary sensor.
    *
-   * Note: advanced options such as inverted input are available in the return value.
+   * Note: advanced options such as inverted input can be set with the return value.
    *
    * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
    *                     or esphomelib::binary_sensor::device_class
    * @param pin The GPIO pin.
+   * @return The new and registered pair of GPIO binary sensor and MQTT component.
    */
-  SimpleBinarySensor make_simple_gpio_binary_sensor(std::string friendly_name,
+  MakeSimpleBinarySensor make_simple_gpio_binary_sensor(std::string friendly_name,
                                                     std::string device_class,
                                                     uint8_t pin);
 
@@ -154,6 +194,7 @@ class Application {
                                                     Optional<uint32_t> expire_after = Optional<uint32_t>(300),
                                                     Optional<size_t> moving_average_size = Optional<size_t>(15));
 
+  /// Struct to allow
   struct MakeDHTComponent {
     input::DHTComponent *dht;
     sensor::MQTTSensorComponent *mqtt_temperature;
@@ -301,19 +342,6 @@ class Application {
 
   // ======================= FUNCTIONS =======================
 
-  template<class C>
-  C *register_mqtt_component(C *c);
-
-  /// Register the component in this Application instance.
-  template<class C>
-  C *register_component(C *c);
-
-  /// Set up all the registered components. Call this at the end of your setup() function.
-  void setup();
-
-  /// Make a loop iteration. Call this in your loop() function.
-  void loop();
-
   WiFiComponent *get_wifi() const;
   mqtt::MQTTClientComponent *get_mqtt_client() const;
 
@@ -333,6 +361,8 @@ class Application {
 
 /// Global storage of Application pointer - only one Application can exist.
 extern Application *global_application;
+
+// =========== IMPLEMENTATION ===========
 
 template<class C>
 C *Application::register_component(C *c) {

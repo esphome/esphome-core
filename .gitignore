@@ -20,3 +20,6 @@ CMakeListsPrivate.txt
 # CMake
 cmake-build-debug/
 cmake-build-release/
+
+doc/_build
+doc/_doxyxml

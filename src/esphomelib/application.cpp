@@ -111,10 +111,10 @@ MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor(std::string frie
   return this->register_mqtt_component(mqtt);
 }
 
-Application::SimpleBinarySensor Application::make_simple_gpio_binary_sensor(std::string friendly_name,
+Application::MakeSimpleBinarySensor Application::make_simple_gpio_binary_sensor(std::string friendly_name,
                                                                             std::string device_class,
                                                                             uint8_t pin) {
-  SimpleBinarySensor s{};
+  MakeSimpleBinarySensor s{};
   s.mqtt = this->make_mqtt_binary_sensor(std::move(friendly_name), std::move(device_class));
   s.gpio = this->make_gpio_binary_sensor(pin);
   this->connect_binary_sensor_pair(s.gpio, s.mqtt);
