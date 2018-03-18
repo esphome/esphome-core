@@ -22,10 +22,8 @@ void MQTTJSONLightComponent::setup() {
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     if (this->state_->get_traits().supports_brightness())
       root["brightness"] = true;
-    if (this->state_->get_traits().supports_rgb()) {
+    if (this->state_->get_traits().supports_rgb())
       root["rgb"] = true;
-      root["xy"] = true;
-    }
     root["flash"] = true;
     if (this->state_->get_traits().has_rgb_white_value())
       root["white_value"] = true;

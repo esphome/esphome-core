@@ -74,9 +74,6 @@ class LightColorValues {
    */
   void dump_json(JsonObject &root, const LightTraits &traits) const;
 
-  /// Convert the provided XYZ color to the internal RGB color
-  void from_xyz(float v_x, float v_y, float brightness);
-
   /** Normalize the color (RGB/W) component.
    *
    * Divides all color attributes by the maximum attribute, so effectively set at least one attribute to 1.
