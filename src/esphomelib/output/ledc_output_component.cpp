@@ -17,15 +17,17 @@ static const char *TAG = "output::ledc";
 void LEDCOutputComponent::write_value_f(float adjusted_value) {
   uint32_t max_duty = (uint32_t(1) << this->bit_depth_) - 1;
   auto duty = uint32_t(adjusted_value * max_duty);
-  uint32_t duty_non_inverted = duty;
 
+  // duty written to LEDC channel
+  uint32_t hw_duty = duty;
   if (this->is_inverted())
-    duty_non_inverted = max_duty - duty;
+    hw_duty = max_duty - duty;
 
-  if (duty_non_inverted > 0)
+  // If we're writing something high, then enable ATX
+  if (duty > 0)
     this->enable_atx();
 
-  ledcWrite(this->channel_, duty);
+  ledcWrite(this->channel_, hw_duty);
 }
 
 void LEDCOutputComponent::setup() {

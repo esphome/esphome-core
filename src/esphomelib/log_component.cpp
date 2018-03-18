@@ -35,7 +35,7 @@ int LogComponent::log_vprintf_(const char *format, va_list args) {
 }
 
 LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size)
-    : baud_rate_(baud_rate),  mqtt_logging_enabled_(true) {
+    : baud_rate_(baud_rate) {
   this->set_tx_buffer_size(tx_buffer_size);
 }
 

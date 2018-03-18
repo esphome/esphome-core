@@ -17,11 +17,16 @@ namespace binary_sensor {
 /// Home Assistant device classes. See <a href="https://home-assistant.io/components/binary_sensor/">Binary Sensor</a>.
 namespace device_class {
 
+const std::string NONE = "";
+const std::string BATTERY = "";
 const std::string COLD = "cold";
 const std::string CONNECTIVITY = "connectivity";
+const std::string DOOR = "door";
+const std::string GARAGE_DOOR = "garage_door";
 const std::string GAS = "gas";
 const std::string HEAT = "heat";
 const std::string LIGHT = "light";
+const std::string LOCK = "lock";
 const std::string MOISTURE = "moisture";
 const std::string MOTION = "motion";
 const std::string MOVING = "moving";
@@ -29,10 +34,12 @@ const std::string OCCUPANCY = "occupancy";
 const std::string OPENING = "opening";
 const std::string PLUG = "plug";
 const std::string POWER = "power";
+const std::string PRESENCE = "presence";
 const std::string SAFETY = "safety";
 const std::string SMOKE = "smoke";
 const std::string SOUND = "sound";
 const std::string VIBRATION = "vibration";
+const std::string WINDOW = "window";
 
 }
 

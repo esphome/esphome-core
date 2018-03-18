@@ -300,6 +300,34 @@ Application::Application() {
   global_application = this;
 }
 
+#ifdef ARDUINO_ARCH_ESP32
+Application::MakePulseCounter Application::make_pulse_counter(uint8_t pin,
+                                                              const std::string &friendly_name,
+                                                              uint32_t check_interval) {
+  auto *pcnt = this->register_component(new PulseCounterSensorComponent(pin, check_interval));
+  // Expire after 30 missed values
+  uint32_t expire_after = check_interval * 30 / 1000;
+  auto *mqtt = this->make_mqtt_sensor_for(pcnt, friendly_name, expire_after, Optional<size_t>());
+  return MakePulseCounter {
+      .pcnt = pcnt,
+      .mqtt = mqtt
+  };
+}
+#endif
+
+Application::MakeADCSensor Application::make_adc_sensor(uint8_t pin,
+                                                        const std::string &friendly_name,
+                                                        uint32_t check_interval) {
+  auto *adc = this->register_component(new ADCSensorComponent(pin, check_interval));
+  // Expire after 30 missed values
+  uint32_t expire_after = check_interval * 30 / 1000;
+  auto *mqtt = this->make_mqtt_sensor_for(adc, friendly_name, expire_after);
+  return MakeADCSensor {
+      .adc = adc,
+      .mqtt = mqtt
+  };
+}
+
 Application *global_application;
 
 } // namespace esphomelib

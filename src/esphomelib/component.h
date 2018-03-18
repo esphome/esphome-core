@@ -9,7 +9,7 @@
 #include <map>
 #include <vector>
 
-#define assert_is_pin(num) assert(0 <= (num) && (num) <= 39)
+#define assert_is_pin(num) assert((0 <= (num) && (num) <= 39) && "Is not a valid pin number")
 #define assert_positive(num) assert((num) >= 0)
 #define assert_0_to_1(num) assert(0 <= (num) && (num) <= 1)
 #define assert_nullptr(p) assert((p) == nullptr)

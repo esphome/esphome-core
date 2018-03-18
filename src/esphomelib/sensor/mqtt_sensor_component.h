@@ -45,7 +45,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
  private:
   std::string unit_of_measurement_;
   Optional<uint32_t> expire_after_;
-  Filter *filter_;
+  Filter *filter_{nullptr};
   float offset_;
 };
 

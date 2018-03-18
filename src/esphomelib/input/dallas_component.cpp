@@ -34,7 +34,7 @@ void DallasComponent::setup() {
   this->dallas_.setOneWire(this->one_wire_);
   this->dallas_.begin();
 
-  ESP_LOGI(TAG, "Device Count: %d", this->dallas_.getDeviceCount());
+  ESP_LOGI(TAG, "Device Count: %d", this->get_device_count());
   this->dallas_.setWaitForConversion(false);
 
   for (auto sensor : this->sensors_) {
@@ -48,7 +48,8 @@ void DallasComponent::setup() {
     if (sensor->get_address() == 0)
       ESP_LOGD(TAG, "    Index: %u", sensor->get_index());
     ESP_LOGD(TAG, "    Resolution: %u", sensor->get_resolution());
-    this->dallas_.setResolution(sensor->get_address8(), sensor->get_resolution(), true);
+    bool result = this->dallas_.setResolution(sensor->get_address8(), sensor->get_resolution(), true);
+    assert(result && "Setting resolution on Dallas failed.");
     ESP_LOGD(TAG, "    Accuracy Decimals: %u", sensor->get_accuracy_decimals());
     ESP_LOGD(TAG, "    Check Interval: %u", sensor->get_check_interval());
 
@@ -162,7 +163,9 @@ std::string DallasTemperatureSensor::get_name() {
     return this->name_;
 
   char buffer[17];
-  snprintf(buffer, sizeof(buffer), "%0llx", this->address_);
+  auto *address16 = reinterpret_cast<uint16_t *>(&this->address_);
+  snprintf(buffer, sizeof(buffer), "%04x%04x%04x%04x",
+           address16[3], address16[2], address16[1], address16[0]);
   return this->name_ = std::string(buffer);
 }
 

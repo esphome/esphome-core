@@ -312,7 +312,7 @@ The second argument to `init_log()` denotes the MQTT topic that logs will be wri
 disables MQTT Logging.
 
 ```cpp
-app.init_log(115200, Optional());
+app.init_log(115200, Optional<std::string>());
 ```
 
 ### Logging

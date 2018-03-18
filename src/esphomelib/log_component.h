@@ -72,7 +72,7 @@ class LogComponent : public Component {
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
   std::string mqtt_logging_topic_;
-  bool mqtt_logging_enabled_;
+  bool mqtt_logging_enabled_{true};
 };
 
 void __assert_func(const char *file, int lineno, const char *func, const char *exp);

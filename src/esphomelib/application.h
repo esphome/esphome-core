@@ -24,6 +24,8 @@
 #include <esphomelib/fan/mqtt_fan_component.h>
 #include <esphomelib/fan/basic_fan_component.h>
 #include <esphomelib/output/gpio_binary_output_component.h>
+#include <esphomelib/input/pulse_counter.h>
+#include <esphomelib/input/adc_component.h>
 #include "component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "wifi_component.h"
@@ -179,6 +181,48 @@ class Application {
   input::DallasComponent *make_dallas_component(OneWire *one_wire);
 
   input::DallasComponent *make_dallas_component(uint8_t pin);
+
+#ifdef ARDUINO_ARCH_ESP32
+  struct MakePulseCounter {
+    input::PulseCounterSensorComponent *pcnt;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  /** Create an ESP32 Pulse Counter component.
+   *
+   * The pulse counter peripheral will automatically all pulses on pin in the background. Every
+   * check_interval ms the amount of pulses will be retrieved and the difference to the last value
+   * will be reported via MQTT as a sensor.
+   *
+   * @param pin The pin the pulse counter should count pulses on.
+   * @param friendly_name The name the sensor should be advertised as.
+   * @param check_interval The interval (in ms) the sensor should be checked.
+   * @return The components. Use this for advanced settings.
+   */
+  MakePulseCounter make_pulse_counter(uint8_t pin,
+                                      const std::string &friendly_name,
+                                      uint32_t check_interval = 30000);
+#endif
+
+  struct MakeADCSensor {
+    input::ADCSensorComponent *adc;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  /** Create an ADC Sensor component.
+   *
+   * Every check_interval ms, the value from the specified pin (only A0 on ESP8266, 32-39 for ESP32),
+   * and converts it into the volt unit. On the ESP32 you can additionally specify a channel attenuation
+   * using the return value of this function. pinMode can also be set using the return value.
+   *
+   * @param pin The pin the ADC should sense on.
+   * @param friendly_name The name the sensor should be advertised as.
+   * @param check_interval The interval (in ms) the sensor should be checked.
+   * @return The components. Use this for advanced settings.
+   */
+  MakeADCSensor make_adc_sensor(uint8_t pin,
+                                const std::string &friendly_name,
+                                uint32_t check_interval = 1000);
 
   // ======================= OUTPUT =======================
 

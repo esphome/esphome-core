@@ -47,10 +47,10 @@ class DallasComponent : public Component {
   explicit DallasComponent(OneWire *one_wire);
 
   DallasTemperatureSensor *get_sensor_by_address(uint64_t address,
-                                                 uint32_t check_interval = 1000,
+                                                 uint32_t check_interval = 5000,
                                                  uint8_t resolution = 12);
   DallasTemperatureSensor *get_sensor_by_index(uint8_t index,
-                                               uint32_t check_interval = 1000,
+                                               uint32_t check_interval = 5000,
                                                uint8_t resolution = 12);
   uint8_t get_device_count();
 
