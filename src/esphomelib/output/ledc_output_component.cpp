@@ -4,9 +4,11 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include <esphomelib/log.h>
+#include "esphomelib/output/ledc_output_component.h"
+
 #include <esp32-hal-ledc.h>
-#include "ledc_output_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
@@ -25,7 +27,7 @@ void LEDCOutputComponent::write_value_f(float adjusted_value) {
 
   // If we're writing something high, then enable ATX
   if (duty > 0)
-    this->enable_atx();
+    this->enable_power_supply();
 
   ledcWrite(this->channel_, hw_duty);
 }

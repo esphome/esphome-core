@@ -2,9 +2,11 @@
 // Created by Otto Winter on 27.01.18.
 //
 
-#include "esp_preferences.h"
+#include "esphomelib/esppreferences.h"
+
 #include <functional>
-#include <esphomelib/helpers.h>
+
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 

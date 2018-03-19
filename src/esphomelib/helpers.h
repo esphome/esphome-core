@@ -10,7 +10,8 @@
 #include <memory>
 #include <queue>
 #include <functional>
-#include <esphomelib/hal.h>
+
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 

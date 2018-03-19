@@ -5,10 +5,9 @@
 #ifndef ESPHOMELIB_LIGHT_LIGHT_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_LIGHT_LIGHT_OUTPUT_COMPONENT_H
 
-#include <esphomelib/component.h>
-#include <esphomelib/output/float_output.h>
-#include "light_state.h"
+#include "esphomelib/component.h"
 #include "esphomelib/output/float_output.h"
+#include "esphomelib/light/light_state.h"
 
 namespace esphomelib {
 

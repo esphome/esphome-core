@@ -8,10 +8,10 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "pulse_counter.h"
-#include <esphomelib/log.h>
-#include <esphomelib/hal.h>
-#include <cassert>
+#include "esphomelib/input/pulse_counter.h"
+
+#include "esphomelib/log.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 
@@ -19,9 +19,9 @@ namespace input {
 
 static const char *TAG = "pulse_counter";
 
-PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t interval) {
+PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval)
+  : Sensor(update_interval) {
   this->set_pin(pin);
-  this->set_check_interval(interval);
 
   this->set_pcnt_unit(next_pcnt_unit);
   next_pcnt_unit = pcnt_unit_t(int(next_pcnt_unit) + 1); // NOLINT
@@ -92,12 +92,12 @@ void PulseCounterSensorComponent::setup() {
   pcnt_counter_clear(this->pcnt_unit_);
   pcnt_counter_resume(this->pcnt_unit_);
 
-  this->set_interval("retrieve_value", this->check_interval_, [&]() {
+  this->set_interval("retrieve_value", this->get_update_interval(), [&]() {
     int16_t counter;
     pcnt_get_counter_value(this->pcnt_unit_, &counter);
     int16_t delta = counter - this->last_value_;
     this->last_value_ = counter;
-    float value = (60000.0f * delta) / float(this->check_interval_); // per minute
+    float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
     value *= this->multiplier_;
 
     ESP_LOGD(TAG, "Retrieved counter (%d) delta %d -> %0.2f", counter, delta, value);
@@ -106,14 +106,6 @@ void PulseCounterSensorComponent::setup() {
 }
 float PulseCounterSensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
-}
-uint32_t PulseCounterSensorComponent::get_check_interval() const {
-  return this->check_interval_;
-}
-void PulseCounterSensorComponent::set_check_interval(uint32_t check_interval) {
-  assert_construction_state(this);
-  assert(check_interval > 0);
-  this->check_interval_ = check_interval;
 }
 std::string PulseCounterSensorComponent::unit_of_measurement() {
   return "pulses/min";

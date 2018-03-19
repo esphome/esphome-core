@@ -2,15 +2,16 @@
 // Created by Otto Winter on 27.01.18.
 //
 
-#ifndef ESPHOMELIB_ESP_PREFERENCES_H
-#define ESPHOMELIB_ESP_PREFERENCES_H
+#ifndef ESPHOMELIB_ESPPREFERENCES_H
+#define ESPHOMELIB_ESPPREFERENCES_H
 
 #include <string>
-#include <esphomelib/espmath.h>
 
 #ifdef ARDUINO_ARCH_ESP32
 #include <Preferences.h>
 #endif
+
+#include "esphomelib/espmath.h"
 
 namespace esphomelib {
 
@@ -56,4 +57,4 @@ extern ESPPreferences global_preferences;
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_ESP_PREFERENCES_H
+#endif //ESPHOMELIB_ESPPREFERENCES_H

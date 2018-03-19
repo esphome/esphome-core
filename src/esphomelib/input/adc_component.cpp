@@ -6,8 +6,9 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "adc_component.h"
-#include <cassert>
+#include "esphomelib/input/adc_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
@@ -16,13 +17,13 @@ namespace input {
 static const char *TAG = "adc_component";
 
 #ifdef ARDUINO_ARCH_ESP32
-ADCSensorComponent::ADCSensorComponent(uint8_t pin, uint32_t check_interval, uint8_t mode)
-    : check_interval_(check_interval), mode_(mode) {
+ADCSensorComponent::ADCSensorComponent(uint8_t pin, uint32_t update_interval, uint8_t mode)
+    : Sensor(update_interval), mode_(mode) {
   this->set_pin(pin);
 }
 #else
-ADCSensorComponent::ADCSensorComponent(uint8_t pin, uint32_t check_interval)
-    : check_interval_(check_interval) {
+ADCSensorComponent::ADCSensorComponent(uint8_t pin, uint32_t update_interval)
+    :  Sensor(update_interval) {
   this->set_pin(pin);
 }
 #endif
@@ -57,13 +58,6 @@ void ADCSensorComponent::set_mode(uint8_t mode) {
 }
 #endif
 
-uint32_t ADCSensorComponent::get_check_interval() const {
-  return this->check_interval_;
-}
-void ADCSensorComponent::set_check_interval(uint32_t check_interval) {
-  assert_construction_state(this);
-  this->check_interval_ = check_interval;
-}
 void ADCSensorComponent::setup() {
 #ifdef ARDUINO_ARCH_ESP32
   pinMode(this->pin_, this->mode_);
@@ -71,7 +65,7 @@ void ADCSensorComponent::setup() {
   analogSetPinAttenuation(this->pin_, this->attenuation_);
 #endif
 
-  this->set_interval("retrieve_adc", this->check_interval_, [&]() {
+  this->set_interval("retrieve_adc", this->get_update_interval(), [&]() {
     uint16_t value = analogRead(this->pin_);
     float value_v = value / 4095.0f;
 #ifdef ARDUINO_ARCH_ESP32

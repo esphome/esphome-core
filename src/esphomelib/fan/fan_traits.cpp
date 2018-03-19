@@ -2,7 +2,7 @@
 // Created by Otto Winter on 29.12.17.
 //
 
-#include "fan_traits.h"
+#include "esphomelib/fan/fan_traits.h"
 
 namespace esphomelib {
 

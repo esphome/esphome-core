@@ -6,8 +6,9 @@
 #define ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 
 #include <ArduinoJson.h>
-#include "light_traits.h"
 #include <string>
+
+#include "esphomelib/light/light_traits.h"
 
 namespace esphomelib {
 

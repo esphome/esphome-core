@@ -4,12 +4,14 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include <driver/rmt.h>
-#include <soc/rmt_struct.h>
-#include <esphomelib/log.h>
+#include "esphomelib/output/ir_transmitter_component.h"
+
 #include <cstdlib>
 #include <esp32-hal.h>
-#include "ir_transmitter_component.h"
+#include <driver/rmt.h>
+#include <soc/rmt_struct.h>
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

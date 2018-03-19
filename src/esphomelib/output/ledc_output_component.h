@@ -7,8 +7,8 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "float_output.h"
-#include "high_power_output.h"
+#include "esphomelib/output/float_output.h"
+#include "esphomelib/output/high_power_output.h"
 
 namespace esphomelib {
 

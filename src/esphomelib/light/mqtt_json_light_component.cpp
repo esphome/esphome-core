@@ -2,8 +2,9 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include <esphomelib/log.h>
-#include "mqtt_json_light_component.h"
+#include "esphomelib/light/mqtt_json_light_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

@@ -2,8 +2,9 @@
 // Created by Otto Winter on 29.12.17.
 //
 
-#include <esphomelib/log.h>
-#include "mqtt_fan_component.h"
+#include "esphomelib/fan/mqtt_fan_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

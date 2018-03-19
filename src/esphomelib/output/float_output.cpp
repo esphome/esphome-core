@@ -2,9 +2,10 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <esphomelib/helpers.h>
-#include <esphomelib/log.h>
-#include "float_output.h"
+#include "esphomelib/output/float_output.h"
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

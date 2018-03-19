@@ -6,8 +6,9 @@
 #define ESPHOMELIB_OUTPUT_PCA9685_OUTPUT_COMPONENT_H
 
 #include <PCA9685.h>
-#include "float_output.h"
-#include "high_power_output.h"
+
+#include "esphomelib/output/float_output.h"
+#include "esphomelib/output/high_power_output.h"
 
 namespace esphomelib {
 
@@ -58,9 +59,10 @@ class PCA9685OutputComponent : public Component {
   /** Get a PCA9685 output channel.
    *
    * @param channel The channel number.
+   * @param power_supply The power supply that should be set for this channel. Default: nullptr.
    * @return The new channel output component.
    */
-  Channel *create_channel(uint8_t channel, ATXComponent *atx = nullptr, float max_power = 1.0f);
+  Channel *create_channel(uint8_t channel, PowerSupplyComponent *power_supply = nullptr, float max_power = 1.0f);
 
  protected:
   void set_channel_value(uint8_t channel, uint16_t value);

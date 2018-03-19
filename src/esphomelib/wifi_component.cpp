@@ -2,11 +2,8 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "wifi_component.h"
-#include "helpers.h"
+#include "esphomelib/wifi_component.h"
 
-#include <esphomelib/log.h>
-#include <esphomelib/hal.h>
 #ifdef ARDUINO_ARCH_ESP32
 #include <WiFi.h>
 #include <esp_wifi.h>
@@ -14,6 +11,10 @@
 #include <ESP8266WiFi.h>
 #include <user_interface.h>
 #endif
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 

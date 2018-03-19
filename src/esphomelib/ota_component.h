@@ -6,7 +6,9 @@
 #define ESPHOMELIB_OTA_COMPONENT_H
 
 #include <WiFiServer.h>
-#include "component.h"
+
+#include "esphomelib/component.h"
+
 namespace esphomelib {
 
 /// OTAComponent provides a simple way to integrate Over-the-Air updates into your app using ArduinoOTA.

@@ -10,10 +10,11 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "component.h"
-#include "mqtt/mqtt_component.h"
 #include <cassert>
-#include "helpers.h"
+
+#include "esphomelib/component.h"
+#include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 

@@ -2,8 +2,9 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <esphomelib/log.h>
-#include "pca9685_output_component.h"
+#include "esphomelib/output/pca9685_output_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
@@ -53,13 +54,13 @@ void PCA9685OutputComponent::set_channel_value(uint8_t channel, uint16_t value) 
 }
 
 PCA9685OutputComponent::Channel *PCA9685OutputComponent::create_channel(uint8_t channel,
-                                                                        ATXComponent *atx,
+                                                                        PowerSupplyComponent *power_supply,
                                                                         float max_power) {
   ESP_LOGV(TAG, "Getting channel %d...", channel);
   this->min_channel_ = std::min(this->min_channel_, channel);
   this->max_channel_ = std::max(this->max_channel_, channel);
   auto *c = new Channel(this, channel);
-  c->set_atx(atx);
+  c->set_power_supply(power_supply);
   c->set_max_power(max_power);
   return c;
 }
@@ -106,7 +107,7 @@ void PCA9685OutputComponent::Channel::write_value_f(float adjusted_value) {
 
   // If we're writing something high, then enable ATX
   if (duty > 0)
-    this->enable_atx();
+    this->enable_power_supply();
 
   this->parent_->set_channel_value(this->channel_, hw_duty);
 }

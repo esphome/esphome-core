@@ -5,7 +5,8 @@
 #ifndef ESPHOMELIB_OUTPUT_HIGH_POWER_OUTPUT_H
 #define ESPHOMELIB_OUTPUT_HIGH_POWER_OUTPUT_H
 
-#include <esphomelib/atx_component.h>
+#include "esphomelib/power_supply_component.h"
+
 namespace esphomelib {
 
 namespace output {
@@ -13,18 +14,18 @@ namespace output {
 /// Enable outputs to automatically power on a power supply.
 class HighPowerOutput {
  public:
-  /// Defaults to no ATX power supply (nullptr).
+  /// Defaults to no power supply (nullptr).
   HighPowerOutput();
 
-  ATXComponent *get_atx() const;
-  /// Set an ATXComponent that will be enabled if power is needed by sub-classes.
-  void set_atx(ATXComponent *atx);
+  PowerSupplyComponent *get_power_supply() const;
+  /// Set an PowerSupplyComponent that will be enabled if power is needed by sub-classes.
+  void set_power_supply(PowerSupplyComponent *power_supply);
 
-  /// Use this method to enable the ATX power supply.
-  void enable_atx();
+  /// Use this method to enable the power supply.
+  void enable_power_supply();
 
  protected:
-  ATXComponent *atx_;
+  PowerSupplyComponent *power_supply_;
 };
 
 } // namespace output

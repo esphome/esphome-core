@@ -6,8 +6,9 @@
 #define ESPHOMELIB_LIGHT_LIGHT_EFFECT_H
 
 #include <string>
-#include "light_traits.h"
-#include "light_state.h"
+
+#include "esphomelib/light/light_traits.h"
+#include "esphomelib/light/light_state.h"
 
 namespace esphomelib {
 

@@ -2,14 +2,16 @@
 // Created by Otto Winter on 25.11.17.
 //
 
+#include "esphomelib/log_component.h"
+
 #ifdef ARDUINO_ARCH_ESP32
 #include <esp_log.h>
 #endif
 #include <HardwareSerial.h>
-#include "log_component.h"
+
 #include "esphomelib/mqtt/mqtt_client_component.h"
-#include <esphomelib/log.h>
-#include "application.h"
+#include "esphomelib/log.h"
+#include "esphomelib/application.h"
 
 namespace esphomelib {
 

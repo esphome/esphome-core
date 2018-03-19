@@ -5,8 +5,10 @@
 #ifndef ESPHOMELIB_INPUT_GPIO_BINARY_SENSOR_COMPONENT_H
 #define ESPHOMELIB_INPUT_GPIO_BINARY_SENSOR_COMPONENT_H
 
-#include "esphomelib/binary_sensor/binary_sensor.h"
 #include <cstdint>
+
+#include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 

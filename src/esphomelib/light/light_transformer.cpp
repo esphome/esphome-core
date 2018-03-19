@@ -2,11 +2,12 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include <esphomelib/helpers.h>
-#include <esphomelib/component.h>
-#include <esphomelib/log.h>
-#include <esphomelib/hal.h>
-#include "light_transformer.h"
+#include "esphomelib/light/light_transformer.h"
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/component.h"
+#include "esphomelib/log.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 

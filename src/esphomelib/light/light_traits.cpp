@@ -2,7 +2,7 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include "light_traits.h"
+#include "esphomelib/light/light_traits.h"
 
 namespace esphomelib {
 

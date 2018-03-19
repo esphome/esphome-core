@@ -2,7 +2,7 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include "binary_output.h"
+#include "esphomelib/output/binary_output.h"
 
 namespace esphomelib {
 

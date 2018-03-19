@@ -2,12 +2,12 @@
 // Created by Otto Winter on 22.01.18.
 //
 
-#include "log.h"
-#include <esphomelib/log_component.h>
+#include "esphomelib/log.h"
+#include "esphomelib/log_component.h"
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-// shamelessly copied from esp32/arduino
+// shamelessly copied from esp32/arduino :)
 const char *pathToFileName(const char *path) {
   size_t i = 0;
   size_t pos = 0;

@@ -5,7 +5,7 @@
 #ifndef ESPHOMELIB_LIGHT_LIGHT_TRANSFORMER_H
 #define ESPHOMELIB_LIGHT_LIGHT_TRANSFORMER_H
 
-#include "light_color_values.h"
+#include "esphomelib/light/light_color_values.h"
 
 namespace esphomelib {
 

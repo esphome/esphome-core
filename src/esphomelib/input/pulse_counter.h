@@ -11,9 +11,10 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include <esphomelib/sensor/sensor.h>
 #include <driver/pcnt.h>
-#include <esphomelib/hal.h>
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 
@@ -21,7 +22,7 @@ namespace input {
 
 class PulseCounterSensorComponent : public Component, public sensor::Sensor {
  public:
-  explicit PulseCounterSensorComponent(uint8_t pin, uint32_t interval = 30000);
+  explicit PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval = 30000);
 
   std::string unit_of_measurement() override;
 
@@ -33,9 +34,6 @@ class PulseCounterSensorComponent : public Component, public sensor::Sensor {
 
   uint8_t get_pin_mode() const;
   void set_pin_mode(uint8_t pin_mode);
-
-  uint32_t get_check_interval() const;
-  void set_check_interval(uint32_t check_interval);
 
   float get_multiplier() const;
   void set_multiplier(float multiplier);
@@ -52,7 +50,6 @@ class PulseCounterSensorComponent : public Component, public sensor::Sensor {
  protected:
   uint8_t pin_;
   uint8_t pin_mode_{ANALOG};
-  uint32_t check_interval_;
   float multiplier_{1.0f};
   pcnt_unit_t pcnt_unit_;
   pcnt_count_mode_t rising_edge_mode_{PCNT_COUNT_INC};

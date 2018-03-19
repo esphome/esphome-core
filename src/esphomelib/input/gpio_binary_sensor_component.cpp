@@ -2,9 +2,10 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <esphomelib/hal.h>
-#include <esphomelib/log.h>
-#include "gpio_binary_sensor_component.h"
+#include "esphomelib/input/gpio_binary_sensor_component.h"
+
+#include "esphomelib/esphal.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

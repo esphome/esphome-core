@@ -8,8 +8,9 @@
 #ifdef ARDUINO_ARCH_ESP32
 
 #include <driver/rmt.h>
-#include <esphomelib/component.h>
-#include <esphomelib/switch_platform/switch.h>
+
+#include "esphomelib/component.h"
+#include "esphomelib/switch_platform/switch.h"
 
 namespace esphomelib {
 

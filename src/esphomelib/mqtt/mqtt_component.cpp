@@ -2,13 +2,15 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "mqtt_component.h"
-#include "mqtt_client_component.h"
+#include "esphomelib/mqtt/mqtt_component.h"
+
 #include <algorithm>
 #include <utility>
-#include <esphomelib/log.h>
-#include <esphomelib/helpers.h>
-#include <esphomelib/application.h>
+
+#include "esphomelib/mqtt/mqtt_client_component.h"
+#include "esphomelib/log.h"
+#include "esphomelib/helpers.h"
+#include "esphomelib/application.h"
 
 namespace esphomelib {
 
@@ -55,8 +57,8 @@ void MQTTComponent::send_json_message(const std::string &topic, const json_build
 
   f(json_buffer, root);
 
-  char buffer[512];
-  root.printTo(buffer, 512);
+  char buffer[MQTT_MAX_PACKET_SIZE];
+  root.printTo(buffer, MQTT_MAX_PACKET_SIZE);
   this->send_message(topic, std::string(buffer), retain);
 }
 

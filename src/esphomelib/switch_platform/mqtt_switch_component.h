@@ -5,8 +5,8 @@
 #ifndef ESPHOMELIB_SWITCH_PLATFORM_MQTT_SWITCH_COMPONENT_H
 #define ESPHOMELIB_SWITCH_PLATFORM_MQTT_SWITCH_COMPONENT_H
 
-#include <esphomelib/binary_sensor/mqtt_binary_sensor_component.h>
-#include <esphomelib/mqtt/mqtt_component.h>
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
+#include "esphomelib/mqtt/mqtt_component.h"
 
 namespace esphomelib {
 

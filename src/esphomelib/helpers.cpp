@@ -2,17 +2,19 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "helpers.h"
 #include <cstdio>
-#include <esphomelib/log.h>
-#include <esphomelib/espmath.h>
-#include <esphomelib/hal.h>
 #include <algorithm>
+
 #ifdef ARDUINO_ARCH_ESP8266
   #include <ESP8266WiFi.h>
 #else
   #include <Esp.h>
 #endif
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
+#include "esphomelib/espmath.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 

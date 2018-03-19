@@ -2,10 +2,11 @@
 // Created by Otto Winter on 03.12.17.
 //
 
-#include <esphomelib/log.h>
+#include "esphomelib/ota_component.h"
+
 #include <ArduinoOTA.h>
 
-#include "ota_component.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

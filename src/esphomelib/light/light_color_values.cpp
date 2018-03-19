@@ -2,14 +2,16 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include "light_color_values.h"
-#include <esphomelib/helpers.h>
-#include <esphomelib/component.h>
-#include <esphomelib/log.h>
+#include "esphomelib/light/light_color_values.h"
+
 #include <sstream>
 #include <iomanip>
-#include <esphomelib/espmath.h>
-#include <esphomelib/esp_preferences.h>
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/component.h"
+#include "esphomelib/log.h"
+#include "esphomelib/espmath.h"
+#include "esphomelib/esppreferences.h"
 
 namespace esphomelib {
 

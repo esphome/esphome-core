@@ -2,11 +2,12 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <esphomelib/log.h>
-#include <esphomelib/espmath.h>
-#include <esphomelib/helpers.h>
-#include "dht_component.h"
-#include <esphomelib/espmath.h>
+#include "esphomelib/input/dht_component.h"
+
+#include "esphomelib/log.h"
+#include "esphomelib/espmath.h"
+#include "esphomelib/helpers.h"
+#include "esphomelib/espmath.h"
 
 namespace esphomelib {
 
@@ -16,11 +17,10 @@ using namespace esphomelib::sensor;
 
 static const char *TAG = "sensor::dht";
 
-DHTComponent::DHTComponent(uint8_t pin, uint32_t check_interval)
-    : temperature_sensor_(new TemperatureSensor()),
-      humidity_sensor_(new HumiditySensor()) {
+DHTComponent::DHTComponent(uint8_t pin, uint32_t update_interval)
+    : temperature_sensor_(new TemperatureSensor(update_interval)),
+      humidity_sensor_(new HumiditySensor(update_interval)) {
   this->set_pin(pin);
-  this->set_check_interval(check_interval);
 }
 
 void DHTComponent::setup() {
@@ -28,24 +28,34 @@ void DHTComponent::setup() {
 
   ESP_LOGD(TAG, "DHT status %d", this->dht_.getStatus());
 
-  this->set_interval("check", this->check_interval_, [&]() {
+  assert(this->temperature_sensor_->get_update_interval() == this->humidity_sensor_->get_update_interval());
+  this->set_interval("check", this->temperature_sensor_->get_update_interval(), [&]() {
     auto temp_hum = run_without_interrupts<std::pair<float, float>>([this] {
       return std::make_pair(this->dht_.getTemperature(), this->dht_.getHumidity());
     });
     float temperature = temp_hum.first;
     float humidity = temp_hum.second;
 
+    if (temperature == 0.0 && humidity == 1.0) {
+      // Sometimes DHT22 queries fail in a weird way where temperature is exactly 0.0 °C
+      // and humidity is exactly 1%. This *exact* value pair shouldn't really happen
+      // that much out in the wild (unless you're in a very cold dry room).
+      // FIXME
+      ESP_LOGE(TAG, "Got invalid temperature %f°C and humidity %f%% pair.");
+      return;
+    }
+
     ESP_LOGV(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
     if (!isnan(temperature))
       this->temperature_sensor_->push_new_value(temperature, this->dht_.getNumberOfDecimalsTemperature());
     else
-      ESP_LOGE(TAG, "Invalid Temperature: %f", temperature);
+      ESP_LOGE(TAG, "Invalid Temperature: %f!C", temperature);
 
     if (!isnan(humidity))
       this->humidity_sensor_->push_new_value(humidity, this->dht_.getNumberOfDecimalsHumidity());
     else
-      ESP_LOGE(TAG, "Invalid Humidity: %f", humidity);
+      ESP_LOGE(TAG, "Invalid Humidity: %f%%", humidity);
   });
 }
 
@@ -67,14 +77,6 @@ void DHTComponent::set_pin(uint8_t pin) {
   assert_is_pin(pin);
   assert_construction_state(this);
   this->pin_ = pin;
-}
-uint32_t DHTComponent::get_check_interval() const {
-  return this->check_interval_;
-}
-void DHTComponent::set_check_interval(uint32_t check_interval) {
-  assert_positive(check_interval);
-  assert_construction_state(this);
-  this->check_interval_ = check_interval;
 }
 void DHTComponent::set_dht_model(DHT::DHT_MODEL_t model) {
   assert_construction_state(this);

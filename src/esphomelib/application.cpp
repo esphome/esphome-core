@@ -2,14 +2,15 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "application.h"
-#include "wifi_component.h"
+#include "esphomelib/application.h"
 
 #include <utility>
 #include <algorithm>
-#include <esphomelib/log.h>
-#include <esphomelib/output/gpio_binary_output_component.h>
-#include <esphomelib/esp_preferences.h>
+
+#include "esphomelib/log.h"
+#include "esphomelib/output/gpio_binary_output_component.h"
+#include "esphomelib/esppreferences.h"
+#include "esphomelib/wifi_component.h"
 
 namespace esphomelib {
 
@@ -94,8 +95,8 @@ LogComponent *Application::init_log(uint32_t baud_rate,
   return this->register_component(log);
 }
 
-ATXComponent *Application::make_atx(uint8_t pin, uint32_t enable_time, uint32_t keep_on_time) {
-  auto *atx = new ATXComponent(pin, enable_time, keep_on_time);
+PowerSupplyComponent *Application::make_power_supply(uint8_t pin, uint32_t enable_time, uint32_t keep_on_time) {
+  auto *atx = new PowerSupplyComponent(pin, enable_time, keep_on_time);
   return this->register_component(atx);
 }
 
@@ -120,40 +121,23 @@ Application::SimpleBinarySensor Application::make_simple_gpio_binary_sensor(std:
   return s;
 }
 
-MQTTSensorComponent *Application::make_mqtt_sensor(std::string friendly_name,
-                                                   std::string unit_of_measurement, Optional<uint32_t> expire_after) {
-  auto *mqtt = new MQTTSensorComponent(std::move(friendly_name), std::move(unit_of_measurement),
-                                       expire_after);
-  return this->register_mqtt_component(mqtt);
-}
-
 Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
                                                               const std::string &temperature_friendly_name,
                                                               const std::string &humidity_friendly_name,
                                                               uint32_t check_interval) {
   auto *dht = new DHTComponent(pin, check_interval);
-  // Expire after 30 missed values
-  uint32_t expire_after = check_interval * 30 / 1000;
-  auto *mqtt_temperature =
-      this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name, expire_after);
-  auto *mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name, expire_after);
   this->register_component(dht);
+
   return MakeDHTComponent{
       .dht = dht,
-      .mqtt_temperature = mqtt_temperature,
-      .mqtt_humidity = mqtt_humidity
+      .mqtt_temperature = this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name),
+      .mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), temperature_friendly_name)
   };
 }
 
 sensor::MQTTSensorComponent *Application::make_mqtt_sensor_for(sensor::Sensor *sensor,
-                                                               std::string friendly_name,
-                                                               Optional<uint32_t> expire_after,
-                                                               Optional<size_t> moving_average_size) {
-  auto *mqtt = this->make_mqtt_sensor(std::move(friendly_name), sensor->unit_of_measurement(), expire_after);
-  sensor->set_new_value_callback(mqtt->create_new_data_callback());
-  if (moving_average_size)
-    mqtt->set_filter(new SlidingWindowMovingAverageFilter(moving_average_size.value, moving_average_size.value));
-  return mqtt;
+                                                               std::string friendly_name) {
+  return this->register_mqtt_component(new MQTTSensorComponent(std::move(friendly_name), sensor));
 }
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -303,11 +287,9 @@ Application::Application() {
 #ifdef ARDUINO_ARCH_ESP32
 Application::MakePulseCounter Application::make_pulse_counter(uint8_t pin,
                                                               const std::string &friendly_name,
-                                                              uint32_t check_interval) {
-  auto *pcnt = this->register_component(new PulseCounterSensorComponent(pin, check_interval));
-  // Expire after 30 missed values
-  uint32_t expire_after = check_interval * 30 / 1000;
-  auto *mqtt = this->make_mqtt_sensor_for(pcnt, friendly_name, expire_after, Optional<size_t>());
+                                                              uint32_t update_interval) {
+  auto *pcnt = this->register_component(new PulseCounterSensorComponent(pin, update_interval));
+  auto *mqtt = this->make_mqtt_sensor_for(pcnt, friendly_name);
   return MakePulseCounter {
       .pcnt = pcnt,
       .mqtt = mqtt
@@ -317,11 +299,9 @@ Application::MakePulseCounter Application::make_pulse_counter(uint8_t pin,
 
 Application::MakeADCSensor Application::make_adc_sensor(uint8_t pin,
                                                         const std::string &friendly_name,
-                                                        uint32_t check_interval) {
-  auto *adc = this->register_component(new ADCSensorComponent(pin, check_interval));
-  // Expire after 30 missed values
-  uint32_t expire_after = check_interval * 30 / 1000;
-  auto *mqtt = this->make_mqtt_sensor_for(adc, friendly_name, expire_after);
+                                                        uint32_t update_interval) {
+  auto *adc = this->register_component(new ADCSensorComponent(pin, update_interval));
+  auto *mqtt = this->make_mqtt_sensor_for(adc, friendly_name);
   return MakeADCSensor {
       .adc = adc,
       .mqtt = mqtt

@@ -6,12 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_ADC_COMPONENT_H
-#define ESPHOMELIB_ADC_COMPONENT_H
+#ifndef ESPHOMELIB_INPUT_ADC_COMPONENT_H
+#define ESPHOMELIB_INPUT_ADC_COMPONENT_H
 
-#include <esphomelib/component.h>
-#include <esphomelib/sensor/sensor.h>
-#include "Arduino.h"
+#include "esphomelib/component.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 
@@ -20,9 +20,9 @@ namespace input {
 class ADCSensorComponent : public Component, public sensor::Sensor {
  public:
 #ifdef ARDUINO_ARCH_ESP32
-  explicit ADCSensorComponent(uint8_t pin, uint32_t check_interval = 1000, uint8_t mode = ANALOG);
+  explicit ADCSensorComponent(uint8_t pin, uint32_t update_interval = 15000, uint8_t mode = ANALOG);
 #else
-  explicit ADCSensorComponent(uint8_t pin, uint32_t check_interval = 1000);
+  explicit ADCSensorComponent(uint8_t pin, uint32_t update_interval = 15000);
 #endif
 
   uint8_t get_pin() const;
@@ -33,8 +33,6 @@ class ADCSensorComponent : public Component, public sensor::Sensor {
   void set_mode(uint8_t mode);
 #endif
 
-  uint32_t get_check_interval() const;
-  void set_check_interval(uint32_t check_interval);
   void setup() override;
   float get_setup_priority() const override;
   std::string unit_of_measurement() override;
@@ -46,7 +44,6 @@ class ADCSensorComponent : public Component, public sensor::Sensor {
 
  protected:
   uint8_t pin_;
-  uint32_t check_interval_;
 
 #ifdef ARDUINO_ARCH_ESP32
   uint8_t mode_;
@@ -58,4 +55,4 @@ class ADCSensorComponent : public Component, public sensor::Sensor {
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_ADC_COMPONENT_H
+#endif //ESPHOMELIB_INPUT_ADC_COMPONENT_H

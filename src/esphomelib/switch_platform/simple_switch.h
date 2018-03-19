@@ -5,8 +5,9 @@
 #ifndef ESPHOMELIB_SWITCH_PLATFORM_SIMPLE_SWITCH
 #define ESPHOMELIB_SWITCH_PLATFORM_SIMPLE_SWITCH
 
-#include <esphomelib/output/binary_output.h>
-#include "switch.h"
+#include "esphomelib/output/binary_output.h"
+#include "esphomelib/switch_platform/switch.h"
+
 namespace esphomelib {
 
 namespace switch_platform {

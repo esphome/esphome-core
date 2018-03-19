@@ -8,9 +8,10 @@
 #include <memory>
 #include <functional>
 #include <vector>
-#include "light_color_values.h"
-#include "light_effect.h"
-#include "light_transformer.h"
+
+#include "esphomelib/light/light_color_values.h"
+#include "esphomelib/light/light_effect.h"
+#include "esphomelib/light/light_transformer.h"
 
 namespace esphomelib {
 

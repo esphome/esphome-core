@@ -2,7 +2,7 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "binary_sensor.h"
+#include "esphomelib/binary_sensor/binary_sensor.h"
 
 namespace esphomelib {
 

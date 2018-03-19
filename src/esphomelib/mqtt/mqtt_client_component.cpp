@@ -2,9 +2,11 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include <esphomelib/log.h>
+#include "esphomelib/mqtt/mqtt_client_component.h"
+
 #include <utility>
-#include "mqtt_client_component.h"
+
+#include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
 
 static const char *TAG = "MQTTClient";

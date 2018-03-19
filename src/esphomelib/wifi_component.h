@@ -5,8 +5,6 @@
 #ifndef ESPHOMELIB_WIFI_COMPONENT_H
 #define ESPHOMELIB_WIFI_COMPONENT_H
 
-#include <esphomelib/component.h>
-#include <esphomelib/helpers.h>
 #include <string>
 #include <IPAddress.h>
 
@@ -16,6 +14,9 @@
 #else
 #include <ESP8266WiFiType.h>
 #endif
+
+#include "esphomelib/component.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
