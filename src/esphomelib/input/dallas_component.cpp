@@ -121,7 +121,7 @@ void DallasComponent::request_temperature(DallasTemperatureSensor *sensor) {
       ESP_LOGD(TAG, "0x%s: Got Temperature=%.1f°C", sensor->get_name().c_str(), temperature);
       sensor->push_new_value(temperature, 1);
     } else {
-      ESP_LOGE(TAG, "0x%s: Invalid Temperature: %f", sensor->get_name().c_str(), temperature);
+      ESP_LOGW(TAG, "0x%s: Invalid Temperature: %f", sensor->get_name().c_str(), temperature);
     }
   });
 }

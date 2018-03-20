@@ -147,18 +147,19 @@ void MQTTClientComponent::reconnect() {
 }
 
 void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, bool retain) {
-  if (topic != global_log_component->get_logging_topic()) {
+  bool logging_topic = topic == global_log_component->get_logging_topic();
+  if (!logging_topic) {
     ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload.c_str(), retain);
   }
 
   const auto *payload_data = reinterpret_cast<const uint8_t *>(payload.data());
   this->reconnect();
   bool ret = this->mqtt_client_.publish(topic.c_str(), payload_data, payload.length(), retain);
-  if (!ret)
+  if (!ret && !logging_topic)
     ESP_LOGW(TAG, "PubSubClient::publish() failed (connected=%d, MQTT_MAX_PACKET_SIZE=%d)!", this->is_connected(),
              MQTT_MAX_PACKET_SIZE);
   ret = this->mqtt_client_.loop();
-  if (!ret)
+  if (!ret && !logging_topic)
     ESP_LOGW(TAG, "PubSubClient::loop() failed!");
   yield();
 }
