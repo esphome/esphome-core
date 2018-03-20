@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace light {
 
-static const char *TAG = "light_color_values";
+static const char *TAG = "light::light_color_values";
 
 float LightColorValues::get_state() const {
   return this->state_;

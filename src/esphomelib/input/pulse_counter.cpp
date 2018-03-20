@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace input {
 
-static const char *TAG = "pulse_counter";
+static const char *TAG = "input::pulse_counter";
 
 PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval)
   : Sensor(update_interval) {
@@ -63,7 +63,15 @@ void PulseCounterSensorComponent::set_filter(uint16_t filter) {
   assert(filter < 1024 && "Filter value can't exceed 1023");
   this->filter_ = filter;
 }
+
+const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
+
 void PulseCounterSensorComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up pulse counter unit %d", this->pcnt_unit_);
+  ESP_LOGCONFIG(TAG, "    Pin %u", this->pin_);
+  ESP_LOGCONFIG(TAG, "    Rising Edge: %s", EDGE_MODE_TO_STRING[this->rising_edge_mode_]);
+  ESP_LOGCONFIG(TAG, "    Falling Edge: %s", EDGE_MODE_TO_STRING[this->falling_edge_mode_]);
+
   pcnt_config_t pcnt_config = {
       .pulse_gpio_num = this->pin_,
       .ctrl_gpio_num = PCNT_PIN_NOT_USED,
@@ -78,10 +86,9 @@ void PulseCounterSensorComponent::setup() {
   };
   pcnt_unit_config(&pcnt_config);
 
-  gpio_set_pull_mode(static_cast<gpio_num_t>(this->pin_), GPIO_FLOATING);
+  ESP_LOGCONFIG(TAG, "    Pull Mode %u", this->pull_mode_);
+  gpio_set_pull_mode(static_cast<gpio_num_t>(this->pin_), this->pull_mode_);
 
-  ESP_LOGD(TAG, "Setting up pulse counter unit %d", this->pcnt_unit_);
-  ESP_LOGD(TAG, "    pin=%d", this->pin_);
 
   if (this->filter_) {
     pcnt_set_filter_value(this->pcnt_unit_, this->filter_);
@@ -92,37 +99,30 @@ void PulseCounterSensorComponent::setup() {
   pcnt_counter_clear(this->pcnt_unit_);
   pcnt_counter_resume(this->pcnt_unit_);
 
+  ESP_LOGCONFIG(TAG, "    Update Interval: %u", this->update_interval_);
   this->set_interval("retrieve_value", this->get_update_interval(), [&]() {
     int16_t counter;
     pcnt_get_counter_value(this->pcnt_unit_, &counter);
-    int16_t delta = counter - this->last_value_;
+    float delta = counter - this->last_value_;
     this->last_value_ = counter;
     float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
-    value *= this->multiplier_;
 
-    ESP_LOGD(TAG, "Retrieved counter (%d) delta %d -> %0.2f", counter, delta, value);
+    ESP_LOGD(TAG, "%u: Retrieved counter (raw=%d): %0.2f pulses/min", this->pcnt_unit_, counter, value);
     this->push_new_value(value, 2);
   });
 }
 float PulseCounterSensorComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
+  return setup_priority::MQTT_COMPONENT;
 }
 std::string PulseCounterSensorComponent::unit_of_measurement() {
   return "pulses/min";
 }
-uint8_t PulseCounterSensorComponent::get_pin_mode() const {
-  return this->pin_mode_;
+gpio_pull_mode_t PulseCounterSensorComponent::get_pull_mode() const {
+  return this->pull_mode_;
 }
-void PulseCounterSensorComponent::set_pin_mode(uint8_t pin_mode) {
+void PulseCounterSensorComponent::set_pull_mode(gpio_pull_mode_t pull_mode) {
   assert_construction_state(this);
-  this->pin_mode_ = pin_mode;
-}
-float PulseCounterSensorComponent::get_multiplier() const {
-  return this->multiplier_;
-}
-void PulseCounterSensorComponent::set_multiplier(float multiplier) {
-  assert_construction_state(this);
-  this->multiplier_ = multiplier;
+  this->pull_mode_ = pull_mode;
 }
 
 pcnt_unit_t next_pcnt_unit = PCNT_UNIT_0;

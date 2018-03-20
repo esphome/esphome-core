@@ -8,7 +8,7 @@ namespace esphomelib {
 
 namespace light {
 
-static const char *TAG = "light_traits";
+static const char *TAG = "light::light_traits";
 
 bool LightTraits::supports_brightness() const {
     return this->brightness_;

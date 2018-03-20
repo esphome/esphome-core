@@ -4,8 +4,8 @@
 
 #include "esphomelib/power_supply_component.h"
 
-#include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

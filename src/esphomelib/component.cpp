@@ -9,6 +9,8 @@
 
 namespace esphomelib {
 
+static const char *TAG = "component";
+
 float Component::get_loop_priority() const {
   return 0.0f;
 }
@@ -26,6 +28,8 @@ void Component::loop() {
 }
 
 void Component::set_interval(const std::string &name, uint32_t interval, time_func_t f) {
+  ESP_LOGV(TAG, "set_interval(name=%s, interval=%u)", name.c_str(), interval);
+
   this->cancel_interval(name);
   struct TimeFunction function = {
       .name = name,
@@ -42,6 +46,8 @@ bool Component::cancel_interval(const std::string &name) {
 }
 
 void Component::set_timeout(const std::string &name, uint32_t timeout, time_func_t f) {
+  ESP_LOGV(TAG, "set_timeout(name=%s, timeout=%u)", name.c_str(), timeout);
+
   this->cancel_timeout(name);
   struct TimeFunction function = {
       .name = name,
@@ -83,6 +89,7 @@ void Component::loop_() {
 bool Component::cancel_time_function(const std::string &name, TimeFunction::Type type) {
   for (auto iter = this->time_functions_.begin(); iter != this->time_functions_.end(); iter++) {
     if (iter->name == name && iter->type == type) {
+      ESP_LOGV(TAG, "Removing old time function %s.", iter->name.c_str());
       this->time_functions_.erase(iter);
       return true;
     }

@@ -195,7 +195,7 @@ class Application {
    */
   MakePulseCounter make_pulse_counter(uint8_t pin,
                                       const std::string &friendly_name,
-                                      uint32_t updat_interval = 15000);
+                                      uint32_t update_interval = 15000);
 #endif
 
   struct MakeADCSensor {
@@ -375,6 +375,7 @@ class Application {
   WiFiComponent *wifi_;
 
   std::string name_;
+  Component::ComponentState application_state_{Component::CONSTRUCTION};
 };
 
 /// Global storage of Application pointer - only one Application can exist.

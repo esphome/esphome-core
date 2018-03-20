@@ -6,10 +6,11 @@
 #define ESPHOMELIB_ESPHAL_H
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <esp32-hal.h>
+  #include <esp32-hal.h>
+  #include "esphomelib/espmath.h"
 #else
-#include "Arduino.h"
-#include "esphomelib/espmath.h"
+  #include "Arduino.h"
+  #include "esphomelib/espmath.h"
 #endif
 
 #endif //ESPHOMELIB_ESPHAL_H

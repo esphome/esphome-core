@@ -84,7 +84,7 @@ T run_without_interrupts(const std::function<T()> &f);
 /// Helper class to represent an optional value.
 template<typename T>
 struct Optional {
-  Optional() : defined(false) {}
+  explicit Optional() : defined(false) {}
 
   Optional(T value) : defined(true), value(value) {} // NOLINT
 

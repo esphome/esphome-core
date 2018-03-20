@@ -3,31 +3,25 @@
 //
 
 #include "esphomelib/log.h"
+
 #include "esphomelib/log_component.h"
 
-#ifdef ARDUINO_ARCH_ESP8266
-
-// shamelessly copied from esp32/arduino :)
-const char *pathToFileName(const char *path) {
-  size_t i = 0;
-  size_t pos = 0;
-  auto *p = (char *) path;
-  while (*p) {
-    i++;
-    if (*p == '/' || *p == '\\') {
-      pos = i;
-    }
-    p++;
-  }
-  return path + pos;
-}
-
-int log_printf(const char *format, ...)  {
+int esp_log_printf_(ESPLogLevel level, const std::string &tag, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
-  int ret = esphomelib::LogComponent::log_vprintf_(format, arg);
+  int ret = esp_log_vprintf_(level, tag, format, arg);
   va_end(arg);
   return ret;
 }
 
-#endif
+int esp_log_vprintf_(ESPLogLevel level, const std::string &tag, const char *format, va_list args) {
+  auto *log = esphomelib::global_log_component;
+  if (log == nullptr)
+    return 0;
+
+  return log->log_vprintf_(level, tag, format, args);
+}
+
+int esp_idf_log_vprintf_(const char *format, va_list args) {
+  return esp_log_vprintf_(ESPHOMELIB_LOG_LEVEL_INFO, "", format, args);
+}

@@ -26,6 +26,12 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    */
   MQTTSensorComponent(std::string friendly_name, Sensor *sensor);
 
+  /** Manually set the unit of measurement advertised to Home Assistant.
+   *
+   * This is automatically set by the constructor, but can later be overriden.
+   *
+   * @param unit_of_measurement The unit of measurement,
+   */
   void set_unit_of_measurement(const std::string &unit_of_measurement);
 
   /** Override the accuracy in decimals that this value should use for reporting value.
@@ -39,7 +45,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   void override_accuracy_decimals(int8_t override_accuracy_decimals);
 
   /// Setup an expiry
-  void set_expire_after(const Optional<uint32_t> &expire_after);
+  void set_expire_after(uint32_t expire_after);
   void disable_expire_after();
 
   /// Add a filter to the filter chain. Will be appended to the back.
@@ -66,20 +72,21 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    */
   void add_offset_filter(float offset);
 
+  /** Helper to add a simple multiplier filter to the back of the filter chain.
+   *
+   * Each value will be multiplied by this multiplier. Can be used to convert units
+   * easily. For example converting "pulses/min" to a more reasonable unit like kW.
+   *
+   * @param multiplier The multiplier each value will be multiplied with.
+   */
+  void add_multiplier_filter(float multiplier);
+
   /// Helper to make adding sliding window moving average filters a bit easier.
   void add_sliding_window_average_filter(size_t window_size, size_t send_every);
 
   /// Helper to make adding exponential decay average filters a bit easier.
   void add_exponential_moving_average_filter(float alpha, size_t send_every);
 
-  /** Return the vector of filters this component uses for its value calculations.
-   *
-   * Note that if you're using this method, you're probably doing something wrong.
-   * The clear_filters() and add_filter() methods should be the only methods you need.
-   *
-   * @return Returns an std::vector<Filter *> of all filters in the filter chain.
-   */
-  std::vector<Filter *> get_filters() const;
   /// Clear the entire filter chain.
   void clear_filters();
 
@@ -109,6 +116,15 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
   const std::string &get_unit_of_measurement() const;
 
+  /** Return the vector of filters this component uses for its value calculations.
+   *
+   * Note that if you're using this method, you're probably doing something wrong.
+   * The clear_filters() and add_filter() methods should be the only methods you need.
+   *
+   * @return Returns an std::vector<Filter *> of all filters in the filter chain.
+   */
+  std::vector<Filter *> get_filters() const;
+
  protected:
   /// Override for MQTTComponent, returns "sensor".
   std::string component_type() const override;
@@ -122,7 +138,6 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   Optional<uint32_t> expire_after_;
   Optional<int8_t> override_accuracy_decimals_;
   std::vector<Filter *> filters_;
-  float offset_;
 };
 
 } // namespace sensor

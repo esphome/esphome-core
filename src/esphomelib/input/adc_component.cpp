@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace input {
 
-static const char *TAG = "adc_component";
+static const char *TAG = "input::adc";
 
 #ifdef ARDUINO_ARCH_ESP32
 ADCSensorComponent::ADCSensorComponent(uint8_t pin, uint32_t update_interval, uint8_t mode)

@@ -18,7 +18,7 @@
 
 namespace esphomelib {
 
-static const char *TAG = "wifi_component";
+static const char *TAG = "wifi";
 
 float WiFiComponent::get_setup_priority() const {
   return setup_priority::WIFI;

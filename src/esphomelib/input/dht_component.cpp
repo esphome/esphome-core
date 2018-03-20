@@ -15,7 +15,7 @@ namespace input {
 
 using namespace esphomelib::sensor;
 
-static const char *TAG = "sensor::dht";
+static const char *TAG = "input::dht";
 
 DHTComponent::DHTComponent(uint8_t pin, uint32_t update_interval)
     : temperature_sensor_(new TemperatureSensor(update_interval)),
@@ -24,11 +24,15 @@ DHTComponent::DHTComponent(uint8_t pin, uint32_t update_interval)
 }
 
 void DHTComponent::setup() {
+
+  ESP_LOGCONFIG(TAG, "Setting up DHT...");
+  ESP_LOGCONFIG(TAG, "    Pin: %u", this->pin_);
+  ESP_LOGCONFIG(TAG, "    Model: %u", this->model_);
   this->dht_.setup(this->pin_, this->model_);
-
-  ESP_LOGD(TAG, "DHT status %d", this->dht_.getStatus());
-
+  ESP_LOGD(TAG, "    setup() -> status: %u", this->dht_.getStatus());
+  ESP_LOGCONFIG(TAG, "    Update Interval: %u", this->temperature_sensor_->get_update_interval());
   assert(this->temperature_sensor_->get_update_interval() == this->humidity_sensor_->get_update_interval());
+
   this->set_interval("check", this->temperature_sensor_->get_update_interval(), [&]() {
     auto temp_hum = run_without_interrupts<std::pair<float, float>>([this] {
       return std::make_pair(this->dht_.getTemperature(), this->dht_.getHumidity());
@@ -41,21 +45,21 @@ void DHTComponent::setup() {
       // and humidity is exactly 1%. This *exact* value pair shouldn't really happen
       // that much out in the wild (unless you're in a very cold dry room).
       // FIXME
-      ESP_LOGE(TAG, "Got invalid temperature %f°C and humidity %f%% pair.");
+      ESP_LOGW(TAG, "Got invalid temperature %f°C and humidity %f%% pair.");
       return;
     }
 
-    ESP_LOGV(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
+    ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
     if (!isnan(temperature))
       this->temperature_sensor_->push_new_value(temperature, this->dht_.getNumberOfDecimalsTemperature());
     else
-      ESP_LOGE(TAG, "Invalid Temperature: %f!C", temperature);
+      ESP_LOGW(TAG, "Invalid Temperature: %f!C", temperature);
 
     if (!isnan(humidity))
       this->humidity_sensor_->push_new_value(humidity, this->dht_.getNumberOfDecimalsHumidity());
     else
-      ESP_LOGE(TAG, "Invalid Humidity: %f%%", humidity);
+      ESP_LOGW(TAG, "Invalid Humidity: %f%%", humidity);
   });
 }
 

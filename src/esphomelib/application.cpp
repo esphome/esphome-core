@@ -23,38 +23,48 @@ using namespace esphomelib::light;
 using namespace esphomelib::fan;
 using namespace esphomelib::switch_platform;
 
-static const char *TAG = "app";
+static const char *TAG = "application";
 
 void Application::setup() {
+  ESP_LOGI(TAG, "Application::setup()");
+  assert(this->application_state_ == Component::CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
-  std::sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
+  std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
     return a->get_setup_priority() > b->get_setup_priority();
   });
-  ESP_LOGD(TAG, "Calling setup");
+  ESP_LOGV(TAG, "Calling setup");
   for (Component *component : this->components_)
     component->setup_();
 
   ESP_LOGV(TAG, "Sorting components by loop priority...");
-  std::sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
+  std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
     return a->get_loop_priority() > b->get_loop_priority();
   });
+  this->application_state_ = Component::SETUP;
 }
 
 void Application::loop() {
+  assert(this->application_state_ >= Component::SETUP && "Did you forget to call setup()?");
+
+  if (this->application_state_ == Component::SETUP) {
+    ESP_LOGI(TAG, "Running through first loop()");
+    this->application_state_ = Component::LOOP;
+  }
+
   for (Component *component : this->components_)
     component->loop_();
   yield();
 }
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
-  assert_nullptr(this->wifi_);
+  assert(this->wifi_ == nullptr && "WiFi already setup!");
   WiFiComponent *wifi = new WiFiComponent(ssid, password, generate_hostname(this->name_));
   this->wifi_ = wifi;
   return this->register_component(wifi);
 }
 
 void Application::set_name(const std::string &name) {
-  assert(this->name_.empty() && "name was already set!");
+  assert(this->name_.empty() && "Name was already set!");
   this->name_ = to_lowercase_underscore(name);
   global_preferences.begin(name);
 }
@@ -62,6 +72,7 @@ void Application::set_name(const std::string &name) {
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
                                             const std::string &username, const std::string &password,
                                             const std::string &discovery_prefix) {
+  assert(this->mqtt_client_ == nullptr && "Did you already initialize MQTT?");
   MQTTClientComponent *component = new MQTTClientComponent(MQTTCredentials{
       .address = address,
       .port = port,
@@ -131,7 +142,7 @@ Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
   return MakeDHTComponent{
       .dht = dht,
       .mqtt_temperature = this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name),
-      .mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), temperature_friendly_name)
+      .mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name)
   };
 }
 

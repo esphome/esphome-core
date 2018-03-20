@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace output {
 
-static const char *TAG = "ir_tx";
+static const char *TAG = "output::ir_tx";
 
 using namespace esphomelib::output::ir;
 

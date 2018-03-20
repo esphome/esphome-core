@@ -94,7 +94,7 @@ using lambda_filter_t = std::function<Optional<float>(float)>;
  */
 class LambdaFilter : public Filter {
  public:
-  explicit LambdaFilter(const lambda_filter_t &lambda_filter);
+  explicit LambdaFilter(lambda_filter_t lambda_filter);
 
   Optional<float> new_value(float value) override;
 

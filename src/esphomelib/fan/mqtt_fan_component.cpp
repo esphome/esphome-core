@@ -10,7 +10,7 @@ namespace esphomelib {
 
 namespace fan {
 
-static const char *TAG = "fan::mqtt_fan";
+static const char *TAG = "fan::mqtt";
 
 MQTTFanComponent::MQTTFanComponent(const std::string &friendly_name)
     : MQTTComponent(friendly_name), next_send_(true) {}
@@ -30,12 +30,12 @@ void MQTTFanComponent::setup() {
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     if (this->state_->get_traits().supports_oscillation()) {
-      root["oscillation_command_topic"] = this->get_oscillation_command_topic().c_str();
-      root["oscillation_state_topic"] = this->get_oscillation_state_topic().c_str();
+      root["oscillation_command_topic"] = buffer.strdup(this->get_oscillation_command_topic().c_str());
+      root["oscillation_state_topic"] = buffer.strdup(this->get_oscillation_state_topic().c_str());
     }
     if (this->state_->get_traits().supports_speed()) {
-      root["speed_command_topic"] = this->get_speed_command_topic().c_str();
-      root["speed_state_topic"] = this->get_speed_state_topic().c_str();
+      root["speed_command_topic"] = buffer.strdup(this->get_speed_command_topic().c_str());
+      root["speed_state_topic"] = buffer.strdup(this->get_speed_state_topic().c_str());
     }
   });
 

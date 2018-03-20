@@ -37,7 +37,7 @@ Optional<float> SlidingWindowMovingAverageFilter::new_value(float value) {
     this->send_at_ = 0;
     return average_value;
   }
-  return {};
+  return Optional<float>();
 }
 
 ExponentialMovingAverageFilter::ExponentialMovingAverageFilter(float alpha, size_t send_every)
@@ -52,7 +52,7 @@ Optional<float> ExponentialMovingAverageFilter::new_value(float value) {
     this->send_at_ = 0;
     return average_value;
   }
-  return {};
+  return Optional<float>();
 }
 size_t ExponentialMovingAverageFilter::get_send_every() const {
   return this->send_every_;
@@ -67,8 +67,8 @@ void ExponentialMovingAverageFilter::set_alpha(float alpha) {
   this->value_average_.set_alpha(alpha);
   this->accuracy_average_.set_alpha(alpha);
 }
-LambdaFilter::LambdaFilter(const lambda_filter_t &lambda_filter)
-    : lambda_filter_(lambda_filter) {
+LambdaFilter::LambdaFilter(lambda_filter_t lambda_filter)
+    : lambda_filter_(std::move(lambda_filter)) {
 
 }
 const lambda_filter_t &LambdaFilter::get_lambda_filter() const {

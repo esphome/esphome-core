@@ -16,7 +16,7 @@ namespace esphomelib {
 
 namespace mqtt {
 
-static const char *TAG = "mqtt_component";
+static const char *TAG = "mqtt::mqtt_component";
 
 void MQTTComponent::set_retain(bool retain) {
   this->retain_ = retain;
@@ -74,7 +74,7 @@ void MQTTComponent::send_discovery(const json_build_t &f,
   ESP_LOGV(TAG, "Sending discovery...");
 
   this->send_json_message(this->get_discovery_topic(), [&](JsonBuffer &buffer, JsonObject &root) {
-    root["name"] = this->friendly_name_.c_str();
+    root["name"] = buffer.strdup(this->friendly_name_.c_str());
     root["platform"] = buffer.strdup(platform.c_str());
     if (state_topic)
       root["state_topic"] = buffer.strdup(this->get_state_topic().c_str());

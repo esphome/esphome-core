@@ -39,7 +39,7 @@ void OTAComponent::setup() {
   });
   ArduinoOTA.onProgress([](uint progress, uint total) {
     float percentage = float(progress) * 100 / float(total);
-    ESP_LOGI(TAG, "OTA in progress: %0.1f%%", percentage);
+    ESP_LOGD(TAG, "OTA in progress: %0.1f%%", percentage);
   });
   ArduinoOTA.onError([](ota_error_t error) {
     ESP_LOGE(TAG, "Error[%u]: ", error);

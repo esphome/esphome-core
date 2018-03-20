@@ -26,15 +26,12 @@ class DallasTemperatureSensor : public sensor::TemperatureSensor {
   void set_index(uint8_t index);
   uint8_t get_resolution() const;
   void set_resolution(uint8_t resolution);
-  uint8_t get_accuracy_decimals() const;
-  void set_accuracy_decimals(uint8_t accuracy_decimals);
   uint16_t millis_to_wait_for_conversion() const;
 
  protected:
   uint64_t address_;
   uint8_t index_;
   uint8_t resolution_;
-  uint8_t accuracy_decimals_;
   std::string name_;
 };
 
