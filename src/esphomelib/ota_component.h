@@ -6,7 +6,9 @@
 #define ESPHOMELIB_OTA_COMPONENT_H
 
 #include <WiFiServer.h>
-#include "component.h"
+
+#include "esphomelib/component.h"
+
 namespace esphomelib {
 
 /// OTAComponent provides a simple way to integrate Over-the-Air updates into your app using ArduinoOTA.
@@ -17,7 +19,11 @@ class OTAComponent : public Component {
    * @param port The port ArduinoOTA will listen on.
    * @param hostname The hostname ArduinoOTA will advertise.
    */
+#ifdef ARDUINO_ARCH_ESP32
   explicit OTAComponent(uint16_t port = 3232, std::string hostname = "");
+#else
+  explicit OTAComponent(uint16_t port = 8266, std::string hostname = "");
+#endif
 
   /// Set ArduinoOTA to accept updates without authentication.
   void set_auth_open();
@@ -56,7 +62,7 @@ class OTAComponent : public Component {
 
   uint16_t port_;
   std::string hostname_;
-  WiFiServer server_;
+  WiFiServer *server_;
 };
 
 } // namespace esphomelib

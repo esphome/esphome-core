@@ -2,16 +2,24 @@
 // Created by Otto Winter on 28.12.17.
 //
 
-#include <iomanip>
-#include <sstream>
-#include <esphomelib/helpers.h>
-#include "dallas_component.h"
+#include "esphomelib/input/dallas_component.h"
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
 namespace input {
 
-static const char *TAG = "DallasComponent";
+static const char *TAG = "input::dallas";
+
+std::string uint64_to_string(uint64_t num) {
+  char buffer[17];
+  auto *address16 = reinterpret_cast<uint16_t *>(&num);
+  snprintf(buffer, sizeof(buffer), "%04x%04x%04x%04x",
+           address16[3], address16[2], address16[1], address16[0]);
+  return std::string(buffer);
+}
 
 uint16_t DallasTemperatureSensor::millis_to_wait_for_conversion() const {
   switch (this->resolution_) {
@@ -32,28 +40,34 @@ void DallasComponent::set_one_wire(OneWire *one_wire) {
   this->one_wire_ = one_wire;
 }
 void DallasComponent::setup() {
-  this->dallas_.setOneWire(this->one_wire_);
-  this->dallas_.begin();
+  ESP_LOGCONFIG(TAG, "Setting up DallasComponent...");
+  ESP_LOGCONFIG(TAG, "    Want device count: %u", this->sensors_.size());
 
-  ESP_LOGI(TAG, "Device Count: %d", this->dallas_.getDeviceCount());
+  this->dallas_.setOneWire(this->one_wire_);
   this->dallas_.setWaitForConversion(false);
+  this->dallas_.begin();
+  ESP_LOGD(TAG, "    Actual device count: %u", this->dallas_.getDeviceCount());
+
+  std::vector<uint64_t> sensors = this->scan_devices();
+  for (uint64_t i : sensors)
+    ESP_LOGD(TAG, "    Found sensor with address %s", uint64_to_string(i).c_str());
 
   for (auto sensor : this->sensors_) {
     if (sensor->get_address() == 0) {
-      bool result = this->dallas_.getAddress(sensor->get_address8(), sensor->get_index());
-      assert(result && "Couldn't find sensor by index (probably because not all sensors are connected.)");
+      ESP_LOGCONFIG(TAG, "Device with index %u", sensor->get_index());
+      assert(sensor->get_index() < sensors.size() && "Couldn't find sensor by index (probably because not all sensors are connected.)");
+      sensor->set_address(sensors[sensor->get_index()]);
+      ESP_LOGCONFIG(TAG, "     -> Address: 0x%s", sensor->get_name().c_str());
+    } else {
+      ESP_LOGCONFIG(TAG, "Device 0x%s:", sensor->get_name().c_str());
     }
-    assert(this->dallas_.isConnected(sensor->get_address8()));
+    ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
 
-    ESP_LOGD(TAG, "Device 0x%s:", sensor->get_name().c_str());
-    if (sensor->get_address() == 0)
-      ESP_LOGD(TAG, "    Index: %u", sensor->get_index());
-    ESP_LOGD(TAG, "    Resolution: %u", sensor->get_resolution());
-    this->dallas_.setResolution(sensor->get_address8(), sensor->get_resolution(), true);
-    ESP_LOGD(TAG, "    Accuracy Decimals: %u", sensor->get_accuracy_decimals());
-    ESP_LOGD(TAG, "    Check Interval: %u", sensor->get_check_interval());
+    bool result = this->dallas_.setResolution(sensor->get_address8(), sensor->get_resolution(), true);
+    assert(result && "Setting resolution on Dallas failed.");
+    ESP_LOGCONFIG(TAG, "    Update Interval: %u", sensor->get_update_interval());
 
-    this->set_interval(sensor->get_name(), sensor->get_check_interval(), [this, sensor]{
+    this->set_interval(sensor->get_name(), sensor->get_update_interval(), [this, sensor]{
       this->request_temperature(sensor);
     });
   }
@@ -77,9 +91,9 @@ std::vector<uint64_t> DallasComponent::scan_devices() {
   return v;
 }
 DallasTemperatureSensor *DallasComponent::get_sensor_by_address(uint64_t address,
-                                                                uint32_t check_interval,
+                                                                uint32_t update_interval,
                                                                 uint8_t resolution) {
-  auto s = new DallasTemperatureSensor(address, check_interval, resolution);
+  auto s = new DallasTemperatureSensor(address, resolution, update_interval);
   this->sensors_.push_back(s);
   return s;
 }
@@ -87,9 +101,9 @@ float DallasComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 DallasTemperatureSensor *DallasComponent::get_sensor_by_index(uint8_t index,
-                                                              uint32_t check_interval,
+                                                              uint32_t update_interval,
                                                               uint8_t resolution) {
-  auto s = this->get_sensor_by_address(0, check_interval, resolution);
+  auto s = this->get_sensor_by_address(0, update_interval, resolution);
   s->set_index(index);
   return s;
 }
@@ -104,8 +118,8 @@ void DallasComponent::request_temperature(DallasTemperatureSensor *sensor) {
     });
 
     if (temperature != DEVICE_DISCONNECTED_C) {
-      ESP_LOGV(TAG, "0x%s: Got Temperature=%.1f°C", sensor->get_name().c_str(), temperature);
-      sensor->push_new_value(temperature, sensor->get_accuracy_decimals());
+      ESP_LOGD(TAG, "0x%s: Got Temperature=%.1f°C", sensor->get_name().c_str(), temperature);
+      sensor->push_new_value(temperature, 1);
     } else {
       ESP_LOGE(TAG, "0x%s: Invalid Temperature: %f", sensor->get_name().c_str(), temperature);
     }
@@ -116,25 +130,17 @@ OneWire *DallasComponent::get_one_wire() const {
 }
 
 DallasTemperatureSensor::DallasTemperatureSensor(uint64_t address,
-                                                 uint32_t check_interval,
-                                                 uint8_t resolution)
-    : accuracy_decimals_(1) {
+                                                 uint8_t resolution,
+                                                 uint32_t update_interval)
+    : TemperatureSensor(update_interval) {
   this->set_address(address);
-  this->set_check_interval(check_interval);
   this->set_resolution(resolution);
-
 }
 uint64_t DallasTemperatureSensor::get_address() const {
   return this->address_;
 }
 void DallasTemperatureSensor::set_address(uint64_t address) {
   this->address_ = address;
-}
-uint32_t DallasTemperatureSensor::get_check_interval() const {
-  return this->check_interval_;
-}
-void DallasTemperatureSensor::set_check_interval(uint32_t check_interval) {
-  this->check_interval_ = check_interval;
 }
 uint8_t DallasTemperatureSensor::get_resolution() const {
   return this->resolution_;
@@ -149,12 +155,6 @@ uint8_t DallasTemperatureSensor::get_index() const {
 void DallasTemperatureSensor::set_index(uint8_t index) {
   this->index_ = index;
 }
-uint8_t DallasTemperatureSensor::get_accuracy_decimals() const {
-  return accuracy_decimals_;
-}
-void DallasTemperatureSensor::set_accuracy_decimals(uint8_t accuracy_decimals) {
-  accuracy_decimals_ = accuracy_decimals;
-}
 uint8_t *DallasTemperatureSensor::get_address8() {
   return reinterpret_cast<uint8_t *>(&this->address_);
 }
@@ -162,7 +162,7 @@ std::string DallasTemperatureSensor::get_name() {
   if (!this->name_.empty())
     return this->name_;
 
-  return this->name_ = value_to_hex_string(this->address_);
+  return this->name_ = uint64_to_string(this->address_);
 }
 
 } // namespace input

@@ -5,8 +5,10 @@
 #ifndef ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H
 
-#include "high_power_output.h"
-#include "binary_output.h"
+#include "esphomelib/output/high_power_output.h"
+#include "esphomelib/output/binary_output.h"
+#include "esphomelib/esphal.h"
+
 namespace esphomelib {
 
 namespace output {

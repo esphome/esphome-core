@@ -5,8 +5,9 @@
 #ifndef ESPHOMELIB_INPUT_DHT_COMPONENT_H
 #define ESPHOMELIB_INPUT_DHT_COMPONENT_H
 
-#include "esphomelib/sensor/sensor.h"
 #include <DHT.h>
+
+#include "esphomelib/sensor/sensor.h"
 
 namespace esphomelib {
 
@@ -18,9 +19,9 @@ class DHTComponent : public Component {
   /** Construct a DHTComponent.
    *
    * @param pin The pin which DHT sensor is connected to.
-   * @param check_interval The interval in ms the sensor should be checked.
+   * @param update_interval The interval in ms the sensor should be checked.
    */
-  explicit DHTComponent(uint8_t pin, uint32_t check_interval = 1000);
+  explicit DHTComponent(uint8_t pin, uint32_t update_interval = 15000);
 
   sensor::TemperatureSensor *get_temperature_sensor() const;
   sensor::HumiditySensor *get_humidity_sensor() const;
@@ -28,8 +29,13 @@ class DHTComponent : public Component {
   uint8_t get_pin() const;
   void set_pin(uint8_t pin);
 
-  uint32_t get_check_interval() const;
-  void set_check_interval(uint32_t check_interval);
+  /** Manually select the DHT model.
+   *
+   * Valid values are: DHT::AUTO_DETECT (default), DHT::DHT11, DHT::DHT22, DHT::AM2302, and DHT::RHT03.
+   *
+   * @param model The DHT model.
+   */
+  void set_dht_model(DHT::DHT_MODEL_t model);
 
   const DHT &get_dht() const;
 
@@ -38,8 +44,8 @@ class DHTComponent : public Component {
 
  protected:
   uint8_t pin_;
-  uint32_t check_interval_;
   DHT dht_;
+  DHT::DHT_MODEL_t model_{DHT::AUTO_DETECT};
   sensor::TemperatureSensor *temperature_sensor_;
   sensor::HumiditySensor *humidity_sensor_;
 };

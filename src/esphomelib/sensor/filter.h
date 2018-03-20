@@ -6,27 +6,31 @@
 #define ESPHOMELIB_SENSOR_FILTER_H
 
 #include <cstdint>
-#include <esphomelib/helpers.h>
-#include "sensor.h"
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/sensor/sensor.h"
 
 namespace esphomelib {
 
 namespace sensor {
 
-/// Filter - Apply a filter to sensor values such as moving average.
+/** Filter - Apply a filter to sensor values such as moving average.
+ *
+ * This class is purposefully kept quite simple, since more complicated
+ * filters should really be done with the filter sensor in Home Assistant.
+ */
 class Filter {
  public:
-  /// This will be called every time a new sensor value is received.
-  virtual void new_value(float value, int8_t accuracy_decimals) = 0;
-
-  /// Set the callback that will be called when the filter decides to push out data.
-  void set_send_value_callback(sensor_callback_t callback);
-
-  /// Push out a value to the front-end.
-  void send_value(float value, int8_t accuracy_decimals);
-
- private:
-  sensor_callback_t callback_;
+  /** This will be called every time the filter receives a new value.
+   *
+   * It can return an empty optional to indicate that the filter chain
+   * should stop, otherwise the value in the filter will be passed down
+   * the chain.
+   *
+   * @param value The new value.
+   * @return An optional float, the new value that should be pushed out.
+   */
+  virtual Optional<float> new_value(float value) = 0;
 };
 
 /** Simple sliding window moving average filter.
@@ -41,18 +45,17 @@ class SlidingWindowMovingAverageFilter : public Filter {
    * @param window_size The number of values that should be averaged.
    * @param send_every After how many sensor values should a new one be pushed out.
    */
-  SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every);
+  explicit SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every);
 
-  void new_value(float value, int8_t accuracy_decimals) override;
+  Optional<float> new_value(float value) override;
 
   size_t get_send_every() const;
   void set_send_every(size_t send_every);
   size_t get_window_size() const;
   void set_window_size(size_t window_size);
 
- private:
+ protected:
   SlidingWindowMovingAverage<float> value_average_;
-  SlidingWindowMovingAverage<int> accuracy_average_;
   size_t send_every_;
   size_t send_at_;
 };
@@ -66,18 +69,39 @@ class ExponentialMovingAverageFilter : public Filter {
  public:
   ExponentialMovingAverageFilter(float alpha, size_t send_every);
 
-  void new_value(float value, int8_t accuracy_decimals) override;
+  Optional<float> new_value(float value) override;
 
   size_t get_send_every() const;
   void set_send_every(size_t send_every);
   float get_alpha() const;
   void set_alpha(float alpha);
 
- private:
+ protected:
   ExponentialMovingAverage value_average_;
   ExponentialMovingAverage accuracy_average_;
   size_t send_every_;
   size_t send_at_;
+};
+
+using lambda_filter_t = std::function<Optional<float>(float)>;
+
+/** Lambda Filter - This class allows for creation of simple template filters.
+ *
+ * The constructor accepts a lambda of the form float -> Optional<float>.
+ * It will be called with each new value in the filter chain and returns the modified
+ * value that shall be passed down the filter chain. Returning an empty Optional
+ * means that the value shall be discarded.
+ */
+class LambdaFilter : public Filter {
+ public:
+  explicit LambdaFilter(lambda_filter_t lambda_filter);
+
+  Optional<float> new_value(float value) override;
+
+  const lambda_filter_t &get_lambda_filter() const;
+  void set_lambda_filter(const lambda_filter_t &lambda_filter);
+ protected:
+  lambda_filter_t lambda_filter_;
 };
 
 } // namespace sensor

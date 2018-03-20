@@ -2,28 +2,28 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#ifndef ESPHOMELIB_ATX_COMPONENT_H
-#define ESPHOMELIB_ATX_COMPONENT_H
+#ifndef ESPHOMELIB_POWER_SUPPLY_COMPONENT_H
+#define ESPHOMELIB_POWER_SUPPLY_COMPONENT_H
 
-#include "component.h"
+#include "esphomelib/component.h"
 
 namespace esphomelib {
 
-/** ATXComponent - This class represents an ATX power supply.
+/** PowerSupplyComponent - This class represents an power supply.
  *
  * The power supply will automatically be turned on if a component requests high power and will automatically be
  * turned off again keep_on_time (ms) after the last high-power request. Aditionally, an enable_time (ms) can be
- * specified because many ATX power supplies only actually provide high-power output after a few milliseconds.
+ * specified because many power supplies only actually provide high-power output after a few milliseconds.
  */
-class ATXComponent : public Component {
+class PowerSupplyComponent : public Component {
  public:
-  /** Creates the ATXComponent
+  /** Creates the PowerSupplyComponent
    *
-   * @param pin The pin of the ATX green control wire.
+   * @param pin The pin of the power supplycontrol wire.
    * @param enable_time The time in milliseconds the power supply requires for power up.
    * @param keep_on_time The time in milliseconds the power supply should be kept on after the last high-power request.
    */
-  explicit ATXComponent(uint8_t pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
+  explicit PowerSupplyComponent(uint8_t pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
 
   uint8_t get_pin() const;
   void set_pin(uint8_t pin);
@@ -31,6 +31,9 @@ class ATXComponent : public Component {
   void set_enable_time(uint32_t enable_time);
   uint32_t get_keep_on_time() const;
   void set_keep_on_time(uint32_t keep_on_time);
+  bool is_inverted() const;
+  /// Invert the output of the pin, essentially making it a active-low power supply.
+  void set_inverted(bool inverted);
 
   bool is_enabled() const;
 
@@ -42,6 +45,7 @@ class ATXComponent : public Component {
 
  private:
   uint8_t pin_;
+  bool inverted_{false};
   bool enabled_;
   uint32_t enable_time_;
   uint32_t keep_on_time_;
@@ -49,4 +53,4 @@ class ATXComponent : public Component {
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_ATX_COMPONENT_H
+#endif //ESPHOMELIB_POWER_SUPPLY_COMPONENT_H

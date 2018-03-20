@@ -3,7 +3,6 @@
 //
 
 #include <esphomelib/application.h>
-#include <esp_log.h>
 
 using namespace esphomelib;
 using namespace esphomelib::output::ir;
@@ -32,7 +31,7 @@ void setup() {
   app.make_simple_gpio_switch(33, "Dehumidifier");
   ESP_LOGV(TAG, "Humidifier created.");
 
-  app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class::MOTION, 36);
+  app.make_simple_gpio_binary_sensor("Cabinet Motion", 36, binary_sensor::device_class::MOTION);
 
   app.setup();
 }

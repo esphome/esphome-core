@@ -2,7 +2,7 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include "switch.h"
+#include "esphomelib/switch_platform/switch.h"
 
 namespace esphomelib {
 

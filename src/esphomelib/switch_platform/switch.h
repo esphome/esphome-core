@@ -6,6 +6,7 @@
 #define ESPHOMELIB_SWITCH_PLATFORM_SWITCH_H
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
+
 namespace esphomelib {
 
 namespace switch_platform {

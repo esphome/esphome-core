@@ -2,9 +2,10 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include <esphomelib/helpers.h>
-#include <esp_log.h>
-#include "light_output_component.h"
+#include "esphomelib/light/light_output_component.h"
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

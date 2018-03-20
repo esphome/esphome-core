@@ -2,12 +2,13 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include <esphomelib/helpers.h>
-#include <esp_log.h>
-#include <esp32-hal.h>
-#include "light_state.h"
-#include "light_transformer.h"
-#include "light_effect.h"
+#include "esphomelib/light/light_state.h"
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
+#include "esphomelib/esphal.h"
+#include "esphomelib/light/light_transformer.h"
+#include "esphomelib/light/light_effect.h"
 
 namespace esphomelib {
 

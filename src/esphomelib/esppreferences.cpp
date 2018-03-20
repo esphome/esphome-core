@@ -2,12 +2,15 @@
 // Created by Otto Winter on 27.01.18.
 //
 
-#include "esp_preferences.h"
+#include "esphomelib/esppreferences.h"
+
 #include <functional>
-#include <esphomelib/helpers.h>
+
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
+#ifdef ARDUINO_ARCH_ESP32
 void ESPPreferences::begin(const std::string &name) {
   this->preferences_.begin(truncate_string(name, 15).c_str());
 }
@@ -86,6 +89,80 @@ size_t ESPPreferences::put_float(const std::string &friendly_name, const std::st
 size_t ESPPreferences::put_double(const std::string &friendly_name, const std::string &key, double value) {
   return this->preferences_.putDouble(this->get_preference_key(friendly_name, key).c_str(), value);
 }
+#else
+
+// TODO implement this for ESP8266
+
+void ESPPreferences::begin(const std::string &name) {
+
+}
+bool ESPPreferences::get_bool(const std::string &friendly_name, const std::string &key, bool default_value) {
+  return default_value;
+}
+int8_t ESPPreferences::get_int8(const std::string &friendly_name, const std::string &key, int8_t default_value) {
+  return default_value;
+}
+uint8_t ESPPreferences::get_uint8(const std::string &friendly_name, const std::string &key, uint8_t default_value) {
+  return default_value;
+}
+int16_t ESPPreferences::get_int16(const std::string &friendly_name, const std::string &key, int16_t default_value) {
+  return default_value;
+}
+uint16_t ESPPreferences::get_uint16(const std::string &friendly_name, const std::string &key, uint16_t default_value) {
+  return default_value;
+}
+int32_t ESPPreferences::get_int32(const std::string &friendly_name, const std::string &key, int32_t default_value) {
+  return default_value;
+}
+uint32_t ESPPreferences::get_uint32(const std::string &friendly_name, const std::string &key, uint32_t default_value) {
+  return default_value;
+}
+int64_t ESPPreferences::get_int64(const std::string &friendly_name, const std::string &key, int64_t default_value) {
+  return default_value;
+}
+uint64_t ESPPreferences::get_uint64(const std::string &friendly_name, const std::string &key, uint64_t default_value) {
+  return default_value;
+}
+float ESPPreferences::get_float(const std::string &friendly_name, const std::string &key, float default_value) {
+  return default_value;
+}
+double ESPPreferences::get_double(const std::string &friendly_name, const std::string &key, double default_value) {
+  return default_value;
+}
+size_t ESPPreferences::put_bool(const std::string &friendly_name, const std::string &key, bool value) {
+  return 0;
+}
+size_t ESPPreferences::put_int8(const std::string &friendly_name, const std::string &key, int8_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_uint8(const std::string &friendly_name, const std::string &key, uint8_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_int16(const std::string &friendly_name, const std::string &key, int16_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_uint16(const std::string &friendly_name, const std::string &key, uint16_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_int32(const std::string &friendly_name, const std::string &key, int32_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_uint32(const std::string &friendly_name, const std::string &key, uint32_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_int64(const std::string &friendly_name, const std::string &key, int64_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_uint64(const std::string &friendly_name, const std::string &key, uint64_t value) {
+  return 0;
+}
+size_t ESPPreferences::put_float(const std::string &friendly_name, const std::string &key, float value) {
+  return 0;
+}
+size_t ESPPreferences::put_double(const std::string &friendly_name, const std::string &key, double value) {
+  return 0;
+}
+#endif
 
 ESPPreferences global_preferences;
 

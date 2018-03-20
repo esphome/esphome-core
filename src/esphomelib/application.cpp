@@ -2,14 +2,15 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "application.h"
-#include "wifi_component.h"
+#include "esphomelib/application.h"
 
 #include <utility>
 #include <algorithm>
-#include <esp_log.h>
-#include <esphomelib/output/gpio_binary_output_component.h>
-#include <esphomelib/esp_preferences.h>
+
+#include "esphomelib/log.h"
+#include "esphomelib/output/gpio_binary_output_component.h"
+#include "esphomelib/esppreferences.h"
+#include "esphomelib/wifi_component.h"
 
 namespace esphomelib {
 
@@ -22,38 +23,48 @@ using namespace esphomelib::light;
 using namespace esphomelib::fan;
 using namespace esphomelib::switch_platform;
 
-static const char *TAG = "app";
+static const char *TAG = "application";
 
 void Application::setup() {
+  ESP_LOGI(TAG, "Application::setup()");
+  assert(this->application_state_ == Component::CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
-  std::sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
+  std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
     return a->get_setup_priority() > b->get_setup_priority();
   });
-  ESP_LOGD(TAG, "Calling setup");
+  ESP_LOGV(TAG, "Calling setup");
   for (Component *component : this->components_)
     component->setup_();
 
   ESP_LOGV(TAG, "Sorting components by loop priority...");
-  std::sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
+  std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
     return a->get_loop_priority() > b->get_loop_priority();
   });
+  this->application_state_ = Component::SETUP;
 }
 
 void Application::loop() {
+  assert(this->application_state_ >= Component::SETUP && "Did you forget to call setup()?");
+
+  if (this->application_state_ == Component::SETUP) {
+    ESP_LOGI(TAG, "Running through first loop()");
+    this->application_state_ = Component::LOOP;
+  }
+
   for (Component *component : this->components_)
     component->loop_();
   yield();
 }
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
-  assert_nullptr(this->wifi_);
+  assert(this->wifi_ == nullptr && "WiFi already setup!");
   WiFiComponent *wifi = new WiFiComponent(ssid, password, generate_hostname(this->name_));
   this->wifi_ = wifi;
   return this->register_component(wifi);
 }
 
 void Application::set_name(const std::string &name) {
-  assert(this->name_.empty() && "name was already set!");
+  assert(this->name_.empty() && "Name was already set!");
   this->name_ = to_lowercase_underscore(name);
   global_preferences.begin(name);
 }
@@ -61,6 +72,7 @@ void Application::set_name(const std::string &name) {
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
                                             const std::string &username, const std::string &password,
                                             const std::string &discovery_prefix) {
+  assert(this->mqtt_client_ == nullptr && "Did you already initialize MQTT?");
   MQTTClientComponent *component = new MQTTClientComponent(MQTTCredentials{
       .address = address,
       .port = port,
@@ -94,14 +106,13 @@ LogComponent *Application::init_log(uint32_t baud_rate,
   return this->register_component(log);
 }
 
-ATXComponent *Application::make_atx(uint8_t pin, uint32_t enable_time, uint32_t keep_on_time) {
-  auto *atx = new ATXComponent(pin, enable_time, keep_on_time);
+PowerSupplyComponent *Application::make_power_supply(uint8_t pin, uint32_t enable_time, uint32_t keep_on_time) {
+  auto *atx = new PowerSupplyComponent(pin, enable_time, keep_on_time);
   return this->register_component(atx);
 }
 
-GPIOBinarySensorComponent *Application::make_gpio_binary_sensor(uint8_t pin, uint8_t mode, binary_callback_t callback) {
+GPIOBinarySensorComponent *Application::make_gpio_binary_sensor(uint8_t pin, uint8_t mode) {
   auto *io = new GPIOBinarySensorComponent(pin, mode);
-  io->set_on_new_state_callback(std::move(callback));
   return this->register_component(io);
 }
 
@@ -112,8 +123,8 @@ MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor(std::string frie
 }
 
 Application::SimpleBinarySensor Application::make_simple_gpio_binary_sensor(std::string friendly_name,
-                                                                            std::string device_class,
-                                                                            uint8_t pin) {
+                                                                            uint8_t pin,
+                                                                            std::string device_class) {
   SimpleBinarySensor s{};
   s.mqtt = this->make_mqtt_binary_sensor(std::move(friendly_name), std::move(device_class));
   s.gpio = this->make_gpio_binary_sensor(pin);
@@ -121,46 +132,31 @@ Application::SimpleBinarySensor Application::make_simple_gpio_binary_sensor(std:
   return s;
 }
 
-MQTTSensorComponent *Application::make_mqtt_sensor(std::string friendly_name,
-                                                   std::string unit_of_measurement, Optional<uint32_t> expire_after) {
-  auto *mqtt = new MQTTSensorComponent(std::move(friendly_name), std::move(unit_of_measurement),
-                                       expire_after);
-  return this->register_mqtt_component(mqtt);
-}
-
 Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
                                                               const std::string &temperature_friendly_name,
                                                               const std::string &humidity_friendly_name,
                                                               uint32_t check_interval) {
   auto *dht = new DHTComponent(pin, check_interval);
-  // Expire after 30 missed values
-  uint32_t expire_after = check_interval * 30 / 1000;
-  auto *mqtt_temperature =
-      this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name, expire_after);
-  auto *mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name, expire_after);
   this->register_component(dht);
+
   return MakeDHTComponent{
       .dht = dht,
-      .mqtt_temperature = mqtt_temperature,
-      .mqtt_humidity = mqtt_humidity
+      .mqtt_temperature = this->make_mqtt_sensor_for(dht->get_temperature_sensor(), temperature_friendly_name),
+      .mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), humidity_friendly_name)
   };
 }
 
 sensor::MQTTSensorComponent *Application::make_mqtt_sensor_for(sensor::Sensor *sensor,
-                                                               std::string friendly_name,
-                                                               Optional<uint32_t> expire_after,
-                                                               Optional<size_t> moving_average_size) {
-  auto *mqtt = this->make_mqtt_sensor(std::move(friendly_name), sensor->unit_of_measurement(), expire_after);
-  sensor->set_new_value_callback(mqtt->create_new_data_callback());
-  if (moving_average_size)
-    mqtt->set_filter(new SlidingWindowMovingAverageFilter(moving_average_size.value, moving_average_size.value));
-  return mqtt;
+                                                               std::string friendly_name) {
+  return this->register_mqtt_component(new MQTTSensorComponent(std::move(friendly_name), sensor));
 }
 
+#ifdef ARDUINO_ARCH_ESP32
 LEDCOutputComponent *Application::make_ledc_component(uint8_t pin, float frequency, uint8_t bit_depth) {
   auto *ledc = new LEDCOutputComponent(pin, frequency, bit_depth);
   return this->register_component(ledc);
 }
+#endif
 
 PCA9685OutputComponent *Application::make_pca9685_component(float frequency, TwoWire &i2c_wire) {
   auto *pca9685 = new PCA9685OutputComponent(frequency, i2c_wire);
@@ -240,11 +236,15 @@ void Application::connect_switch(switch_platform::Switch *switch_, switch_platfo
   switch_->set_on_new_state_callback(mqtt->create_on_new_state_callback());
   mqtt->set_write_value_callback(switch_->create_write_state_callback());
 }
+
+#ifdef ARDUINO_ARCH_ESP32
 IRTransmitterComponent *Application::make_ir_transmitter(uint8_t pin,
                                                          uint8_t carrier_duty_percent,
                                                          uint8_t clock_divider) {
   return this->register_component(new IRTransmitterComponent(pin, carrier_duty_percent, clock_divider));
 }
+#endif
+
 MQTTSwitchComponent *Application::make_mqtt_switch_for(const std::string &friendly_name,
                                                        switch_platform::Switch *switch_) {
   auto *mqtt = this->make_mqtt_switch(friendly_name);
@@ -293,6 +293,30 @@ output::GPIOBinaryOutputComponent *Application::make_gpio_binary_output(uint8_t 
 
 Application::Application() {
   global_application = this;
+}
+
+#ifdef ARDUINO_ARCH_ESP32
+Application::MakePulseCounter Application::make_pulse_counter(uint8_t pin,
+                                                              const std::string &friendly_name,
+                                                              uint32_t update_interval) {
+  auto *pcnt = this->register_component(new PulseCounterSensorComponent(pin, update_interval));
+  auto *mqtt = this->make_mqtt_sensor_for(pcnt, friendly_name);
+  return MakePulseCounter {
+      .pcnt = pcnt,
+      .mqtt = mqtt
+  };
+}
+#endif
+
+Application::MakeADCSensor Application::make_adc_sensor(uint8_t pin,
+                                                        const std::string &friendly_name,
+                                                        uint32_t update_interval) {
+  auto *adc = this->register_component(new ADCSensorComponent(pin, update_interval));
+  auto *mqtt = this->make_mqtt_sensor_for(adc, friendly_name);
+  return MakeADCSensor {
+      .adc = adc,
+      .mqtt = mqtt
+  };
 }
 
 Application *global_application;

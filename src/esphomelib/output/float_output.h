@@ -5,9 +5,9 @@
 #ifndef ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H
 #define ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H
 
-#include <esphomelib/atx_component.h>
+#include "esphomelib/output/binary_output.h"
+
 #include "esphomelib/component.h"
-#include "binary_output.h"
 
 namespace esphomelib {
 

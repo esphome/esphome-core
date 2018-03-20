@@ -5,8 +5,8 @@
 #ifndef ESPHOMELIB_FAN_MQTT_FAN_COMPONENT_H
 #define ESPHOMELIB_FAN_MQTT_FAN_COMPONENT_H
 
-#include <esphomelib/mqtt/mqtt_component.h>
-#include "fan_state.h"
+#include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/fan/fan_state.h"
 
 namespace esphomelib {
 

@@ -6,7 +6,8 @@
 #define ESPHOMELIB_FAN_FAN_STATE_H
 
 #include <functional>
-#include "fan_traits.h"
+
+#include "esphomelib/fan/fan_traits.h"
 
 namespace esphomelib {
 

@@ -21,9 +21,6 @@
       "version": "~2.6"
     },
     {
-      "name": "ESPmDNS"
-    },
-    {
       "name": "ArduinoJson",
       "version": "~5.13.0"
     },

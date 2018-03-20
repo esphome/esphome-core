@@ -5,12 +5,18 @@
 #ifndef ESPHOMELIB_WIFI_COMPONENT_H
 #define ESPHOMELIB_WIFI_COMPONENT_H
 
-#include "component.h"
-#include "helpers.h"
 #include <string>
 #include <IPAddress.h>
+
+#ifdef ARDUINO_ARCH_ESP32
+#include <esp_wifi.h>
 #include <WiFiType.h>
-#include <esp_event.h>
+#else
+#include <ESP8266WiFiType.h>
+#endif
+
+#include "esphomelib/component.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 

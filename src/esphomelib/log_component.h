@@ -10,12 +10,13 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "component.h"
-#include "mqtt/mqtt_component.h"
-#include <esp_log.h>
 #include <cassert>
-#include "esp32-hal-log.h"
-#include "helpers.h"
+#include <unordered_map>
+
+#include "esphomelib/component.h"
+#include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
@@ -54,20 +55,20 @@ class LogComponent : public Component {
   size_t get_tx_buffer_size() const;
   void set_tx_buffer_size(size_t tx_buffer_size);
   /// Set the global log level.
-  void set_global_log_level(esp_log_level_t log_level);
+  void set_global_log_level(ESPLogLevel log_level);
   /// Set the log level of the specified tag.
-  void set_log_level(const std::string &tag, esp_log_level_t log_level);
+  void set_log_level(const std::string &tag, ESPLogLevel log_level);
 
- private:
-  static int log_vprintf_(const char *format, va_list args);
+  int log_vprintf_(ESPLogLevel level, const std::string &tag, const char *format, va_list args);
 
+ protected:
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
   std::string mqtt_logging_topic_;
-  bool mqtt_logging_enabled_;
+  bool mqtt_logging_enabled_{true};
+  ESPLogLevel global_log_level_{ESPHOMELIB_LOG_LEVEL};
+  std::unordered_map<std::string, ESPLogLevel> log_levels_;
 };
-
-void __assert_func(const char *file, int lineno, const char *func, const char *exp);
 
 extern LogComponent *global_log_component;
 

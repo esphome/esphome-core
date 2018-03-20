@@ -2,14 +2,15 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include <esp_log.h>
-#include "mqtt_json_light_component.h"
+#include "esphomelib/light/mqtt_json_light_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
 namespace light {
 
-static const char *TAG = "light::mqtt_json_light";
+static const char *TAG = "light::mqtt_json";
 
 std::string MQTTJSONLightComponent::component_type() const {
   return "light";
@@ -22,10 +23,8 @@ void MQTTJSONLightComponent::setup() {
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     if (this->state_->get_traits().supports_brightness())
       root["brightness"] = true;
-    if (this->state_->get_traits().supports_rgb()) {
+    if (this->state_->get_traits().supports_rgb())
       root["rgb"] = true;
-      root["xy"] = true;
-    }
     root["flash"] = true;
     if (this->state_->get_traits().has_rgb_white_value())
       root["white_value"] = true;
@@ -59,7 +58,6 @@ void MQTTJSONLightComponent::parse_light_json(const JsonObject &root) {
   LightColorValues v = this->state_->get_remote_values(); // use remote values for fallback
   v.parse_json(root);
   v.normalize_color(this->state_->get_traits());
-  ESP_LOGV(TAG, "New Color: %s", v.to_string().c_str());
 
   if (root.containsKey("flash")) {
     auto length = uint32_t(float(root["flash"]) * 1000);

@@ -2,8 +2,8 @@
 // Created by Otto Winter on 29.12.17.
 //
 
-#include "fan_state.h"
-#include <esphomelib/esp_preferences.h>
+#include "esphomelib/fan/fan_state.h"
+#include "esphomelib/esppreferences.h"
 
 namespace esphomelib {
 

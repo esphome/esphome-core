@@ -1,8 +1,8 @@
 # esphomelib [![Build Status](https://travis-ci.org/OttoWinter/esphomelib.svg?branch=master)](https://travis-ci.org/OttoWinter/esphomelib)
 
-**esphomelib** is a library designed to greatly simplify your firmware code for ESP32-based devices with full MQTT
-support so that you can focus on creating the hardware, not the software. It seamlessly integrates with Home Assistant
-by providing many of its components out-of-the-box with reasonable defaults set automatically.
+**esphomelib** is a library designed to greatly simplify your firmware code for ESP32/ESP8266-based devices with full 
+seamless Home Assistant integration (with automatic MQTT discovery!) so that you can focus on creating the hardware, 
+not the software.
 
 ## Example
 For example, the software for a device with an RGB light using the internal PWM and a 
@@ -23,7 +23,7 @@ void setup() {
     app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
     app.init_ota();
 
-    auto *red = app.make_ledc_component(32); // on pin 32
+    auto *red = app.make_ledc_component(32); // on pin 32, only available with ESP32
     auto *green = app.make_ledc_component(33);
     auto *blue = app.make_ledc_component(34);
     app.make_rgb_light("Livingroom Light", red, green, blue);
@@ -38,15 +38,19 @@ void loop() {
 }
 ```
 
-And voilà - esphomelib will now automatically manage everything such as logging to MQTT, Home Assistant MQTT discovery, 
-OTA updates, light effects/transitions, WiFi reconnects, etc. for you - amazing, right?
+And voilà 🎉 - esphomelib will now automatically manage everything such as logging to MQTT, Home Assistant MQTT 
+discovery, OTA updates, light effects/transitions, WiFi reconnects, etc etc. for you - amazing, right?
+
+If you have [MQTT Discovery](#home-assistant-configuration) enabled in Home Assistant, all the sensors defined here
+will even show up in the front end without adding anything to your configuration file.
 
 ## Powerful Core
+
 It doesn't stop there. If you, for some reason, want to customize the default options for a component, just call the
 corresponding methods, almost all options are customizable. And if there's an unsupported device, simply create
 a `Component` for it and esphomelib will take care of the MQTT stuff. You will even be able to use all of your 
 existing Arduino libraries! If you create a component, please then also consider creating a pull request so that
-others won't have to reimplement everything again.
+others won't have to re-implement everything again.
 
 esphomelib is built on a powerful core. Every object in esphomelib that interacts with a device, peripheral, or MQTT,
 is a `Component` - and every one of those has its own independent lifecycle with the `setup()` and `loop()` options
@@ -58,22 +62,8 @@ can easily be used with different back-end components/sensors. For example, an e
 RGB values are written to hardware and you can easily implement your own PWM output while reusing the entire
 front-end code.
 
-## Why not ESPEasy?
-
-[ESPEasy](https://www.letscontrolit.com/wiki/index.php/ESPEasy), an excellent library with a similar objective, has a 
-big community supporting development and lots of supported hardware. esphomelib, however, does have some advantages. 
-Firstly, esphomelib is made for the ESP32, which is the successor of the ESP8266 chip that ESPEasy is made for.
-The ESP32 has many addtional features/peripherals. Just to name a few:
-
-* It's faster and has more flash space (in most configurations)
-* The ESP32 has an integrated high-precision high-speed PWM peripheral with up to 16 channels - this is very handy for 
-RGB lights!
-* Many features that would otherwise be required to be implemented in software, have hardware peripherals on the ESP32, 
-which can be very useful - for example integrated IR transmitting, pulse counting, etc.
-
-Moreover this library is especially useful for Home Assistant users because of its tight integration with discovery
-and pre-implemented components. And if there's a new piece of hardware you want to support, that's going to be much
-easier with esphomelib and its powerful core.
+If esphomelib doesn't a sensor or device you'd really want to have support for, creating a custom component is very
+easy. A guide on how to do this will be up soon-ish 😉.
 
 ## Getting Started
 
@@ -96,6 +86,14 @@ framework = arduino
 lib_deps = esphomelib
 ```
 
+... or for [ESP8266-based boards](http://docs.platformio.org/en/latest/platforms/espressif8266.html#boards):
+
+```ini
+; ...
+platform = espressif8266
+board = nodemcuv2
+```
+
 Finally, create a new source file in the `src/` folder (for example `main.cpp`) and start coding with esphomelib.
 
 ### Bare Bones
@@ -103,6 +101,7 @@ Finally, create a new source file in the `src/` folder (for example `main.cpp`) 
 Before adding all the desired components to your code, there are a few things you need to set up first.
 
 Begin with including the library and setting up the `Application` instance, which will handle all of your components.
+
 ```cpp
 #include "esphomelib/application.h"
 
@@ -112,8 +111,8 @@ Application app;
 ```
 
 Next, set the name of your node (here "livingroom") with `app.set_name()`. This is required if you plan on using MQTT. 
-Then initialize the log so you can debug your code on the serial port of the ESP32 with baud rate 115200.
-Additionally, important log messages will also be published on MQTT with the topic `NAME/debug`
+Then initialize the log so you can debug your code on the serial port with baud rate 115200.
+Additionally, important log messages will also be published on MQTT with the topic `<NAME>/debug`
 (here `livingroom/debug`) by default.
 
 Following after that you'll want to setup all the connectivity stuff, like WiFi, MQTT, and OTA with the respective 
@@ -163,7 +162,9 @@ To add lights to your device, you'll only really need to do two things: Create t
 the light component.
 
 First, create a `OutputComponent`. This is basically just a component that the light will write brightness values to. 
-Each channel, i.e. the RGB channels, will have its own output and you can easily switch between different types of outputs. For example, to use the internal LEDC PWM peripheral, just use the following code to create an output component on pin 32:
+Each channel, i.e. the RGB channels, will have its own output and you can easily switch between different types of 
+outputs. For example, to use the internal LEDC PWM peripheral, just use the following code to create an output 
+component on pin 32:
 
 ```cpp
 auto *red = app.make_ledc_component(32);
@@ -180,7 +181,8 @@ app.make_monochromatic_light("Table Lamp", table_lamp);
 app.make_binary_light("Livingroom Standing Lamp", standing_lamp);
 ```
 
-> Lights will automatically store their state in non-volatile memory so that lights can restore the color and brightness if the ESP32 were restarted.
+> Lights will automatically store their state in non-volatile memory so that lights can restore the color and 
+> brightness if the board is restarted 🎉
 
 #### Sensor
 
@@ -233,7 +235,8 @@ to set the output channels. See [`examples/fan-example.cpp`](examples/fan-exampl
 
 ## Home Assistant Configuration
 
-To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/) must be enabled with the topic `discovery/`.
+To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/)
+must be enabled with the topic `discovery/`.
 
 ```yaml
 mqtt:
@@ -247,7 +250,7 @@ mqtt:
 * Powerful core that allows for easy creation of new, custom components
 * Automatic WiFi handling (reconnects, etc.)
 * Automatic MQTT handling (birth messages, last will testaments, reconnects, etc.)
-* Powerful, (colored - yay) logging to Serial **and** MQTT
+* Powerful, (colored - yay 🌈) logging to Serial **and** MQTT.
 * Over the Air (OTA) updates
 * Home Assistant automatic MQTT discovery
 * Binary Sensors
@@ -269,20 +272,15 @@ mqtt:
 
 ## Planned features
 
-* Arduino IDE support (if possible)
-* ESP8266 support
-* Multiple WiFi Networks
-* Internal ADC
-* IR Receiver via remote control peripheral
 * Improve documentation
-* Testing
+* Refine default options (like sensor update intervals)
 * FastLED support
-* More light effects
-* Home Assistant covers
-* Refine default options
-* Pulse Counter
-* Status LED
 * Covers
+* Status LED
+* More light effects
+* IR Receiver via remote control peripheral
+* Arduino IDE support (if possible)
+* Multiple WiFi Networks
 * **Suggestions?** Feel free to create an issue and tag it with feature request.
 
 ## Advanced Options
@@ -312,17 +310,17 @@ The second argument to `init_log()` denotes the MQTT topic that logs will be wri
 disables MQTT Logging.
 
 ```cpp
-app.init_log(115200, Optional());
+app.init_log(115200, Optional<std::string>());
 ```
 
 ### Logging
 
 esphomelib features a powerful logging engine that automatically pushes logs to Serial and MQTT.
-To use this in your own code, simply include `esp_log.h`, define a TAG, and use `ESP_LOGx` 
+To use this in your own code, simply include `esphomelib/log.h`, define a TAG, and use `ESP_LOGx` 
 (from [esp-idf](https://esp-idf.readthedocs.io/en/v2.1.1/api-reference/system/log.html)):
 
 ```cpp
-#include <esp_log.h>
+#include "esphomelib/log.h"
 
 static const char *TAG = "main";
 
@@ -333,8 +331,32 @@ ESP_LOGI(TAG, "This is an informational message.");
 ESP_LOGW(TAG, "This is a warning message.");
 ``` 
 
+There are several log levels available:
+ * **Verbose** (This is mostly for esphomelib development)
+ * **Debug (Default)** (Includes useful information when setting up your project)
+ * **Info** (Only important messages are published here; nothing periodic)
+ * **Warning** (Warnings about invalid sensor values, ...)
+ * **Error** (Only error messages that stop esphomelib from working correctly) 
+
+To change the global log level, include the following in your `platform.ini` (and change verbose to the log level 
+you want):
+
+```ini
+build_flags =
+    -DESPHOMELIB_LOG_LEVEL=ESPHOMELIB_LOG_LEVEL_VERBOSE
+```
+
+Next, if you're using MQTT logging, simply subscribe to the debug topic and see all the beautifully color-coded log
+messages scroll by:
+
+```bash
+# for example if using mosquitto
+mosquitto_sub -h 192.168.178.42 -u USERNAME -P PASSWORD -t livingroom/debug
+```
+
 > Note: use `set_global_log_level()` and `set_log_level` in `LogComponent` to adjust the global and 
-tag-specific log levels, respectively.
+> tag-specific log levels, respectively, for more fine-grained control. But also make sure to update the `build_flags`
+> to a low enough log level because `build_flags` defines which log messages are even included in your app.
 
 When using the `platformio device monitor [...]` command, try adding the `--raw` argument - this will apply color to
 log messages in your terminal.
@@ -366,7 +388,7 @@ dht.mqtt_temperature->set_custom_state_topic("home/livingroom/node1/temperature/
 ### OTA Updates
 
 If you call `app.init_ota()` during `setup()`, esphomelib will continuously listen for over-the-air updates. 
-To push an OTA update to your device, simply add `upload_port = `*`IP_OF_YOUR_ESP32`* to your `platform.ini`.
+To push an OTA update to your device, simply add `upload_port = `*`IP_OF_YOUR_ESP`* to your `platform.ini`.
 Then do the upload as you would do normally via serial. You might want to [set a static IP](#static-ips) for your ESP32.
 
 > Note: OTA is, by default, enabled without any authentication. If you're on a public WiFi network, it's highly
@@ -384,4 +406,4 @@ build_flags =
     -DMQTT_MAX_PACKET_SIZE=1024
 ```
 
-Increase the number if it still doesn't fit.
+Increase the number as necessary if it still doesn't fit.

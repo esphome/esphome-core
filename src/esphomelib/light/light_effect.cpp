@@ -2,9 +2,10 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include <esphomelib/helpers.h>
-#include <esp32-hal.h>
-#include "light_effect.h"
+#include "esphomelib/light/light_effect.h"
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 

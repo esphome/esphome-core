@@ -2,11 +2,16 @@
 // Created by Otto Winter on 27.01.18.
 //
 
-#ifndef ESPHOMELIB_ESP_PREFERENCES_H
-#define ESPHOMELIB_ESP_PREFERENCES_H
+#ifndef ESPHOMELIB_ESPPREFERENCES_H
+#define ESPHOMELIB_ESPPREFERENCES_H
 
-#include <Preferences.h>
 #include <string>
+
+#ifdef ARDUINO_ARCH_ESP32
+#include <Preferences.h>
+#endif
+
+#include "esphomelib/espmath.h"
 
 namespace esphomelib {
 
@@ -38,16 +43,18 @@ class ESPPreferences {
   float get_float(const std::string &friendly_name, const std::string &key, float default_value);
   double get_double(const std::string &friendly_name, const std::string &key, double default_value);
 
- private:
+ protected:
 
+#ifdef ARDUINO_ARCH_ESP32
   /// Return a key for the nvs storage by hashing the friendly name and truncating the key to 7 characters.
   std::string get_preference_key(const std::string &friendly_name, const std::string &key);
 
   Preferences preferences_;
+#endif
 };
 
 extern ESPPreferences global_preferences;
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_ESP_PREFERENCES_H
+#endif //ESPHOMELIB_ESPPREFERENCES_H

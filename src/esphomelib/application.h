@@ -7,31 +7,33 @@
 
 #include <vector>
 #include <WiFiClient.h>
-#include <esphomelib/output/ledc_output_component.h>
-#include <esphomelib/output/pca9685_output_component.h>
-#include <esphomelib/light/mqtt_json_light_component.h>
-#include <esphomelib/input/gpio_binary_sensor_component.h>
-#include <esphomelib/binary_sensor/mqtt_binary_sensor_component.h>
-#include <esphomelib/sensor/mqtt_sensor_component.h>
-#include <esphomelib/input/dht_component.h>
-#include <esphomelib/light/light_output_component.h>
-#include <esphomelib/switch_platform/mqtt_switch_component.h>
-#include <esphomelib/switch_platform/switch.h>
-#include <esphomelib/output/ir_transmitter_component.h>
+#include "esphomelib/output/ledc_output_component.h"
+#include "esphomelib/output/pca9685_output_component.h"
+#include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/input/gpio_binary_sensor_component.h"
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
+#include "esphomelib/sensor/mqtt_sensor_component.h"
+#include "esphomelib/input/dht_component.h"
+#include "esphomelib/light/light_output_component.h"
+#include "esphomelib/switch_platform/mqtt_switch_component.h"
+#include "esphomelib/switch_platform/switch.h"
+#include "esphomelib/output/ir_transmitter_component.h"
 #include <DallasTemperature.h>
-#include <esphomelib/input/dallas_component.h>
-#include <esphomelib/switch_platform/simple_switch.h>
-#include <esphomelib/fan/mqtt_fan_component.h>
-#include <esphomelib/fan/basic_fan_component.h>
-#include <esphomelib/output/gpio_binary_output_component.h>
-#include "component.h"
+#include "esphomelib/input/dallas_component.h"
+#include "esphomelib/switch_platform/simple_switch.h"
+#include "esphomelib/fan/mqtt_fan_component.h"
+#include "esphomelib/fan/basic_fan_component.h"
+#include "esphomelib/output/gpio_binary_output_component.h"
+#include "esphomelib/input/pulse_counter.h"
+#include "esphomelib/input/adc_component.h"
+#include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
-#include "wifi_component.h"
-#include "log_component.h"
-#include "atx_component.h"
+#include "esphomelib/wifi_component.h"
+#include "esphomelib/log_component.h"
+#include "esphomelib/power_supply_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/sensor/sensor.h"
-#include "ota_component.h"
+#include "esphomelib/ota_component.h"
 
 namespace esphomelib {
 
@@ -103,20 +105,19 @@ class Application {
                                        const std::string &username, const std::string &password,
                                        const std::string &discovery_prefix = "discovery");
 
-  /** Create a ATX power supply component that will automatically switch on and off.
+  /** Create a power supply component that will automatically switch on and off.
    *
    * @param pin The pin the power supply is connected to.
    * @param enable_time The time (in ms) the power supply needs until it can provide high power when powering on.
    * @param keep_on_time The time (in ms) the power supply should stay on when it is not used.
-   * @return The ATXComponent.
+   * @return The PowerSupplyComponent.
    */
-  ATXComponent *make_atx(uint8_t pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
+  PowerSupplyComponent *make_power_supply(uint8_t pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
 
   // ======================= BINARY SENSOR =======================
 
   /// Create a GPIOBinarySensorComponent. Mostly for internal use.
-  input::GPIOBinarySensorComponent *make_gpio_binary_sensor(uint8_t pin, uint8_t mode = INPUT,
-                                                            binary_sensor::binary_callback_t callback = nullptr);
+  input::GPIOBinarySensorComponent *make_gpio_binary_sensor(uint8_t pin, uint8_t mode = INPUT);
 
   /// Create a MQTTBinarySensorComponent. Mostly for internal use.
   binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor(std::string friendly_name,
@@ -136,23 +137,18 @@ class Application {
    * Note: advanced options such as inverted input are available in the return value.
    *
    * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
+   * @param pin The GPIO pin.
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
    *                     or esphomelib::binary_sensor::device_class
-   * @param pin The GPIO pin.
    */
   SimpleBinarySensor make_simple_gpio_binary_sensor(std::string friendly_name,
-                                                    std::string device_class,
-                                                    uint8_t pin);
+                                                    uint8_t pin,
+                                                    std::string device_class = "");
 
   // ======================= SENSOR =======================
-  /// Create a MQTTSensorComponent. Mostly for internal use.
-  sensor::MQTTSensorComponent *make_mqtt_sensor(std::string friendly_name, std::string unit_of_measurement,
-                                                Optional<uint32_t> expire_after = Optional<uint32_t>());
 
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
-  sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string friendly_name,
-                                                    Optional<uint32_t> expire_after = Optional<uint32_t>(300),
-                                                    Optional<size_t> moving_average_size = Optional<size_t>(15));
+  sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string friendly_name);
 
   struct MakeDHTComponent {
     input::DHTComponent *dht;
@@ -169,19 +165,61 @@ class Application {
    *                                  automatic discovery.
    * @param humidity_friendly_name The name the humidity sensor should be advertised as. Leave empty for no
    *                                  automatic discovery.
-   * @param check_interval The interval (in ms) the sensor should be checked.
+   * @param update_interval The interval (in ms) the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
   MakeDHTComponent make_dht_component(uint8_t pin,
                                       const std::string &temperature_friendly_name,
                                       const std::string &humidity_friendly_name,
-                                      uint32_t check_interval = 5000);
+                                      uint32_t update_interval = 15000);
 
   input::DallasComponent *make_dallas_component(OneWire *one_wire);
 
   input::DallasComponent *make_dallas_component(uint8_t pin);
 
+#ifdef ARDUINO_ARCH_ESP32
+  struct MakePulseCounter {
+    input::PulseCounterSensorComponent *pcnt;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  /** Create an ESP32 Pulse Counter component.
+   *
+   * The pulse counter peripheral will automatically all pulses on pin in the background. Every
+   * check_interval ms the amount of pulses will be retrieved and the difference to the last value
+   * will be reported via MQTT as a sensor.
+   *
+   * @param pin The pin the pulse counter should count pulses on.
+   * @param friendly_name The name the sensor should be advertised as.
+   * @return The components. Use this for advanced settings.
+   */
+  MakePulseCounter make_pulse_counter(uint8_t pin,
+                                      const std::string &friendly_name,
+                                      uint32_t update_interval = 15000);
+#endif
+
+  struct MakeADCSensor {
+    input::ADCSensorComponent *adc;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  /** Create an ADC Sensor component.
+   *
+   * Every check_interval ms, the value from the specified pin (only A0 on ESP8266, 32-39 for ESP32),
+   * and converts it into the volt unit. On the ESP32 you can additionally specify a channel attenuation
+   * using the return value of this function. pinMode can also be set using the return value.
+   *
+   * @param pin The pin the ADC should sense on.
+   * @param friendly_name The name the sensor should be advertised as.
+   * @return The components. Use this for advanced settings.
+   */
+  MakeADCSensor make_adc_sensor(uint8_t pin,
+                                const std::string &friendly_name,
+                                uint32_t check_interval = 15000);
+
   // ======================= OUTPUT =======================
+
+#ifdef ARDUINO_ARCH_ESP32
   /** Create a ESP32 LEDC channel.
    *
    * @param pin The pin.
@@ -190,6 +228,7 @@ class Application {
    * @return The LEDC component. Use this for advanced settings.
    */
   output::LEDCOutputComponent *make_ledc_component(uint8_t pin, float frequency = 1000.0f, uint8_t bit_depth = 12);
+#endif
 
   /** Create a PCA9685 component.
    *
@@ -259,6 +298,7 @@ class Application {
   /// Connect the provided Switch to the MQTTSwitchComponent. Mostly for internal use.
   void connect_switch(switch_platform::Switch *switch_, switch_platform::MQTTSwitchComponent *mqtt);
 
+#ifdef ARDUINO_ARCH_ESP32
   /** Create an IR transmitter.
    *
    * @param pin The pin the IR led is connected to.
@@ -269,6 +309,7 @@ class Application {
   output::IRTransmitterComponent *make_ir_transmitter(uint8_t pin,
                                                       uint8_t carrier_duty_percent = 50,
                                                       uint8_t clock_divider = output::DEFAULT_CLOCK_DIVIDER);
+#endif
 
   struct SimpleGPIOSwitchStruct {
     switch_platform::SimpleSwitch *simple_switch;
@@ -289,7 +330,12 @@ class Application {
     fan::MQTTFanComponent *mqtt;
   };
 
-  /// Create a GPIO binary output component on the specified pin and pinMode.
+  /** Create a simple binary GPIO output component.
+   *
+   * @param pin The GPIO pin.
+   * @param mode The pinMode.
+   * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
+   */
   output::GPIOBinaryOutputComponent *make_gpio_binary_output(uint8_t pin, uint8_t mode = OUTPUT);
 
   /** Create and connect a Fan with the specified friendly name.
@@ -329,6 +375,7 @@ class Application {
   WiFiComponent *wifi_;
 
   std::string name_;
+  Component::ComponentState application_state_{Component::CONSTRUCTION};
 };
 
 /// Global storage of Application pointer - only one Application can exist.

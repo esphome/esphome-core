@@ -2,8 +2,9 @@
 // Created by Otto Winter on 20.01.18.
 //
 
-#include <cassert>
-#include "simple_switch.h"
+#include "esphomelib/switch_platform/simple_switch.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

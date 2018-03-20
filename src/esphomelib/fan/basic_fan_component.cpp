@@ -2,8 +2,9 @@
 // Created by Otto Winter on 30.12.17.
 //
 
-#include <esp_log.h>
-#include "basic_fan_component.h"
+#include "esphomelib/fan/basic_fan_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 

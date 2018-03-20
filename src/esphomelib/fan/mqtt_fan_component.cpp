@@ -2,13 +2,15 @@
 // Created by Otto Winter on 29.12.17.
 //
 
-#include "mqtt_fan_component.h"
+#include "esphomelib/fan/mqtt_fan_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
 namespace fan {
 
-static const char *TAG = "fan::mqtt_fan";
+static const char *TAG = "fan::mqtt";
 
 MQTTFanComponent::MQTTFanComponent(const std::string &friendly_name)
     : MQTTComponent(friendly_name), next_send_(true) {}

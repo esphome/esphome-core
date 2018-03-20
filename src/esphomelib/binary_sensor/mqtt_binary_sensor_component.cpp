@@ -2,13 +2,15 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include "mqtt_binary_sensor_component.h"
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
+
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
 namespace binary_sensor {
 
-static const char *TAG = "MQTTBinarySensor";
+static const char *TAG = "binary_sensor::mqtt";
 
 std::string MQTTBinarySensorComponent::component_type() const {
   return "binary_sensor";
@@ -16,8 +18,8 @@ std::string MQTTBinarySensorComponent::component_type() const {
 
 void MQTTBinarySensorComponent::setup() {
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    assert(!this->device_class_.empty());
-    root["device_class"] = buffer.strdup(this->get_device_class().c_str());
+    if (!this->device_class_.empty())
+      root["device_class"] = buffer.strdup(this->get_device_class().c_str());
   }, true, false);
 }
 

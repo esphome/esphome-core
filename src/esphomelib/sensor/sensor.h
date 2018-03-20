@@ -6,6 +6,7 @@
 #define ESPHOMELIB_SENSOR_SENSOR_H
 
 #include <functional>
+
 #include "esphomelib/component.h"
 
 namespace esphomelib {
@@ -20,23 +21,31 @@ using sensor_callback_t = std::function<void(float, int8_t)>;
  */
 class Sensor {
  public:
+  explicit Sensor(uint32_t update_interval);
+
   virtual std::string unit_of_measurement() = 0;
 
   void set_new_value_callback(sensor_callback_t callback);
 
   void push_new_value(float value, int8_t accuracy_decimals);
 
- private:
-  sensor_callback_t callback_;
+  virtual uint32_t get_update_interval() const;
+  virtual void set_update_interval(uint32_t update_interval);
+
+ protected:
+  sensor_callback_t callback_{nullptr};
+  uint32_t update_interval_{0};
 };
 
 class TemperatureSensor : public Sensor {
  public:
+  explicit TemperatureSensor(uint32_t update_interval);
   std::string unit_of_measurement() override;
 };
 
 class HumiditySensor : public Sensor {
  public:
+  explicit HumiditySensor(uint32_t update_interval);
   std::string unit_of_measurement() override;
 };
 

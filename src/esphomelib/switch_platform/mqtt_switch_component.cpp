@@ -2,16 +2,18 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include "mqtt_switch_component.h"
+#include "esphomelib/switch_platform/mqtt_switch_component.h"
 
 #include <utility>
-#include <esphomelib/esp_preferences.h>
+
+#include "esphomelib/log.h"
+#include "esphomelib/esppreferences.h"
 
 namespace esphomelib {
 
 namespace switch_platform {
 
-static const char *TAG = "MQTTSwitch";
+static const char *TAG = "switch::mqtt";
 
 using esphomelib::binary_sensor::binary_callback_t;
 using esphomelib::mqtt::Availability;

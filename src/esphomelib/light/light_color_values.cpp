@@ -2,20 +2,22 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include "light_color_values.h"
-#include <esphomelib/helpers.h>
-#include <esphomelib/component.h>
-#include <esp_log.h>
+#include "esphomelib/light/light_color_values.h"
+
 #include <sstream>
 #include <iomanip>
-#include <esphomelib/espmath.h>
-#include <esphomelib/esp_preferences.h>
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/component.h"
+#include "esphomelib/log.h"
+#include "esphomelib/espmath.h"
+#include "esphomelib/esppreferences.h"
 
 namespace esphomelib {
 
 namespace light {
 
-static const char *TAG = "light_color_values";
+static const char *TAG = "light::light_color_values";
 
 float LightColorValues::get_state() const {
   return this->state_;
@@ -135,10 +137,6 @@ void LightColorValues::parse_json(const JsonObject &root) {
       this->set_green(float(color["g"]) / 255.0f);
       this->set_blue(float(color["b"]) / 255.0f);
       ESP_LOGV(TAG, "    r=%.2f, g=%.2f, b=%.2f", this->get_red(), this->get_green(), this->get_blue());
-    } else if (color.containsKey("x") && color.containsKey("y")) {
-      auto x = float(color["x"]);
-      auto y = float(color["y"]);
-      this->from_xyz(x, y, this->get_brightness());
     }
   }
 
@@ -146,42 +144,6 @@ void LightColorValues::parse_json(const JsonObject &root) {
     this->white_ = float(root["white_value"]) / 255.0f;
     ESP_LOGV(TAG, "    white_value=%.2f", this->get_white());
   }
-}
-
-void LightColorValues::from_xyz(float v_x, float v_y, float brightness) {
-  ESP_LOGV(TAG, "From XYZ (x=%.2f, y=%.2f, z=%.2f)", v_x, v_y, brightness);
-  this->set_brightness(brightness);
-  if (this->get_brightness() == 0.0f) {
-    this->set_red(0.0f);
-    this->set_green(0.0f);
-    this->set_blue(0.0f);
-  }
-  float Y = this->get_brightness();
-  if (v_y == 0.0)
-    v_y += 0.00000000001;
-
-  float X = (Y / v_y) * v_x;
-  float Z = (Y / v_y) * (1 - v_x - v_y);
-
-  float r = X * 1.656492f - Y * 0.354851f - Z * 0.255038f;
-  float g = -X * 0.707196f + Y * 1.655397f + Z * 0.036152f;
-  float b = X * 0.051713f - Y * 0.121364f + Z * 1.011530f;
-
-  r = (r <= 0.0031308f) ? (12.92f * r) : ((1.055f) * powf(r, (1.0f / 2.4f)) - 0.055f);
-  g = (g <= 0.0031308f) ? (12.92f * g) : ((1.055f) * powf(g, (1.0f / 2.4f)) - 0.055f);
-  b = (b <= 0.0031308f) ? (12.92f * b) : ((1.055f) * powf(b, (1.0f / 2.4f)) - 0.055f);
-
-  if (r < 0.0f) r = 0.0f;
-  if (g < 0.0f) g = 0.0f;
-  if (b < 0.0f) b = 0.0f;
-
-  float max_comp = fmaxf(r, fmaxf(g, b));
-  if (max_comp > 1.0f) {
-    this->set_red(r / max_comp);
-    this->set_green(g / max_comp);
-    this->set_blue(b / max_comp);
-  }
-  ESP_LOGV(TAG, "    r=%.2f, g=%.2f, b=%.2f", this->get_red(), this->get_green(), this->get_blue());
 }
 
 void LightColorValues::normalize_color(const LightTraits &traits) {
@@ -222,16 +184,6 @@ bool LightColorValues::operator==(const LightColorValues &rhs) const {
 
 bool LightColorValues::operator!=(const LightColorValues &rhs) const {
   return !(rhs == *this);
-}
-std::string LightColorValues::to_string() {
-  std::ostringstream os;
-  os << std::setprecision(2) << *this;
-  return os.str();
-}
-std::ostream &operator<<(std::ostream &os, const LightColorValues &values) {
-  os << "state: " << values.state_ << " brightness: " << values.brightness_ << " red: " << values.red_ << " green: "
-     << values.green_ << " blue: " << values.blue_ << " white: " << values.white_;
-  return os;
 }
 
 } // namespace light

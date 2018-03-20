@@ -5,8 +5,8 @@
 #ifndef ESPHOMELIB_LIGHT_MQTT_JSON_LIGHT_COMPONENT
 #define ESPHOMELIB_LIGHT_MQTT_JSON_LIGHT_COMPONENT
 
-#include <esphomelib/mqtt/mqtt_component.h>
-#include "light_state.h"
+#include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/light/light_state.h"
 
 namespace esphomelib {
 

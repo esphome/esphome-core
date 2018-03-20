@@ -2,14 +2,19 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include <esp32-hal-gpio.h>
-#include "gpio_binary_sensor_component.h"
+#include "esphomelib/input/gpio_binary_sensor_component.h"
+
+#include "esphomelib/esphal.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
 namespace input {
 
+static const char *TAG = "input::gpio_binary_sensor";
+
 void GPIOBinarySensorComponent::setup() {
+  ESP_LOGD(TAG, "Setup pin=%d, mode=%d", this->pin_, this->mode_);
   pinMode(this->pin_, this->mode_);
 }
 

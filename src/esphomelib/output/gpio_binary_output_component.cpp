@@ -2,8 +2,10 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include <esp32-hal-gpio.h>
-#include "gpio_binary_output_component.h"
+#include "esphomelib/output/gpio_binary_output_component.h"
+
+#include "esphomelib/esphal.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
@@ -11,7 +13,7 @@ namespace output {
 
 void GPIOBinaryOutputComponent::write_value(bool value) {
   if (value != this->is_inverted())
-    this->enable_atx();
+    this->enable_power_supply();
 
   digitalWrite(this->pin_, uint8_t(value ? HIGH : LOW));
 }

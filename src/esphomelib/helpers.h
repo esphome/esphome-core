@@ -9,11 +9,9 @@
 #include <IPAddress.h>
 #include <memory>
 #include <queue>
-#include <ostream>
 #include <functional>
-#include <sstream>
-#include <iomanip>
-#include <esp32-hal.h>
+
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 
@@ -76,8 +74,6 @@ float random_float();
 /// Applies gamma correction with the provided gamma to value.
 float gamma_correct(float value, float gamma);
 
-template<typename T>
-std::string value_to_hex_string(T value);
 
 /// Sanitizes the input string with the whitelist.
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
@@ -88,7 +84,7 @@ T run_without_interrupts(const std::function<T()> &f);
 /// Helper class to represent an optional value.
 template<typename T>
 struct Optional {
-  Optional() : defined(false) {}
+  explicit Optional() : defined(false) {}
 
   Optional(T value) : defined(true), value(value) {} // NOLINT
 
@@ -231,17 +227,18 @@ void SlidingWindowMovingAverage<T>::set_max_size(size_t max_size) {
 }
 
 template<typename T>
-std::string value_to_hex_string(T value) {
-  std::stringstream ss;
-  ss << std::hex << value;
-  return ss.str();
-}
-
-template<typename T>
 T run_without_interrupts(const std::function<T()> &f) {
+#ifdef ARDUINO_ARCH_ESP32
   portDISABLE_INTERRUPTS();
+#else
+  noInterrupts();
+#endif
   T ret = f();
+#ifdef ARDUINO_ARCH_ESP32
   portENABLE_INTERRUPTS();
+#else
+  interrupts();
+#endif
   return ret;
 }
 

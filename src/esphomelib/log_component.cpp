@@ -2,34 +2,49 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include <esp_log.h>
+#include "esphomelib/log_component.h"
+
+#ifdef ARDUINO_ARCH_ESP32
+  #include <esp_log.h>
+#endif
 #include <HardwareSerial.h>
-#include "log_component.h"
+
 #include "esphomelib/mqtt/mqtt_client_component.h"
-#include "application.h"
+#include "esphomelib/log.h"
+#include "esphomelib/application.h"
 
 namespace esphomelib {
 
-static const char *TAG = "log";
+static const char *TAG = "log_component";
 
-int LogComponent::log_vprintf_(const char *format, va_list args) {
-  auto *log = global_log_component;
-  int ret = vsnprintf(log->tx_buffer_.data(), log->tx_buffer_.capacity(), format, args);
+int LogComponent::log_vprintf_(ESPLogLevel level, const std::string &tag,
+                               const char *format, va_list args) {
+  auto it = this->log_levels_.find(tag);
+  ESPLogLevel max_level = this->global_log_level_;
+  //if (it == this->log_levels_.end())
+  //  max_level = it->second;
 
-  if (ret > 0) {
-    if (log->baud_rate_ > 0) {
-      Serial.print(log->tx_buffer_.data());
-    }
+  if (level > max_level)
+    return 0;
 
-    if (log->mqtt_logging_enabled_ && mqtt::global_mqtt_client != nullptr && mqtt::global_mqtt_client->is_connected())
-      mqtt::global_mqtt_client->publish(log->get_logging_topic(), log->tx_buffer_.data(), true);
+  int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(),
+                      format, args);
+
+  if (ret > 0) { // only if format successful
+    if (this->baud_rate_ > 0)
+      Serial.println(this->tx_buffer_.data());
+
+    if (this->mqtt_logging_enabled_ && mqtt::global_mqtt_client != nullptr &&
+        mqtt::global_mqtt_client->is_connected()) // don't try if we're not connected.
+      mqtt::global_mqtt_client->publish(
+          this->get_logging_topic(), this->tx_buffer_.data(), true);
   }
 
   return ret;
 }
 
 LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size)
-    : baud_rate_(baud_rate),  mqtt_logging_enabled_(true) {
+    : baud_rate_(baud_rate) {
   this->set_tx_buffer_size(tx_buffer_size);
 }
 
@@ -38,10 +53,8 @@ void LogComponent::pre_setup() {
     Serial.begin(this->baud_rate_);
 
   global_log_component = this;
-  esp_log_set_vprintf(LogComponent::log_vprintf_);
-
-#ifdef LOG_LOCAL_LEVEL
-  this->set_global_log_level(LOG_LOCAL_LEVEL);
+#ifdef ARDUINO_ARCH_ESP32
+  esp_log_set_vprintf(esp_idf_log_vprintf_);
 #endif
 
   ESP_LOGI(TAG, "Log initialized");
@@ -52,11 +65,11 @@ uint32_t LogComponent::get_baud_rate() const {
 void LogComponent::set_baud_rate(uint32_t baud_rate) {
   this->baud_rate_ = baud_rate;
 }
-void LogComponent::set_global_log_level(esp_log_level_t log_level) {
-  this->set_log_level("*", log_level);
+void LogComponent::set_global_log_level(ESPLogLevel log_level) {
+  this->global_log_level_ = log_level;
 }
-void LogComponent::set_log_level(const std::string &tag, esp_log_level_t log_level) {
-  esp_log_level_set(tag.c_str(), log_level);
+void LogComponent::set_log_level(const std::string &tag, ESPLogLevel log_level) {
+  this->log_levels_[tag] = log_level;
 }
 size_t LogComponent::get_tx_buffer_size() const {
   return this->tx_buffer_.capacity();
@@ -81,16 +94,5 @@ std::string LogComponent::get_logging_topic() {
 }
 
 LogComponent *global_log_component = nullptr;
-
-void __assert_func(const char *file, int lineno, const char *func, const char *exp) {
-  ESP_LOGE("assert",
-           "assertion \"%s\" failed: file \"%s\", line %d%s%s",
-           exp,
-           file,
-           lineno,
-           func ? ", function: " : "",
-           func ? func : "");
-  abort();
-}
 
 } // namespace esphomelib

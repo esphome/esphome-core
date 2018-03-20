@@ -6,8 +6,9 @@
 #define ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 
 #include <ArduinoJson.h>
-#include <ostream>
-#include "light_traits.h"
+#include <string>
+
+#include "esphomelib/light/light_traits.h"
 
 namespace esphomelib {
 
@@ -74,9 +75,6 @@ class LightColorValues {
    */
   void dump_json(JsonObject &root, const LightTraits &traits) const;
 
-  /// Convert the provided XYZ color to the internal RGB color
-  void from_xyz(float v_x, float v_y, float brightness);
-
   /** Normalize the color (RGB/W) component.
    *
    * Divides all color attributes by the maximum attribute, so effectively set at least one attribute to 1.
@@ -107,9 +105,6 @@ class LightColorValues {
 
   float get_white() const;
   void set_white(float white);
-
-  friend std::ostream &operator<<(std::ostream &os, const LightColorValues &values);
-  std::string to_string();
 
  protected:
   float state_; ///< ON / OFF, float for transition

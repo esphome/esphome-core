@@ -9,7 +9,7 @@
 #include <map>
 #include <vector>
 
-#define assert_is_pin(num) assert(0 <= (num) && (num) <= 39)
+#define assert_is_pin(num) assert((0 <= (num) && (num) <= 39) && "Is not a valid pin number")
 #define assert_positive(num) assert((num) >= 0)
 #define assert_0_to_1(num) assert(0 <= (num) && (num) <= 1)
 #define assert_nullptr(p) assert((p) == nullptr)
@@ -106,6 +106,10 @@ class Component {
    * This will call f every interval ms. Can be cancelled via CancelInterval().
    * Similar to javascript's setInterval().
    *
+   * IMPORTANT: Do not rely on this having correct timing. This is only called from
+   * loop() and therefore can be significantly delay. If you need exact timing please
+   * use hardware timers.
+   *
    * @param name The identifier for this interval function.
    * @param interval The interval in ms.
    * @param f The function (or lambda) that should be called
@@ -124,6 +128,10 @@ class Component {
   /** Set a timeout function with a unique name.
    *
    * Similar to javascript's setTimeout().
+   *
+   * IMPORTANT: Do not rely on this having correct timing. This is only called from
+   * loop() and therefore can be significantly delay. If you need exact timing please
+   * use hardware timers.
    *
    * @param name The identifier for this timeout function.
    * @param timeout The timeout in ms.
@@ -160,7 +168,7 @@ class Component {
    */
   std::vector<TimeFunction> time_functions_;
 
-  ComponentState component_state_;
+  ComponentState component_state_; ///< State of this component.
 };
 
 } // namespace esphomelib
