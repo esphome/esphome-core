@@ -7,7 +7,6 @@
 //
 
 #include "esphomelib/esphal.h"
-#include "esphomelib/log.h"
 
 namespace esphomelib {
 
