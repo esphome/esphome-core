@@ -13,18 +13,23 @@ namespace esphomelib {
 /** PowerSupplyComponent - This class represents an power supply.
  *
  * The power supply will automatically be turned on if a component requests high power and will automatically be
- * turned off again keep_on_time (ms) after the last high-power request. Aditionally, an enable_time (ms) can be
- * specified because many power supplies only actually provide high-power output after a few milliseconds.
+ * turned off again keep_on_time (ms) after the last high-power request is cancelled. Aditionally, an
+ * enable_time (ms) can be specified because many power supplies only actually provide high-power output
+ * after a few milliseconds.
  *
- * Use the pin obtained by get_pin() to enable inverted mode. For example most ATX power supplies operate in inverted
- * mode, so to turn them on you have to pull the pin LOW.
+ * Use the pin argument of the Application helper to enable inverted mode. For example most ATX power supplies
+ * operate in inverted mode, so to turn them on you have to pull the pin LOW.
  *
- * auto *power_supply = app.make_power_supply(12);
- * power_supply->get_pin().set_inverted(true);
+ * auto *power_supply = app.make_power_supply(GPIOOutputPin(12, OUTPUT, true)); // inverted
  *
- * // or alternatively:
+ * To request high power mode, a component must use the request_high_power() function to register itself as
+ * needing high power mode. Once the high power mode is no longer required the component can use unrequest_high_power()
+ * to unregister its high power mode. IMPORTANT: An component should NOT hold multiple requests to the same
+ * power supply, as the PowerSupplyComponent only holds an internal counter of how many high power requests have been
+ * made.
  *
- * auto *power_supply = app.make_power_supply(GPIOOutputPin(12, OUTPUT, true));
+ * Usually though, all this should actually be handled by BinaryOutput and FloatOutput, since using this class
+ * correctly is not too easy.
  */
 class PowerSupplyComponent : public Component {
  public:
@@ -48,12 +53,14 @@ class PowerSupplyComponent : public Component {
   /// Is this power supply currently on?
   bool is_enabled() const;
 
-  /// Request high-power mode, to prevent the power supply from shutting down again, call this periodically.
-  void enable();
+  /// Request high power mode. Use unrequest_high_power() to remove this request.
+  void request_high_power();
+
+  /// Un-request high power mode.
+  void unrequest_high_power();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-
   /// Register callbacks.
   void setup() override;
   /// Hardware setup priority (+1).
@@ -68,11 +75,13 @@ class PowerSupplyComponent : public Component {
   /// Get the enable time.
   uint32_t get_enable_time() const;
 
- private:
+ protected:
+
   GPIOOutputPin pin_;
-  bool enabled_;
+  bool enabled_{false};
   uint32_t enable_time_;
   uint32_t keep_on_time_;
+  int16_t active_requests_{0};  // use signed integer to make catching negative requests easier.
 };
 
 } // namespace esphomelib

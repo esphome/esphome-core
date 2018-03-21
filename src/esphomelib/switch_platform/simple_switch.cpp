@@ -10,13 +10,13 @@ namespace esphomelib {
 
 namespace switch_platform {
 
-SimpleSwitch::SimpleSwitch(output::BinaryOutput *output) : output_(output) {
-
-}
+SimpleSwitch::SimpleSwitch(output::BinaryOutput *output)
+    : output_(output) { }
 
 void SimpleSwitch::write_state(bool state) {
   assert(this->output_ != nullptr);
-  this->output_->set_value(state);
+  if (state) this->output_->enable();
+  else this->output_->disable();
   this->publish_state(state);
 }
 

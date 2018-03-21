@@ -286,6 +286,7 @@ class Application {
                               output::FloatOutput *white);
 
   // ======================= SWITCH =======================
+
   /// Create a MQTTSwitchComponent. Mostly for internal use.
   switch_platform::MQTTSwitchComponent *make_mqtt_switch(const std::string &friendly_name);
 
@@ -305,12 +306,18 @@ class Application {
                                                       uint8_t clock_divider = output::DEFAULT_CLOCK_DIVIDER);
 #endif
 
-  struct SimpleGPIOSwitchStruct {
-    switch_platform::SimpleSwitch *simple_switch;
-    switch_platform::MQTTSwitchComponent *mqtt_switch;
+  struct GPIOSwitchStruct {
+    output::GPIOBinaryOutputComponent *gpio;
+    switch_platform::MQTTSwitchComponent *mqtt;
   };
 
-  SimpleGPIOSwitchStruct make_simple_gpio_switch(uint8_t pin, const std::string &friendly_name);
+  /** Create a simple GPIO switch that can be toggled on/off and appears in the Home Assistant frontend.
+   *
+   * @param pin The pin used for this switch. Can be integer or GPIOOutputPin.
+   * @param friendly_name The friendly name advertised to Home Assistant for this switch-
+   * @return A GPIOSwitchStruct, use this to set advanced settings.
+   */
+  GPIOSwitchStruct make_gpio_switch(GPIOOutputPin pin, const std::string &friendly_name);
 
   /// Create a MQTTSwitchComponent for the provided Switch.
   switch_platform::MQTTSwitchComponent *make_mqtt_switch_for(const std::string &friendly_name,
@@ -330,10 +337,9 @@ class Application {
    * in Home Assistant. See make_simple_gpio_switch for a switch.
    *
    * @param pin The GPIO pin.
-   * @param mode The pinMode.
    * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
    */
-  output::GPIOBinaryOutputComponent *make_gpio_binary_output(uint8_t pin, uint8_t mode = OUTPUT);
+  output::GPIOBinaryOutputComponent *make_gpio_binary_output(GPIOOutputPin pin);
 
   /** Create and connect a Fan with the specified friendly name.
    *

@@ -253,15 +253,15 @@ input::DallasComponent *Application::make_dallas_component(uint8_t pin) {
   return this->make_dallas_component(new OneWire(pin));
 }
 
-Application::SimpleGPIOSwitchStruct Application::make_simple_gpio_switch(uint8_t pin,
-                                                                         const std::string &friendly_name) {
+Application::GPIOSwitchStruct Application::make_gpio_switch(GPIOOutputPin pin,
+                                                            const std::string &friendly_name) {
   auto *binary_output = this->make_gpio_binary_output(pin);
   auto *simple_switch = new SimpleSwitch(binary_output);
   auto *mqtt = this->make_mqtt_switch_for(friendly_name, simple_switch);
 
   return {
-      .simple_switch = simple_switch,
-      .mqtt_switch = mqtt
+      .gpio = binary_output,
+      .mqtt = mqtt
   };
 }
 
@@ -279,8 +279,8 @@ Application::FanStruct Application::make_fan(const std::string &friendly_name) {
   return s;
 }
 
-output::GPIOBinaryOutputComponent *Application::make_gpio_binary_output(uint8_t pin, uint8_t mode) {
-  return this->register_component(new GPIOBinaryOutputComponent(pin, mode));
+output::GPIOBinaryOutputComponent *Application::make_gpio_binary_output(GPIOOutputPin pin) {
+  return this->register_component(new GPIOBinaryOutputComponent(pin));
 }
 
 Application::Application() {

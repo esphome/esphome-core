@@ -20,12 +20,12 @@ namespace input {
  *
  * Example:
  *
- * app.make_simple_gpio_binary_sensor("Window Open", 36, binary_sensor::device_class::WINDOW);
+ * app.make_gpio_binary_sensor(36, "Window Open", binary_sensor::device_class::WINDOW);
  *
- * or for setting input pinMode:
+ * or for setting custom input pinMode:
  *
- * app.make_simple_gpio_binary_sensor("Window Open", GPIOInputPin(36, INPUT_PULLUP),
- *                                    binary_sensor::device_class::WINDOW);
+ * app.make_gpio_binary_sensor(GPIOInputPin(36, INPUT_PULLUP), "Window Open",
+ *                             binary_sensor::device_class::WINDOW);
  */
 class GPIOBinarySensorComponent : public binary_sensor::BinarySensor, public Component {
  public:

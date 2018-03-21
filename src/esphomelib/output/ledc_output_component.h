@@ -8,14 +8,13 @@
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "esphomelib/output/float_output.h"
-#include "esphomelib/output/high_power_output.h"
 
 namespace esphomelib {
 
 namespace output {
 
 /// ESP32 LEDC output component.
-class LEDCOutputComponent : public FloatOutput, public HighPowerOutput, public Component {
+class LEDCOutputComponent : public FloatOutput, public Component {
  public:
   /// Construct a LEDCOutputComponent. The channel will be set using the next_ledc_channel global variable.
   explicit LEDCOutputComponent(uint8_t pin, float frequency = 1000.0f, uint8_t bit_depth = 12);
@@ -29,7 +28,7 @@ class LEDCOutputComponent : public FloatOutput, public HighPowerOutput, public C
   float get_frequency() const;
   void set_frequency(float frequency);
 
-  void write_value_f(float adjusted_value) override;
+  void write_state(float adjusted_value) override;
 
   void setup() override;
   float get_setup_priority() const override;

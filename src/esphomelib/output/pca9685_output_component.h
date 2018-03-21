@@ -8,7 +8,6 @@
 #include <PCA9685.h>
 
 #include "esphomelib/output/float_output.h"
-#include "esphomelib/output/high_power_output.h"
 
 namespace esphomelib {
 
@@ -17,11 +16,11 @@ namespace output {
 /// PCA9685 float output component.
 class PCA9685OutputComponent : public Component {
  public:
-  class Channel : public FloatOutput, public HighPowerOutput {
+  class Channel : public FloatOutput {
    public:
     Channel(PCA9685OutputComponent *parent, uint8_t channel);
 
-    void write_value_f(float adjusted_value) override;
+    void write_state(float state) override;
 
    private:
     PCA9685OutputComponent *parent_;

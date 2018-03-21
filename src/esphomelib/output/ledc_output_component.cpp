@@ -16,20 +16,10 @@ namespace output {
 
 static const char *TAG = "output::ledc";
 
-void LEDCOutputComponent::write_value_f(float adjusted_value) {
+void LEDCOutputComponent::write_state(float adjusted_value) {
   uint32_t max_duty = (uint32_t(1) << this->bit_depth_) - 1;
   auto duty = uint32_t(adjusted_value * max_duty);
-
-  // duty written to LEDC channel
-  uint32_t hw_duty = duty;
-  if (this->is_inverted())
-    hw_duty = max_duty - duty;
-
-  // If we're writing something high, then enable ATX
-  if (duty > 0)
-    this->enable_power_supply();
-
-  ledcWrite(this->channel_, hw_duty);
+  ledcWrite(this->channel_, duty);
 }
 
 void LEDCOutputComponent::setup() {
@@ -39,7 +29,7 @@ void LEDCOutputComponent::setup() {
   ledcSetup(this->channel_, this->frequency_, this->bit_depth_);
   ledcAttachPin(this->pin_, this->channel_);
 
-  this->set_value_f(0.0f);
+  this->disable(); // initialize off
 }
 
 float LEDCOutputComponent::get_setup_priority() const {
@@ -48,7 +38,7 @@ float LEDCOutputComponent::get_setup_priority() const {
 LEDCOutputComponent::LEDCOutputComponent(uint8_t pin,
                                          float frequency,
                                          uint8_t bit_depth)
-    : Component(), FloatOutput(), HighPowerOutput() {
+    : Component(), FloatOutput() {
   this->set_channel(next_ledc_channel++);
   this->set_frequency(frequency);
   this->set_pin(pin);
