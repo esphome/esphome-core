@@ -17,7 +17,7 @@ namespace input {
 static const char *TAG = "input::adc";
 
 ADCSensorComponent::ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval)
-    : Sensor(update_interval), pin_(pin) { }
+    : VoltageSensor(update_interval), pin_(pin) { }
 
 #ifdef ARDUINO_ARCH_ESP32
 adc_attenuation_t ADCSensorComponent::get_attenuation() const {
@@ -60,9 +60,6 @@ void ADCSensorComponent::setup() {
 }
 float ADCSensorComponent::get_setup_priority() const {
   return Component::get_setup_priority();
-}
-std::string ADCSensorComponent::unit_of_measurement() {
-  return "V";
 }
 GPIOInputPin &ADCSensorComponent::get_pin() {
   return this->pin_;

@@ -104,6 +104,45 @@ class LambdaFilter : public Filter {
   lambda_filter_t lambda_filter_;
 };
 
+/// OffsetFilter - A simple filter that adds `offset` to each value it receives.
+class OffsetFilter : public Filter {
+ public:
+  explicit OffsetFilter(float offset);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  float offset_;
+};
+
+/// MultiplyFilter - A simple filter that multiplies to each value it receives by `multiplier`.
+class MultiplyFilter : public Filter {
+ public:
+  explicit MultiplyFilter(float multiplier);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  float multiplier_;
+};
+
+/// FilterOutValueFilter - A simple filter that only forwards the filter chain if it doesn't receive `value_to_filter_out`.
+class FilterOutValueFilter : public Filter {
+ public:
+  explicit FilterOutValueFilter(float values_to_filter_out);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  float value_to_filter_out_;
+};
+
+/// FilterOutNANFilter - A simple filter that only forwards the filter chain if it doesn't receive `nan`.
+class FilterOutNANFilter : public FilterOutValueFilter {
+ public:
+  FilterOutNANFilter();
+};
+
 } // namespace sensor
 
 } // namespace esphomelib

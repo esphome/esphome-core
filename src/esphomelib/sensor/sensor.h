@@ -49,6 +49,18 @@ class HumiditySensor : public Sensor {
   std::string unit_of_measurement() override;
 };
 
+class VoltageSensor : public Sensor {
+ public:
+  explicit VoltageSensor(uint32_t update_interval);
+  std::string unit_of_measurement() override;
+};
+
+class DistanceSensor : public Sensor {
+ public:
+  explicit DistanceSensor(uint32_t update_interval);
+  std::string unit_of_measurement() override;
+};
+
 } // namespace sensor
 
 } // namespace esphomelib
