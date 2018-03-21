@@ -111,24 +111,19 @@ PowerSupplyComponent *Application::make_power_supply(GPIOOutputPin pin, uint32_t
   return this->register_component(atx);
 }
 
-GPIOBinarySensorComponent *Application::make_gpio_binary_sensor(uint8_t pin, uint8_t mode) {
-  auto *io = new GPIOBinarySensorComponent(pin, mode);
-  return this->register_component(io);
-}
-
-MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor(std::string friendly_name,
-                                                                std::string device_class) {
-  auto *mqtt = new MQTTBinarySensorComponent(std::move(friendly_name), std::move(device_class));
+MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor_for(std::string friendly_name,
+                                                                    std::string device_class,
+                                                                    BinarySensor *binary_sensor) {
+  auto *mqtt = new MQTTBinarySensorComponent(std::move(friendly_name), std::move(device_class), binary_sensor);
   return this->register_mqtt_component(mqtt);
 }
 
-Application::SimpleBinarySensor Application::make_simple_gpio_binary_sensor(std::string friendly_name,
-                                                                            uint8_t pin,
-                                                                            std::string device_class) {
+Application::SimpleBinarySensor Application::make_gpio_binary_sensor(GPIOInputPin pin,
+                                                                     std::string friendly_name,
+                                                                     std::string device_class) {
   SimpleBinarySensor s{};
-  s.mqtt = this->make_mqtt_binary_sensor(std::move(friendly_name), std::move(device_class));
-  s.gpio = this->make_gpio_binary_sensor(pin);
-  this->connect_binary_sensor_pair(s.gpio, s.mqtt);
+  s.gpio = this->register_component(new GPIOBinarySensorComponent(pin));
+  s.mqtt = this->make_mqtt_binary_sensor_for(std::move(friendly_name), std::move(device_class), s.gpio);
   return s;
 }
 
@@ -196,9 +191,6 @@ OTAComponent *Application::init_ota() {
   auto *ota = new OTAComponent();
   ota->set_hostname(this->wifi_->get_hostname());
   this->register_component(ota);
-}
-void Application::connect_binary_sensor_pair(BinarySensor *binary_sensor, MQTTBinarySensorComponent *mqtt) {
-  binary_sensor->set_on_new_state_callback(mqtt->create_on_new_state_callback());
 }
 Application::LightStruct Application::make_monochromatic_light(const std::string &friendly_name,
                                                                output::FloatOutput *mono) {

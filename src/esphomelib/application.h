@@ -116,16 +116,10 @@ class Application {
 
   // ======================= BINARY SENSOR =======================
 
-  /// Create a GPIOBinarySensorComponent. Mostly for internal use.
-  input::GPIOBinarySensorComponent *make_gpio_binary_sensor(uint8_t pin, uint8_t mode = INPUT);
-
-  /// Create a MQTTBinarySensorComponent. Mostly for internal use.
-  binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor(std::string friendly_name,
-                                                                    std::string device_class);
-
-  /// Connect a BinarySensor to a MQTTBinarySensorComponent. Mostly for internal use.
-  void connect_binary_sensor_pair(binary_sensor::BinarySensor *binary_sensor,
-                                  binary_sensor::MQTTBinarySensorComponent *mqtt);
+  /// Create a MQTTBinarySensorComponent for a specific BinarySensor. Mostly for internal use.
+  binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor_for(std::string friendly_name,
+                                                                        std::string device_class,
+                                                                        binary_sensor::BinarySensor *binary_sensor);
 
   struct SimpleBinarySensor {
     input::GPIOBinarySensorComponent *gpio;
@@ -136,14 +130,14 @@ class Application {
    *
    * Note: advanced options such as inverted input are available in the return value.
    *
-   * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
    * @param pin The GPIO pin.
+   * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
    *                     or esphomelib::binary_sensor::device_class
    */
-  SimpleBinarySensor make_simple_gpio_binary_sensor(std::string friendly_name,
-                                                    uint8_t pin,
-                                                    std::string device_class = "");
+  SimpleBinarySensor make_gpio_binary_sensor(GPIOInputPin pin,
+                                             std::string friendly_name,
+                                             std::string device_class = "");
 
   // ======================= SENSOR =======================
 
@@ -331,6 +325,9 @@ class Application {
   };
 
   /** Create a simple binary GPIO output component.
+   *
+   * Note: This is *only* a binary output component, not a switch that will be exposed
+   * in Home Assistant. See make_simple_gpio_switch for a switch.
    *
    * @param pin The GPIO pin.
    * @param mode The pinMode.

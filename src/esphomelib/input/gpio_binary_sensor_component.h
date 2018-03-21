@@ -14,32 +14,45 @@ namespace esphomelib {
 
 namespace input {
 
-/// GPIOBinarySensorComponent - Simple binary_sensor component for a GPIO pin.
+/** GPIOBinarySensorComponent - Simple binary_sensor component for a GPIO pin.
+ *
+ * This class allows you to observe the digital state of a certain GPIO pin.
+ *
+ * Example:
+ *
+ * app.make_simple_gpio_binary_sensor("Window Open", 36, binary_sensor::device_class::WINDOW);
+ *
+ * or for setting input pinMode:
+ *
+ * app.make_simple_gpio_binary_sensor("Window Open", GPIOInputPin(36, INPUT_PULLUP),
+ *                                    binary_sensor::device_class::WINDOW);
+ */
 class GPIOBinarySensorComponent : public binary_sensor::BinarySensor, public Component {
  public:
   /** Construct a GPIOBinarySensorComponent.
    *
-   * @param pin The pin number.
-   * @param mode The pin-mode.
+   * @param pin The input pin, can either be an integer or GPIOInputPin.
    */
-  explicit GPIOBinarySensorComponent(uint8_t pin, uint8_t mode = INPUT);
+  explicit GPIOBinarySensorComponent(GPIOInputPin pin);
 
-  uint8_t get_pin() const;
-  void set_pin(uint8_t pin);
+  /// Set the pin for this GPIO binary sensor.
+  void set_pin(const GPIOInputPin &pin);
 
-  uint8_t get_mode() const;
-  /// Set the pinMode - for example INPUT.
-  void set_mode(uint8_t mode);
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
 
+  /// Setup pin
   void setup() override;
+  /// Hardware priority
   float get_setup_priority() const override;
+  /// Check sensor
   void loop() override;
 
+  /// Get the pin for this GPIO binary sensor.
+  GPIOInputPin &get_pin();
+
  protected:
-  uint8_t pin_;
-  uint8_t mode_;
-  bool last_state_;
-  bool first_run_;
+  GPIOInputPin pin_;
 };
 
 } // namespace input

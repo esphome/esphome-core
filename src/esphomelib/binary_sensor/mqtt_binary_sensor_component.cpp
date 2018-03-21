@@ -23,15 +23,25 @@ void MQTTBinarySensorComponent::setup() {
   }, true, false);
 }
 
-MQTTBinarySensorComponent::MQTTBinarySensorComponent(std::string friendly_name,
-                                                     std::string device_class)
+MQTTBinarySensorComponent::MQTTBinarySensorComponent(std::string friendly_name, std::string device_class,
+                                                     BinarySensor *binary_sensor)
     : MQTTComponent(std::move(friendly_name)), device_class_(std::move(device_class)) {
+  if (binary_sensor == nullptr)
+    return;
+
+  binary_sensor->set_on_new_state_callback(this->create_on_new_state_callback());
 }
 
 binary_sensor::binary_callback_t MQTTBinarySensorComponent::create_on_new_state_callback() {
-  return [&](bool enabled) {
+  return [&](bool value) {
     assert_setup(this);
-    std::string state = enabled ? "ON" : "OFF";
+    if (!this->first_run_ && this->last_state_ == value)
+      // return if we're not in first run and our value is the same.
+      return;
+    this->first_run_ = false;
+    this->last_state_ = value;
+
+    std::string state = value ? "ON" : "OFF";
     this->send_message(this->get_state_topic(), state);
   };
 }

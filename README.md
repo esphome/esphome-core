@@ -224,12 +224,12 @@ That's it.
 
 #### Binary Sensor
 
-To create a simple GPIO binary sensor, that reports the state of a GPIO pin, use `make_simple_gpio_binary_sensor()` 
+To create a simple GPIO binary sensor, that reports the state of a GPIO pin, use `make_gpio_binary_sensor()` 
 with the friendly name of the binary sensor, a [device class](https://home-assistant.io/components/binary_sensor/), 
 and the GPIO pin like this:
 
 ```cpp
-app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class::MOTION, 36);
+app.make_gpio_binary_sensor(36, "Cabinet Motion", binary_sensor::device_class::MOTION);
 ```
 
 #### Fan
