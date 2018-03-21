@@ -41,7 +41,7 @@ void loop() {
 And voilà 🎉 - esphomelib will now automatically manage everything such as logging to MQTT, Home Assistant MQTT 
 discovery, OTA updates, light effects/transitions, WiFi reconnects, etc etc. for you - amazing, right?
 
-If you have [MQTT Discovery](#home-assistant-configuration) enabled in Home Assistant, all the sensors defined here
+If you have [MQTT Discovery](#home-assistant-configuration) enabled in Home Assistant, all the components defined here
 will even show up in the front end without adding anything to your configuration file.
 
 ## Powerful Core
