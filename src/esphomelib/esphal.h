@@ -28,8 +28,9 @@ class GPIOPin {
    *
    * @param pin The GPIO pin number of this instance.
    * @param mode The Arduino pinMode that this pin should be put into at setup().
+   * @param inverted Whether all digitalRead/digitalWrite calls should be inverted.
    */
-  GPIOPin(uint8_t pin, uint8_t mode);
+  GPIOPin(uint8_t pin, uint8_t mode, bool inverted = false);
 
   /// Setup the pin mode.
   void setup();
@@ -66,7 +67,7 @@ class GPIOPin {
  */
 class GPIOOutputPin : public GPIOPin {
  public:
-  GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT); // NOLINT
+  GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false); // NOLINT
 };
 
 /** GPIOInputPin - Basically just a GPIOPin, but defaults to INPUT pinMode.
@@ -77,7 +78,7 @@ class GPIOOutputPin : public GPIOPin {
  */
 class GPIOInputPin : public GPIOPin {
  public:
-  GPIOInputPin(uint8_t pin, uint8_t mode = INPUT); // NOLINT
+  GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false); // NOLINT
 };
 
 } // namespace esphomelib
