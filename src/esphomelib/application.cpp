@@ -106,7 +106,7 @@ LogComponent *Application::init_log(uint32_t baud_rate,
   return this->register_component(log);
 }
 
-PowerSupplyComponent *Application::make_power_supply(uint8_t pin, uint32_t enable_time, uint32_t keep_on_time) {
+PowerSupplyComponent *Application::make_power_supply(GPIOOutputPin pin, uint32_t enable_time, uint32_t keep_on_time) {
   auto *atx = new PowerSupplyComponent(pin, enable_time, keep_on_time);
   return this->register_component(atx);
 }

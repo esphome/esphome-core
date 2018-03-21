@@ -112,7 +112,7 @@ class Application {
    * @param keep_on_time The time (in ms) the power supply should stay on when it is not used.
    * @return The PowerSupplyComponent.
    */
-  PowerSupplyComponent *make_power_supply(uint8_t pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
+  PowerSupplyComponent *make_power_supply(GPIOOutputPin pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
 
   // ======================= BINARY SENSOR =======================
 
