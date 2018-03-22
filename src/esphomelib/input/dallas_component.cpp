@@ -110,9 +110,11 @@ DallasTemperatureSensor *DallasComponent::get_sensor_by_index(uint8_t index,
 void DallasComponent::request_temperature(DallasTemperatureSensor *sensor) {
   run_without_interrupts<void>([this, sensor] {
     this->dallas_.requestTemperaturesByAddress(sensor->get_address8());
+    delayMicroseconds(10); // seems to be a lot more stable
   });
 
   this->set_timeout(sensor->get_name(), sensor->millis_to_wait_for_conversion(), [this, sensor] {
+    delayMicroseconds(10); // seems to be a lot more stable
     auto temperature = run_without_interrupts<float>([this, sensor] {
       return this->dallas_.getTempC(sensor->get_address8());
     });
