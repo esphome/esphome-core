@@ -39,7 +39,11 @@ void setup() {
   });
   dht.mqtt_temperature->set_unit_of_measurement("°F");
 
+  // Built-in Analog to Digital converter, can be used to measure things like luminosity.
   App.make_adc_sensor(13, "Analog Voltage");
+
+  // Ultrasonic sensor like HC-SR04, can be used to measure distance.
+  App.make_ultrasonic_sensor(23, 22, "Ultrasonic Sensor");
 
   App.setup();
 }

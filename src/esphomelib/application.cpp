@@ -274,8 +274,6 @@ output::GPIOBinaryOutputComponent *Application::make_gpio_output(GPIOOutputPin p
   return this->register_component(new GPIOBinaryOutputComponent(pin));
 }
 
-Application::Application() = default;
-
 #ifdef ARDUINO_ARCH_ESP32
 Application::MakePulseCounter Application::make_pulse_counter_sensor(uint8_t pin,
                                                                      const std::string &friendly_name,
@@ -297,6 +295,20 @@ Application::MakeADCSensor Application::make_adc_sensor(uint8_t pin,
   return MakeADCSensor {
       .adc = adc,
       .mqtt = mqtt
+  };
+}
+
+Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutputPin trigger_pin,
+                                                                      GPIOInputPin echo_pin,
+                                                                      const std::string &friendly_name,
+                                                                      uint32_t update_interval) {
+  auto *ultrasonic = this->register_component(
+      new UltrasonicSensorComponent(trigger_pin, echo_pin, update_interval)
+  );
+
+  return MakeUltrasonicSensor {
+      .ultrasonic = ultrasonic,
+      .mqtt = this->make_mqtt_sensor_for(ultrasonic, friendly_name),
   };
 }
 

@@ -18,7 +18,7 @@
 #include "esphomelib/switch_platform/mqtt_switch_component.h"
 #include "esphomelib/switch_platform/switch.h"
 #include "esphomelib/output/ir_transmitter_component.h"
-#include <DallasTemperature.h>
+#include "esphomelib/input/ultrasonic_sensor.h"
 #include "esphomelib/input/dallas_component.h"
 #include "esphomelib/switch_platform/simple_switch.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
@@ -44,8 +44,6 @@ namespace esphomelib {
  */
 class Application {
  public:
-  Application();
-
   /** Set the name of the item that is running this app.
    *
    * Note: This will automatically be converted to lowercase_underscore.
@@ -113,10 +111,19 @@ class Application {
    * @param keep_on_time The time (in ms) the power supply should stay on when it is not used.
    * @return The PowerSupplyComponent.
    */
-  PowerSupplyComponent *make_power_supply(GPIOOutputPin pin, uint32_t enable_time = 20, uint32_t keep_on_time = 10000);
+  PowerSupplyComponent *make_power_supply(GPIOOutputPin pin, uint32_t enable_time = 20,
+                                          uint32_t keep_on_time = 10000);
 
-  // ======================= BINARY SENSOR =======================
 
+
+
+
+  /*   ____ ___ _   _    _    ______   __  ____  _____ _   _ ____   ___  ____
+   *  | __ |_ _| \ | |  / \  |  _ \ \ / / / ___|| ____| \ | / ___| / _ \|  _ \
+   *  |  _ \| ||  \| | / _ \ | |_) \ V /  \___ \|  _| |  \| \___ \| | | | |_) |
+   *  | |_) | || |\  |/ ___ \|  _ < | |    ___) | |___| |\  |___) | |_| |  _ <
+   *  |____|___|_| \_/_/   \_|_| \_\|_|   |____/|_____|_| \_|____/ \___/|_| \_\
+   */
   /// Create a MQTTBinarySensorComponent for a specific BinarySensor. Mostly for internal use.
   binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor_for(std::string friendly_name,
                                                                         std::string device_class,
@@ -140,8 +147,16 @@ class Application {
                                              std::string friendly_name,
                                              std::string device_class = "");
 
-  // ======================= SENSOR =======================
 
+
+
+
+  /*   ____  _____ _   _ ____   ___  ____
+   *  / ___|| ____| \ | / ___| / _ \|  _ \
+   *  \___ \|  _| |  \| \___ \| | | | |_) |
+   *   ___) | |___| |\  |___) | |_| |  _ <
+   *  |____/|_____|_| \_|____/ \___/|_| \_\
+   */
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
   sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string friendly_name);
 
@@ -212,8 +227,41 @@ class Application {
                                 const std::string &friendly_name,
                                 uint32_t update_interval = 15000);
 
-  // ======================= OUTPUT =======================
+  struct MakeUltrasonicSensor {
+    input::UltrasonicSensorComponent *ultrasonic;
+    sensor::MQTTSensorComponent *mqtt;
+  };
 
+  /** Create an Ultrasonic range sensor.
+   *
+   * This can for example be an HC-SR04 ultrasonic sensor. It sends out a short ultrasonic wave and listens
+   * for an echo. The time between the sending and receiving is then (with some maths) converted to a measurement
+   * in meters. You need to specify the trigger pin (where to short pulse will be sent to) and the echo pin
+   * (where we're waiting for the echo). Note that in order to not block indefinitely if we don't receive an
+   * echo, this class has a default timeout of around 2m. You can change that using the return value of this
+   * function.
+   *
+   * @param trigger_pin The pin the short pulse will be sent to, can be integer or GPIOOutputPin.
+   * @param echo_pin The pin we wait that we wait on for the echo, can be integer or GPIOInputPin.
+   * @param friendly_name The friendly name for this sensor advertised to Home Assistant.
+   * @param update_interval The time in ms between updates, defaults to 5 seconds.
+   * @return The Ultrasonic sensor + MQTT sensor pair, use this for advanced settings.
+   */
+  MakeUltrasonicSensor make_ultrasonic_sensor(GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
+                                              const std::string &friendly_name,
+                                              uint32_t update_interval = 5000);
+
+
+
+
+
+
+  /*    ___  _   _ _____ ____  _   _ _____
+   *   / _ \| | | |_   _|  _ \| | | |_   _|
+   *  | | | | | | | | | | |_) | | | | | |
+   *  | |_| | |_| | | | |  __/| |_| | | |
+   *   \___/ \___/  |_| |_|    \___/  |_|
+   */
 #ifdef ARDUINO_ARCH_ESP32
   /** Create a ESP32 LEDC channel.
    *
@@ -243,7 +291,16 @@ class Application {
    */
   output::GPIOBinaryOutputComponent *make_gpio_output(GPIOOutputPin pin);
 
-  // ======================= LIGHT =======================
+
+
+
+
+  /*   _     ___ ____ _   _ _____
+   *  | |   |_ _/ ___| | | |_   _|
+   *  | |    | | |  _| |_| | | |
+   *  | |___ | | |_| |  _  | | |
+   *  |_____|___\____|_| |_| |_|
+   */
   /// Create a MQTTJSONLightComponent. Mostly for internal use.
   light::MQTTJSONLightComponent *make_mqtt_light_(const std::string &friendly_name, light::LightState *state);
 
@@ -296,7 +353,16 @@ class Application {
                               output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
                               output::FloatOutput *white);
 
-  // ======================= SWITCH =======================
+
+
+
+
+  /*   ______        _____ _____ ____ _   _
+   *  / ___\ \      / |_ _|_   _/ ___| | | |
+   *  \___ \\ \ /\ / / | |  | || |   | |_| |
+   *   ___) |\ V  V /  | |  | || |___|  _  |
+   *  |____/  \_/\_/  |___| |_| \____|_| |_|
+   */
 #ifdef ARDUINO_ARCH_ESP32
   /** Create an IR transmitter.
    *
@@ -327,8 +393,16 @@ class Application {
   switch_platform::MQTTSwitchComponent *make_mqtt_switch_for(const std::string &friendly_name,
                                                              switch_platform::Switch *switch_);
 
-  // ======================= FAN =======================
 
+
+
+
+  /*   _____ _    _   _
+   *  |  ___/ \  | \ | |
+   *  | |_ / _ \ |  \| |
+   *  |  _/ ___ \| |\  |
+   *  |_|/_/   \_|_| \_|
+   */
   struct FanStruct {
     fan::BasicFanComponent *output;
     fan::FanState *state;
@@ -342,8 +416,16 @@ class Application {
    */
   FanStruct make_fan(const std::string &friendly_name);
 
-  // ======================= FUNCTIONS =======================
 
+
+
+
+  /*   _   _ _____ _     ____  _____ ____  ____
+   *  | | | | ____| |   |  _ \| ____|  _ \/ ___|
+   *  | |_| |  _| | |   | |_) |  _| | |_) \___ \
+   *  |  _  | |___| |___|  __/| |___|  _ < ___) |
+   *  |_| |_|_____|_____|_|   |_____|_| \_|____/
+   */
   template<class C>
   C *register_mqtt_component(C *c);
 

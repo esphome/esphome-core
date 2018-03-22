@@ -138,9 +138,9 @@ class FilterOutValueFilter : public Filter {
 };
 
 /// FilterOutNANFilter - A simple filter that only forwards the filter chain if it doesn't receive `nan`.
-class FilterOutNANFilter : public FilterOutValueFilter {
+class FilterOutNANFilter : public Filter {
  public:
-  FilterOutNANFilter();
+  Optional<float> new_value(float value) override;
 };
 
 } // namespace sensor

@@ -105,9 +105,10 @@ Optional<float> FilterOutValueFilter::new_value(float value) {
   return value;
 }
 
-FilterOutNANFilter::FilterOutNANFilter()
-  : FilterOutValueFilter(NAN) {
-
+Optional<float> FilterOutNANFilter::new_value(float value) {
+  if (isnan(value))
+    return Optional<float>();
+  return value;
 }
 
 } // namespace sensor
