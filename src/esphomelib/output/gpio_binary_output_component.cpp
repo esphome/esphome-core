@@ -11,41 +11,25 @@ namespace esphomelib {
 
 namespace output {
 
-void GPIOBinaryOutputComponent::write_value(bool value) {
-  if (value != this->is_inverted())
-    this->enable_power_supply();
-
-  digitalWrite(this->pin_, uint8_t(value ? HIGH : LOW));
-}
-
-GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(uint8_t pin, uint8_t mode)
-    : Component(), BinaryOutput(), HighPowerOutput() {
-  this->set_pin(pin);
-  this->set_mode(mode);
+void GPIOBinaryOutputComponent::write_enabled(bool value) {
+  this->pin_.write_value(value);
 }
 
 void GPIOBinaryOutputComponent::setup() {
-  pinMode(this->pin_, this->mode_);
+  this->pin_.setup();
 }
 
 float GPIOBinaryOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-uint8_t GPIOBinaryOutputComponent::get_pin() const {
+GPIOOutputPin &GPIOBinaryOutputComponent::get_pin() {
   return this->pin_;
 }
-void GPIOBinaryOutputComponent::set_pin(uint8_t pin) {
-  assert_construction_state(this);
-  assert_is_pin(pin);
+void GPIOBinaryOutputComponent::set_pin(const GPIOOutputPin &pin) {
   this->pin_ = pin;
 }
-uint8_t GPIOBinaryOutputComponent::get_mode() const {
-  return this->mode_;
-}
-void GPIOBinaryOutputComponent::set_mode(uint8_t mode) {
-  assert_construction_state(this);
-  this->mode_ = mode;
-}
+GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOOutputPin pin)
+  : pin_(pin) { }
 
 } // namespace output
 

@@ -16,7 +16,8 @@ class SimpleSwitch : public Switch {
  public:
   explicit SimpleSwitch(output::BinaryOutput *output);
 
-  void write_state(bool state) override;
+  void turn_on() override;
+  void turn_off() override;
  protected:
   output::BinaryOutput *output_;
 };

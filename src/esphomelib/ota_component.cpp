@@ -32,8 +32,11 @@ void OTAComponent::setup() {
     case OPEN: {}
   }
 
-  ArduinoOTA.onStart([]() { ESP_LOGI(TAG, "OTA starting..."); });
-  ArduinoOTA.onEnd([]() {
+  ArduinoOTA.onStart([this]() {
+    ESP_LOGI(TAG, "OTA starting...");
+    this->ota_triggered_ = true;
+  });
+  ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
     ESP_LOGI(TAG, "Rebooting...");
   });
@@ -41,37 +44,40 @@ void OTAComponent::setup() {
     float percentage = float(progress) * 100 / float(total);
     ESP_LOGD(TAG, "OTA in progress: %0.1f%%", percentage);
   });
-  ArduinoOTA.onError([](ota_error_t error) {
+  ArduinoOTA.onError([this](ota_error_t error) {
     ESP_LOGE(TAG, "Error[%u]: ", error);
     switch (error) {
       case OTA_AUTH_ERROR: {
-        ESP_LOGE(TAG, "Auth Failed");
+        ESP_LOGE(TAG, "  Auth Failed");
         break;
       }
       case OTA_BEGIN_ERROR: {
-        ESP_LOGE(TAG, "Begin Failed");
+        ESP_LOGE(TAG, "  Begin Failed");
         break;
       }
       case OTA_CONNECT_ERROR: {
-        ESP_LOGE(TAG, "Connect Failed");
+        ESP_LOGE(TAG, "  Connect Failed");
         break;
       }
       case OTA_RECEIVE_ERROR: {
-        ESP_LOGE(TAG, "Receive Failed");
+        ESP_LOGE(TAG, "  Receive Failed");
         break;
       }
       case OTA_END_ERROR: {
-        ESP_LOGE(TAG, "End Failed");
+        ESP_LOGE(TAG, "  End Failed");
         break;
       }
-      default:ESP_LOGE(TAG, "Unknown Error");
+      default:ESP_LOGE(TAG, "  Unknown Error");
     }
+    this->ota_triggered_ = false;
   });
   ArduinoOTA.begin();
 }
 
 void OTAComponent::loop() {
-  ArduinoOTA.handle();
+  do {
+    ArduinoOTA.handle();
+  } while (this->ota_triggered_);
 }
 
 OTAComponent::OTAComponent(uint16_t port, std::string hostname)

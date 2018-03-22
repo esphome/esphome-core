@@ -13,28 +13,45 @@ namespace output {
 
 static const char *TAG = "output::float_output";
 
-void FloatOutput::set_value_f(float value) {
-  float adjusted_value = clamp(0.0f, 1.0f, value) * this->max_power_;
-  this->write_value_f(adjusted_value);
-}
-
 void FloatOutput::set_max_power(float max_power) {
   this->max_power_ = clamp(0.0f, 1.0f, max_power);
 }
 
-void FloatOutput::write_value(bool value) {
-    // This will never be called.
-}
-
-FloatOutput::FloatOutput() : BinaryOutput(), max_power_(1.0f) {
-}
-
-void FloatOutput::set_value(bool value) {
-  this->set_value_f(value ? 1.0f : 0.0f);
-}
-
 float FloatOutput::get_max_power() const {
   return this->max_power_;
+}
+
+void FloatOutput::set_state_(float state) {
+  state = clamp(0.0f, 1.0f, state);
+
+  if (state > 0.0f) { // ON
+    // maybe refactor this
+    if (this->power_supply_ != nullptr && !this->has_requested_high_power_) {
+      this->power_supply_->request_high_power();
+      this->has_requested_high_power_ = true;
+    }
+  } else { // OFF
+    if (this->power_supply_ != nullptr && this->has_requested_high_power_) {
+      this->power_supply_->unrequest_high_power();
+      this->has_requested_high_power_ = false;
+    }
+  }
+
+  float adjusted_value =  state * this->max_power_;
+  if (this->is_inverted())
+    adjusted_value = 1 - adjusted_value;
+  this->write_state(adjusted_value);
+}
+
+void FloatOutput::enable() {
+  this->set_state_(1.0f);
+}
+void FloatOutput::disable() {
+  this->set_state_(0.0f);
+}
+void FloatOutput::write_enabled(bool value) {
+  // This should never be called, as we override enable & disable
+  assert(false);
 }
 
 } // namespace output

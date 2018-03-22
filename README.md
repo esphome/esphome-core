@@ -23,12 +23,12 @@ void setup() {
     app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
     app.init_ota();
 
-    auto *red = app.make_ledc_component(32); // on pin 32, only available with ESP32
-    auto *green = app.make_ledc_component(33);
-    auto *blue = app.make_ledc_component(34);
+    auto *red = app.make_ledc_output(32); // on pin 32, only available with ESP32
+    auto *green = app.make_ledc_output(33);
+    auto *blue = app.make_ledc_output(34);
     app.make_rgb_light("Livingroom Light", red, green, blue);
     
-    app.make_dht_component(12, "Livingroom Temperature", "Livingroom Humidity");
+    app.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
 
     app.setup();
 }
@@ -171,7 +171,7 @@ outputs. For example, to use the internal LEDC PWM peripheral, just use the foll
 component on pin 32:
 
 ```cpp
-auto *red = app.make_ledc_component(32);
+auto *red = app.make_ledc_output(32);
 ```
 
 Aditionnaly, you can use `make_atx()` to automatically switch on a power supply when a channel is switched high.
@@ -190,7 +190,7 @@ app.make_binary_light("Livingroom Standing Lamp", standing_lamp);
 
 #### Sensor
 
-Adding a sensor is quite easy in esphomelib. For example, to add a DHT22, just use the `make_dht_component()` with 
+Adding a sensor is quite easy in esphomelib. For example, to add a DHT22, just use the `make_dht_sensor()` with 
 the GPIO pin and the friendly names for the temperature and humidity.
 
 Dallas ds18b20 sensors are almost equally easy. Just setup the sensor hub on a pin with `make_dallas_component()` and 
@@ -215,7 +215,7 @@ controls yourself. First, you'll need to find the IR codes of the remote - maybe
 the following code to your needs (and repeat from the second line for each channel):
 
 ```cpp
-auto *ir = app.make_ir_transmitter(32); // switch out 32 for your IR pin
+auto *ir = app.make_ir_transmitter_component(32); // switch out 32 for your IR pin
 auto *channel = ir->create_transmitter(SendData::from_panasonic(0x4004, 0x100BCBD).repeat(25)); // use the other functions in SendData for other codes.
 app.make_mqtt_switch_for("Panasonic TV On", channel);
 ```
@@ -224,12 +224,12 @@ That's it.
 
 #### Binary Sensor
 
-To create a simple GPIO binary sensor, that reports the state of a GPIO pin, use `make_simple_gpio_binary_sensor()` 
+To create a simple GPIO binary sensor, that reports the state of a GPIO pin, use `make_gpio_binary_sensor()` 
 with the friendly name of the binary sensor, a [device class](https://home-assistant.io/components/binary_sensor/), 
 and the GPIO pin like this:
 
 ```cpp
-app.make_simple_gpio_binary_sensor("Cabinet Motion", binary_sensor::device_class::MOTION, 36);
+app.make_gpio_binary_sensor(36, "Cabinet Motion", binary_sensor::device_class::MOTION);
 ```
 
 #### Fan
@@ -385,7 +385,7 @@ Customizing the MQTT state/command topics of a single MQTTComponent is also poss
 `set_custom_*_topic()` on your MQTTComponent like this:
 
 ```cpp
-auto dht = app.make_dht_component(12, "Livingroom Temperature", "Livingroom Humidity");
+auto dht = app.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
 dht.mqtt_temperature->set_custom_state_topic("home/livingroom/node1/temperature/state");
 ```
 

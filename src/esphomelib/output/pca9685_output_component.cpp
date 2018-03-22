@@ -96,24 +96,14 @@ void PCA9685OutputComponent::set_mode(uint8_t mode) {
   this->mode_ = mode;
 }
 
-void PCA9685OutputComponent::Channel::write_value_f(float adjusted_value) {
-  const uint16_t max_duty = 4096;
-  auto duty = uint16_t(adjusted_value * max_duty);
-
-  // duty written to PCA9685 channel
-  uint16_t hw_duty = duty;
-  if (this->is_inverted())
-    hw_duty = max_duty - duty;
-
-  // If we're writing something high, then enable ATX
-  if (duty > 0)
-    this->enable_power_supply();
-
-  this->parent_->set_channel_value(this->channel_, hw_duty);
-}
-
 PCA9685OutputComponent::Channel::Channel(PCA9685OutputComponent *parent, uint8_t channel)
-    : FloatOutput(), HighPowerOutput(), parent_(parent), channel_(channel) {}
+    : FloatOutput(), parent_(parent), channel_(channel) {}
+
+void PCA9685OutputComponent::Channel::write_state(float state) {
+  const uint16_t max_duty = 4096;
+  auto duty = uint16_t(state * max_duty);
+  this->parent_->set_channel_value(this->channel_, duty);
+}
 
 } // namespace output
 

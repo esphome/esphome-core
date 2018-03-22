@@ -57,16 +57,20 @@ void BasicFanComponent::loop() {
           speed = this->high_speed_;
       }
       ESP_LOGD(TAG, "Setting speed: %.2f", speed);
-      this->speed_output_->set_value_f(speed);
+      this->speed_output_->set_state_(speed);
     }
     if (this->binary_output_ != nullptr) {
-      this->binary_output_->set_value(this->state_->get_state());
-      ESP_LOGD(TAG, "Setting binary state: %d", int(this->state_->get_state()));
+      bool enable = this->state_->get_state();
+      if (enable) this->binary_output_->enable();
+      else this->binary_output_->disable();
+      ESP_LOGD(TAG, "Setting binary state: %d", int(enable));
     }
 
     if (this->state_->get_traits().supports_oscillation()) {
-      this->oscillating_output_->set_value(this->state_->is_oscillating());
-      ESP_LOGD(TAG, "Setting oscillation: %d", int(this->state_->is_oscillating()));
+      bool enable = this->state_->is_oscillating();
+      if (enable) this->binary_output_->enable();
+      else this->binary_output_->disable();
+      ESP_LOGD(TAG, "Setting oscillation: %d", int(enable));
     }
   }
 }

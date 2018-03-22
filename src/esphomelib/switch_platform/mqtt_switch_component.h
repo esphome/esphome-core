@@ -7,29 +7,39 @@
 
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/switch_platform/switch.h"
 
 namespace esphomelib {
 
 namespace switch_platform {
 
-/// Overrides MQTTBinarySensorComponent with a callback that can write values to hardware.
+/** MQTTSwitchComponent - MQTT representation of switches
+ *
+ * Overrides MQTTBinarySensorComponent with a callback that can write values to hardware.
+ */
 class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
  public:
-  explicit MQTTSwitchComponent(std::string friendly_name);
+  explicit MQTTSwitchComponent(std::string friendly_name, switch_platform::Switch *switch_ = nullptr);
 
+  void set_on_set_state_callback(const binary_sensor::binary_callback_t &set_state_callback);
+
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
   void setup() override;
-
-  void set_write_value_callback(const binary_sensor::binary_callback_t &write_callback);
-  const binary_sensor::binary_callback_t &get_write_value_callback() const;
-
+  
+  /// Override MQTTBinarySensor's on state received from hw callback.
   binary_sensor::binary_callback_t create_on_new_state_callback() override;
 
  protected:
+  const binary_sensor::binary_callback_t &get_on_set_state_callback() const;
+  
   std::string component_type() const override;
 
-  void send_state(bool state);
+  void turn_on();
 
-  binary_sensor::binary_callback_t write_value_callback_;
+  void turn_off();
+
+  binary_sensor::binary_callback_t on_set_state_callback_{nullptr};
 };
 
 } // namespace switch_platform
