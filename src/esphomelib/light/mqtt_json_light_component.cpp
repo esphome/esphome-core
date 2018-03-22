@@ -34,7 +34,7 @@ void MQTTJSONLightComponent::setup() {
       for (const LightEffect::Entry &entry : light_effect_entries) {
         if (!this->state_->get_traits().supports_traits(entry.requirements))
           continue;
-        effect_list.add(buffer.strdup(entry.name.c_str()));
+        effect_list.add(entry.name);
       }
     }
   }, true, true, "mqtt_json");
@@ -101,7 +101,7 @@ void MQTTJSONLightComponent::send_light_values() {
   this->send_json_message(this->get_state_topic(), [&](JsonBuffer &buffer, JsonObject &root) {
     assert_not_nullptr(this->state_);
     if (this->state_->supports_effects())
-      root["effect"] = buffer.strdup(this->state_->get_effect_name().c_str());
+      root["effect"] = this->state_->get_effect_name();
     remote_values.dump_json(root, this->state_->get_traits());
   });
 }

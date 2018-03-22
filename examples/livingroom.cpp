@@ -6,26 +6,24 @@
 
 using namespace esphomelib;
 
-Application app;
-
 void setup() {
-  app.set_name("livingroom");
-  app.init_log();
+  App.set_name("livingroom");
+  App.init_log();
 
-  app.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-  app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
-  app.init_ota();
+  App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
+  App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+  App.init_ota()->start_safe_mode();
 
-  auto *red = app.make_ledc_output(32); // on pin 32
-  auto *green = app.make_ledc_output(33);
-  auto *blue = app.make_ledc_output(34);
-  app.make_rgb_light("Livingroom Light", red, green, blue);
+  auto *red = App.make_ledc_output(32); // on pin 32
+  auto *green = App.make_ledc_output(33);
+  auto *blue = App.make_ledc_output(34);
+  App.make_rgb_light("Livingroom Light", red, green, blue);
 
-  app.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
+  App.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
 
-  app.setup();
+  App.setup();
 }
 
 void loop() {
-  app.loop();
+  App.loop();
 }

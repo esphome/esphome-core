@@ -190,7 +190,7 @@ WiFiComponent *Application::get_wifi() const {
 OTAComponent *Application::init_ota() {
   auto *ota = new OTAComponent();
   ota->set_hostname(this->wifi_->get_hostname());
-  this->register_component(ota);
+  return this->register_component(ota);
 }
 Application::LightStruct Application::make_monochromatic_light(const std::string &friendly_name,
                                                                output::FloatOutput *mono) {
@@ -274,9 +274,7 @@ output::GPIOBinaryOutputComponent *Application::make_gpio_output(GPIOOutputPin p
   return this->register_component(new GPIOBinaryOutputComponent(pin));
 }
 
-Application::Application() {
-  global_application = this;
-}
+Application::Application() = default;
 
 #ifdef ARDUINO_ARCH_ESP32
 Application::MakePulseCounter Application::make_pulse_counter_sensor(uint8_t pin,
@@ -302,6 +300,6 @@ Application::MakeADCSensor Application::make_adc_sensor(uint8_t pin,
   };
 }
 
-Application *global_application;
+Application App;
 
 } // namespace esphomelib

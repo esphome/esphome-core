@@ -39,10 +39,8 @@
   ],
   "build": {
     "flags": [
-      "-DLOG_LOCAL_LEVEL=ESP_LOG_VERBOSE",
       "-DMQTT_MAX_PACKET_SIZE=512",
-      "-DCONFIG_ARDUHAL_LOG_COLORS=1",
-      "-DCORE_DEBUG_LEVEL=5"
+      "-DARDUINOJSON_ENABLE_STD_STRING"
     ]
   },
   "license": "GPL-3.0",

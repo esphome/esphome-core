@@ -34,6 +34,7 @@
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/ota_component.h"
+#include "esphomelib/log.h"
 
 namespace esphomelib {
 
@@ -375,7 +376,7 @@ class Application {
 };
 
 /// Global storage of Application pointer - only one Application can exist.
-extern Application *global_application;
+extern Application App;
 
 template<class C>
 C *Application::register_component(C *c) {
