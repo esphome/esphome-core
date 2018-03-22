@@ -49,12 +49,14 @@ void UltrasonicSensorComponent::setup() {
     uint32_t time = pulseIn(this->echo_pin_.get_pin(),
                             uint8_t(!this->echo_pin_.is_inverted()),
                             this->timeout_us_);
-    ESP_LOGV(TAG, "Echo took %uµs", time);
+
     float result = 0;
     if (time == 0)
       result = NAN;
     else
       result = us_to_m(time);
+
+    ESP_LOGV(TAG, "Echo took %uµs (%fm)", time, result);
 
     this->push_new_value(result, 2); // cm precision
   });
