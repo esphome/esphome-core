@@ -19,19 +19,10 @@ namespace input {
 
 class ADCSensorComponent : public Component, public sensor::Sensor {
  public:
-#ifdef ARDUINO_ARCH_ESP32
-  explicit ADCSensorComponent(uint8_t pin, uint32_t update_interval = 15000, uint8_t mode = ANALOG);
-#else
-  explicit ADCSensorComponent(uint8_t pin, uint32_t update_interval = 15000);
-#endif
+  explicit ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval = 15000);
 
-  uint8_t get_pin() const;
-  void set_pin(uint8_t pin);
-
-#ifdef ARDUINO_ARCH_ESP32
-  uint8_t get_mode() const;
-  void set_mode(uint8_t mode);
-#endif
+  GPIOInputPin &get_pin();
+  void set_pin(const GPIOInputPin &pin);
 
   void setup() override;
   float get_setup_priority() const override;
@@ -43,10 +34,9 @@ class ADCSensorComponent : public Component, public sensor::Sensor {
 #endif
 
  protected:
-  uint8_t pin_;
+  GPIOInputPin pin_;
 
 #ifdef ARDUINO_ARCH_ESP32
-  uint8_t mode_;
   adc_attenuation_t attenuation_{ADC_0db};
 #endif
 };

@@ -28,6 +28,8 @@ void setup() {
 
   app.make_dht_component(12, "Outside Temperature", "Outside Humidity");
 
+  app.make_adc_sensor(13, "Analog Voltage");
+
   app.setup();
 }
 
