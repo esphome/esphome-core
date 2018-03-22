@@ -9,6 +9,7 @@
 #include "esphomelib/input/ultrasonic_sensor.h"
 
 #include "esphomelib/log.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
@@ -46,9 +47,11 @@ void UltrasonicSensorComponent::setup() {
     this->trigger_pin_.write_value(true);
     delayMicroseconds(this->pulse_time_us_);
     this->trigger_pin_.write_value(false);
-    uint32_t time = pulseIn(this->echo_pin_.get_pin(),
-                            uint8_t(!this->echo_pin_.is_inverted()),
-                            this->timeout_us_);
+    auto time = run_without_interrupts<uint32_t>([this] {
+      return pulseIn(this->echo_pin_.get_pin(),
+                     uint8_t(!this->echo_pin_.is_inverted()),
+                     this->timeout_us_);
+    });
 
     float result = 0;
     if (time == 0)
