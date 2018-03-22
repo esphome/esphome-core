@@ -27,15 +27,15 @@ MQTTClientComponent::MQTTClientComponent(MQTTCredentials credentials,
 }
 
 void MQTTClientComponent::setup() {
-  ESP_LOGD(TAG, "Setting up MQTT...");
+  ESP_LOGCONFIG(TAG, "Setting up MQTT...");
   this->mqtt_client_.setClient(this->client_);
   this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
 
-  ESP_LOGV(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
-  ESP_LOGV(TAG, "    Username: '%s'", this->credentials_.username.c_str());
-  ESP_LOGV(TAG, "    Password: '%s'", this->credentials_.password.c_str());
+  ESP_LOGCONFIG(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
+  ESP_LOGCONFIG(TAG, "    Username: '%s'", this->credentials_.username.c_str());
+  ESP_LOGCONFIG(TAG, "    Password: '%s'", this->credentials_.password.c_str());
   this->credentials_.client_id = truncate_string(this->credentials_.client_id, 23);
-  ESP_LOGV(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
+  ESP_LOGCONFIG(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
   this->mqtt_client_.setCallback(pub_sub_client_callback);
 
   if (this->use_status_messages_) {
@@ -101,10 +101,10 @@ void MQTTClientComponent::reconnect() {
   if (this->is_connected())
     return;
 
-  ESP_LOGV(TAG, "Reconnecting to MQTT...");
+  ESP_LOGD(TAG, "Reconnecting to MQTT...");
   uint32_t start = millis();
   do {
-    ESP_LOGV(TAG, "    Attempting MQTT connection...");
+    ESP_LOGD(TAG, "    Attempting MQTT connection...");
     if (millis() - start > 20000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
 #ifdef ARDUINO_ARCH_ESP32
@@ -129,7 +129,7 @@ void MQTTClientComponent::reconnect() {
     }
 
     if (this->mqtt_client_.connect(id, user, pass, will_topic, will_qos, will_retain, will_message)) {
-      ESP_LOGV(TAG, "    Connected!");
+      ESP_LOGD(TAG, "    Connected!");
       break;
     } else {
       ESP_LOGW(TAG, "    failed, rc=%d", this->mqtt_client_.state());

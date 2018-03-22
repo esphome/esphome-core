@@ -8,6 +8,8 @@
 
 #include "esphomelib/input/ultrasonic_sensor.h"
 
+#include "esphomelib/log.h"
+
 namespace esphomelib {
 
 namespace input {
@@ -19,7 +21,6 @@ UltrasonicSensorComponent::UltrasonicSensorComponent(GPIOOutputPin trigger_pin,
                                                      uint32_t update_interval)
     : Component(), DistanceSensor(update_interval),
       trigger_pin_(trigger_pin), echo_pin_(echo_pin) {
-
 }
 GPIOOutputPin &UltrasonicSensorComponent::get_trigger_pin() {
   return this->trigger_pin_;
@@ -34,9 +35,12 @@ void UltrasonicSensorComponent::set_echo_pin(const GPIOInputPin &echo_pin) {
   this->echo_pin_ = echo_pin;
 }
 void UltrasonicSensorComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up Ultrasonic Sensor...");
   this->echo_pin_.setup();
   this->trigger_pin_.setup();
   this->trigger_pin_.write_value(false);
+  ESP_LOGCONFIG(TAG, "    Pulse time: %uµs", this->pulse_time_us_);
+  ESP_LOGCONFIG(TAG, "    Timeout: %uµs", this->timeout_us_);
 
   this->set_interval("ultrasonic_check", this->get_update_interval(), [&]() {
     this->trigger_pin_.write_value(true);
@@ -45,6 +49,7 @@ void UltrasonicSensorComponent::setup() {
     uint32_t time = pulseIn(this->echo_pin_.get_pin(),
                             uint8_t(!this->echo_pin_.is_inverted()),
                             this->timeout_us_);
+    ESP_LOGV(TAG, "Echo took %uµs", time);
     float result = 0;
     if (time == 0)
       result = NAN;

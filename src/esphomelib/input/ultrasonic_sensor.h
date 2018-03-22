@@ -31,14 +31,15 @@ const float SPEED_OF_SOUND_M_PER_US = 0.000343f;
  * 11662µs or 2m.
  *
  * Usually these would be like HC-SR04 ultrasonic sensors: one trigger pin for sending the signal and another one echo
- * pin for receiving the signal.
+ * pin for receiving the signal. Be very careful with that sensor though: it's made for 5v VCC and doesn't work
+ * very well with the ESP's 3.3V, so you need to create a voltage divider in order to not damage your ESP.
  *
  * To filter out "nan" values (when the echo never comes back to us - i.e. if the measured distance is very long,
  * like 2m) you can use the following code when setting up the sensor:
  *
- * auto *ultrasonic = app.make_ultrasonic(trigger_pin, echo_pin, update_interval);
+ * auto ultrasonic = app.make_ultrasonic(trigger_pin, echo_pin, update_interval);
  * ultrasonic->mqtt->set_filters({
- *   sensor::FilterOutNANFilter() // filter out timeouts
+ *   new sensor::FilterOutNANFilter(), // filter out timeouts
  * });
  * ultrasonic->sensor->set_timeout_m(2.0f); // Set timeout to 2 meters.
  *
