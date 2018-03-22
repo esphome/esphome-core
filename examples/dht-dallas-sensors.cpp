@@ -35,7 +35,7 @@ void setup() {
       // Convert to Fahrenheit
       new sensor::LambdaFilter([](float celsius) -> Optional<float> {
         return celsius * 9.0/5.0 + 32.0;
-      });
+      }),
   });
   dht.mqtt_temperature->set_unit_of_measurement("°F");
 
