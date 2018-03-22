@@ -37,9 +37,9 @@ void setup() {
   auto *white = pca9685->create_channel(3, power_supply, 1.0f);
   app.make_rgbw_light("RGBW Lights", red, green, blue, white);
 
-  app.make_binary_light("Desk Lamp", app.make_gpio_binary_output(15));
+  app.make_binary_light("Desk Lamp", app.make_gpio_output(15));
 
-  app.make_monochromatic_light("Kitchen Lights", app.make_ledc_component(16)); // supports brightness
+  app.make_monochromatic_light("Kitchen Lights", app.make_ledc_output(16)); // supports brightness
 
   app.setup();
 }

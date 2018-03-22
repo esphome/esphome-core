@@ -127,10 +127,10 @@ Application::SimpleBinarySensor Application::make_gpio_binary_sensor(GPIOInputPi
   return s;
 }
 
-Application::MakeDHTComponent Application::make_dht_component(uint8_t pin,
-                                                              const std::string &temperature_friendly_name,
-                                                              const std::string &humidity_friendly_name,
-                                                              uint32_t check_interval) {
+Application::MakeDHTComponent Application::make_dht_sensor(uint8_t pin,
+                                                           const std::string &temperature_friendly_name,
+                                                           const std::string &humidity_friendly_name,
+                                                           uint32_t check_interval) {
   auto *dht = new DHTComponent(pin, check_interval);
   this->register_component(dht);
 
@@ -147,7 +147,7 @@ sensor::MQTTSensorComponent *Application::make_mqtt_sensor_for(sensor::Sensor *s
 }
 
 #ifdef ARDUINO_ARCH_ESP32
-LEDCOutputComponent *Application::make_ledc_component(uint8_t pin, float frequency, uint8_t bit_depth) {
+LEDCOutputComponent *Application::make_ledc_output(uint8_t pin, float frequency, uint8_t bit_depth) {
   auto *ledc = new LEDCOutputComponent(pin, frequency, bit_depth);
   return this->register_component(ledc);
 }
@@ -164,7 +164,7 @@ Application::LightStruct Application::make_rgb_light(const std::string &friendly
   out->setup_rgb(red, green, blue);
   this->register_component(out);
 
-  return this->connect_light(friendly_name, out);
+  return this->connect_light_(friendly_name, out);
 }
 
 Application::LightStruct Application::make_rgbw_light(const std::string &friendly_name,
@@ -176,10 +176,10 @@ Application::LightStruct Application::make_rgbw_light(const std::string &friendl
   out->setup_rgbw(red, green, blue, white);
   this->register_component(out);
 
-  return this->connect_light(friendly_name, out);
+  return this->connect_light_(friendly_name, out);
 }
 
-MQTTJSONLightComponent *Application::make_mqtt_light(const std::string &friendly_name, LightState *state) {
+MQTTJSONLightComponent *Application::make_mqtt_light_(const std::string &friendly_name, LightState *state) {
   auto *mqtt = new MQTTJSONLightComponent(friendly_name);
   mqtt->set_state(state);
   return this->register_mqtt_component(mqtt);
@@ -198,7 +198,7 @@ Application::LightStruct Application::make_monochromatic_light(const std::string
   out->setup_monochromatic(mono);
   this->register_component(out);
 
-  return this->connect_light(friendly_name, out);
+  return this->connect_light_(friendly_name, out);
 }
 Application::LightStruct Application::make_binary_light(const std::string &friendly_name,
                                                         output::BinaryOutput *binary) {
@@ -206,15 +206,15 @@ Application::LightStruct Application::make_binary_light(const std::string &frien
   out->setup_binary(binary);
   this->register_component(out);
 
-  return this->connect_light(friendly_name, out);
+  return this->connect_light_(friendly_name, out);
 }
-Application::LightStruct Application::connect_light(const std::string &friendly_name,
-                                                    light::LinearLightOutputComponent *out) {
+Application::LightStruct Application::connect_light_(const std::string &friendly_name,
+                                                     light::LinearLightOutputComponent *out) {
   LightStruct s{};
   s.state = new LightState(out->get_traits());
   out->set_state(s.state);
   s.output = out;
-  s.mqtt = this->make_mqtt_light(friendly_name, s.state);
+  s.mqtt = this->make_mqtt_light_(friendly_name, s.state);
 
   return s;
 }
@@ -223,9 +223,9 @@ MQTTClientComponent *Application::get_mqtt_client() const {
 }
 
 #ifdef ARDUINO_ARCH_ESP32
-IRTransmitterComponent *Application::make_ir_transmitter(uint8_t pin,
-                                                         uint8_t carrier_duty_percent,
-                                                         uint8_t clock_divider) {
+IRTransmitterComponent *Application::make_ir_transmitter_component(uint8_t pin,
+                                                                   uint8_t carrier_duty_percent,
+                                                                   uint8_t clock_divider) {
   return this->register_component(new IRTransmitterComponent(pin, carrier_duty_percent, clock_divider));
 }
 #endif
@@ -246,7 +246,7 @@ input::DallasComponent *Application::make_dallas_component(uint8_t pin) {
 
 Application::GPIOSwitchStruct Application::make_gpio_switch(GPIOOutputPin pin,
                                                             const std::string &friendly_name) {
-  auto *binary_output = this->make_gpio_binary_output(pin);
+  auto *binary_output = this->make_gpio_output(pin);
   auto *simple_switch = new SimpleSwitch(binary_output);
   auto *mqtt = this->make_mqtt_switch_for(friendly_name, simple_switch);
 
@@ -270,7 +270,7 @@ Application::FanStruct Application::make_fan(const std::string &friendly_name) {
   return s;
 }
 
-output::GPIOBinaryOutputComponent *Application::make_gpio_binary_output(GPIOOutputPin pin) {
+output::GPIOBinaryOutputComponent *Application::make_gpio_output(GPIOOutputPin pin) {
   return this->register_component(new GPIOBinaryOutputComponent(pin));
 }
 
@@ -279,9 +279,9 @@ Application::Application() {
 }
 
 #ifdef ARDUINO_ARCH_ESP32
-Application::MakePulseCounter Application::make_pulse_counter(uint8_t pin,
-                                                              const std::string &friendly_name,
-                                                              uint32_t update_interval) {
+Application::MakePulseCounter Application::make_pulse_counter_sensor(uint8_t pin,
+                                                                     const std::string &friendly_name,
+                                                                     uint32_t update_interval) {
   auto *pcnt = this->register_component(new PulseCounterSensorComponent(pin, update_interval));
   auto *mqtt = this->make_mqtt_sensor_for(pcnt, friendly_name);
   return MakePulseCounter {

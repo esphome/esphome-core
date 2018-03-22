@@ -26,7 +26,7 @@ void setup() {
   app.make_mqtt_sensor_for(dallas->get_sensor_by_address(0xfe0000031f1eaf29), "Ambient Temperature");
   app.make_mqtt_sensor_for(dallas->get_sensor_by_address(0x710000031f0e7e28), "Heatpump Temperature");
 
-  app.make_dht_component(12, "Outside Temperature", "Outside Humidity");
+  app.make_dht_sensor(12, "Outside Temperature", "Outside Humidity");
 
   app.make_adc_sensor(13, "Analog Voltage");
 

@@ -16,12 +16,12 @@ void setup() {
   app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
   app.init_ota();
 
-  auto *red = app.make_ledc_component(32); // on pin 32
-  auto *green = app.make_ledc_component(33);
-  auto *blue = app.make_ledc_component(34);
+  auto *red = app.make_ledc_output(32); // on pin 32
+  auto *green = app.make_ledc_output(33);
+  auto *blue = app.make_ledc_output(34);
   app.make_rgb_light("Livingroom Light", red, green, blue);
 
-  app.make_dht_component(12, "Livingroom Temperature", "Livingroom Humidity");
+  app.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
 
   app.setup();
 }

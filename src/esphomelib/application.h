@@ -162,10 +162,10 @@ class Application {
    * @param update_interval The interval (in ms) the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
-  MakeDHTComponent make_dht_component(uint8_t pin,
-                                      const std::string &temperature_friendly_name,
-                                      const std::string &humidity_friendly_name,
-                                      uint32_t update_interval = 15000);
+  MakeDHTComponent make_dht_sensor(uint8_t pin,
+                                   const std::string &temperature_friendly_name,
+                                   const std::string &humidity_friendly_name,
+                                   uint32_t update_interval = 15000);
 
   input::DallasComponent *make_dallas_component(OneWire *one_wire);
 
@@ -187,9 +187,9 @@ class Application {
    * @param friendly_name The name the sensor should be advertised as.
    * @return The components. Use this for advanced settings.
    */
-  MakePulseCounter make_pulse_counter(uint8_t pin,
-                                      const std::string &friendly_name,
-                                      uint32_t update_interval = 15000);
+  MakePulseCounter make_pulse_counter_sensor(uint8_t pin,
+                                             const std::string &friendly_name,
+                                             uint32_t update_interval = 15000);
 #endif
 
   struct MakeADCSensor {
@@ -221,7 +221,7 @@ class Application {
    * @param bit_depth The LEDC bit depth.
    * @return The LEDC component. Use this for advanced settings.
    */
-  output::LEDCOutputComponent *make_ledc_component(uint8_t pin, float frequency = 1000.0f, uint8_t bit_depth = 12);
+  output::LEDCOutputComponent *make_ledc_output(uint8_t pin, float frequency = 1000.0f, uint8_t bit_depth = 12);
 #endif
 
   /** Create a PCA9685 component.
@@ -232,9 +232,19 @@ class Application {
    */
   output::PCA9685OutputComponent *make_pca9685_component(float frequency, TwoWire &i2c_wire = Wire);
 
+  /** Create a simple binary GPIO output component.
+   *
+   * Note: This is *only* a binary output component, not a switch that will be exposed
+   * in Home Assistant. See make_simple_gpio_switch for a switch.
+   *
+   * @param pin The GPIO pin.
+   * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
+   */
+  output::GPIOBinaryOutputComponent *make_gpio_output(GPIOOutputPin pin);
+
   // ======================= LIGHT =======================
   /// Create a MQTTJSONLightComponent. Mostly for internal use.
-  light::MQTTJSONLightComponent *make_mqtt_light(const std::string &friendly_name, light::LightState *state);
+  light::MQTTJSONLightComponent *make_mqtt_light_(const std::string &friendly_name, light::LightState *state);
 
   struct LightStruct {
     light::LinearLightOutputComponent *output;
@@ -243,7 +253,7 @@ class Application {
   };
 
   /// Create and connect a MQTTJSONLightComponent to the provided light output component. Mostly for internal use.
-  LightStruct connect_light(const std::string &friendly_name, light::LinearLightOutputComponent *out);
+  LightStruct connect_light_(const std::string &friendly_name, light::LinearLightOutputComponent *out);
 
   /** Create a binary light.
    *
@@ -294,9 +304,9 @@ class Application {
    * @param clock_divider The clock divider for the rmt peripheral.
    * @return The IRTransmitterComponent. Use this for advanced settings.
    */
-  output::IRTransmitterComponent *make_ir_transmitter(uint8_t pin,
-                                                      uint8_t carrier_duty_percent = 50,
-                                                      uint8_t clock_divider = output::DEFAULT_CLOCK_DIVIDER);
+  output::IRTransmitterComponent *make_ir_transmitter_component(uint8_t pin,
+                                                                uint8_t carrier_duty_percent = 50,
+                                                                uint8_t clock_divider = output::DEFAULT_CLOCK_DIVIDER);
 #endif
 
   struct GPIOSwitchStruct {
@@ -323,16 +333,6 @@ class Application {
     fan::FanState *state;
     fan::MQTTFanComponent *mqtt;
   };
-
-  /** Create a simple binary GPIO output component.
-   *
-   * Note: This is *only* a binary output component, not a switch that will be exposed
-   * in Home Assistant. See make_simple_gpio_switch for a switch.
-   *
-   * @param pin The GPIO pin.
-   * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
-   */
-  output::GPIOBinaryOutputComponent *make_gpio_binary_output(GPIOOutputPin pin);
 
   /** Create and connect a Fan with the specified friendly name.
    *
