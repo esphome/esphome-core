@@ -45,6 +45,18 @@ HumiditySensor::HumiditySensor(uint32_t update_interval) : Sensor(update_interva
 
 }
 
+VoltageSensor::VoltageSensor(uint32_t update_interval) : Sensor(update_interval) {
+
+}
+std::string VoltageSensor::unit_of_measurement() {
+  return "V";
+}
+DistanceSensor::DistanceSensor(uint32_t update_interval) : Sensor(update_interval) {
+
+}
+std::string DistanceSensor::unit_of_measurement() {
+  return "m";
+}
 } // namespace sensor
 
 } // namespace esphomelib

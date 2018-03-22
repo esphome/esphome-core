@@ -114,9 +114,7 @@ void MQTTSensorComponent::add_lambda_filter(lambda_filter_t filter) {
   this->add_filter(new LambdaFilter(std::move(filter)));
 }
 void MQTTSensorComponent::add_offset_filter(float offset) {
-  this->add_lambda_filter([&](float value) -> Optional<float> {
-    return value + offset;
-  });
+  this->add_filter(new OffsetFilter(offset));
 }
 void MQTTSensorComponent::add_sliding_window_average_filter(size_t window_size, size_t send_every) {
   this->add_filter(new SlidingWindowMovingAverageFilter(window_size, send_every));
@@ -139,9 +137,17 @@ MQTTSensorComponent::MQTTSensorComponent(std::string friendly_name, Sensor *sens
   this->set_unit_of_measurement(sensor->unit_of_measurement());
 }
 void MQTTSensorComponent::add_multiplier_filter(float multiplier) {
-  this->add_lambda_filter([multiplier](float value) -> Optional<float> {
-    return value * multiplier;
-  });
+  this->add_filter(new MultiplyFilter(multiplier));
+}
+void MQTTSensorComponent::add_filters(const std::vector<Filter *> &filters) {
+  this->filters_.insert(this->filters_.end(), filters.begin(), filters.end());
+}
+void MQTTSensorComponent::set_filters(const std::vector<Filter *> &filters) {
+  this->filters_.clear();
+  this->add_filters(filters);
+}
+void MQTTSensorComponent::add_filter_out_value_filter(float values_to_filter_out) {
+  this->add_filter(new FilterOutValueFilter(values_to_filter_out));
 }
 
 } // namespace sensor

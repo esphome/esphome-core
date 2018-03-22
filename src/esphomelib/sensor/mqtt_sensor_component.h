@@ -51,6 +51,21 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   /// Add a filter to the filter chain. Will be appended to the back.
   void add_filter(Filter *filter);
 
+  /** Add a list of vectors to the back of the filter chain.
+   *
+   * This may look like:
+   *
+   * sensor->add_filters({
+   *   LambdaFilter([&](float value) -> Optional<float> { return 42/value; }),
+   *   OffsetFilter(1),
+   *   SlidingWindowMovingAverageFilter(15, 15), // average over last 15 values
+   * });
+   */
+  void add_filters(const std::vector<Filter *> & filters);
+
+  /// Clear the filters and replace them by filters.
+  void set_filters(const std::vector<Filter *> & filters);
+
   /** Add a lambda filter to the back of the filter chain.
    *
    * For example:
@@ -81,6 +96,12 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    */
   void add_multiplier_filter(float multiplier);
 
+  /** Helper to add a simple filter that aborts the filter chain every time it receives a specific value.
+   *
+   * @param values_to_filter_out The value that should be filtered out.
+   */
+  void add_filter_out_value_filter(float values_to_filter_out);
+
   /// Helper to make adding sliding window moving average filters a bit easier.
   void add_sliding_window_average_filter(size_t window_size, size_t send_every);
 
@@ -109,11 +130,13 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    */
   sensor_callback_t create_new_data_callback();
 
+  /// Get the expire_after in milliseconds used for Home Assistant discovery.
   const Optional<uint32_t> &get_expire_after() const;
 
+  /// Get the overriden accuracy in decimals, if set.
   const Optional<int8_t> &get_override_accuracy_decimals() const;
 
-
+  /// Get the unit of measurements used advertised to Home Assistant.
   const std::string &get_unit_of_measurement() const;
 
   /** Return the vector of filters this component uses for its value calculations.

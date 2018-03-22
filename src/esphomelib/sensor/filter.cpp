@@ -81,6 +81,35 @@ Optional<float> LambdaFilter::new_value(float value) {
   return this->lambda_filter_(value);
 }
 
+Optional<float> OffsetFilter::new_value(float value) {
+  return value + this->offset_;
+}
+
+OffsetFilter::OffsetFilter(float offset)
+    : offset_(offset) { }
+
+MultiplyFilter::MultiplyFilter(float multiplier)
+    : multiplier_(multiplier) { }
+
+Optional<float> MultiplyFilter::new_value(float value) {
+  return value * this->multiplier_;
+}
+
+FilterOutValueFilter::FilterOutValueFilter(float value_to_filter_out)
+    : value_to_filter_out_(value_to_filter_out) {
+
+}
+Optional<float> FilterOutValueFilter::new_value(float value) {
+  if (value == this->value_to_filter_out_)
+    return Optional<float>();
+  return value;
+}
+
+FilterOutNANFilter::FilterOutNANFilter()
+  : FilterOutValueFilter(NAN) {
+
+}
+
 } // namespace sensor
 
 } // namespace esphomelib

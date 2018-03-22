@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace input {
 
-class ADCSensorComponent : public Component, public sensor::Sensor {
+class ADCSensorComponent : public Component, public sensor::VoltageSensor {
  public:
   explicit ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval = 15000);
 
@@ -26,7 +26,6 @@ class ADCSensorComponent : public Component, public sensor::Sensor {
 
   void setup() override;
   float get_setup_priority() const override;
-  std::string unit_of_measurement() override;
 
 #ifdef ARDUINO_ARCH_ESP32
   adc_attenuation_t get_attenuation() const;

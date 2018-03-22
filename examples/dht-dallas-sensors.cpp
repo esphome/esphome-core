@@ -28,7 +28,16 @@ void setup() {
   App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0xfe0000031f1eaf29), "Ambient Temperature");
   App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0x710000031f0e7e28), "Heatpump Temperature");
 
-  App.make_dht_sensor(12, "Outside Temperature", "Outside Humidity");
+  auto dht = App.make_dht_sensor(12, "Outside Temperature", "Outside Humidity");
+  dht.mqtt_temperature->set_filters({
+      // Take average of 30 last values; report average on every 20th value
+      new sensor::SlidingWindowMovingAverageFilter(30, 20),
+      // Convert to Fahrenheit
+      new sensor::LambdaFilter([](float celsius) -> Optional<float> {
+        return celsius * 9.0/5.0 + 32.0;
+      }),
+  });
+  dht.mqtt_temperature->set_unit_of_measurement("°F");
 
   App.make_adc_sensor(13, "Analog Voltage");
 
