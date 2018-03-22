@@ -11,6 +11,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/switch_platform/switch.h"
+#include "esphomelib/esphal.h"
 
 namespace esphomelib {
 
@@ -93,7 +94,7 @@ const uint32_t DEFAULT_CARRIER_FREQUENCY_HZ = 38000;
 
 class IRTransmitterComponent : public Component {
  public:
-  explicit IRTransmitterComponent(uint8_t pin,
+  explicit IRTransmitterComponent(GPIOOutputPin pin,
                                   uint8_t carrier_duty_percent = 50,
                                   uint8_t clock_divider = DEFAULT_CLOCK_DIVIDER);
 
@@ -116,8 +117,8 @@ class IRTransmitterComponent : public Component {
 
   rmt_channel_t get_channel() const;
   void set_channel(rmt_channel_t channel);
-  uint8_t get_pin() const;
-  void set_pin(uint8_t pin);
+  GPIOOutputPin get_pin();
+  void set_pin(const GPIOOutputPin &pin);
   uint8_t get_clock_divider() const;
   void set_clock_divider(uint8_t clock_divider);
   uint8_t get_carrier_duty_percent() const;
@@ -129,9 +130,9 @@ class IRTransmitterComponent : public Component {
   void configure_rmt();
 
   rmt_channel_t channel_;
-  uint8_t pin_;
+  GPIOOutputPin pin_;
   uint8_t clock_divider_;
-  uint32_t last_carrier_frequency_;
+  uint32_t last_carrier_frequency_{DEFAULT_CARRIER_FREQUENCY_HZ};
   uint8_t carrier_duty_percent_;
 };
 
