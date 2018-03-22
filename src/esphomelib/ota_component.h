@@ -59,10 +59,10 @@ class OTAComponent : public Component {
    * is restarted. If the device has stayed on for more than `enable_time` milliseconds, the boot is considered
    * successful and the num_attempts counter is reset.
    *
-   * @param num_attempts
-   * @param enable_time
+   * @param num_attempts The number of failed boot attempts until which time safe mode should be enabled.
+   * @param enable_time The time in ms safe mode should be on before restarting.
    */
-  void start_safe_mode(uint8_t num_attempts = 10, uint32_t enable_time = 60000);
+  void start_safe_mode(uint8_t num_attempts = 10, uint32_t enable_time = 120000);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
