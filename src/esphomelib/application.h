@@ -91,7 +91,7 @@ class Application {
    */
   mqtt::MQTTClientComponent *init_mqtt(const std::string &address, uint16_t port,
                                        const std::string &username, const std::string &password,
-                                       const std::string &discovery_prefix = "discovery");
+                                       const std::string &discovery_prefix = "homeassistant");
 
   /** Initialize the MQTT client.
    *
@@ -103,7 +103,7 @@ class Application {
    */
   mqtt::MQTTClientComponent *init_mqtt(const std::string &address,
                                        const std::string &username, const std::string &password,
-                                       const std::string &discovery_prefix = "discovery");
+                                       const std::string &discovery_prefix = "homeassistant");
 
   /** Create a power supply component that will automatically switch on and off.
    *
@@ -209,7 +209,7 @@ class Application {
    */
   MakeADCSensor make_adc_sensor(uint8_t pin,
                                 const std::string &friendly_name,
-                                uint32_t check_interval = 15000);
+                                uint32_t update_interval = 15000);
 
   // ======================= OUTPUT =======================
 
@@ -286,13 +286,6 @@ class Application {
                               output::FloatOutput *white);
 
   // ======================= SWITCH =======================
-
-  /// Create a MQTTSwitchComponent. Mostly for internal use.
-  switch_platform::MQTTSwitchComponent *make_mqtt_switch(const std::string &friendly_name);
-
-  /// Connect the provided Switch to the MQTTSwitchComponent. Mostly for internal use.
-  void connect_switch(switch_platform::Switch *switch_, switch_platform::MQTTSwitchComponent *mqtt);
-
 #ifdef ARDUINO_ARCH_ESP32
   /** Create an IR transmitter.
    *

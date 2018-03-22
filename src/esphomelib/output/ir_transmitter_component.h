@@ -101,7 +101,8 @@ class IRTransmitterComponent : public Component {
    public:
     DataTransmitter(const ir::SendData &send_data, IRTransmitterComponent *parent);
 
-    void write_state(bool state) override;
+    void turn_on() override;
+    void turn_off() override;
    private:
     ir::SendData send_data_;
     IRTransmitterComponent *parent_;

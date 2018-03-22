@@ -221,13 +221,6 @@ Application::LightStruct Application::connect_light(const std::string &friendly_
 MQTTClientComponent *Application::get_mqtt_client() const {
   return this->mqtt_client_;
 }
-MQTTSwitchComponent *Application::make_mqtt_switch(const std::string &friendly_name) {
-  return this->register_mqtt_component(new MQTTSwitchComponent(friendly_name));
-}
-void Application::connect_switch(switch_platform::Switch *switch_, switch_platform::MQTTSwitchComponent *mqtt) {
-  switch_->set_on_new_state_callback(mqtt->create_on_new_state_callback());
-  mqtt->set_write_value_callback(switch_->create_write_state_callback());
-}
 
 #ifdef ARDUINO_ARCH_ESP32
 IRTransmitterComponent *Application::make_ir_transmitter(uint8_t pin,
@@ -239,9 +232,7 @@ IRTransmitterComponent *Application::make_ir_transmitter(uint8_t pin,
 
 MQTTSwitchComponent *Application::make_mqtt_switch_for(const std::string &friendly_name,
                                                        switch_platform::Switch *switch_) {
-  auto *mqtt = this->make_mqtt_switch(friendly_name);
-  this->connect_switch(switch_, mqtt);
-  return mqtt;
+  return this->register_mqtt_component(new MQTTSwitchComponent(friendly_name, switch_));
 }
 void Application::assert_name() const {
   assert(!this->name_.empty());

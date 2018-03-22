@@ -175,26 +175,26 @@ void IRTransmitterComponent::setup() {
 void IRTransmitterComponent::configure_rmt() {
   rmt_config_t c{};
 
-  ESP_LOGV(TAG, "Configuring RMT TX...");
+  ESP_LOGCONFIG(TAG, "Configuring RMT TX...");
   c.rmt_mode = RMT_MODE_TX;
   c.channel = this->channel_;
-  ESP_LOGV(TAG, "    channel: %d", this->channel_);
+  ESP_LOGCONFIG(TAG, "    channel: %d", this->channel_);
   c.clk_div = this->clock_divider_;
-  ESP_LOGV(TAG, "    clock divider: %u", this->clock_divider_);
-  ESP_LOGV(TAG, "     -> ticks for 10 µs: %u", this->get_ticks_for_10_us());
+  ESP_LOGCONFIG(TAG, "    clock divider: %u", this->clock_divider_);
+  ESP_LOGCONFIG(TAG, "     -> ticks for 10 µs: %u", this->get_ticks_for_10_us());
   c.gpio_num = gpio_num_t(this->pin_);
-  ESP_LOGV(TAG, "    gpio pin: %u", this->pin_);
+  ESP_LOGCONFIG(TAG, "    gpio pin: %u", this->pin_);
   c.mem_block_num = 1;
   c.tx_config.loop_en = false;
   c.tx_config.carrier_freq_hz = this->last_carrier_frequency_;
-  ESP_LOGV(TAG, "    carrier frequency: %u", this->last_carrier_frequency_);
+  ESP_LOGCONFIG(TAG, "    carrier frequency: %u", this->last_carrier_frequency_);
   c.tx_config.carrier_duty_percent = this->carrier_duty_percent_;
-  ESP_LOGV(TAG, "    carrier duty percent: %u", this->carrier_duty_percent_);
+  ESP_LOGCONFIG(TAG, "    carrier duty percent: %u", this->carrier_duty_percent_);
   c.tx_config.carrier_en = true;
   c.tx_config.carrier_level = RMT_CARRIER_LEVEL_HIGH;
   c.tx_config.idle_output_en = true;
   c.tx_config.idle_level = RMT_IDLE_LEVEL_LOW;
-  ESP_LOGV(TAG, "    Applying...");
+  ESP_LOGCONFIG(TAG, "    Applying...");
 
   rmt_config(&c);
 }
@@ -263,17 +263,17 @@ IRTransmitterComponent::IRTransmitterComponent(uint8_t pin,
   this->set_channel(next_rmt_channel);
   next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
 }
-
-void IRTransmitterComponent::DataTransmitter::write_state(bool state) {
-  if (!state) // only supports enabling
-    return;
-
-  this->parent_->send(this->send_data_);
-  this->publish_state(false);
-}
 IRTransmitterComponent::DataTransmitter::DataTransmitter(const ir::SendData &send_data,
                                                          IRTransmitterComponent *parent)
     : Switch(), send_data_(send_data), parent_(parent) {}
+void IRTransmitterComponent::DataTransmitter::turn_on() {
+  this->parent_->send(this->send_data_);
+  this->publish_state(false);
+}
+void IRTransmitterComponent::DataTransmitter::turn_off() {
+  // Turning off does nothing
+  this->publish_state(false);
+}
 
 rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 

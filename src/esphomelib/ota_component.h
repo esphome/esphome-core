@@ -63,6 +63,7 @@ class OTAComponent : public Component {
   uint16_t port_;
   std::string hostname_;
   WiFiServer *server_;
+  bool ota_triggered_{false}; ///< stores whether OTA is currently active.
 };
 
 } // namespace esphomelib

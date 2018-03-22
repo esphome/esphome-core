@@ -20,10 +20,10 @@ class Switch : public binary_sensor::BinarySensor {
  public:
   Switch();
 
-  binary_sensor::binary_callback_t create_write_state_callback();
+  virtual void turn_on() = 0;
+  virtual void turn_off() = 0;
 
-  /// Override this method to write the provided state to hardware.
-  virtual void write_state(bool state) = 0;
+  binary_sensor::binary_callback_t create_on_set_state_callback();
 };
 
 } // namespace switch_platform

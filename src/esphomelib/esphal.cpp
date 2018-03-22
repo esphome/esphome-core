@@ -57,7 +57,6 @@ void GPIOPin::setup() {
       case INPUT: mode_s = "INPUT"; break;
       case OUTPUT: mode_s = "OUTPUT"; break;
       case INPUT_PULLUP: mode_s = "INPUT_PULLUP"; break;
-      case INPUT_PULLDOWN: mode_s = "INPUT_PULLDOWN"; break;
       case OUTPUT_OPEN_DRAIN: mode_s = "OUTPUT_OPEN_DRAIN"; break;
       case SPECIAL: mode_s = "SPECIAL"; break;
       case FUNCTION_1: mode_s = "FUNCTION_1"; break;
@@ -66,12 +65,13 @@ void GPIOPin::setup() {
       case FUNCTION_4: mode_s = "FUNCTION_4"; break;
 
 #ifdef ARDUINO_ARCH_ESP32
-     case PULLUP: mode_s = "PULLUP"; break;
-     case PULLDOWN: mode_s = "PULLDOWN"; break;
-     case OPEN_DRAIN: mode_s = "OPEN_DRAIN"; break;
-     case FUNCTION_5: mode_s = "FUNCTION_5"; break;
-     case FUNCTION_6: mode_s = "FUNCTION_6"; break;
-     case ANALOG: mode_s = "ANALOG"; break;
+      case PULLUP: mode_s = "PULLUP"; break;
+      case PULLDOWN: mode_s = "PULLDOWN"; break;
+      case INPUT_PULLDOWN: mode_s = "INPUT_PULLDOWN"; break;
+      case OPEN_DRAIN: mode_s = "OPEN_DRAIN"; break;
+      case FUNCTION_5: mode_s = "FUNCTION_5"; break;
+      case FUNCTION_6: mode_s = "FUNCTION_6"; break;
+      case ANALOG: mode_s = "ANALOG"; break;
 #else
       case FUNCTION_0: mode_s = "FUNCTION_0"; break;
       case WAKEUP_PULLUP: mode_s = "WAKEUP_PULLUP"; break;
