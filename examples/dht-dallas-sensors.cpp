@@ -6,33 +6,35 @@
 
 using namespace esphomelib;
 
-Application app;
-
 void setup() {
-  app.set_name("outside");
-  app.init_log();
+  App.set_name("outside");
+  App.init_log();
 
-  auto *wifi = app.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
+  auto *wifi = App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
   wifi->set_manual_ip(ManualIP{
       .static_ip = IPAddress(192, 168, 178, 42),
       .gateway = IPAddress(192, 168, 178, 1),
       .subnet = IPAddress(255, 255, 255, 0)
   });
-  app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
-  app.init_ota();
+  App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+  auto *ota = App.init_ota();
+  ota->set_auth_plaintext_password("PASSWORD"); // set an optional password
+  ota->set_port(3232); // This is the default for ESP32
+  ota->set_hostname("custom-hostname"); // manually set the hostname
+  ota->start_safe_mode();
 
-  auto *dallas = app.make_dallas_component(15);
+  auto *dallas = App.make_dallas_component(15);
 
-  app.make_mqtt_sensor_for(dallas->get_sensor_by_address(0xfe0000031f1eaf29), "Ambient Temperature");
-  app.make_mqtt_sensor_for(dallas->get_sensor_by_address(0x710000031f0e7e28), "Heatpump Temperature");
+  App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0xfe0000031f1eaf29), "Ambient Temperature");
+  App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0x710000031f0e7e28), "Heatpump Temperature");
 
-  app.make_dht_sensor(12, "Outside Temperature", "Outside Humidity");
+  App.make_dht_sensor(12, "Outside Temperature", "Outside Humidity");
 
-  app.make_adc_sensor(13, "Analog Voltage");
+  App.make_adc_sensor(13, "Analog Voltage");
 
-  app.setup();
+  App.setup();
 }
 
 void loop() {
-  app.loop();
+  App.loop();
 }

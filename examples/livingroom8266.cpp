@@ -6,24 +6,22 @@
 
 using namespace esphomelib;
 
-Application app;
-
 void setup() {
-  app.set_name("livingroom");
-  app.init_log();
+  App.set_name("livingroom");
+  App.init_log();
 
-  app.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-  app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
-  app.init_ota();
+  App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
+  App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+  App.init_ota()->start_safe_mode();
 
-  auto *lamp = app.make_gpio_output(32); // on pin 32
-  app.make_binary_light("Standing Lamp", lamp);
+  auto *lamp = App.make_gpio_output(32); // on pin 32
+  App.make_binary_light("Standing Lamp", lamp);
 
-  app.make_dht_sensor(4, "Livingroom Temperature", "Livingroom Humidity");
+  App.make_dht_sensor(4, "Livingroom Temperature", "Livingroom Humidity");
 
-  app.setup();
+  App.setup();
 }
 
 void loop() {
-  app.loop();
+  App.loop();
 }

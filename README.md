@@ -1,4 +1,4 @@
-# esphomelib [![Build Status](https://travis-ci.org/OttoWinter/esphomelib.svg?branch=master)](https://travis-ci.org/OttoWinter/esphomelib)
+A# esphomelib [![Build Status](https://travis-ci.org/OttoWinter/esphomelib.svg?branch=master)](https://travis-ci.org/OttoWinter/esphomelib)
 
 **esphomelib** is a library designed to greatly simplify your firmware code for ESP32/ESP8266-based devices with full 
 seamless Home Assistant integration (with automatic MQTT discovery!) so that you can focus on creating the hardware, 
@@ -13,28 +13,26 @@ For example, the software for a device with an RGB light using the internal PWM 
 
 using namespace esphomelib;
 
-Application app;
-
 void setup() {
-    app.set_name("livingroom");
-    app.init_log();
+    App.set_name("livingroom");
+    App.init_log();
 
-    app.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-    app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
-    app.init_ota();
+    App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
+    App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+    App.init_ota()->start_safe_mode();
 
-    auto *red = app.make_ledc_output(32); // on pin 32, only available with ESP32
-    auto *green = app.make_ledc_output(33);
-    auto *blue = app.make_ledc_output(34);
-    app.make_rgb_light("Livingroom Light", red, green, blue);
+    auto *red = App.make_ledc_output(32); // on pin 32, only available with ESP32
+    auto *green = App.make_ledc_output(33);
+    auto *blue = App.make_ledc_output(34);
+    App.make_rgb_light("Livingroom Light", red, green, blue);
     
-    app.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
+    App.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
 
-    app.setup();
+    App.setup();
 }
 
 void loop() {
-    app.loop();
+    App.loop();
 }
 ```
 
@@ -104,17 +102,15 @@ Finally, create a new source file in the `src/` folder (for example `main.cpp`) 
 
 Before adding all the desired components to your code, there are a few things you need to set up first.
 
-Begin with including the library and setting up the `Application` instance, which will handle all of your components.
+Begin with including the library and setting the C++ namespace.
 
 ```cpp
 #include "esphomelib/application.h"
 
 using namespace esphomelib;
-
-Application app;
 ```
 
-Next, set the name of your node (here "livingroom") with `app.set_name()`. This is required if you plan on using MQTT. 
+Next, set the name of your node (here "livingroom") with `App.set_name()`. This is required if you plan on using MQTT. 
 Then initialize the log so you can debug your code on the serial port with baud rate 115200.
 Additionally, important log messages will also be published on MQTT with the topic `<NAME>/debug`
 (here `livingroom/debug`) by default.
@@ -128,25 +124,25 @@ testaments are sent to `livingroom/state`, and discovery will automatically happ
 
 ```cpp
 void setup() {
-    app.set_name("livingroom");
-    app.init_log();
+    App.set_name("livingroom");
+    App.init_log();
 
-    app.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-    app.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
-    app.init_ota();
+    App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
+    App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+    App.init_ota()->start_safe_mode();
     // ...
 
 ```
 
-Last, all you need to do is add your components. Then call `app.setup()` **at the end of** `setup()` - do the same 
+Last, all you need to do is add your components. Then call `App.setup()` **at the end of** `setup()` - do the same 
 with `loop()`
 
 ```cpp
-    app.setup();
+    App.setup();
 }
 
 void loop() {
-    app.loop();
+    App.loop();
 }
 ```
 
@@ -171,7 +167,7 @@ outputs. For example, to use the internal LEDC PWM peripheral, just use the foll
 component on pin 32:
 
 ```cpp
-auto *red = app.make_ledc_output(32);
+auto *red = App.make_ledc_output(32);
 ```
 
 Aditionnaly, you can use `make_atx()` to automatically switch on a power supply when a channel is switched high.
@@ -180,9 +176,9 @@ Next, use the `make_binary_light()`, `make_monochromatic_light()`, and `make_rgb
 (which will be displayed in Home Assistant) and the channels, to create the light component.
 
 ```cpp
-app.make_rgb_light("Livingroom Light", red, green, blue);
-app.make_monochromatic_light("Table Lamp", table_lamp);
-app.make_binary_light("Livingroom Standing Lamp", standing_lamp);
+App.make_rgb_light("Livingroom Light", red, green, blue);
+App.make_monochromatic_light("Table Lamp", table_lamp);
+App.make_binary_light("Livingroom Standing Lamp", standing_lamp);
 ```
 
 > Lights will automatically store their state in non-volatile memory so that lights can restore the color and 
@@ -206,7 +202,7 @@ To create a simple GPIO switch that can control a high/low device on a pin, just
 pin and friendly name.
 
 ```cpp
-app.make_simple_gpio_switch(32, "Livingroom Dehumidifier");
+App.make_simple_gpio_switch(32, "Livingroom Dehumidifier");
 ```
 
 Another feature esphomelib offers is infrared transmitter support. This way, you can control all devices using remote 
@@ -215,9 +211,9 @@ controls yourself. First, you'll need to find the IR codes of the remote - maybe
 the following code to your needs (and repeat from the second line for each channel):
 
 ```cpp
-auto *ir = app.make_ir_transmitter_component(32); // switch out 32 for your IR pin
+auto *ir = App.make_ir_transmitter_component(32); // switch out 32 for your IR pin
 auto *channel = ir->create_transmitter(SendData::from_panasonic(0x4004, 0x100BCBD).repeat(25)); // use the other functions in SendData for other codes.
-app.make_mqtt_switch_for("Panasonic TV On", channel);
+App.make_mqtt_switch_for("Panasonic TV On", channel);
 ```
 
 That's it.
@@ -229,12 +225,12 @@ with the friendly name of the binary sensor, a [device class](https://home-assis
 and the GPIO pin like this:
 
 ```cpp
-app.make_gpio_binary_sensor(36, "Cabinet Motion", binary_sensor::device_class::MOTION);
+App.make_gpio_binary_sensor(36, "Cabinet Motion", binary_sensor::device_class::MOTION);
 ```
 
 #### Fan
 
-Fans can be created by first calling `app.make_fan("Friendly Name")` and then using the return value
+Fans can be created by first calling `App.make_fan("Friendly Name")` and then using the return value
 to set the output channels. See [`examples/fan-example.cpp`](examples/fan-example.cpp) for an example.
 
 ## Home Assistant Configuration
@@ -314,18 +310,17 @@ The second argument to `init_log()` denotes the MQTT topic that logs will be wri
 disables MQTT Logging.
 
 ```cpp
-app.init_log(115200, Optional<std::string>());
+App.init_log(115200, Optional<std::string>());
 ```
 
 ### Logging
 
 esphomelib features a powerful logging engine that automatically pushes logs to Serial and MQTT.
-To use this in your own code, simply include `esphomelib/log.h`, define a TAG, and use `ESP_LOGx` 
-(from [esp-idf](https://esp-idf.readthedocs.io/en/v2.1.1/api-reference/system/log.html)):
+To use this in your own code, simply define a TAG, and use `ESP_LOGx` 
+(from [esp-idf](https://esp-idf.readthedocs.io/en/v2.1.1/api-reference/system/log.html), this has been back-ported 
+to ESP8266 too):
 
 ```cpp
-#include "esphomelib/log.h"
-
 static const char *TAG = "main";
 
 // in your code:
@@ -360,7 +355,7 @@ mosquitto_sub -h 192.168.178.42 -u USERNAME -P PASSWORD -t livingroom/debug
 
 > Note: use `set_global_log_level()` and `set_log_level` in `LogComponent` to adjust the global and 
 > tag-specific log levels, respectively, for more fine-grained control. But also make sure to update the `build_flags`
-> to a low enough log level because `build_flags` defines which log messages are even included in your app.
+> to a low enough log level because `build_flags` defines which log messages are even included in your App.
 
 When using the `platformio device monitor [...]` command, try adding the `--raw` argument - this will apply color to
 log messages in your terminal.
@@ -375,7 +370,7 @@ By default, all MQTT topics are named with the application name (see `set_name()
 However, if you want to use your own MQTT topic prefixes like `home/livingroom/node1/...`, this is possible:
 
 ```cpp
-auto *mqtt = app.init_mqtt(...);
+auto *mqtt = App.init_mqtt(...);
 mqtt->set_topic_prefix("home/livingroom/node1");
 ```
 
@@ -385,13 +380,13 @@ Customizing the MQTT state/command topics of a single MQTTComponent is also poss
 `set_custom_*_topic()` on your MQTTComponent like this:
 
 ```cpp
-auto dht = app.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
+auto dht = App.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
 dht.mqtt_temperature->set_custom_state_topic("home/livingroom/node1/temperature/state");
 ```
 
 ### OTA Updates
 
-If you call `app.init_ota()` during `setup()`, esphomelib will continuously listen for over-the-air updates. 
+If you call `App.init_ota()` during `setup()`, esphomelib will continuously listen for over-the-air updates. 
 To push an OTA update to your device, simply add `upload_port = `*`IP_OF_YOUR_ESP`* to your `platform.ini`.
 Then do the upload as you would do normally via serial. You might want to [set a static IP](#static-ips) for your ESP32.
 

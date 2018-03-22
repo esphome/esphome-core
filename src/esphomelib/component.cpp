@@ -96,9 +96,6 @@ bool Component::cancel_time_function(const std::string &name, TimeFunction::Type
   }
   return false;
 }
-Component::Component() : component_state_(CONSTRUCTION) {
-
-}
 void Component::setup_() {
   assert_construction_state(this);
   this->component_state_ = SETUP;

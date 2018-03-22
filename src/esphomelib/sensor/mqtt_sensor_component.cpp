@@ -25,7 +25,7 @@ void MQTTSensorComponent::setup() {
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     if (!this->unit_of_measurement_.empty())
-      root["unit_of_measurement"] = buffer.strdup(this->unit_of_measurement_.c_str());
+      root["unit_of_measurement"] = this->unit_of_measurement_;
 
     if (this->expire_after_.defined) {
       root["expire_after"] = this->expire_after_.value / 1000;

@@ -61,7 +61,7 @@ int esp_log_vprintf_(ESPLogLevel level, const std::string &tag, const char *form
 int esp_idf_log_vprintf_(const char *format, va_list args);
 
 #define ESPHOMELIB_SHORT_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter format ESPHOMELIB_LOG_RESET_COLOR
-#define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%u in %s]: " format ESPHOMELIB_LOG_RESET_COLOR, __FUNCTION__, __LINE__, tag
+#define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%s:%u]: " format ESPHOMELIB_LOG_RESET_COLOR, tag, __FUNCTION__, __LINE__
 
 #if ESPHOMELIB_LOG_LEVEL >= ESP_LOG_LEVEL_VERBOSE
   #define esph_log_v(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_VERBOSE, tag, ESPHOMELIB_LOG_FORMAT(tag, V, format), ##__VA_ARGS__)

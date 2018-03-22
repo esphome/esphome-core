@@ -50,9 +50,11 @@ const float MQTT_COMPONENT = 5.0f; ///< for MQTT component initialization
  */
 class Component {
  public:
-  Component();
-
-  enum ComponentState { CONSTRUCTION, SETUP, LOOP };
+  enum ComponentState {
+    CONSTRUCTION = 0,
+    SETUP = 1,
+    LOOP = 2
+  };
 
   /** Where the component's initialization should happen.
    *
@@ -168,7 +170,7 @@ class Component {
    */
   std::vector<TimeFunction> time_functions_;
 
-  ComponentState component_state_; ///< State of this component.
+  ComponentState component_state_{CONSTRUCTION}; ///< State of this component.
 };
 
 } // namespace esphomelib

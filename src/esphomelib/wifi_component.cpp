@@ -25,10 +25,10 @@ float WiFiComponent::get_setup_priority() const {
 }
 
 void WiFiComponent::setup() {
-  ESP_LOGD(TAG, "Setting up WiFi...");
+  ESP_LOGCONFIG(TAG, "Setting up WiFi...");
   WiFi.onEvent(on_wifi_event);
   delay(10);
-  ESP_LOGD(TAG, "    Connecting to '%s'", this->ssid_.c_str());
+  ESP_LOGCONFIG(TAG, "    SSID: '%s'", this->ssid_.c_str());
 
   WiFi.persistent(false);
   WiFi.mode(WIFI_STA);
@@ -36,7 +36,7 @@ void WiFiComponent::setup() {
   WiFi.setAutoReconnect(false);
 
   if (!this->hostname_.empty()) {
-    ESP_LOGV(TAG, "    Hostname: '%s'", this->hostname_.c_str());
+    ESP_LOGCONFIG(TAG, "    Hostname: '%s'", this->hostname_.c_str());
 #ifdef ARDUINO_ARCH_ESP32
     WiFi.setHostname(this->hostname_.c_str());
 #else
@@ -45,13 +45,13 @@ void WiFiComponent::setup() {
   }
 
   if (this->manual_ip_) {
-    ESP_LOGV(TAG, "    Static IP: '%s'", this->manual_ip_->static_ip.toString().c_str());
-    ESP_LOGV(TAG, "    Gateway: '%s'", this->manual_ip_->gateway.toString().c_str());
-    ESP_LOGV(TAG, "    Subnet: '%s'", this->manual_ip_->subnet.toString().c_str());
+    ESP_LOGCONFIG(TAG, "    Static IP: '%s'", this->manual_ip_->static_ip.toString().c_str());
+    ESP_LOGCONFIG(TAG, "    Gateway: '%s'", this->manual_ip_->gateway.toString().c_str());
+    ESP_LOGCONFIG(TAG, "    Subnet: '%s'", this->manual_ip_->subnet.toString().c_str());
     if (!is_empty(this->manual_ip_->dns1))
-      ESP_LOGV(TAG, "    DNS 1: '%s'", this->manual_ip_->dns1.toString().c_str());
+      ESP_LOGCONFIG(TAG, "    DNS 1: '%s'", this->manual_ip_->dns1.toString().c_str());
     if (!is_empty(this->manual_ip_->dns2))
-      ESP_LOGV(TAG, "    DNS 2: '%s'", this->manual_ip_->dns2.toString().c_str());
+      ESP_LOGCONFIG(TAG, "    DNS 2: '%s'", this->manual_ip_->dns2.toString().c_str());
     WiFi.config(this->manual_ip_->static_ip, this->manual_ip_->gateway, this->manual_ip_->subnet,
                 this->manual_ip_->dns1, this->manual_ip_->dns2);
   }
@@ -62,7 +62,7 @@ void WiFiComponent::setup() {
 
 void WiFiComponent::loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    ESP_LOGD(TAG, "Reconnecting WiFi...");
+    ESP_LOGI(TAG, "Reconnecting WiFi...");
 #ifdef ARDUINO_ARCH_ESP32
     esp_wifi_connect();
 #else
@@ -107,7 +107,7 @@ void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
     case WIFI_EVENT_STAMODE_DHCP_TIMEOUT: event_name = "STA DHCP timeout";
       break;
 #endif
-    default:event_name = "";
+    default:event_name = "UNKNOWN";
       break;
   }
 

@@ -26,7 +26,7 @@ std::string MQTTComponent::get_discovery_topic() const {
   const auto &discovery = global_mqtt_client->get_discovery_info();
   if (!discovery)
     return "";
-  std::string sanitized_name = sanitize_string_whitelist(global_application->get_name(), DISCOVERY_CHARACTER_WHITELIST);
+  std::string sanitized_name = sanitize_string_whitelist(App.get_name(), DISCOVERY_CHARACTER_WHITELIST);
   return discovery->prefix + "/" + this->component_type() + "/" + sanitized_name + "/" + this->get_entity_id()
       + "/config";
 }
@@ -74,20 +74,20 @@ void MQTTComponent::send_discovery(const json_build_t &f,
   ESP_LOGV(TAG, "Sending discovery...");
 
   this->send_json_message(this->get_discovery_topic(), [&](JsonBuffer &buffer, JsonObject &root) {
-    root["name"] = buffer.strdup(this->friendly_name_.c_str());
-    root["platform"] = buffer.strdup(platform.c_str());
+    root["name"] = this->friendly_name_;
+    root["platform"] = platform;
     if (state_topic)
-      root["state_topic"] = buffer.strdup(this->get_state_topic().c_str());
+      root["state_topic"] = this->get_state_topic();
     if (command_topic)
-      root["command_topic"] = buffer.strdup(this->get_command_topic().c_str());
+      root["command_topic"] = this->get_command_topic();
 
     if (this->get_availability()) {
       assert(!this->availability_->topic.empty());
-      root["availability_topic"] = buffer.strdup(this->availability_->topic.c_str());
+      root["availability_topic"] = this->availability_->topic;
       if (this->availability_->payload_available != "online")
-        root["payload_available"] = buffer.strdup(this->availability_->payload_available.c_str());
+        root["payload_available"] = this->availability_->payload_available;
       if (this->availability_->payload_not_available != "offline")
-        root["payload_not_available"] = buffer.strdup(this->availability_->payload_not_available.c_str());
+        root["payload_not_available"] = this->availability_->payload_not_available;
     }
 
     f(buffer, root);

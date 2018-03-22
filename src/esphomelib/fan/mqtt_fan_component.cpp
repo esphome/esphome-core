@@ -30,12 +30,12 @@ void MQTTFanComponent::setup() {
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     if (this->state_->get_traits().supports_oscillation()) {
-      root["oscillation_command_topic"] = buffer.strdup(this->get_oscillation_command_topic().c_str());
-      root["oscillation_state_topic"] = buffer.strdup(this->get_oscillation_state_topic().c_str());
+      root["oscillation_command_topic"] = this->get_oscillation_command_topic();
+      root["oscillation_state_topic"] = this->get_oscillation_state_topic();
     }
     if (this->state_->get_traits().supports_speed()) {
-      root["speed_command_topic"] = buffer.strdup(this->get_speed_command_topic().c_str());
-      root["speed_state_topic"] = buffer.strdup(this->get_speed_state_topic().c_str());
+      root["speed_command_topic"] = this->get_speed_command_topic();
+      root["speed_state_topic"] = this->get_speed_state_topic();
     }
   });
 
