@@ -106,7 +106,7 @@ class IRTransmitterComponent : public Component {
     void turn_off() override;
 
     std::string icon() override;
-   private:
+   protected:
     ir::SendData send_data_;
     IRTransmitterComponent *parent_;
   };

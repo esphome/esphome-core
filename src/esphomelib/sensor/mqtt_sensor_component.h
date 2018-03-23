@@ -173,7 +173,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   /// and send them via MQTT.
   void push_out_value(float value, int8_t accuracy_decimals);
 
- private:
+ protected:
   std::string unit_of_measurement_;
   std::string icon_;
   Optional<uint32_t> expire_after_;

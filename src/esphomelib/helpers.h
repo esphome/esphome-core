@@ -121,7 +121,7 @@ class SlidingWindowMovingAverage {
   size_t get_max_size() const;
   void set_max_size(size_t max_size);
 
- private:
+ protected:
   std::queue<T> queue_;
   size_t max_size_;
   T sum_;
@@ -139,7 +139,7 @@ class ExponentialMovingAverage {
   void set_alpha(float alpha);
   float get_alpha() const;
 
- private:
+ protected:
   float alpha_;
   float accumulator_;
 };

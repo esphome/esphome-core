@@ -22,7 +22,7 @@ class PCA9685OutputComponent : public Component {
 
     void write_state(float state) override;
 
-   private:
+   protected:
     PCA9685OutputComponent *parent_;
     uint8_t channel_;
   };

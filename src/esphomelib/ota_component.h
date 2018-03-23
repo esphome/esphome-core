@@ -75,7 +75,7 @@ class OTAComponent : public Component {
 
   uint16_t get_port() const;
 
- private:
+ protected:
   enum { OPEN, PLAINTEXT, HASH } auth_type_;
 
   union {
