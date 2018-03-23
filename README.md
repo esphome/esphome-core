@@ -61,7 +61,7 @@ RGB values are written to hardware and you can easily implement your own PWM out
 front-end code.
 
 If esphomelib doesn't a sensor or device you'd really want to have support for, creating a custom component is very
-easy. A guide on how to do this will be up soon-ish 😉.
+easy: [Custom Sensor Component](https://github.com/OttoWinter/esphomelib/wiki/Custom-Sensor-Component).
 
 ## Getting Started
 
