@@ -134,7 +134,7 @@ OneWire *DallasComponent::get_one_wire() const {
 DallasTemperatureSensor::DallasTemperatureSensor(uint64_t address,
                                                  uint8_t resolution,
                                                  uint32_t update_interval)
-    : TemperatureSensor(update_interval) {
+    : TemperatureSensor(), PollingObject(update_interval) {
   this->set_address(address);
   this->set_resolution(resolution);
 }

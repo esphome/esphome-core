@@ -10,14 +10,9 @@
 #include <vector>
 
 #define assert_is_pin(num) assert((0 <= (num) && (num) <= 39) && "Is not a valid pin number")
-#define assert_positive(num) assert((num) >= 0)
-#define assert_0_to_1(num) assert(0 <= (num) && (num) <= 1)
-#define assert_nullptr(p) assert((p) == nullptr)
 #define assert_not_nullptr(p) assert((p) != nullptr)
 #define assert_setup(t) assert((t)->get_component_state() == esphomelib::Component::SETUP || (t)->get_component_state() == esphomelib::Component::LOOP)
 #define assert_construction_state(t) assert((t)->get_component_state() == esphomelib::Component::CONSTRUCTION)
-#define assert_setup_state(t) assert((t)->get_component_state() == esphomelib::Component::SETUP)
-#define assert_loop_state(t) assert((t)->get_component_state() == esphomelib::Component::LOOP)
 
 namespace esphomelib {
 
@@ -86,16 +81,25 @@ class Component {
    */
   virtual float get_loop_priority() const;
 
-  /** Internal loop() function.
+  /** Public loop() functions. These will be called by the Application instance.
+   *
+   * Note: This should normally not be overriden, unless you know what you're doing.
+   * They're basically to make creating custom components easier. For example the
+   * SensorComponent can override these methods to not have the user call some super
+   * methods within their custom sensors. These methods should ALWAYS call the loop_internal()
+   * and setup_internal() methods.
    *
    * Basically, it handles stuff like interval/timeout functions and eventually calls loop().
    */
-  void loop_();
-  void setup_();
+  virtual void loop_();
+  virtual void setup_();
 
   ComponentState get_component_state() const;
 
  protected:
+  void loop_internal();
+  void setup_internal();
+
   /** Simple typedef for interval/timeout functions
    *
    * @see set_interval()
@@ -150,7 +154,6 @@ class Component {
    */
   bool cancel_timeout(const std::string &name);
 
- protected:
   /// Internal struct for storing timeout/interval functions.
   struct TimeFunction {
     std::string name; ///< The name/id of this TimeFunction.
@@ -171,6 +174,59 @@ class Component {
   std::vector<TimeFunction> time_functions_;
 
   ComponentState component_state_{CONSTRUCTION}; ///< State of this component.
+};
+
+/** Polling - Base class for objects (not components) that have some sort of update interval.
+ *
+ * This additional layer of abstraction is necessary because in some cases we want a polling
+ * object, that is not a component (for example MQTTSensor together with DallasComponent's sensors).
+ */
+class PollingObject {
+ public:
+  /** Initialize this polling object with the given update interval in ms.
+   *
+   * @param update_interval The update interval in ms.
+   */
+  explicit PollingObject(uint32_t update_interval);
+
+  /** Manually set the update interval in ms for this polling object.
+   *
+   * Override this if you want to do some validation for the update interval.
+   *
+   * @param update_interval The update interval in ms.
+   */
+  virtual void set_update_interval(uint32_t update_interval);
+
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  /// Get the update interval in ms of this sensor
+  virtual uint32_t get_update_interval() const;
+
+ protected:
+  uint32_t update_interval_;
+};
+
+/** PollingComponent - This class simplifies creating components that periodically check a state.
+ *
+ * You basically just need to implement the update() function, it will be called every update_interval ms
+ * after startup. Note that this class cannot guarantee a correct timing, as it's not using timers, just
+ * a software polling feature with set_interval() from Component.
+ */
+class PollingComponent : public Component, public PollingObject {
+ public:
+  /** Initialize this polling component with the given update interval in ms.
+   *
+   * @param update_interval The update interval in ms.
+   */
+  explicit PollingComponent(uint32_t update_interval);
+
+  // ========== OVERRIDE METHODS ==========
+  // (You'll only need this when creating your own custom sensor)
+  virtual void update() = 0;
+
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  void setup_() override;
 };
 
 } // namespace esphomelib

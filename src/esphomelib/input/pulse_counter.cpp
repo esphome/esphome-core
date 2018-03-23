@@ -20,7 +20,7 @@ namespace input {
 static const char *TAG = "input::pulse_counter";
 
 PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval)
-  : Sensor(update_interval) {
+  : PollingComponent(update_interval), Sensor() {
   this->set_pin(pin);
 
   this->set_pcnt_unit(next_pcnt_unit);
@@ -98,18 +98,6 @@ void PulseCounterSensorComponent::setup() {
   pcnt_counter_pause(this->pcnt_unit_);
   pcnt_counter_clear(this->pcnt_unit_);
   pcnt_counter_resume(this->pcnt_unit_);
-
-  ESP_LOGCONFIG(TAG, "    Update Interval: %u", this->update_interval_);
-  this->set_interval("retrieve_value", this->get_update_interval(), [&]() {
-    int16_t counter;
-    pcnt_get_counter_value(this->pcnt_unit_, &counter);
-    float delta = counter - this->last_value_;
-    this->last_value_ = counter;
-    float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
-
-    ESP_LOGD(TAG, "%u: Retrieved counter (raw=%d): %0.2f pulses/min", this->pcnt_unit_, counter, value);
-    this->push_new_value(value, 2);
-  });
 }
 float PulseCounterSensorComponent::get_setup_priority() const {
   return setup_priority::MQTT_COMPONENT;
@@ -126,6 +114,16 @@ gpio_pull_mode_t PulseCounterSensorComponent::get_pull_mode() const {
 void PulseCounterSensorComponent::set_pull_mode(gpio_pull_mode_t pull_mode) {
   assert_construction_state(this);
   this->pull_mode_ = pull_mode;
+}
+void PulseCounterSensorComponent::update() {
+  int16_t counter;
+  pcnt_get_counter_value(this->pcnt_unit_, &counter);
+  float delta = counter - this->last_value_;
+  this->last_value_ = counter;
+  float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
+
+  ESP_LOGD(TAG, "%u: Retrieved counter (raw=%d): %0.2f pulses/min", this->pcnt_unit_, counter, value);
+  this->push_new_value(value, 2);
 }
 
 pcnt_unit_t next_pcnt_unit = PCNT_UNIT_0;

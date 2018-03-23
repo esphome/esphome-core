@@ -18,8 +18,9 @@ using namespace esphomelib::sensor;
 static const char *TAG = "input::dht";
 
 DHTComponent::DHTComponent(uint8_t pin, uint32_t update_interval)
-    : temperature_sensor_(new TemperatureSensor(update_interval)),
-      humidity_sensor_(new HumiditySensor(update_interval)) {
+    : temperature_sensor_(new DHTTemperatureSensor(update_interval)),
+      humidity_sensor_(new DHTHumiditySensor(update_interval)),
+      PollingObject(update_interval) {
   this->set_pin(pin);
 }
 
@@ -29,11 +30,10 @@ void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Pin: %u", this->pin_);
   ESP_LOGCONFIG(TAG, "    Model: %u", this->model_);
   this->dht_.setup(this->pin_, this->model_);
-  ESP_LOGD(TAG, "    setup() -> status: %u", this->dht_.getStatus());
-  ESP_LOGCONFIG(TAG, "    Update Interval: %u", this->temperature_sensor_->get_update_interval());
-  assert(this->temperature_sensor_->get_update_interval() == this->humidity_sensor_->get_update_interval());
+  ESP_LOGD(TAG, "    DHT.setup() -> status: %u", this->dht_.getStatus());
+  ESP_LOGCONFIG(TAG, "    Update Interval: %u", this->get_update_interval());
 
-  this->set_interval("check", this->temperature_sensor_->get_update_interval(), [&]() {
+  this->set_interval("check", this->get_update_interval(), [&]() {
     auto temp_hum = run_without_interrupts<std::pair<float, float>>([this] {
       return std::make_pair(this->dht_.getTemperature(), this->dht_.getHumidity());
     });
@@ -89,6 +89,17 @@ void DHTComponent::set_dht_model(DHT::DHT_MODEL_t model) {
 const DHT &DHTComponent::get_dht() const {
   return this->dht_;
 }
+void DHTComponent::set_update_interval(uint32_t update_interval) {
+  this->update_interval_ = update_interval;
+  this->temperature_sensor_->set_update_interval(update_interval);
+  this->humidity_sensor_->set_update_interval(update_interval);
+}
+
+DHTTemperatureSensor::DHTTemperatureSensor(uint32_t update_interval)
+    : PollingObject(update_interval) { }
+
+DHTHumiditySensor::DHTHumiditySensor(uint32_t update_interval)
+    : PollingObject(update_interval) { }
 
 } // namespace input
 

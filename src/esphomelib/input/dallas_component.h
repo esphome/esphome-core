@@ -13,7 +13,7 @@ namespace esphomelib {
 
 namespace input {
 
-class DallasTemperatureSensor : public sensor::TemperatureSensor {
+class DallasTemperatureSensor : public sensor::TemperatureSensor, public PollingObject {
  public:
   DallasTemperatureSensor(uint64_t address, uint8_t resolution, uint32_t update_interval);
 
