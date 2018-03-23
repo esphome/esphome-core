@@ -21,7 +21,11 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
  public:
   explicit MQTTSwitchComponent(std::string friendly_name, switch_platform::Switch *switch_ = nullptr);
 
-  void set_on_set_state_callback(const binary_sensor::binary_callback_t &set_state_callback);
+  /// Set the internal switch object used for sending states, does not register the state callback.
+  void set_switch(Switch *switch_);
+
+  /// Set the icon for this switch. "" for no icon.
+  void set_icon(const std::string &icon);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -31,15 +35,22 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
   binary_sensor::binary_callback_t create_on_new_state_callback() override;
 
  protected:
-  const binary_sensor::binary_callback_t &get_on_set_state_callback() const;
-  
+  /// Get the internal switch use for setting state.
+  Switch *get_switch() const;
+
+  /// "switch" component type.
   std::string component_type() const override;
 
+  /// Helper method to turn the switch on.
   void turn_on();
-
+  /// Helper method to turn the switch off.
   void turn_off();
 
-  binary_sensor::binary_callback_t on_set_state_callback_{nullptr};
+  /// Get the icon for this switch.
+  const std::string &get_icon() const;
+
+  std::string icon_;
+  Switch *switch_{nullptr};
 };
 
 } // namespace switch_platform

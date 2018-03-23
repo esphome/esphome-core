@@ -18,12 +18,16 @@ namespace switch_platform {
  */
 class Switch : public binary_sensor::BinarySensor {
  public:
-  Switch();
-
   virtual void turn_on() = 0;
   virtual void turn_off() = 0;
 
-  binary_sensor::binary_callback_t create_on_set_state_callback();
+  /** Override this to set the Home Assistant icon for this switch.
+   *
+   * Return "" to disable this feature.
+   *
+   * @return The icon of this switch, for example "mdi:fan".
+   */
+  virtual std::string icon();
 };
 
 } // namespace switch_platform

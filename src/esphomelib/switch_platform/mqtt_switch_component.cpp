@@ -19,18 +19,26 @@ using esphomelib::binary_sensor::binary_callback_t;
 using esphomelib::mqtt::Availability;
 
 MQTTSwitchComponent::MQTTSwitchComponent(std::string friendly_name, switch_platform::Switch *switch_)
-    : MQTTBinarySensorComponent(std::move(friendly_name), "", switch_) {
+    : MQTTBinarySensorComponent(std::move(friendly_name), "", switch_), switch_(switch_) {
   if (switch_ == nullptr)
     return;
 
-  this->on_set_state_callback_ = switch_->create_on_set_state_callback();
-  switch_->set_on_new_state_callback(this->create_on_new_state_callback());
+  this->switch_->set_on_new_state_callback(this->create_on_new_state_callback());
+  this->icon_ = this->switch_->icon();
 }
 
 void MQTTSwitchComponent::setup() {
-  assert(this->on_set_state_callback_ != nullptr);
+  assert(this->switch_ != nullptr);
 
-  this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {});
+  ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->friendly_name_.c_str());
+  if (!this->icon_.empty())
+    ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->icon_.c_str());
+
+  this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
+    // TODO: Enable this once a new Home Assistant version is out.
+    // if (!this->icon_.empty())
+    //   root["icon"] = this->icon_;
+  });
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
     if (strcasecmp(payload.c_str(), "ON") == 0)
@@ -56,17 +64,23 @@ binary_callback_t MQTTSwitchComponent::create_on_new_state_callback() {
 }
 void MQTTSwitchComponent::turn_on() {
   ESP_LOGD(TAG, "Turning Switch on.");
-  this->on_set_state_callback_(true);
+  this->switch_->turn_on();
 }
 void MQTTSwitchComponent::turn_off() {
   ESP_LOGD(TAG, "Turning Switch off.");
-  this->on_set_state_callback_(false);
+  this->switch_->turn_off();
 }
-void MQTTSwitchComponent::set_on_set_state_callback(const binary_sensor::binary_callback_t &set_state_callback) {
-  this->on_set_state_callback_ = set_state_callback;
+Switch *MQTTSwitchComponent::get_switch() const {
+  return this->switch_;
 }
-const binary_sensor::binary_callback_t &MQTTSwitchComponent::get_on_set_state_callback() const {
-  return this->on_set_state_callback_;
+void MQTTSwitchComponent::set_switch(Switch *switch_) {
+  this->switch_ = switch_;
+}
+const std::string &MQTTSwitchComponent::get_icon() const {
+  return this->icon_;
+}
+void MQTTSwitchComponent::set_icon(const std::string &icon) {
+  this->icon_ = icon;
 }
 
 } // namespace switch_platform

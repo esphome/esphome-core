@@ -281,6 +281,9 @@ void IRTransmitterComponent::DataTransmitter::turn_off() {
   // Turning off does nothing
   this->publish_state(false);
 }
+std::string IRTransmitterComponent::DataTransmitter::icon() {
+  return "mdi:remote";
+}
 
 rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 

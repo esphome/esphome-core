@@ -23,7 +23,6 @@ bool BinarySensor::is_inverted() const {
 void BinarySensor::set_inverted(bool inverted) {
   this->inverted_ = inverted;
 }
-BinarySensor::BinarySensor() : inverted_(false) {};
 
 } // namespace binary_sensor
 

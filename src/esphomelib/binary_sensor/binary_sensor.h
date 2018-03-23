@@ -22,15 +22,13 @@ using binary_callback_t = std::function<void(bool)>;
  */
 class BinarySensor {
  public:
-  BinarySensor();
-
   /** Set callback for state changes.
    *
    * @param callback The void(bool) callback.
    */
   virtual void set_on_new_state_callback(binary_callback_t callback);
 
-  bool is_inverted() const;
+  /// Set the inverted state of this binary sensor. If true, each published value will be inverted.
   void set_inverted(bool inverted);
 
   /** Publish a new state.
@@ -41,9 +39,14 @@ class BinarySensor {
    */
   virtual void publish_state(bool state);
 
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  /// Return whether all states of this binary sensor should be inverted.
+  bool is_inverted() const;
+
  protected:
-  binary_callback_t new_state_callback_;
-  bool inverted_;
+  binary_callback_t new_state_callback_{nullptr};
+  bool inverted_{false};
 };
 
 } // namespace binary_sensor

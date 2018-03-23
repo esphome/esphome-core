@@ -29,10 +29,23 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   /** Manually set the unit of measurement advertised to Home Assistant.
    *
    * This is automatically set by the constructor, but can later be overriden.
+   * * Set the value to "" to disable automatic unit of measurement reporting to Home Assistant.
    *
    * @param unit_of_measurement The unit of measurement,
    */
   void set_unit_of_measurement(const std::string &unit_of_measurement);
+
+  /** Manually set the icon advertised to Home Assistant.
+   *
+   * This is automatically set by the constructor, but can later be overriden.
+   * Set the value to "" to disable automatic icon reporting to Home Assistant.
+   *
+   * Note that this is disabled for now and the method is just here to create the API
+   * before a new Home Assistant release is out.
+   *
+   * @param icon The icon, for example "mdi:flash".
+   */
+  void set_icon(const std::string &icon);
 
   /** Override the accuracy in decimals that this value should use for reporting value.
    *
@@ -46,6 +59,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
   /// Setup an expiry
   void set_expire_after(uint32_t expire_after);
+  /// Disable Home Assistant value exiry.
   void disable_expire_after();
 
   /// Add a filter to the filter chain. Will be appended to the back.
@@ -136,8 +150,11 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   /// Get the overriden accuracy in decimals, if set.
   const Optional<int8_t> &get_override_accuracy_decimals() const;
 
-  /// Get the unit of measurements used advertised to Home Assistant.
+  /// Get the unit of measurements advertised to Home Assistant.
   const std::string &get_unit_of_measurement() const;
+
+  /// Get the icon advertised to Home Assistant.
+  const std::string &get_icon() const;
 
   /** Return the vector of filters this component uses for its value calculations.
    *
@@ -158,6 +175,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
  private:
   std::string unit_of_measurement_;
+  std::string icon_;
   Optional<uint32_t> expire_after_;
   Optional<int8_t> override_accuracy_decimals_;
   std::vector<Filter *> filters_;
