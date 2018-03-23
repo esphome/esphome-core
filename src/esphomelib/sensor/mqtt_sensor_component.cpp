@@ -136,7 +136,7 @@ MQTTSensorComponent::MQTTSensorComponent(std::string friendly_name, Sensor *sens
   this->set_expire_after(expire_after);
   this->set_unit_of_measurement(sensor->unit_of_measurement());
 }
-void MQTTSensorComponent::add_multiplier_filter(float multiplier) {
+void MQTTSensorComponent::add_multiply_filter(float multiplier) {
   this->add_filter(new MultiplyFilter(multiplier));
 }
 void MQTTSensorComponent::add_filters(const std::vector<Filter *> &filters) {

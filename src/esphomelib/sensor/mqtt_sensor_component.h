@@ -87,14 +87,14 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    */
   void add_offset_filter(float offset);
 
-  /** Helper to add a simple multiplier filter to the back of the filter chain.
+  /** Helper to add a simple multiply filter to the back of the filter chain.
    *
    * Each value will be multiplied by this multiplier. Can be used to convert units
    * easily. For example converting "pulses/min" to a more reasonable unit like kW.
    *
    * @param multiplier The multiplier each value will be multiplied with.
    */
-  void add_multiplier_filter(float multiplier);
+  void add_multiply_filter(float multiplier);
 
   /** Helper to add a simple filter that aborts the filter chain every time it receives a specific value.
    *
