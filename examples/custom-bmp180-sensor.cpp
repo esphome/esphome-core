@@ -38,7 +38,7 @@ void setup() {
   App.set_name("test");
   App.init_log();
 
-  App.init_wifi("FRITZ!Box Fon WLAN 7360", "40678084986052753363");
+  App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
   App.init_ota()->start_safe_mode();
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
 
