@@ -7,10 +7,19 @@
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <esp32-hal.h>
-  #include "esphomelib/espmath.h"
 #else
   #include "Arduino.h"
-  #include "esphomelib/espmath.h"
+#endif
+#include "esphomelib/espmath.h"
+
+#ifdef bool
+  #undef bool
+#endif
+#ifdef true
+  #undef true
+#endif
+#ifdef false
+  #undef false
 #endif
 
 namespace esphomelib {
