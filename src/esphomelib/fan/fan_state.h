@@ -6,7 +6,6 @@
 #define ESPHOMELIB_FAN_FAN_STATE_H
 
 #include <functional>
-#include <vector>
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/fan/fan_traits.h"
