@@ -7,8 +7,8 @@
 
 #include <functional>
 #include <vector>
-#include <src/esphomelib/helpers.h>
 
+#include "esphomelib/helpers.h"
 #include "esphomelib/fan/fan_traits.h"
 
 namespace esphomelib {
