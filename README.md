@@ -1,4 +1,4 @@
-A# esphomelib [![Build Status](https://travis-ci.org/OttoWinter/esphomelib.svg?branch=master)](https://travis-ci.org/OttoWinter/esphomelib)
+# esphomelib [![Build Status](https://travis-ci.org/OttoWinter/esphomelib.svg?branch=master)](https://travis-ci.org/OttoWinter/esphomelib)
 
 **esphomelib** is a library designed to greatly simplify your firmware code for ESP32/ESP8266-based devices with full 
 seamless Home Assistant integration (with automatic MQTT discovery!) so that you can focus on creating the hardware, 
@@ -120,7 +120,7 @@ methods in your `Application` instance.
 
 Note: MQTT will automatically determine the topics it publishes/subscribes to. All state/command topics will, 
 by default, be set to `livingroom/...` (e.g. `lightroom/light/livingroom_light/state`), birth messages/last will 
-testaments are sent to `livingroom/state`, and discovery will automatically happen with the base topic `discovery/`.
+testaments are sent to `livingroom/state`, and discovery will automatically happen with the base topic `homeassistant/`.
 
 ```cpp
 void setup() {
@@ -236,13 +236,12 @@ to set the output channels. See [`examples/fan-example.cpp`](examples/fan-exampl
 ## Home Assistant Configuration
 
 To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/)
-must be enabled with the topic `discovery/`.
+must be enabled with the topic `homeassistant/` (the default).
 
 ```yaml
 mqtt:
   broker: 192.168.0.2
   discovery: True
-  discovery_prefix: discovery
 ```
 
 ## Current Features
@@ -256,9 +255,6 @@ mqtt:
 * Binary Sensors
 * Switches
 * Fans
-    - ON/OFF
-    - Speed
-    - Oscillation
 * Dallas DS18b20 temperature sensors (with "DallasTemperature" library)
 * DHT11/DHT22 temperature/humidity sensors (with "DHT" library)
 * Lights
@@ -266,9 +262,9 @@ mqtt:
     - Transitions/Flashes
     - Effects (easy to add custom ones)
 * IR Transmitters (with remote control peripheral)
-* LEDC peripheral PWM output
+* ESP32: LEDC peripheral PWM output
 * PCA9685 PWM output (with "PCA9685" library)
-* ATX Mode - Automatically switch a power supply on/off when it's needed.
+* Power supply Mode - Automatically switch a power supply on/off when it's needed.
 
 ## Planned features
 
@@ -335,7 +331,7 @@ There are several log levels available:
  * **Debug (Default)** (Includes useful information when setting up your project)
  * **Info** (Only important messages are published here; nothing periodic)
  * **Warning** (Warnings about invalid sensor values, ...)
- * **Error** (Only error messages that stop esphomelib from working correctly) 
+ * **Error** (Only error messages that stop esphomelib from working correctly)
 
 To change the global log level, include the following in your `platform.ini` (and change verbose to the log level 
 you want):
@@ -393,16 +389,3 @@ Then do the upload as you would do normally via serial. You might want to [set a
 > Note: OTA is, by default, enabled without any authentication. If you're on a public WiFi network, it's highly
 > encouraged to set a paraphrase using the `set_auth_*()` methods on the object returned by `init_ota()`. Then also
 > include `upload_flags = -a `*`PASSPHRASE`* in your `platformio.ini`.
-
-### Help! I'm getting lots of `PubSubClient::publish() failed` warnings.
-
-This due to this libraries MQTT client library ([PubSubClient](https://github.com/knolleary/pubsubclient)) having a
-fixed-sized buffer for all MQTT messages. And if your messages are very long, they may not fit inside the buffer, so
-PubSubClient won't send the message. To fix this, increase the buffer size, by adding this to your `platformio.ini`:
-
-```ini
-build_flags =
-    -DMQTT_MAX_PACKET_SIZE=1024
-```
-
-Increase the number as necessary if it still doesn't fit.
