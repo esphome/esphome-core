@@ -42,6 +42,7 @@ void OTAComponent::setup() {
   ArduinoOTA.onStart([this]() {
     ESP_LOGI(TAG, "OTA starting...");
     this->ota_triggered_ = true;
+    this->at_ota_progress_message_ = 0;
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
@@ -50,7 +51,9 @@ void OTAComponent::setup() {
       // Don't make successful OTAs trigger boot loop detection.
       global_preferences.put_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
   });
-  ArduinoOTA.onProgress([](uint progress, uint total) {
+  ArduinoOTA.onProgress([this](uint progress, uint total) {
+    if (this->at_ota_progress_message_++ % 8 != 0)
+      return; // only print every 8th message
     float percentage = float(progress) * 100 / float(total);
     ESP_LOGD(TAG, "OTA in progress: %0.1f%%", percentage);
   });

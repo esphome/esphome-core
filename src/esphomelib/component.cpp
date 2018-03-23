@@ -111,7 +111,7 @@ void Component::setup_internal() {
 }
 
 PollingComponent::PollingComponent(uint32_t update_interval)
-    : Component(), PollingObject(update_interval) { }
+    : Component(), update_interval_(update_interval) { }
 
 void PollingComponent::setup_() {
   // Call component internal setup.
@@ -127,13 +127,10 @@ void PollingComponent::setup_() {
   });
 }
 
-PollingObject::PollingObject(uint32_t update_interval)
-    : update_interval_(update_interval) { }
-
-uint32_t PollingObject::get_update_interval() const {
+uint32_t PollingComponent::get_update_interval() const {
   return this->update_interval_;
 }
-void PollingObject::set_update_interval(uint32_t update_interval) {
+void PollingComponent::set_update_interval(uint32_t update_interval) {
   this->update_interval_ = update_interval;
 }
 

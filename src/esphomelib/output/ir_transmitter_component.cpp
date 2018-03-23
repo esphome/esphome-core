@@ -219,7 +219,7 @@ void IRTransmitterComponent::require_carrier_frequency(uint32_t carrier_frequenc
   this->configure_rmt();
 }
 float IRTransmitterComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
+  return setup_priority::HARDWARE_LATE;
 }
 void IRTransmitterComponent::send(ir::SendData &send_data) {
   this->require_carrier_frequency(send_data.carrier_frequency);

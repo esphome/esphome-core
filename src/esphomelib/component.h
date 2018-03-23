@@ -19,10 +19,11 @@ namespace esphomelib {
 /// default setup priorities for components of different types.
 namespace setup_priority {
 
-const float HARDWARE = 100.0f; ///< for hardware initialization, such as GPIO
+const float HARDWARE = 100.0f; ///< for hardware initialization, but only where it's really necessary (like outputs)
 const float WIFI = 10.0f; ///< for WiFi initialization
 const float MQTT_CLIENT = 7.5f; ///< for the MQTT client initialization
-const float MQTT_COMPONENT = 5.0f; ///< for MQTT component initialization
+const float HARDWARE_LATE = 0.0f;
+const float MQTT_COMPONENT = -5.0f; ///< for MQTT component initialization
 
 } // namespace setup_priority
 
@@ -176,18 +177,19 @@ class Component {
   ComponentState component_state_{CONSTRUCTION}; ///< State of this component.
 };
 
-/** Polling - Base class for objects (not components) that have some sort of update interval.
+/** PollingComponent - This class simplifies creating components that periodically check a state.
  *
- * This additional layer of abstraction is necessary because in some cases we want a polling
- * object, that is not a component (for example MQTTSensor together with DallasComponent's sensors).
+ * You basically just need to implement the update() function, it will be called every update_interval ms
+ * after startup. Note that this class cannot guarantee a correct timing, as it's not using timers, just
+ * a software polling feature with set_interval() from Component.
  */
-class PollingObject {
+class PollingComponent : public Component {
  public:
-  /** Initialize this polling object with the given update interval in ms.
+  /** Initialize this polling component with the given update interval in ms.
    *
    * @param update_interval The update interval in ms.
    */
-  explicit PollingObject(uint32_t update_interval);
+  explicit PollingComponent(uint32_t update_interval);
 
   /** Manually set the update interval in ms for this polling object.
    *
@@ -197,29 +199,6 @@ class PollingObject {
    */
   virtual void set_update_interval(uint32_t update_interval);
 
-  // ========== INTERNAL METHODS ==========
-  // (In most use cases you won't need these)
-  /// Get the update interval in ms of this sensor
-  virtual uint32_t get_update_interval() const;
-
- protected:
-  uint32_t update_interval_;
-};
-
-/** PollingComponent - This class simplifies creating components that periodically check a state.
- *
- * You basically just need to implement the update() function, it will be called every update_interval ms
- * after startup. Note that this class cannot guarantee a correct timing, as it's not using timers, just
- * a software polling feature with set_interval() from Component.
- */
-class PollingComponent : public Component, public PollingObject {
- public:
-  /** Initialize this polling component with the given update interval in ms.
-   *
-   * @param update_interval The update interval in ms.
-   */
-  explicit PollingComponent(uint32_t update_interval);
-
   // ========== OVERRIDE METHODS ==========
   // (You'll only need this when creating your own custom sensor)
   virtual void update() = 0;
@@ -227,6 +206,11 @@ class PollingComponent : public Component, public PollingObject {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   void setup_() override;
+
+  /// Get the update interval in ms of this sensor
+  virtual uint32_t get_update_interval() const;
+ protected:
+  uint32_t update_interval_;
 };
 
 } // namespace esphomelib

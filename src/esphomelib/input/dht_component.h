@@ -13,18 +13,32 @@ namespace esphomelib {
 
 namespace input {
 
-class DHTTemperatureSensor : public sensor::TemperatureSensor, public PollingObject {
+class DHTComponent;
+
+class DHTTemperatureSensor : public sensor::Sensor {
  public:
-  explicit DHTTemperatureSensor(uint32_t update_interval);
+  explicit DHTTemperatureSensor(DHTComponent *parent);
+
+  std::string unit_of_measurement() override;
+  std::string icon() override;
+  uint32_t update_interval() override;
+ protected:
+  DHTComponent *parent_{nullptr};
 };
 
-class DHTHumiditySensor : public sensor::HumiditySensor, public PollingObject {
+class DHTHumiditySensor : public sensor::Sensor {
  public:
-  explicit DHTHumiditySensor(uint32_t update_interval);
+  explicit DHTHumiditySensor(DHTComponent *parent);
+
+  std::string unit_of_measurement() override;
+  std::string icon() override;
+  uint32_t update_interval() override;
+ protected:
+  DHTComponent *parent_{nullptr};
 };
 
 /// DHTComponent - Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
-class DHTComponent : public Component, public PollingObject {
+class DHTComponent : public PollingComponent {
  public:
   /** Construct a DHTComponent.
    *
@@ -34,13 +48,12 @@ class DHTComponent : public Component, public PollingObject {
   explicit DHTComponent(uint8_t pin, uint32_t update_interval = 15000);
 
   void set_pin(uint8_t pin);
-  void set_update_interval(uint32_t update_interval) override;
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   uint8_t get_pin() const;
-  sensor::TemperatureSensor *get_temperature_sensor() const;
-  sensor::HumiditySensor *get_humidity_sensor() const;
+  DHTTemperatureSensor *get_temperature_sensor() const;
+  DHTHumiditySensor *get_humidity_sensor() const;
 
   /** Manually select the DHT model.
    *
@@ -53,6 +66,7 @@ class DHTComponent : public Component, public PollingObject {
   const DHT &get_dht() const;
 
   void setup() override;
+  void update() override;
   float get_setup_priority() const override;
 
  protected:

@@ -25,35 +25,14 @@ std::string Sensor::unit_of_measurement() {
 std::string Sensor::icon() {
   return "";
 }
-
-std::string TemperatureSensor::unit_of_measurement() {
-  return "°C";
-}
-std::string TemperatureSensor::icon() {
-  // Home Assistant will automatically chose the correct icon for sensors with
-  // a temperature unit_of_measurement, so disable icon to save discovery payload
-  // size.
-  return "";
+uint32_t Sensor::update_interval() {
+  return 0;
 }
 
-std::string HumiditySensor::unit_of_measurement() {
-  return "%";
-}
-std::string HumiditySensor::icon() {
-  return "mdi:water-percent";
-}
-
-std::string VoltageSensor::unit_of_measurement() {
-  return "V";
-}
-std::string VoltageSensor::icon() {
-  return "mdi:flash";
-}
-std::string DistanceSensor::unit_of_measurement() {
-  return "m";
-}
-std::string DistanceSensor::icon() {
-  return "mdi:arrow-expand-vertical";
+PollingSensorComponent::PollingSensorComponent(uint32_t update_interval)
+    : PollingComponent(update_interval) {}
+uint32_t PollingSensorComponent::update_interval() {
+  return this->get_update_interval();
 }
 
 } // namespace sensor

@@ -138,13 +138,9 @@ MQTTSensorComponent::MQTTSensorComponent(std::string friendly_name, Sensor *sens
   // By default, smooth over the last 15 values using sliding window moving average.
   this->add_sliding_window_average_filter(15, 15);
   // By default, expire after 30 missed values, or two full missed sliding windows.
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
-  auto *polling = dynamic_cast<PollingObject *>(sensor);
-#pragma clang diagnostic pop
-  if (polling != nullptr) {
+  if (sensor->update_interval() > 0) {
     // If this is a polling sensor
-    uint32_t expire_after = polling->get_update_interval() * 30;
+    uint32_t expire_after = sensor->update_interval() * 30;
     this->set_expire_after(expire_after);
   }
   this->set_unit_of_measurement(sensor->unit_of_measurement());

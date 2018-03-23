@@ -37,11 +37,6 @@
       "version": "https://github.com/OttoWinter/PCA9685-Arduino.git"
     }
   ],
-  "build": {
-    "unflags": [
-      "-fno-rtti"
-    ]
-  },
   "license": "GPL-3.0",
   "frameworks": "arduino",
   "platforms": "espressif32"

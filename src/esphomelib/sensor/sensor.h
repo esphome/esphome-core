@@ -16,6 +16,17 @@ namespace sensor {
 
 using sensor_callback_t = std::function<void(float, int8_t)>;
 
+const std::string UNIT_OF_MEASUREMENT_CELSIUS = "°C";
+const std::string UNIT_OF_MEASUREMENT_PERCENT = "%";
+const std::string UNIT_OF_MEASUREMENT_VOLT = "V";
+const std::string UNIT_OF_MEASUREMENT_METER = "m";
+
+// Home Assistant will set this itself because of unit of measurement.
+const std::string ICON_TEMPERATURE = "";
+const std::string ICON_HUMIDITY = "mdi:water-percent";
+const std::string ICON_VOLTAGE = "mdi:flash";
+const std::string ICON_DISTANCE = "mdi:arrow-expand-vertical";
+
 /** Base-class for all sensors.
  *
  * A sensor has unit of measurement and can use push_new_value to send out a new value with the specified accuracy.
@@ -50,6 +61,9 @@ class Sensor {
    */
   virtual std::string icon();
 
+  /// Return with which interval the sensor is polled. Return 0 for non-polling mode.
+  virtual uint32_t update_interval();
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// The MQTT sensor class uses this to register itself as a listener for new values.
@@ -59,28 +73,11 @@ class Sensor {
   CallbackManager<void(float, int8_t)> callback_{};
 };
 
-class TemperatureSensor : public Sensor {
+class PollingSensorComponent : public PollingComponent, public sensor::Sensor {
  public:
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-};
+  explicit PollingSensorComponent(uint32_t update_interval);
 
-class HumiditySensor : public Sensor {
- public:
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-};
-
-class VoltageSensor : public Sensor {
- public:
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-};
-
-class DistanceSensor : public Sensor {
- public:
-  std::string unit_of_measurement() override;
-  std::string icon() override;
+  uint32_t update_interval() override;
 };
 
 } // namespace sensor

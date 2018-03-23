@@ -13,7 +13,7 @@ namespace esphomelib {
 
 namespace input {
 
-class DallasTemperatureSensor : public sensor::TemperatureSensor, public PollingObject {
+class DallasTemperatureSensor : public sensor::Sensor {
  public:
   DallasTemperatureSensor(uint64_t address, uint8_t resolution, uint32_t update_interval);
 
@@ -27,12 +27,19 @@ class DallasTemperatureSensor : public sensor::TemperatureSensor, public Polling
   uint8_t get_resolution() const;
   void set_resolution(uint8_t resolution);
   uint16_t millis_to_wait_for_conversion() const;
+  uint32_t get_update_interval() const;
+  void set_update_interval(uint32_t update_interval);
+
+  std::string unit_of_measurement() override;
+  std::string icon() override;
+  uint32_t update_interval() override;
 
  protected:
   uint64_t address_;
   uint8_t index_;
   uint8_t resolution_;
   std::string name_;
+  uint32_t update_interval_;
 };
 
 /// DallasComponent - Component for reading temperature measurements from Dallas sensors.

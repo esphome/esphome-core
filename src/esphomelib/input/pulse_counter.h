@@ -31,7 +31,7 @@ namespace input {
  * The pulse counter defaults to reporting a value of the measurement unit "pulses/min". To
  * modify this behavior, use filters in MQTTSensor.
  */
-class PulseCounterSensorComponent : public PollingComponent, public sensor::Sensor {
+class PulseCounterSensorComponent : public sensor::PollingSensorComponent {
  public:
   /** Construct the Pulse Counter instance with the provided pin and update interval.
    *

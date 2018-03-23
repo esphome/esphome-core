@@ -20,7 +20,7 @@ static const char *TAG = "input::ultrasonic";
 UltrasonicSensorComponent::UltrasonicSensorComponent(GPIOOutputPin trigger_pin,
                                                      GPIOInputPin echo_pin,
                                                      uint32_t update_interval)
-    : PollingComponent(update_interval), DistanceSensor(),
+    : PollingSensorComponent(update_interval),
       trigger_pin_(trigger_pin), echo_pin_(echo_pin) {
 
 }
@@ -85,7 +85,7 @@ float UltrasonicSensorComponent::get_timeout_m() const {
   return us_to_m(this->get_timeout_us());
 }
 float UltrasonicSensorComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
+  return setup_priority::HARDWARE_LATE;
 }
 uint32_t UltrasonicSensorComponent::get_pulse_time_us() const {
   return this->pulse_time_us_;

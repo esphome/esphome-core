@@ -46,7 +46,7 @@ const float SPEED_OF_SOUND_M_PER_US = 0.000343f;
  * Note: The MQTTSenorComponent will create a moving average over these values by default, to disable this behavior,
  *       call ultrasonic->mqtt->clear_filters() or similar like above.
  */
-class UltrasonicSensorComponent : public PollingComponent, public sensor::DistanceSensor {
+class UltrasonicSensorComponent : public sensor::PollingSensorComponent {
  public:
   /** Construct the ultrasonic sensor with the specified trigger pin and echo pin.
    *

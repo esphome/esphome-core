@@ -20,7 +20,7 @@ namespace input {
 static const char *TAG = "input::pulse_counter";
 
 PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval)
-  : PollingComponent(update_interval), Sensor() {
+  : PollingSensorComponent(update_interval) {
   this->set_pin(pin);
 
   this->set_pcnt_unit(next_pcnt_unit);
@@ -100,7 +100,7 @@ void PulseCounterSensorComponent::setup() {
   pcnt_counter_resume(this->pcnt_unit_);
 }
 float PulseCounterSensorComponent::get_setup_priority() const {
-  return setup_priority::MQTT_COMPONENT;
+  return setup_priority::HARDWARE_LATE;
 }
 std::string PulseCounterSensorComponent::unit_of_measurement() {
   return "pulses/min";
@@ -118,7 +118,7 @@ void PulseCounterSensorComponent::set_pull_mode(gpio_pull_mode_t pull_mode) {
 void PulseCounterSensorComponent::update() {
   int16_t counter;
   pcnt_get_counter_value(this->pcnt_unit_, &counter);
-  float delta = counter - this->last_value_;
+  int16_t delta = counter - this->last_value_;
   this->last_value_ = counter;
   float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
 

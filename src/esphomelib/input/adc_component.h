@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace input {
 
-class ADCSensorComponent : public PollingComponent, public sensor::VoltageSensor {
+class ADCSensorComponent : public sensor::PollingSensorComponent {
  public:
   explicit ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval = 15000);
 
@@ -33,6 +33,8 @@ class ADCSensorComponent : public PollingComponent, public sensor::VoltageSensor
   adc_attenuation_t get_attenuation() const;
   void set_attenuation(adc_attenuation_t attenuation);
 #endif
+  std::string unit_of_measurement() override;
+  std::string icon() override;
 
  protected:
   GPIOInputPin pin_;

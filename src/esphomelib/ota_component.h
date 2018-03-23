@@ -90,6 +90,7 @@ class OTAComponent : public Component {
   bool has_safe_mode_{false}; ///< stores whether safe mode can be enabled.
   uint32_t safe_mode_start_time_; ///<stores when safe mode was enabled.
   uint32_t safe_mode_enable_time_{60000}; ///< The time safe mode should be on for.
+  uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
 };
 
 } // namespace esphomelib
