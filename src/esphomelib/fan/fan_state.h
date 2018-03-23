@@ -6,6 +6,8 @@
 #define ESPHOMELIB_FAN_FAN_STATE_H
 
 #include <functional>
+#include <vector>
+#include <src/esphomelib/helpers.h>
 
 #include "esphomelib/fan/fan_traits.h"
 
@@ -19,8 +21,8 @@ class FanState {
  public:
   enum Speed { SPEED_OFF = 0, SPEED_LOW, SPEED_MEDIUM, SPEED_HIGH };
 
-  void set_send_callback(const fan_send_callback_t &send_callback);
-  void set_update_callback(const fan_send_callback_t &update_callback);
+  void add_send_callback(const fan_send_callback_t &send_callback);
+  void add_update_callback(const fan_send_callback_t &update_callback);
 
   bool get_state() const;
   void set_state(bool state);
@@ -39,8 +41,8 @@ class FanState {
   bool oscillating_{false};
   Speed speed_{SPEED_HIGH};
   FanTraits traits_{};
-  fan_send_callback_t send_callback_{nullptr};
-  fan_send_callback_t update_callback_{nullptr};
+  CallbackManager<void()> send_callback_{};
+  CallbackManager<void()> update_callback_{};
 };
 
 } // namespace fan

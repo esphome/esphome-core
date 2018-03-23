@@ -27,8 +27,8 @@ void LightState::start_transition(const LightColorValues &target, uint32_t lengt
   this->send_values();
 }
 
-void LightState::set_send_callback(light_send_callback_t send_callback) {
-  this->send_callback_ = std::move(send_callback);
+void LightState::add_send_callback(light_send_callback_t send_callback) {
+  this->send_callback_.add(send_callback);
 }
 
 void LightState::start_flash(const LightColorValues &target, uint32_t length) {
@@ -70,8 +70,7 @@ LightColorValues LightState::get_current_values() {
 }
 
 void LightState::send_values() {
-  if (this->send_callback_)
-    this->send_callback_();
+  this->send_callback_.call();
 }
 
 LightColorValues LightState::get_remote_values() {

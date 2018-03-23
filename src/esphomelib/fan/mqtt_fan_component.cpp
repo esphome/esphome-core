@@ -79,7 +79,7 @@ void MQTTFanComponent::setup() {
     });
   }
 
-  this->state_->set_send_callback([this]() { this->next_send_ = true; });
+  this->state_->add_send_callback([this]() { this->next_send_ = true; });
 
   this->state_->load_from_preferences(this->friendly_name_);
 }

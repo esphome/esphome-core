@@ -47,7 +47,7 @@ void MQTTJSONLightComponent::setup() {
     this->parse_light_json(root);
   });
 
-  this->state_->set_send_callback([&]() {
+  this->state_->add_send_callback([&]() {
     this->next_send_ = true;
   });
 }

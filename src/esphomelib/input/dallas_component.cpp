@@ -79,7 +79,7 @@ uint8_t DallasComponent::get_device_count() {
 std::vector<uint64_t> DallasComponent::scan_devices() {
   std::vector<uint64_t> v;
 
-  run_without_interrupts<void>([&] {
+  run_without_interrupts([&] {
     uint64_t address = 0;
     auto *address8 = reinterpret_cast<uint8_t *>(&address);
     OneWire *ow = this->one_wire_;
@@ -108,7 +108,7 @@ DallasTemperatureSensor *DallasComponent::get_sensor_by_index(uint8_t index,
   return s;
 }
 void DallasComponent::request_temperature(DallasTemperatureSensor *sensor) {
-  run_without_interrupts<void>([this, sensor] {
+  run_without_interrupts([this, sensor] {
     this->dallas_.requestTemperaturesByAddress(sensor->get_address8());
     delayMicroseconds(10); // seems to be a lot more stable
   });

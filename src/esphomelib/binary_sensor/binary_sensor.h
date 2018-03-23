@@ -6,6 +6,7 @@
 #define ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H
 
 #include "esphomelib/component.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
@@ -26,7 +27,7 @@ class BinarySensor {
    *
    * @param callback The void(bool) callback.
    */
-  virtual void set_on_new_state_callback(binary_callback_t callback);
+  virtual void add_on_new_state_callback(binary_callback_t callback);
 
   /// Set the inverted state of this binary sensor. If true, each published value will be inverted.
   void set_inverted(bool inverted);
@@ -45,7 +46,7 @@ class BinarySensor {
   bool is_inverted() const;
 
  protected:
-  binary_callback_t new_state_callback_{nullptr};
+  CallbackManager<void(bool)> new_state_callback_{};
   bool inverted_{false};
 };
 

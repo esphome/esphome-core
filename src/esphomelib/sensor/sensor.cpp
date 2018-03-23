@@ -12,13 +12,12 @@ namespace sensor {
 
 static const char *TAG = "sensor::sensor";
 
-void Sensor::set_new_value_callback(sensor_callback_t callback) {
-  this->callback_ = std::move(callback);
+void Sensor::add_new_value_callback(sensor_callback_t callback) {
+  this->callback_.add(std::move(callback));
 }
 
 void Sensor::push_new_value(float value, int8_t accuracy_decimals) {
-  if (this->callback_)
-    this->callback_(value, accuracy_decimals);
+  this->callback_.call(value, accuracy_decimals);
 }
 std::string Sensor::unit_of_measurement() {
   return "";

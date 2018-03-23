@@ -12,6 +12,7 @@
 #include "esphomelib/light/light_color_values.h"
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_transformer.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
@@ -79,9 +80,9 @@ class LightState {
    *
    * @param send_callback
    */
-  void set_send_callback(light_send_callback_t send_callback);
+  void add_send_callback(light_send_callback_t send_callback);
 
-  /// Causes the callback defined by set_send_callback() to trigger.
+  /// Causes the callback defined by add_send_callback() to trigger.
   void send_values();
 
   /// Return whether the light has any effects that meet the trait requirements.
@@ -94,7 +95,7 @@ class LightState {
   std::unique_ptr<LightEffect> effect_;
   std::unique_ptr<LightTransformer> transformer_;
   LightColorValues values_;
-  light_send_callback_t send_callback_;
+  CallbackManager<void()> send_callback_{};
   LightTraits traits_;
 };
 
