@@ -17,12 +17,14 @@ namespace esphomelib {
 
 namespace input {
 
-class ADCSensorComponent : public Component, public sensor::VoltageSensor {
+class ADCSensorComponent : public PollingComponent, public sensor::VoltageSensor {
  public:
   explicit ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval = 15000);
 
   GPIOInputPin &get_pin();
   void set_pin(const GPIOInputPin &pin);
+
+  void update() override;
 
   void setup() override;
   float get_setup_priority() const override;

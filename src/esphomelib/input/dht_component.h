@@ -13,8 +13,18 @@ namespace esphomelib {
 
 namespace input {
 
+class DHTTemperatureSensor : public sensor::TemperatureSensor, public PollingObject {
+ public:
+  explicit DHTTemperatureSensor(uint32_t update_interval);
+};
+
+class DHTHumiditySensor : public sensor::HumiditySensor, public PollingObject {
+ public:
+  explicit DHTHumiditySensor(uint32_t update_interval);
+};
+
 /// DHTComponent - Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
-class DHTComponent : public Component {
+class DHTComponent : public Component, public PollingObject {
  public:
   /** Construct a DHTComponent.
    *
@@ -23,11 +33,14 @@ class DHTComponent : public Component {
    */
   explicit DHTComponent(uint8_t pin, uint32_t update_interval = 15000);
 
+  void set_pin(uint8_t pin);
+  void set_update_interval(uint32_t update_interval) override;
+
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  uint8_t get_pin() const;
   sensor::TemperatureSensor *get_temperature_sensor() const;
   sensor::HumiditySensor *get_humidity_sensor() const;
-
-  uint8_t get_pin() const;
-  void set_pin(uint8_t pin);
 
   /** Manually select the DHT model.
    *
@@ -46,8 +59,8 @@ class DHTComponent : public Component {
   uint8_t pin_;
   DHT dht_;
   DHT::DHT_MODEL_t model_{DHT::AUTO_DETECT};
-  sensor::TemperatureSensor *temperature_sensor_;
-  sensor::HumiditySensor *humidity_sensor_;
+  DHTTemperatureSensor *temperature_sensor_;
+  DHTHumiditySensor *humidity_sensor_;
 };
 
 } // namespace input

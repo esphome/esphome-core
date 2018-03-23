@@ -64,6 +64,28 @@ bool Component::cancel_timeout(const std::string &name) {
 }
 
 void Component::loop_() {
+  this->loop_internal();
+  this->loop();
+}
+
+bool Component::cancel_time_function(const std::string &name, TimeFunction::Type type) {
+  for (auto iter = this->time_functions_.begin(); iter != this->time_functions_.end(); iter++) {
+    if (iter->name == name && iter->type == type) {
+      ESP_LOGV(TAG, "Removing old time function %s.", iter->name.c_str());
+      this->time_functions_.erase(iter);
+      return true;
+    }
+  }
+  return false;
+}
+void Component::setup_() {
+  this->setup_internal();
+  this->setup();
+}
+Component::ComponentState Component::get_component_state() const {
+  return this->component_state_;
+}
+void Component::loop_internal() {
   assert_setup(this);
   this->component_state_ = LOOP;
 
@@ -82,27 +104,37 @@ void Component::loop_() {
     } else
       i++;
   }
-
-  this->loop();
 }
-
-bool Component::cancel_time_function(const std::string &name, TimeFunction::Type type) {
-  for (auto iter = this->time_functions_.begin(); iter != this->time_functions_.end(); iter++) {
-    if (iter->name == name && iter->type == type) {
-      ESP_LOGV(TAG, "Removing old time function %s.", iter->name.c_str());
-      this->time_functions_.erase(iter);
-      return true;
-    }
-  }
-  return false;
-}
-void Component::setup_() {
+void Component::setup_internal() {
   assert_construction_state(this);
   this->component_state_ = SETUP;
-  this->setup();
 }
-Component::ComponentState Component::get_component_state() const {
-  return this->component_state_;
+
+PollingComponent::PollingComponent(uint32_t update_interval)
+    : Component(), PollingObject(update_interval) { }
+
+void PollingComponent::setup_() {
+  // Call component internal setup.
+  this->setup_internal();
+
+  // Let the polling component subclass setup their HW.
+  this->setup();
+
+  // Register interval.
+  ESP_LOGCONFIG(TAG, "    Update interval: %ums", this->get_update_interval());
+  this->set_interval("update", this->get_update_interval(), [this]() {
+    this->update();
+  });
+}
+
+PollingObject::PollingObject(uint32_t update_interval)
+    : update_interval_(update_interval) { }
+
+uint32_t PollingObject::get_update_interval() const {
+  return this->update_interval_;
+}
+void PollingObject::set_update_interval(uint32_t update_interval) {
+  this->update_interval_ = update_interval;
 }
 
 } // namespace esphomelib

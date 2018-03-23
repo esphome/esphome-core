@@ -20,8 +20,9 @@ static const char *TAG = "input::ultrasonic";
 UltrasonicSensorComponent::UltrasonicSensorComponent(GPIOOutputPin trigger_pin,
                                                      GPIOInputPin echo_pin,
                                                      uint32_t update_interval)
-    : Component(), DistanceSensor(update_interval),
+    : PollingComponent(update_interval), DistanceSensor(),
       trigger_pin_(trigger_pin), echo_pin_(echo_pin) {
+
 }
 GPIOOutputPin &UltrasonicSensorComponent::get_trigger_pin() {
   return this->trigger_pin_;
@@ -42,27 +43,26 @@ void UltrasonicSensorComponent::setup() {
   this->trigger_pin_.write_value(false);
   ESP_LOGCONFIG(TAG, "    Pulse time: %uµs", this->pulse_time_us_);
   ESP_LOGCONFIG(TAG, "    Timeout: %uµs", this->timeout_us_);
-
-  this->set_interval("ultrasonic_check", this->get_update_interval(), [&]() {
-    this->trigger_pin_.write_value(true);
-    delayMicroseconds(this->pulse_time_us_);
-    this->trigger_pin_.write_value(false);
-    auto time = run_without_interrupts<uint32_t>([this] {
-      return pulseIn(this->echo_pin_.get_pin(),
-                     uint8_t(!this->echo_pin_.is_inverted()),
-                     this->timeout_us_);
-    });
-
-    float result = 0;
-    if (time == 0)
-      result = NAN;
-    else
-      result = us_to_m(time);
-
-    ESP_LOGV(TAG, "Echo took %uµs (%fm)", time, result);
-
-    this->push_new_value(result, 2); // cm precision
+}
+void UltrasonicSensorComponent::update() {
+  this->trigger_pin_.write_value(true);
+  delayMicroseconds(this->pulse_time_us_);
+  this->trigger_pin_.write_value(false);
+  auto time = run_without_interrupts<uint32_t>([this] {
+    return pulseIn(this->echo_pin_.get_pin(),
+                   uint8_t(!this->echo_pin_.is_inverted()),
+                   this->timeout_us_);
   });
+
+  float result = 0;
+  if (time == 0)
+    result = NAN;
+  else
+    result = us_to_m(time);
+
+  ESP_LOGV(TAG, "Echo took %uµs (%fm)", time, result);
+
+  this->push_new_value(result, 2); // cm precision
 }
 uint32_t UltrasonicSensorComponent::get_timeout_us() const {
   return this->timeout_us_;

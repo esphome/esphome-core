@@ -38,9 +38,8 @@
     }
   ],
   "build": {
-    "flags": [
-      "-DMQTT_MAX_PACKET_SIZE=512",
-      "-DARDUINOJSON_ENABLE_STD_STRING"
+    "unflags": [
+      "-fno-rtti"
     ]
   },
   "license": "GPL-3.0",

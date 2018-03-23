@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "esphomelib/component.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
@@ -21,17 +22,6 @@ using sensor_callback_t = std::function<void(float, int8_t)>;
  */
 class Sensor {
  public:
-  /** Initialize this sensor with the given update interval in ms.
-   *
-   * If your Sensor isn't a polling sensor, you can pass 0 to the update interval.
-   *
-   * @param update_interval The update interval in ms.
-   */
-  explicit Sensor(uint32_t update_interval);
-
-  /// Manually set the update interval in ms that the sensor should update its values.
-  virtual void set_update_interval(uint32_t update_interval);
-
   // ========== OVERRIDE METHODS ==========
   // (You'll only need this when creating your own custom sensor)
   /** Push a new value to the MQTT front-end.
@@ -62,41 +52,33 @@ class Sensor {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  /// Get the update interval in ms of this sensor.
-  virtual uint32_t get_update_interval() const;
-
   /// The MQTT sensor class uses this to register itself as a listener for new values.
   void set_new_value_callback(sensor_callback_t callback);
 
  protected:
   sensor_callback_t callback_{nullptr};
-  uint32_t update_interval_{0};
 };
 
 class TemperatureSensor : public Sensor {
  public:
-  explicit TemperatureSensor(uint32_t update_interval);
   std::string unit_of_measurement() override;
   std::string icon() override;
 };
 
 class HumiditySensor : public Sensor {
  public:
-  explicit HumiditySensor(uint32_t update_interval);
   std::string unit_of_measurement() override;
   std::string icon() override;
 };
 
 class VoltageSensor : public Sensor {
  public:
-  explicit VoltageSensor(uint32_t update_interval);
   std::string unit_of_measurement() override;
   std::string icon() override;
 };
 
 class DistanceSensor : public Sensor {
  public:
-  explicit DistanceSensor(uint32_t update_interval);
   std::string unit_of_measurement() override;
   std::string icon() override;
 };
