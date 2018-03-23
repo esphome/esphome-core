@@ -117,6 +117,9 @@ float PulseCounterSensorComponent::get_setup_priority() const {
 std::string PulseCounterSensorComponent::unit_of_measurement() {
   return "pulses/min";
 }
+std::string PulseCounterSensorComponent::icon() {
+  return "mdi:pulse";
+}
 gpio_pull_mode_t PulseCounterSensorComponent::get_pull_mode() const {
   return this->pull_mode_;
 }

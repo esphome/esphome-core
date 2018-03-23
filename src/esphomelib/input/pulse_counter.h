@@ -81,7 +81,11 @@ class PulseCounterSensorComponent : public Component, public sensor::Sensor {
   pcnt_count_mode_t get_rising_edge_mode() const;
   pcnt_count_mode_t get_falling_edge_mode() const;
 
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  /// Unit of measurement is "pulses/min".
   std::string unit_of_measurement() override;
+  std::string icon() override;
   void setup() override;
   float get_setup_priority() const override;
   uint8_t get_pin() const;

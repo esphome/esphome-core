@@ -21,15 +21,21 @@ void MQTTSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Unit of Measurement: '%s'", this->unit_of_measurement_.c_str());
   if (this->override_accuracy_decimals_.defined)
     ESP_LOGCONFIG(TAG, "    Override Accuracy Decimals: %i", this->override_accuracy_decimals_.value);
+  if (!this->icon_.empty())
+    ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->icon_.c_str());
+  ESP_LOGCONFIG(TAG, "    # Filters: %u", this->filters_.size());
 
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     if (!this->unit_of_measurement_.empty())
       root["unit_of_measurement"] = this->unit_of_measurement_;
 
-    if (this->expire_after_.defined) {
+    if (this->expire_after_.defined)
       root["expire_after"] = this->expire_after_.value / 1000;
-    }
+
+    // TODO: Enable this once a new Home Assistant version is out.
+    // if (!this->icon_.empty())
+    //   root["icon"] = this->icon_;
   }, true, false); // enable state topic, disable command topic
 }
 
@@ -148,6 +154,12 @@ void MQTTSensorComponent::set_filters(const std::vector<Filter *> &filters) {
 }
 void MQTTSensorComponent::add_filter_out_value_filter(float values_to_filter_out) {
   this->add_filter(new FilterOutValueFilter(values_to_filter_out));
+}
+void MQTTSensorComponent::set_icon(const std::string &icon) {
+  this->icon_ = icon;
+}
+const std::string &MQTTSensorComponent::get_icon() const {
+  return this->icon_;
 }
 
 } // namespace sensor

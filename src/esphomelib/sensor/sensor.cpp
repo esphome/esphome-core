@@ -30,6 +30,12 @@ void Sensor::set_update_interval(uint32_t update_interval) {
 Sensor::Sensor(uint32_t update_interval) : update_interval_(update_interval) {
 
 }
+std::string Sensor::unit_of_measurement() {
+  return "";
+}
+std::string Sensor::icon() {
+  return "";
+}
 
 std::string TemperatureSensor::unit_of_measurement() {
   return "°C";
@@ -37,25 +43,35 @@ std::string TemperatureSensor::unit_of_measurement() {
 TemperatureSensor::TemperatureSensor(uint32_t update_interval) : Sensor(update_interval) {
 
 }
+std::string TemperatureSensor::icon() {
+  // Home Assistant will automatically chose the correct icon for sensors with
+  // a temperature unit_of_measurement, so disable icon to save discovery payload
+  // size.
+  return "";
+}
+
+HumiditySensor::HumiditySensor(uint32_t update_interval) : Sensor(update_interval) { }
 
 std::string HumiditySensor::unit_of_measurement() {
   return "%";
 }
-HumiditySensor::HumiditySensor(uint32_t update_interval) : Sensor(update_interval) {
-
+std::string HumiditySensor::icon() {
+  return "mdi:water-percent";
 }
 
-VoltageSensor::VoltageSensor(uint32_t update_interval) : Sensor(update_interval) {
-
-}
+VoltageSensor::VoltageSensor(uint32_t update_interval) : Sensor(update_interval) { }
 std::string VoltageSensor::unit_of_measurement() {
   return "V";
 }
-DistanceSensor::DistanceSensor(uint32_t update_interval) : Sensor(update_interval) {
-
+std::string VoltageSensor::icon() {
+  return "mdi:flash";
 }
+DistanceSensor::DistanceSensor(uint32_t update_interval) : Sensor(update_interval) { }
 std::string DistanceSensor::unit_of_measurement() {
   return "m";
+}
+std::string DistanceSensor::icon() {
+  return "mdi:arrow-expand-vertical";
 }
 } // namespace sensor
 
