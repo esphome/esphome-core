@@ -23,7 +23,7 @@ MQTTSwitchComponent::MQTTSwitchComponent(std::string friendly_name, switch_platf
   if (switch_ == nullptr)
     return;
 
-  this->switch_->set_on_new_state_callback(this->create_on_new_state_callback());
+  this->switch_->add_on_new_state_callback(this->create_on_new_state_callback());
   this->icon_ = this->switch_->icon();
 }
 

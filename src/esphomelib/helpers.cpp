@@ -104,8 +104,7 @@ float ExponentialMovingAverage::next_value(float value) {
   return this->calculate_average();
 }
 
-template<>
-void run_without_interrupts<void>(const std::function<void()> &f) {
+void run_without_interrupts(const std::function<void()> &f) {
 #ifdef ARDUINO_ARCH_ESP32
   portDISABLE_INTERRUPTS();
 #else

@@ -53,10 +53,10 @@ class Sensor {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// The MQTT sensor class uses this to register itself as a listener for new values.
-  void set_new_value_callback(sensor_callback_t callback);
+  void add_new_value_callback(sensor_callback_t callback);
 
  protected:
-  sensor_callback_t callback_{nullptr};
+  CallbackManager<void(float, int8_t)> callback_{};
 };
 
 class TemperatureSensor : public Sensor {

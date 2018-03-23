@@ -40,7 +40,7 @@ void BasicFanComponent::set_state(FanState *state) {
   this->state_ = state;
 }
 void BasicFanComponent::setup() {
-  this->state_->set_update_callback([this]() { this->next_update_ = true; });
+  this->state_->add_update_callback([this]() { this->next_update_ = true; });
 }
 void BasicFanComponent::loop() {
   if (this->next_update_) {

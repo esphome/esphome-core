@@ -29,7 +29,7 @@ MQTTBinarySensorComponent::MQTTBinarySensorComponent(std::string friendly_name, 
   if (binary_sensor == nullptr)
     return;
 
-  binary_sensor->set_on_new_state_callback(this->create_on_new_state_callback());
+  binary_sensor->add_on_new_state_callback(this->create_on_new_state_callback());
 }
 
 binary_sensor::binary_callback_t MQTTBinarySensorComponent::create_on_new_state_callback() {

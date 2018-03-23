@@ -134,7 +134,7 @@ MQTTSensorComponent::MQTTSensorComponent(std::string friendly_name, Sensor *sens
     // Disable automatic initialization
     return;
 
-  sensor->set_new_value_callback(this->create_new_data_callback());
+  sensor->add_new_value_callback(this->create_new_data_callback());
   // By default, smooth over the last 15 values using sliding window moving average.
   this->add_sliding_window_average_filter(15, 15);
   // By default, expire after 30 missed values, or two full missed sliding windows.

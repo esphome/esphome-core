@@ -81,6 +81,8 @@ std::string sanitize_string_whitelist(const std::string &s, const std::string &w
 template<typename T>
 T run_without_interrupts(const std::function<T()> &f);
 
+void run_without_interrupts(const std::function<void()> &f);
+
 /// Helper class to represent an optional value.
 template<typename T>
 struct Optional {
@@ -142,6 +144,26 @@ class ExponentialMovingAverage {
  protected:
   float alpha_;
   float accumulator_;
+};
+
+template<typename... X> class CallbackManager;
+
+
+/** CallbackManager - Simple helper class to allow having multiple subscribers to a signal.
+ *
+ * @tparam Ts The arguments for the callback, wrapped in void().
+ */
+template<typename... Ts>
+class CallbackManager<void(Ts...)> {
+ public:
+  /// Add a callback to the internal callback list.
+  void add(std::function<void(Ts...)> callback);
+
+  /// Call all callbacks in this manager.
+  void call(Ts... args);
+
+ protected:
+  std::vector<std::function<void(Ts...)>> callbacks_;
 };
 
 // ================================================
@@ -242,8 +264,15 @@ T run_without_interrupts(const std::function<T()> &f) {
   return ret;
 }
 
-template<>
-void run_without_interrupts(const std::function<void()> &f);
+template<typename... Ts>
+void CallbackManager<void(Ts...)>::add(std::function<void(Ts...)> callback) {
+  this->callbacks_.push_back(callback);
+}
+template<typename... Ts>
+void CallbackManager<void(Ts...)>::call(Ts... args) {
+  for (auto &cb : this->callbacks_)
+    cb(args...);
+}
 
 } // namespace esphomelib
 

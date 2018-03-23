@@ -135,7 +135,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    *
    * For example:
    *
-   * sensor->set_new_value_callback(mqtt->create_new_data_callback());
+   * sensor->add_new_value_callback(mqtt->create_new_data_callback());
    *
    * However, you normally don't need to worry about this as the Application instance
    * takes care of all of this.
