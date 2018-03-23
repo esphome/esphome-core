@@ -148,11 +148,18 @@ class ExponentialMovingAverage {
 
 template<typename... X> class CallbackManager;
 
+
+/** CallbackManager - Simple helper class to allow having multiple subscribers to a signal.
+ *
+ * @tparam Ts The arguments for the callback, wrapped in void().
+ */
 template<typename... Ts>
 class CallbackManager<void(Ts...)> {
  public:
+  /// Add a callback to the internal callback list.
   void add(std::function<void(Ts...)> callback);
 
+  /// Call all callbacks in this manager.
   void call(Ts... args);
 
  protected:
