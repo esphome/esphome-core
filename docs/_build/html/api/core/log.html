@@ -1,0 +1,274 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Logging Engine &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Power Supply" href="power-supply.html" />
+    <link rel="prev" title="Helpers" href="helpers.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="logging-engine">
+<h1>Logging Engine<a class="headerlink" href="#logging-engine" title="Permalink to this headline">¶</a></h1>
+<p>esphomelib will by default log to both Serial (with baudrate 115200) and MQTT (with topic &lt;name&gt;/debug).</p>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="log-h">
+<h3>log.h<a class="headerlink" href="#log-h" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="_CPPv211ESPLogLevel">
+<span id="ESPLogLevel"></span><span class="target" id="log_8h_1ad1fabf2631096a3a2952dc9b8c05b940"></span><em class="property">enum </em><code class="descclassname"></code><code class="descname">ESPLogLevel</code><a class="headerlink" href="#_CPPv211ESPLogLevel" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="enumerator">
+<dt id="_CPPv225ESPHOMELIB_LOG_LEVEL_NONE">
+<span class="target" id="log_8h_1ad1fabf2631096a3a2952dc9b8c05b940a481a6f05d6b1c994f807795e5858025c"></span><code class="descname">ESPHOMELIB_LOG_LEVEL_NONE</code> = 0<a class="headerlink" href="#_CPPv225ESPHOMELIB_LOG_LEVEL_NONE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv226ESPHOMELIB_LOG_LEVEL_ERROR">
+<span class="target" id="log_8h_1ad1fabf2631096a3a2952dc9b8c05b940abeee558943b48b1342fd29d1f76ad6ee"></span><code class="descname">ESPHOMELIB_LOG_LEVEL_ERROR</code> = 1<a class="headerlink" href="#_CPPv226ESPHOMELIB_LOG_LEVEL_ERROR" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv225ESPHOMELIB_LOG_LEVEL_WARN">
+<span class="target" id="log_8h_1ad1fabf2631096a3a2952dc9b8c05b940a1e2fa3222a470504ae9c238b10cb530a"></span><code class="descname">ESPHOMELIB_LOG_LEVEL_WARN</code> = 2<a class="headerlink" href="#_CPPv225ESPHOMELIB_LOG_LEVEL_WARN" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv225ESPHOMELIB_LOG_LEVEL_INFO">
+<span class="target" id="log_8h_1ad1fabf2631096a3a2952dc9b8c05b940ab65709705ce5ac808df05a4092cd1356"></span><code class="descname">ESPHOMELIB_LOG_LEVEL_INFO</code> = 3<a class="headerlink" href="#_CPPv225ESPHOMELIB_LOG_LEVEL_INFO" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv226ESPHOMELIB_LOG_LEVEL_DEBUG">
+<span class="target" id="log_8h_1ad1fabf2631096a3a2952dc9b8c05b940a0da406a72b62d44faa98e5c9d1380d8e"></span><code class="descname">ESPHOMELIB_LOG_LEVEL_DEBUG</code> = 4<a class="headerlink" href="#_CPPv226ESPHOMELIB_LOG_LEVEL_DEBUG" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv228ESPHOMELIB_LOG_LEVEL_VERBOSE">
+<span class="target" id="log_8h_1ad1fabf2631096a3a2952dc9b8c05b940afa92171a3cb2191f9fa2e72c39e5bbb4"></span><code class="descname">ESPHOMELIB_LOG_LEVEL_VERBOSE</code> = 5<a class="headerlink" href="#_CPPv228ESPHOMELIB_LOG_LEVEL_VERBOSE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.ESPHOMELIB_LOG_LEVEL">
+<span class="target" id="log_8h_1afcbc89c65ab8439d12551ccfe9f738f2"></span><code class="descname">ESPHOMELIB_LOG_LEVEL</code><a class="headerlink" href="#c.ESPHOMELIB_LOG_LEVEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="logcomponent">
+<h3>LogComponent<a class="headerlink" href="#logcomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib12LogComponentE">
+<span id="esphomelib::LogComponent"></span><span class="target" id="classesphomelib_1_1_log_component"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">LogComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A simple component that enables logging to Serial and MQTT via ESP_LOG* macros. </p>
+<p>This component should optimally be setup very early because only after its setup log messages are actually sent. To do this, simply call <a class="reference internal" href="#classesphomelib_1_1_log_component_1a1b0153609061596b9230c97fd9b06343"><span class="std std-ref">pre_setup()</span></a> as early as possible. </p>
+<p>Inherits from <a class="reference internal" href="component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent12LogComponentE8uint32_t6size_t">
+<span id="esphomelib::LogComponent::LogComponent__uint32_t.s"></span><span class="target" id="classesphomelib_1_1_log_component_1aca14d5b5a02bd063ef2188b883fd991b"></span><code class="descname">LogComponent</code><span class="sig-paren">(</span>uint32_t <em>baud_rate</em> = 11520, size_t <em>tx_buffer_size</em> = 512<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent12LogComponentE8uint32_t6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the <a class="reference internal" href="#classesphomelib_1_1_log_component"><span class="std std-ref">LogComponent</span></a>. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">baud_rate</span></code>: The baud_rate for the serial interface. 0 to disable UART logging. </li>
+<li><code class="docutils literal"><span class="pre">tx_buffer_size</span></code>: The buffer size (in bytes) used for constructing log messages. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent13set_baud_rateE8uint32_t">
+<span id="esphomelib::LogComponent::set_baud_rate__uint32_t"></span><span class="target" id="classesphomelib_1_1_log_component_1ada5e0434eb54180939367d9a2cd4c563"></span>void <code class="descname">set_baud_rate</code><span class="sig-paren">(</span>uint32_t <em>baud_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent13set_baud_rateE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the baud rate for serial, set to 0 to disable. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent24set_custom_logging_topicERKNSt6stringE">
+<span id="esphomelib::LogComponent::set_custom_logging_topic__ssCR"></span><span class="target" id="classesphomelib_1_1_log_component_1a280e7c307f15c6273252af5ddd8463ad"></span>void <code class="descname">set_custom_logging_topic</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>custom_logging_topic</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent24set_custom_logging_topicERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a custom MQTT logging topic. Set to “” for default behavior. This will also enable logging. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent24set_mqtt_logging_enabledEb">
+<span id="esphomelib::LogComponent::set_mqtt_logging_enabled__b"></span><span class="target" id="classesphomelib_1_1_log_component_1af34b23afbd3f9c0bc64db9e006b193bb"></span>void <code class="descname">set_mqtt_logging_enabled</code><span class="sig-paren">(</span>bool <em>mqtt_logging_enabled</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent24set_mqtt_logging_enabledEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Enable/Disable logging to MQTT. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent18set_tx_buffer_sizeE6size_t">
+<span id="esphomelib::LogComponent::set_tx_buffer_size__s"></span><span class="target" id="classesphomelib_1_1_log_component_1abc856218ddc5fca5e432d531db5e668c"></span>void <code class="descname">set_tx_buffer_size</code><span class="sig-paren">(</span>size_t <em>tx_buffer_size</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent18set_tx_buffer_sizeE6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the buffer size that’s used for constructing log messages. Log messages longer than this will be truncated. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent20set_global_log_levelE11ESPLogLevel">
+<span id="esphomelib::LogComponent::set_global_log_level__ESPLogLevel"></span><span class="target" id="classesphomelib_1_1_log_component_1a6ec240ef4e8a10c663c53ecf4a28f173"></span>void <code class="descname">set_global_log_level</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv211ESPLogLevel" title="ESPLogLevel">ESPLogLevel</a> <em>log_level</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent20set_global_log_levelE11ESPLogLevel" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the global log level. Note: Use the ESPHOMELIB_LOG_LEVEL define to also remove the logs from the build. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent13set_log_levelERKNSt6stringE11ESPLogLevel">
+<span id="esphomelib::LogComponent::set_log_level__ssCR.ESPLogLevel"></span><span class="target" id="classesphomelib_1_1_log_component_1ac50ed591cc94bdd6e70efc9dfea09674"></span>void <code class="descname">set_log_level</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>tag</em>, <a class="reference internal" href="#_CPPv211ESPLogLevel" title="ESPLogLevel">ESPLogLevel</a> <em>log_level</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent13set_log_levelERKNSt6stringE11ESPLogLevel" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the log level of the specified tag. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent9pre_setupEv">
+<span id="esphomelib::LogComponent::pre_setup"></span><span class="target" id="classesphomelib_1_1_log_component_1a1b0153609061596b9230c97fd9b06343"></span>void <code class="descname">pre_setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent9pre_setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set up this component. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib12LogComponent13get_baud_rateEv">
+<span id="esphomelib::LogComponent::get_baud_rateC"></span><span class="target" id="classesphomelib_1_1_log_component_1ace7a290c3ca1d4ab54bd4f02fa99de0b"></span>uint32_t <code class="descname">get_baud_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib12LogComponent13get_baud_rateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent17get_logging_topicEv">
+<span id="esphomelib::LogComponent::get_logging_topic"></span><span class="target" id="classesphomelib_1_1_log_component_1a0da4f4a79708dcf7f6ee892e4e21c8e6"></span>std::string <code class="descname">get_logging_topic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent17get_logging_topicEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the logging topic, opting for the default if it hasn’t been customized. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib12LogComponent23is_mqtt_logging_enabledEv">
+<span id="esphomelib::LogComponent::is_mqtt_logging_enabledC"></span><span class="target" id="classesphomelib_1_1_log_component_1a27cbb4e51ff751a31964222103b24843"></span>bool <code class="descname">is_mqtt_logging_enabled</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib12LogComponent23is_mqtt_logging_enabledEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Whether logging to MQTT is enabled. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib12LogComponent18get_tx_buffer_sizeEv">
+<span id="esphomelib::LogComponent::get_tx_buffer_sizeC"></span><span class="target" id="classesphomelib_1_1_log_component_1ab15ce56e96e4627f19cad5bdd5440623"></span>size_t <code class="descname">get_tx_buffer_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib12LogComponent18get_tx_buffer_sizeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12LogComponent12log_vprintf_E11ESPLogLevelRKNSt6stringEPKc7va_list">
+<span id="esphomelib::LogComponent::log_vprintf___ESPLogLevel.ssCR.cCP.va_list"></span><span class="target" id="classesphomelib_1_1_log_component_1a2eaba349b7c7bede8ec9f08b91191094"></span>int <code class="descname">log_vprintf_</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv211ESPLogLevel" title="ESPLogLevel">ESPLogLevel</a> <em>level</em>, <em class="property">const</em> std::string &amp;<em>tag</em>, <em class="property">const</em> char *<em>format</em>, va_list <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent12log_vprintf_E11ESPLogLevelRKNSt6stringEPKc7va_list" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12LogComponent10baud_rate_E">
+<span id="esphomelib::LogComponent::baud_rate___uint32_t"></span><span class="target" id="classesphomelib_1_1_log_component_1a7d9b91e63023345ed9f30b33f82bf88e"></span>uint32_t <code class="descname">baud_rate_</code><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent10baud_rate_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12LogComponent10tx_buffer_E">
+<span id="esphomelib::LogComponent::tx_buffer___std::vector:c:"></span><span class="target" id="classesphomelib_1_1_log_component_1adfaf04c4b7db0495282f53a065ecf2a4"></span>std::vector&lt;char&gt; <code class="descname">tx_buffer_</code><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent10tx_buffer_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12LogComponent19mqtt_logging_topic_E">
+<span id="esphomelib::LogComponent::mqtt_logging_topic___ss"></span><span class="target" id="classesphomelib_1_1_log_component_1a1d83be9f345121e883d904bacce901a8"></span>std::string <code class="descname">mqtt_logging_topic_</code><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent19mqtt_logging_topic_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12LogComponent21mqtt_logging_enabled_E">
+<span id="esphomelib::LogComponent::mqtt_logging_enabled___b"></span><span class="target" id="classesphomelib_1_1_log_component_1a66a04e25746f968e1d7334740f458707"></span>bool <code class="descname">mqtt_logging_enabled_</code> = {true}<a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent21mqtt_logging_enabled_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12LogComponent17global_log_level_E">
+<span id="esphomelib::LogComponent::global_log_level___ESPLogLevel"></span><span class="target" id="classesphomelib_1_1_log_component_1a316d815f5402ede199e8a9d7c662948c"></span><a class="reference internal" href="#_CPPv211ESPLogLevel" title="ESPLogLevel">ESPLogLevel</a> <code class="descname">global_log_level_</code> = {ESPHOMELIB_LOG_LEVEL}<a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent17global_log_level_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12LogComponent11log_levels_E">
+<span id="esphomelib::LogComponent::log_levels___std::unordered_map:ss.ESPLogLevel:"></span><span class="target" id="classesphomelib_1_1_log_component_1a4c8fc9405981ebef6a5e4fd0db2d8053"></span>std::unordered_map&lt;std::string, <a class="reference internal" href="#_CPPv211ESPLogLevel" title="ESPLogLevel">ESPLogLevel</a>&gt; <code class="descname">log_levels_</code><a class="headerlink" href="#_CPPv2N10esphomelib12LogComponent11log_levels_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Core</a><ul>
+      <li>Previous: <a href="helpers.html" title="previous chapter">Helpers</a></li>
+      <li>Next: <a href="power-supply.html" title="next chapter">Power Supply</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/core/log.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

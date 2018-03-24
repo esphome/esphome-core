@@ -12,23 +12,15 @@ namespace esphomelib {
 
 namespace output {
 
-/** GPIOBinaryOutputComponent - Simple binary output component for a GPIO pin.
+/** Simple binary output component for a GPIO pin.
  *
  * This component allows you to control a GPIO pin as a switch.
- *
- * Example:
- *
- * app.make_gpio_binary_output(33);
- *
- * or for setting input pinMode:
- *
- * app.make_gpio_binary_output(GPIOOutputPin(33, OUTPUT_OPEN_DRAIN));
  *
  * Note that with this output component you actually have two ways of inverting the output:
  * either through the GPIOOutputPin, or the BinaryOutput API. You can use either one of these.
  *
  * This is only an *output component*, not a *switch*, if what you want is a switch, take a look
- * at app.make_gpio_switch();
+ * at App.make_gpio_switch();
  */
 class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
  public:

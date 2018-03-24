@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace light {
 
-/** LightColorValues - This class represents the color state for a light object.
+/** This class represents the color state for a light object.
  *
  * All values in this class are represented using floats in the range from 0.0 (off) to 1.0 (on).
  * Not all values have to be populated though, for example a simple monochromatic light only needs

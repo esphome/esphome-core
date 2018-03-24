@@ -16,7 +16,7 @@ namespace light {
 
 class LightState;
 
-/** LightEffect - Base-class for all light effects.
+/** Base-class for all light effects.
  *
  * In order to create a custom effect, first create a subclass implementing apply_effect and optionally initialize
  * which both can use the provided LightState to set light colors and/or start transitions. Next, override get_name()

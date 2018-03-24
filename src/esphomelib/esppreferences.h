@@ -15,8 +15,10 @@
 
 namespace esphomelib {
 
+/// Helper class to allow easy access to non-volatile storage like SPIFFS to save preferences.
 class ESPPreferences {
  public:
+  /// Start the preferences object with the specified app name.
   void begin(const std::string &name);
 
   size_t put_bool(const std::string &friendly_name, const std::string &key, bool value);

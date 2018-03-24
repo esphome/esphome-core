@@ -1,0 +1,234 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Power Supply &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Input" href="../input/index.html" />
+    <link rel="prev" title="Logging Engine" href="log.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="power-supply">
+<h1>Power Supply<a class="headerlink" href="#power-supply" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Basic</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">power_supply</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_power_supply</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+<span class="c1">// Inverted, for ATX</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">atx</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_power_supply</span><span class="p">(</span><span class="n">GPIOOutputPin</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">,</span> <span class="nb">true</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="powersupplycomponent">
+<h3>PowerSupplyComponent<a class="headerlink" href="#powersupplycomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponentE">
+<span id="esphomelib::PowerSupplyComponent"></span><span class="target" id="classesphomelib_1_1_power_supply_component"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">PowerSupplyComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This class represents an power supply. </p>
+<p>The power supply will automatically be turned on if a component requests high power and will automatically be turned off again keep_on_time (ms) after the last high-power request is cancelled. Aditionally, an enable_time (ms) can be specified because many power supplies only actually provide high-power output after a few milliseconds.</p>
+<p>Use the pin argument of the <a class="reference internal" href="application.html#classesphomelib_1_1_application"><span class="std std-ref">Application</span></a> helper to enable inverted mode. For example most ATX power supplies operate in inverted mode, so to turn them on you have to pull the pin LOW.</p>
+<p>To request high power mode, a component must use the <a class="reference internal" href="#classesphomelib_1_1_power_supply_component_1a508d617c69af13dc591bca58dc1eb487"><span class="std std-ref">request_high_power()</span></a> function to register itself as needing high power mode. Once the high power mode is no longer required the component can use <a class="reference internal" href="#classesphomelib_1_1_power_supply_component_1a406baa3aeb9e641c54e3430c2f814cb9"><span class="std std-ref">unrequest_high_power()</span></a> to unregister its high power mode. IMPORTANT: An component should NOT hold multiple requests to the same power supply, as the <a class="reference internal" href="#classesphomelib_1_1_power_supply_component"><span class="std std-ref">PowerSupplyComponent</span></a> only holds an internal counter of how many high power requests have been made.</p>
+<p>Usually though, all this should actually be handled by BinaryOutput and FloatOutput, since using this class correctly is not too easy. </p>
+<p>Inherits from <a class="reference internal" href="component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent20PowerSupplyComponentE13GPIOOutputPin8uint32_t8uint32_t">
+<span id="esphomelib::PowerSupplyComponent::PowerSupplyComponent__GPIOOutputPin.uint32_t.uint32_t"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a28f0aea0744051cba4520a0267bc67a4"></span><code class="descname">PowerSupplyComponent</code><span class="sig-paren">(</span><a class="reference internal" href="helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> <em>pin</em>, uint32_t <em>enable_time</em> = 20, uint32_t <em>keep_on_time</em> = 10000<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent20PowerSupplyComponentE13GPIOOutputPin8uint32_t8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates the <a class="reference internal" href="#classesphomelib_1_1_power_supply_component"><span class="std std-ref">PowerSupplyComponent</span></a>. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">pin</span></code>: The pin of the power supply control wire. </li>
+<li><code class="docutils literal"><span class="pre">enable_time</span></code>: The time in milliseconds the power supply requires for power up. The thread will block in the meantime </li>
+<li><code class="docutils literal"><span class="pre">keep_on_time</span></code>: The time in milliseconds the power supply should be kept on after the last high-power request. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent16set_keep_on_timeE8uint32_t">
+<span id="esphomelib::PowerSupplyComponent::set_keep_on_time__uint32_t"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a91a39f7ccd63b437b1e8e7255c0ed713"></span>void <code class="descname">set_keep_on_time</code><span class="sig-paren">(</span>uint32_t <em>keep_on_time</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent16set_keep_on_timeE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the time in milliseconds the power supply should be kept on for after the last high-power request. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent7set_pinERK13GPIOOutputPin">
+<span id="esphomelib::PowerSupplyComponent::set_pin__GPIOOutputPinCR"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1aaafb4c168066a3dbb573cc9674c63be9"></span>void <code class="descname">set_pin</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> &amp;<em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent7set_pinERK13GPIOOutputPin" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the pin for the power supply control wire. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent15set_enable_timeE8uint32_t">
+<span id="esphomelib::PowerSupplyComponent::set_enable_time__uint32_t"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a28ca8d360170e6718a51cb6412421604"></span>void <code class="descname">set_enable_time</code><span class="sig-paren">(</span>uint32_t <em>enable_time</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent15set_enable_timeE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the time in milliseconds the power supply needs for power-up. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib20PowerSupplyComponent10is_enabledEv">
+<span id="esphomelib::PowerSupplyComponent::is_enabledC"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1aa22356d5b64226854e259844d0ba9ee3"></span>bool <code class="descname">is_enabled</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib20PowerSupplyComponent10is_enabledEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Is this power supply currently on? </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent18request_high_powerEv">
+<span id="esphomelib::PowerSupplyComponent::request_high_power"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a508d617c69af13dc591bca58dc1eb487"></span>void <code class="descname">request_high_power</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent18request_high_powerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Request high power mode. Use <a class="reference internal" href="#classesphomelib_1_1_power_supply_component_1a406baa3aeb9e641c54e3430c2f814cb9"><span class="std std-ref">unrequest_high_power()</span></a> to remove this request. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent20unrequest_high_powerEv">
+<span id="esphomelib::PowerSupplyComponent::unrequest_high_power"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a406baa3aeb9e641c54e3430c2f814cb9"></span>void <code class="descname">unrequest_high_power</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent20unrequest_high_powerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Un-request high power mode. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent5setupEv">
+<span id="esphomelib::PowerSupplyComponent::setup"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a39ecd3a608ecc7399fff3ba4a0e2e308"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Register callbacks. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib20PowerSupplyComponent18get_setup_priorityEv">
+<span id="esphomelib::PowerSupplyComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a5c50e387b29bdadf956eeb9ea40c8e6a"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib20PowerSupplyComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Hardware setup priority (+1). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent7get_pinEv">
+<span id="esphomelib::PowerSupplyComponent::get_pin"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1ad656b484aa578c84781dbd24e32f9e79"></span><a class="reference internal" href="helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> &amp;<code class="descname">get_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent7get_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the power supply control wire pin, use this for inverted mode, etc. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib20PowerSupplyComponent16get_keep_on_timeEv">
+<span id="esphomelib::PowerSupplyComponent::get_keep_on_timeC"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a0a029aedd9e9997dd0e4ec74f70e63a9"></span>uint32_t <code class="descname">get_keep_on_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib20PowerSupplyComponent16get_keep_on_timeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the keep on time. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib20PowerSupplyComponent15get_enable_timeEv">
+<span id="esphomelib::PowerSupplyComponent::get_enable_timeC"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a10db69f506728bcc63bd2882571f4e55"></span>uint32_t <code class="descname">get_enable_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib20PowerSupplyComponent15get_enable_timeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the enable time. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent4pin_E">
+<span id="esphomelib::PowerSupplyComponent::pin___GPIOOutputPin"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a2adcef4c940bfebe4f31f11e9e25b150"></span><a class="reference internal" href="helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> <code class="descname">pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent4pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent8enabled_E">
+<span id="esphomelib::PowerSupplyComponent::enabled___b"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1ab87bc4813e1328b0243d2baf627372e4"></span>bool <code class="descname">enabled_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent8enabled_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent12enable_time_E">
+<span id="esphomelib::PowerSupplyComponent::enable_time___uint32_t"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1ab7c072e294c8d16ae963a57bc39a4ac9"></span>uint32_t <code class="descname">enable_time_</code><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent12enable_time_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent13keep_on_time_E">
+<span id="esphomelib::PowerSupplyComponent::keep_on_time___uint32_t"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a888bb0f79fde0ee2240875da40b56ab1"></span>uint32_t <code class="descname">keep_on_time_</code><a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent13keep_on_time_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib20PowerSupplyComponent16active_requests_E">
+<span id="esphomelib::PowerSupplyComponent::active_requests___int16_t"></span><span class="target" id="classesphomelib_1_1_power_supply_component_1a26e729374e542b78cff0a5e47e228d48"></span>int16_t <code class="descname">active_requests_</code> = {0}<a class="headerlink" href="#_CPPv2N10esphomelib20PowerSupplyComponent16active_requests_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Core</a><ul>
+      <li>Previous: <a href="log.html" title="previous chapter">Logging Engine</a></li>
+      <li>Next: <a href="../input/index.html" title="next chapter">Input</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/core/power-supply.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

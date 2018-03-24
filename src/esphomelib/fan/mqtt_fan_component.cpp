@@ -25,7 +25,7 @@ std::string MQTTFanComponent::component_type() const {
   return "fan";
 }
 void MQTTFanComponent::setup() {
-  assert_not_nullptr(this->state_);
+  assert(this->state_ != nullptr);
   ESP_LOGD(TAG, "Setting up MQTT fan...");
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
@@ -79,7 +79,7 @@ void MQTTFanComponent::setup() {
     });
   }
 
-  this->state_->add_send_callback([this]() { this->next_send_ = true; });
+  this->state_->add_on_receive_backend_state_callback([this]() { this->next_send_ = true; });
 
   this->state_->load_from_preferences(this->friendly_name_);
 }

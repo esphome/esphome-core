@@ -21,7 +21,7 @@ const std::string UNIT_OF_MEASUREMENT_PERCENT = "%";
 const std::string UNIT_OF_MEASUREMENT_VOLT = "V";
 const std::string UNIT_OF_MEASUREMENT_METER = "m";
 
-// Home Assistant will set this itself because of unit of measurement.
+/// Home Assistant will set this itself because of unit of measurement.
 const std::string ICON_TEMPERATURE = "";
 const std::string ICON_HUMIDITY = "mdi:water-percent";
 const std::string ICON_VOLTAGE = "mdi:flash";

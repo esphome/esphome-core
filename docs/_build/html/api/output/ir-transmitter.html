@@ -1,0 +1,594 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>IR Transmitter &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ESP32 LEDC Output" href="ledc.html" />
+    <link rel="prev" title="GPIO Binary Output" href="gpio-binary.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ir-transmitter">
+<h1>IR Transmitter<a class="headerlink" href="#ir-transmitter" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Create the hub</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">ir</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_ir_transmitter_component</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span>
+<span class="c1">// Create switches</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">panasonic_on</span> <span class="o">=</span> <span class="n">ir</span><span class="o">-&gt;</span><span class="n">create_transmitter</span><span class="p">(</span><span class="n">SendData</span><span class="o">::</span><span class="n">from_panasonic</span><span class="p">(</span><span class="mh">0x4004</span><span class="p">,</span> <span class="mh">0x100BCBD</span><span class="p">).</span><span class="n">repeat</span><span class="p">(</span><span class="mi">25</span><span class="p">));</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_mqtt_switch_for</span><span class="p">(</span><span class="s">&quot;Panasonic TV On&quot;</span><span class="p">,</span> <span class="n">panasonic_on</span><span class="p">);</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_mqtt_switch_for</span><span class="p">(</span><span class="s">&quot;Panasonic TV Volume Up&quot;</span><span class="p">,</span> <span class="n">ir</span><span class="o">-&gt;</span><span class="n">create_transmitter</span><span class="p">(</span><span class="n">SendData</span><span class="o">::</span><span class="n">from_panasonic</span><span class="p">(</span><span class="mh">0x4004</span><span class="p">,</span> <span class="mh">0x1000405</span><span class="p">)));</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application29make_ir_transmitter_componentE7uint8_t7uint8_t7uint8_t" title="esphomelib::Application::make_ir_transmitter_component"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_ir_transmitter_component()</span></code></a> and <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application20make_mqtt_switch_forERKNSt6stringEPN15switch_platform6SwitchE" title="esphomelib::Application::make_mqtt_switch_for"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_mqtt_switch_for()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="irtransmittercomponent">
+<h3>IRTransmitterComponent<a class="headerlink" href="#irtransmittercomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponentE">
+<span id="esphomelib::output::IRTransmitterComponent"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component"></span><em class="property">class </em><code class="descclassname">esphomelib::output::</code><code class="descname">IRTransmitterComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This is an IR Transmitter hub using the ESP32 RMT peripheral. </p>
+<p>With it you can send out IR commands from different vendors and have them appear as switches in Home Assistant. </p>
+<p>Inherits from <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent22IRTransmitterComponentE13GPIOOutputPin7uint8_t7uint8_t">
+<span id="esphomelib::output::IRTransmitterComponent::IRTransmitterComponent__GPIOOutputPin.uint8_t.uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a46f8ba66c640da23df2f72ea92fd96cd"></span><code class="descname">IRTransmitterComponent</code><span class="sig-paren">(</span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> <em>pin</em>, uint8_t <em>carrier_duty_percent</em> = 50, uint8_t <em>clock_divider</em> = DEFAULT_CLOCK_DIVIDER<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent22IRTransmitterComponentE13GPIOOutputPin7uint8_t7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the IR Transmitter with the specified pin (can be inverted). </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">pin</span></code>: The pin for this IR Transmitter. </li>
+<li><code class="docutils literal"><span class="pre">carrier_duty_percent</span></code>: The duty percentage (from 0-100) for this transmitter. </li>
+<li><code class="docutils literal"><span class="pre">clock_divider</span></code>: The clock divider used. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent18create_transmitterERKN2ir8SendDataE">
+<span id="esphomelib::output::IRTransmitterComponent::create_transmitter__ir::SendDataCR"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a8a132c338214ba7cb34e8f1351e8065c"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output22IRTransmitterComponentE" title="esphomelib::output::IRTransmitterComponent">IRTransmitterComponent</a>::<a class="reference internal" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitterE" title="esphomelib::output::IRTransmitterComponent::DataTransmitter">DataTransmitter</a> *<code class="descname">create_transmitter</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib6output2irE" title="esphomelib::output::ir">ir</a>::<a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> &amp;<em>send_data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent18create_transmitterERKN2ir8SendDataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Create a <a class="reference internal" href="#classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter"><span class="std std-ref">DataTransmitter</span></a> from the specified SendData and register it in the transmitter. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>A <a class="reference internal" href="#classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter"><span class="std std-ref">DataTransmitter</span></a> which can be used as a Switch. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">send_data</span></code>: The SendData. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent11set_channelE13rmt_channel_t">
+<span id="esphomelib::output::IRTransmitterComponent::set_channel__rmt_channel_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a1bc6e9402fd47a7a7264394b8c263103"></span>void <code class="descname">set_channel</code><span class="sig-paren">(</span>rmt_channel_t <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent11set_channelE13rmt_channel_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the RMT channel used. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent7set_pinERK13GPIOOutputPin">
+<span id="esphomelib::output::IRTransmitterComponent::set_pin__GPIOOutputPinCR"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a4d73e7e1aca1d67798c51f2934873245"></span>void <code class="descname">set_pin</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> &amp;<em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent7set_pinERK13GPIOOutputPin" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the pin used. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent24set_carrier_duty_percentE7uint8_t">
+<span id="esphomelib::output::IRTransmitterComponent::set_carrier_duty_percent__uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1aa8d531b731927fde120f5bee538efc90"></span>void <code class="descname">set_carrier_duty_percent</code><span class="sig-paren">(</span>uint8_t <em>carrier_duty_percent</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent24set_carrier_duty_percentE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the carrier duty percentage (from 0-100). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent17set_clock_dividerE7uint8_t">
+<span id="esphomelib::output::IRTransmitterComponent::set_clock_divider__uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1ac1290fd1f2ec347a843cd8d748d87c2a"></span>void <code class="descname">set_clock_divider</code><span class="sig-paren">(</span>uint8_t <em>clock_divider</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent17set_clock_dividerE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the clock divier for RMT. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent5setupEv">
+<span id="esphomelib::output::IRTransmitterComponent::setup"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a35cc8196dd5bbcb4d4f5ccd86256de65"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup the RMT peripheral. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22IRTransmitterComponent18get_setup_priorityEv">
+<span id="esphomelib::output::IRTransmitterComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1ad14dde9b2c3f879abd0b41d5317dfaf1"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22IRTransmitterComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>HARDWARE_LATE setup priority. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent4sendERN2ir8SendDataE">
+<span id="esphomelib::output::IRTransmitterComponent::send__ir::SendDataR"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a74d820319b47af193fed2a88c1b24977"></span>void <code class="descname">send</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib6output2irE" title="esphomelib::output::ir">ir</a>::<a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> &amp;<em>send_data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent4sendERN2ir8SendDataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22IRTransmitterComponent11get_channelEv">
+<span id="esphomelib::output::IRTransmitterComponent::get_channelC"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1abd0053fa643d69bf93ce40a74e2e4b54"></span>rmt_channel_t <code class="descname">get_channel</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22IRTransmitterComponent11get_channelEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the RMT channel used. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent7get_pinEv">
+<span id="esphomelib::output::IRTransmitterComponent::get_pin"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a7d691788b09b9dfcb2a14fcca07bd6e8"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> <code class="descname">get_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent7get_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the pin used. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22IRTransmitterComponent17get_clock_dividerEv">
+<span id="esphomelib::output::IRTransmitterComponent::get_clock_dividerC"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1aa6daac787972e1b587b96eb2d0fc762f"></span>uint8_t <code class="descname">get_clock_divider</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22IRTransmitterComponent17get_clock_dividerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the clock divider for RMT: </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22IRTransmitterComponent24get_carrier_duty_percentEv">
+<span id="esphomelib::output::IRTransmitterComponent::get_carrier_duty_percentC"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a1caf54d8e164a0a9faa671e984f34874"></span>uint8_t <code class="descname">get_carrier_duty_percent</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22IRTransmitterComponent24get_carrier_duty_percentEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the carrier duty percentage. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent25require_carrier_frequencyE8uint32_t">
+<span id="esphomelib::output::IRTransmitterComponent::require_carrier_frequency__uint32_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a02055f885c13206f3dd069a1085c8963"></span>void <code class="descname">require_carrier_frequency</code><span class="sig-paren">(</span>uint32_t <em>carrier_frequency</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent25require_carrier_frequencyE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup the RMT peripheral for the specified carrier frequency, if it’s already the used frequency, does nothing. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent19get_ticks_for_10_usEv">
+<span id="esphomelib::output::IRTransmitterComponent::get_ticks_for_10_us"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a8fb936fe8f7996eefb78941f03ea7641"></span>uint16_t <code class="descname">get_ticks_for_10_us</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent19get_ticks_for_10_usEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the number of ticks (from the clock divider) for 10 µs. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent13configure_rmtEv">
+<span id="esphomelib::output::IRTransmitterComponent::configure_rmt"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1addc1b9b205da15022e4ab29623cd8f7b"></span>void <code class="descname">configure_rmt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent13configure_rmtEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Configure the RMT peripheral using the internal information. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent8channel_E">
+<span id="esphomelib::output::IRTransmitterComponent::channel___rmt_channel_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a42294f09cdbba58dd616c7a99ee41144"></span>rmt_channel_t <code class="descname">channel_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent8channel_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent4pin_E">
+<span id="esphomelib::output::IRTransmitterComponent::pin___GPIOOutputPin"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a9e41fa18e1dca21c7bd1e26d999d05e4"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> <code class="descname">pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent4pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent14clock_divider_E">
+<span id="esphomelib::output::IRTransmitterComponent::clock_divider___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1adf1af59d8f1d5b758d0d0d6528fa376b"></span>uint8_t <code class="descname">clock_divider_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent14clock_divider_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent23last_carrier_frequency_E">
+<span id="esphomelib::output::IRTransmitterComponent::last_carrier_frequency___uint32_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a3f5309e5ec14e2d9a45102cd8870eb1a"></span>uint32_t <code class="descname">last_carrier_frequency_</code> = {DEFAULT_CARRIER_FREQUENCY_HZ}<a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent23last_carrier_frequency_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent21carrier_duty_percent_E">
+<span id="esphomelib::output::IRTransmitterComponent::carrier_duty_percent___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1a102f82885f6fe30d52a1433c8046e9f7"></span>uint8_t <code class="descname">carrier_duty_percent_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent21carrier_duty_percent_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitterE">
+<span id="esphomelib::output::IRTransmitterComponent::DataTransmitter"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter"></span><em class="property">class </em><code class="descname">DataTransmitter</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Internal helper class that exposes a SendData as a Switch. </p>
+<p>Inherits from <a class="reference internal" href="../switch/index.html#classesphomelib_1_1switch__platform_1_1_switch"><span class="std std-ref">esphomelib::switch_platform::Switch</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter15DataTransmitterERKN2ir8SendDataEP22IRTransmitterComponent">
+<span id="esphomelib::output::IRTransmitterComponent::DataTransmitter::DataTransmitter__ir::SendDataCR.IRTransmitterComponentP"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter_1a99421a2fa5307589935b548363e4878b"></span><code class="descname">DataTransmitter</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib6output2irE" title="esphomelib::output::ir">ir</a>::<a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> &amp;<em>send_data</em>, <a class="reference internal" href="#_CPPv2N10esphomelib6output22IRTransmitterComponentE" title="esphomelib::output::IRTransmitterComponent">IRTransmitterComponent</a> *<em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter15DataTransmitterERKN2ir8SendDataEP22IRTransmitterComponent" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter7turn_onEv">
+<span id="esphomelib::output::IRTransmitterComponent::DataTransmitter::turn_on"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter_1a7f1c3cd20174d5af807325c944a55d71"></span>void <code class="descname">turn_on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter7turn_onEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Turn this switch on. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter8turn_offEv">
+<span id="esphomelib::output::IRTransmitterComponent::DataTransmitter::turn_off"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter_1abbe3f1d7b7f827ab7274e7da1ec91000"></span>void <code class="descname">turn_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter8turn_offEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Turn this switch off. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter4iconEv">
+<span id="esphomelib::output::IRTransmitterComponent::DataTransmitter::icon"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter_1a9716fce8bd89e6cbfe81cd80d8491f7e"></span>std::string <code class="descname">icon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter4iconEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override this to set the Home Assistant icon for this switch. </p>
+<p>Return “” to disable this feature.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The icon of this switch, for example “mdi:fan”. </dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter10send_data_E">
+<span id="esphomelib::output::IRTransmitterComponent::DataTransmitter::send_data___ir::SendData"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter_1a27bedac8d7cc08380c5e7d7a2ec8ebdc"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output2irE" title="esphomelib::output::ir">ir</a>::<a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> <code class="descname">send_data_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter10send_data_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter7parent_E">
+<span id="esphomelib::output::IRTransmitterComponent::DataTransmitter::parent___IRTransmitterComponentP"></span><span class="target" id="classesphomelib_1_1output_1_1_i_r_transmitter_component_1_1_data_transmitter_1a137c40114e613711c465308491bff817"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output22IRTransmitterComponentE" title="esphomelib::output::IRTransmitterComponent">IRTransmitterComponent</a> *<code class="descname">parent_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22IRTransmitterComponent15DataTransmitter7parent_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output16next_rmt_channelE">
+<span id="esphomelib::output::next_rmt_channel__rmt_channel_t"></span><span class="target" id="ir__transmitter__component_8cpp_1a5460b9e8311a6688a0c6fed9a26fef96"></span>rmt_channel_t <code class="descclassname">esphomelib::output::</code><code class="descname">next_rmt_channel</code> = RMT_CHANNEL_0<a class="headerlink" href="#_CPPv2N10esphomelib6output16next_rmt_channelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="senddata">
+<h3>SendData<a class="headerlink" href="#senddata" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="_CPPv2N10esphomelib6output2irE">
+<span id="esphomelib::output::ir"></span><span class="target" id="namespaceesphomelib_1_1output_1_1ir"></span><em class="property">namespace </em><code class="descclassname">esphomelib::output::</code><code class="descname">ir</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2irE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Namespace storing constants for vendor IR formats. </p>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output2ir8SendDataE">
+<span id="esphomelib::output::ir::SendData"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data"></span><em class="property">struct </em><code class="descname">SendData</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;ir_transmitter_component.h&gt;</em><p>Struct that stores the raw data for sending out IR codes. </p>
+<p>Internally it stores some fields like carrier frequency and a data field, that stores the raw IR codes as an array. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData12get_rmt_dataE8uint16_t">
+<span id="esphomelib::output::ir::SendData::get_rmt_data__uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a0577e0c8cef7d81c7c3605040feb3b23"></span>std::vector&lt;rmt_item32_t&gt; <code class="descname">get_rmt_data</code><span class="sig-paren">(</span>uint16_t <em>ticks_for_10_us</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData12get_rmt_dataE8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the internal data as an RMT interface-compatible vector. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData4markE8uint16_t">
+<span id="esphomelib::output::ir::SendData::mark__uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1af230597016e44601aef04df5f06db402"></span>void <code class="descname">mark</code><span class="sig-paren">(</span>uint16_t <em>duration_us</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData4markE8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Push back a high value for the specified duration to the data. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData5spaceE8uint16_t">
+<span id="esphomelib::output::ir::SendData::space__uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a661f46b207125bbeb1ef9e24d53468bb"></span>void <code class="descname">space</code><span class="sig-paren">(</span>uint16_t <em>duration_us</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData5spaceE8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Push back a low value for the specified duration to the data. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData8add_itemE8uint16_t8uint16_t">
+<span id="esphomelib::output::ir::SendData::add_item__uint16_t.uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a70a15f5a3411341e9f62d68b1ecf425f"></span>void <code class="descname">add_item</code><span class="sig-paren">(</span>uint16_t <em>high_us</em>, uint16_t <em>low_us</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData8add_itemE8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a high+low value for the specified durations to the data. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData6repeatE8uint16_t8uint16_t">
+<span id="esphomelib::output::ir::SendData::repeat__uint16_t.uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a83a4b127aab060f89db8278eb49d1d61"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> <code class="descname">repeat</code><span class="sig-paren">(</span>uint16_t <em>times</em>, uint16_t <em>wait_us</em> = 30000<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData6repeatE8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Repeat this <a class="reference internal" href="#structesphomelib_1_1output_1_1ir_1_1_send_data"><span class="std std-ref">SendData</span></a> with the specified wait time between sends. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output2ir8SendData15total_length_msEv">
+<span id="esphomelib::output::ir::SendData::total_length_msC"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a58266de6e1f4b58a960dacb87092efba"></span>uint32_t <code class="descname">total_length_ms</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output2ir8SendData15total_length_msEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Calculate the total length required to run this IR code. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData17carrier_frequencyE">
+<span id="esphomelib::output::ir::SendData::carrier_frequency__uint32_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a53e5478499d3caff29249e38da59f489"></span>uint32_t <code class="descname">carrier_frequency</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData17carrier_frequencyE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The carrier frequency of the IR protocol. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData4dataE">
+<span id="esphomelib::output::ir::SendData::data__std::vector:int16_t:"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a62b3f93cc64d1426054b85cf79ccd56d"></span>std::vector&lt;int16_t&gt; <code class="descname">data</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Raw IR data, negative means off, positive means on. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData12repeat_timesE">
+<span id="esphomelib::output::ir::SendData::repeat_times__uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1adcfa9bdec826ba8eb955f423c00e3984"></span>uint16_t <code class="descname">repeat_times</code> = {1}<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData12repeat_timesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>How often to repeat this data. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData11repeat_waitE">
+<span id="esphomelib::output::ir::SendData::repeat_wait__uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1ac395dbf216b9b561b69dfb7dcb16fb9a"></span>uint16_t <code class="descname">repeat_wait</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData11repeat_waitE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>How long to wait between repeats. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Static Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData8from_necE8uint16_t8uint16_t">
+<span id="esphomelib::output::ir::SendData::from_nec__uint16_t.uint16_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a60c3dc3038fdd66e08a4081cb6018e06"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> <code class="descname">from_nec</code><span class="sig-paren">(</span>uint16_t <em>address</em>, uint16_t <em>command</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData8from_necE8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#structesphomelib_1_1output_1_1ir_1_1_send_data"><span class="std std-ref">SendData</span></a> from an NEC address+command. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData7from_lgE8uint32_t7uint8_t">
+<span id="esphomelib::output::ir::SendData::from_lg__uint32_t.uint8_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1a152035bedb2209a2a8d3b45f0836b0b3"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> <code class="descname">from_lg</code><span class="sig-paren">(</span>uint32_t <em>data</em>, uint8_t <em>nbits</em> = 28<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData7from_lgE8uint32_t7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#structesphomelib_1_1output_1_1ir_1_1_send_data"><span class="std std-ref">SendData</span></a> from LG data (with an optional number of bits). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData9from_sonyE8uint32_t7uint8_t">
+<span id="esphomelib::output::ir::SendData::from_sony__uint32_t.uint8_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1ab86cfc52e546d9730720c3476661f8b1"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> <code class="descname">from_sony</code><span class="sig-paren">(</span>uint32_t <em>data</em>, uint8_t <em>nbits</em> = 12<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData9from_sonyE8uint32_t7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#structesphomelib_1_1output_1_1ir_1_1_send_data"><span class="std std-ref">SendData</span></a> from Sony data (with an optional number of bits). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData14from_panasonicE8uint16_t8uint32_t">
+<span id="esphomelib::output::ir::SendData::from_panasonic__uint16_t.uint32_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1ad49eeaa17af197f3fcb24c310613d2b6"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> <code class="descname">from_panasonic</code><span class="sig-paren">(</span>uint16_t <em>address</em>, uint32_t <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData14from_panasonicE8uint16_t8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#structesphomelib_1_1output_1_1ir_1_1_send_data"><span class="std std-ref">SendData</span></a> from Panasonic address+data. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output2ir8SendData8from_rawERNSt6vectorIiEE8uint32_t">
+<span id="esphomelib::output::ir::SendData::from_raw__std::vector:i:R.uint32_t"></span><span class="target" id="structesphomelib_1_1output_1_1ir_1_1_send_data_1ae7bcf0492b990c6aa4c1a0a95c7e8636"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output2ir8SendDataE" title="esphomelib::output::ir::SendData">SendData</a> <code class="descname">from_raw</code><span class="sig-paren">(</span>std::vector&lt;int&gt; &amp;<em>raw_data</em>, uint32_t <em>carrier_frequency</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir8SendData8from_rawERNSt6vectorIiEE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#structesphomelib_1_1output_1_1ir_1_1_send_data"><span class="std std-ref">SendData</span></a> from a raw data array with specified carrier frequency.. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv2N10esphomelib6output2ir2lgE">
+<span id="esphomelib::output::ir::lg"></span><span class="target" id="namespaceesphomelib_1_1output_1_1ir_1_1lg"></span><em class="property">namespace </em><code class="descname">lg</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir2lgE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Variables</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir2lg20CARRIER_FREQUENCY_HZE">
+<span id="esphomelib::output::ir::lg::CARRIER_FREQUENCY_HZ__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a92167afc2cdae55b91e962f9f938a58c"></span><em class="property">const</em> uint32_t <code class="descname">CARRIER_FREQUENCY_HZ</code> = 38000<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir2lg20CARRIER_FREQUENCY_HZE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir2lg14HEADER_HIGH_USE">
+<span id="esphomelib::output::ir::lg::HEADER_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1afd560301a0b24f5de55c858f34a71e72"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_HIGH_US</code> = 8000<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir2lg14HEADER_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir2lg13HEADER_LOW_USE">
+<span id="esphomelib::output::ir::lg::HEADER_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a1b209b9623f0aad5d9f9b43fba1c8daa"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_LOW_US</code> = 4000<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir2lg13HEADER_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir2lg11BIT_HIGH_USE">
+<span id="esphomelib::output::ir::lg::BIT_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a7c860da0386b2da040804b9a6576aae4"></span><em class="property">const</em> uint32_t <code class="descname">BIT_HIGH_US</code> = 600<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir2lg11BIT_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir2lg14BIT_ONE_LOW_USE">
+<span id="esphomelib::output::ir::lg::BIT_ONE_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a6782abf914565866d105cc12fe772222"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ONE_LOW_US</code> = 1600<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir2lg14BIT_ONE_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir2lg15BIT_ZERO_LOW_USE">
+<span id="esphomelib::output::ir::lg::BIT_ZERO_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1aeeb8460fc79c1a7d509c1983e90f409f"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ZERO_LOW_US</code> = 550<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir2lg15BIT_ZERO_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv2N10esphomelib6output2ir3necE">
+<span id="esphomelib::output::ir::nec"></span><span class="target" id="namespaceesphomelib_1_1output_1_1ir_1_1nec"></span><em class="property">namespace </em><code class="descname">nec</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir3necE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Variables</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir3nec20CARRIER_FREQUENCY_HZE">
+<span id="esphomelib::output::ir::nec::CARRIER_FREQUENCY_HZ__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a38e45b96984f8c6b68994114f6da5da6"></span><em class="property">const</em> uint32_t <code class="descname">CARRIER_FREQUENCY_HZ</code> = 38000<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir3nec20CARRIER_FREQUENCY_HZE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir3nec14HEADER_HIGH_USE">
+<span id="esphomelib::output::ir::nec::HEADER_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1af9b64955086f502215371fcd9e0b1a10"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_HIGH_US</code> = 9000<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir3nec14HEADER_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir3nec13HEADER_LOW_USE">
+<span id="esphomelib::output::ir::nec::HEADER_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a0acbc64098a49a28617d66cd2375d9ad"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_LOW_US</code> = 4500<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir3nec13HEADER_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir3nec11BIT_HIGH_USE">
+<span id="esphomelib::output::ir::nec::BIT_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a16cb301d293d37bd0a5ccdf1da94e3f6"></span><em class="property">const</em> uint32_t <code class="descname">BIT_HIGH_US</code> = 560<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir3nec11BIT_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir3nec14BIT_ONE_LOW_USE">
+<span id="esphomelib::output::ir::nec::BIT_ONE_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a6450e4212125e69b3667316e29ef573e"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ONE_LOW_US</code> = 1690<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir3nec14BIT_ONE_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir3nec15BIT_ZERO_LOW_USE">
+<span id="esphomelib::output::ir::nec::BIT_ZERO_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a3fb55dc533cf94bcb8bc0ca19ed94eff"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ZERO_LOW_US</code> = 560<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir3nec15BIT_ZERO_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv2N10esphomelib6output2ir9panasonicE">
+<span id="esphomelib::output::ir::panasonic"></span><span class="target" id="namespaceesphomelib_1_1output_1_1ir_1_1panasonic"></span><em class="property">namespace </em><code class="descname">panasonic</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir9panasonicE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Variables</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir9panasonic20CARRIER_FREQUENCY_HZE">
+<span id="esphomelib::output::ir::panasonic::CARRIER_FREQUENCY_HZ__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1acdd8be83c40cc81df3a31490dc612055"></span><em class="property">const</em> uint32_t <code class="descname">CARRIER_FREQUENCY_HZ</code> = 35000<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir9panasonic20CARRIER_FREQUENCY_HZE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir9panasonic14HEADER_HIGH_USE">
+<span id="esphomelib::output::ir::panasonic::HEADER_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a5a7534986e9c96e5fafc02bfbb9f102b"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_HIGH_US</code> = 3502<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir9panasonic14HEADER_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir9panasonic13HEADER_LOW_USE">
+<span id="esphomelib::output::ir::panasonic::HEADER_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1ae049115b222e4c018a9ab890fd9b0de9"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_LOW_US</code> = 1750<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir9panasonic13HEADER_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir9panasonic11BIT_HIGH_USE">
+<span id="esphomelib::output::ir::panasonic::BIT_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a60c6517333e48b2800f7127d0487fbd0"></span><em class="property">const</em> uint32_t <code class="descname">BIT_HIGH_US</code> = 502<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir9panasonic11BIT_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir9panasonic15BIT_ZERO_LOW_USE">
+<span id="esphomelib::output::ir::panasonic::BIT_ZERO_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1af8c549bb6a264925163669c67909c5f4"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ZERO_LOW_US</code> = 400<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir9panasonic15BIT_ZERO_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir9panasonic14BIT_ONE_LOW_USE">
+<span id="esphomelib::output::ir::panasonic::BIT_ONE_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a19fbbfcf6782cfe1072f1be539b12472"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ONE_LOW_US</code> = 1244<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir9panasonic14BIT_ONE_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv2N10esphomelib6output2ir4sonyE">
+<span id="esphomelib::output::ir::sony"></span><span class="target" id="namespaceesphomelib_1_1output_1_1ir_1_1sony"></span><em class="property">namespace </em><code class="descname">sony</code><a class="headerlink" href="#_CPPv2N10esphomelib6output2ir4sonyE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Variables</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir4sony20CARRIER_FREQUENCY_HZE">
+<span id="esphomelib::output::ir::sony::CARRIER_FREQUENCY_HZ__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1ae8aabefa68b7088dc3435de70dffca19"></span><em class="property">const</em> uint32_t <code class="descname">CARRIER_FREQUENCY_HZ</code> = 40000<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir4sony20CARRIER_FREQUENCY_HZE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir4sony14HEADER_HIGH_USE">
+<span id="esphomelib::output::ir::sony::HEADER_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a55412622b9bd127de33cd9fc2bd68eb3"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_HIGH_US</code> = 2400<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir4sony14HEADER_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir4sony13HEADER_LOW_USE">
+<span id="esphomelib::output::ir::sony::HEADER_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1abf4d743c98d08bb95443d09a5a702706"></span><em class="property">const</em> uint32_t <code class="descname">HEADER_LOW_US</code> = 600<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir4sony13HEADER_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir4sony15BIT_ONE_HIGH_USE">
+<span id="esphomelib::output::ir::sony::BIT_ONE_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1afe69abe7cb2836c27f14aaeae92f6d81"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ONE_HIGH_US</code> = 1200<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir4sony15BIT_ONE_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir4sony16BIT_ZERO_HIGH_USE">
+<span id="esphomelib::output::ir::sony::BIT_ZERO_HIGH_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a957617875331134a0a45d9a1b44fb65f"></span><em class="property">const</em> uint32_t <code class="descname">BIT_ZERO_HIGH_US</code> = 600<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir4sony16BIT_ZERO_HIGH_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output2ir4sony10BIT_LOW_USE">
+<span id="esphomelib::output::ir::sony::BIT_LOW_US__uint32_tC"></span><span class="target" id="ir__transmitter__component_8h_1a361515f09a0446e6d8fa20ad7ef28ce5"></span><em class="property">const</em> uint32_t <code class="descname">BIT_LOW_US</code> = 600<a class="headerlink" href="#_CPPv2N10esphomelib6output2ir4sony10BIT_LOW_USE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Output</a><ul>
+      <li>Previous: <a href="gpio-binary.html" title="previous chapter">GPIO Binary Output</a></li>
+      <li>Next: <a href="ledc.html" title="next chapter">ESP32 LEDC Output</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/output/ir-transmitter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

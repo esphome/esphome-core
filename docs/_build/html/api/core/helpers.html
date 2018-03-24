@@ -1,0 +1,687 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Helpers &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Logging Engine" href="log.html" />
+    <link rel="prev" title="Over-The-Air Updates" href="ota.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="helpers">
+<h1>Helpers<a class="headerlink" href="#helpers" title="Permalink to this headline">¶</a></h1>
+<p>esphomelib uses a bunch of helpers to make the library easier to use.</p>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="helpers-h">
+<h3>helpers.h<a class="headerlink" href="#helpers-h" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="_CPPv210esphomelib">
+<span id="esphomelib"></span><span class="target" id="namespaceesphomelib"></span><em class="property">namespace </em><code class="descname">esphomelib</code><a class="headerlink" href="#_CPPv210esphomelib" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt>
+<em class="property">template </em>&lt;<em class="property">typename</em> T&gt;</dt>
+<dt id="_CPPv2N10esphomelib5clampE1T1T1T">
+<span id="esphomelib::clamp__T.T.T"></span><span class="target" id="helpers_8h_1a38486dcd59fd1238d1cebdef864923e9"></span>T <code class="descname">clamp</code><span class="sig-paren">(</span>T <em>min</em>, T <em>max</em>, T <em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5clampE1T1T1T" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Clamp the value between min and max. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>val clamped in between min and max. </dd>
+<dt><strong>Template Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">T</span></code>: The input/output typename. </li>
+</ul>
+</dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">min</span></code>: The minimum value. </li>
+<li><code class="docutils literal"><span class="pre">max</span></code>: The maximum value. </li>
+<li><code class="docutils literal"><span class="pre">val</span></code>: The value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<em class="property">template </em>&lt;<em class="property">typename</em> T&gt;</dt>
+<dt id="_CPPv2N10esphomelib4lerpE1T1T1T">
+<span id="esphomelib::lerp__T.T.T"></span><span class="target" id="helpers_8h_1aebf99c58bfe80861e1876d8b292649db"></span>T <code class="descname">lerp</code><span class="sig-paren">(</span>T <em>start</em>, T <em>end</em>, T <em>completion</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib4lerpE1T1T1T" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Linearly interpolate between end start and end by completion. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The linearly interpolated value. </dd>
+<dt><strong>Template Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">T</span></code>: The input/output typename. </li>
+</ul>
+</dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">start</span></code>: The start value. </li>
+<li><code class="docutils literal"><span class="pre">end</span></code>: The end value. </li>
+<li><code class="docutils literal"><span class="pre">completion</span></code>: The completion. 0 is start value, 1 is end value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<em class="property">template </em>&lt;<em class="property">typename</em> T, <em class="property">typename</em> … <em>Args</em>&gt;</dt>
+<dt id="_CPPv2N10esphomelib11make_uniqueEDpRR4Args">
+<span id="esphomelib::make_unique__ArgsRRDp"></span><span class="target" id="helpers_8h_1a26eb8735179f75a33fc93829419bd3cd"></span>std::unique_ptr&lt;T&gt; <code class="descname">make_unique</code><span class="sig-paren">(</span>Args&amp;&amp;... <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib11make_uniqueEDpRR4Args" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>std::make_unique </p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<em class="property">template </em>&lt;<em class="property">typename</em> T&gt;</dt>
+<dt id="_CPPv2N10esphomelib22run_without_interruptsERKNSt8functionIF1TvEEE">
+<span class="target" id="helpers_8h_1a06a1fcf7407060c04f1aaa12572f27fb"></span>T <code class="descname">run_without_interrupts</code><span class="sig-paren">(</span><em class="property">const</em> std::function&lt;T<span class="sig-paren">(</span><span class="sig-paren">)</span>&gt; &amp;<em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib22run_without_interruptsERKNSt8functionIF1TvEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Variables</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib28HOSTNAME_CHARACTER_WHITELISTE">
+<span id="esphomelib::HOSTNAME_CHARACTER_WHITELIST__ssC"></span><span class="target" id="helpers_8h_1a2c9e62a6340bc2b1ed2ea6ca8c6c8071"></span><em class="property">const</em> std::string <code class="descname">HOSTNAME_CHARACTER_WHITELIST</code> = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_&quot;<a class="headerlink" href="#_CPPv2N10esphomelib28HOSTNAME_CHARACTER_WHITELISTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The characters that are allowed in a hostname. </p>
+</dd></dl>
+
+</div>
+<dl class="class">
+<dt>
+<span class="target" id="classesphomelib_1_1_callback_manager_3_01void_07_ts_8_8_8_08_4"></span><em class="property">template </em>&lt;typename… <em>Ts</em>&gt;</dt>
+<dt id="_CPPv2IEN10esphomelib15CallbackManagerIFvDp2TsEEE">
+template&lt;&gt;<br /><em class="property">class </em><code class="descname">CallbackManager</code>&lt;void<span class="sig-paren">(</span>Ts...<span class="sig-paren">)</span>&gt;<a class="headerlink" href="#_CPPv2IEN10esphomelib15CallbackManagerIFvDp2TsEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;helpers.h&gt;</em><p>Simple helper class to allow having multiple subscribers to a signal. </p>
+<p><dl class="docutils">
+<dt><strong>Template Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">Ts</span></code>: The arguments for the callback, wrapped in void(). </li>
+</ul>
+</dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib15CallbackManager3addENSt8functionIFvDp2TsEEE">
+<span class="target" id="classesphomelib_1_1_callback_manager_3_01void_07_ts_8_8_8_08_4_1a1c6485a9a98c3e6041ec61e190f7d542"></span>void <code class="descname">add</code><span class="sig-paren">(</span>std::function&lt;void<span class="sig-paren">(</span>Ts...<span class="sig-paren">)</span>&gt; <em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib15CallbackManager3addENSt8functionIFvDp2TsEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a callback to the internal callback list. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib15CallbackManager4callEDp2Ts">
+<span id="esphomelib::CallbackManager::call__TsDp"></span><span class="target" id="classesphomelib_1_1_callback_manager_3_01void_07_ts_8_8_8_08_4_1aff2e35d7f8524c2b76f66b75b010ccdd"></span>void <code class="descname">call</code><span class="sig-paren">(</span>Ts... <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib15CallbackManager4callEDp2Ts" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Call all callbacks in this manager. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib15CallbackManager10callbacks_E">
+<span class="target" id="classesphomelib_1_1_callback_manager_3_01void_07_ts_8_8_8_08_4_1a9999558bd164f1b1f6771dd329cd0880"></span>std::vector&lt;std::function&lt;void<span class="sig-paren">(</span>Ts...<span class="sig-paren">)</span>&gt;&gt; <code class="descname">callbacks_</code><a class="headerlink" href="#_CPPv2N10esphomelib15CallbackManager10callbacks_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib24ExponentialMovingAverageE">
+<span id="esphomelib::ExponentialMovingAverage"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average"></span><em class="property">class </em><code class="descname">ExponentialMovingAverage</code><a class="headerlink" href="#_CPPv2N10esphomelib24ExponentialMovingAverageE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;helpers.h&gt;</em><p>Helper class that implements an exponential moving average. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib24ExponentialMovingAverage24ExponentialMovingAverageEf">
+<span id="esphomelib::ExponentialMovingAverage::ExponentialMovingAverage__float"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average_1a0f337890bc8183b9a8d86a60846dc4f1"></span><code class="descname">ExponentialMovingAverage</code><span class="sig-paren">(</span>float <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib24ExponentialMovingAverage24ExponentialMovingAverageEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib24ExponentialMovingAverage10next_valueEf">
+<span id="esphomelib::ExponentialMovingAverage::next_value__float"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average_1a5e8e4999892f9718dfc8290f4177debd"></span>float <code class="descname">next_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib24ExponentialMovingAverage10next_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib24ExponentialMovingAverage17calculate_averageEv">
+<span id="esphomelib::ExponentialMovingAverage::calculate_average"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average_1a75034d4f81a217fc0a3197c54cb56d0f"></span>float <code class="descname">calculate_average</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib24ExponentialMovingAverage17calculate_averageEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib24ExponentialMovingAverage9set_alphaEf">
+<span id="esphomelib::ExponentialMovingAverage::set_alpha__float"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average_1a276771fa53ecddb67de1d26ee86b8dd3"></span>void <code class="descname">set_alpha</code><span class="sig-paren">(</span>float <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib24ExponentialMovingAverage9set_alphaEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib24ExponentialMovingAverage9get_alphaEv">
+<span id="esphomelib::ExponentialMovingAverage::get_alphaC"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average_1abec3fe6eb7eabc6c77fa2f839a67557e"></span>float <code class="descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib24ExponentialMovingAverage9get_alphaEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib24ExponentialMovingAverage6alpha_E">
+<span id="esphomelib::ExponentialMovingAverage::alpha___float"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average_1a69e4b7c70e90ad96287525812f4d3def"></span>float <code class="descname">alpha_</code><a class="headerlink" href="#_CPPv2N10esphomelib24ExponentialMovingAverage6alpha_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib24ExponentialMovingAverage12accumulator_E">
+<span id="esphomelib::ExponentialMovingAverage::accumulator___float"></span><span class="target" id="classesphomelib_1_1_exponential_moving_average_1a0070063724c5e5537e8f498927254798"></span>float <code class="descname">accumulator_</code><a class="headerlink" href="#_CPPv2N10esphomelib24ExponentialMovingAverage12accumulator_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt>
+<span class="target" id="classesphomelib_1_1_optional"></span><em class="property">template </em>&lt;typename <em>T</em>&gt;</dt>
+<dt id="_CPPv2N10esphomelib8OptionalE">
+<span id="esphomelib::Optional"></span><em class="property">class </em><code class="descname">Optional</code><a class="headerlink" href="#_CPPv2N10esphomelib8OptionalE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;helpers.h&gt;</em><p>Helper class to represent an optional value. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib8Optional8OptionalEv">
+<span id="esphomelib::Optional::Optional"></span><span class="target" id="classesphomelib_1_1_optional_1ae761b5ca87079161f0bdc8b49fbe6997"></span><code class="descname">Optional</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib8Optional8OptionalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct an optional value that is not defined. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib8Optional8OptionalE1T">
+<span id="esphomelib::Optional::Optional__T"></span><span class="target" id="classesphomelib_1_1_optional_1a9cfa8d1701ef331cab2bfc3e2e62513c"></span><code class="descname">Optional</code><span class="sig-paren">(</span>T <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib8Optional8OptionalE1T" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct an optional that is defined using the value. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib8OptionalptEv">
+<span id="esphomelib::Optional::pointer-operator"></span><span class="target" id="classesphomelib_1_1_optional_1a9dd540014a183209cc8b717895a55288"></span>T *<code class="descname">operator-&gt;</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib8OptionalptEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shorthand to access the value inside the optional with the arrow syntax -&gt;. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib8OptionalptEv">
+<span id="esphomelib::Optional::pointer-operatorC"></span><span class="target" id="classesphomelib_1_1_optional_1a97eedbd65730fd56fa6c5a68ca3d32e8"></span><em class="property">const</em> T *<code class="descname">operator-&gt;</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib8OptionalptEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shorthand to access the value inside the optional with the arrow syntax -&gt; for constant access. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib8OptionalcvbEv">
+<span id="esphomelib::Optional::castto-b-operatorC"></span><span class="target" id="classesphomelib_1_1_optional_1ab972c2002e5f295b75abce22ae925769"></span><code class="descname">operator bool</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib8OptionalcvbEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shorthand to check if the value inside is defined. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib8Optional7definedE">
+<span id="esphomelib::Optional::defined__b"></span><span class="target" id="classesphomelib_1_1_optional_1ae5a31ae0258f09cc305a26aa2512003e"></span>bool <code class="descname">defined</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib8Optional7definedE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib8Optional5valueE">
+<span id="esphomelib::Optional::value__T"></span><span class="target" id="classesphomelib_1_1_optional_1a73e9ee494f1e7304d57fcaea0535fdaf"></span>T <code class="descname">value</code><a class="headerlink" href="#_CPPv2N10esphomelib8Optional5valueE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt>
+<span class="target" id="classesphomelib_1_1_sliding_window_moving_average"></span><em class="property">template </em>&lt;typename <em>T</em>&gt;</dt>
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverageE">
+<span id="esphomelib::SlidingWindowMovingAverage"></span><em class="property">class </em><code class="descname">SlidingWindowMovingAverage</code><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverageE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;helpers.h&gt;</em><p>Helper class that implements a sliding window moving average. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverage26SlidingWindowMovingAverageE6size_t">
+<span id="esphomelib::SlidingWindowMovingAverage::SlidingWindowMovingAverage__s"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1abf85134268e50911ec5c444be2e58468"></span><code class="descname">SlidingWindowMovingAverage</code><span class="sig-paren">(</span>size_t <em>max_size</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverage26SlidingWindowMovingAverageE6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Create the <a class="reference internal" href="#classesphomelib_1_1_sliding_window_moving_average"><span class="std std-ref">SlidingWindowMovingAverage</span></a>. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">max_size</span></code>: The window size. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverage10next_valueE1T">
+<span id="esphomelib::SlidingWindowMovingAverage::next_value__T"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1a3f73127d39a5a65b8ed4b891abbd630a"></span>T <code class="descname">next_value</code><span class="sig-paren">(</span>T <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverage10next_valueE1T" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add value to the interval buffer. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The new average. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverage17calculate_averageEv">
+<span id="esphomelib::SlidingWindowMovingAverage::calculate_average"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1a008135ca6b8fe50daa5d03b2622da184"></span>T <code class="descname">calculate_average</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverage17calculate_averageEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the average across the sliding window. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib26SlidingWindowMovingAverage12get_max_sizeEv">
+<span id="esphomelib::SlidingWindowMovingAverage::get_max_sizeC"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1adf841e07a41a2ef5248d3b783a80ee09"></span>size_t <code class="descname">get_max_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib26SlidingWindowMovingAverage12get_max_sizeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverage12set_max_sizeE6size_t">
+<span id="esphomelib::SlidingWindowMovingAverage::set_max_size__s"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1a9af5d633d1c55cb74d877f19073a101c"></span>void <code class="descname">set_max_size</code><span class="sig-paren">(</span>size_t <em>max_size</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverage12set_max_sizeE6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverage6queue_E">
+<span id="esphomelib::SlidingWindowMovingAverage::queue___std::queue:T:"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1afcc03dcb143d0fef4aa95a5b31d579b7"></span>std::queue&lt;T&gt; <code class="descname">queue_</code><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverage6queue_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverage9max_size_E">
+<span id="esphomelib::SlidingWindowMovingAverage::max_size___s"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1ae627ddb8c6e0304f757a59e9af4316f3"></span>size_t <code class="descname">max_size_</code><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverage9max_size_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib26SlidingWindowMovingAverage4sum_E">
+<span id="esphomelib::SlidingWindowMovingAverage::sum___T"></span><span class="target" id="classesphomelib_1_1_sliding_window_moving_average_1aa4616d7f199c951cdd81c464b0f26823"></span>T <code class="descname">sum_</code><a class="headerlink" href="#_CPPv2N10esphomelib26SlidingWindowMovingAverage4sum_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="esppreferences">
+<h3>ESPPreferences<a class="headerlink" href="#esppreferences" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib14ESPPreferencesE">
+<span id="esphomelib::ESPPreferences"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">ESPPreferences</code><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferencesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper class to allow easy access to non-volatile storage like SPIFFS to save preferences. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences5beginERKNSt6stringE">
+<span id="esphomelib::ESPPreferences::begin__ssCR"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1af18ca7000052820ebfaa3454aab7e2f3"></span>void <code class="descname">begin</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences5beginERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Start the preferences object with the specified app name. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences8put_boolERKNSt6stringERKNSt6stringEb">
+<span id="esphomelib::ESPPreferences::put_bool__ssCR.ssCR.b"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1afbc47173e50f665534167385d7b3f2ec"></span>size_t <code class="descname">put_bool</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, bool <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences8put_boolERKNSt6stringERKNSt6stringEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences8put_int8ERKNSt6stringERKNSt6stringE6int8_t">
+<span id="esphomelib::ESPPreferences::put_int8__ssCR.ssCR.int8_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a517ef428f1eec73aecbdf81e85706867"></span>size_t <code class="descname">put_int8</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int8_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences8put_int8ERKNSt6stringERKNSt6stringE6int8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9put_uint8ERKNSt6stringERKNSt6stringE7uint8_t">
+<span id="esphomelib::ESPPreferences::put_uint8__ssCR.ssCR.uint8_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1aae0ccbce1719e3c948d74f5111ab5159"></span>size_t <code class="descname">put_uint8</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint8_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9put_uint8ERKNSt6stringERKNSt6stringE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9put_int16ERKNSt6stringERKNSt6stringE7int16_t">
+<span id="esphomelib::ESPPreferences::put_int16__ssCR.ssCR.int16_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1abc8a2c7d58f26af7fa433c9413d700ff"></span>size_t <code class="descname">put_int16</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int16_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9put_int16ERKNSt6stringERKNSt6stringE7int16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10put_uint16ERKNSt6stringERKNSt6stringE8uint16_t">
+<span id="esphomelib::ESPPreferences::put_uint16__ssCR.ssCR.uint16_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a67b1a7da83c6d5d75467b9789437cbab"></span>size_t <code class="descname">put_uint16</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint16_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10put_uint16ERKNSt6stringERKNSt6stringE8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9put_int32ERKNSt6stringERKNSt6stringE7int32_t">
+<span id="esphomelib::ESPPreferences::put_int32__ssCR.ssCR.int32_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1af69df6c10d018d9ba07429628fe2521f"></span>size_t <code class="descname">put_int32</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int32_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9put_int32ERKNSt6stringERKNSt6stringE7int32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10put_uint32ERKNSt6stringERKNSt6stringE8uint32_t">
+<span id="esphomelib::ESPPreferences::put_uint32__ssCR.ssCR.uint32_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a00c49530c8a8a246d8d52f9ca14626bf"></span>size_t <code class="descname">put_uint32</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint32_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10put_uint32ERKNSt6stringERKNSt6stringE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9put_int64ERKNSt6stringERKNSt6stringE7int64_t">
+<span id="esphomelib::ESPPreferences::put_int64__ssCR.ssCR.int64_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a076f2f842999c39d47506fa27dd70eb1"></span>size_t <code class="descname">put_int64</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9put_int64ERKNSt6stringERKNSt6stringE7int64_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10put_uint64ERKNSt6stringERKNSt6stringE8uint64_t">
+<span id="esphomelib::ESPPreferences::put_uint64__ssCR.ssCR.uint64_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a1584155a94aa584e759fb86caa5aa39a"></span>size_t <code class="descname">put_uint64</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10put_uint64ERKNSt6stringERKNSt6stringE8uint64_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9put_floatERKNSt6stringERKNSt6stringEf">
+<span id="esphomelib::ESPPreferences::put_float__ssCR.ssCR.float"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1aa1fab0e73743d120c35931e5d5358d15"></span>size_t <code class="descname">put_float</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9put_floatERKNSt6stringERKNSt6stringEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10put_doubleERKNSt6stringERKNSt6stringEd">
+<span id="esphomelib::ESPPreferences::put_double__ssCR.ssCR.double"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a3554c09b362a12d95c6dcfe122d4806c"></span>size_t <code class="descname">put_double</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, double <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10put_doubleERKNSt6stringERKNSt6stringEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences8get_boolERKNSt6stringERKNSt6stringEb">
+<span id="esphomelib::ESPPreferences::get_bool__ssCR.ssCR.b"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a190fecc3d7df5cbf0fb0c7d7741ae16a"></span>bool <code class="descname">get_bool</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, bool <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences8get_boolERKNSt6stringERKNSt6stringEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences8get_int8ERKNSt6stringERKNSt6stringE6int8_t">
+<span id="esphomelib::ESPPreferences::get_int8__ssCR.ssCR.int8_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a01eb09781805193a80ec479605ce9b29"></span>int8_t <code class="descname">get_int8</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int8_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences8get_int8ERKNSt6stringERKNSt6stringE6int8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9get_uint8ERKNSt6stringERKNSt6stringE7uint8_t">
+<span id="esphomelib::ESPPreferences::get_uint8__ssCR.ssCR.uint8_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a2dcf054e271de92209afee24e76d5acf"></span>uint8_t <code class="descname">get_uint8</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint8_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9get_uint8ERKNSt6stringERKNSt6stringE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9get_int16ERKNSt6stringERKNSt6stringE7int16_t">
+<span id="esphomelib::ESPPreferences::get_int16__ssCR.ssCR.int16_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a4bf6790a528c09fd82578eb8bc880230"></span>int16_t <code class="descname">get_int16</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int16_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9get_int16ERKNSt6stringERKNSt6stringE7int16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10get_uint16ERKNSt6stringERKNSt6stringE8uint16_t">
+<span id="esphomelib::ESPPreferences::get_uint16__ssCR.ssCR.uint16_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1adc056e1e2fe7043191e538b969d5fb9e"></span>uint16_t <code class="descname">get_uint16</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint16_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10get_uint16ERKNSt6stringERKNSt6stringE8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9get_int32ERKNSt6stringERKNSt6stringE7int32_t">
+<span id="esphomelib::ESPPreferences::get_int32__ssCR.ssCR.int32_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a933de09c6fe121f65085551f4cc8f740"></span>int32_t <code class="descname">get_int32</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int32_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9get_int32ERKNSt6stringERKNSt6stringE7int32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10get_uint32ERKNSt6stringERKNSt6stringE8uint32_t">
+<span id="esphomelib::ESPPreferences::get_uint32__ssCR.ssCR.uint32_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1af61a1bcc7fbb089ca4469721fcfde129"></span>uint32_t <code class="descname">get_uint32</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint32_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10get_uint32ERKNSt6stringERKNSt6stringE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9get_int64ERKNSt6stringERKNSt6stringE7int64_t">
+<span id="esphomelib::ESPPreferences::get_int64__ssCR.ssCR.int64_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a73a85d38145b5b61a45e9b3edfd3dbdc"></span>int64_t <code class="descname">get_int64</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, int64_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9get_int64ERKNSt6stringERKNSt6stringE7int64_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10get_uint64ERKNSt6stringERKNSt6stringE8uint64_t">
+<span id="esphomelib::ESPPreferences::get_uint64__ssCR.ssCR.uint64_t"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1ac51d244682c3236b991da33aead3dbec"></span>uint64_t <code class="descname">get_uint64</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, uint64_t <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10get_uint64ERKNSt6stringERKNSt6stringE8uint64_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences9get_floatERKNSt6stringERKNSt6stringEf">
+<span id="esphomelib::ESPPreferences::get_float__ssCR.ssCR.float"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a42e64f61b8b3d1e9ebdabee6d1e7c43b"></span>float <code class="descname">get_float</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, float <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences9get_floatERKNSt6stringERKNSt6stringEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences10get_doubleERKNSt6stringERKNSt6stringEd">
+<span id="esphomelib::ESPPreferences::get_double__ssCR.ssCR.double"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a20921997001d680575e5d12fca8d84df"></span>double <code class="descname">get_double</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em>, double <em>default_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences10get_doubleERKNSt6stringERKNSt6stringEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib14ESPPreferences18get_preference_keyERKNSt6stringERKNSt6stringE">
+<span id="esphomelib::ESPPreferences::get_preference_key__ssCR.ssCR"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a72fdd3fa92884f8662ad175a74f8d11c"></span>std::string <code class="descname">get_preference_key</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em>, <em class="property">const</em> std::string &amp;<em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences18get_preference_keyERKNSt6stringERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a key for the nvs storage by hashing the friendly name and truncating the key to 7 characters. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib14ESPPreferences12preferences_E">
+<span id="esphomelib::ESPPreferences::preferences___Preferences"></span><span class="target" id="classesphomelib_1_1_e_s_p_preferences_1a36186436a3afcdf4c5f0612bd2c39e5b"></span>Preferences <code class="descname">preferences_</code><a class="headerlink" href="#_CPPv2N10esphomelib14ESPPreferences12preferences_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib18global_preferencesE">
+<span id="esphomelib::global_preferences__ESPPreferences"></span><span class="target" id="esppreferences_8cpp_1a4c032e56250ba7adf00f90a8e45a6684"></span><a class="reference internal" href="#_CPPv2N10esphomelib14ESPPreferencesE" title="esphomelib::ESPPreferences">ESPPreferences</a> <code class="descclassname">esphomelib::</code><code class="descname">global_preferences</code><a class="headerlink" href="#_CPPv2N10esphomelib18global_preferencesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="esphal-h">
+<h3>esphal.h<a class="headerlink" href="#esphal-h" title="Permalink to this headline">¶</a></h3>
+<p>This header should be used whenever you want to access some <code class="xref cpp cpp-any docutils literal"><span class="pre">digitalRead</span></code>, <code class="xref cpp cpp-any docutils literal"><span class="pre">digitalWrite</span></code>, … methods.</p>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib7GPIOPinE">
+<span id="esphomelib::GPIOPin"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">GPIOPin</code><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPinE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin"><span class="std std-ref">GPIOPin</span></a> - A high-level abstraction class that can expose a pin together with useful options like pinMode. </p>
+<p>Set the parameters for this at construction time and use <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin_1a451ba72b6f036a1f5b88a0f8be279a86"><span class="std std-ref">setup()</span></a> to apply them. The inverted parameter will automatically invert the input/output for you.</p>
+<p>Use <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin_1a9ef8ded2b388a3ecdefcc575c68c6d7c"><span class="std std-ref">read_value()</span></a> and <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin_1a33ab9daca0f97e95f15427cdf40ffbc9"><span class="std std-ref">write_value()</span></a> to use digitalRead() and digitalWrite(), respectively. </p>
+<p>Subclassed by <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_input_pin"><span class="std std-ref">esphomelib::GPIOInputPin</span></a>, <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_output_pin"><span class="std std-ref">esphomelib::GPIOOutputPin</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib7GPIOPin7GPIOPinE7uint8_t7uint8_tb">
+<span id="esphomelib::GPIOPin::GPIOPin__uint8_t.uint8_t.b"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a071474db462b37ce10f9a22bc3c46e26"></span><code class="descname">GPIOPin</code><span class="sig-paren">(</span>uint8_t <em>pin</em>, uint8_t <em>mode</em>, bool <em>inverted</em> = false<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin7GPIOPinE7uint8_t7uint8_tb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin"><span class="std std-ref">GPIOPin</span></a> instance. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">pin</span></code>: The GPIO pin number of this instance. </li>
+<li><code class="docutils literal"><span class="pre">mode</span></code>: The Arduino pinMode that this pin should be put into at <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin_1a451ba72b6f036a1f5b88a0f8be279a86"><span class="std std-ref">setup()</span></a>. </li>
+<li><code class="docutils literal"><span class="pre">inverted</span></code>: Whether all digitalRead/digitalWrite calls should be inverted. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib7GPIOPin5setupEv">
+<span id="esphomelib::GPIOPin::setup"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a451ba72b6f036a1f5b88a0f8be279a86"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup the pin mode. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib7GPIOPin10read_valueEv">
+<span id="esphomelib::GPIOPin::read_valueC"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a9ef8ded2b388a3ecdefcc575c68c6d7c"></span>bool <code class="descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib7GPIOPin10read_valueEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Read the binary value from this pin using digitalRead (and inverts automatically). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib7GPIOPin11write_valueEb">
+<span id="esphomelib::GPIOPin::write_value__bC"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a33ab9daca0f97e95f15427cdf40ffbc9"></span>void <code class="descname">write_value</code><span class="sig-paren">(</span>bool <em>value</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib7GPIOPin11write_valueEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write the binary value to this pin using digitalWrite (and inverts automatically). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib7GPIOPin12set_invertedEb">
+<span id="esphomelib::GPIOPin::set_inverted__b"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a764d9d4778cfece560e2a672dce84906"></span>void <code class="descname">set_inverted</code><span class="sig-paren">(</span>bool <em>inverted</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin12set_invertedEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the inverted mode of this pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib7GPIOPin7set_pinE7uint8_t">
+<span id="esphomelib::GPIOPin::set_pin__uint8_t"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a1f839ef4cdb2ad607386d995c25ec945"></span>void <code class="descname">set_pin</code><span class="sig-paren">(</span>uint8_t <em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin7set_pinE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the GPIO pin number. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib7GPIOPin8set_modeE7uint8_t">
+<span id="esphomelib::GPIOPin::set_mode__uint8_t"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a9ed8693a1f40ac01d0cdc72cf1d716a7"></span>void <code class="descname">set_mode</code><span class="sig-paren">(</span>uint8_t <em>mode</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin8set_modeE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the pinMode of this pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib7GPIOPin7get_pinEv">
+<span id="esphomelib::GPIOPin::get_pinC"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a4bfd36ad9b36123f576f86ec69d60bdd"></span>unsigned char <code class="descname">get_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib7GPIOPin7get_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the GPIO pin number. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib7GPIOPin8get_modeEv">
+<span id="esphomelib::GPIOPin::get_modeC"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a2a5f4c7198b70dee175f3f4e98c5cb78"></span>unsigned char <code class="descname">get_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib7GPIOPin8get_modeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the pinMode of this pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib7GPIOPin11is_invertedEv">
+<span id="esphomelib::GPIOPin::is_invertedC"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1a1f3731b5fb05d249f15b79ca6c8e0c81"></span>bool <code class="descname">is_inverted</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib7GPIOPin11is_invertedEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return whether this pin shall be treated as inverted. (for example active-low) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib7GPIOPin4pin_E">
+<span id="esphomelib::GPIOPin::pin___uint8_t"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1ae7f176958c21759dc5637d520b4b93ee"></span>uint8_t <code class="descname">pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin4pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib7GPIOPin5mode_E">
+<span id="esphomelib::GPIOPin::mode___uint8_t"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1ac6a7d236a86ca021c383a4bd4ac3a9f5"></span>uint8_t <code class="descname">mode_</code><a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin5mode_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib7GPIOPin9inverted_E">
+<span id="esphomelib::GPIOPin::inverted___b"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_pin_1afd7a746c09b5e855db7080c4f7cef039"></span>bool <code class="descname">inverted_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib7GPIOPin9inverted_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib13GPIOOutputPinE">
+<span id="esphomelib::GPIOOutputPin"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_output_pin"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">GPIOOutputPin</code><a class="headerlink" href="#_CPPv2N10esphomelib13GPIOOutputPinE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_output_pin"><span class="std std-ref">GPIOOutputPin</span></a> - Basically just a <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin"><span class="std std-ref">GPIOPin</span></a>, but defaults to OUTPUT pinMode. </p>
+<p>Note that theoretically you can still assign an INPUT pinMode to this - we intentionally don’t check this.</p>
+<p>The constructor also allows for easy usage because of it’s lack of “explicit” constructor. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin"><span class="std std-ref">esphomelib::GPIOPin</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib13GPIOOutputPin13GPIOOutputPinE7uint8_t7uint8_tb">
+<span id="esphomelib::GPIOOutputPin::GPIOOutputPin__uint8_t.uint8_t.b"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_output_pin_1aed28b81733c4fa8089631430b3df3bf8"></span><code class="descname">GPIOOutputPin</code><span class="sig-paren">(</span>uint8_t <em>pin</em>, uint8_t <em>mode</em> = OUTPUT, bool <em>inverted</em> = false<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib13GPIOOutputPin13GPIOOutputPinE7uint8_t7uint8_tb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib12GPIOInputPinE">
+<span id="esphomelib::GPIOInputPin"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_input_pin"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">GPIOInputPin</code><a class="headerlink" href="#_CPPv2N10esphomelib12GPIOInputPinE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_input_pin"><span class="std std-ref">GPIOInputPin</span></a> - Basically just a <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin"><span class="std std-ref">GPIOPin</span></a>, but defaults to INPUT pinMode. </p>
+<p>Note that theoretically you can still assign an OUTPUT pinMode to this - we intentionally don’t check this.</p>
+<p>The constructor also allows for easy usage because of it’s lack of “explicit” constructor. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1_g_p_i_o_pin"><span class="std std-ref">esphomelib::GPIOPin</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12GPIOInputPin12GPIOInputPinE7uint8_t7uint8_tb">
+<span id="esphomelib::GPIOInputPin::GPIOInputPin__uint8_t.uint8_t.b"></span><span class="target" id="classesphomelib_1_1_g_p_i_o_input_pin_1a244ea6a7ddd7fb3f207eda8463da8a0d"></span><code class="descname">GPIOInputPin</code><span class="sig-paren">(</span>uint8_t <em>pin</em>, uint8_t <em>mode</em> = INPUT, bool <em>inverted</em> = false<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12GPIOInputPin12GPIOInputPinE7uint8_t7uint8_tb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Core</a><ul>
+      <li>Previous: <a href="ota.html" title="previous chapter">Over-The-Air Updates</a></li>
+      <li>Next: <a href="log.html" title="next chapter">Logging Engine</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/core/helpers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

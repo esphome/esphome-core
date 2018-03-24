@@ -7,7 +7,8 @@
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <esp32-hal.h>
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
   #include "Arduino.h"
 #endif
 #include "esphomelib/espmath.h"

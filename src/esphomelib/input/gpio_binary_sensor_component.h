@@ -17,15 +17,6 @@ namespace input {
 /** GPIOBinarySensorComponent - Simple binary_sensor component for a GPIO pin.
  *
  * This class allows you to observe the digital state of a certain GPIO pin.
- *
- * Example:
- *
- * app.make_gpio_binary_sensor(36, "Window Open", binary_sensor::device_class::WINDOW);
- *
- * or for setting custom input pinMode:
- *
- * app.make_gpio_binary_sensor(GPIOInputPin(36, INPUT_PULLUP), "Window Open",
- *                             binary_sensor::device_class::WINDOW);
  */
 class GPIOBinarySensorComponent : public binary_sensor::BinarySensor, public Component {
  public:

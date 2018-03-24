@@ -25,7 +25,7 @@
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/output/gpio_binary_output_component.h"
 #include "esphomelib/input/pulse_counter.h"
-#include "esphomelib/input/adc_component.h"
+#include "esphomelib/input/adc_sensor_component.h"
 #include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/wifi_component.h"
@@ -38,7 +38,7 @@
 
 namespace esphomelib {
 
-/** Application - This is the class that combines all components.
+/** This is the class that combines all components.
  *
  * Firstly, this class is used the register component
  */
@@ -201,6 +201,7 @@ class Application {
    *
    * @param pin The pin the pulse counter should count pulses on.
    * @param friendly_name The name the sensor should be advertised as.
+   * @param update_interval The interval in ms the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
   MakePulseCounter make_pulse_counter_sensor(uint8_t pin,
@@ -221,6 +222,7 @@ class Application {
    *
    * @param pin The pin the ADC should sense on.
    * @param friendly_name The name the sensor should be advertised as.
+   * @param update_interval The interval in ms the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
   MakeADCSensor make_adc_sensor(uint8_t pin,

@@ -10,7 +10,6 @@
 #include <vector>
 
 #define assert_is_pin(num) assert((0 <= (num) && (num) <= 39) && "Is not a valid pin number")
-#define assert_not_nullptr(p) assert((p) != nullptr)
 #define assert_setup(t) assert((t)->get_component_state() == esphomelib::Component::SETUP || (t)->get_component_state() == esphomelib::Component::LOOP)
 #define assert_construction_state(t) assert((t)->get_component_state() == esphomelib::Component::CONSTRUCTION)
 
@@ -177,7 +176,7 @@ class Component {
   ComponentState component_state_{CONSTRUCTION}; ///< State of this component.
 };
 
-/** PollingComponent - This class simplifies creating components that periodically check a state.
+/** This class simplifies creating components that periodically check a state.
  *
  * You basically just need to implement the update() function, it will be called every update_interval ms
  * after startup. Note that this class cannot guarantee a correct timing, as it's not using timers, just

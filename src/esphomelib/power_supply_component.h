@@ -10,7 +10,7 @@
 
 namespace esphomelib {
 
-/** PowerSupplyComponent - This class represents an power supply.
+/** This class represents an power supply.
  *
  * The power supply will automatically be turned on if a component requests high power and will automatically be
  * turned off again keep_on_time (ms) after the last high-power request is cancelled. Aditionally, an
@@ -19,8 +19,6 @@ namespace esphomelib {
  *
  * Use the pin argument of the Application helper to enable inverted mode. For example most ATX power supplies
  * operate in inverted mode, so to turn them on you have to pull the pin LOW.
- *
- * auto *power_supply = app.make_power_supply(GPIOOutputPin(12, OUTPUT, true)); // inverted
  *
  * To request high power mode, a component must use the request_high_power() function to register itself as
  * needing high power mode. Once the high power mode is no longer required the component can use unrequest_high_power()

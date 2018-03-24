@@ -1,0 +1,585 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Fan &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Light" href="../light/index.html" />
+    <link rel="prev" title="Binary Sensor" href="../binary_sensor/index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fan">
+<h1>Fan<a class="headerlink" href="#fan" title="Permalink to this headline">¶</a></h1>
+<p>Fans in esphomelib are implemented like lights. Both the hardware and the MQTT frontend
+access a combined <a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState"><code class="xref cpp cpp-class docutils literal"><span class="pre">FanState</span></code></a> object and use only that to set state and receive
+state updates.</p>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Basic</span>
+<span class="k">auto</span> <span class="n">fan</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_fan</span><span class="p">(</span><span class="s">&quot;Fan&quot;</span><span class="p">);</span>
+<span class="n">fan</span><span class="p">.</span><span class="n">output</span><span class="o">-&gt;</span><span class="n">set_binary</span><span class="p">(</span><span class="n">App</span><span class="p">.</span><span class="n">make_gpio_output</span><span class="p">(</span><span class="mi">34</span><span class="p">));</span>
+<span class="c1">// Speed</span>
+<span class="k">auto</span> <span class="n">speed_fan</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_fan</span><span class="p">(</span><span class="s">&quot;Speed Fan&quot;</span><span class="p">);</span>
+<span class="n">fan</span><span class="p">.</span><span class="n">output</span><span class="o">-&gt;</span><span class="n">set_speed</span><span class="p">(</span><span class="n">App</span><span class="p">.</span><span class="n">make_ledc_output</span><span class="p">(</span><span class="mi">34</span><span class="p">));</span>
+<span class="c1">// Oscillation</span>
+<span class="k">auto</span> <span class="n">oscillating_fan</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_fan</span><span class="p">(</span><span class="s">&quot;Oscillating Fan&quot;</span><span class="p">);</span>
+<span class="n">oscillating_fan</span><span class="p">.</span><span class="n">output</span><span class="o">-&gt;</span><span class="n">set_binary</span><span class="p">(</span><span class="n">App</span><span class="p">.</span><span class="n">make_gpio_output</span><span class="p">(</span><span class="mi">34</span><span class="p">));</span>
+<span class="n">oscillating_fan</span><span class="p">.</span><span class="n">output</span><span class="o">-&gt;</span><span class="n">set_oscillation</span><span class="p">(</span><span class="n">App</span><span class="p">.</span><span class="n">make_gpio_output</span><span class="p">(</span><span class="mi">35</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application8make_fanERKNSt6stringE" title="esphomelib::Application::make_fan"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_fan()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fanstate">
+<h3>FanState<a class="headerlink" href="#fanstate" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib3fan8FanStateE">
+<span id="esphomelib::fan::FanState"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state"></span><em class="property">class </em><code class="descclassname">esphomelib::fan::</code><code class="descname">FanState</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanStateE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1fan_1_1_fan_state"><span class="std std-ref">FanState</span></a> - This class is shared between the hardware backend and the MQTT frontend to share state. </p>
+<p>A fan state has several variables that determine the current state: state (ON/OFF), speed (OFF, LOW, MEDIUM, HIGH), oscillating (ON/OFF) and traits (what features are supported). Both the frontend and the backend can register callbacks whenever a state is changed from the frontend and whenever a state is actually changed and should be pushed to the frontend </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Types</p>
+<dl class="type">
+<dt id="_CPPv2N10esphomelib3fan8FanState5SpeedE">
+<span id="esphomelib::fan::FanState::Speed"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a5312e8db943a0ac139b2b072d41d4e87"></span><em class="property">enum </em><code class="descname">Speed</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState5SpeedE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Simple enum to represent the speed of. </p>
+<p><em>Values:</em></p>
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib3fan8FanState9SPEED_OFFE">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a5312e8db943a0ac139b2b072d41d4e87a0bdfd9dde9efa717e25201d07a224b91"></span><code class="descname">SPEED_OFF</code> = 0<a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState9SPEED_OFFE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The fan is OFF (this option combined with state ON should make the fan be off.) </p>
+</dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib3fan8FanState9SPEED_LOWE">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a5312e8db943a0ac139b2b072d41d4e87abeee7af1940990ee6209fa01701a876f"></span><code class="descname">SPEED_LOW</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState9SPEED_LOWE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The fan is running on low speed. </p>
+</dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib3fan8FanState12SPEED_MEDIUME">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a5312e8db943a0ac139b2b072d41d4e87a959f4dd71774c1c82a49c367aecfa6b4"></span><code class="descname">SPEED_MEDIUM</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState12SPEED_MEDIUME" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The fan is running on medium speed. </p>
+</dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib3fan8FanState10SPEED_HIGHE">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a5312e8db943a0ac139b2b072d41d4e87a10b9f545bf9313ea0415bdff26469783"></span><code class="descname">SPEED_HIGH</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState10SPEED_HIGHE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The fan is running on high/full speed. </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState38add_on_receive_frontend_state_callbackERKNSt8functionIFvvEEE">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a96cf32dc62cc2d5153dfaece18ec36b5"></span>void <code class="descname">add_on_receive_frontend_state_callback</code><span class="sig-paren">(</span><em class="property">const</em> std::function&lt;void<span class="sig-paren">(</span><span class="sig-paren">)</span>&gt; &amp;<em>send_callback</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState38add_on_receive_frontend_state_callbackERKNSt8functionIFvvEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Register a callback that will be called each time the frontend wants to set a state. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState37add_on_receive_backend_state_callbackERKNSt8functionIFvvEEE">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a91a8ee04b357d77f7e037d9f41305d16"></span>void <code class="descname">add_on_receive_backend_state_callback</code><span class="sig-paren">(</span><em class="property">const</em> std::function&lt;void<span class="sig-paren">(</span><span class="sig-paren">)</span>&gt; &amp;<em>update_callback</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState37add_on_receive_backend_state_callbackERKNSt8functionIFvvEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Register a callback that will be called each time the backend indicates a state change. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan8FanState9get_stateEv">
+<span id="esphomelib::fan::FanState::get_stateC"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1adced4ad9fdbc6b5113a318d54fe3f1a4"></span>bool <code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan8FanState9get_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the current ON/OFF state of this fan. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState9set_stateEb">
+<span id="esphomelib::fan::FanState::set_state__b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a907803fadfcbeedd81ca6bb49d65e1d9"></span>void <code class="descname">set_state</code><span class="sig-paren">(</span>bool <em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState9set_stateEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the current ON/OFF state of this fan. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan8FanState14is_oscillatingEv">
+<span id="esphomelib::fan::FanState::is_oscillatingC"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a0eaffe7ac170f1d1160c545908a32e0c"></span>bool <code class="descname">is_oscillating</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan8FanState14is_oscillatingEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the current oscillating state of this fan. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState15set_oscillatingEb">
+<span id="esphomelib::fan::FanState::set_oscillating__b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a8b2f41238ab2b7d8716baac890d4ac0c"></span>void <code class="descname">set_oscillating</code><span class="sig-paren">(</span>bool <em>oscillating</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState15set_oscillatingEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the current oscillating state of this fan. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan8FanState9get_speedEv">
+<span id="esphomelib::fan::FanState::get_speedC"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1ab6632cb038b45a3b3bc903e9d838dfc2"></span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState">FanState</a>::<a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanState5SpeedE" title="esphomelib::fan::FanState::Speed">Speed</a> <code class="descname">get_speed</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan8FanState9get_speedEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the current speed of this fan. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState9set_speedE5Speed">
+<span id="esphomelib::fan::FanState::set_speed__Speed"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1afd37611d378203af057d0115b0646eca"></span>void <code class="descname">set_speed</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanState5SpeedE" title="esphomelib::fan::FanState::Speed">Speed</a> <em>speed</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState9set_speedE5Speed" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the current speed of this fan. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan8FanState10get_traitsEv">
+<span id="esphomelib::fan::FanState::get_traitsC"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a93c8409ffd6a4a6f4fb112c3ef4d2b95"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib3fan9FanTraitsE" title="esphomelib::fan::FanTraits">FanTraits</a> &amp;<code class="descname">get_traits</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan8FanState10get_traitsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the traits of this fan (i.e. what features it supports). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState10set_traitsERK9FanTraits">
+<span id="esphomelib::fan::FanState::set_traits__FanTraitsCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1af36567d188f0a99a97c23c8cd50b5788"></span>void <code class="descname">set_traits</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib3fan9FanTraitsE" title="esphomelib::fan::FanTraits">FanTraits</a> &amp;<em>traits</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState10set_traitsERK9FanTraits" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the traits of this fan (i.e. what features it supports). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState21load_from_preferencesERKNSt6stringE">
+<span id="esphomelib::fan::FanState::load_from_preferences__ssCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1acd92513319006bb63bd75c3ae7842463"></span>void <code class="descname">load_from_preferences</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState21load_from_preferencesERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Load a fan state from the preferences into this object. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">friendly_name</span></code>: The key for the preferences. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan8FanState19save_to_preferencesERKNSt6stringE">
+<span id="esphomelib::fan::FanState::save_to_preferences__ssCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a34bcc5adc0f3012aff0812f00c2672bc"></span>void <code class="descname">save_to_preferences</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState19save_to_preferencesERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Save the fan state from this object into the preferences. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">friendly_name</span></code>: The key for the preferences. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan8FanState6state_E">
+<span id="esphomelib::fan::FanState::state___b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a886062504c6e1c596e3c7fd15afce2d7"></span>bool <code class="descname">state_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState6state_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan8FanState12oscillating_E">
+<span id="esphomelib::fan::FanState::oscillating___b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1af4179b076735d860b1050ea5993185b5"></span>bool <code class="descname">oscillating_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState12oscillating_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan8FanState6speed_E">
+<span id="esphomelib::fan::FanState::speed___Speed"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1a61dd134c6f264c047f5671e87a24b460"></span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanState5SpeedE" title="esphomelib::fan::FanState::Speed">Speed</a> <code class="descname">speed_</code> = {<a class="reference internal" href="#classesphomelib_1_1fan_1_1_fan_state_1a5312e8db943a0ac139b2b072d41d4e87a10b9f545bf9313ea0415bdff26469783"><span class="std std-ref">SPEED_HIGH</span></a>}<a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState6speed_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan8FanState7traits_E">
+<span id="esphomelib::fan::FanState::traits___FanTraits"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1aadba6d9b9d75f209c249e69d04bd4801"></span><a class="reference internal" href="#_CPPv2N10esphomelib3fan9FanTraitsE" title="esphomelib::fan::FanTraits">FanTraits</a> <code class="descname">traits_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState7traits_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan8FanState14send_callback_E">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1ac6c113d6351d4ab4cc77a8d0acd3a18b"></span>CallbackManager&lt;void<span class="sig-paren">(</span><span class="sig-paren">)</span>&gt; <code class="descname">send_callback_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState14send_callback_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan8FanState16update_callback_E">
+<span class="target" id="classesphomelib_1_1fan_1_1_fan_state_1aa13610475c402b1c1ee9dffd9f41086f"></span>CallbackManager&lt;void<span class="sig-paren">(</span><span class="sig-paren">)</span>&gt; <code class="descname">update_callback_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib3fan8FanState16update_callback_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="fantraits">
+<h3>FanTraits<a class="headerlink" href="#fantraits" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib3fan9FanTraitsE">
+<span id="esphomelib::fan::FanTraits"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits"></span><em class="property">class </em><code class="descclassname">esphomelib::fan::</code><code class="descname">FanTraits</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan9FanTraitsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1fan_1_1_fan_traits"><span class="std std-ref">FanTraits</span></a> - This class represents the capabilities/feature set of a fan. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan9FanTraits9FanTraitsEv">
+<span id="esphomelib::fan::FanTraits::FanTraits"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1a5eea28ca8857ab0f2eff237a664aff14"></span><code class="descname">FanTraits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan9FanTraits9FanTraitsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct an empty <a class="reference internal" href="#classesphomelib_1_1fan_1_1_fan_traits"><span class="std std-ref">FanTraits</span></a> object. All features will be marked unsupported. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan9FanTraits9FanTraitsEbb">
+<span id="esphomelib::fan::FanTraits::FanTraits__b.b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1abd551b75e413f9f51a44f4ffc764a657"></span><code class="descname">FanTraits</code><span class="sig-paren">(</span>bool <em>oscillation</em>, bool <em>speed</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan9FanTraits9FanTraitsEbb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classesphomelib_1_1fan_1_1_fan_traits"><span class="std std-ref">FanTraits</span></a> object with the provided oscillation and speed support. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan9FanTraits20supports_oscillationEv">
+<span id="esphomelib::fan::FanTraits::supports_oscillationC"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1ad09ea32be85c82aac4b0ce0cba50d2e2"></span>bool <code class="descname">supports_oscillation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan9FanTraits20supports_oscillationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return if this fan supports oscillation. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan9FanTraits15set_oscillationEb">
+<span id="esphomelib::fan::FanTraits::set_oscillation__b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1a63395ed1c52df55bb8573b73d3c6ac5b"></span>void <code class="descname">set_oscillation</code><span class="sig-paren">(</span>bool <em>oscillation</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan9FanTraits15set_oscillationEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set whether this fan supports oscillation. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan9FanTraits14supports_speedEv">
+<span id="esphomelib::fan::FanTraits::supports_speedC"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1a30b96e9c091cd1353ceb6b86dfe1b28c"></span>bool <code class="descname">supports_speed</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan9FanTraits14supports_speedEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return if this fan supports speed modes. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan9FanTraits9set_speedEb">
+<span id="esphomelib::fan::FanTraits::set_speed__b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1abed53955dd02a0baecb3f8e46f9f4981"></span>void <code class="descname">set_speed</code><span class="sig-paren">(</span>bool <em>speed</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan9FanTraits9set_speedEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set whether this fan supports speed modes. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan9FanTraits12oscillation_E">
+<span id="esphomelib::fan::FanTraits::oscillation___b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1a739306350c96f6ce0ed09e1a6a1ee020"></span>bool <code class="descname">oscillation_</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan9FanTraits12oscillation_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan9FanTraits6speed_E">
+<span id="esphomelib::fan::FanTraits::speed___b"></span><span class="target" id="classesphomelib_1_1fan_1_1_fan_traits_1a1af965f82a77d4330f7e75a71f9f0c7b"></span>bool <code class="descname">speed_</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan9FanTraits6speed_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="basicfancomponent">
+<h3>BasicFanComponent<a class="headerlink" href="#basicfancomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponentE">
+<span id="esphomelib::fan::BasicFanComponent"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component"></span><em class="property">class </em><code class="descclassname">esphomelib::fan::</code><code class="descname">BasicFanComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1fan_1_1_basic_fan_component"><span class="std std-ref">BasicFanComponent</span></a> - Simple fan helper that pushes the states to BinaryOutput/FloatOutput devices. </p>
+<p>Inherits from <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent10set_binaryEPN6output12BinaryOutputE">
+<span id="esphomelib::fan::BasicFanComponent::set_binary__output::BinaryOutputP"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1ad149715ecd5c99e060e8bb68285662ac"></span>void <code class="descname">set_binary</code><span class="sig-paren">(</span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output12BinaryOutputE" title="esphomelib::output::BinaryOutput">BinaryOutput</a> *<em>output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent10set_binaryEPN6output12BinaryOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Create a fan that supports binary state operation (ON/OFF). </p>
+<p>Can’t be mixed with set_speed.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">output</span></code>: The binary output where all binary commands should land. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent9set_speedEPN6output11FloatOutputEffff">
+<span id="esphomelib::fan::BasicFanComponent::set_speed__output::FloatOutputP.float.float.float.float"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1a9eabd1e01941ea846ae3d8dc1af2df77"></span>void <code class="descname">set_speed</code><span class="sig-paren">(</span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>output</em>, float <em>off_speed</em> = 0.0, float <em>low_speed</em> = 0.33, float <em>medium_speed</em> = 0.66, float <em>high_speed</em> = 1.0<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent9set_speedEPN6output11FloatOutputEffff" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Create a fan that supports speed operation (OFF/LOW/MEDIUM/HIGH SPEED). </p>
+<p>Can’t be mixed with set_binary.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">output</span></code>: The FloatOutput where all speed/state commands should land. </li>
+<li><code class="docutils literal"><span class="pre">off_speed</span></code>: The speed that should be sent to the output if the fan is OFF. </li>
+<li><code class="docutils literal"><span class="pre">low_speed</span></code>: The speed that should be sent to the output if the fan is in LOW speed mode. </li>
+<li><code class="docutils literal"><span class="pre">medium_speed</span></code>: The speed that should be sent to the output if the fan is in MEDIUM speed mode. </li>
+<li><code class="docutils literal"><span class="pre">high_speed</span></code>: The speed that should be sent to the output if the fan is in HIGH speed mode. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent15set_oscillationEPN6output12BinaryOutputE">
+<span id="esphomelib::fan::BasicFanComponent::set_oscillation__output::BinaryOutputP"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1ae5c420f481374af45d9fb408af26ca98"></span>void <code class="descname">set_oscillation</code><span class="sig-paren">(</span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output12BinaryOutputE" title="esphomelib::output::BinaryOutput">BinaryOutput</a> *<em>oscillating_output</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent15set_oscillationEPN6output12BinaryOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set an oscillation output for this fan. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">oscillating_output</span></code>: The binary output where all oscillation commands should land. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan17BasicFanComponent9get_stateEv">
+<span id="esphomelib::fan::BasicFanComponent::get_stateC"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1a3b158b7060e7c6e2fa594e6565ef9dd6"></span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState">FanState</a> *<code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan17BasicFanComponent9get_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent9set_stateEP8FanState">
+<span id="esphomelib::fan::BasicFanComponent::set_state__FanStateP"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1ad020702b665ea6e4f47ab486c0b6c855"></span>void <code class="descname">set_state</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState">FanState</a> *<em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent9set_stateEP8FanState" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent5setupEv">
+<span id="esphomelib::fan::BasicFanComponent::setup"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1af8dd54161aecf5072d07743784556eaa"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Where the component’s initialization should happen. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1fan_1_1_basic_fan_component_1af8dd54161aecf5072d07743784556eaa"><span class="std std-ref">setup()</span></a>. This method is guaranteed to only be called once. Defaults to doing noting. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent4loopEv">
+<span id="esphomelib::fan::BasicFanComponent::loop"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1a2932d94f199e72b9247a6270a91bf550"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This method will be called repeatedly. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1fan_1_1_basic_fan_component_1a2932d94f199e72b9247a6270a91bf550"><span class="std std-ref">loop()</span></a>. <a class="reference internal" href="#classesphomelib_1_1fan_1_1_basic_fan_component_1af8dd54161aecf5072d07743784556eaa"><span class="std std-ref">setup()</span></a> is guaranteed to be called before this. Defaults to doing nothing. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent6state_E">
+<span id="esphomelib::fan::BasicFanComponent::state___FanStateP"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1ad239155c3cd50ee5880077aad81d2562"></span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState">FanState</a> *<code class="descname">state_</code> = {nullptr}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent6state_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent14binary_output_E">
+<span id="esphomelib::fan::BasicFanComponent::binary_output___output::BinaryOutputP"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1a2d240d8d8f6c7f74124213e1d40f2b1f"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output12BinaryOutputE" title="esphomelib::output::BinaryOutput">BinaryOutput</a> *<code class="descname">binary_output_</code> = {nullptr}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent14binary_output_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent13speed_output_E">
+<span id="esphomelib::fan::BasicFanComponent::speed_output___output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1ac75204e982bc7bf0babe62b61c540fe5"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<code class="descname">speed_output_</code> = {nullptr}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent13speed_output_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent10off_speed_E">
+<span id="esphomelib::fan::BasicFanComponent::off_speed___float"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1a2b24a0ac78cf6544fa3951041ad5b374"></span>float <code class="descname">off_speed_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent10off_speed_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent10low_speed_E">
+<span id="esphomelib::fan::BasicFanComponent::low_speed___float"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1a9076893f35b2ca1ac1ead7b2420859fa"></span>float <code class="descname">low_speed_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent10low_speed_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent13medium_speed_E">
+<span id="esphomelib::fan::BasicFanComponent::medium_speed___float"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1aa883ddb2b9b6466e806ce46270e05af3"></span>float <code class="descname">medium_speed_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent13medium_speed_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent11high_speed_E">
+<span id="esphomelib::fan::BasicFanComponent::high_speed___float"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1aee89b3a83216f070b8745aaf4a0c9547"></span>float <code class="descname">high_speed_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent11high_speed_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent19oscillating_output_E">
+<span id="esphomelib::fan::BasicFanComponent::oscillating_output___output::BinaryOutputP"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1aa9c8f6bece56e75aabcf0d58af011ea2"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output12BinaryOutputE" title="esphomelib::output::BinaryOutput">BinaryOutput</a> *<code class="descname">oscillating_output_</code> = {nullptr}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent19oscillating_output_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan17BasicFanComponent12next_update_E">
+<span id="esphomelib::fan::BasicFanComponent::next_update___b"></span><span class="target" id="classesphomelib_1_1fan_1_1_basic_fan_component_1a16882cc0399f725c50acc8238fe816e6"></span>bool <code class="descname">next_update_</code> = {true}<a class="headerlink" href="#_CPPv2N10esphomelib3fan17BasicFanComponent12next_update_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="mqttfancomponent">
+<h3>MQTTFanComponent<a class="headerlink" href="#mqttfancomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponentE">
+<span id="esphomelib::fan::MQTTFanComponent"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component"></span><em class="property">class </em><code class="descclassname">esphomelib::fan::</code><code class="descname">MQTTFanComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Inherits from <a class="reference internal" href="../core/mqtt.html#classesphomelib_1_1mqtt_1_1_m_q_t_t_component"><span class="std std-ref">esphomelib::mqtt::MQTTComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent16MQTTFanComponentERKNSt6stringE">
+<span id="esphomelib::fan::MQTTFanComponent::MQTTFanComponent__ssCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a05b786921753ca1b24cccc303ddc23fc"></span><code class="descname">MQTTFanComponent</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent16MQTTFanComponentERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent36set_custom_oscillation_command_topicERKNSt6stringE">
+<span id="esphomelib::fan::MQTTFanComponent::set_custom_oscillation_command_topic__ssCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1aa1e8c22f0715e738beb3ab78902c1815"></span>void <code class="descname">set_custom_oscillation_command_topic</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>topic</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent36set_custom_oscillation_command_topicERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a custom oscillation command topic. Defaults to “&lt;base&gt;/oscillation/command”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent34set_custom_oscillation_state_topicERKNSt6stringE">
+<span id="esphomelib::fan::MQTTFanComponent::set_custom_oscillation_state_topic__ssCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a934e1592386e31274820e8e1d4dd8c80"></span>void <code class="descname">set_custom_oscillation_state_topic</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>topic</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent34set_custom_oscillation_state_topicERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a custom oscillation state topic. Defaults to “&lt;base&gt;/oscillation/state”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent30set_custom_speed_command_topicERKNSt6stringE">
+<span id="esphomelib::fan::MQTTFanComponent::set_custom_speed_command_topic__ssCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1ac78785a42e24e966131c80f3d31e6a68"></span>void <code class="descname">set_custom_speed_command_topic</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>topic</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent30set_custom_speed_command_topicERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a custom speed command topic. Defaults to “&lt;base&gt;/speed/command”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent28set_custom_speed_state_topicERKNSt6stringE">
+<span id="esphomelib::fan::MQTTFanComponent::set_custom_speed_state_topic__ssCR"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a1d895628aa9c8ac5617888958043e79f"></span>void <code class="descname">set_custom_speed_state_topic</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>topic</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent28set_custom_speed_state_topicERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a custom speed state topic. Defaults to “&lt;base&gt;/speed/state”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent5setupEv">
+<span id="esphomelib::fan::MQTTFanComponent::setup"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a72800ac9e30f6f30cef7e85d547af9aa"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup the fan subscriptions and discovery. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent4loopEv">
+<span id="esphomelib::fan::MQTTFanComponent::loop"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a06e4cf2d91b08e63f5b33ce446cbf0b2"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Send state via MQTT if state next_send_ is true. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent10send_stateEv">
+<span id="esphomelib::fan::MQTTFanComponent::send_state"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a249262368f82b64a4f91dbc1c6126c4d"></span>void <code class="descname">send_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent10send_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Send the full current state to MQTT. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan16MQTTFanComponent14component_typeEv">
+<span id="esphomelib::fan::MQTTFanComponent::component_typeC"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1aa16a0f2da77000698b8e34c1d3fa9da0"></span>std::string <code class="descname">component_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan16MQTTFanComponent14component_typeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>‘fan’ component type for discovery. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan16MQTTFanComponent29get_oscillation_command_topicEv">
+<span id="esphomelib::fan::MQTTFanComponent::get_oscillation_command_topicC"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1aaea6d7c908cb86f78055b6a9b870041a"></span><em class="property">const</em> std::string <code class="descname">get_oscillation_command_topic</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan16MQTTFanComponent29get_oscillation_command_topicEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan16MQTTFanComponent27get_oscillation_state_topicEv">
+<span id="esphomelib::fan::MQTTFanComponent::get_oscillation_state_topicC"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a5dd03c942f74940f08725b8c4e05611c"></span><em class="property">const</em> std::string <code class="descname">get_oscillation_state_topic</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan16MQTTFanComponent27get_oscillation_state_topicEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan16MQTTFanComponent23get_speed_command_topicEv">
+<span id="esphomelib::fan::MQTTFanComponent::get_speed_command_topicC"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1abae96728d44f6f34c0e421389161814b"></span><em class="property">const</em> std::string <code class="descname">get_speed_command_topic</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan16MQTTFanComponent23get_speed_command_topicEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan16MQTTFanComponent21get_speed_state_topicEv">
+<span id="esphomelib::fan::MQTTFanComponent::get_speed_state_topicC"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a84709d27ab808ee621b8f60fb234249a"></span><em class="property">const</em> std::string <code class="descname">get_speed_state_topic</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan16MQTTFanComponent21get_speed_state_topicEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib3fan16MQTTFanComponent9get_stateEv">
+<span id="esphomelib::fan::MQTTFanComponent::get_stateC"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a7604a4bcd9832ce73f45b5238a018dcb"></span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState">FanState</a> *<code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib3fan16MQTTFanComponent9get_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent9set_stateEP8FanState">
+<span id="esphomelib::fan::MQTTFanComponent::set_state__FanStateP"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1aa2ffaa07f068595658afa50781a18827"></span>void <code class="descname">set_state</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState">FanState</a> *<em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent9set_stateEP8FanState" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent6state_E">
+<span id="esphomelib::fan::MQTTFanComponent::state___FanStateP"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a1d72790db9ccb62b4b99105f0c22d182"></span><a class="reference internal" href="#_CPPv2N10esphomelib3fan8FanStateE" title="esphomelib::fan::FanState">FanState</a> *<code class="descname">state_</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent6state_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib3fan16MQTTFanComponent10next_send_E">
+<span id="esphomelib::fan::MQTTFanComponent::next_send___b"></span><span class="target" id="classesphomelib_1_1fan_1_1_m_q_t_t_fan_component_1a588095742955f23356cd91c54762fa23"></span>bool <code class="descname">next_send_</code><a class="headerlink" href="#_CPPv2N10esphomelib3fan16MQTTFanComponent10next_send_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+      <li>Previous: <a href="../binary_sensor/index.html" title="previous chapter">Binary Sensor</a></li>
+      <li>Next: <a href="../light/index.html" title="next chapter">Light</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/fan/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
