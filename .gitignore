@@ -25,5 +25,4 @@ cmake-build-release/
 .python-version
 
 # Docs
-docs/_build
 docs/_doxyxml
