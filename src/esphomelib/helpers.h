@@ -103,7 +103,6 @@ class Optional {
   /// Shorthand to check if the value inside is defined.
   operator bool() const; // NOLINT
 
- protected:
   bool defined{false};
   T value;
 };

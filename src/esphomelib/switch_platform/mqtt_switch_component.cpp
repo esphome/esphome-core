@@ -30,7 +30,7 @@ void MQTTSwitchComponent::setup() {
   assert(this->switch_ != nullptr);
 
   ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->friendly_name_.c_str());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->get_icon());
+  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->get_icon().c_str());
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     // TODO: Enable this once a new Home Assistant version is out.
