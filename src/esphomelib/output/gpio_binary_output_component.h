@@ -20,7 +20,7 @@ namespace output {
  * either through the GPIOOutputPin, or the BinaryOutput API. You can use either one of these.
  *
  * This is only an *output component*, not a *switch*, if what you want is a switch, take a look
- * at app.make_gpio_switch();
+ * at App.make_gpio_switch();
  */
 class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
  public:

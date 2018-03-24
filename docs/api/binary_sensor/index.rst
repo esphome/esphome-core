@@ -20,7 +20,7 @@ Example Usage
                                     binary_sensor::device_class::MOTION,
                                     custom_binary_sensor);
     // GPIO Binary Sensor
-    app.make_gpio_binary_sensor(36, "Window Open",
+    App.make_gpio_binary_sensor(36, "Window Open",
                                 binary_sensor::device_class::WINDOW);
 
 
