@@ -65,13 +65,16 @@ void ADCSensorComponent::update() {
       break;
   }
 #endif
-  this->push_new_value(value_v, 2);
+  this->push_new_value(value_v);
 }
 std::string ADCSensorComponent::unit_of_measurement() {
   return sensor::UNIT_OF_MEASUREMENT_VOLT;
 }
 std::string ADCSensorComponent::icon() {
   return sensor::ICON_VOLTAGE;
+}
+int8_t ADCSensorComponent::accuracy_decimals() {
+  return 2;
 }
 
 } // namespace input

@@ -52,12 +52,12 @@ void DHTComponent::update() {
   ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
   if (!isnan(temperature))
-    this->temperature_sensor_->push_new_value(temperature, this->dht_.getNumberOfDecimalsTemperature());
+    this->temperature_sensor_->push_new_value(temperature);
   else
     ESP_LOGW(TAG, "Invalid Temperature: %f!C", temperature);
 
   if (!isnan(humidity))
-    this->humidity_sensor_->push_new_value(humidity, this->dht_.getNumberOfDecimalsHumidity());
+    this->humidity_sensor_->push_new_value(humidity);
   else
     ESP_LOGW(TAG, "Invalid Humidity: %f%%", humidity);
 }
@@ -77,7 +77,7 @@ void DHTComponent::set_dht_model(DHT::DHT_MODEL_t model) {
   assert_construction_state(this);
   this->model_ = model;
 }
-const DHT &DHTComponent::get_dht() const {
+DHT &DHTComponent::get_dht() {
   return this->dht_;
 }
 DHTTemperatureSensor *DHTComponent::get_temperature_sensor() const {
@@ -98,6 +98,9 @@ uint32_t DHTTemperatureSensor::update_interval() {
   return this->parent_->get_update_interval();
 }
 DHTTemperatureSensor::DHTTemperatureSensor(DHTComponent *parent) : parent_(parent) {}
+int8_t DHTTemperatureSensor::accuracy_decimals() {
+  return this->parent_->get_dht().getNumberOfDecimalsTemperature();
+}
 
 std::string DHTHumiditySensor::unit_of_measurement() {
   return UNIT_OF_MEASUREMENT_PERCENT;
@@ -111,6 +114,9 @@ uint32_t DHTHumiditySensor::update_interval() {
   return this->parent_->get_update_interval();
 }
 DHTHumiditySensor::DHTHumiditySensor(DHTComponent *parent) : parent_(parent) {}
+int8_t DHTHumiditySensor::accuracy_decimals() {
+  return this->parent_->get_dht().getNumberOfDecimalsHumidity();
+}
 
 } // namespace input
 

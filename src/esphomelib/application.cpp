@@ -46,7 +46,8 @@ void Application::setup() {
 void Application::loop() {
   assert(this->application_state_ >= Component::SETUP && "Did you forget to call setup()?");
 
-  if (this->application_state_ == Component::SETUP) {
+  bool first_loop = this->application_state_ == Component::SETUP;
+  if (first_loop) {
     ESP_LOGI(TAG, "Running through first loop()");
     this->application_state_ = Component::LOOP;
   }
@@ -54,6 +55,9 @@ void Application::loop() {
   for (Component *component : this->components_)
     component->loop_();
   yield();
+
+  if (first_loop)
+    ESP_LOGI(TAG, "First loop finished successfully!");
 }
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {

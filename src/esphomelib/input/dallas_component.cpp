@@ -121,7 +121,7 @@ void DallasComponent::request_temperature(DallasTemperatureSensor *sensor) {
 
     if (temperature != DEVICE_DISCONNECTED_C) {
       ESP_LOGD(TAG, "%s: Got Temperature=%.1f°C", sensor->get_name().c_str(), temperature);
-      sensor->push_new_value(temperature, 1);
+      sensor->push_new_value(temperature);
     } else {
       ESP_LOGW(TAG, "%s: Invalid Temperature: %f", sensor->get_name().c_str(), temperature);
     }
@@ -180,6 +180,9 @@ uint32_t DallasTemperatureSensor::get_update_interval() const {
 }
 void DallasTemperatureSensor::set_update_interval(uint32_t update_interval) {
   this->update_interval_ = update_interval;
+}
+int8_t DallasTemperatureSensor::accuracy_decimals() {
+  return 1;
 }
 
 } // namespace input

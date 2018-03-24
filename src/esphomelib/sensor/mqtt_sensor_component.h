@@ -53,11 +53,11 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    * by the sensor. This method can be used to override the value. For example 0 means
    * 1.42 will be rounded to 1 and 2 means it will stay 1.42; also supports negative values.
    *
-   * @param override_accuracy_decimals The accuracy decimal that shall be used.
+   * @param accuracy_decimals The accuracy decimal that shall be used.
    */
-  void override_accuracy_decimals(int8_t override_accuracy_decimals);
+  void set_accuracy_decimals(int8_t accuracy_decimals);
 
-  /// Setup an expiry
+  /// Setup an expiry, 0 disables it
   void set_expire_after(uint32_t expire_after);
   /// Disable Home Assistant value exiry.
   void disable_expire_after();
@@ -144,17 +144,17 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    */
   sensor_callback_t create_new_data_callback();
 
-  /// Get the expire_after in milliseconds used for Home Assistant discovery.
-  const Optional<uint32_t> &get_expire_after() const;
+  /// Get the expire_after in milliseconds used for Home Assistant discovery, first checks override.
+  uint32_t get_expire_after() const;
 
-  /// Get the overriden accuracy in decimals, if set.
-  const Optional<int8_t> &get_override_accuracy_decimals() const;
+  /// Get the accuracy in decimals used by this MQTT Sensor, first checks override, then sensor.
+  int8_t get_accuracy_decimals() const;
 
-  /// Get the unit of measurements advertised to Home Assistant.
-  const std::string &get_unit_of_measurement() const;
+  /// Get the unit of measurements advertised to Home Assistant. First checks override, then sensor.
+  std::string get_unit_of_measurement() const;
 
   /// Get the icon advertised to Home Assistant.
-  const std::string &get_icon() const;
+  std::string get_icon() const;
 
   /** Return the vector of filters this component uses for its value calculations.
    *
@@ -174,10 +174,11 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   void push_out_value(float value, int8_t accuracy_decimals);
 
  protected:
-  std::string unit_of_measurement_;
-  std::string icon_;
-  Optional<uint32_t> expire_after_;
-  Optional<int8_t> override_accuracy_decimals_;
+  Sensor *sensor_{nullptr};
+  Optional<uint32_t> expire_after_; // Override the expire after advertised to Home Assistant
+  Optional<std::string> unit_of_measurement_; // Override the unit of measurement
+  Optional<std::string> icon_; // Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
+  Optional<int8_t> accuracy_decimals_; // Override the accuracy in decimals, otherwise the sensor's values will be used.
   std::vector<Filter *> filters_;
 };
 

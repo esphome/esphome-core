@@ -16,8 +16,8 @@ void Sensor::add_new_value_callback(sensor_callback_t callback) {
   this->callback_.add(std::move(callback));
 }
 
-void Sensor::push_new_value(float value, int8_t accuracy_decimals) {
-  this->callback_.call(value, accuracy_decimals);
+void Sensor::push_new_value(float value) {
+  this->callback_.call(value);
 }
 std::string Sensor::unit_of_measurement() {
   return "";
@@ -26,6 +26,9 @@ std::string Sensor::icon() {
   return "";
 }
 uint32_t Sensor::update_interval() {
+  return 0;
+}
+int8_t Sensor::accuracy_decimals() {
   return 0;
 }
 
