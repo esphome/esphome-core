@@ -1,0 +1,341 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Over-The-Air Updates &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Helpers" href="helpers.html" />
+    <link rel="prev" title="MQTT Client" href="mqtt.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="over-the-air-updates">
+<h1>Over-The-Air Updates<a class="headerlink" href="#over-the-air-updates" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Setup basic OTA</span>
+<span class="n">App</span><span class="p">.</span><span class="n">init_ota</span><span class="p">();</span>
+<span class="c1">// Enable safe mode.</span>
+<span class="n">App</span><span class="p">.</span><span class="n">init_ota</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">start_safe_mode</span><span class="p">();</span>
+<span class="c1">// OTA password</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">ota</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">init_ota</span><span class="p">();</span>
+<span class="n">ota</span><span class="o">-&gt;</span><span class="n">set_auth_plaintext_password</span><span class="p">(</span><span class="s">&quot;VERY_SECURE&quot;</span><span class="p">);</span>
+<span class="n">ota</span><span class="o">-&gt;</span><span class="n">start_safe_mode</span><span class="p">();</span>
+<span class="c1">// OTA MD5 password</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">ota</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">init_ota</span><span class="p">();</span>
+<span class="n">ota</span><span class="o">-&gt;</span><span class="n">set_auth_password_hash</span><span class="p">(</span><span class="s">&quot;761d3a8c46989f1d357842e8dedf7712&quot;</span><span class="p">);</span>
+<span class="n">ota</span><span class="o">-&gt;</span><span class="n">start_safe_mode</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="otacomponent">
+<h3>OTAComponent<a class="headerlink" href="#otacomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib12OTAComponentE">
+<span id="esphomelib::OTAComponent"></span><span class="target" id="classesphomelib_1_1_o_t_a_component"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">OTAComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1_o_t_a_component"><span class="std std-ref">OTAComponent</span></a> provides a simple way to integrate Over-the-Air updates into your app using ArduinoOTA. </p>
+<p>Inherits from <a class="reference internal" href="component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent12OTAComponentE8uint16_tNSt6stringE">
+<span id="esphomelib::OTAComponent::OTAComponent__uint16_t.ss"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a800eaf98d6946406bb36bc910a65e675"></span><code class="descname">OTAComponent</code><span class="sig-paren">(</span>uint16_t <em>port</em> = OTA_DEFAULT_PORT, std::string <em>hostname</em> = &quot;&quot;<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent12OTAComponentE8uint16_tNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct an <a class="reference internal" href="#classesphomelib_1_1_o_t_a_component"><span class="std std-ref">OTAComponent</span></a>. </p>
+<p>Defaults to no authentication.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">port</span></code>: The port ArduinoOTA will listen on. </li>
+<li><code class="docutils literal"><span class="pre">hostname</span></code>: The hostname ArduinoOTA will advertise. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent13set_auth_openEv">
+<span id="esphomelib::OTAComponent::set_auth_open"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1af2d51ceb45ebf1571652f16ba66c2750"></span>void <code class="descname">set_auth_open</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent13set_auth_openEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set ArduinoOTA to accept updates without authentication. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent27set_auth_plaintext_passwordERKNSt6stringE">
+<span id="esphomelib::OTAComponent::set_auth_plaintext_password__ssCR"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1ae2b6aa022fbd501e4efae5ff8472f4d1"></span>void <code class="descname">set_auth_plaintext_password</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent27set_auth_plaintext_passwordERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a plaintext password that ArduinoOTA will use for authentication. </p>
+<p>Note: theoretically this password can be read from ROM by an intruder.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">password</span></code>: The plaintext password. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent22set_auth_password_hashERKNSt6stringE">
+<span id="esphomelib::OTAComponent::set_auth_password_hash__ssCR"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a49b5533aa9f0acabe6270cda914ec1ef"></span>void <code class="descname">set_auth_password_hash</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>hash</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent22set_auth_password_hashERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a MD5 password hash that ArduinoOTA will use for authentication. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">hash</span></code>: The MD5 hash of the password. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent8set_portE8uint16_t">
+<span id="esphomelib::OTAComponent::set_port__uint16_t"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a27e49924d458ead477f925e5f2444ae3"></span>void <code class="descname">set_port</code><span class="sig-paren">(</span>uint16_t <em>port</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent8set_portE8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the port OTA should listen on. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent12set_hostnameERKNSt6stringE">
+<span id="esphomelib::OTAComponent::set_hostname__ssCR"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a090730d6af0806de860321fcea2bcc2c"></span>void <code class="descname">set_hostname</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>hostname</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent12set_hostnameERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the hostname advertised with mDNS. Empty for default hostname. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent15start_safe_modeE7uint8_t8uint32_t">
+<span id="esphomelib::OTAComponent::start_safe_mode__uint8_t.uint32_t"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1aadca70d14e7b49757cb0cfda53bf2d21"></span>void <code class="descname">start_safe_mode</code><span class="sig-paren">(</span>uint8_t <em>num_attempts</em> = 10, uint32_t <em>enable_time</em> = 120000<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent15start_safe_modeE7uint8_t8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Star OTA safe mode. </p>
+<p>When called at startup, this method will automatically detect boot loops.</p>
+<p>If a boot loop is detected (by <code class="docutils literal"><span class="pre">num_attempts</span></code> boots which each lasted less than <code class="docutils literal"><span class="pre">enable_time</span></code>), this method will block startup and enable just WiFi and OTA so that users can flash a new image.</p>
+<p>When in boot loop safe mode, if no OTA attempt is made within <code class="docutils literal"><span class="pre">enable_time</span></code> milliseconds, the device is restarted. If the device has stayed on for more than <code class="docutils literal"><span class="pre">enable_time</span></code> milliseconds, the boot is considered successful and the num_attempts counter is reset.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">num_attempts</span></code>: The number of failed boot attempts until which time safe mode should be enabled. </li>
+<li><code class="docutils literal"><span class="pre">enable_time</span></code>: The time in ms safe mode should be on before restarting. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent5setupEv">
+<span id="esphomelib::OTAComponent::setup"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a65091fb28dfc0aa98314db7edbbbdd81"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Where the component’s initialization should happen. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1_o_t_a_component_1a65091fb28dfc0aa98314db7edbbbdd81"><span class="std std-ref">setup()</span></a>. This method is guaranteed to only be called once. Defaults to doing noting. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib12OTAComponent18get_setup_priorityEv">
+<span id="esphomelib::OTAComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1ac99153681352efe2cfa1fed9b5e7a1ff"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib12OTAComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>priority of <a class="reference internal" href="#classesphomelib_1_1_o_t_a_component_1a65091fb28dfc0aa98314db7edbbbdd81"><span class="std std-ref">setup()</span></a>. </p>
+<p>higher -&gt; executed earlier</p>
+<p>Defaults to 0.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The setup priority of this component </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib12OTAComponent4loopEv">
+<span id="esphomelib::OTAComponent::loop"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a2638fba0f8a65ee96f33ccb726ef5a30"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This method will be called repeatedly. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1_o_t_a_component_1a2638fba0f8a65ee96f33ccb726ef5a30"><span class="std std-ref">loop()</span></a>. <a class="reference internal" href="#classesphomelib_1_1_o_t_a_component_1a65091fb28dfc0aa98314db7edbbbdd81"><span class="std std-ref">setup()</span></a> is guaranteed to be called before this. Defaults to doing nothing. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib12OTAComponent12get_hostnameEv">
+<span id="esphomelib::OTAComponent::get_hostnameC"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a35596fb65fac690266fc14cb2279e4fe"></span><em class="property">const</em> std::string &amp;<code class="descname">get_hostname</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib12OTAComponent12get_hostnameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib12OTAComponent8get_portEv">
+<span id="esphomelib::OTAComponent::get_portC"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a0659f8e2b7388714733d4467b02b6a23"></span>uint16_t <code class="descname">get_port</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib12OTAComponent8get_portEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent9password_E">
+<span id="esphomelib::OTAComponent::password___ss"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1ac457e3f9e1edf12a104fd4cc33491469"></span>std::string <code class="descname">password_</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent9password_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent14password_hash_E">
+<span id="esphomelib::OTAComponent::password_hash___ss"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1ae9678c975864457199738e58542b44b8"></span>std::string <code class="descname">password_hash_</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent14password_hash_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Types</p>
+<dl class="type">
+<dt id="_CPPv2N10esphomelib12OTAComponent12__anonymous0E">
+<span id="esphomelib::OTAComponent::__anonymous0"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1ae8b4071f91dd816dc49a5784bc1ade57"></span><em class="property">enum </em><code class="descname"><strong>[anonymous]</strong></code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent12__anonymous0E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib12OTAComponent4OPENE">
+<span class="target" id="classesphomelib_1_1_o_t_a_component_1ae8b4071f91dd816dc49a5784bc1ade57a56a33ef3793cd4956000665346a43be6"></span><code class="descname">OPEN</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent4OPENE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib12OTAComponent9PLAINTEXTE">
+<span class="target" id="classesphomelib_1_1_o_t_a_component_1ae8b4071f91dd816dc49a5784bc1ade57aad39037b76bbaeeee4d69e2855a5c16a"></span><code class="descname">PLAINTEXT</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent9PLAINTEXTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib12OTAComponent4HASHE">
+<span class="target" id="classesphomelib_1_1_o_t_a_component_1ae8b4071f91dd816dc49a5784bc1ade57a8cd4c0d76f43aed0768b813567480e32"></span><code class="descname">HASH</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent4HASHE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt>
+<span class="target" id="classesphomelib_1_1_o_t_a_component_1aa766add4be30d0949a22a3865dfac9c6"></span><code class="descname">esphomelib::OTAComponent::&#64;0  esphomelib::OTAComponent::auth_type_</code></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt>
+<span class="target" id="classesphomelib_1_1_o_t_a_component_1a0d5657b6d5a42a013af6837c65aa9df0"></span><code class="descname">union esphomelib::OTAComponent::&#64;1 esphomelib::OTAComponent::&#64;2</code></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent5port_E">
+<span id="esphomelib::OTAComponent::port___uint16_t"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a4be82ad791e0e00f94dd554a6e6ce68b"></span>uint16_t <code class="descname">port_</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent5port_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent9hostname_E">
+<span id="esphomelib::OTAComponent::hostname___ss"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1aba45c078206931fe212c111b1b98264a"></span>std::string <code class="descname">hostname_</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent9hostname_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent7server_E">
+<span id="esphomelib::OTAComponent::server___WiFiServerP"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a9046e05fd44d2e948ea6cdc4d97387d5"></span>WiFiServer *<code class="descname">server_</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent7server_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent14ota_triggered_E">
+<span id="esphomelib::OTAComponent::ota_triggered___b"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a388eef957121569180f48bc435fe286b"></span>bool <code class="descname">ota_triggered_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent14ota_triggered_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>stores whether OTA is currently active. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent14has_safe_mode_E">
+<span id="esphomelib::OTAComponent::has_safe_mode___b"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1a15c2a84e315822ece8e380550cdb7bff"></span>bool <code class="descname">has_safe_mode_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent14has_safe_mode_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>stores whether safe mode can be enabled. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent21safe_mode_start_time_E">
+<span id="esphomelib::OTAComponent::safe_mode_start_time___uint32_t"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1abcc273b85d2c561cbe48181dbf0505fb"></span>uint32_t <code class="descname">safe_mode_start_time_</code><a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent21safe_mode_start_time_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>stores when safe mode was enabled. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent22safe_mode_enable_time_E">
+<span id="esphomelib::OTAComponent::safe_mode_enable_time___uint32_t"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1afa0c93273626a7b07d7cd6f0dd966f65"></span>uint32_t <code class="descname">safe_mode_enable_time_</code> = {60000}<a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent22safe_mode_enable_time_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The time safe mode should be on for. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib12OTAComponent24at_ota_progress_message_E">
+<span id="esphomelib::OTAComponent::at_ota_progress_message___uint8_t"></span><span class="target" id="classesphomelib_1_1_o_t_a_component_1aa156f52a039b6991be175fdaf936cb98"></span>uint8_t <code class="descname">at_ota_progress_message_</code> = {0}<a class="headerlink" href="#_CPPv2N10esphomelib12OTAComponent24at_ota_progress_message_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>store OTA progress message index so that we don’t spam logs </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Core</a><ul>
+      <li>Previous: <a href="mqtt.html" title="previous chapter">MQTT Client</a></li>
+      <li>Next: <a href="helpers.html" title="next chapter">Helpers</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/core/ota.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

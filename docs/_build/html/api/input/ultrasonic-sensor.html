@@ -1,0 +1,289 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Ultrasonic Sensor &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Output" href="../output/index.html" />
+    <link rel="prev" title="Pulse Counter Sensor" href="pulse-counter-sensor.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ultrasonic-sensor">
+<h1>Ultrasonic Sensor<a class="headerlink" href="#ultrasonic-sensor" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Basic</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_ultrasonic</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">);</span> <span class="c1">// trigger pin: 12, echo pin: 13</span>
+<span class="c1">// Filter out timeouts</span>
+<span class="k">auto</span> <span class="n">ultrasonic</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_ultrasonic</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">);</span>
+<span class="n">ultrasonic</span><span class="p">.</span><span class="n">mqtt</span><span class="o">-&gt;</span><span class="n">set_filters</span><span class="p">({</span>
+    <span class="k">new</span> <span class="n">sensor</span><span class="o">::</span><span class="n">FilterOutNANFilter</span><span class="p">(),</span> <span class="c1">// filter out timeouts</span>
+<span class="p">});</span>
+<span class="c1">// Set timeout, 4 meters</span>
+<span class="n">ultrasonic</span><span class="p">.</span><span class="n">sensor</span><span class="o">-&gt;</span><span class="n">set_timeout_m</span><span class="p">(</span><span class="mf">4.0f</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application22make_ultrasonic_sensorE13GPIOOutputPin12GPIOInputPinRKNSt6stringE8uint32_t" title="esphomelib::Application::make_ultrasonic_sensor"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_ultrasonic_sensor()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponentE">
+<span id="esphomelib::input::UltrasonicSensorComponent"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component"></span><em class="property">class </em><code class="descclassname">esphomelib::input::</code><code class="descname">UltrasonicSensorComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This sensor component allows you to use your ultrasonic distance sensors. </p>
+<p>Instances of this component periodically send out a short pulse to an ultrasonic sensor, thus creating an ultrasonic sound, and check how long it takes until an “echo” comes back. With this we can measure the distance to an object.</p>
+<p>Sometimes it can happen that we send a short ultrasonic pulse, but never hear the echo. In order to not wait for that signal indefinitely, this component has an additional parameter that allows setting a timeout is microseconds (or meters). If this timeout is reached, the sensor reports a “nan” (not a number) float value. The timeout defaults to 11662µs or 2m.</p>
+<p>Usually these would be like HC-SR04 ultrasonic sensors: one trigger pin for sending the signal and another one echo pin for receiving the signal. Be very careful with that sensor though: it’s made for 5v VCC and doesn’t work very well with the ESP’s 3.3V, so you need to create a voltage divider in order to not damage your ESP.</p>
+<p>Note: The MQTTSenorComponent will create a moving average over these values by default, to disable this behavior, call ultrasonic-&gt;mqtt-&gt;clear_filters() or similar like above. </p>
+<p>Inherits from <a class="reference internal" href="../sensor/index.html#classesphomelib_1_1sensor_1_1_polling_sensor_component"><span class="std std-ref">esphomelib::sensor::PollingSensorComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent25UltrasonicSensorComponentE13GPIOOutputPin12GPIOInputPin8uint32_t">
+<span id="esphomelib::input::UltrasonicSensorComponent::UltrasonicSensorComponent__GPIOOutputPin.GPIOInputPin.uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1ac6377cf9d92c08b5deac0db087682170"></span><code class="descname">UltrasonicSensorComponent</code><span class="sig-paren">(</span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> <em>trigger_pin</em>, <a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> <em>echo_pin</em>, uint32_t <em>update_interval</em> = 5000<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent25UltrasonicSensorComponentE13GPIOOutputPin12GPIOInputPin8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the ultrasonic sensor with the specified trigger pin and echo pin. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">trigger_pin</span></code>: The trigger pin where pulses are sent to. </li>
+<li><code class="docutils literal"><span class="pre">echo_pin</span></code>: The echo pin where the echo is listened for. </li>
+<li><code class="docutils literal"><span class="pre">update_interval</span></code>: The interval in ms the sensor should check for new values. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent14set_timeout_usE8uint32_t">
+<span id="esphomelib::input::UltrasonicSensorComponent::set_timeout_us__uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a2921eaf7fe727ea2870b87ab71708a8d"></span>void <code class="descname">set_timeout_us</code><span class="sig-paren">(</span>uint32_t <em>timeout_us</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent14set_timeout_usE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the timeout for waiting for the echo in µs. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent13set_timeout_mEf">
+<span id="esphomelib::input::UltrasonicSensorComponent::set_timeout_m__float"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a0bfe1f73747e0cd71429c080f3c285aa"></span>void <code class="descname">set_timeout_m</code><span class="sig-paren">(</span>float <em>timeout_m</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent13set_timeout_mEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the timeout for waiting for the echo in meter. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent15set_trigger_pinERK13GPIOOutputPin">
+<span id="esphomelib::input::UltrasonicSensorComponent::set_trigger_pin__GPIOOutputPinCR"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1aa3e21f3426233f360cc65af2ce89841b"></span>void <code class="descname">set_trigger_pin</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> &amp;<em>trigger_pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent15set_trigger_pinERK13GPIOOutputPin" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the trigger pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent12set_echo_pinERK12GPIOInputPin">
+<span id="esphomelib::input::UltrasonicSensorComponent::set_echo_pin__GPIOInputPinCR"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a7896429f81ff912682b7b7c7c49808d8"></span>void <code class="descname">set_echo_pin</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> &amp;<em>echo_pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent12set_echo_pinERK12GPIOInputPin" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the echo pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input25UltrasonicSensorComponent13get_timeout_mEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::get_timeout_mC"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1adf2da43b46b4738d75f19fce93cbead6"></span>float <code class="descname">get_timeout_m</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input25UltrasonicSensorComponent13get_timeout_mEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the timeout in meters for waiting for the echo. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input25UltrasonicSensorComponent14get_timeout_usEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::get_timeout_usC"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1ac6a36b510d2c2079f95fe72895d95f33"></span>uint32_t <code class="descname">get_timeout_us</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input25UltrasonicSensorComponent14get_timeout_usEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the timeout in µs for waiting for the echo. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent12get_echo_pinEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::get_echo_pin"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a1934b17515880025871e21c5fa43c34c"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> &amp;<code class="descname">get_echo_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent12get_echo_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the echo pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent15get_trigger_pinEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::get_trigger_pin"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a2116d3ba3f0415c43e9e11dbabbd18a0"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> &amp;<code class="descname">get_trigger_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent15get_trigger_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the trigger pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent5setupEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::setup"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a946f9b169422d69317bcc9ab3f23bba8"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set up pins and register interval. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent6updateEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::update"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1ae473be8bafd23abe7f3b85cd490f83af"></span>void <code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent6updateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent19unit_of_measurementEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::unit_of_measurement"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a691853c3d71339dd06e61549985dfb13"></span>std::string <code class="descname">unit_of_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent19unit_of_measurementEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override this to set the Home Assistant unit of measurement for this sensor. </p>
+<p>Return “” to disable this feature.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The icon of this sensor, for example “°C”. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent4iconEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::icon"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a7a20803fbfd6d771eab2e598409e6fa5"></span>std::string <code class="descname">icon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent4iconEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override this to set the Home Assistant icon for this sensor. </p>
+<p>Return “” to disable this feature.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The icon of this sensor, for example “mdi:battery”. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent17accuracy_decimalsEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::accuracy_decimals"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1aea0d4bfda4817447ff0875c2e6e9f25e"></span>int8_t <code class="descname">accuracy_decimals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent17accuracy_decimalsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the accuracy in decimals for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input25UltrasonicSensorComponent18get_setup_priorityEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a8ba1426283745f7324fd4c9f5e0404fc"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input25UltrasonicSensorComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Hardware setup priority, before MQTT and WiFi. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent17set_pulse_time_usE8uint32_t">
+<span id="esphomelib::input::UltrasonicSensorComponent::set_pulse_time_us__uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a01e416b23732368a5006b380b56920a2"></span>void <code class="descname">set_pulse_time_us</code><span class="sig-paren">(</span>uint32_t <em>pulse_time_us</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent17set_pulse_time_usE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the time in µs the trigger pin should be enabled for in µs, defaults to 10µs (for HC-SR04) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input25UltrasonicSensorComponent17get_pulse_time_usEv">
+<span id="esphomelib::input::UltrasonicSensorComponent::get_pulse_time_usC"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1acff1aa1e9e8e41a4900eeb3bee03ca11"></span>uint32_t <code class="descname">get_pulse_time_us</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input25UltrasonicSensorComponent17get_pulse_time_usEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the time in µs the trigger pin should be enabled for. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent12trigger_pin_E">
+<span id="esphomelib::input::UltrasonicSensorComponent::trigger_pin___GPIOOutputPin"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1ab9f55b2bbf356029052443ec7281ad67"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib13GPIOOutputPinE" title="esphomelib::GPIOOutputPin">GPIOOutputPin</a> <code class="descname">trigger_pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent12trigger_pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent9echo_pin_E">
+<span id="esphomelib::input::UltrasonicSensorComponent::echo_pin___GPIOInputPin"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a8ef0aa9cb3710571a1ff9ee9a02f4cd7"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> <code class="descname">echo_pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent9echo_pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent11timeout_us_E">
+<span id="esphomelib::input::UltrasonicSensorComponent::timeout_us___uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a29da4b13d4e75aaca372a6a2e51cd593"></span>uint32_t <code class="descname">timeout_us_</code> = {11662}<a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent11timeout_us_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent14pulse_time_us_E">
+<span id="esphomelib::input::UltrasonicSensorComponent::pulse_time_us___uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a2a1f070e9f817e9f739e7b356f3a8213"></span>uint32_t <code class="descname">pulse_time_us_</code> = {10}<a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent14pulse_time_us_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>2 meters. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Static Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent7us_to_mE8uint32_t">
+<span id="esphomelib::input::UltrasonicSensorComponent::us_to_m__uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1aef5b2da1cf9ea998d601a2ab262f40eb"></span>float <code class="descname">us_to_m</code><span class="sig-paren">(</span>uint32_t <em>us</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent7us_to_mE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper function to convert the specified echo duration in µs to meters. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25UltrasonicSensorComponent7m_to_usEf">
+<span id="esphomelib::input::UltrasonicSensorComponent::m_to_us__float"></span><span class="target" id="classesphomelib_1_1input_1_1_ultrasonic_sensor_component_1a2410cecf2283910aaa811e63cda8bef4"></span>uint32_t <code class="descname">m_to_us</code><span class="sig-paren">(</span>float <em>m</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25UltrasonicSensorComponent7m_to_usEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper function to convert the specified distance in meters to the echo duration in µs. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Input</a><ul>
+      <li>Previous: <a href="pulse-counter-sensor.html" title="previous chapter">Pulse Counter Sensor</a></li>
+      <li>Next: <a href="../output/index.html" title="next chapter">Output</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/input/ultrasonic-sensor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

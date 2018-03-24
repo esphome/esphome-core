@@ -1,0 +1,324 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ESP32 LEDC Output &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Binary Sensor" href="../binary_sensor/index.html" />
+    <link rel="prev" title="ESP32 LEDC Output" href="ledc.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="esp32-ledc-output">
+<h1>ESP32 LEDC Output<a class="headerlink" href="#esp32-ledc-output" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Setup i2c on pin 14 and 27 with frequency 400000Hz.</span>
+<span class="n">Wire</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">400000</span><span class="p">);</span>
+<span class="c1">// Create the PCA9685 Output hub with frequency 500Hz.</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">pca9685</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_pca9685_component</span><span class="p">(</span><span class="mf">500.0f</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application22make_pca9685_componentEfR7TwoWire" title="esphomelib::Application::make_pca9685_component"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_pca9685_component()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pca9685outputcomponent">
+<h3>PCA9685OutputComponent<a class="headerlink" href="#pca9685outputcomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponentE">
+<span id="esphomelib::output::PCA9685OutputComponent"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component"></span><em class="property">class </em><code class="descclassname">esphomelib::output::</code><code class="descname">PCA9685OutputComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>PCA9685 float output component. </p>
+<p>Inherits from <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent22PCA9685OutputComponentEfR7TwoWire21PCA9685_PhaseBalancer7uint8_t">
+<span id="esphomelib::output::PCA9685OutputComponent::PCA9685OutputComponent__float.TwoWireR.PCA9685_PhaseBalancer.uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a1d3c69ebdaab099353af1dcc3c2ca657"></span><code class="descname">PCA9685OutputComponent</code><span class="sig-paren">(</span>float <em>frequency</em>, TwoWire &amp;<em>i2c_wire</em> = Wire, PCA9685_PhaseBalancer <em>phase_balancer</em> = PCA9685_PhaseBalancer_Linear, uint8_t <em>mode</em> = PCA9685_MODE_OUTPUT_ONACK|PCA9685_MODE_OUTPUT_TPOLE<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent22PCA9685OutputComponentEfR7TwoWire21PCA9685_PhaseBalancer7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the component. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">frequency</span></code>: The frequency of the PCA9685. </li>
+<li><code class="docutils literal"><span class="pre">i2c_wire</span></code>: The TwoWire (i2c) interface. </li>
+<li><code class="docutils literal"><span class="pre">phase_balancer</span></code>: How to balance phases. </li>
+<li><code class="docutils literal"><span class="pre">mode</span></code>: The output mode. For example, PCA9685_MODE_OUTPUT_ONACK or PCA9685_MODE_OUTPUT_TPOLE. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent14create_channelE7uint8_tP20PowerSupplyComponentf">
+<span id="esphomelib::output::PCA9685OutputComponent::create_channel__uint8_t.PowerSupplyComponentP.float"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a597de7407d697b12a2448bcac779b283"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponentE" title="esphomelib::output::PCA9685OutputComponent">PCA9685OutputComponent</a>::<a class="reference internal" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent7ChannelE" title="esphomelib::output::PCA9685OutputComponent::Channel">Channel</a> *<code class="descname">create_channel</code><span class="sig-paren">(</span>uint8_t <em>channel</em>, <a class="reference internal" href="../core/power-supply.html#_CPPv2N10esphomelib20PowerSupplyComponentE" title="esphomelib::PowerSupplyComponent">PowerSupplyComponent</a> *<em>power_supply</em> = nullptr, float <em>max_power</em> = 1.0f<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent14create_channelE7uint8_tP20PowerSupplyComponentf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get a PCA9685 output channel. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The new channel output component. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">channel</span></code>: The channel number. </li>
+<li><code class="docutils literal"><span class="pre">power_supply</span></code>: The power supply that should be set for this channel. Default: nullptr. </li>
+<li><code class="docutils literal"><span class="pre">max_power</span></code>: The maximum power output of this channel. Each value will be multiplied by this. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent13set_frequencyEf">
+<span id="esphomelib::output::PCA9685OutputComponent::set_frequency__float"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1ae8126de78eb2bccc74ddb0625da93931"></span>void <code class="descname">set_frequency</code><span class="sig-paren">(</span>float <em>frequency</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent13set_frequencyEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the frequency of this PCA9685. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent12set_i2c_wireER7TwoWire">
+<span id="esphomelib::output::PCA9685OutputComponent::set_i2c_wire__TwoWireR"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a14215a77032efb7f037615d475fb7a05"></span>void <code class="descname">set_i2c_wire</code><span class="sig-paren">(</span>TwoWire &amp;<em>i2c_wire</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent12set_i2c_wireER7TwoWire" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the i2c TwoWire instance used for communication. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent18set_phase_balancerE21PCA9685_PhaseBalancer">
+<span id="esphomelib::output::PCA9685OutputComponent::set_phase_balancer__PCA9685_PhaseBalancer"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1ab60f1363da530da9e43a3b963818a542"></span>void <code class="descname">set_phase_balancer</code><span class="sig-paren">(</span>PCA9685_PhaseBalancer <em>phase_balancer</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent18set_phase_balancerE21PCA9685_PhaseBalancer" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the PCA9685 used. </p>
+<p>Either PCA9685_PhaseBalancer_None, PCA9685_PhaseBalancer_Linear or PCA9685_PhaseBalancer_Weaved </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent11set_addressE7uint8_t">
+<span id="esphomelib::output::PCA9685OutputComponent::set_address__uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a24fa7eb6f71c1d51e06e616a640600fc"></span>void <code class="descname">set_address</code><span class="sig-paren">(</span>uint8_t <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent11set_addressE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the i2c address for this PCA9685. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent8set_modeE7uint8_t">
+<span id="esphomelib::output::PCA9685OutputComponent::set_mode__uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a3bd1242d8b3774a8a730033a9def9a3a"></span>void <code class="descname">set_mode</code><span class="sig-paren">(</span>uint8_t <em>mode</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent8set_modeE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the PCA9685 output mode, see constructor for more details. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22PCA9685OutputComponent13get_frequencyEv">
+<span id="esphomelib::output::PCA9685OutputComponent::get_frequencyC"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a8a8bf9a7365854f3929aa1b07210df9f"></span>float <code class="descname">get_frequency</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22PCA9685OutputComponent13get_frequencyEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22PCA9685OutputComponent12get_i2c_wireEv">
+<span id="esphomelib::output::PCA9685OutputComponent::get_i2c_wireC"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a70eaa967b5640c480a24be39b5ce62e0"></span>TwoWire &amp;<code class="descname">get_i2c_wire</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22PCA9685OutputComponent12get_i2c_wireEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22PCA9685OutputComponent18get_phase_balancerEv">
+<span id="esphomelib::output::PCA9685OutputComponent::get_phase_balancerC"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a06babe30dabb6b8c345811a9cb5444b8"></span>PCA9685_PhaseBalancer <code class="descname">get_phase_balancer</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22PCA9685OutputComponent18get_phase_balancerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22PCA9685OutputComponent11get_addressEv">
+<span id="esphomelib::output::PCA9685OutputComponent::get_addressC"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1af6094df67ad9569e0cc421000df1b340"></span>uint8_t <code class="descname">get_address</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22PCA9685OutputComponent11get_addressEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22PCA9685OutputComponent8get_modeEv">
+<span id="esphomelib::output::PCA9685OutputComponent::get_modeC"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a8e3a19ead778df760640a7314d46a8ea"></span>uint8_t <code class="descname">get_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22PCA9685OutputComponent8get_modeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent5setupEv">
+<span id="esphomelib::output::PCA9685OutputComponent::setup"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a78d5644be7d212bf22c0f6abf21f3761"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup the PCA9685. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output22PCA9685OutputComponent18get_setup_priorityEv">
+<span id="esphomelib::output::PCA9685OutputComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a7fba704a25144591956158ffcaaf0a10"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output22PCA9685OutputComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>HARDWARE <a class="reference internal" href="../core/component.html#namespaceesphomelib_1_1setup__priority"><span class="std std-ref">setup_priority</span></a>. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent4loopEv">
+<span id="esphomelib::output::PCA9685OutputComponent::loop"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1ab4b6b89add95216726d15496a3a893c2"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Send new values if they were updated. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent17set_channel_valueE7uint8_t8uint16_t">
+<span id="esphomelib::output::PCA9685OutputComponent::set_channel_value__uint8_t.uint16_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a31f2b33a729fed703331db3db7e226ef"></span>void <code class="descname">set_channel_value</code><span class="sig-paren">(</span>uint8_t <em>channel</em>, uint16_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent17set_channel_valueE7uint8_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent10frequency_E">
+<span id="esphomelib::output::PCA9685OutputComponent::frequency___float"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a98bbc5220cd71e9e696c1500f2216a3d"></span>float <code class="descname">frequency_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent10frequency_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent9i2c_wire_E">
+<span id="esphomelib::output::PCA9685OutputComponent::i2c_wire___TwoWireR"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a68b370b243100721801c0322f9b13e95"></span>TwoWire &amp;<code class="descname">i2c_wire_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent9i2c_wire_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent15phase_balancer_E">
+<span id="esphomelib::output::PCA9685OutputComponent::phase_balancer___PCA9685_PhaseBalancer"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a9aa37fb408647da3a032f329df3fa2dc"></span>PCA9685_PhaseBalancer <code class="descname">phase_balancer_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent15phase_balancer_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent8address_E">
+<span id="esphomelib::output::PCA9685OutputComponent::address___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1ab7891e28c459444c16cf55b0341e0d6c"></span>uint8_t <code class="descname">address_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent8address_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent5mode_E">
+<span id="esphomelib::output::PCA9685OutputComponent::mode___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1ab34af065e49440959f6ac38896730978"></span>uint8_t <code class="descname">mode_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent5mode_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent15pwm_controller_E">
+<span id="esphomelib::output::PCA9685OutputComponent::pwm_controller___PCA9685"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a0042ca4aed5145c9ac34bae9354b8831"></span>PCA9685 <code class="descname">pwm_controller_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent15pwm_controller_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent12min_channel_E">
+<span id="esphomelib::output::PCA9685OutputComponent::min_channel___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a7c0604a3733d98b7695774ba3284adf7"></span>uint8_t <code class="descname">min_channel_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent12min_channel_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent12max_channel_E">
+<span id="esphomelib::output::PCA9685OutputComponent::max_channel___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1af9b5d399644c67d743fed15d8adb7ccc"></span>uint8_t <code class="descname">max_channel_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent12max_channel_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent12pwm_amounts_E">
+<span id="esphomelib::output::PCA9685OutputComponent::pwm_amounts___uint16_tA"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a6a82c61de53ff40ff46c7c3bc7770416"></span>uint16_t <code class="descname">pwm_amounts_</code>[16]<a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent12pwm_amounts_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent7update_E">
+<span id="esphomelib::output::PCA9685OutputComponent::update___b"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1a813facdb7da6460a70c6245698c989e8"></span>bool <code class="descname">update_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent7update_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent7ChannelE">
+<span id="esphomelib::output::PCA9685OutputComponent::Channel"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1_1_channel"></span><em class="property">class </em><code class="descname">Channel</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent7ChannelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Inherits from <a class="reference internal" href="index.html#classesphomelib_1_1output_1_1_float_output"><span class="std std-ref">esphomelib::output::FloatOutput</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel7ChannelEP22PCA9685OutputComponent7uint8_t">
+<span id="esphomelib::output::PCA9685OutputComponent::Channel::Channel__PCA9685OutputComponentP.uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1_1_channel_1a11f51520dbe15c2125ffa9a40b1ea3a7"></span><code class="descname">Channel</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponentE" title="esphomelib::output::PCA9685OutputComponent">PCA9685OutputComponent</a> *<em>parent</em>, uint8_t <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel7ChannelEP22PCA9685OutputComponent7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel11write_stateEf">
+<span id="esphomelib::output::PCA9685OutputComponent::Channel::write_state__float"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1_1_channel_1aac07273078c77b399fc37e528610e955"></span>void <code class="descname">write_state</code><span class="sig-paren">(</span>float <em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel11write_stateEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a floating point state to hardware, inversion and max_power is already applied. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel7parent_E">
+<span id="esphomelib::output::PCA9685OutputComponent::Channel::parent___PCA9685OutputComponentP"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1_1_channel_1aa79998ed0c8b38042ddf3b65bce19891"></span><a class="reference internal" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponentE" title="esphomelib::output::PCA9685OutputComponent">PCA9685OutputComponent</a> *<code class="descname">parent_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel7parent_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel8channel_E">
+<span id="esphomelib::output::PCA9685OutputComponent::Channel::channel___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_p_c_a9685_output_component_1_1_channel_1a0dc2fc175c207106de723334323c3ed5"></span>uint8_t <code class="descname">channel_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output22PCA9685OutputComponent7Channel8channel_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Output</a><ul>
+      <li>Previous: <a href="ledc.html" title="previous chapter">ESP32 LEDC Output</a></li>
+      <li>Next: <a href="../binary_sensor/index.html" title="next chapter">Binary Sensor</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/output/pca9685.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

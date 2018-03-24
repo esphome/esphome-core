@@ -1,0 +1,226 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ESP32 LEDC Output &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ESP32 LEDC Output" href="pca9685.html" />
+    <link rel="prev" title="IR Transmitter" href="ir-transmitter.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="esp32-ledc-output">
+<h1>ESP32 LEDC Output<a class="headerlink" href="#esp32-ledc-output" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Create a binary output, *not a switch*</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_ledc_output</span><span class="p">(</span><span class="mi">33</span><span class="p">);</span>
+<span class="c1">// Custom Frequency</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_ledc_output</span><span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="mf">2000.0</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application16make_ledc_outputE7uint8_tf7uint8_t" title="esphomelib::Application::make_ledc_output"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_ledc_output()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ledcoutputcomponent">
+<h3>LEDCOutputComponent<a class="headerlink" href="#ledcoutputcomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponentE">
+<span id="esphomelib::output::LEDCOutputComponent"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component"></span><em class="property">class </em><code class="descclassname">esphomelib::output::</code><code class="descname">LEDCOutputComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>ESP32 LEDC output component. </p>
+<p>Inherits from <a class="reference internal" href="index.html#classesphomelib_1_1output_1_1_float_output"><span class="std std-ref">esphomelib::output::FloatOutput</span></a>, <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent19LEDCOutputComponentE7uint8_tf7uint8_t">
+<span id="esphomelib::output::LEDCOutputComponent::LEDCOutputComponent__uint8_t.float.uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1aeee38f94daa32bad5ea12cce01682b75"></span><code class="descname">LEDCOutputComponent</code><span class="sig-paren">(</span>uint8_t <em>pin</em>, float <em>frequency</em> = 1000.0f, uint8_t <em>bit_depth</em> = 12<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent19LEDCOutputComponentE7uint8_tf7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classesphomelib_1_1output_1_1_l_e_d_c_output_component"><span class="std std-ref">LEDCOutputComponent</span></a>. The channel will be set using the next_ledc_channel global variable. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent7set_pinE7uint8_t">
+<span id="esphomelib::output::LEDCOutputComponent::set_pin__uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1ad82d903b3e32aeecd2f90dfe716dd968"></span>void <code class="descname">set_pin</code><span class="sig-paren">(</span>uint8_t <em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent7set_pinE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the pin used for this output. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent11set_channelE7uint8_t">
+<span id="esphomelib::output::LEDCOutputComponent::set_channel__uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1a34ebf31aa9662fa7a64edeedc7ec2dde"></span>void <code class="descname">set_channel</code><span class="sig-paren">(</span>uint8_t <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent11set_channelE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the ledc_channel used for this component. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent13set_bit_depthE7uint8_t">
+<span id="esphomelib::output::LEDCOutputComponent::set_bit_depth__uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1a434db5aad8b603b96447ee8a8dc3f5e8"></span>void <code class="descname">set_bit_depth</code><span class="sig-paren">(</span>uint8_t <em>bit_depth</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent13set_bit_depthE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the bit depth. Defaults to 12. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent13set_frequencyEf">
+<span id="esphomelib::output::LEDCOutputComponent::set_frequency__float"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1a47a41b5c4928d95657eba7aff5fe5bbf"></span>void <code class="descname">set_frequency</code><span class="sig-paren">(</span>float <em>frequency</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent13set_frequencyEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set frequency the LEDC timer should operate on. </p>
+<p>Two adjacent LEDC channels will usually receive the same timer and so can only have the same frequency.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">frequency</span></code>: The frequency in Hz. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent5setupEv">
+<span id="esphomelib::output::LEDCOutputComponent::setup"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1a9fcd3c629952b56cdeb4eaf24bc893a9"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup LEDC. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output19LEDCOutputComponent18get_setup_priorityEv">
+<span id="esphomelib::output::LEDCOutputComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1ac6052b812213292327aff2c5f76f72e5"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output19LEDCOutputComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>HARDWARE setup priority. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent11write_stateEf">
+<span id="esphomelib::output::LEDCOutputComponent::write_state__float"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1addbfa027472b56070f1ae02089c7c90e"></span>void <code class="descname">write_state</code><span class="sig-paren">(</span>float <em>adjusted_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent11write_stateEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override <a class="reference internal" href="index.html#classesphomelib_1_1output_1_1_float_output"><span class="std std-ref">FloatOutput</span></a>’s write_state. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output19LEDCOutputComponent13get_frequencyEv">
+<span id="esphomelib::output::LEDCOutputComponent::get_frequencyC"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1a1c5ba7443d00e75f13ef250b4f95eb99"></span>float <code class="descname">get_frequency</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output19LEDCOutputComponent13get_frequencyEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output19LEDCOutputComponent13get_bit_depthEv">
+<span id="esphomelib::output::LEDCOutputComponent::get_bit_depthC"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1aa06174a1ab7908728c17c081e41d2323"></span>uint8_t <code class="descname">get_bit_depth</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output19LEDCOutputComponent13get_bit_depthEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output19LEDCOutputComponent11get_channelEv">
+<span id="esphomelib::output::LEDCOutputComponent::get_channelC"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1ac21b14bcdad487247598632485607e49"></span>uint8_t <code class="descname">get_channel</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output19LEDCOutputComponent11get_channelEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output19LEDCOutputComponent7get_pinEv">
+<span id="esphomelib::output::LEDCOutputComponent::get_pinC"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1af6daf8c04d347b712a3913658cb1c4b3"></span>uint8_t <code class="descname">get_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output19LEDCOutputComponent7get_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent4pin_E">
+<span id="esphomelib::output::LEDCOutputComponent::pin___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1aa87d4b00dfda6256e3d45880aca62184"></span>uint8_t <code class="descname">pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent4pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent8channel_E">
+<span id="esphomelib::output::LEDCOutputComponent::channel___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1a1fcae5cc4a0d51722062cec7a67b7650"></span>uint8_t <code class="descname">channel_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent8channel_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent10bit_depth_E">
+<span id="esphomelib::output::LEDCOutputComponent::bit_depth___uint8_t"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1af4a4ebbc3d7272fb49360fcbf7e96a13"></span>uint8_t <code class="descname">bit_depth_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent10bit_depth_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output19LEDCOutputComponent10frequency_E">
+<span id="esphomelib::output::LEDCOutputComponent::frequency___float"></span><span class="target" id="classesphomelib_1_1output_1_1_l_e_d_c_output_component_1a5ce7296305dbb5ef607e3faa5e7ba882"></span>float <code class="descname">frequency_</code><a class="headerlink" href="#_CPPv2N10esphomelib6output19LEDCOutputComponent10frequency_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output17next_ledc_channelE">
+<span id="esphomelib::output::next_ledc_channel__uint8_t"></span><span class="target" id="ledc__output__component_8cpp_1ae8eb54bb0cc65bcc33274f94b0a6c58b"></span>uint8_t <code class="descclassname">esphomelib::output::</code><code class="descname">next_ledc_channel</code> = 0<a class="headerlink" href="#_CPPv2N10esphomelib6output17next_ledc_channelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Output</a><ul>
+      <li>Previous: <a href="ir-transmitter.html" title="previous chapter">IR Transmitter</a></li>
+      <li>Next: <a href="pca9685.html" title="next chapter">ESP32 LEDC Output</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/output/ledc.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

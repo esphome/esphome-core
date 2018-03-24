@@ -1,0 +1,1115 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Light &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Sensor" href="../sensor/index.html" />
+    <link rel="prev" title="Fan" href="../fan/index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="light">
+<h1>Light<a class="headerlink" href="#light" title="Permalink to this headline">¶</a></h1>
+<p>Lights in esphomelib are implemented like fans. Both the hardware and the MQTT frontend
+access a combined <a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState"><code class="xref cpp cpp-class docutils literal"><span class="pre">LightState</span></code></a> object and use only that to set state and receive
+state updates.</p>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Binary</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_binary_light</span><span class="p">(</span><span class="s">&quot;Desk Lamp&quot;</span><span class="p">,</span> <span class="n">App</span><span class="p">.</span><span class="n">make_gpio_output</span><span class="p">(</span><span class="mi">15</span><span class="p">));</span>
+<span class="c1">// Brightness-only</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_monochromatic_light</span><span class="p">(</span><span class="s">&quot;Kitchen Lights&quot;</span><span class="p">,</span> <span class="n">App</span><span class="p">.</span><span class="n">make_ledc_output</span><span class="p">(</span><span class="mi">16</span><span class="p">));</span>
+<span class="c1">// RGB, see esphomelib::output for information how to setup individual channels.</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_rgb_light</span><span class="p">(</span><span class="s">&quot;RGB Lights&quot;</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">);</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_rgbw_light</span><span class="p">(</span><span class="s">&quot;RGBW Lights&quot;</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">white</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application17make_binary_lightERKNSt6stringEPN6output12BinaryOutputE" title="esphomelib::Application::make_binary_light"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_binary_light()</span></code></a>, <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application24make_monochromatic_lightERKNSt6stringEPN6output11FloatOutputE" title="esphomelib::Application::make_monochromatic_light"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_monochromatic_light()</span></code></a>,
+<a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application14make_rgb_lightERKNSt6stringEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputE" title="esphomelib::Application::make_rgb_light"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_rgb_light()</span></code></a>, <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application15make_rgbw_lightERKNSt6stringEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputE" title="esphomelib::Application::make_rgbw_light"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_rgbw_light()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="lightcolorvalues">
+<h3>LightColorValues<a class="headerlink" href="#lightcolorvalues" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light16LightColorValuesE">
+<span id="esphomelib::light::LightColorValues"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightColorValues</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This class represents the color state for a light object. </p>
+<p>All values in this class are represented using floats in the range from 0.0 (off) to 1.0 (on). Not all values have to be populated though, for example a simple monochromatic light only needs to access the state and brightness attributes.</p>
+<p>PLease note all float values are automatically clamped.</p>
+<p>state - Whether the light should be on/off. Represented as a float for transitions. brightness - The brightness of the light. red, green, blue - RGB values. white - The white value for RGBW lights. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues16LightColorValuesEv">
+<span id="esphomelib::light::LightColorValues::LightColorValues"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a387b027bfcbd1f096aa7627018f477ef"></span><code class="descname">LightColorValues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues16LightColorValuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_color_values"><span class="std std-ref">LightColorValues</span></a> with all attributes enabled, but state set to 0.0. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues16LightColorValuesEffffff">
+<span id="esphomelib::light::LightColorValues::LightColorValues__float.float.float.float.float.float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a3b691f7965abbc703272fb7a3df870b0"></span><code class="descname">LightColorValues</code><span class="sig-paren">(</span>float <em>state</em>, float <em>brightness</em>, float <em>red</em>, float <em>green</em>, float <em>blue</em>, float <em>white</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues16LightColorValuesEffffff" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues21load_from_preferencesERKNSt6stringE">
+<span id="esphomelib::light::LightColorValues::load_from_preferences__ssCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a609df9d82cbdf6472591745da823f457"></span>void <code class="descname">load_from_preferences</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues21load_from_preferencesERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Load the color values from the non-volatile storage container preferences into the this object. </p>
+<p><dl class="docutils">
+<dt><strong>See</strong></dt>
+<dd><a class="reference internal" href="#classesphomelib_1_1light_1_1_light_color_values_1a169929ae288edf920ee637375f3741fe"><span class="std std-ref">save_to_preferences()</span></a> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">friendly_name</span></code>: The friendly name of the component that’s calling this. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues19save_to_preferencesERKNSt6stringE">
+<span id="esphomelib::light::LightColorValues::save_to_preferences__ssCRC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a169929ae288edf920ee637375f3741fe"></span>void <code class="descname">save_to_preferences</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>friendly_name</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues19save_to_preferencesERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Store these <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_color_values"><span class="std std-ref">LightColorValues</span></a> in the preferences object. </p>
+<p><dl class="docutils">
+<dt><strong>See</strong></dt>
+<dd><a class="reference internal" href="#classesphomelib_1_1light_1_1_light_color_values_1a609df9d82cbdf6472591745da823f457"><span class="std std-ref">load_from_preferences()</span></a> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">friendly_name</span></code>: The friendly name of the component that’s calling this. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues10parse_jsonERK10JsonObject">
+<span id="esphomelib::light::LightColorValues::parse_json__JsonObjectCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a5e30403e6613f607c7f2f26ea6e24658"></span>void <code class="descname">parse_json</code><span class="sig-paren">(</span><em class="property">const</em> JsonObject &amp;<em>root</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues10parse_jsonERK10JsonObject" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Parse a color from the provided JsonObject. </p>
+<p>See <a class="reference external" href="https://home-assistant.io/components/light.mqtt_json/">Home Assistant MQTT JSON light</a>.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">root</span></code>: The json root object. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues9dump_jsonER10JsonObjectRK11LightTraits">
+<span id="esphomelib::light::LightColorValues::dump_json__JsonObjectR.LightTraitsCRC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a4819df59595fa5247ae45abbbccfda47"></span>void <code class="descname">dump_json</code><span class="sig-paren">(</span>JsonObject &amp;<em>root</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<em>traits</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues9dump_jsonER10JsonObjectRK11LightTraits" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Dump this color into a JsonObject. </p>
+<p>Only dumps values if the corresponding traits are marked supported by traits.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">root</span></code>: The json root object. </li>
+<li><code class="docutils literal"><span class="pre">traits</span></code>: The traits object used for determining whether to include certain attributes. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues15normalize_colorERK11LightTraits">
+<span id="esphomelib::light::LightColorValues::normalize_color__LightTraitsCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a0fb17faad254cf039eb1e9054a342970"></span>void <code class="descname">normalize_color</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<em>traits</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues15normalize_colorERK11LightTraits" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Normalize the color (RGB/W) component. </p>
+<p>Divides all color attributes by the maximum attribute, so effectively set at least one attribute to 1. For example: r=0.3, g=0.5, b=0.4 =&gt; r=0.6, g=1.0, b=0.8</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">traits</span></code>: Used for determining which attributes to consider. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValueseqERK16LightColorValues">
+<span id="esphomelib::light::LightColorValues::eq-operator__LightColorValuesCRC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1ad552b9aa6d2b2963468340600a917bc9"></span>bool <code class="descname">operator==</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>rhs</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValueseqERK16LightColorValues" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Compare this <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_color_values"><span class="std std-ref">LightColorValues</span></a> to rhs, return true iff all attributes match. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValuesneERK16LightColorValues">
+<span id="esphomelib::light::LightColorValues::neq-operator__LightColorValuesCRC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a465303167a2419c2e514cd9a91d4c17d"></span>bool <code class="descname">operator!=</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>rhs</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValuesneERK16LightColorValues" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues9get_stateEv">
+<span id="esphomelib::light::LightColorValues::get_stateC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a26c5733dff87d0f3f7bfc1cde9346eec"></span>float <code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues9get_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues9set_stateEf">
+<span id="esphomelib::light::LightColorValues::set_state__float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a41da9b8dc25ea5850caa524e34349b9a"></span>void <code class="descname">set_state</code><span class="sig-paren">(</span>float <em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues9set_stateEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues14get_brightnessEv">
+<span id="esphomelib::light::LightColorValues::get_brightnessC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a68bfb4e3b1cc7759a406a508dcea4638"></span>float <code class="descname">get_brightness</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues14get_brightnessEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues14set_brightnessEf">
+<span id="esphomelib::light::LightColorValues::set_brightness__float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a2385355b953953891b226c239b6ec1dc"></span>void <code class="descname">set_brightness</code><span class="sig-paren">(</span>float <em>brightness</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues14set_brightnessEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues7get_redEv">
+<span id="esphomelib::light::LightColorValues::get_redC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a581a293297a042f2947057b91172fd9e"></span>float <code class="descname">get_red</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues7get_redEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues7set_redEf">
+<span id="esphomelib::light::LightColorValues::set_red__float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a55e126abe4464f1ec0cfd8cb64daa6bb"></span>void <code class="descname">set_red</code><span class="sig-paren">(</span>float <em>red</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues7set_redEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues9get_greenEv">
+<span id="esphomelib::light::LightColorValues::get_greenC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a5bf27af3a6930a9386af19aecf94213e"></span>float <code class="descname">get_green</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues9get_greenEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues9set_greenEf">
+<span id="esphomelib::light::LightColorValues::set_green__float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1ac90d3918482e6eaecaf3f44ad96df835"></span>void <code class="descname">set_green</code><span class="sig-paren">(</span>float <em>green</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues9set_greenEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues8get_blueEv">
+<span id="esphomelib::light::LightColorValues::get_blueC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a4998c588aa2a6b7de9cb06c69485ee11"></span>float <code class="descname">get_blue</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues8get_blueEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues8set_blueEf">
+<span id="esphomelib::light::LightColorValues::set_blue__float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1afbd59a3adaa8de064ba65e37dd214142"></span>void <code class="descname">set_blue</code><span class="sig-paren">(</span>float <em>blue</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues8set_blueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightColorValues9get_whiteEv">
+<span id="esphomelib::light::LightColorValues::get_whiteC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a0c1bff565b7aa8ee213ae31bb5130902"></span>float <code class="descname">get_white</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightColorValues9get_whiteEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues9set_whiteEf">
+<span id="esphomelib::light::LightColorValues::set_white__float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a27cd61621073e710b0a0d6035f8f284e"></span>void <code class="descname">set_white</code><span class="sig-paren">(</span>float <em>white</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues9set_whiteEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Static Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues4lerpERK16LightColorValuesRK16LightColorValuesf">
+<span id="esphomelib::light::LightColorValues::lerp__LightColorValuesCR.LightColorValuesCR.float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a53c0eaafd5b6260e92bf7d41cec3cd7b"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">lerp</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>start</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>end</em>, float <em>completion</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues4lerpERK16LightColorValuesRK16LightColorValuesf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Linearly interpolate between the values in start to the values in end. </p>
+<p>This function linearly interpolates the color value by just interpolating every attribute independently.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The linearly interpolated <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_color_values"><span class="std std-ref">LightColorValues</span></a>. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">start</span></code>: The interpolation start values. </li>
+<li><code class="docutils literal"><span class="pre">end</span></code>: The interpolation end values. </li>
+<li><code class="docutils literal"><span class="pre">completion</span></code>: The completion value. 0 -&gt; start, 1 -&gt; end. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues6state_E">
+<span id="esphomelib::light::LightColorValues::state___float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a53515fe6570f6db2f5ea7e8aecaf220d"></span>float <code class="descname">state_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues6state_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>ON / OFF, float for transition. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues11brightness_E">
+<span id="esphomelib::light::LightColorValues::brightness___float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a4e82ef49819a2158d4369675e96dfb3f"></span>float <code class="descname">brightness_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues11brightness_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues4red_E">
+<span id="esphomelib::light::LightColorValues::red___float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a8bc8cb59045e1108bdb721d904c44b14"></span>float <code class="descname">red_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues4red_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues6green_E">
+<span id="esphomelib::light::LightColorValues::green___float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a75aa55aef8c3149cdac80d73810bbd18"></span>float <code class="descname">green_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues6green_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues5blue_E">
+<span id="esphomelib::light::LightColorValues::blue___float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1a2feb16bc77ca8150af21335e589ec66f"></span>float <code class="descname">blue_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues5blue_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightColorValues6white_E">
+<span id="esphomelib::light::LightColorValues::white___float"></span><span class="target" id="classesphomelib_1_1light_1_1_light_color_values_1ae1b5c644e2701a2b531b930427a07fa7"></span>float <code class="descname">white_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightColorValues6white_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="lighteffect">
+<h3>LightEffect<a class="headerlink" href="#lighteffect" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light11LightEffectE">
+<span id="esphomelib::light::LightEffect"></span><span class="target" id="classesphomelib_1_1light_1_1_light_effect"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightEffect</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightEffectE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Base-class for all light effects. </p>
+<p>In order to create a custom effect, first create a subclass implementing apply_effect and optionally initialize which both can use the provided <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_state"><span class="std std-ref">LightState</span></a> to set light colors and/or start transitions. Next, override <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_effect_1a6e991f6ae7fe06854db2fc42986fea43"><span class="std std-ref">get_name()</span></a> and return the name of your effect. Lastly, you need to register your effect in light_effect_entries using the <a class="reference internal" href="#structesphomelib_1_1light_1_1_light_effect_1_1_entry"><span class="std std-ref">LightEffect::Entry</span></a> struct. </p>
+<p>Subclassed by <a class="reference internal" href="#classesphomelib_1_1light_1_1_none_light_effect"><span class="std std-ref">esphomelib::light::NoneLightEffect</span></a>, <a class="reference internal" href="#classesphomelib_1_1light_1_1_random_light_effect"><span class="std std-ref">esphomelib::light::RandomLightEffect</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightEffect8get_nameEv">
+<span id="esphomelib::light::LightEffect::get_nameC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_effect_1a6e991f6ae7fe06854db2fc42986fea43"></span><em class="property">virtual</em> std::string <code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em> = 0<a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightEffect8get_nameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the name of this effect. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightEffect10initializeEP10LightState">
+<span id="esphomelib::light::LightEffect::initialize__LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_light_effect_1a94d37a801fdfe43e392e3db29b3cbd72"></span>void <code class="descname">initialize</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightEffect10initializeEP10LightState" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize this <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_effect"><span class="std std-ref">LightEffect</span></a>. Will be called once after creation. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightEffect12apply_effectEP10LightState">
+<span id="esphomelib::light::LightEffect::apply_effect__LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_light_effect_1a9c6038e164a30dc55ef4d554db11110c"></span><em class="property">virtual</em> void <code class="descname">apply_effect</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<em>state</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv2N10esphomelib5light11LightEffect12apply_effectEP10LightState" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Apply this effect. Use the provided state for starting transitions, … </p>
+</dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light11LightEffect5EntryE">
+<span id="esphomelib::light::LightEffect::Entry"></span><span class="target" id="structesphomelib_1_1light_1_1_light_effect_1_1_entry"></span><em class="property">struct </em><code class="descname">Entry</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightEffect5EntryE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Internal struct for light_effect_entries. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light11LightEffect5Entry4nameE">
+<span id="esphomelib::light::LightEffect::Entry::name__ss"></span><span class="target" id="structesphomelib_1_1light_1_1_light_effect_1_1_entry_1a4bb18a606c8659d72888608674239cf4"></span>std::string <code class="descname">name</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightEffect5Entry4nameE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The name of your effect. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light11LightEffect5Entry12requirementsE">
+<span id="esphomelib::light::LightEffect::Entry::requirements__LightTraits"></span><span class="target" id="structesphomelib_1_1light_1_1_light_effect_1_1_entry_1a4ae1b9581ef02afb4477df5a5e701f7c"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> <code class="descname">requirements</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightEffect5Entry12requirementsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Which traits the light needs to have for this effect. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light11LightEffect5Entry11constructorE">
+<span id="esphomelib::light::LightEffect::Entry::constructor__std::function:std::unique_ptr<LightEffect>):"></span><span class="target" id="structesphomelib_1_1light_1_1_light_effect_1_1_entry_1a1d83ed2aff37ca0fd21b7a58fafa82c3"></span>std::function&lt;std::unique_ptr&lt;LightEffect&gt;)&gt; <code class="descname">constructor</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightEffect5Entry11constructorE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A function creating a your light effect. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light15NoneLightEffectE">
+<span id="esphomelib::light::NoneLightEffect"></span><span class="target" id="classesphomelib_1_1light_1_1_none_light_effect"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">NoneLightEffect</code><a class="headerlink" href="#_CPPv2N10esphomelib5light15NoneLightEffectE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Default effect for all lights. Does nothing. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_effect"><span class="std std-ref">esphomelib::light::LightEffect</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light15NoneLightEffect8get_nameEv">
+<span id="esphomelib::light::NoneLightEffect::get_nameC"></span><span class="target" id="classesphomelib_1_1light_1_1_none_light_effect_1a8de96425a38d5c60c129a0b7b1bcb7e4"></span>std::string <code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light15NoneLightEffect8get_nameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the name of this effect. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light15NoneLightEffect12apply_effectEP10LightState">
+<span id="esphomelib::light::NoneLightEffect::apply_effect__LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_none_light_effect_1a0dc9d451bcbe957aa7e464be89faa2a2"></span>void <code class="descname">apply_effect</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light15NoneLightEffect12apply_effectEP10LightState" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Apply this effect. Use the provided state for starting transitions, … </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Static Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light15NoneLightEffect6createEv">
+<span id="esphomelib::light::NoneLightEffect::create"></span><span class="target" id="classesphomelib_1_1light_1_1_none_light_effect_1a60d7d50411d9746b8aa2948ead82860e"></span>std::unique_ptr&lt;<a class="reference internal" href="#_CPPv2N10esphomelib5light11LightEffectE" title="esphomelib::light::LightEffect">LightEffect</a>&gt; <code class="descname">create</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light15NoneLightEffect6createEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light17RandomLightEffectE">
+<span id="esphomelib::light::RandomLightEffect"></span><span class="target" id="classesphomelib_1_1light_1_1_random_light_effect"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">RandomLightEffect</code><a class="headerlink" href="#_CPPv2N10esphomelib5light17RandomLightEffectE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Random effect. Sets random colors every 10 seconds and slowly transitions between them. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_effect"><span class="std std-ref">esphomelib::light::LightEffect</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light17RandomLightEffect17RandomLightEffectEv">
+<span id="esphomelib::light::RandomLightEffect::RandomLightEffect"></span><span class="target" id="classesphomelib_1_1light_1_1_random_light_effect_1a50ab338886f267ede56751e4ffe3f240"></span><code class="descname">RandomLightEffect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light17RandomLightEffect17RandomLightEffectEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light17RandomLightEffect8get_nameEv">
+<span id="esphomelib::light::RandomLightEffect::get_nameC"></span><span class="target" id="classesphomelib_1_1light_1_1_random_light_effect_1ae877cfb8327fe666086edfded1078aab"></span>std::string <code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light17RandomLightEffect8get_nameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the name of this effect. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light17RandomLightEffect12apply_effectEP10LightState">
+<span id="esphomelib::light::RandomLightEffect::apply_effect__LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_random_light_effect_1a7093804769c83e78dff3229bfa15fa40"></span>void <code class="descname">apply_effect</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light17RandomLightEffect12apply_effectEP10LightState" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Apply this effect. Use the provided state for starting transitions, … </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Static Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light17RandomLightEffect6createEv">
+<span id="esphomelib::light::RandomLightEffect::create"></span><span class="target" id="classesphomelib_1_1light_1_1_random_light_effect_1afa3c62a23d2dcfc820f389411bf749e1"></span>std::unique_ptr&lt;<a class="reference internal" href="#_CPPv2N10esphomelib5light11LightEffectE" title="esphomelib::light::LightEffect">LightEffect</a>&gt; <code class="descname">create</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light17RandomLightEffect6createEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light17RandomLightEffect18last_color_change_E">
+<span id="esphomelib::light::RandomLightEffect::last_color_change___uint32_t"></span><span class="target" id="classesphomelib_1_1light_1_1_random_light_effect_1a818d3432a3c9eda0ca01b5ba6b110525"></span>uint32_t <code class="descname">last_color_change_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light17RandomLightEffect18last_color_change_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="lightoutput">
+<h3>LightOutput<a class="headerlink" href="#lightoutput" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light11LightOutputE">
+<span id="esphomelib::light::LightOutput"></span><span class="target" id="classesphomelib_1_1light_1_1_light_output"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightOutput</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Interface to write <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_color_values"><span class="std std-ref">LightColorValues</span></a> to hardware. </p>
+<p>Subclassed by <a class="reference internal" href="#classesphomelib_1_1light_1_1_linear_light_output_component"><span class="std std-ref">esphomelib::light::LinearLightOutputComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightOutput11LightOutputEv">
+<span id="esphomelib::light::LightOutput::LightOutput"></span><span class="target" id="classesphomelib_1_1light_1_1_light_output_1a3d3e2f06c859739f19ba04835bb3453e"></span><code class="descname">LightOutput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightOutput11LightOutputEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightOutput9set_stateEP10LightState">
+<span id="esphomelib::light::LightOutput::set_state__LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_light_output_1aff774c8401ab8d83c9c6f4fd87eb5ec7"></span>void <code class="descname">set_state</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightOutput9set_stateEP10LightState" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightOutput9get_stateEv">
+<span id="esphomelib::light::LightOutput::get_stateC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_output_1a7d91fcccbe152b88320eb075a1e98574"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightOutput9get_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightOutput10get_traitsEv">
+<span id="esphomelib::light::LightOutput::get_traitsC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_output_1a80a8032e9d7a3e7bde98a7cfde01fb0d"></span><em class="property">virtual</em> <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<code class="descname">get_traits</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em> = 0<a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightOutput10get_traitsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_traits"><span class="std std-ref">LightTraits</span></a> of this LightCouput. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightOutput18get_current_valuesEv">
+<span id="esphomelib::light::LightOutput::get_current_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_output_1ace3d6b3fe98b71c2c77f6bf19d1b3679"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_current_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightOutput18get_current_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light11LightOutput6state_E">
+<span id="esphomelib::light::LightOutput::state___LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_light_output_1af1e77ec552084db0104fe3d3b77e4149"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<code class="descname">state_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightOutput6state_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponentE">
+<span id="esphomelib::light::LinearLightOutputComponent"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LinearLightOutputComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Enables simple light output to FloatOutputs. </p>
+<p>Supports several light types: monochromatic, RGB, and RGBW. Aditionally supports gamma correction. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_output"><span class="std std-ref">esphomelib::light::LightOutput</span></a>, <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent26LinearLightOutputComponentEv">
+<span id="esphomelib::light::LinearLightOutputComponent::LinearLightOutputComponent"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a590252fb734aa4eeeda4c9a4733b9153"></span><code class="descname">LinearLightOutputComponent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent26LinearLightOutputComponentEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classesphomelib_1_1light_1_1_linear_light_output_component"><span class="std std-ref">LinearLightOutputComponent</span></a> with 2.8 as the gamma correction factor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light26LinearLightOutputComponent10get_traitsEv">
+<span id="esphomelib::light::LinearLightOutputComponent::get_traitsC"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1ab3c4a9d6e1991614fbc53d5625c00e9a"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<code class="descname">get_traits</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light26LinearLightOutputComponent10get_traitsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_traits"><span class="std std-ref">LightTraits</span></a> of this LightCouput. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light26LinearLightOutputComponent17get_gamma_correctEv">
+<span id="esphomelib::light::LinearLightOutputComponent::get_gamma_correctC"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a39b438c02320bcbdd0afa207bfe2df61"></span>float <code class="descname">get_gamma_correct</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light26LinearLightOutputComponent17get_gamma_correctEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent17set_gamma_correctEf">
+<span id="esphomelib::light::LinearLightOutputComponent::set_gamma_correct__float"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a39b654de26d05849321a9705cab59828"></span>void <code class="descname">set_gamma_correct</code><span class="sig-paren">(</span>float <em>gamma_correct</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent17set_gamma_correctEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent12setup_binaryEPN6output12BinaryOutputE">
+<span id="esphomelib::light::LinearLightOutputComponent::setup_binary__output::BinaryOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1aaf5577b2a3f8fcf1e7c88480cf69e7e1"></span>void <code class="descname">setup_binary</code><span class="sig-paren">(</span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output12BinaryOutputE" title="esphomelib::output::BinaryOutput">BinaryOutput</a> *<em>binary</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent12setup_binaryEPN6output12BinaryOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent19setup_monochromaticEPN6output11FloatOutputE">
+<span id="esphomelib::light::LinearLightOutputComponent::setup_monochromatic__output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a2670f910353d4cddb743f2d2ad00d0f3"></span>void <code class="descname">setup_monochromatic</code><span class="sig-paren">(</span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>monochromatic</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent19setup_monochromaticEPN6output11FloatOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set up a monochromatic light. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent9setup_rgbEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputE">
+<span id="esphomelib::light::LinearLightOutputComponent::setup_rgb__output::FloatOutputP.output::FloatOutputP.output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a3dd4b79333ad4188b8fef87b30778637"></span>void <code class="descname">setup_rgb</code><span class="sig-paren">(</span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>red</em>, output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>green</em>, output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>blue</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent9setup_rgbEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set up an RGB light. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent10setup_rgbwEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputE">
+<span id="esphomelib::light::LinearLightOutputComponent::setup_rgbw__output::FloatOutputP.output::FloatOutputP.output::FloatOutputP.output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a489692f32adaf12330fa73b7c7b5bd8b"></span>void <code class="descname">setup_rgbw</code><span class="sig-paren">(</span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>red</em>, output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>green</em>, output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>blue</em>, output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<em>white</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent10setup_rgbwEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputEPN6output11FloatOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set up an RGBW light. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent4loopEv">
+<span id="esphomelib::light::LinearLightOutputComponent::loop"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a6b93f1f1d99c3958f0808c03161b48ca"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This method will be called repeatedly. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1light_1_1_linear_light_output_component_1a6b93f1f1d99c3958f0808c03161b48ca"><span class="std std-ref">loop()</span></a>. <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"><span class="std std-ref">setup()</span></a> is guaranteed to be called before this. Defaults to doing nothing. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent7binary_E">
+<span id="esphomelib::light::LinearLightOutputComponent::binary___output::BinaryOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1aaa9a45557698c4772f5ec5480ae2c3de"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output12BinaryOutputE" title="esphomelib::output::BinaryOutput">BinaryOutput</a> *<code class="descname">binary_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent7binary_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent14monochromatic_E">
+<span id="esphomelib::light::LinearLightOutputComponent::monochromatic___output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1aecd18b288d410c1c0f766e7cbf09ebe5"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<code class="descname">monochromatic_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent14monochromatic_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent4red_E">
+<span id="esphomelib::light::LinearLightOutputComponent::red___output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1acc189744a42bcf54e2bc3c668e966469"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<code class="descname">red_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent4red_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent6green_E">
+<span id="esphomelib::light::LinearLightOutputComponent::green___output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a78e671342f78498b6a31111a32d83a91"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<code class="descname">green_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent6green_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent5blue_E">
+<span id="esphomelib::light::LinearLightOutputComponent::blue___output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a688a679ddf546b311b4481149b488af5"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<code class="descname">blue_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent5blue_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent6white_E">
+<span id="esphomelib::light::LinearLightOutputComponent::white___output::FloatOutputP"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a3df9b1efac12a67f3ab5a66380d0e29b"></span>output::<a class="reference internal" href="../output/index.html#_CPPv2N10esphomelib6output11FloatOutputE" title="esphomelib::output::FloatOutput">FloatOutput</a> *<code class="descname">white_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent6white_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent7traits_E">
+<span id="esphomelib::light::LinearLightOutputComponent::traits___LightTraits"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a1bd6ce9b5c109b50a3a4cbe83f523eb9"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> <code class="descname">traits_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent7traits_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light26LinearLightOutputComponent14gamma_correct_E">
+<span id="esphomelib::light::LinearLightOutputComponent::gamma_correct___float"></span><span class="target" id="classesphomelib_1_1light_1_1_linear_light_output_component_1a06a10d9aa98914d516420230a7617a1c"></span>float <code class="descname">gamma_correct_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LinearLightOutputComponent14gamma_correct_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="lightstate">
+<h3>LightState<a class="headerlink" href="#lightstate" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light10LightStateE">
+<span id="esphomelib::light::LightState"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightState</code><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightStateE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This class represents the communication layer between the front-end MQTT layer and the hardware output layer. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState10LightStateERK11LightTraits">
+<span id="esphomelib::light::LightState::LightState__LightTraitsCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a9df51879e7ffba99b8e51241f9b8ca82"></span><code class="descname">LightState</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<em>traits</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState10LightStateERK11LightTraits" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct this <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_state"><span class="std std-ref">LightState</span></a> using the provided traits. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState12start_effectERKNSt6stringE">
+<span id="esphomelib::light::LightState::start_effect__ssCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1ab6e13cce2e8849326b4c7e3cf24859fb"></span>void <code class="descname">start_effect</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState12start_effectERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Start an effect by name. </p>
+<p>Uses light_effect_entries in light_effect.h for finding the correct effect.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">name</span></code>: The name of the effect, case insensitive. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState11stop_effectEv">
+<span id="esphomelib::light::LightState::stop_effect"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a7c621ec0b381b2ac0db83ddd92680743"></span>void <code class="descname">stop_effect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState11stop_effectEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Stop the current effect (if one is active). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState16start_transitionERK16LightColorValues8uint32_t">
+<span id="esphomelib::light::LightState::start_transition__LightColorValuesCR.uint32_t"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1abface196c1f3d460b8fc93911cc7497f"></span>void <code class="descname">start_transition</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>target</em>, uint32_t <em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState16start_transitionERK16LightColorValues8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Start a linear transition to the provided target values for a specific amount of time. </p>
+<p>If this light doesn’t support transition (see set_traits()), sets the target values immediately.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">target</span></code>: The target color. </li>
+<li><code class="docutils literal"><span class="pre">length</span></code>: The transition length in ms. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState11start_flashERK16LightColorValues8uint32_t">
+<span id="esphomelib::light::LightState::start_flash__LightColorValuesCR.uint32_t"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a369f17179dedac1aad3ad06645070f38"></span>void <code class="descname">start_flash</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>target</em>, uint32_t <em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState11start_flashERK16LightColorValues8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Start a flash for the specified amount of time. </p>
+<p>Resets to the values that were active when the flash was started after length ms.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">target</span></code>: The target flash color. </li>
+<li><code class="docutils literal"><span class="pre">length</span></code>: The flash length in ms. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState15set_transformerENSt10unique_ptrI16LightTransformerEE">
+<span id="esphomelib::light::LightState::set_transformer__std::unique_ptr:LightTransformer:"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a37254487950c32ceb7178e297f9d3d68"></span>void <code class="descname">set_transformer</code><span class="sig-paren">(</span>std::unique_ptr&lt;<a class="reference internal" href="#_CPPv2N10esphomelib5light16LightTransformerE" title="esphomelib::light::LightTransformer">LightTransformer</a>&gt; <em>transformer</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState15set_transformerENSt10unique_ptrI16LightTransformerEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState15set_immediatelyERK16LightColorValues">
+<span id="esphomelib::light::LightState::set_immediately__LightColorValuesCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a76b74bdd1e0766106846ed6a99038afd"></span>void <code class="descname">set_immediately</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState15set_immediatelyERK16LightColorValues" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the color values immediately. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState18get_current_valuesEv">
+<span id="esphomelib::light::LightState::get_current_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1ab8245a67e791d7922c5f77cdfad16942"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_current_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState18get_current_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Applies the effect, transformer and then returns the current values. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState23get_current_values_lazyEv">
+<span id="esphomelib::light::LightState::get_current_values_lazy"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1ad7464ecce52066d15848c0e0ee1d82ee"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<code class="descname">get_current_values_lazy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState23get_current_values_lazyEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lazily get the last current values. Returns the values last returned by <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_state_1ab8245a67e791d7922c5f77cdfad16942"><span class="std std-ref">get_current_values()</span></a>. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState17get_remote_valuesEv">
+<span id="esphomelib::light::LightState::get_remote_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a1978ad460620a7e3118141c6c85fec4a"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_remote_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState17get_remote_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the values that should be reported to the remote. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState15get_effect_nameEv">
+<span id="esphomelib::light::LightState::get_effect_name"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a4b759c93f367abc1d69dee48fb29e1b6"></span>std::string <code class="descname">get_effect_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState15get_effect_nameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the name of the current effect, or if no effect is active “None”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState17add_send_callbackE21light_send_callback_t">
+<span id="esphomelib::light::LightState::add_send_callback__light_send_callback_t"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1ad9775224d6386f68d7ff12fc1e604d40"></span>void <code class="descname">add_send_callback</code><span class="sig-paren">(</span>light_send_callback_t <em>send_callback</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState17add_send_callbackE21light_send_callback_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This lets front-end components subscribe to light change events, for example when a transition is done. </p>
+<p>Note the callback should get the output values through <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_state_1a1978ad460620a7e3118141c6c85fec4a"><span class="std std-ref">get_remote_values()</span></a>.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">send_callback</span></code>: </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState11send_valuesEv">
+<span id="esphomelib::light::LightState::send_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a452c4761a4b6ff0feaf57bbe5bafa3b9"></span>void <code class="descname">send_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState11send_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Causes the callback defined by <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_state_1ad9775224d6386f68d7ff12fc1e604d40"><span class="std std-ref">add_send_callback()</span></a> to trigger. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light10LightState16supports_effectsEv">
+<span id="esphomelib::light::LightState::supports_effectsC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a662cb0880347f4150c08d4279315132d"></span>bool <code class="descname">supports_effects</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light10LightState16supports_effectsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return whether the light has any effects that meet the trait requirements. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light10LightState10get_traitsEv">
+<span id="esphomelib::light::LightState::get_traitsC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a38c1f7cb375c2cd75f555f8cbcf3dc10"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<code class="descname">get_traits</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light10LightState10get_traitsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light10LightState10set_traitsERK11LightTraits">
+<span id="esphomelib::light::LightState::set_traits__LightTraitsCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a8672f6cdfe448ff6b96735957e0a4675"></span>void <code class="descname">set_traits</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<em>traits</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState10set_traitsERK11LightTraits" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light10LightState7effect_E">
+<span id="esphomelib::light::LightState::effect___std::unique_ptr:LightEffect:"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a5f48779c431ce9375627105efa61f4f0"></span>std::unique_ptr&lt;<a class="reference internal" href="#_CPPv2N10esphomelib5light11LightEffectE" title="esphomelib::light::LightEffect">LightEffect</a>&gt; <code class="descname">effect_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState7effect_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light10LightState12transformer_E">
+<span id="esphomelib::light::LightState::transformer___std::unique_ptr:LightTransformer:"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1afa167874799b4a77e92e651ef9d30f46"></span>std::unique_ptr&lt;<a class="reference internal" href="#_CPPv2N10esphomelib5light16LightTransformerE" title="esphomelib::light::LightTransformer">LightTransformer</a>&gt; <code class="descname">transformer_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState12transformer_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light10LightState7values_E">
+<span id="esphomelib::light::LightState::values___LightColorValues"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1a04e0bb67f17e9c8da1dbe4b30b4150bf"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">values_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState7values_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light10LightState14send_callback_E">
+<span class="target" id="classesphomelib_1_1light_1_1_light_state_1a60aa94c8762fd6d9123ac97a6a36bdc1"></span>CallbackManager&lt;void<span class="sig-paren">(</span><span class="sig-paren">)</span>&gt; <code class="descname">send_callback_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState14send_callback_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light10LightState7traits_E">
+<span id="esphomelib::light::LightState::traits___LightTraits"></span><span class="target" id="classesphomelib_1_1light_1_1_light_state_1aaa856c22e8b07853302dc3ceb08ecfd5"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> <code class="descname">traits_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light10LightState7traits_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="lighttraits">
+<h3>LightTraits<a class="headerlink" href="#lighttraits" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light11LightTraitsE">
+<span id="esphomelib::light::LightTraits"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightTraits</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This class is used to represent the capabilities of a light. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightTraits11LightTraitsEv">
+<span id="esphomelib::light::LightTraits::LightTraits"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a0a2acaa876eb2d8c59098a9148006b86"></span><code class="descname">LightTraits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits11LightTraitsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightTraits11LightTraitsEbbb">
+<span id="esphomelib::light::LightTraits::LightTraits__b.b.b"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a1948693f6397b09b5493750786f91888"></span><code class="descname">LightTraits</code><span class="sig-paren">(</span>bool <em>brightness</em>, bool <em>rgb</em>, bool <em>rgb_white_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits11LightTraitsEbbb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightTraits19supports_brightnessEv">
+<span id="esphomelib::light::LightTraits::supports_brightnessC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a5f8c28392a182595a014f6f6bec3de76"></span>bool <code class="descname">supports_brightness</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightTraits19supports_brightnessEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightTraits12supports_rgbEv">
+<span id="esphomelib::light::LightTraits::supports_rgbC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a0e168987ec9b07463562517343a7bbf9"></span>bool <code class="descname">supports_rgb</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightTraits12supports_rgbEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightTraits13supports_rgbwEv">
+<span id="esphomelib::light::LightTraits::supports_rgbwC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a0c1310085f366b01a6159908b5d717ed"></span>bool <code class="descname">supports_rgbw</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightTraits13supports_rgbwEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightTraits15supports_traitsERK11LightTraits">
+<span id="esphomelib::light::LightTraits::supports_traits__LightTraitsCRC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1ae3eea082c0c2594dd7408e1bf74db8a3"></span>bool <code class="descname">supports_traits</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light11LightTraitsE" title="esphomelib::light::LightTraits">LightTraits</a> &amp;<em>rhs</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightTraits15supports_traitsERK11LightTraits" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightTraits14has_brightnessEv">
+<span id="esphomelib::light::LightTraits::has_brightnessC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1af1dae6b0e4dd63828613679bda10cc0d"></span>bool <code class="descname">has_brightness</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightTraits14has_brightnessEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightTraits14set_brightnessEb">
+<span id="esphomelib::light::LightTraits::set_brightness__b"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a3efdf7bad9b880975dc575b62282372a"></span>void <code class="descname">set_brightness</code><span class="sig-paren">(</span>bool <em>brightness</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits14set_brightnessEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightTraits7has_rgbEv">
+<span id="esphomelib::light::LightTraits::has_rgbC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1aa6ad0721037ba6d0654a7017698ae0e6"></span>bool <code class="descname">has_rgb</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightTraits7has_rgbEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightTraits7set_rgbEb">
+<span id="esphomelib::light::LightTraits::set_rgb__b"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1aa516449fa25b1e67f01e3d939f0d08c4"></span>void <code class="descname">set_rgb</code><span class="sig-paren">(</span>bool <em>rgb</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits7set_rgbEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light11LightTraits19has_rgb_white_valueEv">
+<span id="esphomelib::light::LightTraits::has_rgb_white_valueC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a730a214fde5261744e1cc1f18ba11972"></span>bool <code class="descname">has_rgb_white_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light11LightTraits19has_rgb_white_valueEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light11LightTraits19set_rgb_white_valueEb">
+<span id="esphomelib::light::LightTraits::set_rgb_white_value__b"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a1ca65f0c895bd7d91b8b27f302e7b892"></span>void <code class="descname">set_rgb_white_value</code><span class="sig-paren">(</span>bool <em>rgb_white_value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits19set_rgb_white_valueEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light11LightTraits11brightness_E">
+<span id="esphomelib::light::LightTraits::brightness___b"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1ab1116808ad8902bf7d1b074b624a12a1"></span>bool <code class="descname">brightness_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits11brightness_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light11LightTraits4rgb_E">
+<span id="esphomelib::light::LightTraits::rgb___b"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1a64b6f244ffe685a13ba71609847d47d1"></span>bool <code class="descname">rgb_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits4rgb_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light11LightTraits16rgb_white_value_E">
+<span id="esphomelib::light::LightTraits::rgb_white_value___b"></span><span class="target" id="classesphomelib_1_1light_1_1_light_traits_1af8a2021c0fdf07b06bdf1fb0c8cd5149"></span>bool <code class="descname">rgb_white_value_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light11LightTraits16rgb_white_value_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="lighttransformer">
+<h3>LightTransformer<a class="headerlink" href="#lighttransformer" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light16LightTransformerE">
+<span id="esphomelib::light::LightTransformer"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightTransformer</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformerE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Base-class for all light color transformers, such as transitions or flashes. </p>
+<p>Subclassed by <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_flash_transformer"><span class="std std-ref">esphomelib::light::LightFlashTransformer</span></a>, <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_transition_transformer"><span class="std std-ref">esphomelib::light::LightTransitionTransformer</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer16LightTransformerE8uint32_t8uint32_tRK16LightColorValuesRK16LightColorValues">
+<span id="esphomelib::light::LightTransformer::LightTransformer__uint32_t.uint32_t.LightColorValuesCR.LightColorValuesCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a72e5b1029979ca7449a1410e674e33cd"></span><code class="descname">LightTransformer</code><span class="sig-paren">(</span>uint32_t <em>start_time</em>, uint32_t <em>length</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>start_values</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>target_values</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer16LightTransformerE8uint32_t8uint32_tRK16LightColorValuesRK16LightColorValues" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer16LightTransformerEv">
+<span id="esphomelib::light::LightTransformer::LightTransformer"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a0629cfb5735801e632c8055cc3320320"></span><code class="descname">LightTransformer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer16LightTransformerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer11is_finishedEv">
+<span id="esphomelib::light::LightTransformer::is_finished"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1aa81d6a859651f852cc67f37525862f7e"></span>bool <code class="descname">is_finished</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer11is_finishedEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Whether this transformation is finished. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer10get_valuesEv">
+<span id="esphomelib::light::LightTransformer::get_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a392014bacaa6b1da4dbefcbbf120a80a"></span><em class="property">virtual</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer10get_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called to get the current values for output. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer17get_remote_valuesEv">
+<span id="esphomelib::light::LightTransformer::get_remote_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a85d1be061194dd27cf8078fbebf84f73"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_remote_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer17get_remote_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The values that should be reported to the front-end. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer14get_end_valuesEv">
+<span id="esphomelib::light::LightTransformer::get_end_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a782286e3814edeae769625a2263be1b7"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_end_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer14get_end_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The values that should be set after this transformation is complete. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer12get_progressEv">
+<span id="esphomelib::light::LightTransformer::get_progress"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a5a3f59516b3292a1cdfb48c2f279b53b"></span>float <code class="descname">get_progress</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer12get_progressEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the completion of this transformer, 0 to 1. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightTransformer16get_start_valuesEv">
+<span id="esphomelib::light::LightTransformer::get_start_valuesC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a2b88689509f26dd876a60e2846f2ce5d"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<code class="descname">get_start_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightTransformer16get_start_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light16LightTransformer17get_target_valuesEv">
+<span id="esphomelib::light::LightTransformer::get_target_valuesC"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a7825bc4084c34edc6aff1ae3820572f0"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<code class="descname">get_target_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light16LightTransformer17get_target_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer11start_time_E">
+<span id="esphomelib::light::LightTransformer::start_time___uint32_t"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a6b0eaad6969cadf3e084a22301030626"></span>uint32_t <code class="descname">start_time_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer11start_time_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer7length_E">
+<span id="esphomelib::light::LightTransformer::length___uint32_t"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a3b52e647338756c548c7c03cdfda554f"></span>uint32_t <code class="descname">length_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer7length_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer13start_values_E">
+<span id="esphomelib::light::LightTransformer::start_values___LightColorValues"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1a6e9e26298719b27ac0f50ad000f7a1af"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">start_values_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer13start_values_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light16LightTransformer14target_values_E">
+<span id="esphomelib::light::LightTransformer::target_values___LightColorValues"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transformer_1abd33a0aaf9390c864dca98344cf5d9b1"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">target_values_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light16LightTransformer14target_values_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light26LightTransitionTransformerE">
+<span id="esphomelib::light::LightTransitionTransformer"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transition_transformer"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightTransitionTransformer</code><a class="headerlink" href="#_CPPv2N10esphomelib5light26LightTransitionTransformerE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Inherits from <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_transformer"><span class="std std-ref">esphomelib::light::LightTransformer</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LightTransitionTransformer26LightTransitionTransformerE8uint32_t8uint32_tRK16LightColorValuesRK16LightColorValues">
+<span id="esphomelib::light::LightTransitionTransformer::LightTransitionTransformer__uint32_t.uint32_t.LightColorValuesCR.LightColorValuesCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transition_transformer_1ac3b000544671f83625ac9c34ff47f85b"></span><code class="descname">LightTransitionTransformer</code><span class="sig-paren">(</span>uint32_t <em>start_time</em>, uint32_t <em>length</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>start_values</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>target_values</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LightTransitionTransformer26LightTransitionTransformerE8uint32_t8uint32_tRK16LightColorValuesRK16LightColorValues" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light26LightTransitionTransformer10get_valuesEv">
+<span id="esphomelib::light::LightTransitionTransformer::get_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_transition_transformer_1aa133b295a494e078469e3c454d99bc1f"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light26LightTransitionTransformer10get_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called to get the current values for output. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light21LightFlashTransformerE">
+<span id="esphomelib::light::LightFlashTransformer"></span><span class="target" id="classesphomelib_1_1light_1_1_light_flash_transformer"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">LightFlashTransformer</code><a class="headerlink" href="#_CPPv2N10esphomelib5light21LightFlashTransformerE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Inherits from <a class="reference internal" href="#classesphomelib_1_1light_1_1_light_transformer"><span class="std std-ref">esphomelib::light::LightTransformer</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light21LightFlashTransformer21LightFlashTransformerE8uint32_t8uint32_tRK16LightColorValuesRK16LightColorValues">
+<span id="esphomelib::light::LightFlashTransformer::LightFlashTransformer__uint32_t.uint32_t.LightColorValuesCR.LightColorValuesCR"></span><span class="target" id="classesphomelib_1_1light_1_1_light_flash_transformer_1a29904a72c544c2236fee289e0a38cc6f"></span><code class="descname">LightFlashTransformer</code><span class="sig-paren">(</span>uint32_t <em>start_time</em>, uint32_t <em>length</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>start_values</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> &amp;<em>target_values</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light21LightFlashTransformer21LightFlashTransformerE8uint32_t8uint32_tRK16LightColorValuesRK16LightColorValues" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light21LightFlashTransformer10get_valuesEv">
+<span id="esphomelib::light::LightFlashTransformer::get_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_flash_transformer_1a5d28800fa7abf5ab65f8be60c7961f74"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light21LightFlashTransformer10get_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called to get the current values for output. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light21LightFlashTransformer14get_end_valuesEv">
+<span id="esphomelib::light::LightFlashTransformer::get_end_values"></span><span class="target" id="classesphomelib_1_1light_1_1_light_flash_transformer_1aafe8a6e80b41c9007e5544f2eefab97d"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light16LightColorValuesE" title="esphomelib::light::LightColorValues">LightColorValues</a> <code class="descname">get_end_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light21LightFlashTransformer14get_end_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The values that should be set after this transformation is complete. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="mqttjsonlightcomponent">
+<h3>MQTTJSONLightComponent<a class="headerlink" href="#mqttjsonlightcomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponentE">
+<span id="esphomelib::light::MQTTJSONLightComponent"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component"></span><em class="property">class </em><code class="descclassname">esphomelib::light::</code><code class="descname">MQTTJSONLightComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Inherits from <a class="reference internal" href="../core/mqtt.html#classesphomelib_1_1mqtt_1_1_m_q_t_t_component"><span class="std std-ref">esphomelib::mqtt::MQTTComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent22MQTTJSONLightComponentENSt6stringE">
+<span id="esphomelib::light::MQTTJSONLightComponent::MQTTJSONLightComponent__ss"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1abd22f22948df1231346d457def2c72d4"></span><code class="descname">MQTTJSONLightComponent</code><span class="sig-paren">(</span>std::string <em>friendly_name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent22MQTTJSONLightComponentENSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light22MQTTJSONLightComponent9get_stateEv">
+<span id="esphomelib::light::MQTTJSONLightComponent::get_stateC"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1aa90075fa97825b7bf5da3267adcc7704"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light22MQTTJSONLightComponent9get_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent9set_stateEP10LightState">
+<span id="esphomelib::light::MQTTJSONLightComponent::set_state__LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1ab3fe016fc7eb8e47b78dbf24bb24871c"></span>void <code class="descname">set_state</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent9set_stateEP10LightState" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light22MQTTJSONLightComponent29get_default_transition_lengthEv">
+<span id="esphomelib::light::MQTTJSONLightComponent::get_default_transition_lengthC"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a5c1f20d474fbd196724277da514e770d"></span>uint32_t <code class="descname">get_default_transition_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light22MQTTJSONLightComponent29get_default_transition_lengthEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Defaults to 1 second (1000 ms). </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent29set_default_transition_lengthE8uint32_t">
+<span id="esphomelib::light::MQTTJSONLightComponent::set_default_transition_length__uint32_t"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a59a9593659baf4ed6f1bc964a6f98038"></span>void <code class="descname">set_default_transition_length</code><span class="sig-paren">(</span>uint32_t <em>default_transition_length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent29set_default_transition_lengthE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the default transition length, i.e. the transition length when no transition is provided. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent5setupEv">
+<span id="esphomelib::light::MQTTJSONLightComponent::setup"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a7224a17109cda1732209e32beefb4f3e"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Where the component’s initialization should happen. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a7224a17109cda1732209e32beefb4f3e"><span class="std std-ref">setup()</span></a>. This method is guaranteed to only be called once. Defaults to doing noting. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent4loopEv">
+<span id="esphomelib::light::MQTTJSONLightComponent::loop"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a0447e438c8f89dc638a711cbc79b9abe"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This method will be called repeatedly. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a0447e438c8f89dc638a711cbc79b9abe"><span class="std std-ref">loop()</span></a>. <a class="reference internal" href="#classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a7224a17109cda1732209e32beefb4f3e"><span class="std std-ref">setup()</span></a> is guaranteed to be called before this. Defaults to doing nothing. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5light22MQTTJSONLightComponent14component_typeEv">
+<span id="esphomelib::light::MQTTJSONLightComponent::component_typeC"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1aa65a0522b8edbd06eca6c7686bccbdb0"></span>std::string <code class="descname">component_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5light22MQTTJSONLightComponent14component_typeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override this method to return the component type (e.g. “light”, “sensor”, …) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent16parse_light_jsonERK10JsonObject">
+<span id="esphomelib::light::MQTTJSONLightComponent::parse_light_json__JsonObjectCR"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1ac74e40df8604ad790b4771d0b95d3c7a"></span>void <code class="descname">parse_light_json</code><span class="sig-paren">(</span><em class="property">const</em> JsonObject &amp;<em>root</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent16parse_light_jsonERK10JsonObject" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent17send_light_valuesEv">
+<span id="esphomelib::light::MQTTJSONLightComponent::send_light_values"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a66d9e06e23b39ccc922775431806a53a"></span>void <code class="descname">send_light_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent17send_light_valuesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent6state_E">
+<span id="esphomelib::light::MQTTJSONLightComponent::state___LightStateP"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1abd274f7e670c263de88bebd2e6858118"></span><a class="reference internal" href="#_CPPv2N10esphomelib5light10LightStateE" title="esphomelib::light::LightState">LightState</a> *<code class="descname">state_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent6state_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent26default_transition_length_E">
+<span id="esphomelib::light::MQTTJSONLightComponent::default_transition_length___uint32_t"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1a0dc9dc95c7fc0e74d1c118539d4b0a8f"></span>uint32_t <code class="descname">default_transition_length_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent26default_transition_length_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5light22MQTTJSONLightComponent10next_send_E">
+<span id="esphomelib::light::MQTTJSONLightComponent::next_send___b"></span><span class="target" id="classesphomelib_1_1light_1_1_m_q_t_t_j_s_o_n_light_component_1ae8786186087299502f4945a8a9ec0c08"></span>bool <code class="descname">next_send_</code><a class="headerlink" href="#_CPPv2N10esphomelib5light22MQTTJSONLightComponent10next_send_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+      <li>Previous: <a href="../fan/index.html" title="previous chapter">Fan</a></li>
+      <li>Next: <a href="../sensor/index.html" title="next chapter">Sensor</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/light/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

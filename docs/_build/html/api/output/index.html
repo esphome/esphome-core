@@ -1,0 +1,296 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Output &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="GPIO Binary Output" href="gpio-binary.html" />
+    <link rel="prev" title="Ultrasonic Sensor" href="../input/ultrasonic-sensor.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="output">
+<h1>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref cpp cpp-any docutils literal"><span class="pre">esphomelib::output</span></code> namespace contains all peripheral output components.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gpio-binary.html">GPIO Binary Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gpio-binary.html#example-usage">Example Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gpio-binary.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gpio-binary.html#gpiobinaryoutputcomponent">GPIOBinaryOutputComponent</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ir-transmitter.html">IR Transmitter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ir-transmitter.html#example-usage">Example Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir-transmitter.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir-transmitter.html#irtransmittercomponent">IRTransmitterComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir-transmitter.html#senddata">SendData</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ledc.html">LEDC PWM Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ledc.html#example-usage">Example Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ledc.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ledc.html#ledcoutputcomponent">LEDCOutputComponent</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pca9685.html">PCA9685 Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pca9685.html#example-usage">Example Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pca9685.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pca9685.html#pca9685outputcomponent">PCA9685OutputComponent</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="binaryoutput">
+<h3>BinaryOutput<a class="headerlink" href="#binaryoutput" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutputE">
+<span id="esphomelib::output::BinaryOutput"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output"></span><em class="property">class </em><code class="descclassname">esphomelib::output::</code><code class="descname">BinaryOutput</code><a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1output_1_1_binary_output"><span class="std std-ref">BinaryOutput</span></a> - The base class for all binary outputs i.e. </p>
+<p>outputs that can only be switched on/off.</p>
+<p>This interface class provides one method you need to override in order to create a binary output component yourself: write_value(). This method will be called for you by the MQTT <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">Component</span></a> through set_state() to indicate that a new value should be written to hardware.</p>
+<p>Note that this class also allows the user to invert any state, but you don’t need to worry about that because the value will already be inverted (if specified by the user) within set_state_(). So write_state will always receive the correctly inverted state.</p>
+<p>Additionally, this class provides high power mode capabilities using <a class="reference internal" href="../core/power-supply.html#classesphomelib_1_1_power_supply_component"><span class="std std-ref">PowerSupplyComponent</span></a>. Every time the output is enabled (independent of inversion!), the power supply will automatically be turned on. </p>
+<p>Subclassed by <a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output"><span class="std std-ref">esphomelib::output::FloatOutput</span></a>, <a class="reference internal" href="gpio-binary.html#classesphomelib_1_1output_1_1_g_p_i_o_binary_output_component"><span class="std std-ref">esphomelib::output::GPIOBinaryOutputComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput13write_enabledEb">
+<span id="esphomelib::output::BinaryOutput::write_enabled__b"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1a91fcaf5c54be229db1ef11ff61485295"></span><em class="property">virtual</em> void <code class="descname">write_enabled</code><span class="sig-paren">(</span>bool <em>enabled</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput13write_enabledEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a binary state to hardware, inversion is already applied. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput12set_invertedEb">
+<span id="esphomelib::output::BinaryOutput::set_inverted__b"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1ad3a31ea155ab24096e1035e50f4bf43c"></span>void <code class="descname">set_inverted</code><span class="sig-paren">(</span>bool <em>inverted</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput12set_invertedEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the inversion state of this binary output. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput16set_power_supplyEP20PowerSupplyComponent">
+<span id="esphomelib::output::BinaryOutput::set_power_supply__PowerSupplyComponentP"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1a8fe481b7b1fa72c30b897caa1fe20b2d"></span>void <code class="descname">set_power_supply</code><span class="sig-paren">(</span><a class="reference internal" href="../core/power-supply.html#_CPPv2N10esphomelib20PowerSupplyComponentE" title="esphomelib::PowerSupplyComponent">PowerSupplyComponent</a> *<em>power_supply</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput16set_power_supplyEP20PowerSupplyComponent" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Use this to connect up a power supply to this output. </p>
+<p>Whenever this output is enabled, the power supply will automatically be turned on.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">power_supply</span></code>: The <a class="reference internal" href="../core/power-supply.html#classesphomelib_1_1_power_supply_component"><span class="std std-ref">PowerSupplyComponent</span></a>, set this to nullptr to disable the power supply. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput6enableEv">
+<span id="esphomelib::output::BinaryOutput::enable"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1af86210b427946a350183345ea697a546"></span>void <code class="descname">enable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput6enableEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Enable this binary output. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput7disableEv">
+<span id="esphomelib::output::BinaryOutput::disable"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1a83d1276a8d3b0a3a47b750493c1aaf9b"></span>void <code class="descname">disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput7disableEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Disable this binary output. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output12BinaryOutput11is_invertedEv">
+<span id="esphomelib::output::BinaryOutput::is_invertedC"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1a54a6e5bb391372dd25b06e21778306a3"></span>bool <code class="descname">is_inverted</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output12BinaryOutput11is_invertedEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return whether this binary output is inverted. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output12BinaryOutput16get_power_supplyEv">
+<span id="esphomelib::output::BinaryOutput::get_power_supplyC"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1aad19d7e7901a1e7c5f4607b8f49eb5c6"></span><a class="reference internal" href="../core/power-supply.html#_CPPv2N10esphomelib20PowerSupplyComponentE" title="esphomelib::PowerSupplyComponent">PowerSupplyComponent</a> *<code class="descname">get_power_supply</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output12BinaryOutput16get_power_supplyEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the power supply assigned to this binary output. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput9inverted_E">
+<span id="esphomelib::output::BinaryOutput::inverted___b"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1ac1fdd471040417f7f2f6a696cd146a6d"></span>bool <code class="descname">inverted_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput9inverted_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput13power_supply_E">
+<span id="esphomelib::output::BinaryOutput::power_supply___PowerSupplyComponentP"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1a843d63d637f30a112699b1f55545eb3c"></span><a class="reference internal" href="../core/power-supply.html#_CPPv2N10esphomelib20PowerSupplyComponentE" title="esphomelib::PowerSupplyComponent">PowerSupplyComponent</a> *<code class="descname">power_supply_</code> = {nullptr}<a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput13power_supply_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output12BinaryOutput25has_requested_high_power_E">
+<span id="esphomelib::output::BinaryOutput::has_requested_high_power___b"></span><span class="target" id="classesphomelib_1_1output_1_1_binary_output_1a2c4881fa0e0bcabe0885843b8f72e9f7"></span>bool <code class="descname">has_requested_high_power_</code> = {false}<a class="headerlink" href="#_CPPv2N10esphomelib6output12BinaryOutput25has_requested_high_power_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="floatoutput">
+<h3>FloatOutput<a class="headerlink" href="#floatoutput" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6output11FloatOutputE">
+<span id="esphomelib::output::FloatOutput"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output"></span><em class="property">class </em><code class="descclassname">esphomelib::output::</code><code class="descname">FloatOutput</code><a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output"><span class="std std-ref">FloatOutput</span></a> - Base class for all output components that can output a variable level, like PWM. </p>
+<p>Floating Point Outputs always use output values in the range from 0.0 to 1.0 (inclusive), where 0.0 means off and 1.0 means fully on. While using floating point numbers might make computation slower, it makes using maths much easier and (in theory) supports all possible bit depths.</p>
+<p>If you want to create a <a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output"><span class="std std-ref">FloatOutput</span></a> yourself, you essentially just have to override <a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output_1a42a42ceda67a0cf3f79b67d802c0abc0"><span class="std std-ref">write_state(float)</span></a>. That method will be called for you with inversion and max power already applied. It is</p>
+<p>This interface is compatible with <a class="reference internal" href="#classesphomelib_1_1output_1_1_binary_output"><span class="std std-ref">BinaryOutput</span></a> (and will automatically convert the binary states to floating point states for you). Additionally, this class provides a way for users to set a maximum power output </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1output_1_1_binary_output"><span class="std std-ref">esphomelib::output::BinaryOutput</span></a></p>
+<p>Subclassed by <a class="reference internal" href="ledc.html#classesphomelib_1_1output_1_1_l_e_d_c_output_component"><span class="std std-ref">esphomelib::output::LEDCOutputComponent</span></a>, <a class="reference internal" href="pca9685.html#classesphomelib_1_1output_1_1_p_c_a9685_output_component_1_1_channel"><span class="std std-ref">esphomelib::output::PCA9685OutputComponent::Channel</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output11FloatOutput11write_stateEf">
+<span id="esphomelib::output::FloatOutput::write_state__float"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1a42a42ceda67a0cf3f79b67d802c0abc0"></span><em class="property">virtual</em> void <code class="descname">write_state</code><span class="sig-paren">(</span>float <em>state</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutput11write_stateEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write a floating point state to hardware, inversion and max_power is already applied. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output11FloatOutput13set_max_powerEf">
+<span id="esphomelib::output::FloatOutput::set_max_power__float"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1a7055a6d0177e899442b4c774373cb5bb"></span>void <code class="descname">set_max_power</code><span class="sig-paren">(</span>float <em>max_power</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutput13set_max_powerEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the maximum power output of this component. </p>
+<p>All values are multiplied by this float to get the adjusted value.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">max_power</span></code>: Automatically clamped from 0 to 1. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output11FloatOutput10set_state_Ef">
+<span id="esphomelib::output::FloatOutput::set_state___float"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1a7b39739f94f81343d0cdf0fa5def8f0d"></span>void <code class="descname">set_state_</code><span class="sig-paren">(</span>float <em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutput10set_state_Ef" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This is the method that is called internally by the MQTT component. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output11FloatOutput6enableEv">
+<span id="esphomelib::output::FloatOutput::enable"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1a8b8b6a09c02df905a427e05fa02dabe5"></span>void <code class="descname">enable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutput6enableEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override <a class="reference internal" href="#classesphomelib_1_1output_1_1_binary_output"><span class="std std-ref">BinaryOutput</span></a>’s <a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output_1a8b8b6a09c02df905a427e05fa02dabe5"><span class="std std-ref">enable()</span></a> and <a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output_1a6852292f17f6030e1a7f2a6958702359"><span class="std std-ref">disable()</span></a> so that we can convert it to float. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output11FloatOutput7disableEv">
+<span id="esphomelib::output::FloatOutput::disable"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1a6852292f17f6030e1a7f2a6958702359"></span>void <code class="descname">disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutput7disableEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override <a class="reference internal" href="#classesphomelib_1_1output_1_1_binary_output"><span class="std std-ref">BinaryOutput</span></a>’s <a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output_1a8b8b6a09c02df905a427e05fa02dabe5"><span class="std std-ref">enable()</span></a> and <a class="reference internal" href="#classesphomelib_1_1output_1_1_float_output_1a6852292f17f6030e1a7f2a6958702359"><span class="std std-ref">disable()</span></a> so that we can convert it to float. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6output11FloatOutput13get_max_powerEv">
+<span id="esphomelib::output::FloatOutput::get_max_powerC"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1a5e8e4db74d7f64a826d9745ea1612d22"></span>float <code class="descname">get_max_power</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6output11FloatOutput13get_max_powerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the maximum power output. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6output11FloatOutput13write_enabledEb">
+<span id="esphomelib::output::FloatOutput::write_enabled__b"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1aebd4ff60610094cdeedf554078282b5e"></span>void <code class="descname">write_enabled</code><span class="sig-paren">(</span>bool <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutput13write_enabledEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Implement BinarySensor’s write_enabled; this should never be called. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6output11FloatOutput10max_power_E">
+<span id="esphomelib::output::FloatOutput::max_power___float"></span><span class="target" id="classesphomelib_1_1output_1_1_float_output_1ae2fee15a1ad64910565885b16563c739"></span>float <code class="descname">max_power_</code> = {1.0f}<a class="headerlink" href="#_CPPv2N10esphomelib6output11FloatOutput10max_power_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+      <li>Previous: <a href="../input/ultrasonic-sensor.html" title="previous chapter">Ultrasonic Sensor</a></li>
+      <li>Next: <a href="gpio-binary.html" title="next chapter">GPIO Binary Output</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/output/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

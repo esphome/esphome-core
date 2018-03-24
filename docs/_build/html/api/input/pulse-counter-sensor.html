@@ -1,0 +1,299 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Pulse Counter Sensor &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Ultrasonic Sensor" href="ultrasonic-sensor.html" />
+    <link rel="prev" title="GPIO Binary Sensor" href="gpio-binary-sensor.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pulse-counter-sensor">
+<h1>Pulse Counter Sensor<a class="headerlink" href="#pulse-counter-sensor" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Basic</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_pulse_counter_sensor</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="s">&quot;Stromverbrauch Wärmepumpe&quot;</span><span class="p">);</span>
+<span class="c1">// Unit conversion</span>
+<span class="k">auto</span> <span class="n">strom_warme</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_pulse_counter_sensor</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="s">&quot;Stromverbrauch Wärmepumpe&quot;</span><span class="p">);</span>
+<span class="n">strom_warme</span><span class="p">.</span><span class="n">mqtt</span><span class="o">-&gt;</span><span class="n">set_unit_of_measurement</span><span class="p">(</span><span class="s">&quot;kW&quot;</span><span class="p">);</span>
+<span class="n">strom_warme</span><span class="p">.</span><span class="n">mqtt</span><span class="o">-&gt;</span><span class="n">clear_filters</span><span class="p">();</span>
+<span class="n">strom_warme</span><span class="p">.</span><span class="n">mqtt</span><span class="o">-&gt;</span><span class="n">add_multiply_filter</span><span class="p">(</span><span class="mf">0.06f</span><span class="p">);</span> <span class="c1">// convert from Wh pulse to kW</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application25make_pulse_counter_sensorE7uint8_tRKNSt6stringE8uint32_t" title="esphomelib::Application::make_pulse_counter_sensor"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_pulse_counter_sensor()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponentE">
+<span id="esphomelib::input::PulseCounterSensorComponent"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component"></span><em class="property">class </em><code class="descclassname">esphomelib::input::</code><code class="descname">PulseCounterSensorComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Pulse Counter - This is the sensor component for the ESP32 integrated pulse counter peripheral. </p>
+<p>It offers 8 pulse counter units that can be setup in several ways to count pulses on a pin. Also allows for some simple filtering of short pulses using <a class="reference internal" href="#classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1af2c29af38fffa46eb423cbeadae54baa"><span class="std std-ref">set_filter()</span></a>, any pulse shorter than the value provided to that function will be discarded. The time is given in APB clock cycles, which usually amount to 12.5 ns per clock. Defaults to the max possible (about 13 ms). See <a class="reference external" href="http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html">http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html</a> for more information.</p>
+<p>The pulse counter defaults to reporting a value of the measurement unit “pulses/min”. To modify this behavior, use filters in MQTTSensor. </p>
+<p>Inherits from <a class="reference internal" href="../sensor/index.html#classesphomelib_1_1sensor_1_1_polling_sensor_component"><span class="std std-ref">esphomelib::sensor::PollingSensorComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent27PulseCounterSensorComponentE7uint8_t8uint32_t">
+<span id="esphomelib::input::PulseCounterSensorComponent::PulseCounterSensorComponent__uint8_t.uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1ad327c36b1e2d86e28ead35bb2c3c9c6b"></span><code class="descname">PulseCounterSensorComponent</code><span class="sig-paren">(</span>uint8_t <em>pin</em>, uint32_t <em>update_interval</em> = 30000<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent27PulseCounterSensorComponentE7uint8_t8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the Pulse Counter instance with the provided pin and update interval. </p>
+<p>The pulse counter unit will automatically be set and the pulse counter is set up to increment the counter on rising edges by default.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">pin</span></code>: The pin. </li>
+<li><code class="docutils literal"><span class="pre">update_interval</span></code>: The update interval in ms. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent7set_pinE7uint8_t">
+<span id="esphomelib::input::PulseCounterSensorComponent::set_pin__uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a8e75b71bb3bf6ab79c5233bf0cf34370"></span>void <code class="descname">set_pin</code><span class="sig-paren">(</span>uint8_t <em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent7set_pinE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the pin for the pulse counter unit. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent13set_pull_modeE16gpio_pull_mode_t">
+<span id="esphomelib::input::PulseCounterSensorComponent::set_pull_mode__gpio_pull_mode_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a16245f6ef00dbbd755826372d7fd9395"></span>void <code class="descname">set_pull_mode</code><span class="sig-paren">(</span>gpio_pull_mode_t <em>pull_mode</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent13set_pull_modeE16gpio_pull_mode_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the pull mode of this pin, default to floating. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent13set_edge_modeE17pcnt_count_mode_t17pcnt_count_mode_t">
+<span id="esphomelib::input::PulseCounterSensorComponent::set_edge_mode__pcnt_count_mode_t.pcnt_count_mode_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a5fb930c94389d3e5bea72bc449978421"></span>void <code class="descname">set_edge_mode</code><span class="sig-paren">(</span>pcnt_count_mode_t <em>rising_edge_mode</em>, pcnt_count_mode_t <em>falling_edge_mode</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent13set_edge_modeE17pcnt_count_mode_t17pcnt_count_mode_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the pcnt_count_mode_t for the rising and falling edges. can be disable, increment and decrement. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent10set_filterE8uint16_t">
+<span id="esphomelib::input::PulseCounterSensorComponent::set_filter__uint16_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1af2c29af38fffa46eb423cbeadae54baa"></span>void <code class="descname">set_filter</code><span class="sig-paren">(</span>uint16_t <em>filter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent10set_filterE8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a filter for this Pulse Counter unit. </p>
+<p>See <a class="reference external" href="http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html#filtering-pulses">http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html#filtering-pulses</a></p>
+<p>Filter is given in APB clock cycles, so a value of one would filter out any pulses shorter than 12.5 ns. This value can have 10-bit at maximum, so the maximum possible value is 1023, or about 12ms.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">filter</span></code>: The filter length in APB clock cycles. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent13set_pcnt_unitE11pcnt_unit_t">
+<span id="esphomelib::input::PulseCounterSensorComponent::set_pcnt_unit__pcnt_unit_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a25dc19da9be70d03cad9a45798c6811b"></span>void <code class="descname">set_pcnt_unit</code><span class="sig-paren">(</span>pcnt_unit_t <em>pcnt_unit</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent13set_pcnt_unitE11pcnt_unit_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the pulse counter unit to be used. This is automatically set by the constructor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input27PulseCounterSensorComponent10get_filterEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::get_filterC"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1aef84e66728fe8d6d36687155d1106f5f"></span>uint16_t <code class="descname">get_filter</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input27PulseCounterSensorComponent10get_filterEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the value from <a class="reference internal" href="#classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1af2c29af38fffa46eb423cbeadae54baa"><span class="std std-ref">set_filter()</span></a>. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input27PulseCounterSensorComponent13get_pull_modeEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::get_pull_modeC"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1af71124471ec7efcf64c483c3a1b6b552"></span>gpio_pull_mode_t <code class="descname">get_pull_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input27PulseCounterSensorComponent13get_pull_modeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the pull mode from <a class="reference internal" href="#classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a16245f6ef00dbbd755826372d7fd9395"><span class="std std-ref">set_pull_mode()</span></a>: </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input27PulseCounterSensorComponent13get_pcnt_unitEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::get_pcnt_unitC"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a8f351598aa2d5c2800b16f0fef561af0"></span>pcnt_unit_t <code class="descname">get_pcnt_unit</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input27PulseCounterSensorComponent13get_pcnt_unitEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the pulse counter unit of this component. Automatically set by constructor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input27PulseCounterSensorComponent20get_rising_edge_modeEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::get_rising_edge_modeC"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1afba3439b97c711e90d8652f9bc76bb34"></span>pcnt_count_mode_t <code class="descname">get_rising_edge_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input27PulseCounterSensorComponent20get_rising_edge_modeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input27PulseCounterSensorComponent21get_falling_edge_modeEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::get_falling_edge_modeC"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a346b96a2145933d32008a06b8011c366"></span>pcnt_count_mode_t <code class="descname">get_falling_edge_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input27PulseCounterSensorComponent21get_falling_edge_modeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent19unit_of_measurementEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::unit_of_measurement"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a032113bc8f0e4a70876e898b9075e46b"></span>std::string <code class="descname">unit_of_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent19unit_of_measurementEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Unit of measurement is “pulses/min”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent4iconEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::icon"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a4ee538f806497b9b4292e52453c7497f"></span>std::string <code class="descname">icon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent4iconEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override this to set the Home Assistant icon for this sensor. </p>
+<p>Return “” to disable this feature.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The icon of this sensor, for example “mdi:battery”. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent17accuracy_decimalsEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::accuracy_decimals"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a53ff4f337dbdcadb3540d28d49f4182c"></span>int8_t <code class="descname">accuracy_decimals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent17accuracy_decimalsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the accuracy in decimals for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent5setupEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::setup"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a2987ebe8480eecdf7a117ef0ab422a95"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Where the component’s initialization should happen. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a2987ebe8480eecdf7a117ef0ab422a95"><span class="std std-ref">setup()</span></a>. This method is guaranteed to only be called once. Defaults to doing noting. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent6updateEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::update"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a6d2bd1035ee9f942dcc2561bb52ffdd8"></span>void <code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent6updateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input27PulseCounterSensorComponent18get_setup_priorityEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a6228a684be358f64b7cba10226b9e6ee"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input27PulseCounterSensorComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>priority of <a class="reference internal" href="#classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a2987ebe8480eecdf7a117ef0ab422a95"><span class="std std-ref">setup()</span></a>. </p>
+<p>higher -&gt; executed earlier</p>
+<p>Defaults to 0.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The setup priority of this component </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input27PulseCounterSensorComponent7get_pinEv">
+<span id="esphomelib::input::PulseCounterSensorComponent::get_pinC"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1adbc91fd407acf19d5e135b9120fa6837"></span>uint8_t <code class="descname">get_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input27PulseCounterSensorComponent7get_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent4pin_E">
+<span id="esphomelib::input::PulseCounterSensorComponent::pin___uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a6913eb1e52de78ee2a246aa18b53cbfb"></span>uint8_t <code class="descname">pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent4pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent10pull_mode_E">
+<span id="esphomelib::input::PulseCounterSensorComponent::pull_mode___gpio_pull_mode_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a0976f7afa449669e6bf8549ff17e46c9"></span>gpio_pull_mode_t <code class="descname">pull_mode_</code> = {GPIO_FLOATING}<a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent10pull_mode_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent10pcnt_unit_E">
+<span id="esphomelib::input::PulseCounterSensorComponent::pcnt_unit___pcnt_unit_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a1a56554c62c2c8d0cbd49084f774027e"></span>pcnt_unit_t <code class="descname">pcnt_unit_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent10pcnt_unit_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent17rising_edge_mode_E">
+<span id="esphomelib::input::PulseCounterSensorComponent::rising_edge_mode___pcnt_count_mode_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a038d4fb0c413aa76257a2c00c7cf2e86"></span>pcnt_count_mode_t <code class="descname">rising_edge_mode_</code> = {PCNT_COUNT_INC}<a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent17rising_edge_mode_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent18falling_edge_mode_E">
+<span id="esphomelib::input::PulseCounterSensorComponent::falling_edge_mode___pcnt_count_mode_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a62f9d987a48e1daf6b7ae62c5bf553fe"></span>pcnt_count_mode_t <code class="descname">falling_edge_mode_</code> = {PCNT_COUNT_DIS}<a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent18falling_edge_mode_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent7filter_E">
+<span id="esphomelib::input::PulseCounterSensorComponent::filter___uint16_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1af2c4dcf64a0db31ddd982d37bb065925"></span>uint16_t <code class="descname">filter_</code> = {1023}<a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent7filter_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input27PulseCounterSensorComponent11last_value_E">
+<span id="esphomelib::input::PulseCounterSensorComponent::last_value___int16_t"></span><span class="target" id="classesphomelib_1_1input_1_1_pulse_counter_sensor_component_1a412ed5f8346a4d6382802e4ee70cc710"></span>int16_t <code class="descname">last_value_</code> = {0}<a class="headerlink" href="#_CPPv2N10esphomelib5input27PulseCounterSensorComponent11last_value_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Input</a><ul>
+      <li>Previous: <a href="gpio-binary-sensor.html" title="previous chapter">GPIO Binary Sensor</a></li>
+      <li>Next: <a href="ultrasonic-sensor.html" title="next chapter">Ultrasonic Sensor</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/input/pulse-counter-sensor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

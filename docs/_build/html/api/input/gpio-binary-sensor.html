@@ -1,0 +1,173 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GPIO Binary Sensor &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Pulse Counter Sensor" href="pulse-counter-sensor.html" />
+    <link rel="prev" title="Dallas Component" href="dallas.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gpio-binary-sensor">
+<h1>GPIO Binary Sensor<a class="headerlink" href="#gpio-binary-sensor" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Basic</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_gpio_binary_sensor</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="s">&quot;Window Open&quot;</span><span class="p">,</span>
+                            <span class="n">binary_sensor</span><span class="o">::</span><span class="n">device_class</span><span class="o">::</span><span class="n">WINDOW</span><span class="p">);</span>
+<span class="c1">// Custom pinMode</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_gpio_binary_sensor</span><span class="p">(</span><span class="n">GPIOInputPin</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="n">INPUT_PULLUP</span><span class="p">),</span> <span class="s">&quot;Window Open&quot;</span><span class="p">,</span>
+                            <span class="n">binary_sensor</span><span class="o">::</span><span class="n">device_class</span><span class="o">::</span><span class="n">WINDOW</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application23make_gpio_binary_sensorE12GPIOInputPinNSt6stringENSt6stringE" title="esphomelib::Application::make_gpio_binary_sensor"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_gpio_binary_sensor()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5input25GPIOBinarySensorComponentE">
+<span id="esphomelib::input::GPIOBinarySensorComponent"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component"></span><em class="property">class </em><code class="descclassname">esphomelib::input::</code><code class="descname">GPIOBinarySensorComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib5input25GPIOBinarySensorComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component"><span class="std std-ref">GPIOBinarySensorComponent</span></a> - Simple binary_sensor component for a GPIO pin. </p>
+<p>This class allows you to observe the digital state of a certain GPIO pin. </p>
+<p>Inherits from <a class="reference internal" href="../binary_sensor/index.html#classesphomelib_1_1binary__sensor_1_1_binary_sensor"><span class="std std-ref">esphomelib::binary_sensor::BinarySensor</span></a>, <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25GPIOBinarySensorComponent25GPIOBinarySensorComponentE12GPIOInputPin">
+<span id="esphomelib::input::GPIOBinarySensorComponent::GPIOBinarySensorComponent__GPIOInputPin"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component_1af517a9b65efae5e6890e50a30917315d"></span><code class="descname">GPIOBinarySensorComponent</code><span class="sig-paren">(</span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> <em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25GPIOBinarySensorComponent25GPIOBinarySensorComponentE12GPIOInputPin" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component"><span class="std std-ref">GPIOBinarySensorComponent</span></a>. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">pin</span></code>: The input pin, can either be an integer or <a class="reference internal" href="../core/helpers.html#classesphomelib_1_1_g_p_i_o_input_pin"><span class="std std-ref">GPIOInputPin</span></a>. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25GPIOBinarySensorComponent7set_pinERK12GPIOInputPin">
+<span id="esphomelib::input::GPIOBinarySensorComponent::set_pin__GPIOInputPinCR"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component_1a55e16543b9526c6c6b50bd41c590241b"></span>void <code class="descname">set_pin</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> &amp;<em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25GPIOBinarySensorComponent7set_pinERK12GPIOInputPin" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the pin for this GPIO binary sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25GPIOBinarySensorComponent5setupEv">
+<span id="esphomelib::input::GPIOBinarySensorComponent::setup"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component_1af31708210ac03b50ed1681edc962bb5e"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25GPIOBinarySensorComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup pin. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input25GPIOBinarySensorComponent18get_setup_priorityEv">
+<span id="esphomelib::input::GPIOBinarySensorComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component_1ab739b987002bb242e61ea31a269cf13e"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input25GPIOBinarySensorComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Hardware priority. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25GPIOBinarySensorComponent4loopEv">
+<span id="esphomelib::input::GPIOBinarySensorComponent::loop"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component_1ad4825a2c2b9607f844022836b183fb96"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25GPIOBinarySensorComponent4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Check sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input25GPIOBinarySensorComponent7get_pinEv">
+<span id="esphomelib::input::GPIOBinarySensorComponent::get_pin"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component_1a2b7cc66921e42f4356853379fc16ad6f"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> &amp;<code class="descname">get_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input25GPIOBinarySensorComponent7get_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the pin for this GPIO binary sensor. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input25GPIOBinarySensorComponent4pin_E">
+<span id="esphomelib::input::GPIOBinarySensorComponent::pin___GPIOInputPin"></span><span class="target" id="classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component_1a7215b7cf75a5920cb4bab05895b6904e"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> <code class="descname">pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input25GPIOBinarySensorComponent4pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Input</a><ul>
+      <li>Previous: <a href="dallas.html" title="previous chapter">Dallas Component</a></li>
+      <li>Next: <a href="pulse-counter-sensor.html" title="next chapter">Pulse Counter Sensor</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/input/gpio-binary-sensor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,383 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dallas Component &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="GPIO Binary Sensor" href="gpio-binary-sensor.html" />
+    <link rel="prev" title="ADC Sensor" href="adc-sensor.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dallas-component">
+<h1>Dallas Component<a class="headerlink" href="#dallas-component" title="Permalink to this headline">¶</a></h1>
+<p>This class allows using Dallas (DS18b20) devices with esphomelib. You first have to
+create a hub or bus where all sensors are connected to (<a class="reference internal" href="#_CPPv2N10esphomelib5input15DallasComponentE" title="esphomelib::input::DallasComponent"><code class="xref cpp cpp-class docutils literal"><span class="pre">DallasComponent</span></code></a>).</p>
+<p>Next, use <a class="reference internal" href="#_CPPv2N10esphomelib5input15DallasComponent21get_sensor_by_addressE8uint64_t8uint32_t7uint8_t" title="esphomelib::input::DallasComponent::get_sensor_by_address"><code class="xref cpp cpp-func docutils literal"><span class="pre">get_sensor_by_address()</span></code></a> and <a class="reference internal" href="#_CPPv2N10esphomelib5input15DallasComponent19get_sensor_by_indexE7uint8_t8uint32_t7uint8_t" title="esphomelib::input::DallasComponent::get_sensor_by_index"><code class="xref cpp cpp-func docutils literal"><span class="pre">get_sensor_by_index()</span></code></a> to get
+individual sensors. You can get the addresses of dallas sensors by observing the log output
+at startup time.</p>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Bus setup</span>
+<span class="k">auto</span> <span class="o">*</span><span class="n">dallas</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_dallas_component</span><span class="p">(</span><span class="mi">15</span><span class="p">);</span>
+
+<span class="c1">// By address</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_mqtt_sensor_for</span><span class="p">(</span><span class="n">dallas</span><span class="o">-&gt;</span><span class="n">get_sensor_by_address</span><span class="p">(</span><span class="mh">0xfe0000031f1eaf29</span><span class="p">),</span>
+                         <span class="s">&quot;Ambient Temperature&quot;</span><span class="p">);</span>
+<span class="c1">// With update interval, every 30 seconds</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_mqtt_sensor_for</span><span class="p">(</span><span class="n">dallas</span><span class="o">-&gt;</span><span class="n">get_sensor_by_address</span><span class="p">(</span><span class="mh">0x710000031f0e7e28</span><span class="p">,</span> <span class="mi">30000</span><span class="p">),</span>
+                         <span class="s">&quot;Heatpump Temperature&quot;</span><span class="p">);</span>
+<span class="c1">// By index</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_mqtt_sensor_for</span><span class="p">(</span><span class="n">dallas</span><span class="o">-&gt;</span><span class="n">get_sensor_by_index</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+                         <span class="s">&quot;Ambient Temperature&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application21make_dallas_componentEP7OneWire" title="esphomelib::Application::make_dallas_component"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_dallas_component()</span></code></a> and <code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_mqt_sensor_for()</span></code>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5input15DallasComponentE">
+<span id="esphomelib::input::DallasComponent"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component"></span><em class="property">class </em><code class="descclassname">esphomelib::input::</code><code class="descname">DallasComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Hub for dealing with dallas temperature sensor. </p>
+<p>Uses a OneWire interface.</p>
+<p>Get the individual sensors with <code class="docutils literal"><span class="pre">get_sensor_by_address</span></code> or <code class="docutils literal"><span class="pre">get_sensor_by_index</span></code>. </p>
+<p>Inherits from <a class="reference internal" href="../core/component.html#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent15DallasComponentEP7OneWire">
+<span id="esphomelib::input::DallasComponent::DallasComponent__OneWireP"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1aae9b21748f50033f15456787a68c1277"></span><code class="descname">DallasComponent</code><span class="sig-paren">(</span>OneWire *<em>one_wire</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent15DallasComponentEP7OneWire" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the <a class="reference internal" href="#classesphomelib_1_1input_1_1_dallas_component"><span class="std std-ref">DallasComponent</span></a> hub with the given OneWire instance pointer. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent21get_sensor_by_addressE8uint64_t8uint32_t7uint8_t">
+<span id="esphomelib::input::DallasComponent::get_sensor_by_address__uint64_t.uint32_t.uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1af2f81453998f5fecb28e1f814d5212bb"></span><a class="reference internal" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensorE" title="esphomelib::input::DallasTemperatureSensor">DallasTemperatureSensor</a> *<code class="descname">get_sensor_by_address</code><span class="sig-paren">(</span>uint64_t <em>address</em>, uint32_t <em>update_interval</em> = 10000, uint8_t <em>resolution</em> = 12<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent21get_sensor_by_addressE8uint64_t8uint32_t7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get a <a class="reference internal" href="#classesphomelib_1_1input_1_1_dallas_temperature_sensor"><span class="std std-ref">DallasTemperatureSensor</span></a> by address. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>A pointer to a <a class="reference internal" href="#classesphomelib_1_1input_1_1_dallas_temperature_sensor"><span class="std std-ref">DallasTemperatureSensor</span></a>, use this to setup MQTT. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">address</span></code>: 64-bit unsigned address for this sensor. Check debug logs for getting this. </li>
+<li><code class="docutils literal"><span class="pre">update_interval</span></code>: The interval in ms that the sensor should be checked. </li>
+<li><code class="docutils literal"><span class="pre">resolution</span></code>: The resolution for this sensor, 8-12. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent19get_sensor_by_indexE7uint8_t8uint32_t7uint8_t">
+<span id="esphomelib::input::DallasComponent::get_sensor_by_index__uint8_t.uint32_t.uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a38a5d254a44e4e2f25a433c51ad4cf6f"></span><a class="reference internal" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensorE" title="esphomelib::input::DallasTemperatureSensor">DallasTemperatureSensor</a> *<code class="descname">get_sensor_by_index</code><span class="sig-paren">(</span>uint8_t <em>index</em>, uint32_t <em>update_interval</em> = 10000, uint8_t <em>resolution</em> = 12<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent19get_sensor_by_indexE7uint8_t8uint32_t7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get a <a class="reference internal" href="#classesphomelib_1_1input_1_1_dallas_temperature_sensor"><span class="std std-ref">DallasTemperatureSensor</span></a> by index. </p>
+<p>Note: It is recommended to use sensors by address to avoid mixing up sensor values if one sensor can’t be found (and therefore receives an incorrect index).</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>A pointer to a <a class="reference internal" href="#classesphomelib_1_1input_1_1_dallas_temperature_sensor"><span class="std std-ref">DallasTemperatureSensor</span></a>, use this to setup MQTT. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">index</span></code>: The index of this sensor, starts with 0. </li>
+<li><code class="docutils literal"><span class="pre">update_interval</span></code>: The interval in ms that the sensor should be checked. </li>
+<li><code class="docutils literal"><span class="pre">resolution</span></code>: The resolution for this sensor, 8-12. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent12scan_devicesEv">
+<span id="esphomelib::input::DallasComponent::scan_devices"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a67604834ec51b1c9b23acf8c7c44320e"></span>std::vector&lt;uint64_t&gt; <code class="descname">scan_devices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent12scan_devicesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Scan all devices on the bus. You can also scroll through the debug logs to get this. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent10get_dallasEv">
+<span id="esphomelib::input::DallasComponent::get_dallas"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a216fe8d06c0e10380d2825b8869c3d7b"></span>DallasTemperature &amp;<code class="descname">get_dallas</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent10get_dallasEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the internal dallas library instance. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input15DallasComponent12get_one_wireEv">
+<span id="esphomelib::input::DallasComponent::get_one_wireC"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a0d7206d57cbe851b674dd952b6465579"></span>OneWire *<code class="descname">get_one_wire</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input15DallasComponent12get_one_wireEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the OneWire instance used for this hub. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent12set_one_wireEP7OneWire">
+<span id="esphomelib::input::DallasComponent::set_one_wire__OneWireP"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a9c1553208707e8d93139684c6637d5b9"></span>void <code class="descname">set_one_wire</code><span class="sig-paren">(</span>OneWire *<em>one_wire</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent12set_one_wireEP7OneWire" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the OneWire instance used for this hub. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent5setupEv">
+<span id="esphomelib::input::DallasComponent::setup"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1aac7ef623f8d068a342680bef04383bd3"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set up individual sensors and update intervals. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input15DallasComponent18get_setup_priorityEv">
+<span id="esphomelib::input::DallasComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a6be50303cec67acef18a84735b0b3dab"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input15DallasComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>HARDWARE_LATE setup priority. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent19request_temperatureEP23DallasTemperatureSensor">
+<span id="esphomelib::input::DallasComponent::request_temperature__DallasTemperatureSensorP"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a353f116ecda28a73e6795efa207ddb78"></span>void <code class="descname">request_temperature</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensorE" title="esphomelib::input::DallasTemperatureSensor">DallasTemperatureSensor</a> *<em>sensor</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent19request_temperatureEP23DallasTemperatureSensor" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Request a temperature reading for the given <a class="reference internal" href="#classesphomelib_1_1input_1_1_dallas_temperature_sensor"><span class="std std-ref">DallasTemperatureSensor</span></a>. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent7dallas_E">
+<span id="esphomelib::input::DallasComponent::dallas___DallasTemperature"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a8a6f3fbbc7d8ef2f89ad47820447a452"></span>DallasTemperature <code class="descname">dallas_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent7dallas_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent9one_wire_E">
+<span id="esphomelib::input::DallasComponent::one_wire___OneWireP"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a232c32a05e6cc5eb2b7dd14b78f5bf7b"></span>OneWire *<code class="descname">one_wire_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent9one_wire_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input15DallasComponent8sensors_E">
+<span id="esphomelib::input::DallasComponent::sensors___std::vector:DallasTemperatureSensorP:"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_component_1a5e2084ba794dc915af16265c29d11d45"></span>std::vector&lt;<a class="reference internal" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensorE" title="esphomelib::input::DallasTemperatureSensor">DallasTemperatureSensor</a> *&gt; <code class="descname">sensors_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input15DallasComponent8sensors_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensorE">
+<span id="esphomelib::input::DallasTemperatureSensor"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor"></span><em class="property">class </em><code class="descclassname">esphomelib::input::</code><code class="descname">DallasTemperatureSensor</code><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensorE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Internal class that helps us create multiple sensors for one Dallas hub. </p>
+<p>Inherits from <a class="reference internal" href="../sensor/index.html#classesphomelib_1_1sensor_1_1_sensor"><span class="std std-ref">esphomelib::sensor::Sensor</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor23DallasTemperatureSensorE8uint64_t7uint8_t8uint32_t">
+<span id="esphomelib::input::DallasTemperatureSensor::DallasTemperatureSensor__uint64_t.uint8_t.uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a9d34c9aab305c3d0151bea1f5dee8263"></span><code class="descname">DallasTemperatureSensor</code><span class="sig-paren">(</span>uint64_t <em>address</em>, uint8_t <em>resolution</em>, uint32_t <em>update_interval</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor23DallasTemperatureSensorE8uint64_t7uint8_t8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the temperature sensor with the given address. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">address</span></code>: 64-bit unsigned address of the temperature sensor. Can be 0 to indicate using index. </li>
+<li><code class="docutils literal"><span class="pre">resolution</span></code>: Resolution used for this sensor. Usually 8-12. </li>
+<li><code class="docutils literal"><span class="pre">update_interval</span></code>: The interval in ms the sensor should be checked. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor12get_address8Ev">
+<span id="esphomelib::input::DallasTemperatureSensor::get_address8"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1ad2a385d41f12bacd35448c8744b1babe"></span>uint8_t *<code class="descname">get_address8</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor12get_address8Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper to get a pointer to the address as uint8_t. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor8get_nameEv">
+<span id="esphomelib::input::DallasTemperatureSensor::get_name"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a8fe706ae95e2af837f1a0b7a57f344fa"></span>std::string <code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor8get_nameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper to create (and cache) the name for this sensor. For example “0xfe0000031f1eaf29”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input23DallasTemperatureSensor11get_addressEv">
+<span id="esphomelib::input::DallasTemperatureSensor::get_addressC"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a874b5b7a0dfab0b279e28793ea1a2d22"></span>uint64_t <code class="descname">get_address</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input23DallasTemperatureSensor11get_addressEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the 64-bit unsigned address for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor11set_addressE8uint64_t">
+<span id="esphomelib::input::DallasTemperatureSensor::set_address__uint64_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a584d881a5136fa3ca186392d7bc7a47d"></span>void <code class="descname">set_address</code><span class="sig-paren">(</span>uint64_t <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor11set_addressE8uint64_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the 64-bit unsigned address for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input23DallasTemperatureSensor9get_indexEv">
+<span id="esphomelib::input::DallasTemperatureSensor::get_indexC"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a15d6d8736b54ee9b73cb12d46e525cf5"></span>uint8_t <code class="descname">get_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input23DallasTemperatureSensor9get_indexEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the index of this sensor. (0 if using address.) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor9set_indexE7uint8_t">
+<span id="esphomelib::input::DallasTemperatureSensor::set_index__uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1ac0157c6dbc2765be6ee8b9f01879c731"></span>void <code class="descname">set_index</code><span class="sig-paren">(</span>uint8_t <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor9set_indexE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the index of this sensor. If using index, address will be set after setup. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input23DallasTemperatureSensor14get_resolutionEv">
+<span id="esphomelib::input::DallasTemperatureSensor::get_resolutionC"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1afa1c7ea8d8d7eeaf2fd9aeb24cab6d20"></span>uint8_t <code class="descname">get_resolution</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input23DallasTemperatureSensor14get_resolutionEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the set resolution for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor14set_resolutionE7uint8_t">
+<span id="esphomelib::input::DallasTemperatureSensor::set_resolution__uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a03ce88ba77bd99bea51cdfbddf942c22"></span>void <code class="descname">set_resolution</code><span class="sig-paren">(</span>uint8_t <em>resolution</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor14set_resolutionE7uint8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the resolution for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input23DallasTemperatureSensor29millis_to_wait_for_conversionEv">
+<span id="esphomelib::input::DallasTemperatureSensor::millis_to_wait_for_conversionC"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1ad08ca4d79fa9bb027a3c5a6975bf42e2"></span>uint16_t <code class="descname">millis_to_wait_for_conversion</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input23DallasTemperatureSensor29millis_to_wait_for_conversionEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the number of milliseconds we have to wait for the conversion phase. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input23DallasTemperatureSensor19get_update_intervalEv">
+<span id="esphomelib::input::DallasTemperatureSensor::get_update_intervalC"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a15b6fe90680cd61af1da310ebfe8e7fa"></span>uint32_t <code class="descname">get_update_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input23DallasTemperatureSensor19get_update_intervalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the interval in ms that we will check the sensor for new values. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor19set_update_intervalE8uint32_t">
+<span id="esphomelib::input::DallasTemperatureSensor::set_update_interval__uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1affe20b8f1f04ffe3b8ed6764f20bdc77"></span>void <code class="descname">set_update_interval</code><span class="sig-paren">(</span>uint32_t <em>update_interval</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor19set_update_intervalE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the interval in ms that we will check the sensor for new values. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor19unit_of_measurementEv">
+<span id="esphomelib::input::DallasTemperatureSensor::unit_of_measurement"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a45db5724116838c08b4ac600ef335702"></span>std::string <code class="descname">unit_of_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor19unit_of_measurementEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Unit of measurement for MQTT: “°C”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor4iconEv">
+<span id="esphomelib::input::DallasTemperatureSensor::icon"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a08ce156f9e57c8229e449e5a899de1f7"></span>std::string <code class="descname">icon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor4iconEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Icon for MQTT: “”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor15update_intervalEv">
+<span id="esphomelib::input::DallasTemperatureSensor::update_interval"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1acfe4b7734b5b9a591b195c84ca445b91"></span>uint32_t <code class="descname">update_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor15update_intervalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Update interval for MQTT’s automatic expiry: <code class="docutils literal"><span class="pre">update_interval</span></code>. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor17accuracy_decimalsEv">
+<span id="esphomelib::input::DallasTemperatureSensor::accuracy_decimals"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1aa57241c2a541f979197bab762998f3a1"></span>int8_t <code class="descname">accuracy_decimals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor17accuracy_decimalsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Accuracy in decimals for this sensor. 1. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor8address_E">
+<span id="esphomelib::input::DallasTemperatureSensor::address___uint64_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1ad469aa9697f42976604331345ca75479"></span>uint64_t <code class="descname">address_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor8address_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor6index_E">
+<span id="esphomelib::input::DallasTemperatureSensor::index___uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a098f4cb69b735723c483657fb1c38bce"></span>uint8_t <code class="descname">index_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor6index_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor11resolution_E">
+<span id="esphomelib::input::DallasTemperatureSensor::resolution___uint8_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1ad077385b3e90f8d0ceda46043e3e96aa"></span>uint8_t <code class="descname">resolution_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor11resolution_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor5name_E">
+<span id="esphomelib::input::DallasTemperatureSensor::name___ss"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a1bc25959bdc6fedca88f5626f33cba17"></span>std::string <code class="descname">name_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor5name_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input23DallasTemperatureSensor16update_interval_E">
+<span id="esphomelib::input::DallasTemperatureSensor::update_interval___uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_dallas_temperature_sensor_1a325258a83ed40c84a1e6cec8d5fcdf84"></span>uint32_t <code class="descname">update_interval_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input23DallasTemperatureSensor16update_interval_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Input</a><ul>
+      <li>Previous: <a href="adc-sensor.html" title="previous chapter">ADC Sensor</a></li>
+      <li>Next: <a href="gpio-binary-sensor.html" title="next chapter">GPIO Binary Sensor</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/input/dallas.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

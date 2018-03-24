@@ -1,0 +1,205 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ADC Sensor &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Dallas Component" href="dallas.html" />
+    <link rel="prev" title="Input" href="index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="adc-sensor">
+<h1>ADC Sensor<a class="headerlink" href="#adc-sensor" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// Basic</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_adc_sensor</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="s">&quot;Analog Voltage&quot;</span><span class="p">);</span>
+<span class="c1">// Custom update interval 30 seconds</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_adc_sensor</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="s">&quot;Analog Voltage&quot;</span><span class="p">,</span> <span class="mi">30000</span><span class="p">);</span>
+<span class="c1">// Custom pinMode</span>
+<span class="n">App</span><span class="p">.</span><span class="n">make_adc_sensor</span><span class="p">(</span><span class="n">GPIOInputPin</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="n">INPUT_PULLUP</span><span class="p">),</span> <span class="s">&quot;Analog Voltage&quot;</span><span class="p">);</span>
+<span class="c1">// ESP32: Attenuation</span>
+<span class="k">auto</span> <span class="n">adc</span> <span class="o">=</span> <span class="n">App</span><span class="p">.</span><span class="n">make_adc_sensor</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="s">&quot;Analog Voltage&quot;</span><span class="p">);</span>
+<span class="n">adc</span><span class="p">.</span><span class="n">adc</span><span class="p">.</span><span class="n">set_attenuation</span><span class="p">(</span><span class="n">ADC_11db</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application15make_adc_sensorE7uint8_tRKNSt6stringE8uint32_t" title="esphomelib::Application::make_adc_sensor"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_adc_sensor()</span></code></a>.</p>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponentE">
+<span id="esphomelib::input::ADCSensorComponent"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component"></span><em class="property">class </em><code class="descclassname">esphomelib::input::</code><code class="descname">ADCSensorComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This class allows using the integrated Analog to Digital converts of the ESP32 and ESP8266. </p>
+<p>Internally it uses the existing <code class="docutils literal"><span class="pre">analogRead</span></code> methods for doing this.</p>
+<p>The ESP8266 only has one pin where this can be used: A0</p>
+<p>The ESP32 has multiple pins that can be used with this component: GPIO32-GPIO39 Note you can’t use the ADC2 here on the ESP32 because that’s already used by WiFi internally. Additionally on the ESP32 you can set an using <code class="docutils literal"><span class="pre">set_attenuation</span></code>. </p>
+<p>Inherits from <a class="reference internal" href="../sensor/index.html#classesphomelib_1_1sensor_1_1_polling_sensor_component"><span class="std std-ref">esphomelib::sensor::PollingSensorComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent18ADCSensorComponentE12GPIOInputPin8uint32_t">
+<span id="esphomelib::input::ADCSensorComponent::ADCSensorComponent__GPIOInputPin.uint32_t"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1ab781b94099525283f6ca784421f9ca5f"></span><code class="descname">ADCSensorComponent</code><span class="sig-paren">(</span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> <em>pin</em>, uint32_t <em>update_interval</em> = 15000<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent18ADCSensorComponentE12GPIOInputPin8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct the ADCSensor with the provided pin and update interval in ms. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent7set_pinERK12GPIOInputPin">
+<span id="esphomelib::input::ADCSensorComponent::set_pin__GPIOInputPinCR"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1aa434dd179a07d712e7503e3ec6bcf417"></span>void <code class="descname">set_pin</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> &amp;<em>pin</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent7set_pinERK12GPIOInputPin" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the pin used for this ADC sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent15set_attenuationE17adc_attenuation_t">
+<span id="esphomelib::input::ADCSensorComponent::set_attenuation__adc_attenuation_t"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1a32b8dcd1662a4be4d4d8fa5c597bd125"></span>void <code class="descname">set_attenuation</code><span class="sig-paren">(</span>adc_attenuation_t <em>attenuation</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent15set_attenuationE17adc_attenuation_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the attenuation for this pin. Only available on the ESP32. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent7get_pinEv">
+<span id="esphomelib::input::ADCSensorComponent::get_pin"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1ac513c367a7a10521d12b7694f42bc331"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> &amp;<code class="descname">get_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent7get_pinEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the pin used for this ADC sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input18ADCSensorComponent15get_attenuationEv">
+<span id="esphomelib::input::ADCSensorComponent::get_attenuationC"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1abe5fac6524dec0bc700845ca5efaa926"></span>adc_attenuation_t <code class="descname">get_attenuation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input18ADCSensorComponent15get_attenuationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the attenuation used for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent6updateEv">
+<span id="esphomelib::input::ADCSensorComponent::update"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1a1edd3aa43dcbd01d15c737ecaba648d8"></span>void <code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent6updateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Update adc values. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent5setupEv">
+<span id="esphomelib::input::ADCSensorComponent::setup"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1ad50480b733cf24d00f794c007ad3d1dc"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup ADc. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent19unit_of_measurementEv">
+<span id="esphomelib::input::ADCSensorComponent::unit_of_measurement"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1a3815d2bf1c16c470ad6bd86db4438cbe"></span>std::string <code class="descname">unit_of_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent19unit_of_measurementEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Unit of measurement: “V”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent4iconEv">
+<span id="esphomelib::input::ADCSensorComponent::icon"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1a0a9a4e349823831dc31784748b8066a1"></span>std::string <code class="descname">icon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent4iconEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Icon: “mdi:flash”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent17accuracy_decimalsEv">
+<span id="esphomelib::input::ADCSensorComponent::accuracy_decimals"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1a42887146a3d398268d4716297e3957c3"></span>int8_t <code class="descname">accuracy_decimals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent17accuracy_decimalsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Accuracy decimals: 2. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib5input18ADCSensorComponent18get_setup_priorityEv">
+<span id="esphomelib::input::ADCSensorComponent::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1aa3c1386c12b4e89430800848b653f21a"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib5input18ADCSensorComponent18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal"><span class="pre">HARDWARE_LATE</span></code> setup priority. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent4pin_E">
+<span id="esphomelib::input::ADCSensorComponent::pin___GPIOInputPin"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1a968f4f7af1a9aad54e3bbcf2c69b1597"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib12GPIOInputPinE" title="esphomelib::GPIOInputPin">GPIOInputPin</a> <code class="descname">pin_</code><a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent4pin_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib5input18ADCSensorComponent12attenuation_E">
+<span id="esphomelib::input::ADCSensorComponent::attenuation___adc_attenuation_t"></span><span class="target" id="classesphomelib_1_1input_1_1_a_d_c_sensor_component_1a5eea5c0b1efb8bc7b46624277079cdf8"></span>adc_attenuation_t <code class="descname">attenuation_</code> = {ADC_0db}<a class="headerlink" href="#_CPPv2N10esphomelib5input18ADCSensorComponent12attenuation_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Input</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Input</a></li>
+      <li>Next: <a href="dallas.html" title="next chapter">Dallas Component</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/input/adc-sensor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

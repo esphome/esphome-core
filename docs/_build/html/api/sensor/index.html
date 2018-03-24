@@ -1,0 +1,919 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Sensor &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Switch" href="../switch/index.html" />
+    <link rel="prev" title="Light" href="../light/index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sensor">
+<h1>Sensor<a class="headerlink" href="#sensor" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref cpp cpp-any docutils literal"><span class="pre">esphomelib::sensor</span></code> namespace contains all sensor helpers.</p>
+<p>See <a class="reference internal" href="../core/application.html#_CPPv2N10esphomelib11Application20make_mqtt_sensor_forEPN6sensor6SensorENSt6stringE" title="esphomelib::Application::make_mqtt_sensor_for"><code class="xref cpp cpp-func docutils literal"><span class="pre">Application::make_mqtt_sensor_for()</span></code></a>.</p>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Sensor<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor6SensorE">
+<span id="esphomelib::sensor::Sensor"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sensor"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">Sensor</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6SensorE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Base-class for all sensors. </p>
+<p>A sensor has unit of measurement and can use push_new_value to send out a new value with the specified accuracy. </p>
+<p>Subclassed by <a class="reference internal" href="../input/dallas.html#classesphomelib_1_1input_1_1_dallas_temperature_sensor"><span class="std std-ref">esphomelib::input::DallasTemperatureSensor</span></a>, esphomelib::input::DHTHumiditySensor, esphomelib::input::DHTTemperatureSensor, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_polling_sensor_component"><span class="std std-ref">esphomelib::sensor::PollingSensorComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor6Sensor14push_new_valueEf">
+<span id="esphomelib::sensor::Sensor::push_new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sensor_1a1ce47f15ecafb161b4c6d9d285e3e24c"></span>void <code class="descname">push_new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Sensor14push_new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Push a new value to the MQTT front-end. </p>
+<p>Note that you should publish the raw value here, i.e. without any rounding as the user can later override this accuracy.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The floating point value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor6Sensor19unit_of_measurementEv">
+<span id="esphomelib::sensor::Sensor::unit_of_measurement"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sensor_1a2a3a1887bd460b8b9cc01cb18f125e0e"></span>std::string <code class="descname">unit_of_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Sensor19unit_of_measurementEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override this to set the Home Assistant unit of measurement for this sensor. </p>
+<p>Return “” to disable this feature.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The icon of this sensor, for example “°C”. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor6Sensor4iconEv">
+<span id="esphomelib::sensor::Sensor::icon"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sensor_1abb0cbdbff303efda15d7e526ec653f3c"></span>std::string <code class="descname">icon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Sensor4iconEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override this to set the Home Assistant icon for this sensor. </p>
+<p>Return “” to disable this feature.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The icon of this sensor, for example “mdi:battery”. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor6Sensor15update_intervalEv">
+<span id="esphomelib::sensor::Sensor::update_interval"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sensor_1a16bff5d7eb2caf683e43f4a9a9e07d42"></span>uint32_t <code class="descname">update_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Sensor15update_intervalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return with which interval the sensor is polled. Return 0 for non-polling mode. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor6Sensor17accuracy_decimalsEv">
+<span id="esphomelib::sensor::Sensor::accuracy_decimals"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sensor_1aa08abc3121096e38bbf6348a1e19442b"></span>int8_t <code class="descname">accuracy_decimals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Sensor17accuracy_decimalsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the accuracy in decimals for this sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor6Sensor22add_new_value_callbackE17sensor_callback_t">
+<span id="esphomelib::sensor::Sensor::add_new_value_callback__sensor_callback_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sensor_1a52c94df29e17f6155da02d6b734be519"></span>void <code class="descname">add_new_value_callback</code><span class="sig-paren">(</span>sensor_callback_t <em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Sensor22add_new_value_callbackE17sensor_callback_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The MQTT sensor class uses this to register itself as a listener for new values. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor6Sensor9callback_E">
+<span class="target" id="classesphomelib_1_1sensor_1_1_sensor_1a8d5ddbd1dfeaef99b30c12b1b8aed4fd"></span>CallbackManager&lt;void<span class="sig-paren">(</span>float<span class="sig-paren">)</span>&gt; <code class="descname">callback_</code> = {}<a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Sensor9callback_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="type">
+<dt>
+<span class="target" id="sensor_8h_1a88921d420ae341a907ff9ede5fee2f95"></span><em class="property">using </em><code class="descname">esphomelib::sensor::sensor_callback_t = typedef std::function&lt;void(float)&gt;</code></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor27UNIT_OF_MEASUREMENT_CELSIUSE">
+<span id="esphomelib::sensor::UNIT_OF_MEASUREMENT_CELSIUS__ssC"></span><span class="target" id="sensor_8h_1a080d9596b3073c829b3fd5feeaaa4b59"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">UNIT_OF_MEASUREMENT_CELSIUS</code> = &quot;°C&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor27UNIT_OF_MEASUREMENT_CELSIUSE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor27UNIT_OF_MEASUREMENT_PERCENTE">
+<span id="esphomelib::sensor::UNIT_OF_MEASUREMENT_PERCENT__ssC"></span><span class="target" id="sensor_8h_1a39329014b6c6c35b88cb7ceae3b5978f"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">UNIT_OF_MEASUREMENT_PERCENT</code> = &quot;%&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor27UNIT_OF_MEASUREMENT_PERCENTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor24UNIT_OF_MEASUREMENT_VOLTE">
+<span id="esphomelib::sensor::UNIT_OF_MEASUREMENT_VOLT__ssC"></span><span class="target" id="sensor_8h_1a0459c60960ae3e391db00220a406c644"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">UNIT_OF_MEASUREMENT_VOLT</code> = &quot;V&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor24UNIT_OF_MEASUREMENT_VOLTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor25UNIT_OF_MEASUREMENT_METERE">
+<span id="esphomelib::sensor::UNIT_OF_MEASUREMENT_METER__ssC"></span><span class="target" id="sensor_8h_1a09b23669f58d318c83ab269303296b12"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">UNIT_OF_MEASUREMENT_METER</code> = &quot;m&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor25UNIT_OF_MEASUREMENT_METERE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor16ICON_TEMPERATUREE">
+<span id="esphomelib::sensor::ICON_TEMPERATURE__ssC"></span><span class="target" id="sensor_8h_1a4888963f51a0f11335d83d108553ba94"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">ICON_TEMPERATURE</code> = &quot;&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor16ICON_TEMPERATUREE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Home Assistant will set this itself because of unit of measurement. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor13ICON_HUMIDITYE">
+<span id="esphomelib::sensor::ICON_HUMIDITY__ssC"></span><span class="target" id="sensor_8h_1a07afa61a5b7d3639a5f2606d7b4f3bd3"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">ICON_HUMIDITY</code> = &quot;mdi:water-percent&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor13ICON_HUMIDITYE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor12ICON_VOLTAGEE">
+<span id="esphomelib::sensor::ICON_VOLTAGE__ssC"></span><span class="target" id="sensor_8h_1a64254b6687c51f268d876dc0e0b38e54"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">ICON_VOLTAGE</code> = &quot;mdi:flash&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor12ICON_VOLTAGEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor13ICON_DISTANCEE">
+<span id="esphomelib::sensor::ICON_DISTANCE__ssC"></span><span class="target" id="sensor_8h_1ac53c587b041c76074089ea12049c381d"></span><em class="property">const</em> std::string <code class="descclassname">esphomelib::sensor::</code><code class="descname">ICON_DISTANCE</code> = &quot;mdi:arrow-expand-vertical&quot;<a class="headerlink" href="#_CPPv2N10esphomelib6sensor13ICON_DISTANCEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor22PollingSensorComponentE">
+<span id="esphomelib::sensor::PollingSensorComponent"></span><span class="target" id="classesphomelib_1_1sensor_1_1_polling_sensor_component"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">PollingSensorComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor22PollingSensorComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Inherits from <a class="reference internal" href="../core/component.html#classesphomelib_1_1_polling_component"><span class="std std-ref">esphomelib::PollingComponent</span></a>, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_sensor"><span class="std std-ref">esphomelib::sensor::Sensor</span></a></p>
+<p>Subclassed by <a class="reference internal" href="../input/adc-sensor.html#classesphomelib_1_1input_1_1_a_d_c_sensor_component"><span class="std std-ref">esphomelib::input::ADCSensorComponent</span></a>, <a class="reference internal" href="../input/pulse-counter-sensor.html#classesphomelib_1_1input_1_1_pulse_counter_sensor_component"><span class="std std-ref">esphomelib::input::PulseCounterSensorComponent</span></a>, <a class="reference internal" href="../input/ultrasonic-sensor.html#classesphomelib_1_1input_1_1_ultrasonic_sensor_component"><span class="std std-ref">esphomelib::input::UltrasonicSensorComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor22PollingSensorComponent22PollingSensorComponentE8uint32_t">
+<span id="esphomelib::sensor::PollingSensorComponent::PollingSensorComponent__uint32_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_polling_sensor_component_1abfe3a49e21a44bca178898e0850230a9"></span><code class="descname">PollingSensorComponent</code><span class="sig-paren">(</span>uint32_t <em>update_interval</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor22PollingSensorComponent22PollingSensorComponentE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor22PollingSensorComponent15update_intervalEv">
+<span id="esphomelib::sensor::PollingSensorComponent::update_interval"></span><span class="target" id="classesphomelib_1_1sensor_1_1_polling_sensor_component_1af517f26beb34b4e7a90b5071010037fc"></span>uint32_t <code class="descname">update_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor22PollingSensorComponent15update_intervalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return with which interval the sensor is polled. Return 0 for non-polling mode. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="filter">
+<h3>Filter<a class="headerlink" href="#filter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor6FilterE">
+<span id="esphomelib::sensor::Filter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">Filter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor6FilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Apply a filter to sensor values such as moving average. </p>
+<p>This class is purposefully kept quite simple, since more complicated filters should really be done with the filter sensor in Home Assistant. </p>
+<p>Subclassed by <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_exponential_moving_average_filter"><span class="std std-ref">esphomelib::sensor::ExponentialMovingAverageFilter</span></a>, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter_out_n_a_n_filter"><span class="std std-ref">esphomelib::sensor::FilterOutNANFilter</span></a>, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter_out_value_filter"><span class="std std-ref">esphomelib::sensor::FilterOutValueFilter</span></a>, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_lambda_filter"><span class="std std-ref">esphomelib::sensor::LambdaFilter</span></a>, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_multiply_filter"><span class="std std-ref">esphomelib::sensor::MultiplyFilter</span></a>, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_offset_filter"><span class="std std-ref">esphomelib::sensor::OffsetFilter</span></a>, <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter"><span class="std std-ref">esphomelib::sensor::SlidingWindowMovingAverageFilter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor6Filter9new_valueEf">
+<span id="esphomelib::sensor::Filter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter_1a27e3a1d5c48975bd38c3483a08bf50b4"></span><em class="property">virtual</em> <a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv2N10esphomelib6sensor6Filter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilterE">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">SlidingWindowMovingAverageFilter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Simple sliding window moving average filter. </p>
+<p>Essentially just takes takes the average of the last window_size values and pushes them out every send_every. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter"><span class="std std-ref">esphomelib::sensor::Filter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter32SlidingWindowMovingAverageFilterE6size_t6size_t">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::SlidingWindowMovingAverageFilter__s.s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1a90e0affc13674e5344e36778bc98c79a"></span><code class="descname">SlidingWindowMovingAverageFilter</code><span class="sig-paren">(</span>size_t <em>window_size</em>, size_t <em>send_every</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter32SlidingWindowMovingAverageFilterE6size_t6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter"><span class="std std-ref">SlidingWindowMovingAverageFilter</span></a>. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">window_size</span></code>: The number of values that should be averaged. </li>
+<li><code class="docutils literal"><span class="pre">send_every</span></code>: After how many sensor values should a new one be pushed out. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter9new_valueEf">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1a186f459209f5d9a15357e611b5fe2b53"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor32SlidingWindowMovingAverageFilter14get_send_everyEv">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::get_send_everyC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1add2c5e309a56b5b28395bea02531f7d4"></span>size_t <code class="descname">get_send_every</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor32SlidingWindowMovingAverageFilter14get_send_everyEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter14set_send_everyE6size_t">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::set_send_every__s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1a2b512d48f0174ebbd5ab63219cfb61a9"></span>void <code class="descname">set_send_every</code><span class="sig-paren">(</span>size_t <em>send_every</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter14set_send_everyE6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor32SlidingWindowMovingAverageFilter15get_window_sizeEv">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::get_window_sizeC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1a47c2b7568d5ad2666c5dbe0d57cf842c"></span>size_t <code class="descname">get_window_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor32SlidingWindowMovingAverageFilter15get_window_sizeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter15set_window_sizeE6size_t">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::set_window_size__s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1a9651f30d91bddbe879e9f6fce5eb518a"></span>void <code class="descname">set_window_size</code><span class="sig-paren">(</span>size_t <em>window_size</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter15set_window_sizeE6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter14value_average_E">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::value_average___SlidingWindowMovingAverage:float:"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1a48527a0f366d5235b244db8bdf384e53"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib26SlidingWindowMovingAverageE" title="esphomelib::SlidingWindowMovingAverage">SlidingWindowMovingAverage</a>&lt;float&gt; <code class="descname">value_average_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter14value_average_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter11send_every_E">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::send_every___s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1a98bbc5f1d624e79f86c027c856143d92"></span>size_t <code class="descname">send_every_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter11send_every_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter8send_at_E">
+<span id="esphomelib::sensor::SlidingWindowMovingAverageFilter::send_at___s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_sliding_window_moving_average_filter_1aaf264ae9477947c358cd89fb05acb180"></span>size_t <code class="descname">send_at_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor32SlidingWindowMovingAverageFilter8send_at_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilterE">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">ExponentialMovingAverageFilter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Simple exponential moving average filter. </p>
+<p>Essentially just takes the average of the last few values using exponentially decaying weights. Use alpha to adjust decay rate. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter"><span class="std std-ref">esphomelib::sensor::Filter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter30ExponentialMovingAverageFilterEf6size_t">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::ExponentialMovingAverageFilter__float.s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1aa3ddca02d2f67b46cf603b4f31c11cfe"></span><code class="descname">ExponentialMovingAverageFilter</code><span class="sig-paren">(</span>float <em>alpha</em>, size_t <em>send_every</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter30ExponentialMovingAverageFilterEf6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter9new_valueEf">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a2b97c562166a090337c48a8867943ea3"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor30ExponentialMovingAverageFilter14get_send_everyEv">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::get_send_everyC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a5bc142182bb5713172d9a6cc2bdff019"></span>size_t <code class="descname">get_send_every</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor30ExponentialMovingAverageFilter14get_send_everyEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter14set_send_everyE6size_t">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::set_send_every__s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a1b6fd9854b12b4d1570ee193f74c4f07"></span>void <code class="descname">set_send_every</code><span class="sig-paren">(</span>size_t <em>send_every</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter14set_send_everyE6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor30ExponentialMovingAverageFilter9get_alphaEv">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::get_alphaC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a43488271d5e69ca98cfee039796450cc"></span>float <code class="descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor30ExponentialMovingAverageFilter9get_alphaEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter9set_alphaEf">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::set_alpha__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a087dea2a3a1081767bf2d974f3de737f"></span>void <code class="descname">set_alpha</code><span class="sig-paren">(</span>float <em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter9set_alphaEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter14value_average_E">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::value_average___ExponentialMovingAverage"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a911f947c4146a18c44619cda733e981f"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib24ExponentialMovingAverageE" title="esphomelib::ExponentialMovingAverage">ExponentialMovingAverage</a> <code class="descname">value_average_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter14value_average_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter17accuracy_average_E">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::accuracy_average___ExponentialMovingAverage"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a6f8944d340ad80777c2c0d62000653f7"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib24ExponentialMovingAverageE" title="esphomelib::ExponentialMovingAverage">ExponentialMovingAverage</a> <code class="descname">accuracy_average_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter17accuracy_average_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter11send_every_E">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::send_every___s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a39ac96affbc501a694d87852bc4e8c35"></span>size_t <code class="descname">send_every_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter11send_every_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter8send_at_E">
+<span id="esphomelib::sensor::ExponentialMovingAverageFilter::send_at___s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_exponential_moving_average_filter_1a3ad65d6b3ee789e1a707d86c014c7007"></span>size_t <code class="descname">send_at_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor30ExponentialMovingAverageFilter8send_at_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="type">
+<dt>
+<span class="target" id="filter_8h_1a7f08f8a48b4ab5612ae06140dc1c10eb"></span><em class="property">using </em><code class="descname">esphomelib::sensor::lambda_filter_t = typedef std::function&lt;Optional&lt;float&gt;(float)&gt;</code></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor12LambdaFilterE">
+<span id="esphomelib::sensor::LambdaFilter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_lambda_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">LambdaFilter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12LambdaFilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This class allows for creation of simple template filters. </p>
+<p>The constructor accepts a lambda of the form float -&gt; Optional&lt;float&gt;. It will be called with each new value in the filter chain and returns the modified value that shall be passed down the filter chain. Returning an empty <a class="reference internal" href="../core/helpers.html#classesphomelib_1_1_optional"><span class="std std-ref">Optional</span></a> means that the value shall be discarded. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter"><span class="std std-ref">esphomelib::sensor::Filter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor12LambdaFilter12LambdaFilterE15lambda_filter_t">
+<span id="esphomelib::sensor::LambdaFilter::LambdaFilter__lambda_filter_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_lambda_filter_1ad3f07216afa3ce52ed229bc055385a24"></span><code class="descname">LambdaFilter</code><span class="sig-paren">(</span>lambda_filter_t <em>lambda_filter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12LambdaFilter12LambdaFilterE15lambda_filter_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor12LambdaFilter9new_valueEf">
+<span id="esphomelib::sensor::LambdaFilter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_lambda_filter_1a70213b8dd25330f1f960f66bf185539d"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12LambdaFilter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor12LambdaFilter17get_lambda_filterEv">
+<span id="esphomelib::sensor::LambdaFilter::get_lambda_filterC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_lambda_filter_1aff975461a45e12c76166e24aee5aec46"></span><em class="property">const</em> lambda_filter_t &amp;<code class="descname">get_lambda_filter</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor12LambdaFilter17get_lambda_filterEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor12LambdaFilter17set_lambda_filterERK15lambda_filter_t">
+<span id="esphomelib::sensor::LambdaFilter::set_lambda_filter__lambda_filter_tCR"></span><span class="target" id="classesphomelib_1_1sensor_1_1_lambda_filter_1aadf24c572c207747528570a825f5ec45"></span>void <code class="descname">set_lambda_filter</code><span class="sig-paren">(</span><em class="property">const</em> lambda_filter_t &amp;<em>lambda_filter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12LambdaFilter17set_lambda_filterERK15lambda_filter_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor12LambdaFilter14lambda_filter_E">
+<span id="esphomelib::sensor::LambdaFilter::lambda_filter___lambda_filter_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_lambda_filter_1a95f26488004bf64df3ee033e5a62b79d"></span>lambda_filter_t <code class="descname">lambda_filter_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12LambdaFilter14lambda_filter_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor12OffsetFilterE">
+<span id="esphomelib::sensor::OffsetFilter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_offset_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">OffsetFilter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12OffsetFilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A simple filter that adds <code class="docutils literal"><span class="pre">offset</span></code> to each value it receives. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter"><span class="std std-ref">esphomelib::sensor::Filter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor12OffsetFilter12OffsetFilterEf">
+<span id="esphomelib::sensor::OffsetFilter::OffsetFilter__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_offset_filter_1aa384f4197d600115acda0c07895eaa32"></span><code class="descname">OffsetFilter</code><span class="sig-paren">(</span>float <em>offset</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12OffsetFilter12OffsetFilterEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor12OffsetFilter9new_valueEf">
+<span id="esphomelib::sensor::OffsetFilter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_offset_filter_1a60c87ad065802c9e8e16a2d85a695ba9"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12OffsetFilter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor12OffsetFilter7offset_E">
+<span id="esphomelib::sensor::OffsetFilter::offset___float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_offset_filter_1af8a07c746558f58a49de50d93fae8c7f"></span>float <code class="descname">offset_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor12OffsetFilter7offset_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor14MultiplyFilterE">
+<span id="esphomelib::sensor::MultiplyFilter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_multiply_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">MultiplyFilter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor14MultiplyFilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A simple filter that multiplies to each value it receives by <code class="docutils literal"><span class="pre">multiplier</span></code>. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter"><span class="std std-ref">esphomelib::sensor::Filter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor14MultiplyFilter14MultiplyFilterEf">
+<span id="esphomelib::sensor::MultiplyFilter::MultiplyFilter__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_multiply_filter_1ab7e4f30fb3ee06de7fd58324d2d92c3d"></span><code class="descname">MultiplyFilter</code><span class="sig-paren">(</span>float <em>multiplier</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor14MultiplyFilter14MultiplyFilterEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor14MultiplyFilter9new_valueEf">
+<span id="esphomelib::sensor::MultiplyFilter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_multiply_filter_1a89ad401290aae03e1d2d82d2018ec5fc"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor14MultiplyFilter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor14MultiplyFilter11multiplier_E">
+<span id="esphomelib::sensor::MultiplyFilter::multiplier___float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_multiply_filter_1ab3dea7cd10e37dcab1af6b962404f296"></span>float <code class="descname">multiplier_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor14MultiplyFilter11multiplier_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor20FilterOutValueFilterE">
+<span id="esphomelib::sensor::FilterOutValueFilter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter_out_value_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">FilterOutValueFilter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor20FilterOutValueFilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A simple filter that only forwards the filter chain if it doesn’t receive <code class="docutils literal"><span class="pre">value_to_filter_out</span></code>. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter"><span class="std std-ref">esphomelib::sensor::Filter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor20FilterOutValueFilter20FilterOutValueFilterEf">
+<span id="esphomelib::sensor::FilterOutValueFilter::FilterOutValueFilter__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter_out_value_filter_1affaa2d65deb8380d29de51420bb3b7a6"></span><code class="descname">FilterOutValueFilter</code><span class="sig-paren">(</span>float <em>values_to_filter_out</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor20FilterOutValueFilter20FilterOutValueFilterEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor20FilterOutValueFilter9new_valueEf">
+<span id="esphomelib::sensor::FilterOutValueFilter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter_out_value_filter_1aba55d1191761f4424e37bbbc79411cc1"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor20FilterOutValueFilter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor20FilterOutValueFilter20value_to_filter_out_E">
+<span id="esphomelib::sensor::FilterOutValueFilter::value_to_filter_out___float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter_out_value_filter_1a41f772c2b90ad4638aa4794e4369c639"></span>float <code class="descname">value_to_filter_out_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor20FilterOutValueFilter20value_to_filter_out_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor18FilterOutNANFilterE">
+<span id="esphomelib::sensor::FilterOutNANFilter"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter_out_n_a_n_filter"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">FilterOutNANFilter</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor18FilterOutNANFilterE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A simple filter that only forwards the filter chain if it doesn’t receive <code class="docutils literal"><span class="pre">nan</span></code>. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_filter"><span class="std std-ref">esphomelib::sensor::Filter</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor18FilterOutNANFilter9new_valueEf">
+<span id="esphomelib::sensor::FilterOutNANFilter::new_value__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_filter_out_n_a_n_filter_1a60b4b45ba89dc2c8e8516e8264e104fd"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;float&gt; <code class="descname">new_value</code><span class="sig-paren">(</span>float <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor18FilterOutNANFilter9new_valueEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will be called every time the filter receives a new value. </p>
+<p>It can return an empty optional to indicate that the filter chain should stop, otherwise the value in the filter will be passed down the chain.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>An optional float, the new value that should be pushed out. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">value</span></code>: The new value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="mqttsensorcomponent">
+<h3>MQTTSensorComponent<a class="headerlink" href="#mqttsensorcomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponentE">
+<span id="esphomelib::sensor::MQTTSensorComponent"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component"></span><em class="property">class </em><code class="descclassname">esphomelib::sensor::</code><code class="descname">MQTTSensorComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Class that exposes sensors to the MQTT frontend. </p>
+<p>Inherits from <a class="reference internal" href="../core/mqtt.html#classesphomelib_1_1mqtt_1_1_m_q_t_t_component"><span class="std std-ref">esphomelib::mqtt::MQTTComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent19MQTTSensorComponentENSt6stringEP6Sensor">
+<span id="esphomelib::sensor::MQTTSensorComponent::MQTTSensorComponent__ss.SensorP"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1ad9caad65e8bcbe54517734c9896d0d2e"></span><code class="descname">MQTTSensorComponent</code><span class="sig-paren">(</span>std::string <em>friendly_name</em>, <a class="reference internal" href="#_CPPv2N10esphomelib6sensor6SensorE" title="esphomelib::sensor::Sensor">Sensor</a> *<em>sensor</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent19MQTTSensorComponentENSt6stringEP6Sensor" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct this <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component"><span class="std std-ref">MQTTSensorComponent</span></a> instance with the provided friendly_name and sensor. </p>
+<p>Note the sensor is never stored and is only used for initializing some values of this class. If sensor is nullptr, then automatic initialization of these fields is disabled.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">friendly_name</span></code>: The friendly name that should be advertised to Home Assistant. </li>
+<li><code class="docutils literal"><span class="pre">sensor</span></code>: The sensor, this can be null to disable automatic setup. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent23set_unit_of_measurementERKNSt6stringE">
+<span id="esphomelib::sensor::MQTTSensorComponent::set_unit_of_measurement__ssCR"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1ae28e3f01428057686f8f6ddfba248540"></span>void <code class="descname">set_unit_of_measurement</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>unit_of_measurement</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent23set_unit_of_measurementERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the unit of measurement advertised to Home Assistant. </p>
+<p>This is automatically set by the constructor, but can later be overriden.<ul class="simple">
+<li>Set the value to “” to disable automatic unit of measurement reporting to Home Assistant.</li>
+</ul>
+</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">unit_of_measurement</span></code>: The unit of measurement, </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent8set_iconERKNSt6stringE">
+<span id="esphomelib::sensor::MQTTSensorComponent::set_icon__ssCR"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a379afe05a110431e75d4e17ca9142038"></span>void <code class="descname">set_icon</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>icon</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent8set_iconERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the icon advertised to Home Assistant. </p>
+<p>This is automatically set by the constructor, but can later be overriden. Set the value to “” to disable automatic icon reporting to Home Assistant.</p>
+<p>Note that this is disabled for now and the method is just here to create the API before a new Home Assistant release is out.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">icon</span></code>: The icon, for example “mdi:flash”. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent21set_accuracy_decimalsE6int8_t">
+<span id="esphomelib::sensor::MQTTSensorComponent::set_accuracy_decimals__int8_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1adc90c161f602bd98f9d6d20d1059d18e"></span>void <code class="descname">set_accuracy_decimals</code><span class="sig-paren">(</span>int8_t <em>accuracy_decimals</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent21set_accuracy_decimalsE6int8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override the accuracy in decimals that this value should use for reporting value. </p>
+<p>By default, the <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component"><span class="std std-ref">MQTTSensorComponent</span></a> will use the accuracy in decimals provided by the sensor. This method can be used to override the value. For example 0 means 1.42 will be rounded to 1 and 2 means it will stay 1.42; also supports negative values.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">accuracy_decimals</span></code>: The accuracy decimal that shall be used. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent16set_expire_afterE8uint32_t">
+<span id="esphomelib::sensor::MQTTSensorComponent::set_expire_after__uint32_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1ace88bfab20d4f4a3d265a1b054f95e68"></span>void <code class="descname">set_expire_after</code><span class="sig-paren">(</span>uint32_t <em>expire_after</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent16set_expire_afterE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup an expiry, 0 disables it. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent20disable_expire_afterEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::disable_expire_after"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a65056615803281ec9c8f0c8a72308a30"></span>void <code class="descname">disable_expire_after</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent20disable_expire_afterEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Disable Home Assistant value exiry. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent10add_filterEP6Filter">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_filter__FilterP"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a47251a682ce29ea5ea81748fdb1617dc"></span>void <code class="descname">add_filter</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv2N10esphomelib6sensor6FilterE" title="esphomelib::sensor::Filter">Filter</a> *<em>filter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent10add_filterEP6Filter" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a filter to the filter chain. Will be appended to the back. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent11add_filtersERKNSt6vectorIP6FilterEE">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_filters__std::vector:FilterP:CR"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1aa20a2c34d49bcabe9a56ea6e78da191e"></span>void <code class="descname">add_filters</code><span class="sig-paren">(</span><em class="property">const</em> std::vector&lt;<a class="reference internal" href="#_CPPv2N10esphomelib6sensor6FilterE" title="esphomelib::sensor::Filter">Filter</a> *&gt; &amp;<em>filters</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent11add_filtersERKNSt6vectorIP6FilterEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a list of vectors to the back of the filter chain. </p>
+<p>This may look like:</p>
+<p>sensor-&gt;add_filters({ <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_lambda_filter"><span class="std std-ref">LambdaFilter</span></a>([&amp;](float value) -&gt; Optional&lt;float&gt; { return 42/value; }), OffsetFilter(1), SlidingWindowMovingAverageFilter(15, 15), // average over last 15 values }); </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent11set_filtersERKNSt6vectorIP6FilterEE">
+<span id="esphomelib::sensor::MQTTSensorComponent::set_filters__std::vector:FilterP:CR"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a7a2a598453e28cda79dfa75825cc6839"></span>void <code class="descname">set_filters</code><span class="sig-paren">(</span><em class="property">const</em> std::vector&lt;<a class="reference internal" href="#_CPPv2N10esphomelib6sensor6FilterE" title="esphomelib::sensor::Filter">Filter</a> *&gt; &amp;<em>filters</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent11set_filtersERKNSt6vectorIP6FilterEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Clear the filters and replace them by filters. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent17add_lambda_filterE15lambda_filter_t">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_lambda_filter__lambda_filter_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1ae180da044b0b91bf30e599d0d6ad5582"></span>void <code class="descname">add_lambda_filter</code><span class="sig-paren">(</span>lambda_filter_t <em>filter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent17add_lambda_filterE15lambda_filter_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a lambda filter to the back of the filter chain. </p>
+<p>For example: sensor-&gt;add_lambda_filter([](float value) -&gt; Optional&lt;float&gt; { return value * 42; });</p>
+<p>If you return an unset <a class="reference internal" href="../core/helpers.html#classesphomelib_1_1_optional"><span class="std std-ref">Optional</span></a>, the value will be discarded and no filters after this one will get the value. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent17add_offset_filterEf">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_offset_filter__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1ae8911569a3bfd214c792a1f91366c427"></span>void <code class="descname">add_offset_filter</code><span class="sig-paren">(</span>float <em>offset</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent17add_offset_filterEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper to add a simple offset filter to the back of the filter chain. </p>
+<p>This can be used to easily correct for sensors that have a small offset in their value reporting.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">offset</span></code>: The offset that will be added to each value. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent19add_multiply_filterEf">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_multiply_filter__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1aaddd73a8b3af119f01847b7d53833f81"></span>void <code class="descname">add_multiply_filter</code><span class="sig-paren">(</span>float <em>multiplier</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent19add_multiply_filterEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper to add a simple multiply filter to the back of the filter chain. </p>
+<p>Each value will be multiplied by this multiplier. Can be used to convert units easily. For example converting “pulses/min” to a more reasonable unit like kW.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">multiplier</span></code>: The multiplier each value will be multiplied with. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent27add_filter_out_value_filterEf">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_filter_out_value_filter__float"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a24e29ad175b8721cb08be3cce3daf6ab"></span>void <code class="descname">add_filter_out_value_filter</code><span class="sig-paren">(</span>float <em>values_to_filter_out</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent27add_filter_out_value_filterEf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper to add a simple filter that aborts the filter chain every time it receives a specific value. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">values_to_filter_out</span></code>: The value that should be filtered out. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent33add_sliding_window_average_filterE6size_t6size_t">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_sliding_window_average_filter__s.s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1aeb8d38ac3ff2cc4256b91a49b97ae314"></span>void <code class="descname">add_sliding_window_average_filter</code><span class="sig-paren">(</span>size_t <em>window_size</em>, size_t <em>send_every</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent33add_sliding_window_average_filterE6size_t6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper to make adding sliding window moving average filters a bit easier. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent37add_exponential_moving_average_filterEf6size_t">
+<span id="esphomelib::sensor::MQTTSensorComponent::add_exponential_moving_average_filter__float.s"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a0de2fbbba5830dfb6951ed886e03e0ab"></span>void <code class="descname">add_exponential_moving_average_filter</code><span class="sig-paren">(</span>float <em>alpha</em>, size_t <em>send_every</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent37add_exponential_moving_average_filterEf6size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Helper to make adding exponential decay average filters a bit easier. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent13clear_filtersEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::clear_filters"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1aad50cc630bf98956120c1504a90ee055"></span>void <code class="descname">clear_filters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent13clear_filtersEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Clear the entire filter chain. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent5setupEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::setup"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a185172eb7642fa381a241efbb44a2232"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override setup. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent24create_new_data_callbackEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::create_new_data_callback"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a05e62ae8b3309f391586e2bbf5e245d6"></span>sensor_callback_t <code class="descname">create_new_data_callback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent24create_new_data_callbackEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This will create a callback that can be used to register this MQTTComponent with the sensor. </p>
+<p>For example:</p>
+<p>sensor-&gt;add_new_value_callback(mqtt-&gt;<a class="reference internal" href="#classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a05e62ae8b3309f391586e2bbf5e245d6"><span class="std std-ref">create_new_data_callback()</span></a>);</p>
+<p>However, you normally don’t need to worry about this as the <a class="reference internal" href="../core/application.html#classesphomelib_1_1_application"><span class="std std-ref">Application</span></a> instance takes care of all of this.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>A new callback that can be registered to the sensor. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor19MQTTSensorComponent16get_expire_afterEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::get_expire_afterC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a4b08b931f7a15938c929bd9deea4356c"></span>uint32_t <code class="descname">get_expire_after</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor19MQTTSensorComponent16get_expire_afterEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the expire_after in milliseconds used for Home Assistant discovery, first checks override. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor19MQTTSensorComponent21get_accuracy_decimalsEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::get_accuracy_decimalsC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a9278f9adc3138b79abf1fba5b9fdcfd7"></span>int8_t <code class="descname">get_accuracy_decimals</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor19MQTTSensorComponent21get_accuracy_decimalsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the accuracy in decimals used by this MQTT <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_sensor"><span class="std std-ref">Sensor</span></a>, first checks override, then sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor19MQTTSensorComponent23get_unit_of_measurementEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::get_unit_of_measurementC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a8b4acd9e89028f1339a198d9812bc51a"></span>std::string <code class="descname">get_unit_of_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor19MQTTSensorComponent23get_unit_of_measurementEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the unit of measurements advertised to Home Assistant. First checks override, then sensor. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor19MQTTSensorComponent8get_iconEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::get_iconC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a9924d802130cb705b4903aa4f2e53092"></span>std::string <code class="descname">get_icon</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor19MQTTSensorComponent8get_iconEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the icon advertised to Home Assistant. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor19MQTTSensorComponent11get_filtersEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::get_filtersC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a361dd924625137f4dfc0788f3fdeb591"></span>std::vector&lt;<a class="reference internal" href="#_CPPv2N10esphomelib6sensor6FilterE" title="esphomelib::sensor::Filter">Filter</a> *&gt; <code class="descname">get_filters</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor19MQTTSensorComponent11get_filtersEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the vector of filters this component uses for its value calculations. </p>
+<p>Note that if you’re using this method, you’re probably doing something wrong. The <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1aad50cc630bf98956120c1504a90ee055"><span class="std std-ref">clear_filters()</span></a> and <a class="reference internal" href="#classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a47251a682ce29ea5ea81748fdb1617dc"><span class="std std-ref">add_filter()</span></a> methods should be the only methods you need.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>Returns an std::vector&lt;Filter *&gt; of all filters in the filter chain. </dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib6sensor19MQTTSensorComponent14component_typeEv">
+<span id="esphomelib::sensor::MQTTSensorComponent::component_typeC"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1aca41cb667a4eda7aeba75ce56163549b"></span>std::string <code class="descname">component_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib6sensor19MQTTSensorComponent14component_typeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Override for MQTTComponent, returns “sensor”. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent14push_out_valueEf6int8_t">
+<span id="esphomelib::sensor::MQTTSensorComponent::push_out_value__float.int8_t"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1ae0f26fcdaf29ac21b2b47d3e1823c35f"></span>void <code class="descname">push_out_value</code><span class="sig-paren">(</span>float <em>value</em>, int8_t <em>accuracy_decimals</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent14push_out_valueEf6int8_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Internal method, convert the value, accuracy pair to string and send them via MQTT. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent7sensor_E">
+<span id="esphomelib::sensor::MQTTSensorComponent::sensor___SensorP"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1afefbfb487de815209c82aa37db028671"></span><a class="reference internal" href="#_CPPv2N10esphomelib6sensor6SensorE" title="esphomelib::sensor::Sensor">Sensor</a> *<code class="descname">sensor_</code> = {nullptr}<a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent7sensor_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent13expire_after_E">
+<span id="esphomelib::sensor::MQTTSensorComponent::expire_after___Optional:uint32_t:"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1aaa5bb286dc666d8191ec89a88f5a8146"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;uint32_t&gt; <code class="descname">expire_after_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent13expire_after_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent20unit_of_measurement_E">
+<span id="esphomelib::sensor::MQTTSensorComponent::unit_of_measurement___Optional:ss:"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1af48d004423aef80f7b1add3cc6942ec1"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;std::string&gt; <code class="descname">unit_of_measurement_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent20unit_of_measurement_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent5icon_E">
+<span id="esphomelib::sensor::MQTTSensorComponent::icon___Optional:ss:"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1ad83e29164db286bed2502a20ff7b392a"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;std::string&gt; <code class="descname">icon_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent5icon_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent18accuracy_decimals_E">
+<span id="esphomelib::sensor::MQTTSensorComponent::accuracy_decimals___Optional:int8_t:"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a80ed14ff541ba5fa29a4b7b22b08d27a"></span><a class="reference internal" href="../core/helpers.html#_CPPv2N10esphomelib8OptionalE" title="esphomelib::Optional">Optional</a>&lt;int8_t&gt; <code class="descname">accuracy_decimals_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent18accuracy_decimals_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib6sensor19MQTTSensorComponent8filters_E">
+<span id="esphomelib::sensor::MQTTSensorComponent::filters___std::vector:FilterP:"></span><span class="target" id="classesphomelib_1_1sensor_1_1_m_q_t_t_sensor_component_1a91f5d43ff648143aa486eddb0e770f9b"></span>std::vector&lt;<a class="reference internal" href="#_CPPv2N10esphomelib6sensor6FilterE" title="esphomelib::sensor::Filter">Filter</a> *&gt; <code class="descname">filters_</code><a class="headerlink" href="#_CPPv2N10esphomelib6sensor19MQTTSensorComponent8filters_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+      <li>Previous: <a href="../light/index.html" title="previous chapter">Light</a></li>
+      <li>Next: <a href="../switch/index.html" title="next chapter">Switch</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/sensor/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

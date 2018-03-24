@@ -1,0 +1,509 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Component &#8212; esphomelib 1.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="WiFi" href="wifi.html" />
+    <link rel="prev" title="Application" href="application.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="component">
+<h1>Component<a class="headerlink" href="#component" title="Permalink to this headline">¶</a></h1>
+<p>Every object that should be handled by the Application instance and receive <a class="reference internal" href="#_CPPv2N10esphomelib9Component5setupEv" title="esphomelib::Component::setup"><code class="xref cpp cpp-func docutils literal"><span class="pre">setup()</span></code></a> and <a class="reference internal" href="#_CPPv2N10esphomelib9Component4loopEv" title="esphomelib::Component::loop"><code class="xref cpp cpp-func docutils literal"><span class="pre">loop()</span></code></a> calls must be a subclass of <a class="reference internal" href="#_CPPv2N10esphomelib9ComponentE" title="esphomelib::Component"><code class="xref cpp cpp-class docutils literal"><span class="pre">Component</span></code></a>.</p>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Component<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib9ComponentE">
+<span id="esphomelib::Component"></span><span class="target" id="classesphomelib_1_1_component"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">Component</code><a class="headerlink" href="#_CPPv2N10esphomelib9ComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The base class for all esphomelib components. </p>
+<p>esphomelib uses components to separate code for self-contained units such as peripheral devices in order to keep the library clean and simple. Each component should be registered in the <a class="reference internal" href="application.html#classesphomelib_1_1_application"><span class="std std-ref">Application</span></a> instance via add_component. The application will then call the component’s <a class="reference internal" href="#classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"><span class="std std-ref">setup()</span></a> and <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a> methods at the appropriate time. Each component should save all the information required for setup in the constructor, and only do the actual hardware initialization, such as pinMode, in <a class="reference internal" href="#classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"><span class="std std-ref">setup()</span></a>.</p>
+<p>Additionally, the <a class="reference internal" href="#classesphomelib_1_1_component_1ac2e7acd28617d041d82305be854a8543"><span class="std std-ref">get_setup_priority()</span></a> and <a class="reference internal" href="#classesphomelib_1_1_component_1a59bf208aab3b9271fd59e6b80786d3b8"><span class="std std-ref">get_loop_priority()</span></a> can be overwritten in order to force the <a class="reference internal" href="#classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"><span class="std std-ref">setup()</span></a> or <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a> methods to be executed earlier than other components. For example, setting up a GPIO pin to be output-only should be done before WiFi and MQTT are initialized - so the component can assign itself a high priority via <a class="reference internal" href="#classesphomelib_1_1_component_1ac2e7acd28617d041d82305be854a8543"><span class="std std-ref">get_setup_priority()</span></a>.</p>
+<p><dl class="docutils">
+<dt><strong>See</strong></dt>
+<dd>Application::add_component() </dd>
+</dl>
+</p>
+<p>Subclassed by <a class="reference internal" href="../fan/index.html#classesphomelib_1_1fan_1_1_basic_fan_component"><span class="std std-ref">esphomelib::fan::BasicFanComponent</span></a>, <a class="reference internal" href="../input/dallas.html#classesphomelib_1_1input_1_1_dallas_component"><span class="std std-ref">esphomelib::input::DallasComponent</span></a>, <a class="reference internal" href="../input/gpio-binary-sensor.html#classesphomelib_1_1input_1_1_g_p_i_o_binary_sensor_component"><span class="std std-ref">esphomelib::input::GPIOBinarySensorComponent</span></a>, <a class="reference internal" href="../light/index.html#classesphomelib_1_1light_1_1_linear_light_output_component"><span class="std std-ref">esphomelib::light::LinearLightOutputComponent</span></a>, <a class="reference internal" href="log.html#classesphomelib_1_1_log_component"><span class="std std-ref">esphomelib::LogComponent</span></a>, <a class="reference internal" href="mqtt.html#classesphomelib_1_1mqtt_1_1_m_q_t_t_client_component"><span class="std std-ref">esphomelib::mqtt::MQTTClientComponent</span></a>, <a class="reference internal" href="mqtt.html#classesphomelib_1_1mqtt_1_1_m_q_t_t_component"><span class="std std-ref">esphomelib::mqtt::MQTTComponent</span></a>, <a class="reference internal" href="ota.html#classesphomelib_1_1_o_t_a_component"><span class="std std-ref">esphomelib::OTAComponent</span></a>, <a class="reference internal" href="../output/gpio-binary.html#classesphomelib_1_1output_1_1_g_p_i_o_binary_output_component"><span class="std std-ref">esphomelib::output::GPIOBinaryOutputComponent</span></a>, <a class="reference internal" href="../output/ir-transmitter.html#classesphomelib_1_1output_1_1_i_r_transmitter_component"><span class="std std-ref">esphomelib::output::IRTransmitterComponent</span></a>, <a class="reference internal" href="../output/ledc.html#classesphomelib_1_1output_1_1_l_e_d_c_output_component"><span class="std std-ref">esphomelib::output::LEDCOutputComponent</span></a>, <a class="reference internal" href="../output/pca9685.html#classesphomelib_1_1output_1_1_p_c_a9685_output_component"><span class="std std-ref">esphomelib::output::PCA9685OutputComponent</span></a>, <a class="reference internal" href="#classesphomelib_1_1_polling_component"><span class="std std-ref">esphomelib::PollingComponent</span></a>, <a class="reference internal" href="power-supply.html#classesphomelib_1_1_power_supply_component"><span class="std std-ref">esphomelib::PowerSupplyComponent</span></a>, <a class="reference internal" href="wifi.html#classesphomelib_1_1_wi_fi_component"><span class="std std-ref">esphomelib::WiFiComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Types</p>
+<dl class="type">
+<dt id="_CPPv2N10esphomelib9Component14ComponentStateE">
+<span id="esphomelib::Component::ComponentState"></span><span class="target" id="classesphomelib_1_1_component_1a9a545b9995b6f0e742f33056a34ec477"></span><em class="property">enum </em><code class="descname">ComponentState</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component14ComponentStateE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib9Component12CONSTRUCTIONE">
+<span class="target" id="classesphomelib_1_1_component_1a9a545b9995b6f0e742f33056a34ec477a573e0217930736b8025c5ca63e58004f"></span><code class="descname">CONSTRUCTION</code> = 0<a class="headerlink" href="#_CPPv2N10esphomelib9Component12CONSTRUCTIONE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib9Component5SETUPE">
+<span class="target" id="classesphomelib_1_1_component_1a9a545b9995b6f0e742f33056a34ec477a4fa3bd141c2de5d9a62d7bb5a6ec9f59"></span><code class="descname">SETUP</code> = 1<a class="headerlink" href="#_CPPv2N10esphomelib9Component5SETUPE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib9Component4LOOPE">
+<span class="target" id="classesphomelib_1_1_component_1a9a545b9995b6f0e742f33056a34ec477a66bca0e6b013110f58f2c5163e7fbdc6"></span><code class="descname">LOOP</code> = 2<a class="headerlink" href="#_CPPv2N10esphomelib9Component4LOOPE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component5setupEv">
+<span id="esphomelib::Component::setup"></span><span class="target" id="classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component5setupEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Where the component’s initialization should happen. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"><span class="std std-ref">setup()</span></a>. This method is guaranteed to only be called once. Defaults to doing noting. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component4loopEv">
+<span id="esphomelib::Component::loop"></span><span class="target" id="classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component4loopEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This method will be called repeatedly. </p>
+<p>Analogous to Arduino’s <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a>. <a class="reference internal" href="#classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"><span class="std std-ref">setup()</span></a> is guaranteed to be called before this. Defaults to doing nothing. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib9Component18get_setup_priorityEv">
+<span id="esphomelib::Component::get_setup_priorityC"></span><span class="target" id="classesphomelib_1_1_component_1ac2e7acd28617d041d82305be854a8543"></span>float <code class="descname">get_setup_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib9Component18get_setup_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>priority of <a class="reference internal" href="#classesphomelib_1_1_component_1a24bcd229624619c80fc08953a8d718c1"><span class="std std-ref">setup()</span></a>. </p>
+<p>higher -&gt; executed earlier</p>
+<p>Defaults to 0.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The setup priority of this component </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib9Component17get_loop_priorityEv">
+<span id="esphomelib::Component::get_loop_priorityC"></span><span class="target" id="classesphomelib_1_1_component_1a59bf208aab3b9271fd59e6b80786d3b8"></span>float <code class="descname">get_loop_priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib9Component17get_loop_priorityEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>priority of <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a>. </p>
+<p>higher -&gt; executed earlier</p>
+<p>Defaults to 0.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The loop priority of this component </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component5loop_Ev">
+<span id="esphomelib::Component::loop_"></span><span class="target" id="classesphomelib_1_1_component_1abd3decb00a7ee51e939aa56b5bd63d3b"></span>void <code class="descname">loop_</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component5loop_Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Public <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a> functions. </p>
+<p>These will be called by the <a class="reference internal" href="application.html#classesphomelib_1_1_application"><span class="std std-ref">Application</span></a> instance.</p>
+<p>Note: This should normally not be overriden, unless you know what you’re doing. They’re basically to make creating custom components easier. For example the SensorComponent can override these methods to not have the user call some super methods within their custom sensors. These methods should ALWAYS call the loop_internal() and setup_internal() methods.</p>
+<p>Basically, it handles stuff like interval/timeout functions and eventually calls <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a>. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component6setup_Ev">
+<span id="esphomelib::Component::setup_"></span><span class="target" id="classesphomelib_1_1_component_1a552ad2643e4bcbcabb02144a7e3845e9"></span>void <code class="descname">setup_</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component6setup_Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib9Component19get_component_stateEv">
+<span id="esphomelib::Component::get_component_stateC"></span><span class="target" id="classesphomelib_1_1_component_1a095d1bac5e7f637fd843867a4b535b63"></span><a class="reference internal" href="#_CPPv2N10esphomelib9ComponentE" title="esphomelib::Component">Component</a>::<a class="reference internal" href="#_CPPv2N10esphomelib9Component14ComponentStateE" title="esphomelib::Component::ComponentState">ComponentState</a> <code class="descname">get_component_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib9Component19get_component_stateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Types</p>
+<dl class="type">
+<dt id="_CPPv2N10esphomelib9Component11time_func_tE">
+<span class="target" id="classesphomelib_1_1_component_1acc32bf02a5bdc8e72a44c6db8e20a202"></span><em class="property">using </em><code class="descname">time_func_t</code> = std::function&lt;void<span class="sig-paren">(</span><span class="sig-paren">)</span>&gt;<a class="headerlink" href="#_CPPv2N10esphomelib9Component11time_func_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Simple typedef for interval/timeout functions. </p>
+<p><dl class="docutils">
+<dt><strong>See</strong></dt>
+<dd><a class="reference internal" href="#classesphomelib_1_1_component_1a2443ca613499766397523823df11ef98"><span class="std std-ref">set_interval()</span></a> </dd>
+<dt><strong>See</strong></dt>
+<dd><a class="reference internal" href="#classesphomelib_1_1_component_1a4c9a6e1976b4572187406fb4c3e99596"><span class="std std-ref">set_timeout()</span></a> </dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component13loop_internalEv">
+<span id="esphomelib::Component::loop_internal"></span><span class="target" id="classesphomelib_1_1_component_1a07ca794d5b7a98eec63f9239a8cc8201"></span>void <code class="descname">loop_internal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component13loop_internalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component14setup_internalEv">
+<span id="esphomelib::Component::setup_internal"></span><span class="target" id="classesphomelib_1_1_component_1a37a0e2de32862a53f6dd203375f8af79"></span>void <code class="descname">setup_internal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component14setup_internalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component12set_intervalERKNSt6stringE8uint32_t11time_func_t">
+<span id="esphomelib::Component::set_interval__ssCR.uint32_t.time_func_t"></span><span class="target" id="classesphomelib_1_1_component_1a2443ca613499766397523823df11ef98"></span>void <code class="descname">set_interval</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em>, uint32_t <em>interval</em>, <a class="reference internal" href="#_CPPv2N10esphomelib9Component11time_func_tE" title="esphomelib::Component::time_func_t">time_func_t</a> <em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component12set_intervalERKNSt6stringE8uint32_t11time_func_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set an interval function with a unique name. </p>
+<p>This will call f every interval ms. Can be cancelled via CancelInterval(). Similar to javascript’s setInterval().</p>
+<p>IMPORTANT: Do not rely on this having correct timing. This is only called from <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a> and therefore can be significantly delay. If you need exact timing please use hardware timers.</p>
+<p><dl class="docutils">
+<dt><strong>See</strong></dt>
+<dd><a class="reference internal" href="#classesphomelib_1_1_component_1a84d2e2cc78502bf4a93c06ef0eb6f687"><span class="std std-ref">cancel_interval()</span></a> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">name</span></code>: The identifier for this interval function. </li>
+<li><code class="docutils literal"><span class="pre">interval</span></code>: The interval in ms. </li>
+<li><code class="docutils literal"><span class="pre">f</span></code>: The function (or lambda) that should be called</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component15cancel_intervalERKNSt6stringE">
+<span id="esphomelib::Component::cancel_interval__ssCR"></span><span class="target" id="classesphomelib_1_1_component_1a84d2e2cc78502bf4a93c06ef0eb6f687"></span>bool <code class="descname">cancel_interval</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component15cancel_intervalERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Cancel an interval function. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>Whether an interval functions was deleted. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">name</span></code>: The identifier for this interval function. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component11set_timeoutERKNSt6stringE8uint32_t11time_func_t">
+<span id="esphomelib::Component::set_timeout__ssCR.uint32_t.time_func_t"></span><span class="target" id="classesphomelib_1_1_component_1a4c9a6e1976b4572187406fb4c3e99596"></span>void <code class="descname">set_timeout</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em>, uint32_t <em>timeout</em>, <a class="reference internal" href="#_CPPv2N10esphomelib9Component11time_func_tE" title="esphomelib::Component::time_func_t">time_func_t</a> <em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component11set_timeoutERKNSt6stringE8uint32_t11time_func_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a timeout function with a unique name. </p>
+<p>Similar to javascript’s setTimeout().</p>
+<p>IMPORTANT: Do not rely on this having correct timing. This is only called from <a class="reference internal" href="#classesphomelib_1_1_component_1a324530e1c84f30be31417e995e805a0a"><span class="std std-ref">loop()</span></a> and therefore can be significantly delay. If you need exact timing please use hardware timers.</p>
+<p><dl class="docutils">
+<dt><strong>See</strong></dt>
+<dd><a class="reference internal" href="#classesphomelib_1_1_component_1a050c3c628c677328d8bcc0c967e71737"><span class="std std-ref">cancel_timeout()</span></a> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">name</span></code>: The identifier for this timeout function. </li>
+<li><code class="docutils literal"><span class="pre">timeout</span></code>: The timeout in ms. </li>
+<li><code class="docutils literal"><span class="pre">f</span></code>: The function (or lambda) that should be called</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component14cancel_timeoutERKNSt6stringE">
+<span id="esphomelib::Component::cancel_timeout__ssCR"></span><span class="target" id="classesphomelib_1_1_component_1a050c3c628c677328d8bcc0c967e71737"></span>bool <code class="descname">cancel_timeout</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component14cancel_timeoutERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Cancel a timeout function. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>Whether a timeout functions was deleted. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">name</span></code>: The identifier for this timeout function. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib9Component20cancel_time_functionERKNSt6stringEN12TimeFunction4TypeE">
+<span id="esphomelib::Component::cancel_time_function__ssCR.TimeFunction::Type"></span><span class="target" id="classesphomelib_1_1_component_1a9d40feb9e6c9097d50c376533eff17f7"></span>bool <code class="descname">cancel_time_function</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em>, <a class="reference internal" href="#_CPPv2N10esphomelib9Component12TimeFunctionE" title="esphomelib::Component::TimeFunction">TimeFunction</a>::Type <em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib9Component20cancel_time_functionERKNSt6stringEN12TimeFunction4TypeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib9Component15time_functions_E">
+<span id="esphomelib::Component::time_functions___std::vector:TimeFunction:"></span><span class="target" id="classesphomelib_1_1_component_1abf5fab8b10d0d8fc2293c0535d1104d0"></span>std::vector&lt;<a class="reference internal" href="#_CPPv2N10esphomelib9Component12TimeFunctionE" title="esphomelib::Component::TimeFunction">TimeFunction</a>&gt; <code class="descname">time_functions_</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component15time_functions_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Storage for interval/timeout functions. </p>
+<p>Intentionally a vector despite its map-like nature, because of the memory overhead. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib9Component16component_state_E">
+<span id="esphomelib::Component::component_state___ComponentState"></span><span class="target" id="classesphomelib_1_1_component_1a24af172fd74f71da6f50086499960cd1"></span><a class="reference internal" href="#_CPPv2N10esphomelib9Component14ComponentStateE" title="esphomelib::Component::ComponentState">ComponentState</a> <code class="descname">component_state_</code> = {CONSTRUCTION}<a class="headerlink" href="#_CPPv2N10esphomelib9Component16component_state_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>State of this component. </p>
+</dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib9Component12TimeFunctionE">
+<span id="esphomelib::Component::TimeFunction"></span><span class="target" id="structesphomelib_1_1_component_1_1_time_function"></span><em class="property">struct </em><code class="descname">TimeFunction</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component12TimeFunctionE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Internal struct for storing timeout/interval functions. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Types</p>
+<dl class="type">
+<dt id="_CPPv2N10esphomelib9Component4TypeE">
+<span id="esphomelib::Component::Type"></span><span class="target" id="structesphomelib_1_1_component_1_1_time_function_1ae13bdff321ebf10f95acfad504ee77c5"></span><em class="property">enum </em><code class="descname">Type</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component4TypeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib9Component7TIMEOUTE">
+<span class="target" id="structesphomelib_1_1_component_1_1_time_function_1ae13bdff321ebf10f95acfad504ee77c5a315e9002f95abe356624ee4e80c8cef6"></span><code class="descname">TIMEOUT</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component7TIMEOUTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="enumerator">
+<dt id="_CPPv2N10esphomelib9Component8INTERVALE">
+<span class="target" id="structesphomelib_1_1_component_1_1_time_function_1ae13bdff321ebf10f95acfad504ee77c5a3bb911fcc97b186f0ab84d7418f1e7c2"></span><code class="descname">INTERVAL</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component8INTERVALE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib9Component12TimeFunction4nameE">
+<span id="esphomelib::Component::TimeFunction::name__ss"></span><span class="target" id="structesphomelib_1_1_component_1_1_time_function_1a1f116f6867a41ad9bae2b0e58a73fd9b"></span>std::string <code class="descname">name</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component12TimeFunction4nameE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The name/id of this <a class="reference internal" href="#structesphomelib_1_1_component_1_1_time_function"><span class="std std-ref">TimeFunction</span></a>. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib9Component12TimeFunction4typeE">
+<span id="esphomelib::Component::TimeFunction::type__esphomelib::Component::TimeFunction::Type"></span><span class="target" id="structesphomelib_1_1_component_1_1_time_function_1aeb6e0c0f149f8b8457d8ae421d6ac551"></span><a class="reference internal" href="helpers.html#_CPPv210esphomelib" title="esphomelib">esphomelib</a>::<a class="reference internal" href="#_CPPv2N10esphomelib9ComponentE" title="esphomelib::Component">Component</a>::<a class="reference internal" href="#_CPPv2N10esphomelib9Component12TimeFunctionE" title="esphomelib::Component::TimeFunction">TimeFunction</a>::Type <code class="descname">type</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component12TimeFunction4typeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The type of this <a class="reference internal" href="#structesphomelib_1_1_component_1_1_time_function"><span class="std std-ref">TimeFunction</span></a>. Either TIMEOUT or INTERVAL. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib9Component12TimeFunction8intervalE">
+<span id="esphomelib::Component::TimeFunction::interval__uint32_t"></span><span class="target" id="structesphomelib_1_1_component_1_1_time_function_1a8f7d503f7fd7fa40cb67b4b7a9b7ec4f"></span>uint32_t <code class="descname">interval</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component12TimeFunction8intervalE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The interval/timeout of this function. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib9Component12TimeFunction14last_executionE">
+<span id="esphomelib::Component::TimeFunction::last_execution__uint32_t"></span><span class="target" id="structesphomelib_1_1_component_1_1_time_function_1a1ea92133de3e26ae4c5d94ed178000e0"></span>uint32_t <code class="descname">last_execution</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component12TimeFunction14last_executionE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The last execution for interval functions and the time, SetInterval was called, for timeout functions. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib9Component12TimeFunction1fE">
+<span id="esphomelib::Component::TimeFunction::f__time_func_t"></span><span class="target" id="structesphomelib_1_1_component_1_1_time_function_1a47989f37049a099a4485af5205e01706"></span><a class="reference internal" href="#_CPPv2N10esphomelib9Component11time_func_tE" title="esphomelib::Component::time_func_t">time_func_t</a> <code class="descname">f</code><a class="headerlink" href="#_CPPv2N10esphomelib9Component12TimeFunction1fE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The function (or callback) itself. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pollingcomponent">
+<h3>PollingComponent<a class="headerlink" href="#pollingcomponent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="_CPPv2N10esphomelib16PollingComponentE">
+<span id="esphomelib::PollingComponent"></span><span class="target" id="classesphomelib_1_1_polling_component"></span><em class="property">class </em><code class="descclassname">esphomelib::</code><code class="descname">PollingComponent</code><a class="headerlink" href="#_CPPv2N10esphomelib16PollingComponentE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This class simplifies creating components that periodically check a state. </p>
+<p>You basically just need to implement the update() function, it will be called every update_interval ms after startup. Note that this class cannot guarantee a correct timing, as it’s not using timers, just a software polling feature with <a class="reference internal" href="#classesphomelib_1_1_component_1a2443ca613499766397523823df11ef98"><span class="std std-ref">set_interval()</span></a> from <a class="reference internal" href="#classesphomelib_1_1_component"><span class="std std-ref">Component</span></a>. </p>
+<p>Inherits from <a class="reference internal" href="#classesphomelib_1_1_component"><span class="std std-ref">esphomelib::Component</span></a></p>
+<p>Subclassed by esphomelib::input::DHTComponent, <a class="reference internal" href="../sensor/index.html#classesphomelib_1_1sensor_1_1_polling_sensor_component"><span class="std std-ref">esphomelib::sensor::PollingSensorComponent</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="function">
+<dt id="_CPPv2N10esphomelib16PollingComponent16PollingComponentE8uint32_t">
+<span id="esphomelib::PollingComponent::PollingComponent__uint32_t"></span><span class="target" id="classesphomelib_1_1_polling_component_1a973d8a635cf2db98fdbd8c75a6432a89"></span><code class="descname">PollingComponent</code><span class="sig-paren">(</span>uint32_t <em>update_interval</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib16PollingComponent16PollingComponentE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize this polling component with the given update interval in ms. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">update_interval</span></code>: The update interval in ms. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib16PollingComponent19set_update_intervalE8uint32_t">
+<span id="esphomelib::PollingComponent::set_update_interval__uint32_t"></span><span class="target" id="classesphomelib_1_1_polling_component_1aeafa4fce9bb71507d7ce4754c1a6a7fd"></span>void <code class="descname">set_update_interval</code><span class="sig-paren">(</span>uint32_t <em>update_interval</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib16PollingComponent19set_update_intervalE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Manually set the update interval in ms for this polling object. </p>
+<p>Override this if you want to do some validation for the update interval.</p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">update_interval</span></code>: The update interval in ms. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib16PollingComponent6updateEv">
+<span id="esphomelib::PollingComponent::update"></span><span class="target" id="classesphomelib_1_1_polling_component_1a5e8b26e38b444a8a1a8c217b1e750032"></span><em class="property">virtual</em> void <code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span> = 0<a class="headerlink" href="#_CPPv2N10esphomelib16PollingComponent6updateEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2N10esphomelib16PollingComponent6setup_Ev">
+<span id="esphomelib::PollingComponent::setup_"></span><span class="target" id="classesphomelib_1_1_polling_component_1a0373e07b6e227345690626cf6331572c"></span>void <code class="descname">setup_</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv2N10esphomelib16PollingComponent6setup_Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv2NK10esphomelib16PollingComponent19get_update_intervalEv">
+<span id="esphomelib::PollingComponent::get_update_intervalC"></span><span class="target" id="classesphomelib_1_1_polling_component_1a93ea40628488373600689da27d9643fc"></span>uint32_t <code class="descname">get_update_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv2NK10esphomelib16PollingComponent19get_update_intervalEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the update interval in ms of this sensor. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Protected Attributes</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib16PollingComponent16update_interval_E">
+<span id="esphomelib::PollingComponent::update_interval___uint32_t"></span><span class="target" id="classesphomelib_1_1_polling_component_1ad9c66983b429a6b9db05a1355844ec27"></span>uint32_t <code class="descname">update_interval_</code><a class="headerlink" href="#_CPPv2N10esphomelib16PollingComponent16update_interval_E" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="setup-priorities">
+<h3>Setup Priorities<a class="headerlink" href="#setup-priorities" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="_CPPv2N10esphomelib14setup_priorityE">
+<span id="esphomelib::setup_priority"></span><span class="target" id="namespaceesphomelib_1_1setup__priority"></span><em class="property">namespace </em><code class="descclassname">esphomelib::</code><code class="descname">setup_priority</code><a class="headerlink" href="#_CPPv2N10esphomelib14setup_priorityE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>default setup priorities for components of different types. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Variables</p>
+<dl class="member">
+<dt id="_CPPv2N10esphomelib14setup_priority8HARDWAREE">
+<span id="esphomelib::setup_priority::HARDWARE__floatC"></span><span class="target" id="namespaceesphomelib_1_1setup__priority_1acf73eeb5cf470f35f7616107df345ed3"></span><em class="property">const</em> float <code class="descname">HARDWARE</code> = 100.0f<a class="headerlink" href="#_CPPv2N10esphomelib14setup_priority8HARDWAREE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>for hardware initialization, but only where it’s really necessary (like outputs) </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib14setup_priority4WIFIE">
+<span id="esphomelib::setup_priority::WIFI__floatC"></span><span class="target" id="namespaceesphomelib_1_1setup__priority_1af3aa00df08b58eba0a34d4b359c2da99"></span><em class="property">const</em> float <code class="descname">WIFI</code> = 10.0f<a class="headerlink" href="#_CPPv2N10esphomelib14setup_priority4WIFIE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>for WiFi initialization </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib14setup_priority11MQTT_CLIENTE">
+<span id="esphomelib::setup_priority::MQTT_CLIENT__floatC"></span><span class="target" id="namespaceesphomelib_1_1setup__priority_1ab39aa3b0f1cc8efca0a95d3305e095a6"></span><em class="property">const</em> float <code class="descname">MQTT_CLIENT</code> = 7.5f<a class="headerlink" href="#_CPPv2N10esphomelib14setup_priority11MQTT_CLIENTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>for the MQTT client initialization </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib14setup_priority13HARDWARE_LATEE">
+<span id="esphomelib::setup_priority::HARDWARE_LATE__floatC"></span><span class="target" id="namespaceesphomelib_1_1setup__priority_1abb1e1d0f782c9f08e26cfc90fa87ff6e"></span><em class="property">const</em> float <code class="descname">HARDWARE_LATE</code> = 0.0f<a class="headerlink" href="#_CPPv2N10esphomelib14setup_priority13HARDWARE_LATEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv2N10esphomelib14setup_priority14MQTT_COMPONENTE">
+<span id="esphomelib::setup_priority::MQTT_COMPONENT__floatC"></span><span class="target" id="namespaceesphomelib_1_1setup__priority_1ad3e14167b9d4fd47e521ba4c9513ecf3"></span><em class="property">const</em> float <code class="descname">MQTT_COMPONENT</code> = -5.0f<a class="headerlink" href="#_CPPv2N10esphomelib14setup_priority14MQTT_COMPONENTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>for MQTT component initialization </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="assertions">
+<h3>Assertions<a class="headerlink" href="#assertions" title="Permalink to this headline">¶</a></h3>
+<dl class="macro">
+<dt id="c.assert_is_pin">
+<span class="target" id="component_8h_1a885d852c1b1ef2e5f4e9dd5612ef71d4"></span><code class="descname">assert_is_pin</code><span class="sig-paren">(</span>num<span class="sig-paren">)</span><a class="headerlink" href="#c.assert_is_pin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="macro">
+<dt id="c.assert_setup">
+<span class="target" id="component_8h_1a22cb27380d352416f00bd85f113dd3b1"></span><code class="descname">assert_setup</code><span class="sig-paren">(</span>t<span class="sig-paren">)</span><a class="headerlink" href="#c.assert_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="macro">
+<dt id="c.assert_construction_state">
+<span class="target" id="component_8h_1adbba344f65e92e14151e5ee0785ed420"></span><code class="descname">assert_construction_state</code><span class="sig-paren">(</span>t<span class="sig-paren">)</span><a class="headerlink" href="#c.assert_construction_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">API Reference</a><ul>
+  <li><a href="index.html">Core</a><ul>
+      <li>Previous: <a href="application.html" title="previous chapter">Application</a></li>
+      <li>Next: <a href="wifi.html" title="next chapter">WiFi</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Otto Winter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/api/core/component.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
