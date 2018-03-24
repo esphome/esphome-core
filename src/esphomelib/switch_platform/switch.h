@@ -18,7 +18,9 @@ namespace switch_platform {
  */
 class Switch : public binary_sensor::BinarySensor {
  public:
+  /// Turn this switch on.
   virtual void turn_on() = 0;
+  /// Turn this switch off.
   virtual void turn_off() = 0;
 
   /** Override this to set the Home Assistant icon for this switch.

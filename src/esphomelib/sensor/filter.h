@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-/** Filter - Apply a filter to sensor values such as moving average.
+/** Apply a filter to sensor values such as moving average.
  *
  * This class is purposefully kept quite simple, since more complicated
  * filters should really be done with the filter sensor in Home Assistant.
@@ -85,7 +85,7 @@ class ExponentialMovingAverageFilter : public Filter {
 
 using lambda_filter_t = std::function<Optional<float>(float)>;
 
-/** Lambda Filter - This class allows for creation of simple template filters.
+/** This class allows for creation of simple template filters.
  *
  * The constructor accepts a lambda of the form float -> Optional<float>.
  * It will be called with each new value in the filter chain and returns the modified
@@ -104,7 +104,7 @@ class LambdaFilter : public Filter {
   lambda_filter_t lambda_filter_;
 };
 
-/// OffsetFilter - A simple filter that adds `offset` to each value it receives.
+/// A simple filter that adds `offset` to each value it receives.
 class OffsetFilter : public Filter {
  public:
   explicit OffsetFilter(float offset);
@@ -115,7 +115,7 @@ class OffsetFilter : public Filter {
   float offset_;
 };
 
-/// MultiplyFilter - A simple filter that multiplies to each value it receives by `multiplier`.
+/// A simple filter that multiplies to each value it receives by `multiplier`.
 class MultiplyFilter : public Filter {
  public:
   explicit MultiplyFilter(float multiplier);
@@ -126,7 +126,7 @@ class MultiplyFilter : public Filter {
   float multiplier_;
 };
 
-/// FilterOutValueFilter - A simple filter that only forwards the filter chain if it doesn't receive `value_to_filter_out`.
+/// A simple filter that only forwards the filter chain if it doesn't receive `value_to_filter_out`.
 class FilterOutValueFilter : public Filter {
  public:
   explicit FilterOutValueFilter(float values_to_filter_out);
@@ -137,7 +137,7 @@ class FilterOutValueFilter : public Filter {
   float value_to_filter_out_;
 };
 
-/// FilterOutNANFilter - A simple filter that only forwards the filter chain if it doesn't receive `nan`.
+/// A simple filter that only forwards the filter chain if it doesn't receive `nan`.
 class FilterOutNANFilter : public Filter {
  public:
   Optional<float> new_value(float value) override;

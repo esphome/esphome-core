@@ -9,10 +9,11 @@
 #include <IPAddress.h>
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <esp_wifi.h>
-#include <WiFiType.h>
-#else
-#include <ESP8266WiFiType.h>
+  #include <esp_wifi.h>
+  #include <WiFiType.h>
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  #include <ESP8266WiFiType.h>
 #endif
 
 #include "esphomelib/component.h"
@@ -29,7 +30,7 @@ struct ManualIP {
   IPAddress dns2; ///< The second DNS server. 0.0.0.0 for default.
 };
 
-/// WiFiComponent - This component is responsible for managing the ESP32 WiFi interface.
+/// This component is responsible for managing the ESP WiFi interface.
 class WiFiComponent : public Component {
  public:
   /** Construct a WiFiComponent.
@@ -42,20 +43,26 @@ class WiFiComponent : public Component {
 
   /// Set the hostname, automatically sanitizes it.
   void set_hostname(const std::string &hostname);
-  const std::string &get_hostname() const;
 
   /// Manually set a static IP for this WiFi interface.
   void set_manual_ip(Optional<ManualIP> manual_ip);
-  const Optional<ManualIP> &get_manual_ip() const;
 
   void set_ssid(const std::string &ssid);
-  const std::string &get_ssid() const;
 
   void set_password(const std::string &password);
+
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  const std::string &get_hostname() const;
+  const Optional<ManualIP> &get_manual_ip() const;
+  const std::string &get_ssid() const;
   const std::string &get_password() const;
 
+  /// Setup WiFi interface.
   void setup() override;
+  /// WIFI setup_priority.
   float get_setup_priority() const override;
+  /// Reconnect WiFi if required.
   void loop() override;
 
  protected:

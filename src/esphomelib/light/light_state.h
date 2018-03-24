@@ -22,7 +22,7 @@ using light_send_callback_t = std::function<void()>;
 
 class LightEffect;
 
-/** LightState - This class represents the communication layer between the front-end MQTT layer and the
+/** This class represents the communication layer between the front-end MQTT layer and the
  * hardware output layer.
  */
 class LightState {

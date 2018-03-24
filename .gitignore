@@ -23,3 +23,7 @@ cmake-build-release/
 
 # pyenv
 .python-version
+
+# Docs
+docs/_build
+docs/_doxyxml

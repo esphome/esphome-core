@@ -25,7 +25,8 @@ std::string get_mac_address() {
   uint8_t mac[6];
 #ifdef ARDUINO_ARCH_ESP32
   esp_efuse_mac_get_default(mac);
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
   WiFi.macAddress(mac);
 #endif
   sprintf(tmp, "%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);

@@ -14,6 +14,7 @@ namespace esphomelib {
 
 namespace sensor {
 
+/// Class that exposes sensors to the MQTT frontend.
 class MQTTSensorComponent : public mqtt::MQTTComponent {
  public:
   /** Construct this MQTTSensorComponent instance with the provided friendly_name and sensor

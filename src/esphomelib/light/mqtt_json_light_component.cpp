@@ -17,7 +17,7 @@ std::string MQTTJSONLightComponent::component_type() const {
 }
 
 void MQTTJSONLightComponent::setup() {
-  assert_not_nullptr(this->state_);
+  assert(this->state_ != nullptr);
   ESP_LOGD(TAG, "Setting up MQTT light...");
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
@@ -99,7 +99,7 @@ void MQTTJSONLightComponent::send_light_values() {
   LightColorValues remote_values = this->state_->get_remote_values();
   remote_values.save_to_preferences(this->friendly_name_);
   this->send_json_message(this->get_state_topic(), [&](JsonBuffer &buffer, JsonObject &root) {
-    assert_not_nullptr(this->state_);
+    assert(this->state_ != nullptr);
     if (this->state_->supports_effects())
       root["effect"] = this->state_->get_effect_name();
     remote_values.dump_json(root, this->state_->get_traits());

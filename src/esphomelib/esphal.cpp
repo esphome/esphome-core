@@ -72,7 +72,8 @@ void GPIOPin::setup() {
       case FUNCTION_5: mode_s = "FUNCTION_5"; break;
       case FUNCTION_6: mode_s = "FUNCTION_6"; break;
       case ANALOG: mode_s = "ANALOG"; break;
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
       case FUNCTION_0: mode_s = "FUNCTION_0"; break;
       case WAKEUP_PULLUP: mode_s = "WAKEUP_PULLUP"; break;
       case WAKEUP_PULLDOWN: mode_s = "WAKEUP_PULLDOWN"; break;

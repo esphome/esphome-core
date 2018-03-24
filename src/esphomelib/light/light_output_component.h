@@ -13,7 +13,7 @@ namespace esphomelib {
 
 namespace light {
 
-/// LightOutput - Interface to write LightColorValues to hardware.
+/// Interface to write LightColorValues to hardware.
 class LightOutput {
  public:
   LightOutput();
@@ -29,7 +29,7 @@ class LightOutput {
   LightState *state_;
 };
 
-/** LinearLightOutputComponent - Enables simple light output to FloatOutputs
+/** Enables simple light output to FloatOutputs
  *
  * Supports several light types: monochromatic, RGB, and RGBW. Aditionally supports gamma correction.
  */

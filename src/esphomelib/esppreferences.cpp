@@ -89,8 +89,8 @@ size_t ESPPreferences::put_float(const std::string &friendly_name, const std::st
 size_t ESPPreferences::put_double(const std::string &friendly_name, const std::string &key, double value) {
   return this->preferences_.putDouble(this->get_preference_key(friendly_name, key).c_str(), value);
 }
-#else
-
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
 // TODO implement this for ESP8266
 
 void ESPPreferences::begin(const std::string &name) {

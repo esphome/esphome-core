@@ -24,20 +24,18 @@ MQTTSwitchComponent::MQTTSwitchComponent(std::string friendly_name, switch_platf
     return;
 
   this->switch_->add_on_new_state_callback(this->create_on_new_state_callback());
-  this->icon_ = this->switch_->icon();
 }
 
 void MQTTSwitchComponent::setup() {
   assert(this->switch_ != nullptr);
 
   ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->friendly_name_.c_str());
-  if (!this->icon_.empty())
-    ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->icon_.c_str());
+  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->get_icon());
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
     // TODO: Enable this once a new Home Assistant version is out.
-    // if (!this->icon_.empty())
-    //   root["icon"] = this->icon_;
+    // if (!this->get_icon().empty())
+    //   root["icon"] = this->get_icon();
   });
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
@@ -76,8 +74,13 @@ Switch *MQTTSwitchComponent::get_switch() const {
 void MQTTSwitchComponent::set_switch(Switch *switch_) {
   this->switch_ = switch_;
 }
-const std::string &MQTTSwitchComponent::get_icon() const {
-  return this->icon_;
+std::string MQTTSwitchComponent::get_icon() const {
+  if (this->icon_.defined)
+    return this->icon_.value;
+  else {
+    assert(this->switch_ != nullptr);
+    return this->switch_->icon();
+  }
 }
 void MQTTSwitchComponent::set_icon(const std::string &icon) {
   this->icon_ = icon;

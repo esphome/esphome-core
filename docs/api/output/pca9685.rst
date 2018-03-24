@@ -1,0 +1,30 @@
+ESP32 LEDC Output
+=================
+
+Example Usage
+-------------
+
+.. code-block:: cpp
+
+    // Setup i2c on pin 14 and 27 with frequency 400000Hz.
+    Wire.begin(14, 27, 400000);
+    // Create the PCA9685 Output hub with frequency 500Hz.
+    auto *pca9685 = App.make_pca9685_component(500.0f);
+
+.. cpp:namespace:: esphomelib
+
+See :cpp:func:`Application::make_pca9685_component`.
+
+API Reference
+-------------
+
+.. cpp:namespace:: nullptr
+
+PCA9685OutputComponent
+**********************
+
+.. doxygenclass:: esphomelib::output::PCA9685OutputComponent
+    :members:
+    :protected-members:
+    :undoc-members:
+

@@ -72,9 +72,6 @@ void DallasComponent::setup() {
     });
   }
 }
-uint8_t DallasComponent::get_device_count() {
-  return this->dallas_.getDeviceCount();
-}
 
 std::vector<uint64_t> DallasComponent::scan_devices() {
   std::vector<uint64_t> v;

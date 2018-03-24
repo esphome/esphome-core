@@ -11,7 +11,8 @@
 
 #ifdef ARDUINO_ARCH_ESP32
   const uint16_t OTA_DEFAULT_PORT = 3232;
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
   const uint16_t OTA_DEFAULT_PORT = 8266;
 #endif
 

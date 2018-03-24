@@ -5,11 +5,12 @@
 #include "esphomelib/wifi_component.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <WiFi.h>
-#include <esp_wifi.h>
-#else
-#include <ESP8266WiFi.h>
-#include <user_interface.h>
+  #include <WiFi.h>
+  #include <esp_wifi.h>
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  #include <ESP8266WiFi.h>
+  #include <user_interface.h>
 #endif
 
 #include "esphomelib/helpers.h"
@@ -39,7 +40,8 @@ void WiFiComponent::setup() {
     ESP_LOGCONFIG(TAG, "    Hostname: '%s'", this->hostname_.c_str());
 #ifdef ARDUINO_ARCH_ESP32
     WiFi.setHostname(this->hostname_.c_str());
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
     WiFi.hostname(this->hostname_.c_str());
 #endif
   }
@@ -65,7 +67,8 @@ void WiFiComponent::loop() {
     ESP_LOGI(TAG, "Reconnecting WiFi...");
 #ifdef ARDUINO_ARCH_ESP32
     esp_wifi_connect();
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
     wifi_station_connect();
 #endif
     this->wait_for_connection();
@@ -95,7 +98,8 @@ void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
       break;
     case SYSTEM_EVENT_STA_GOT_IP:event_name = "STA got IP";
       break;
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
     case WIFI_EVENT_STAMODE_CONNECTED: event_name = "STA connected";
       break;
     case WIFI_EVENT_STAMODE_DISCONNECTED: event_name = "STA disconnected";
@@ -136,7 +140,8 @@ void WiFiComponent::wait_for_connection() {
       WiFi.disconnect(true);
       esp_wifi_stop();
       esp_restart();
-#else
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
       WiFi.enableSTA(false);
       ESP.restart();
 #endif

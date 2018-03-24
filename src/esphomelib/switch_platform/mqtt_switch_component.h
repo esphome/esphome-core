@@ -13,7 +13,7 @@ namespace esphomelib {
 
 namespace switch_platform {
 
-/** MQTTSwitchComponent - MQTT representation of switches
+/** MQTT representation of switches
  *
  * Overrides MQTTBinarySensorComponent with a callback that can write values to hardware.
  */
@@ -47,9 +47,9 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
   void turn_off();
 
   /// Get the icon for this switch.
-  const std::string &get_icon() const;
+  std::string get_icon() const;
 
-  std::string icon_;
+  Optional<std::string> icon_; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
   Switch *switch_{nullptr};
 };
 

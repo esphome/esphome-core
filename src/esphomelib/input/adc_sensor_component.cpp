@@ -6,7 +6,7 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/input/adc_component.h"
+#include "esphomelib/input/adc_sensor_component.h"
 
 #include "esphomelib/log.h"
 

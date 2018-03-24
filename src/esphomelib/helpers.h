@@ -21,6 +21,7 @@ std::string get_mac_address();
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
 
+/// The characters that are allowed in a hostname.
 const static std::string
     HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 
@@ -85,17 +86,24 @@ void run_without_interrupts(const std::function<void()> &f);
 
 /// Helper class to represent an optional value.
 template<typename T>
-struct Optional {
+class Optional {
+ public:
+  /// Construct an optional value that is not defined.
   explicit Optional() : defined(false) {}
 
+  /// Construct an optional that is defined using the value.
   Optional(T value) : defined(true), value(value) {} // NOLINT
 
+  /// Shorthand to access the value inside the optional with the arrow syntax ->.
   T *operator->();
 
+  /// Shorthand to access the value inside the optional with the arrow syntax -> for constant access.
   const T *operator->() const;
 
+  /// Shorthand to check if the value inside is defined.
   operator bool() const; // NOLINT
 
+ protected:
   bool defined{false};
   T value;
 };
@@ -149,7 +157,7 @@ class ExponentialMovingAverage {
 template<typename... X> class CallbackManager;
 
 
-/** CallbackManager - Simple helper class to allow having multiple subscribers to a signal.
+/** Simple helper class to allow having multiple subscribers to a signal.
  *
  * @tparam Ts The arguments for the callback, wrapped in void().
  */

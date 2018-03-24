@@ -27,7 +27,7 @@ LightState *LightOutput::get_state() const {
   return this->state_;
 }
 LightColorValues LightOutput::get_current_values() {
-  assert_not_nullptr(this->state_);
+  assert(this->state_ != nullptr);
   return this->state_->get_current_values();
 }
 
@@ -69,29 +69,29 @@ void LinearLightOutputComponent::loop() {
 
   if (this->traits_.has_rgb()) {
     float r = values.get_state() * values.get_brightness() * values.get_red();
-    assert_not_nullptr(this->red_);
+    assert(this->red_ != nullptr);
     this->red_->set_state_(gamma_correct(r, this->gamma_correct_));
 
     float g = values.get_state() * values.get_brightness() * values.get_green();
-    assert_not_nullptr(this->green_);
+    assert(this->green_ != nullptr);
     this->green_->set_state_(gamma_correct(g, this->gamma_correct_));
 
     float b = values.get_state() * values.get_brightness() * values.get_blue();
-    assert_not_nullptr(this->blue_);
+    assert(this->blue_ != nullptr);
     this->blue_->set_state_(gamma_correct(b, this->gamma_correct_));
 
     if (this->traits_.has_rgb_white_value()) {
       float w = values.get_state() * values.get_brightness() * values.get_white();
-      assert_not_nullptr(this->white_);
+      assert(this->white_ != nullptr);
       this->white_->set_state_(gamma_correct(w, this->gamma_correct_));
     }
   } else if (this->traits_.has_brightness()) {
     float v = values.get_state() * values.get_brightness();
-    assert_not_nullptr(this->monochromatic_);
+    assert(this->monochromatic_ != nullptr);
     this->monochromatic_->set_state_(gamma_correct(v, this->gamma_correct_));
   } else {
     bool s = values.get_state() != 0.0f;
-    assert_not_nullptr(this->binary_);
+    assert(this->binary_ != nullptr);
     if (s) this->binary_->enable();
     else this->binary_->disable();
   }
