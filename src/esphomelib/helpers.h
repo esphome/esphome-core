@@ -96,7 +96,7 @@ struct Optional {
 
   operator bool() const; // NOLINT
 
-  bool defined;
+  bool defined{false};
   T value;
 };
 

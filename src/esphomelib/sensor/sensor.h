@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-using sensor_callback_t = std::function<void(float, int8_t)>;
+using sensor_callback_t = std::function<void(float)>;
 
 const std::string UNIT_OF_MEASUREMENT_CELSIUS = "°C";
 const std::string UNIT_OF_MEASUREMENT_PERCENT = "%";
@@ -41,9 +41,8 @@ class Sensor {
    * can later override this accuracy.
    *
    * @param value The floating point value.
-   * @param accuracy_decimals The accuracy in decimal points. The user can customize this.
    */
-  void push_new_value(float value, int8_t accuracy_decimals);
+  void push_new_value(float value);
 
   /** Override this to set the Home Assistant unit of measurement for this sensor.
    *
@@ -64,13 +63,16 @@ class Sensor {
   /// Return with which interval the sensor is polled. Return 0 for non-polling mode.
   virtual uint32_t update_interval();
 
+  /// Return the accuracy in decimals for this sensor.
+  virtual int8_t accuracy_decimals();
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// The MQTT sensor class uses this to register itself as a listener for new values.
   void add_new_value_callback(sensor_callback_t callback);
 
  protected:
-  CallbackManager<void(float, int8_t)> callback_{};
+  CallbackManager<void(float)> callback_{};
 };
 
 class PollingSensorComponent : public PollingComponent, public sensor::Sensor {

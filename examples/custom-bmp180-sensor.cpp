@@ -28,10 +28,11 @@ class BMP180Sensor : public sensor::PollingSensorComponent {
 
   void update() override {
     int pressure = bmp.readPressure(); // in Pa, or 1/100 hPa
-    push_new_value(pressure / 100.0, 2); // convert to hPa, 2 decimal places of accuracy
+    push_new_value(pressure / 100.0); // convert to hPa
   }
 
   std::string unit_of_measurement() override { return "hPa"; }
+  int8_t accuracy_decimals() override { return 2; } // 2 decimal places of accuracy.
 };
 
 void setup() {

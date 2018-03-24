@@ -22,6 +22,7 @@ class DHTTemperatureSensor : public sensor::Sensor {
   std::string unit_of_measurement() override;
   std::string icon() override;
   uint32_t update_interval() override;
+  int8_t accuracy_decimals() override;
  protected:
   DHTComponent *parent_{nullptr};
 };
@@ -33,6 +34,7 @@ class DHTHumiditySensor : public sensor::Sensor {
   std::string unit_of_measurement() override;
   std::string icon() override;
   uint32_t update_interval() override;
+  int8_t accuracy_decimals() override;
  protected:
   DHTComponent *parent_{nullptr};
 };
@@ -63,7 +65,7 @@ class DHTComponent : public PollingComponent {
    */
   void set_dht_model(DHT::DHT_MODEL_t model);
 
-  const DHT &get_dht() const;
+  DHT &get_dht();
 
   void setup() override;
   void update() override;

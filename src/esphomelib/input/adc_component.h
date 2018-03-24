@@ -35,6 +35,7 @@ class ADCSensorComponent : public sensor::PollingSensorComponent {
 #endif
   std::string unit_of_measurement() override;
   std::string icon() override;
+  int8_t accuracy_decimals() override;
 
  protected:
   GPIOInputPin pin_;

@@ -62,7 +62,7 @@ void UltrasonicSensorComponent::update() {
 
   ESP_LOGV(TAG, "Echo took %uµs (%fm)", time, result);
 
-  this->push_new_value(result, 2); // cm precision
+  this->push_new_value(result);
 }
 uint32_t UltrasonicSensorComponent::get_timeout_us() const {
   return this->timeout_us_;
@@ -92,6 +92,15 @@ uint32_t UltrasonicSensorComponent::get_pulse_time_us() const {
 }
 void UltrasonicSensorComponent::set_pulse_time_us(uint32_t pulse_time_us) {
   this->pulse_time_us_ = pulse_time_us;
+}
+std::string UltrasonicSensorComponent::unit_of_measurement() {
+  return sensor::UNIT_OF_MEASUREMENT_METER;
+}
+std::string UltrasonicSensorComponent::icon() {
+  return sensor::ICON_DISTANCE;
+}
+int8_t UltrasonicSensorComponent::accuracy_decimals() {
+  return 2; // cm precision
 }
 
 } // namespace input

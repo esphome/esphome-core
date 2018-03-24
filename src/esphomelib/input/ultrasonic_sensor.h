@@ -81,6 +81,10 @@ class UltrasonicSensorComponent : public sensor::PollingSensorComponent {
 
   void update() override;
 
+  std::string unit_of_measurement() override;
+  std::string icon() override;
+  int8_t accuracy_decimals() override;
+
   /// Hardware setup priority, before MQTT and WiFi.
   float get_setup_priority() const override;
 

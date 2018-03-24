@@ -86,6 +86,7 @@ class PulseCounterSensorComponent : public sensor::PollingSensorComponent {
   /// Unit of measurement is "pulses/min".
   std::string unit_of_measurement() override;
   std::string icon() override;
+  int8_t accuracy_decimals() override;
   void setup() override;
   void update() override;
   float get_setup_priority() const override;

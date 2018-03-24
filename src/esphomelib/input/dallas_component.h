@@ -33,6 +33,7 @@ class DallasTemperatureSensor : public sensor::Sensor {
   std::string unit_of_measurement() override;
   std::string icon() override;
   uint32_t update_interval() override;
+  int8_t accuracy_decimals() override;
 
  protected:
   uint64_t address_;

@@ -123,7 +123,10 @@ void PulseCounterSensorComponent::update() {
   float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
 
   ESP_LOGD(TAG, "%u: Retrieved counter (raw=%d): %0.2f pulses/min", this->pcnt_unit_, counter, value);
-  this->push_new_value(value, 2);
+  this->push_new_value(value);
+}
+int8_t PulseCounterSensorComponent::accuracy_decimals() {
+  return 2;
 }
 
 pcnt_unit_t next_pcnt_unit = PCNT_UNIT_0;
