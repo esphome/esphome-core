@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <WiFiClient.h>
+#include "esphomelib/output/esp8266_pwm_output.h"
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
@@ -292,6 +293,18 @@ class Application {
    * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
    */
   output::GPIOBinaryOutputComponent *make_gpio_output(GPIOOutputPin pin);
+
+#ifdef ARDUINO_ARCH_ESP8266
+  /** Create an ESP8266 software PWM channel.
+   *
+   * Warning: This is a *software* PWM and therefore can have noticeable flickering. Additionally,
+   * this software PWM can't output values higher than 80%.
+   *
+   * @param pin The pin for this PWM output, supported pins are 0-16.
+   * @return The PWM output channel, use this for advanced settings and using it with lights.
+   */
+  output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin);
+#endif
 
 
 

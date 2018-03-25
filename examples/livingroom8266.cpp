@@ -19,6 +19,8 @@ void setup() {
 
   App.make_dht_sensor(4, "Livingroom Temperature", "Livingroom Humidity");
 
+  App.make_monochromatic_light("Desk Lamp", App.make_esp8266_pwm_output(D2));
+
   App.setup();
 }
 

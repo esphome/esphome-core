@@ -1,5 +1,7 @@
-ESP32 LEDC Output
-=================
+PCA9685 PWM
+===========
+
+FloatOutput support for an `PCA9695 16-Channel PWM Driver`_.
 
 Example Usage
 -------------
@@ -28,3 +30,4 @@ PCA9685OutputComponent
     :protected-members:
     :undoc-members:
 
+.. _PCA9695 16-Channel PWM Driver: https://www.adafruit.com/product/815
