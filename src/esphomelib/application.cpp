@@ -316,6 +316,12 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutput
   };
 }
 
-Application App;
+#ifdef ARDUINO_ARCH_ESP8266
+ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {
+  return this->register_component(new ESP8266PWMOutput(pin));
+}
+#endif
+
+Application App; // NOLINT
 
 } // namespace esphomelib

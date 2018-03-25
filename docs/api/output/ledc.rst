@@ -6,7 +6,7 @@ Example Usage
 
 .. code-block:: cpp
 
-    // Create a binary output, *not a switch*
+    // Basic
     App.make_ledc_output(33);
     // Custom Frequency
     App.make_ledc_output(33, 2000.0);
