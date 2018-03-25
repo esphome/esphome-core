@@ -115,8 +115,12 @@ void MQTTClientComponent::reconnect() {
     }
 
     const char *id = this->credentials_.client_id.c_str();
-    const char *user = this->credentials_.username.c_str();
-    const char *pass = this->credentials_.password.c_str();
+    const char *user = nullptr;
+    if (!this->credentials_.username.empty())
+      user = this->credentials_.username.c_str();
+    const char *pass = nullptr;
+    if (!this->credentials_.password.empty())
+      pass = this->credentials_.password.c_str();
     const char *will_topic = nullptr;
     uint8_t will_qos = 0;
     bool will_retain = false;

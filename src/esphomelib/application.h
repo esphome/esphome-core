@@ -68,10 +68,10 @@ class Application {
    * Note: for advanced options, such as manual ip, use the return value.
    *
    * @param ssid The ssid of the network you want to connect to.
-   * @param password The password of your network.
+   * @param password The password of your network. Leave empty for no password
    * @return The WiFiComponent.
    */
-  WiFiComponent *init_wifi(const std::string &ssid, const std::string &password);
+  WiFiComponent *init_wifi(const std::string &ssid, const std::string &password = "");
 
   /** Initialize Over-the-Air updates.
    *
