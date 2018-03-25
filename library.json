@@ -34,10 +34,16 @@
     },
     {
       "name": "PCA9685 16-Channel PWM Driver Module Library",
-      "version": "https://github.com/OttoWinter/PCA9685-Arduino.git"
+      "version": "1.2.9"
+    },
+    {
+      "name": "I2Cdevlib-ADS1115"
     }
   ],
   "license": "GPL-3.0",
   "frameworks": "arduino",
-  "platforms": "espressif32"
+  "platforms": [
+    "espressif32",
+    "espressif8266"
+  ]
 }

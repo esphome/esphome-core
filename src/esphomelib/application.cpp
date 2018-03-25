@@ -314,6 +314,9 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutput
       .mqtt = this->make_mqtt_sensor_for(ultrasonic, friendly_name),
   };
 }
+ADS1115Component *Application::make_ads1115_component(uint8_t address) {
+  return this->register_component(new ADS1115Component(address));
+}
 
 #ifdef ARDUINO_ARCH_ESP8266
 ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {

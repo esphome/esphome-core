@@ -36,6 +36,7 @@
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/ota_component.h"
 #include "esphomelib/log.h"
+#include "esphomelib/input/ads1115_component.h"
 
 namespace esphomelib {
 
@@ -229,6 +230,16 @@ class Application {
   MakeADCSensor make_adc_sensor(uint8_t pin,
                                 const std::string &friendly_name,
                                 uint32_t update_interval = 15000);
+
+  /** Create an ADS1115 component hub. From this hub you can then create individual sensors using `get_sensor()`.
+   *
+   * Note that you should have i2c setup for this component to work. To setup i2c call `Wire.begin(SDA_PIN, SCL_PIN)`
+   * before `App.setup()`.
+   *
+   * @param address The i2c address of the ADS1115. See ADS1115Component::set_address for possible values.
+   * @return The ADS1115Component hub. Use this to set advanced setting and create the actual sensors.
+   */
+  input::ADS1115Component *make_ads1115_component(uint8_t address);
 
   struct MakeUltrasonicSensor {
     sensor::UltrasonicSensorComponent *ultrasonic;
