@@ -2,8 +2,8 @@
 // Created by Otto Winter on 28.12.17.
 //
 
-#ifndef ESPHOMELIB_INPUT_DALLAS_COMPONENT_H
-#define ESPHOMELIB_INPUT_DALLAS_COMPONENT_H
+#ifndef ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
+#define ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
 
 #include <DallasTemperature.h>
 
@@ -11,7 +11,7 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
 class DallasTemperatureSensor;
 
@@ -75,7 +75,7 @@ class DallasComponent : public Component {
 };
 
 /// Internal class that helps us create multiple sensors for one Dallas hub.
-class DallasTemperatureSensor : public sensor::Sensor {
+class DallasTemperatureSensor : public Sensor {
  public:
   /** Construct the temperature sensor with the given address.
    *
@@ -126,8 +126,8 @@ class DallasTemperatureSensor : public sensor::Sensor {
   uint32_t update_interval_;
 };
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_INPUT_DALLAS_COMPONENT_H
+#endif //ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H

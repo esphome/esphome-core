@@ -10,7 +10,7 @@ Eventually, guides will also be setup here on how to create your own custom comp
 and some basic stuff.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :caption: Contents:
 
    	API Reference <api/index>

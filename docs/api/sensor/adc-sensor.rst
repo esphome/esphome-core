@@ -25,7 +25,7 @@ API Reference
 
 .. cpp:namespace:: nullptr
 
-.. doxygenclass:: esphomelib::input::ADCSensorComponent
+.. doxygenclass:: esphomelib::sensor::ADCSensorComponent
     :members:
     :protected-members:
     :undoc-members:

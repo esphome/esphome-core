@@ -6,16 +6,16 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/input/ultrasonic_sensor.h"
+#include "esphomelib/sensor/ultrasonic_sensor.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
-static const char *TAG = "input::ultrasonic";
+static const char *TAG = "sensor::ultrasonic";
 
 UltrasonicSensorComponent::UltrasonicSensorComponent(GPIOOutputPin trigger_pin,
                                                      GPIOInputPin echo_pin,
@@ -103,6 +103,6 @@ int8_t UltrasonicSensorComponent::accuracy_decimals() {
   return 2; // cm precision
 }
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib

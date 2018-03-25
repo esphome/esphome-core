@@ -11,22 +11,22 @@
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
-#include "esphomelib/input/gpio_binary_sensor_component.h"
+#include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
-#include "esphomelib/input/dht_component.h"
+#include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/switch_platform/mqtt_switch_component.h"
 #include "esphomelib/switch_platform/switch.h"
 #include "esphomelib/output/ir_transmitter_component.h"
-#include "esphomelib/input/ultrasonic_sensor.h"
-#include "esphomelib/input/dallas_component.h"
+#include "esphomelib/sensor/ultrasonic_sensor.h"
+#include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/switch_platform/simple_switch.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/output/gpio_binary_output_component.h"
-#include "esphomelib/input/pulse_counter.h"
-#include "esphomelib/input/adc_sensor_component.h"
+#include "esphomelib/sensor/pulse_counter.h"
+#include "esphomelib/sensor/adc_sensor_component.h"
 #include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/wifi_component.h"
@@ -131,7 +131,7 @@ class Application {
                                                                         binary_sensor::BinarySensor *binary_sensor);
 
   struct SimpleBinarySensor {
-    input::GPIOBinarySensorComponent *gpio;
+    binary_sensor::GPIOBinarySensorComponent *gpio;
     binary_sensor::MQTTBinarySensorComponent *mqtt;
   };
 
@@ -162,7 +162,7 @@ class Application {
   sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string friendly_name);
 
   struct MakeDHTComponent {
-    input::DHTComponent *dht;
+    sensor::DHTComponent *dht;
     sensor::MQTTSensorComponent *mqtt_temperature;
     sensor::MQTTSensorComponent *mqtt_humidity;
   };
@@ -184,13 +184,13 @@ class Application {
                                    const std::string &humidity_friendly_name,
                                    uint32_t update_interval = 15000);
 
-  input::DallasComponent *make_dallas_component(OneWire *one_wire);
+  sensor::DallasComponent *make_dallas_component(OneWire *one_wire);
 
-  input::DallasComponent *make_dallas_component(uint8_t pin);
+  sensor::DallasComponent *make_dallas_component(uint8_t pin);
 
 #ifdef ARDUINO_ARCH_ESP32
   struct MakePulseCounter {
-    input::PulseCounterSensorComponent *pcnt;
+    sensor::PulseCounterSensorComponent *pcnt;
     sensor::MQTTSensorComponent *mqtt;
   };
 
@@ -211,7 +211,7 @@ class Application {
 #endif
 
   struct MakeADCSensor {
-    input::ADCSensorComponent *adc;
+    sensor::ADCSensorComponent *adc;
     sensor::MQTTSensorComponent *mqtt;
   };
 
@@ -231,7 +231,7 @@ class Application {
                                 uint32_t update_interval = 15000);
 
   struct MakeUltrasonicSensor {
-    input::UltrasonicSensorComponent *ultrasonic;
+    sensor::UltrasonicSensorComponent *ultrasonic;
     sensor::MQTTSensorComponent *mqtt;
   };
 

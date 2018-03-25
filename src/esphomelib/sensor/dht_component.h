@@ -2,8 +2,8 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#ifndef ESPHOMELIB_INPUT_DHT_COMPONENT_H
-#define ESPHOMELIB_INPUT_DHT_COMPONENT_H
+#ifndef ESPHOMELIB_SENSOR_DHT_COMPONENT_H
+#define ESPHOMELIB_SENSOR_DHT_COMPONENT_H
 
 #include <DHT.h>
 
@@ -11,33 +11,10 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
-class DHTComponent;
-
-class DHTTemperatureSensor : public sensor::Sensor {
- public:
-  explicit DHTTemperatureSensor(DHTComponent *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
- protected:
-  DHTComponent *parent_{nullptr};
-};
-
-class DHTHumiditySensor : public sensor::Sensor {
- public:
-  explicit DHTHumiditySensor(DHTComponent *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
- protected:
-  DHTComponent *parent_{nullptr};
-};
+class DHTTemperatureSensor;
+class DHTHumiditySensor;
 
 /// DHTComponent - Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
 class DHTComponent : public PollingComponent {
@@ -49,6 +26,7 @@ class DHTComponent : public PollingComponent {
    */
   explicit DHTComponent(uint8_t pin, uint32_t update_interval = 15000);
 
+  /// Manually set the pin of this DHT sensor.
   void set_pin(uint8_t pin);
 
   // ========== INTERNAL METHODS ==========
@@ -67,8 +45,11 @@ class DHTComponent : public PollingComponent {
 
   DHT &get_dht();
 
+  /// Set up the pins and check connection.
   void setup() override;
+  /// Update sensor values and push them to the frontend.
   void update() override;
+  /// HARDWARE_LATE setup priority.
   float get_setup_priority() const override;
 
  protected:
@@ -79,8 +60,34 @@ class DHTComponent : public PollingComponent {
   DHTHumiditySensor *humidity_sensor_;
 };
 
-} // namespace input
+/// Internal data class used to expose a temperature sensor from the main component.
+class DHTTemperatureSensor : public Sensor {
+ public:
+  explicit DHTTemperatureSensor(DHTComponent *parent);
+
+  std::string unit_of_measurement() override;
+  std::string icon() override;
+  uint32_t update_interval() override;
+  int8_t accuracy_decimals() override;
+ protected:
+  DHTComponent *parent_{nullptr};
+};
+
+/// Internal data class used to expose a humidity sensor from the main component.
+class DHTHumiditySensor : public Sensor {
+ public:
+  explicit DHTHumiditySensor(DHTComponent *parent);
+
+  std::string unit_of_measurement() override;
+  std::string icon() override;
+  uint32_t update_interval() override;
+  int8_t accuracy_decimals() override;
+ protected:
+  DHTComponent *parent_{nullptr};
+};
+
+} // namespace sensor
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_INPUT_DHT_COMPONENT_H
+#endif //ESPHOMELIB_SENSOR_DHT_COMPONENT_H

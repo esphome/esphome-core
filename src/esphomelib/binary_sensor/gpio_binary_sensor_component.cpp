@@ -2,16 +2,16 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include "esphomelib/input/gpio_binary_sensor_component.h"
+#include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
 
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
 
 namespace esphomelib {
 
-namespace input {
+namespace binary_sensor {
 
-static const char *TAG = "input::gpio_binary_sensor";
+static const char *TAG = "sensor::gpio_binary_sensor";
 
 void GPIOBinarySensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO binary sensor.");
@@ -34,6 +34,6 @@ void GPIOBinarySensorComponent::set_pin(const GPIOInputPin &pin) {
 GPIOBinarySensorComponent::GPIOBinarySensorComponent(GPIOInputPin pin)
   : pin_(pin) { }
 
-} // namespace input
+} // namespace binary_sensor
 
 } // namespace esphomelib

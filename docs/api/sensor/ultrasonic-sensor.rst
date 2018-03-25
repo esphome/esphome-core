@@ -25,7 +25,7 @@ API Reference
 
 .. cpp:namespace:: nullptr
 
-.. doxygenclass:: esphomelib::input::UltrasonicSensorComponent
+.. doxygenclass:: esphomelib::sensor::UltrasonicSensorComponent
     :members:
     :protected-members:
     :undoc-members:

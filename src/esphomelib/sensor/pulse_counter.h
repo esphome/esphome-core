@@ -6,8 +6,8 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_INPUT_PULSE_COUNTER_H
-#define ESPHOMELIB_INPUT_PULSE_COUNTER_H
+#ifndef ESPHOMELIB_SENSOR_PULSE_COUNTER_H
+#define ESPHOMELIB_SENSOR_PULSE_COUNTER_H
 
 #ifdef ARDUINO_ARCH_ESP32 // only available on ESP32
 
@@ -18,7 +18,7 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
 /** Pulse Counter - This is the sensor component for the ESP32 integrated pulse counter peripheral.
  *
@@ -31,7 +31,7 @@ namespace input {
  * The pulse counter defaults to reporting a value of the measurement unit "pulses/min". To
  * modify this behavior, use filters in MQTTSensor.
  */
-class PulseCounterSensorComponent : public sensor::PollingSensorComponent {
+class PulseCounterSensorComponent : public PollingSensorComponent {
  public:
   /** Construct the Pulse Counter instance with the provided pin and update interval.
    *
@@ -104,10 +104,10 @@ class PulseCounterSensorComponent : public sensor::PollingSensorComponent {
 
 extern pcnt_unit_t next_pcnt_unit;
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib
 
 #endif //ARDUINO_ARCH_ESP32
 
-#endif //ESPHOMELIB_INPUT_PULSE_COUNTER_H
+#endif //ESPHOMELIB_SENSOR_PULSE_COUNTER_H

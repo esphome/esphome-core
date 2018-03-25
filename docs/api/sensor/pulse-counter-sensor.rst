@@ -23,7 +23,7 @@ API Reference
 
 .. cpp:namespace:: nullptr
 
-.. doxygenclass:: esphomelib::input::PulseCounterSensorComponent
+.. doxygenclass:: esphomelib::sensor::PulseCounterSensorComponent
     :members:
     :protected-members:
     :undoc-members:

@@ -1,11 +1,21 @@
 Sensor
 ======
 
-The `esphomelib::sensor` namespace contains all sensor helpers.
+The `esphomelib::sensor` namespace contains all sensors.
 
 .. cpp:namespace:: esphomelib
 
 See :cpp:func:`Application::make_mqtt_sensor_for`.
+
+.. toctree::
+    :maxdepth: 1
+
+    ADC Sensor Component <adc-sensor>
+    Dallas Component <dallas>
+    DHT Component <dht>
+    Pulse Counter Sensor Component <pulse-counter-sensor>
+    Ultrasonic Sensor Component <ultrasonic-sensor>
+
 
 API Reference
 -------------

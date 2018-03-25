@@ -15,7 +15,6 @@
 namespace esphomelib {
 
 using namespace esphomelib::mqtt;
-using namespace esphomelib::input;
 using namespace esphomelib::binary_sensor;
 using namespace esphomelib::sensor;
 using namespace esphomelib::output;
@@ -241,10 +240,10 @@ MQTTSwitchComponent *Application::make_mqtt_switch_for(const std::string &friend
 void Application::assert_name() const {
   assert(!this->name_.empty());
 }
-input::DallasComponent *Application::make_dallas_component(OneWire *one_wire) {
+DallasComponent *Application::make_dallas_component(OneWire *one_wire) {
   return this->register_component(new DallasComponent(one_wire));
 }
-input::DallasComponent *Application::make_dallas_component(uint8_t pin) {
+DallasComponent *Application::make_dallas_component(uint8_t pin) {
   return this->make_dallas_component(new OneWire(pin));
 }
 
