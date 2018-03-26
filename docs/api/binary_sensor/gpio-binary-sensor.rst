@@ -22,7 +22,7 @@ API Reference
 
 .. cpp:namespace:: nullptr
 
-.. doxygenclass:: esphomelib::sensor::GPIOBinarySensorComponent
+.. doxygenclass:: esphomelib::binary_sensor::GPIOBinarySensorComponent
     :members:
     :protected-members:
     :undoc-members:
