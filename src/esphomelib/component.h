@@ -107,7 +107,7 @@ class Component {
    */
   using time_func_t = std::function<void()>;
 
-  /** Set an interval function with a unique name.
+  /** Set an interval function with a unique name. Empty name means no cancelling possible.
    *
    * This will call f every interval ms. Can be cancelled via CancelInterval().
    * Similar to javascript's setInterval().
@@ -133,7 +133,7 @@ class Component {
 
   /** Set a timeout function with a unique name.
    *
-   * Similar to javascript's setTimeout().
+   * Similar to javascript's setTimeout(). Empty name means no cancelling possible.
    *
    * IMPORTANT: Do not rely on this having correct timing. This is only called from
    * loop() and therefore can be significantly delay. If you need exact timing please
@@ -164,6 +164,7 @@ class Component {
     time_func_t f; ///< The function (or callback) itself.
   };
 
+  /// Cancel an only time function. If name is empty, won't do anything.
   bool cancel_time_function(const std::string &name, TimeFunction::Type type);
 
   /** Storage for interval/timeout functions.

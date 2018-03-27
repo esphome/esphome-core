@@ -39,5 +39,8 @@
   ],
   "license": "GPL-3.0",
   "frameworks": "arduino",
-  "platforms": "espressif32"
+  "platforms": [
+    "espressif32",
+    "espressif8266"
+  ]
 }

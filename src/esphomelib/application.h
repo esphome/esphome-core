@@ -7,35 +7,44 @@
 
 #include <vector>
 #include <WiFiClient.h>
-#include "esphomelib/output/esp8266_pwm_output.h"
-#include "esphomelib/output/ledc_output_component.h"
-#include "esphomelib/output/pca9685_output_component.h"
-#include "esphomelib/light/mqtt_json_light_component.h"
-#include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
-#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
-#include "esphomelib/sensor/mqtt_sensor_component.h"
-#include "esphomelib/sensor/dht_component.h"
-#include "esphomelib/light/light_output_component.h"
-#include "esphomelib/switch_/mqtt_switch_component.h"
-#include "esphomelib/switch_/switch.h"
-#include "esphomelib/switch_/ir_transmitter_component.h"
-#include "esphomelib/sensor/ultrasonic_sensor.h"
-#include "esphomelib/sensor/dallas_component.h"
-#include "esphomelib/switch_/simple_switch.h"
-#include "esphomelib/fan/mqtt_fan_component.h"
-#include "esphomelib/fan/basic_fan_component.h"
-#include "esphomelib/output/gpio_binary_output_component.h"
-#include "esphomelib/sensor/pulse_counter.h"
-#include "esphomelib/sensor/adc_sensor_component.h"
 #include "esphomelib/component.h"
-#include "esphomelib/mqtt/mqtt_client_component.h"
-#include "esphomelib/wifi_component.h"
+#include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
 #include "esphomelib/power_supply_component.h"
-#include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/ota_component.h"
-#include "esphomelib/log.h"
+#include "esphomelib/wifi_component.h"
+#include "esphomelib/mqtt/mqtt_client_component.h"
+#include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
+#include "esphomelib/fan/basic_fan_component.h"
+#include "esphomelib/fan/mqtt_fan_component.h"
+#include "esphomelib/light/light_output_component.h"
+#include "esphomelib/light/light_output_component.h"
+#include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/output/esp8266_pwm_output.h"
+#include "esphomelib/output/gpio_binary_output_component.h"
+#include "esphomelib/output/ledc_output_component.h"
+#include "esphomelib/output/pca9685_output_component.h"
+#include "esphomelib/sensor/adc_sensor_component.h"
+#include "esphomelib/sensor/ads1115_component.h"
+#include "esphomelib/sensor/bmp085_component.h"
+#include "esphomelib/sensor/dallas_component.h"
+#include "esphomelib/sensor/dallas_component.h"
+#include "esphomelib/sensor/dht_component.h"
+#include "esphomelib/sensor/htu21d_component.h"
+#include "esphomelib/sensor/mqtt_sensor_component.h"
+#include "esphomelib/sensor/pulse_counter.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/sensor/ultrasonic_sensor.h"
+#include "esphomelib/sensor/ultrasonic_sensor.h"
+#include "esphomelib/switch_/ir_transmitter_component.h"
+#include "esphomelib/switch_/mqtt_switch_component.h"
+#include "esphomelib/switch_/mqtt_switch_component.h"
+#include "esphomelib/switch_/simple_switch.h"
+#include "esphomelib/switch_/simple_switch.h"
+#include "esphomelib/switch_/switch.h"
+#include "esphomelib/switch_/switch.h"
 
 namespace esphomelib {
 
@@ -105,15 +114,21 @@ class Application {
                                        const std::string &username, const std::string &password,
                                        const std::string &discovery_prefix = "homeassistant");
 
-  /** Create a power supply component that will automatically switch on and off.
+  /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
    *
-   * @param pin The pin the power supply is connected to.
-   * @param enable_time The time (in ms) the power supply needs until it can provide high power when powering on.
-   * @param keep_on_time The time (in ms) the power supply should stay on when it is not used.
-   * @return The PowerSupplyComponent.
+   * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
+   *
+   * @param sda_pin The SDA pin the i2c bus is connected to.
+   * @param scl_pin The SCL pin the i2c bus is connected to.
+   * @param frequency (only on ESP32) the frequency in Hz the i2c bus should operate at,
+   *                  not all components support all frequencies!
    */
-  PowerSupplyComponent *make_power_supply(GPIOOutputPin pin, uint32_t enable_time = 20,
-                                          uint32_t keep_on_time = 10000);
+#ifdef ARDUINO_ARCH_ESP32
+  void init_i2c(uint8_t sda_pin, uint8_t scl_pin, uint32_t frequency = 100000);
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  void init_i2c(uint8_t sda_pin, uint8_t scl_pin);
+#endif
 
 
 
@@ -230,6 +245,58 @@ class Application {
                                 const std::string &friendly_name,
                                 uint32_t update_interval = 15000);
 
+  /** Create an ADS1115 component hub. From this hub you can then create individual sensors using `get_sensor()`.
+   *
+   * Note that you should have i2c setup for this component to work. To setup i2c call `App.init_i2c(SDA_PIN, SCL_PIN);`
+   * before `App.setup()`.
+   *
+   * @param address The i2c address of the ADS1115. See ADS1115Component::set_address for possible values.
+   * @return The ADS1115Component hub. Use this to set advanced setting and create the actual sensors.
+   */
+  sensor::ADS1115Component *make_ads1115_component(uint8_t address);
+
+  struct MakeBMP085Component {
+    sensor::BMP085Component *bmp;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_pressure;
+  };
+
+  /** Create an BMP085/BMP180/BMP280 i2c temperature+pressure sensor.
+   *
+   * Be sure to initialize i2c before calling `App.setup()` in order for this to work. Do so
+   * with `App.init_i2c(SDA_PIN, SCL_PIN);`.
+   *
+   * @param temperature_friendly_name The friendly name the temperature should be advertised as.
+   * @param pressure_friendly_name The friendly name the pressure should be advertised as.
+   * @param address The i2c address this sensor should listen on, defaults to 0x77.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return A MakeBMP085Component object, use this to set advanced settings.
+   */
+  MakeBMP085Component make_bmp085_sensor(const std::string &temperature_friendly_name,
+                                         const std::string &pressure_friendly_name,
+                                         uint8_t address = BMP085_DEFAULT_ADDRESS,
+                                         uint32_t update_interval = 30000);
+
+  struct MakeHTU21DComponent {
+    sensor::HTU21DComponent *htu21d;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_humidity;
+  };
+
+  /** Create a HTU21D i2c-based temperature+humidity highly accurate sensor.
+   *
+   * Be sure to initialize i2c before calling `App.setup` in order for this to work. Do so
+   * with `App.init_i2c(SDA_PIN, SCL_PIN);`.
+   *
+   * @param temperature_friendly_name The friendly name the temperature sensor should be advertised as.
+   * @param humidity_friendly_name The friendly name the pressure sensor should be advertised as.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return A MakeHTU21DComponent, use this to set advanced settings.
+   */
+  MakeHTU21DComponent make_htu21d_component(const std::string &temperature_friendly_name,
+                                            const std::string &humidity_friendly_name,
+                                            uint32_t update_interval = 15000);
+
   struct MakeUltrasonicSensor {
     sensor::UltrasonicSensorComponent *ultrasonic;
     sensor::MQTTSensorComponent *mqtt;
@@ -265,6 +332,15 @@ class Application {
    *  | |_| | |_| | | | |  __/| |_| | | |
    *   \___/ \___/  |_| |_|    \___/  |_|
    */
+  /** Create a power supply component that will automatically switch on and off.
+   *
+   * @param pin The pin the power supply is connected to.
+   * @param enable_time The time (in ms) the power supply needs until it can provide high power when powering on.
+   * @param keep_on_time The time (in ms) the power supply should stay on when it is not used.
+   * @return The PowerSupplyComponent.
+   */
+  PowerSupplyComponent *make_power_supply(GPIOOutputPin pin, uint32_t enable_time = 20,
+                                          uint32_t keep_on_time = 10000);
 #ifdef ARDUINO_ARCH_ESP32
   /** Create a ESP32 LEDC channel.
    *
@@ -279,10 +355,9 @@ class Application {
   /** Create a PCA9685 component.
    *
    * @param frequency The PWM frequency.
-   * @param i2c_wire The i2c interface.
    * @return The PCA9685 component. Use this for advanced settings.
    */
-  output::PCA9685OutputComponent *make_pca9685_component(float frequency, TwoWire &i2c_wire = Wire);
+  output::PCA9685OutputComponent *make_pca9685_component(float frequency);
 
   /** Create a simple binary GPIO output component.
    *
@@ -463,13 +538,16 @@ class Application {
   /// Get the name of this Application set by set_name().
   const std::string &get_name() const;
 
+  void assert_i2c_initialized() const;
+
  protected:
-  std::vector<Component *> components_;
-  mqtt::MQTTClientComponent *mqtt_client_;
-  WiFiComponent *wifi_;
+  std::vector<Component *> components_{};
+  mqtt::MQTTClientComponent *mqtt_client_{nullptr};
+  WiFiComponent *wifi_{nullptr};
 
   std::string name_;
   Component::ComponentState application_state_{Component::CONSTRUCTION};
+  bool i2c_initialized_{false};
 };
 
 /// Global storage of Application pointer - only one Application can exist.

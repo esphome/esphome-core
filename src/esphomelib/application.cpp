@@ -156,8 +156,8 @@ LEDCOutputComponent *Application::make_ledc_output(uint8_t pin, float frequency,
 }
 #endif
 
-PCA9685OutputComponent *Application::make_pca9685_component(float frequency, TwoWire &i2c_wire) {
-  auto *pca9685 = new PCA9685OutputComponent(frequency, i2c_wire);
+PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
+  auto *pca9685 = new PCA9685OutputComponent(frequency);
   return this->register_component(pca9685);
 }
 
@@ -313,6 +313,56 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutput
       .ultrasonic = ultrasonic,
       .mqtt = this->make_mqtt_sensor_for(ultrasonic, friendly_name),
   };
+}
+ADS1115Component *Application::make_ads1115_component(uint8_t address) {
+  return this->register_component(new ADS1115Component(address));
+}
+Application::MakeBMP085Component Application::make_bmp085_sensor(const std::string &temperature_friendly_name,
+                                                                 const std::string &pressure_friendly_name,
+                                                                 uint8_t address,
+                                                                 uint32_t update_interval) {
+  auto *bmp = this->register_component(new BMP085Component(address, update_interval));
+
+  return MakeBMP085Component{
+      .bmp = bmp,
+      .mqtt_temperature = this->make_mqtt_sensor_for(bmp->get_temperature_sensor(), temperature_friendly_name),
+      .mqtt_pressure = this->make_mqtt_sensor_for(bmp->get_pressure_sensor(), pressure_friendly_name)
+  };
+}
+Application::MakeHTU21DComponent Application::make_htu21d_component(const std::string &temperature_friendly_name,
+                                                                    const std::string &humidity_friendly_name,
+                                                                    uint32_t update_interval) {
+  auto *htu21d = this->register_component(new HTU21DComponent(update_interval));
+
+  return MakeHTU21DComponent{
+      .htu21d = htu21d,
+      .mqtt_temperature = this->make_mqtt_sensor_for(htu21d->get_temperature_sensor(), temperature_friendly_name),
+      .mqtt_humidity = this->make_mqtt_sensor_for(htu21d->get_humidity_sensor(), humidity_friendly_name)
+  };
+}
+#ifdef ARDUINO_ARCH_ESP32
+void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, uint32_t frequency) {
+  if (this->i2c_initialized_) {
+    ESP_LOGE(TAG, "You have already initialized i2c, you should only initialize it once.");
+    delay(1000);
+    ESP.restart();
+  }
+  Wire.begin(sda_pin, scl_pin, frequency);
+  this->i2c_initialized_ = true;
+}
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin) {
+  Wire.begin(sda_pin, scl_pin);
+  this->i2c_initialized_ = true;
+}
+#endif
+void Application::assert_i2c_initialized() const {
+  if (this->i2c_initialized_)
+    return;
+  ESP_LOGE(TAG, "You need to call App.init_i2c() because a component requires i2c to work.");
+  delay(1000);
+  ESP.restart();
 }
 
 #ifdef ARDUINO_ARCH_ESP8266

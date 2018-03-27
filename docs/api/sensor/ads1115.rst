@@ -1,0 +1,59 @@
+ADS1115 ADC Component
+=====================
+
+.. warning:: This sensor is experimental has not been tested yet. If you can verify it works, notify me on Gitter.
+
+.. cpp:namespace:: esphomelib::input
+
+This class allows using ADS1115 Analog to Digital converters (`datasheet`_, `adafruit`_) devices with esphomelib.
+Doing so requires some steps:
+
+.. _datasheet: http://www.ti.com/lit/ds/symlink/ads1115.pdf
+.. _adafruit: https://www.adafruit.com/product/1085
+
+.. cpp:namespace:: esphomelib::sensor::ADS1115Component
+
+1. Initialize the i2c bus with the pins you have SDA and SCL connected to:
+
+    .. code-block:: cpp
+
+        // inside setup()
+        App.init_i2c(SDA_PIN, SCL_PIN);
+
+2. Create the "hub" or the ADS1115 device itself. The parameter you pass in here is the i2c
+    address of the ADS1115. See :cpp:func:`set_address` for possible other addresses.
+
+    .. code-block:: cpp
+
+        // after init_i2c
+        auto *ads1115 = App.make_ads1115_component(0x48);
+
+    This will create an ADS1115 component which you can now use to create individual sensors.
+
+3. Create the sensors, you can have multiple of these. Do so by calling :cpp:func:`get_sensor` with
+    the multiplexer channel you want (essentially between which pins you want to measure voltage) and
+    the gain for that sensor and register that sensor to MQTT.
+
+    .. code-block:: cpp
+
+        auto *sensor = ads1115->get_sensor(ADS1115_MUX_P0_N1, ADS1115_PGA_6P144);
+        App.make_mqtt_sensor_for(sensor, "ADS1115 Voltage #1");
+
+.. cpp:namespace:: esphomelib
+
+See :cpp:func:`Application::make_ads1115_component`.
+
+API Reference
+-------------
+
+.. cpp:namespace:: nullptr
+
+.. doxygenclass:: esphomelib::sensor::ADS1115Component
+    :members:
+    :protected-members:
+    :undoc-members:
+
+.. doxygenclass:: esphomelib::sensor::ADS1115Sensor
+    :members:
+    :protected-members:
+    :undoc-members:

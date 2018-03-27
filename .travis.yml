@@ -37,6 +37,7 @@ script:
   - platformio run -e lights
   - platformio run -e livingroom8266
   - platformio run -e custombmp180
+  - platformio run -e i2c-sensors
 
 
 #

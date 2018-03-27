@@ -9,7 +9,9 @@ Example Usage
 .. code-block:: cpp
 
     // Setup i2c on pin 14 and 27 with frequency 400000Hz.
-    Wire.begin(14, 27, 400000);
+    // the last parameter frequency is only available on the ESP32!
+    App.init_i2c(14, 27, 400000);
+
     // Create the PCA9685 Output hub with frequency 500Hz.
     auto *pca9685 = App.make_pca9685_component(500.0f);
 

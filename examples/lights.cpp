@@ -28,7 +28,7 @@ void setup() {
   // alternatively if you don't want to invert the pin, just
   // auto *power_supply = App.make_power_supply(13);
 
-  Wire.begin(14, 27, 400000);
+  App.init_i2c(14, 27, 400000); // the last parameter (frequency) is only available on the ESP32.
   auto *pca9685 = App.make_pca9685_component(500.0f);
   auto *red = pca9685->create_channel(0, power_supply, 0.75f); // channel 0, with power supply and 75% power.
   auto *green = pca9685->create_channel(1, power_supply, 1.0f);

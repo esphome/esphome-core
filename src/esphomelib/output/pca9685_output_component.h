@@ -20,12 +20,10 @@ class PCA9685OutputComponent : public Component {
   /** Construct the component.
    *
    * @param frequency The frequency of the PCA9685.
-   * @param i2c_wire The TwoWire (i2c) interface.
    * @param phase_balancer How to balance phases.
    * @param mode The output mode. For example, PCA9685_MODE_OUTPUT_ONACK or PCA9685_MODE_OUTPUT_TPOLE.
    */
   explicit PCA9685OutputComponent(float frequency,
-                                  TwoWire &i2c_wire = Wire,
                                   PCA9685_PhaseBalancer phase_balancer = PCA9685_PhaseBalancer_Linear,
                                   uint8_t mode = PCA9685_MODE_OUTPUT_ONACK | PCA9685_MODE_OUTPUT_TPOLE);
 

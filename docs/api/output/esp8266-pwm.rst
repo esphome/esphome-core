@@ -10,8 +10,11 @@ Example Usage
 .. code-block:: cpp
 
     // Basic
-    App.make_esp8266_pwm_output(33);
-    // Setting a custom frequency globally
+    auto *output = App.make_esp8266_pwm_output(D2);
+    // Create a brightness-only light with it:
+    App.make_monochromatic_light("Desk Lamp", output);
+
+    // Advanced: Setting a custom frequency globally
     analogWriteFreq(500);
 
 .. cpp:namespace:: esphomelib
