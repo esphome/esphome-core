@@ -13,8 +13,11 @@ See :cpp:func:`Application::make_mqtt_sensor_for`.
     ADC Sensor Component <adc-sensor>
     Dallas Component <dallas>
     DHT Component <dht>
-    Pulse Counter Sensor Component <pulse-counter-sensor>
-    Ultrasonic Sensor Component <ultrasonic-sensor>
+    ESP32 Pulse Counter Sensor <pulse-counter>
+    Ultrasonic Sensor Component <ultrasonic>
+    ADS1115 ADC Component <ads1115>
+    BMP085 Pressure/Temperature Sensor <bmp085>
+    HTU21D Temperature/Humidity Sensor <htu21d>
 
 
 API Reference

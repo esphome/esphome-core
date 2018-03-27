@@ -1,5 +1,10 @@
-Pulse Counter Sensor
-====================
+ESP32 Pulse Counter Sensor
+==========================
+
+This component allows you to count pulses on a PIN using the internal
+`pulse counter <http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html>`_ peripheral of
+the ESP32. By default, the values by this sensor are reported in "pulses/min". You can convert
+that to your own unit like in below example.
 
 Example Usage
 -------------

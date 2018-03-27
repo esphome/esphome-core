@@ -342,6 +342,11 @@ Application::MakeHTU21DComponent Application::make_htu21d_component(const std::s
 }
 #ifdef ARDUINO_ARCH_ESP32
 void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, uint32_t frequency) {
+  if (this->i2c_initialized_) {
+    ESP_LOGE(TAG, "You have already initialized i2c, you should only initialize it once.");
+    delay(1000);
+    ESP.restart();
+  }
   Wire.begin(sda_pin, scl_pin, frequency);
   this->i2c_initialized_ = true;
 }

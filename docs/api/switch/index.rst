@@ -1,7 +1,11 @@
 Switch
 ======
 
-The `esphomelib::switch_platform` namespace contains all switch helpers.
+The `esphomelib::switch_` namespace contains all switch helpers.
+
+.. toctree::
+
+    IR Transmitter <ir-transmitter>
 
 API Reference
 -------------
@@ -11,7 +15,7 @@ API Reference
 Switch
 ******
 
-.. doxygenclass:: esphomelib::switch_platform::Switch
+.. doxygenclass:: esphomelib::switch_::Switch
     :members:
     :protected-members:
     :undoc-members:
@@ -19,7 +23,7 @@ Switch
 SimpleSwitch
 ************
 
-.. doxygenclass:: esphomelib::switch_platform::SimpleSwitch
+.. doxygenclass:: esphomelib::switch_::SimpleSwitch
     :members:
     :protected-members:
     :undoc-members:
@@ -27,7 +31,7 @@ SimpleSwitch
 MQTTSwitchComponent
 *******************
 
-.. doxygenclass:: esphomelib::switch_platform::MQTTSwitchComponent
+.. doxygenclass:: esphomelib::switch_::MQTTSwitchComponent
     :members:
     :protected-members:
     :undoc-members:

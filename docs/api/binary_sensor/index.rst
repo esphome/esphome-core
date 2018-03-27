@@ -15,7 +15,7 @@ Supported Binary Sensors
 
 .. toctree::
 
-    GPIO Binary Sensor Component <gpio-binary-sensor>
+    GPIO Binary Sensor <gpio>
 
 Example Usage
 -------------

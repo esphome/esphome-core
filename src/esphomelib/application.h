@@ -7,45 +7,44 @@
 
 #include <vector>
 #include <WiFiClient.h>
-#include "esphomelib/sensor/htu21d_component.h"
-#include "esphomelib/output/esp8266_pwm_output.h"
-#include "esphomelib/output/ledc_output_component.h"
-#include "esphomelib/output/pca9685_output_component.h"
-#include "esphomelib/output/ir_transmitter_component.h"
-#include "esphomelib/output/gpio_binary_output_component.h"
-#include "esphomelib/light/mqtt_json_light_component.h"
-#include "esphomelib/light/light_output_component.h"
+#include "esphomelib/component.h"
+#include "esphomelib/log.h"
+#include "esphomelib/log_component.h"
+#include "esphomelib/power_supply_component.h"
+#include "esphomelib/ota_component.h"
+#include "esphomelib/wifi_component.h"
+#include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/sensor/mqtt_sensor_component.h"
-#include "esphomelib/sensor/dht_component.h"
+#include "esphomelib/fan/basic_fan_component.h"
+#include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/light/light_output_component.h"
-#include "esphomelib/switch_/mqtt_switch_component.h"
-#include "esphomelib/switch_/switch.h"
-#include "esphomelib/switch_/ir_transmitter_component.h"
-#include "esphomelib/sensor/ultrasonic_sensor.h"
-#include "esphomelib/sensor/dallas_component.h"
-#include "esphomelib/switch_/simple_switch.h"
-#include "esphomelib/sensor/ultrasonic_sensor.h"
-#include "esphomelib/sensor/dallas_component.h"
-#include "esphomelib/sensor/pulse_counter.h"
+#include "esphomelib/light/light_output_component.h"
+#include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/output/esp8266_pwm_output.h"
+#include "esphomelib/output/gpio_binary_output_component.h"
+#include "esphomelib/output/ledc_output_component.h"
+#include "esphomelib/output/pca9685_output_component.h"
 #include "esphomelib/sensor/adc_sensor_component.h"
 #include "esphomelib/sensor/ads1115_component.h"
 #include "esphomelib/sensor/bmp085_component.h"
-#include "esphomelib/switch_platform/mqtt_switch_component.h"
-#include "esphomelib/switch_platform/switch.h"
-#include "esphomelib/switch_platform/simple_switch.h"
-#include "esphomelib/fan/mqtt_fan_component.h"
-#include "esphomelib/fan/basic_fan_component.h"
-#include "esphomelib/component.h"
-#include "esphomelib/wifi_component.h"
-#include "esphomelib/log_component.h"
-#include "esphomelib/mqtt/mqtt_client_component.h"
-#include "esphomelib/power_supply_component.h"
-#include "esphomelib/ota_component.h"
-#include "esphomelib/log.h"
+#include "esphomelib/sensor/dallas_component.h"
+#include "esphomelib/sensor/dallas_component.h"
+#include "esphomelib/sensor/dht_component.h"
+#include "esphomelib/sensor/htu21d_component.h"
+#include "esphomelib/sensor/mqtt_sensor_component.h"
+#include "esphomelib/sensor/pulse_counter.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/sensor/ultrasonic_sensor.h"
+#include "esphomelib/sensor/ultrasonic_sensor.h"
+#include "esphomelib/switch_/ir_transmitter_component.h"
+#include "esphomelib/switch_/mqtt_switch_component.h"
+#include "esphomelib/switch_/mqtt_switch_component.h"
+#include "esphomelib/switch_/simple_switch.h"
+#include "esphomelib/switch_/simple_switch.h"
+#include "esphomelib/switch_/switch.h"
+#include "esphomelib/switch_/switch.h"
 
 namespace esphomelib {
 
@@ -116,6 +115,8 @@ class Application {
                                        const std::string &discovery_prefix = "homeassistant");
 
   /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
+   *
+   * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
    *
    * @param sda_pin The SDA pin the i2c bus is connected to.
    * @param scl_pin The SCL pin the i2c bus is connected to.
@@ -540,9 +541,9 @@ class Application {
   void assert_i2c_initialized() const;
 
  protected:
-  std::vector<Component *> components_;
-  mqtt::MQTTClientComponent *mqtt_client_;
-  WiFiComponent *wifi_;
+  std::vector<Component *> components_{};
+  mqtt::MQTTClientComponent *mqtt_client_{nullptr};
+  WiFiComponent *wifi_{nullptr};
 
   std::string name_;
   Component::ComponentState application_state_{Component::CONSTRUCTION};

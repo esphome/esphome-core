@@ -5,7 +5,6 @@ The `esphomelib::output` namespace contains all peripheral output components.
 
 .. toctree::
     GPIO Binary Output <gpio-binary>
-    IR Transmitter <ir-transmitter>
     LEDC PWM Output <ledc>
     PCA9685 Output <pca9685>
     ESP8266 Software PWM <esp8266-pwm>

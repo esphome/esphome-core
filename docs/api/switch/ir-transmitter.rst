@@ -6,6 +6,9 @@ Example Usage
 
 .. code-block:: cpp
 
+    // at the top of your file:
+    using namespace esphomelib::switch_::ir_;
+
     // Create the hub
     auto *ir = App.make_ir_transmitter_component(32);
     // Create switches
@@ -25,17 +28,17 @@ API Reference
 IRTransmitterComponent
 **********************
 
-.. doxygenclass:: esphomelib::output::IRTransmitterComponent
+.. doxygenclass:: esphomelib::switch_::IRTransmitterComponent
     :members:
     :protected-members:
     :undoc-members:
 
-.. doxygenvariable:: esphomelib::output::next_rmt_channel
+.. doxygenvariable:: esphomelib::switch_::next_rmt_channel
 
 SendData
 ********
 
-.. doxygennamespace:: esphomelib::output::ir
+.. doxygennamespace:: esphomelib::switch_::ir
     :members:
     :protected-members:
     :undoc-members:
