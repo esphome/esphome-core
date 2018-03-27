@@ -86,6 +86,9 @@ Then create a new project for an [ESP32-based board](http://docs.platformio.org/
 ; ...
 framework = arduino
 lib_deps = esphomelib
+build_flags =
+    -DMQTT_MAX_PACKET_SIZE=512
+    -DARDUINOJSON_ENABLE_STD_STRING
 ```
 
 ... or for [ESP8266-based boards](http://docs.platformio.org/en/latest/platforms/espressif8266.html#boards):
@@ -94,6 +97,9 @@ lib_deps = esphomelib
 ; ...
 platform = espressif8266
 board = nodemcuv2
+build_flags =
+    -DMQTT_MAX_PACKET_SIZE=512
+    -DARDUINOJSON_ENABLE_STD_STRING
 ```
 
 Finally, create a new source file in the `src/` folder (for example `main.cpp`) and start coding with esphomelib.
