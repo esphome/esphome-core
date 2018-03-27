@@ -18,7 +18,7 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
 class ADS1115Sensor;
 
@@ -137,7 +137,7 @@ class ADS1115Sensor : public sensor::Sensor {
   uint32_t update_interval_;
 };
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib
 

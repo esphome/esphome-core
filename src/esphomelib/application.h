@@ -10,9 +10,14 @@
 #include "esphomelib/output/esp8266_pwm_output.h"
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
+#include "esphomelib/output/ir_transmitter_component.h"
+#include "esphomelib/output/gpio_binary_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/light/light_output_component.h"
+#include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
+#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/light/light_output_component.h"
@@ -22,21 +27,24 @@
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/switch_/simple_switch.h"
-#include "esphomelib/fan/mqtt_fan_component.h"
-#include "esphomelib/fan/basic_fan_component.h"
-#include "esphomelib/output/gpio_binary_output_component.h"
+#include "esphomelib/sensor/ultrasonic_sensor.h"
+#include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
 #include "esphomelib/sensor/adc_sensor_component.h"
+#include "esphomelib/sensor/ads1115_component.h"
+#include "esphomelib/sensor/bmp085_component.h"
+#include "esphomelib/switch_platform/mqtt_switch_component.h"
+#include "esphomelib/switch_platform/switch.h"
+#include "esphomelib/switch_platform/simple_switch.h"
+#include "esphomelib/fan/mqtt_fan_component.h"
+#include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/component.h"
-#include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/log_component.h"
+#include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/power_supply_component.h"
-#include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/ota_component.h"
 #include "esphomelib/log.h"
-#include "esphomelib/input/ads1115_component.h"
 
 namespace esphomelib {
 
@@ -239,7 +247,29 @@ class Application {
    * @param address The i2c address of the ADS1115. See ADS1115Component::set_address for possible values.
    * @return The ADS1115Component hub. Use this to set advanced setting and create the actual sensors.
    */
-  input::ADS1115Component *make_ads1115_component(uint8_t address);
+  sensor::ADS1115Component *make_ads1115_component(uint8_t address);
+
+  struct MakeBMP085Component {
+    sensor::BMP085Component *bmp;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_pressure;
+  };
+
+  /** Create an BMP085/BMP180/BMP280 i2c temperature+pressure sensor.
+   *
+   * Be sure to initialize i2c before calling `App.setup()` in order for this to work
+   * with `Wire.begin(SDA_PIN, SCL_PIN)`.
+   *
+   * @param temperature_friendly_name The friendly name the temperature should be advertised as.
+   * @param pressure_friendly_name The friendly name the pressure should be advertised as.
+   * @param address The i2c address this sensor should listen on, defaults to 0x77.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return A MakeBMP085Component object, use this to set advanced settings.
+   */
+  MakeBMP085Component make_bmp085_sensor(const std::string &temperature_friendly_name,
+                                         const std::string &pressure_friendly_name,
+                                         uint8_t address = BMP085_DEFAULT_ADDRESS,
+                                         uint32_t update_interval = 30000);
 
   struct MakeUltrasonicSensor {
     sensor::UltrasonicSensorComponent *ultrasonic;

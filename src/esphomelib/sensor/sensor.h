@@ -20,12 +20,14 @@ const std::string UNIT_OF_MEASUREMENT_CELSIUS = "°C";
 const std::string UNIT_OF_MEASUREMENT_PERCENT = "%";
 const std::string UNIT_OF_MEASUREMENT_VOLT = "V";
 const std::string UNIT_OF_MEASUREMENT_METER = "m";
+const std::string UNIT_OF_MEASUREMENT_HECTOPASCAL = "hPa";
 
 /// Home Assistant will set this itself because of unit of measurement.
 const std::string ICON_TEMPERATURE = "";
 const std::string ICON_HUMIDITY = "mdi:water-percent";
 const std::string ICON_VOLTAGE = "mdi:flash";
 const std::string ICON_DISTANCE = "mdi:arrow-expand-vertical";
+const std::string ICON_PRESSURE = "mdi:gauge";
 
 /** Base-class for all sensors.
  *

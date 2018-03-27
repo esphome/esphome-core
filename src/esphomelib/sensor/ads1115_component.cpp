@@ -6,11 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/input/ads1115_component.h"
+#include "esphomelib/sensor/ads1115_component.h"
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
 static const char *TAG = "input::ads1115";
 
@@ -130,6 +130,6 @@ int8_t ADS1115Sensor::accuracy_decimals() {
   return 3;
 }
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib

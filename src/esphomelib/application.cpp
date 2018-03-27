@@ -317,6 +317,18 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutput
 ADS1115Component *Application::make_ads1115_component(uint8_t address) {
   return this->register_component(new ADS1115Component(address));
 }
+Application::MakeBMP085Component Application::make_bmp085_sensor(const std::string &temperature_friendly_name,
+                                                                 const std::string &pressure_friendly_name,
+                                                                 uint8_t address,
+                                                                 uint32_t update_interval) {
+  auto *bmp = this->register_component(new BMP085Component(address, update_interval));
+
+  return MakeBMP085Component{
+      .bmp = bmp,
+      .mqtt_temperature = this->make_mqtt_sensor_for(bmp->get_temperature_sensor(), temperature_friendly_name),
+      .mqtt_pressure = this->make_mqtt_sensor_for(bmp->get_pressure_sensor(), pressure_friendly_name)
+  };
+}
 
 #ifdef ARDUINO_ARCH_ESP8266
 ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {
