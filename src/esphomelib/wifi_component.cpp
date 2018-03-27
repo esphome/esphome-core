@@ -139,12 +139,11 @@ void WiFiComponent::wait_for_connection() {
 #ifdef ARDUINO_ARCH_ESP32
       WiFi.disconnect(true);
       esp_wifi_stop();
-      esp_restart();
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
       WiFi.enableSTA(false);
-      ESP.restart();
 #endif
+      ESP.restart();
     }
 
     delay(500);

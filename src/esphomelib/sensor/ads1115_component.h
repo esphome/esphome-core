@@ -30,7 +30,7 @@ class ADS1115Sensor;
  * Note that for this component to work correctly you need to have i2c setup. Do so with
  *
  * ```cpp
- * Wire.begin(SDA_PIN, SCL_PIN)
+ * App.init_i2c(SDA_PIN, SCL_PIN);
  * ```
  *
  * before the call to `App.setup()`.

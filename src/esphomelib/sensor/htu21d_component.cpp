@@ -9,6 +9,7 @@
 #include "esphomelib/sensor/htu21d_component.h"
 
 #include "esphomelib/log.h"
+#include "esphomelib/application.h"
 
 namespace esphomelib {
 
@@ -50,6 +51,7 @@ HTU21DComponent::HTU21DComponent(uint32_t update_interval)
     : PollingComponent(update_interval) { }
 void HTU21DComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HTU21D...");
+  App.assert_i2c_initialized();
   // first initialize, then test connection for this device.
   this->htu21d_.initialize();
 

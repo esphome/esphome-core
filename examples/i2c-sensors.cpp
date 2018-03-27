@@ -21,7 +21,7 @@ void setup() {
   App.init_ota()->start_safe_mode();
 
   // This is required to set up the i2c bus. 14 is SDA pin and 27 is SCL pin.
-  Wire.begin(14, 27);
+  App.init_i2c(14, 27);
 
   // 0x48 is the default address when address pin is pulled low.
   auto *ads1115 = App.make_ads1115_component(0x48);

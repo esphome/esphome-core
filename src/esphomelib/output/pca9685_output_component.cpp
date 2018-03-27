@@ -5,6 +5,7 @@
 #include "esphomelib/output/pca9685_output_component.h"
 
 #include "esphomelib/log.h"
+#include "esphomelib/application.h"
 
 namespace esphomelib {
 
@@ -12,17 +13,18 @@ namespace output {
 
 static const char *TAG = "output::pca9685";
 
-PCA9685OutputComponent::PCA9685OutputComponent(float frequency, TwoWire &i2c_wire,
+PCA9685OutputComponent::PCA9685OutputComponent(float frequency,
                                                PCA9685_PhaseBalancer phase_balancer,
                                                uint8_t mode)
-    : frequency_(frequency), i2c_wire_(i2c_wire), phase_balancer_(phase_balancer), address_(0x00),
-      mode_(mode), min_channel_(0xFF), max_channel_(0x00), update_(true) {
+    : frequency_(frequency), phase_balancer_(phase_balancer), address_(0x00),
+      mode_(mode), min_channel_(0xFF), max_channel_(0x00), update_(true), i2c_wire_(Wire) {
   for (uint16_t &pwm_amount : this->pwm_amounts_)
     pwm_amount = 0;
 }
 
 void PCA9685OutputComponent::setup() {
   ESP_LOGI(TAG, "Setting up PCA9685OutputComponent.");
+  App.assert_i2c_initialized();
   this->pwm_controller_ = PCA9685(this->i2c_wire_, this->phase_balancer_);
   ESP_LOGV(TAG, "    Resetting devices...");
   this->pwm_controller_.resetDevices();

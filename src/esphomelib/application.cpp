@@ -156,8 +156,8 @@ LEDCOutputComponent *Application::make_ledc_output(uint8_t pin, float frequency,
 }
 #endif
 
-PCA9685OutputComponent *Application::make_pca9685_component(float frequency, TwoWire &i2c_wire) {
-  auto *pca9685 = new PCA9685OutputComponent(frequency, i2c_wire);
+PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
+  auto *pca9685 = new PCA9685OutputComponent(frequency);
   return this->register_component(pca9685);
 }
 
@@ -339,6 +339,25 @@ Application::MakeHTU21DComponent Application::make_htu21d_component(const std::s
       .mqtt_temperature = this->make_mqtt_sensor_for(htu21d->get_temperature_sensor(), temperature_friendly_name),
       .mqtt_humidity = this->make_mqtt_sensor_for(htu21d->get_humidity_sensor(), humidity_friendly_name)
   };
+}
+#ifdef ARDUINO_ARCH_ESP32
+void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, uint32_t frequency) {
+  Wire.begin(sda_pin, scl_pin, frequency);
+  this->i2c_initialized_ = true;
+}
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin) {
+  Wire.begin(sda_pin, scl_pin);
+  this->i2c_initialized_ = true;
+}
+#endif
+void Application::assert_i2c_initialized() const {
+  if (this->i2c_initialized_)
+    return;
+  ESP_LOGE(TAG, "You need to call App.init_i2c() because a component requires i2c to work.");
+  delay(1000);
+  ESP.restart();
 }
 
 #ifdef ARDUINO_ARCH_ESP8266

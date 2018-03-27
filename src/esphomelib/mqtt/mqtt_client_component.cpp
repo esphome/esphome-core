@@ -106,11 +106,7 @@ void MQTTClientComponent::reconnect() {
     ESP_LOGD(TAG, "    Attempting MQTT connection...");
     if (millis() - start > 20000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-#ifdef ARDUINO_ARCH_ESP32
-      esp_restart();
-#else
       ESP.restart();
-#endif
     }
 
     const char *id = this->credentials_.client_id.c_str();
