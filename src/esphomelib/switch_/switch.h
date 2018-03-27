@@ -2,14 +2,14 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#ifndef ESPHOMELIB_SWITCH_PLATFORM_SWITCH_H
-#define ESPHOMELIB_SWITCH_PLATFORM_SWITCH_H
+#ifndef ESPHOMELIB_SWITCH_SWITCH_H
+#define ESPHOMELIB_SWITCH_SWITCH_H
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
 
 namespace esphomelib {
 
-namespace switch_platform {
+namespace switch_ {
 
 /** Base class for all switches.
  *
@@ -32,8 +32,8 @@ class Switch : public binary_sensor::BinarySensor {
   virtual std::string icon();
 };
 
-} // namespace switch_platform
+} // namespace switch_
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_SWITCH_PLATFORM_SWITCH_H
+#endif //ESPHOMELIB_SWITCH_SWITCH_H

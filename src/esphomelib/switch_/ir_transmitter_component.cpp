@@ -4,7 +4,7 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "esphomelib/output/ir_transmitter_component.h"
+#include "ir_transmitter_component.h"
 
 #include <cstdlib>
 #include <esp32-hal.h>
@@ -15,11 +15,11 @@
 
 namespace esphomelib {
 
-namespace output {
+namespace switch_ {
 
-static const char *TAG = "output::ir_tx";
+static const char *TAG = "switch_::ir_tx";
 
-using namespace esphomelib::output::ir;
+using namespace esphomelib::switch_::ir;
 
 namespace ir {
 

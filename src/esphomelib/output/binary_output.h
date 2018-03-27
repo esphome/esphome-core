@@ -5,7 +5,7 @@
 #ifndef ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H
 #define ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H
 
-#include "esphomelib/switch_platform/switch.h"
+#include "esphomelib/switch_/switch.h"
 #include "esphomelib/power_supply_component.h"
 
 namespace esphomelib {

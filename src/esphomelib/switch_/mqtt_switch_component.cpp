@@ -2,7 +2,7 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include "esphomelib/switch_platform/mqtt_switch_component.h"
+#include "esphomelib/switch_/mqtt_switch_component.h"
 
 #include <utility>
 
@@ -11,14 +11,14 @@
 
 namespace esphomelib {
 
-namespace switch_platform {
+namespace switch_ {
 
 static const char *TAG = "switch::mqtt";
 
 using esphomelib::binary_sensor::binary_callback_t;
 using esphomelib::mqtt::Availability;
 
-MQTTSwitchComponent::MQTTSwitchComponent(std::string friendly_name, switch_platform::Switch *switch_)
+MQTTSwitchComponent::MQTTSwitchComponent(std::string friendly_name, switch_::Switch *switch_)
     : MQTTBinarySensorComponent(std::move(friendly_name), "", switch_), switch_(switch_) {
   if (switch_ == nullptr)
     return;
@@ -86,6 +86,6 @@ void MQTTSwitchComponent::set_icon(const std::string &icon) {
   this->icon_ = icon;
 }
 
-} // namespace switch_platform
+} // namespace switch_
 
 } // namespace esphomelib

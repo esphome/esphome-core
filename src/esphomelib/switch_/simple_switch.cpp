@@ -2,13 +2,13 @@
 // Created by Otto Winter on 20.01.18.
 //
 
-#include "esphomelib/switch_platform/simple_switch.h"
+#include "esphomelib/switch_/simple_switch.h"
 
 #include "esphomelib/log.h"
 
 namespace esphomelib {
 
-namespace switch_platform {
+namespace switch_ {
 
 SimpleSwitch::SimpleSwitch(output::BinaryOutput *output)
     : output_(output) { }
@@ -26,6 +26,6 @@ void SimpleSwitch::turn_off() {
   this->publish_state(false);
 }
 
-} // namespace switch_platform
+} // namespace switch_
 
 } // namespace esphomelib

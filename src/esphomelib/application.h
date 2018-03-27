@@ -16,12 +16,12 @@
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/light/light_output_component.h"
-#include "esphomelib/switch_platform/mqtt_switch_component.h"
-#include "esphomelib/switch_platform/switch.h"
-#include "esphomelib/output/ir_transmitter_component.h"
+#include "esphomelib/switch_/mqtt_switch_component.h"
+#include "esphomelib/switch_/switch.h"
+#include "esphomelib/switch_/ir_transmitter_component.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/dallas_component.h"
-#include "esphomelib/switch_platform/simple_switch.h"
+#include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/output/gpio_binary_output_component.h"
@@ -386,14 +386,14 @@ class Application {
    * @param clock_divider The clock divider for the rmt peripheral.
    * @return The IRTransmitterComponent. Use this for advanced settings.
    */
-  output::IRTransmitterComponent *make_ir_transmitter_component(uint8_t pin,
-                                                                uint8_t carrier_duty_percent = 50,
-                                                                uint8_t clock_divider = output::DEFAULT_CLOCK_DIVIDER);
+  switch_::IRTransmitterComponent *make_ir_transmitter_component(uint8_t pin,
+                                                                 uint8_t carrier_duty_percent = 50,
+                                                                 uint8_t clock_divider = switch_::DEFAULT_CLOCK_DIVIDER);
 #endif
 
   struct GPIOSwitchStruct {
     output::GPIOBinaryOutputComponent *gpio;
-    switch_platform::MQTTSwitchComponent *mqtt;
+    switch_::MQTTSwitchComponent *mqtt;
   };
 
   /** Create a simple GPIO switch that can be toggled on/off and appears in the Home Assistant frontend.
@@ -405,8 +405,8 @@ class Application {
   GPIOSwitchStruct make_gpio_switch(GPIOOutputPin pin, const std::string &friendly_name);
 
   /// Create a MQTTSwitchComponent for the provided Switch.
-  switch_platform::MQTTSwitchComponent *make_mqtt_switch_for(const std::string &friendly_name,
-                                                             switch_platform::Switch *switch_);
+  switch_::MQTTSwitchComponent *make_mqtt_switch_for(const std::string &friendly_name,
+                                                     switch_::Switch *switch_);
 
 
 

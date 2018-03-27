@@ -2,15 +2,15 @@
 // Created by Otto Winter on 20.01.18.
 //
 
-#ifndef ESPHOMELIB_SWITCH_PLATFORM_SIMPLE_SWITCH
-#define ESPHOMELIB_SWITCH_PLATFORM_SIMPLE_SWITCH
+#ifndef ESPHOMELIB_SWITCH_SIMPLE_SWITCH
+#define ESPHOMELIB_SWITCH_SIMPLE_SWITCH
 
 #include "esphomelib/output/binary_output.h"
-#include "esphomelib/switch_platform/switch.h"
+#include "esphomelib/switch_/switch.h"
 
 namespace esphomelib {
 
-namespace switch_platform {
+namespace switch_ {
 
 /// A simple switch that exposes a binary output as a switch.
 class SimpleSwitch : public Switch {
@@ -28,8 +28,8 @@ class SimpleSwitch : public Switch {
   output::BinaryOutput *output_;
 };
 
-} // namespace switch_platform
+} // namespace switch_
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_SWITCH_PLATFORM_SIMPLE_SWITCH
+#endif //ESPHOMELIB_SWITCH_SIMPLE_SWITCH

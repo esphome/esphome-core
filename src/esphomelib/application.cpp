@@ -20,7 +20,7 @@ using namespace esphomelib::sensor;
 using namespace esphomelib::output;
 using namespace esphomelib::light;
 using namespace esphomelib::fan;
-using namespace esphomelib::switch_platform;
+using namespace esphomelib::switch_;
 
 static const char *TAG = "application";
 
@@ -234,7 +234,7 @@ IRTransmitterComponent *Application::make_ir_transmitter_component(uint8_t pin,
 #endif
 
 MQTTSwitchComponent *Application::make_mqtt_switch_for(const std::string &friendly_name,
-                                                       switch_platform::Switch *switch_) {
+                                                       switch_::Switch *switch_) {
   return this->register_mqtt_component(new MQTTSwitchComponent(friendly_name, switch_));
 }
 void Application::assert_name() const {

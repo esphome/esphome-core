@@ -2,20 +2,20 @@
 // Created by Otto Winter on 01.12.17.
 //
 
-#ifndef ESPHOMELIB_OUTPUT_IR_TRANSMITTER_COMPONENT_H
-#define ESPHOMELIB_OUTPUT_IR_TRANSMITTER_COMPONENT_H
+#ifndef ESPHOMELIB_SWITCH_IR_TRANSMITTER_COMPONENT_H
+#define ESPHOMELIB_SWITCH_IR_TRANSMITTER_COMPONENT_H
 
 #ifdef ARDUINO_ARCH_ESP32
 
 #include <driver/rmt.h>
 
 #include "esphomelib/component.h"
-#include "esphomelib/switch_platform/switch.h"
+#include "esphomelib/switch_/switch.h"
 #include "esphomelib/esphal.h"
 
 namespace esphomelib {
 
-namespace output {
+namespace switch_ {
 
 /// Namespace storing constants for vendor IR formats
 namespace ir {
@@ -153,7 +153,7 @@ class IRTransmitterComponent : public Component {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Internal helper class that exposes a SendData as a Switch.
-  class DataTransmitter : public switch_platform::Switch {
+  class DataTransmitter : public switch_::Switch {
    public:
     DataTransmitter(const ir::SendData &send_data, IRTransmitterComponent *parent);
 
@@ -198,10 +198,10 @@ class IRTransmitterComponent : public Component {
 
 extern rmt_channel_t next_rmt_channel;
 
-} // namespace output
+} // namespace switch_
 
 } // namespace esphomelib
 
 #endif
 
-#endif //ESPHOMELIB_OUTPUT_IR_TRANSMITTER_COMPONENT_H
+#endif //ESPHOMELIB_SWITCH_IR_TRANSMITTER_COMPONENT_H

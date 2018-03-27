@@ -2,16 +2,16 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#ifndef ESPHOMELIB_SWITCH_PLATFORM_MQTT_SWITCH_COMPONENT_H
-#define ESPHOMELIB_SWITCH_PLATFORM_MQTT_SWITCH_COMPONENT_H
+#ifndef ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
+#define ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
 
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
-#include "esphomelib/switch_platform/switch.h"
+#include "esphomelib/switch_/switch.h"
 
 namespace esphomelib {
 
-namespace switch_platform {
+namespace switch_ {
 
 /** MQTT representation of switches
  *
@@ -19,7 +19,7 @@ namespace switch_platform {
  */
 class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
  public:
-  explicit MQTTSwitchComponent(std::string friendly_name, switch_platform::Switch *switch_ = nullptr);
+  explicit MQTTSwitchComponent(std::string friendly_name, switch_::Switch *switch_ = nullptr);
 
   /// Set the internal switch object used for sending states, does not register the state callback.
   void set_switch(Switch *switch_);
@@ -53,8 +53,8 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
   Switch *switch_{nullptr};
 };
 
-} // namespace switch_platform
+} // namespace switch_
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_SWITCH_PLATFORM_MQTT_SWITCH_COMPONENT_H
+#endif //ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
