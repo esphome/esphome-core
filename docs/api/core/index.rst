@@ -2,6 +2,7 @@ Core
 ====
 
 .. toctree::
+    :maxdepth: 1
 
 	Application <application>
 	Component <component>

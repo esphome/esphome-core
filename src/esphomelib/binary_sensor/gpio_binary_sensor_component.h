@@ -2,8 +2,8 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#ifndef ESPHOMELIB_INPUT_GPIO_BINARY_SENSOR_COMPONENT_H
-#define ESPHOMELIB_INPUT_GPIO_BINARY_SENSOR_COMPONENT_H
+#ifndef ESPHOMELIB_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H
+#define ESPHOMELIB_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H
 
 #include <cstdint>
 
@@ -12,13 +12,13 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace binary_sensor {
 
 /** GPIOBinarySensorComponent - Simple binary_sensor component for a GPIO pin.
  *
  * This class allows you to observe the digital state of a certain GPIO pin.
  */
-class GPIOBinarySensorComponent : public binary_sensor::BinarySensor, public Component {
+class GPIOBinarySensorComponent : public BinarySensor, public Component {
  public:
   /** Construct a GPIOBinarySensorComponent.
    *
@@ -46,8 +46,8 @@ class GPIOBinarySensorComponent : public binary_sensor::BinarySensor, public Com
   GPIOInputPin pin_;
 };
 
-} // namespace input
+} // namespace binary_sensor
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_INPUT_GPIO_BINARY_SENSOR_COMPONENT_H
+#endif //ESPHOMELIB_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H

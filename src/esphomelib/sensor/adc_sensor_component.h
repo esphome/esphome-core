@@ -1,13 +1,13 @@
 //
-//  adc_component.h
+//  adc_sensor_component.h
 //  esphomelib
 //
 //  Created by Otto Winter on 24.02.18.
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_INPUT_ADC_COMPONENT_H
-#define ESPHOMELIB_INPUT_ADC_COMPONENT_H
+#ifndef ESPHOMELIB_SENSOR_ADC_SENSOR_COMPONENT_H
+#define ESPHOMELIB_SENSOR_ADC_SENSOR_COMPONENT_H
 
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
@@ -15,7 +15,7 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
 /** This class allows using the integrated Analog to Digital converts of the ESP32 and ESP8266.
  *
@@ -27,7 +27,7 @@ namespace input {
  * Note you can't use the ADC2 here on the ESP32 because that's already used by WiFi internally.
  * Additionally on the ESP32 you can set an using `set_attenuation`.
  */
-class ADCSensorComponent : public sensor::PollingSensorComponent {
+class ADCSensorComponent : public PollingSensorComponent {
  public:
   /// Construct the ADCSensor with the provided pin and update interval in ms.
   explicit ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval = 15000);
@@ -70,8 +70,8 @@ class ADCSensorComponent : public sensor::PollingSensorComponent {
 #endif
 };
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_INPUT_ADC_COMPONENT_H
+#endif //ESPHOMELIB_SENSOR_ADC_SENSOR_COMPONENT_H

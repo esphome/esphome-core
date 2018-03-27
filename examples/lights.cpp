@@ -38,6 +38,7 @@ void setup() {
 
   App.make_binary_light("Desk Lamp", App.make_gpio_output(15));
 
+  // LEDC is only available on ESP32!
   App.make_monochromatic_light("Kitchen Lights", App.make_ledc_output(16)); // supports brightness
 
   App.setup();

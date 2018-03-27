@@ -2,7 +2,7 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include "esphomelib/input/dht_component.h"
+#include "esphomelib/sensor/dht_component.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
@@ -11,11 +11,9 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
-using namespace esphomelib::sensor;
-
-static const char *TAG = "input::dht";
+static const char *TAG = "sensor::dht";
 
 DHTComponent::DHTComponent(uint8_t pin, uint32_t update_interval)
     : temperature_sensor_(new DHTTemperatureSensor(this)),
@@ -29,7 +27,7 @@ void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Pin: %u", this->pin_);
   ESP_LOGCONFIG(TAG, "    Model: %u", this->model_);
   this->dht_.setup(this->pin_, this->model_);
-  if (this->model_ != DHT::AUTO_DETECT)
+  if (this->model_ == DHT::AUTO_DETECT)
     ESP_LOGD(TAG, "    DHT.setup() -> status: %u", this->dht_.getStatus());
 }
 
@@ -118,6 +116,6 @@ int8_t DHTHumiditySensor::accuracy_decimals() {
   return this->parent_->get_dht().getNumberOfDecimalsHumidity();
 }
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib

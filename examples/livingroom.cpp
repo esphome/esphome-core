@@ -14,6 +14,7 @@ void setup() {
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
   App.init_ota()->start_safe_mode();
 
+  // LEDC is only available on ESP32!
   auto *red = App.make_ledc_output(32); // on pin 32
   auto *green = App.make_ledc_output(33);
   auto *blue = App.make_ledc_output(34);

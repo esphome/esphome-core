@@ -1,20 +1,20 @@
 //
-//  adc_component.cpp
+//  adc_sensor_component.cpp
 //  esphomelib
 //
 //  Created by Otto Winter on 24.02.18.
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/input/adc_sensor_component.h"
+#include "esphomelib/sensor/adc_sensor_component.h"
 
 #include "esphomelib/log.h"
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
-static const char *TAG = "input::adc";
+static const char *TAG = "sensor::adc";
 
 ADCSensorComponent::ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval)
     : PollingSensorComponent(update_interval), pin_(pin) { }
@@ -77,6 +77,6 @@ int8_t ADCSensorComponent::accuracy_decimals() {
   return 2;
 }
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib

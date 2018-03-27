@@ -6,7 +6,7 @@ Dallas Component
 This class allows using Dallas (DS18b20) devices with esphomelib. You first have to
 create a hub or bus where all sensors are connected to (:cpp:class:`DallasComponent`).
 
-.. cpp:namespace:: esphomelib::input::DallasComponent
+.. cpp:namespace:: esphomelib::sensor::DallasComponent
 
 Next, use :cpp:func:`get_sensor_by_address` and :cpp:func:`get_sensor_by_index` to get
 individual sensors. You can get the addresses of dallas sensors by observing the log output
@@ -39,12 +39,12 @@ API Reference
 
 .. cpp:namespace:: nullptr
 
-.. doxygenclass:: esphomelib::input::DallasComponent
+.. doxygenclass:: esphomelib::sensor::DallasComponent
     :members:
     :protected-members:
     :undoc-members:
 
-.. doxygenclass:: esphomelib::input::DallasTemperatureSensor
+.. doxygenclass:: esphomelib::sensor::DallasTemperatureSensor
     :members:
     :protected-members:
     :undoc-members:

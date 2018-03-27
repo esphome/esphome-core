@@ -6,8 +6,8 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_INPUT_ULTRASONIC_SENSOR_H
-#define ESPHOMELIB_INPUT_ULTRASONIC_SENSOR_H
+#ifndef ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H
+#define ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H
 
 #include "esphomelib/sensor/sensor.h"
 
@@ -15,7 +15,7 @@
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
 /// The speed of sound in air in meters per µs.
 const float SPEED_OF_SOUND_M_PER_US = 0.000343f;
@@ -37,7 +37,7 @@ const float SPEED_OF_SOUND_M_PER_US = 0.000343f;
  * Note: The MQTTSenorComponent will create a moving average over these values by default, to disable this behavior,
  *       call ultrasonic->mqtt->clear_filters() or similar like above.
  */
-class UltrasonicSensorComponent : public sensor::PollingSensorComponent {
+class UltrasonicSensorComponent : public PollingSensorComponent {
  public:
   /** Construct the ultrasonic sensor with the specified trigger pin and echo pin.
    *
@@ -96,8 +96,8 @@ class UltrasonicSensorComponent : public sensor::PollingSensorComponent {
   uint32_t pulse_time_us_{10};
 };
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_INPUT_ULTRASONIC_SENSOR_H
+#endif //ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H

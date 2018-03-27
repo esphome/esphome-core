@@ -8,16 +8,16 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "esphomelib/input/pulse_counter.h"
+#include "esphomelib/sensor/pulse_counter.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
-static const char *TAG = "input::pulse_counter";
+static const char *TAG = "sensor::pulse_counter";
 
 PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval)
   : PollingSensorComponent(update_interval) {
@@ -131,7 +131,7 @@ int8_t PulseCounterSensorComponent::accuracy_decimals() {
 
 pcnt_unit_t next_pcnt_unit = PCNT_UNIT_0;
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib
 

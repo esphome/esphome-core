@@ -26,4 +26,4 @@ cmake-build-release/
 
 # Docs
 docs/_doxyxml
-docs/_build/doctrees
+docs/_build

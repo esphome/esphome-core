@@ -10,6 +10,13 @@ To create your own binary sensor, simply subclass :cpp:class:`BinarySensor` and 
 Inversion is automatically done for you when publishing state and can be changed by the
 user with :cpp:func:`BinarySensor::set_inverted`.
 
+Supported Binary Sensors
+------------------------
+
+.. toctree::
+
+    GPIO Binary Sensor Component <gpio-binary-sensor>
+
 Example Usage
 -------------
 

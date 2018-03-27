@@ -2,16 +2,16 @@
 // Created by Otto Winter on 28.12.17.
 //
 
-#include "esphomelib/input/dallas_component.h"
+#include "esphomelib/sensor/dallas_component.h"
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 
 namespace esphomelib {
 
-namespace input {
+namespace sensor {
 
-static const char *TAG = "input::dallas";
+static const char *TAG = "sensor::dallas";
 
 std::string uint64_to_string(uint64_t num) {
   char buffer[17];
@@ -48,14 +48,18 @@ void DallasComponent::setup() {
 
   delayMicroseconds(10); // improves reliability
   std::vector<uint64_t> sensors = this->scan_devices();
+  ESP_LOGD(TAG, "Found Dallas Sensors:");
   for (uint64_t i : sensors)
-    ESP_LOGD(TAG, "    Found sensor with address 0x%s", uint64_to_string(i).c_str());
+    ESP_LOGD(TAG, "    0x%s", uint64_to_string(i).c_str());
   delayMicroseconds(10); // improves reliability
 
   for (auto sensor : this->sensors_) {
     if (sensor->get_address() == 0) {
       ESP_LOGCONFIG(TAG, "Device with index %u", sensor->get_index());
-      assert(sensor->get_index() < sensors.size() && "Couldn't find sensor by index (probably because not all sensors are connected.)");
+      if (sensor->get_index() >= sensors.size()) {
+        ESP_LOGE(TAG, "Couldn't find sensor by index - not connected. Proceeding without it.");
+        continue;
+      }
       sensor->set_address(sensors[sensor->get_index()]);
       ESP_LOGCONFIG(TAG, "     -> Address: %s", sensor->get_name().c_str());
     } else {
@@ -64,7 +68,10 @@ void DallasComponent::setup() {
     ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
 
     bool result = this->dallas_.setResolution(sensor->get_address8(), sensor->get_resolution(), true);
-    assert(result && "Setting resolution on Dallas failed.");
+    if (!result) {
+      ESP_LOGE(TAG, "Setting resolution on Dallas failed. Proceeding without it.");
+      continue;
+    }
     ESP_LOGCONFIG(TAG, "    Update Interval: %u", sensor->get_update_interval());
 
     this->set_interval(sensor->get_name(), sensor->get_update_interval(), [this, sensor]{
@@ -182,6 +189,6 @@ int8_t DallasTemperatureSensor::accuracy_decimals() {
   return 1;
 }
 
-} // namespace input
+} // namespace sensor
 
 } // namespace esphomelib
