@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <WiFiClient.h>
+#include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
@@ -257,7 +258,7 @@ class Application {
 
   /** Create an BMP085/BMP180/BMP280 i2c temperature+pressure sensor.
    *
-   * Be sure to initialize i2c before calling `App.setup()` in order for this to work
+   * Be sure to initialize i2c before calling `App.setup()` in order for this to work. Do so
    * with `Wire.begin(SDA_PIN, SCL_PIN)`.
    *
    * @param temperature_friendly_name The friendly name the temperature should be advertised as.
@@ -270,6 +271,26 @@ class Application {
                                          const std::string &pressure_friendly_name,
                                          uint8_t address = BMP085_DEFAULT_ADDRESS,
                                          uint32_t update_interval = 30000);
+
+  struct MakeHTU21DComponent {
+    sensor::HTU21DComponent *htu21d;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_humidity;
+  };
+
+  /** Create a HTU21D i2c-based temperature+humidity highly accurate sensor.
+   *
+   * Be sure to initialize i2c before calling `App.setup` in order for this to work. Do so
+   * with `Wire.begin(SDA_PIN, SCL_PIN)`.
+   *
+   * @param temperature_friendly_name The friendly name the temperature sensor should be advertised as.
+   * @param humidity_friendly_name The friendly name the pressure sensor should be advertised as.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return A MakeHTU21DComponent, use this to set advanced settings.
+   */
+  MakeHTU21DComponent make_htu21d_component(const std::string &temperature_friendly_name,
+                                            const std::string &humidity_friendly_name,
+                                            uint32_t update_interval = 15000);
 
   struct MakeUltrasonicSensor {
     sensor::UltrasonicSensorComponent *ultrasonic;

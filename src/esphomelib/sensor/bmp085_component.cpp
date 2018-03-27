@@ -87,9 +87,13 @@ void BMP085Component::read_temperature_() {
     return;
   }
 
-  float temp = this->bmp_.getTemperatureC();
-  this->temperature_->push_new_value(temp);
-  ESP_LOGD(TAG, "Got Temperature=%.1f°C", temp);
+  float temperature = this->bmp_.getTemperatureC();
+  ESP_LOGD(TAG, "Got Temperature=%.1f°C", temperature);
+
+  if (!isnan(temperature))
+    this->pressure_->push_new_value(temperature);
+  else
+    ESP_LOGW(TAG, "Invalid Temperature: %f°C", temperature);
 
   this->measurement_mode_ = PRESSURE;
   this->bmp_.setControl(BMP085_MODE_PRESSURE_3);
@@ -103,8 +107,12 @@ void BMP085Component::read_pressure_() {
   }
 
   float pressure = this->bmp_.getPressure() / 100.0f;
-  this->pressure_->push_new_value(pressure);
   ESP_LOGD(TAG, "Got Pressure=%.1fhPa", pressure);
+
+  if (!isnan(pressure))
+    this->pressure_->push_new_value(pressure);
+  else
+    ESP_LOGW(TAG, "Invalid Pressure: %fhPa", pressure);
 
   this->measurement_mode_ = IDLE;
   // TODO: consider setting temperature measurement mode here already

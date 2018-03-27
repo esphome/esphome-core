@@ -329,6 +329,17 @@ Application::MakeBMP085Component Application::make_bmp085_sensor(const std::stri
       .mqtt_pressure = this->make_mqtt_sensor_for(bmp->get_pressure_sensor(), pressure_friendly_name)
   };
 }
+Application::MakeHTU21DComponent Application::make_htu21d_component(const std::string &temperature_friendly_name,
+                                                                    const std::string &humidity_friendly_name,
+                                                                    uint32_t update_interval) {
+  auto *htu21d = this->register_component(new HTU21DComponent(update_interval));
+
+  return MakeHTU21DComponent{
+      .htu21d = htu21d,
+      .mqtt_temperature = this->make_mqtt_sensor_for(htu21d->get_temperature_sensor(), temperature_friendly_name),
+      .mqtt_humidity = this->make_mqtt_sensor_for(htu21d->get_humidity_sensor(), humidity_friendly_name)
+  };
+}
 
 #ifdef ARDUINO_ARCH_ESP8266
 ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {

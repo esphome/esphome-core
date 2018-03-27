@@ -6,8 +6,8 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_BMP_085_COMPONENT_H
-#define ESPHOMELIB_BMP_085_COMPONENT_H
+#ifndef ESPHOMELIB_SENSOR_BMP085_COMPONENT_H
+#define ESPHOMELIB_SENSOR_BMP085_COMPONENT_H
 
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
@@ -100,4 +100,4 @@ class BMP085PressureSensor : public Sensor {
 
 } // namespace esphomelib
 
-#endif //ESPHOMELIB_BMP_085_COMPONENT_H
+#endif //ESPHOMELIB_SENSOR_BMP085_COMPONENT_H
