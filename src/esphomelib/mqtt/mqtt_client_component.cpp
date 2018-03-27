@@ -29,7 +29,6 @@ MQTTClientComponent::MQTTClientComponent(MQTTCredentials credentials,
 void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT...");
   this->mqtt_client_.setClient(this->client_);
-  this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
 
   ESP_LOGCONFIG(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
   ESP_LOGCONFIG(TAG, "    Username: '%s'", this->credentials_.username.c_str());
@@ -131,6 +130,10 @@ void MQTTClientComponent::reconnect() {
       will_retain = this->last_will_->retain;
       will_message = this->last_will_->payload.c_str();
     }
+    // temporary hack to fix issue in PubSubClient
+    char c[256];
+    strcpy(c, this->credentials_.address.c_str());
+    this->mqtt_client_.setServer(c, this->credentials_.port);
 
     if (this->mqtt_client_.connect(id, user, pass, will_topic, will_qos, will_retain, will_message)) {
       ESP_LOGD(TAG, "    Connected!");
