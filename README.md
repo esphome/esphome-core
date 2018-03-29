@@ -217,7 +217,7 @@ controls yourself. First, you'll need to find the IR codes of the remote - maybe
 the following code to your needs (and repeat from the second line for each channel):
 
 ```cpp
-auto *ir = App.make_ir_transmitter_component(32); // switch out 32 for your IR pin
+auto *ir = App.make_ir_transmitter(32); // switch out 32 for your IR pin
 auto *channel = ir->create_transmitter(SendData::from_panasonic(0x4004, 0x100BCBD).repeat(25)); // use the other functions in SendData for other codes.
 App.make_mqtt_switch_for("Panasonic TV On", channel);
 ```

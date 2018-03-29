@@ -17,11 +17,11 @@ Example Usage
     // inside setup()
     App.init_i2c(SDA_PIN, SCL_PIN); // change these values for your pins.
     // create sensors
-    App.make_htu21d_component("Outside Temperature", "Outside Humidity");
+    App.make_htu21d_sensor("Outside Temperature", "Outside Humidity");
 
 .. cpp:namespace:: esphomelib
 
-See :cpp:func:`Application::make_htu21d_component`.
+See :cpp:func:`Application::make_htu21d_sensor`.
 
 API Reference
 -------------
