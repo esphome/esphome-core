@@ -42,12 +42,8 @@ void MQTTSensorComponent::setup() {
     if (this->get_expire_after() > 0)
       root["expire_after"] = this->get_expire_after() / 1000;
 
-    if (this->icon_.defined) { // manually defined
-      if (!this->icon_->empty()) // only send if not empty
-        root["icon"] = this->icon_.value;
-    } else if (!this->sensor_->icon().empty()) {
-      root["icon"] = this->sensor_->icon();
-    }
+    if (!this->get_icon().empty())
+      root["icon"] = this->get_icon();
   }, true, false); // enable state topic, disable command topic
 }
 

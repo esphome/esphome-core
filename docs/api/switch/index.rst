@@ -6,6 +6,7 @@ The `esphomelib::switch_` namespace contains all switch helpers.
 .. toctree::
 
     IR Transmitter <ir-transmitter>
+    Restart Switch <restart>
 
 API Reference
 -------------

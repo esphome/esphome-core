@@ -4,13 +4,10 @@
 
 #include "esphomelib/application.h"
 
-#include <utility>
 #include <algorithm>
 
 #include "esphomelib/log.h"
-#include "esphomelib/output/gpio_binary_output_component.h"
 #include "esphomelib/esppreferences.h"
-#include "esphomelib/wifi_component.h"
 
 namespace esphomelib {
 
@@ -73,26 +70,23 @@ void Application::set_name(const std::string &name) {
 }
 
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
-                                            const std::string &username, const std::string &password,
-                                            const std::string &discovery_prefix) {
-  assert(this->mqtt_client_ == nullptr && "Did you already initialize MQTT?");
+                                            const std::string &username, const std::string &password) {
+  assert(this->mqtt_client_ == nullptr && "Did you initialize MQTT already?");
   MQTTClientComponent *component = new MQTTClientComponent(MQTTCredentials{
       .address = address,
       .port = port,
       .username = username,
       .password = password,
-      .client_id = sanitize_hostname(this->name_),
-  }, this->name_);
-  component->set_discovery_info(discovery_prefix, true);
+      .client_id = generate_hostname(this->name_),
+  });
   this->mqtt_client_ = component;
 
   return this->register_component(component);
 }
 
 MQTTClientComponent *Application::init_mqtt(const std::string &address,
-                                            const std::string &username, const std::string &password,
-                                            const std::string &discovery_prefix) {
-  return this->init_mqtt(address, 1883, username, password, discovery_prefix);
+                                            const std::string &username, const std::string &password) {
+  return this->init_mqtt(address, 1883, username, password);
 }
 
 LogComponent *Application::init_log(uint32_t baud_rate,
@@ -115,18 +109,20 @@ PowerSupplyComponent *Application::make_power_supply(GPIOOutputPin pin, uint32_t
 }
 
 MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor_for(std::string friendly_name,
-                                                                    std::string device_class,
-                                                                    BinarySensor *binary_sensor) {
-  auto *mqtt = new MQTTBinarySensorComponent(std::move(friendly_name), std::move(device_class), binary_sensor);
+                                                                    binary_sensor::BinarySensor *binary_sensor,
+                                                                    Optional<std::string> device_class) {
+  auto *mqtt = new MQTTBinarySensorComponent(std::move(friendly_name), binary_sensor);
+  if (device_class.defined)
+    mqtt->set_device_class(device_class.value);
   return this->register_mqtt_component(mqtt);
 }
 
-Application::SimpleBinarySensor Application::make_gpio_binary_sensor(GPIOInputPin pin,
-                                                                     std::string friendly_name,
-                                                                     std::string device_class) {
-  SimpleBinarySensor s{};
+Application::MakeGPIOBinarySensor Application::make_gpio_binary_sensor(GPIOInputPin pin,
+                                                                       std::string friendly_name,
+                                                                       std::string device_class) {
+  MakeGPIOBinarySensor s{};
   s.gpio = this->register_component(new GPIOBinarySensorComponent(pin));
-  s.mqtt = this->make_mqtt_binary_sensor_for(std::move(friendly_name), std::move(device_class), s.gpio);
+  s.mqtt = this->make_mqtt_binary_sensor_for(std::move(friendly_name), s.gpio, device_class);
   return s;
 }
 
@@ -362,6 +358,20 @@ void Application::assert_i2c_initialized() const {
   ESP_LOGE(TAG, "You need to call App.init_i2c() because a component requires i2c to work.");
   delay(1000);
   ESP.restart();
+}
+MQTTBinarySensorComponent *Application::make_status_binary_sensor(std::string friendly_name) {
+  assert(this->mqtt_client_->is_availability_enabled());
+  auto *binary_sensor = new StatusBinarySensor(); // not a component
+  auto *mqtt = this->make_mqtt_binary_sensor_for(std::move(friendly_name), binary_sensor);
+  mqtt->set_custom_state_topic(this->mqtt_client_->get_last_will().topic);
+  mqtt->set_payload_on(this->mqtt_client_->get_birth_message().payload);
+  mqtt->set_payload_off(this->mqtt_client_->get_last_will().payload);
+  mqtt->disable_availability();
+  return mqtt;
+}
+switch_::MQTTSwitchComponent *Application::make_restart_switch(const std::string &friendly_name) {
+  auto *switch_ = new RestartSwitch(); // not a component
+  return this->make_mqtt_switch_for(switch_, friendly_name);
 }
 
 #ifdef ARDUINO_ARCH_ESP8266

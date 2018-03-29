@@ -16,6 +16,7 @@ Supported Binary Sensors
 .. toctree::
 
     GPIO Binary Sensor <gpio>
+    Node Status Binary Sensor <status>
 
 Example Usage
 -------------

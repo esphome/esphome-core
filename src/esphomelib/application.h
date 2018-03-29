@@ -16,10 +16,9 @@
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
-#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
+#include "esphomelib/binary_sensor/status_binary_sensor.h"
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
-#include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
@@ -30,21 +29,17 @@
 #include "esphomelib/sensor/ads1115_component.h"
 #include "esphomelib/sensor/bmp085_component.h"
 #include "esphomelib/sensor/dallas_component.h"
-#include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
-#include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/switch_/ir_transmitter_component.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
-#include "esphomelib/switch_/mqtt_switch_component.h"
-#include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/switch.h"
-#include "esphomelib/switch_/switch.h"
+#include "esphomelib/switch_/restart_switch.h"
 
 namespace esphomelib {
 
@@ -95,24 +90,20 @@ class Application {
    * @param port The port of your server.
    * @param username The username.
    * @param password The password. Empty for no password.
-   * @param discovery_prefix The discovery prefix for home assistant. Leave empty for no discovery.
    * @return The MQTTClient. Use this to set advanced settings.
    */
   mqtt::MQTTClientComponent *init_mqtt(const std::string &address, uint16_t port,
-                                       const std::string &username, const std::string &password,
-                                       const std::string &discovery_prefix = "homeassistant");
+                                       const std::string &username, const std::string &password);
 
   /** Initialize the MQTT client.
    *
    * @param address The address of your server.
    * @param username The username.
    * @param password The password. Empty for no password.
-   * @param discovery_prefix The discovery prefix for home assistant. Leave empty for no discovery.
    * @return The MQTTClient. Use this to set advanced settings.
    */
   mqtt::MQTTClientComponent *init_mqtt(const std::string &address,
-                                       const std::string &username, const std::string &password,
-                                       const std::string &discovery_prefix = "homeassistant");
+                                       const std::string &username, const std::string &password);
 
   /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
    *
@@ -142,10 +133,10 @@ class Application {
    */
   /// Create a MQTTBinarySensorComponent for a specific BinarySensor. Mostly for internal use.
   binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor_for(std::string friendly_name,
-                                                                        std::string device_class,
-                                                                        binary_sensor::BinarySensor *binary_sensor);
+                                                                        binary_sensor::BinarySensor *binary_sensor,
+                                                                        Optional<std::string> device_class = Optional<std::string>());
 
-  struct SimpleBinarySensor {
+  struct MakeGPIOBinarySensor {
     binary_sensor::GPIOBinarySensorComponent *gpio;
     binary_sensor::MQTTBinarySensorComponent *mqtt;
   };
@@ -159,9 +150,19 @@ class Application {
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
    *                     or esphomelib::binary_sensor::device_class
    */
-  SimpleBinarySensor make_gpio_binary_sensor(GPIOInputPin pin,
-                                             std::string friendly_name,
-                                             std::string device_class = "");
+  MakeGPIOBinarySensor make_gpio_binary_sensor(GPIOInputPin pin,
+                                               std::string friendly_name,
+                                               std::string device_class = "");
+
+  /** Create a simple binary sensor that reports the online/offline state of the node.
+   *
+   * Uses the MQTT last will and birth message feature. If the values for these features are custom, you need
+   * to override them using the return value of this function.
+   *
+   * @param friendly_name The friendly name advertised via MQTT discovery.
+   * @return A MQTTBinarySensorComponent. Use this to set custom status messages.
+   */
+  binary_sensor::MQTTBinarySensorComponent *make_status_binary_sensor(std::string friendly_name);
 
 
 
@@ -482,6 +483,10 @@ class Application {
                                                      const std::string &friendly_name);
 
 
+  /// Make a simple switch that restarts the device with the provided friendly name.
+  switch_::MQTTSwitchComponent *make_restart_switch(const std::string &friendly_name);
+
+
 
 
 
@@ -560,13 +565,6 @@ C *Application::register_component(C *c) {
 
 template<class C>
 C *Application::register_mqtt_component(C *c) {
-  mqtt::MQTTComponent *component = c;
-  if (mqtt::global_mqtt_client->get_use_status_messages())
-    component->set_availability(mqtt::Availability{
-        .topic = mqtt::global_mqtt_client->get_default_status_message_topic(),
-        .payload_available = "online",
-        .payload_not_available = "offline"
-    });
   return this->register_component(c);
 }
 

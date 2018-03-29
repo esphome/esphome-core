@@ -19,7 +19,7 @@ using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
 
 /// Simple data struct for Home Assistant component availability.
 struct Availability {
-  std::string topic;
+  std::string topic; ///< Empty means disabled
   std::string payload_available;
   std::string payload_not_available;
 };
@@ -50,7 +50,7 @@ class MQTTComponent : public Component {
    *
    * @param friendly_name The friendly name. Leave empty to disable discovery.
    */
-  explicit MQTTComponent(std::string friendly_name);
+  explicit MQTTComponent(const std::string &friendly_name);
 
   /// Set whether state message should be retained.
   void set_retain(bool retain);
@@ -77,8 +77,9 @@ class MQTTComponent : public Component {
    *
    * See See <a href="https://home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
    */
-  void set_availability(const Optional<mqtt::Availability> &availability);
-  const Optional<mqtt::Availability> &get_availability() const;
+  void set_availability(const mqtt::Availability &availability);
+  mqtt::Availability get_availability() const;
+  void disable_availability();
   
  protected:
 
@@ -145,7 +146,7 @@ class MQTTComponent : public Component {
    * @param callback The callback that will be called when a message with matching topic is received.
    * @param qos The MQTT quality of service. Defaults to 0.
    */
-  void subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos = 0);
+  void subscribe(const std::string &topic, const mqtt_callback_t &callback, uint8_t qos = 0);
 
   /** Subscribe to a MQTT topic and automatically parse JSON payload.
    *
@@ -155,7 +156,7 @@ class MQTTComponent : public Component {
    * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
    * @param qos The MQTT quality of service. Defaults to 0.
    */
-  void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, const json_parse_t &callback, uint8_t qos = 0);
 
   /** Parse a JSON message and call f if the message is valid JSON.
    *
@@ -172,8 +173,8 @@ class MQTTComponent : public Component {
  protected:
   std::string friendly_name_; ///< Discovery friendly name, leave empty for disabled discovery.
   std::map<std::string, std::string> custom_topics_;
-  bool retain_;
-  Optional<Availability> availability_;
+  bool retain_{true};
+  Optional<Availability> availability_{};
 };
 
 } // namespace mqtt

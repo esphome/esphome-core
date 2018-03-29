@@ -49,7 +49,7 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
   /// Get the icon for this switch.
   std::string get_icon() const;
 
-  Optional<std::string> icon_; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
+  Optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
   Switch *switch_{nullptr};
 };
 

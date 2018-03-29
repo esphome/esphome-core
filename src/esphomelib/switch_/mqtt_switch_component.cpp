@@ -19,7 +19,7 @@ using esphomelib::binary_sensor::binary_callback_t;
 using esphomelib::mqtt::Availability;
 
 MQTTSwitchComponent::MQTTSwitchComponent(std::string friendly_name, switch_::Switch *switch_)
-    : MQTTBinarySensorComponent(std::move(friendly_name), "", switch_), switch_(switch_) {
+    : MQTTBinarySensorComponent(std::move(friendly_name), switch_), switch_(switch_) {
   if (switch_ == nullptr)
     return;
 
@@ -33,18 +33,18 @@ void MQTTSwitchComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->get_icon().c_str());
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    if (this->icon_.defined) { // manually defined
-      if (!this->icon_->empty()) // only send if not empty
-        root["icon"] = this->icon_.value;
-    } else if (!this->switch_->icon().empty()) {
-      root["icon"] = this->switch_->icon();
-    }
+    if (!this->get_icon().empty())
+      root["icon"] = this->get_icon();
+    if (this->get_payload_on() != "ON")
+      root["payload_on"] = this->get_payload_on();
+    if (this->get_payload_off() != "OFF")
+      root["payload_off"] = this->get_payload_off();
   });
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
-    if (strcasecmp(payload.c_str(), "ON") == 0)
+    if (strcasecmp(payload.c_str(), this->get_payload_on().c_str()) == 0)
       this->turn_on();
-    else if (strcasecmp(payload.c_str(), "OFF") == 0)
+    else if (strcasecmp(payload.c_str(), this->get_payload_off().c_str()) == 0)
       this->turn_off();
   });
 
@@ -58,7 +58,7 @@ std::string MQTTSwitchComponent::component_type() const {
 binary_callback_t MQTTSwitchComponent::create_on_new_state_callback() {
   return [&](bool enabled) {
     assert_setup(this);
-    std::string state = enabled ? "ON" : "OFF";
+    std::string state = enabled ? this->get_payload_on() : this->get_payload_off();
     this->send_message(this->get_state_topic(), state);
     global_preferences.put_bool(this->friendly_name_, "state", enabled);
   };
