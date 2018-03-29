@@ -32,7 +32,7 @@ class BMP085Component : public PollingComponent {
    * @param address The i2c address of the sensor, defaults to 0x77.
    * @param update_interval The interval in ms to check the sensor.
    */
-  explicit BMP085Component(uint8_t address = BMP085_DEFAULT_ADDRESS, uint32_t update_interval = 30000);
+  explicit BMP085Component(uint32_t update_interval = 30000);
 
   /// Set the i2c address of this sensor.
   void set_address(uint8_t address);

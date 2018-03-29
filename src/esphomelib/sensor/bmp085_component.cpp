@@ -77,8 +77,8 @@ void BMP085Component::setup() {
   }
   this->bmp_.initialize();
 }
-BMP085Component::BMP085Component(uint8_t address, uint32_t update_interval)
-  : PollingComponent(update_interval), address_(address),
+BMP085Component::BMP085Component(uint32_t update_interval)
+  : PollingComponent(update_interval), address_(BMP085_DEFAULT_ADDRESS),
     temperature_(new BMP085TemperatureSensor(this)), pressure_(new BMP085PressureSensor(this)) {
 
 }
