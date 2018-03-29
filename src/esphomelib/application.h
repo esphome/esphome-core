@@ -268,13 +268,11 @@ class Application {
    *
    * @param temperature_friendly_name The friendly name the temperature should be advertised as.
    * @param pressure_friendly_name The friendly name the pressure should be advertised as.
-   * @param address The i2c address this sensor should listen on, defaults to 0x77.
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeBMP085Component object, use this to set advanced settings.
    */
   MakeBMP085Component make_bmp085_sensor(const std::string &temperature_friendly_name,
                                          const std::string &pressure_friendly_name,
-                                         uint8_t address = BMP085_DEFAULT_ADDRESS,
                                          uint32_t update_interval = 30000);
 
   struct MakeHTU21DComponent {
@@ -293,9 +291,9 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeHTU21DComponent, use this to set advanced settings.
    */
-  MakeHTU21DComponent make_htu21d_component(const std::string &temperature_friendly_name,
-                                            const std::string &humidity_friendly_name,
-                                            uint32_t update_interval = 15000);
+  MakeHTU21DComponent make_htu21d_sensor(const std::string &temperature_friendly_name,
+                                         const std::string &humidity_friendly_name,
+                                         uint32_t update_interval = 15000);
 
   struct MakeUltrasonicSensor {
     sensor::UltrasonicSensorComponent *ultrasonic;
@@ -461,9 +459,9 @@ class Application {
    * @param clock_divider The clock divider for the rmt peripheral.
    * @return The IRTransmitterComponent. Use this for advanced settings.
    */
-  switch_::IRTransmitterComponent *make_ir_transmitter_component(uint8_t pin,
-                                                                 uint8_t carrier_duty_percent = 50,
-                                                                 uint8_t clock_divider = switch_::DEFAULT_CLOCK_DIVIDER);
+  switch_::IRTransmitterComponent *make_ir_transmitter(GPIOOutputPin pin,
+                                                       uint8_t carrier_duty_percent = 50,
+                                                       uint8_t clock_divider = switch_::DEFAULT_CLOCK_DIVIDER);
 #endif
 
   struct GPIOSwitchStruct {
@@ -480,8 +478,8 @@ class Application {
   GPIOSwitchStruct make_gpio_switch(GPIOOutputPin pin, const std::string &friendly_name);
 
   /// Create a MQTTSwitchComponent for the provided Switch.
-  switch_::MQTTSwitchComponent *make_mqtt_switch_for(const std::string &friendly_name,
-                                                     switch_::Switch *switch_);
+  switch_::MQTTSwitchComponent *make_mqtt_switch_for(switch_::Switch *switch_,
+                                                     const std::string &friendly_name);
 
 
 

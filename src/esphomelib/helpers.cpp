@@ -37,10 +37,6 @@ bool is_empty(const IPAddress &address) {
   return address == IPAddress(0, 0, 0, 0);
 }
 
-std::string generate_hostname(const std::string &base) {
-  return base + std::string("-") + get_mac_address();
-}
-
 double random_double() {
 #ifdef ARDUINO_ARCH_ESP32
   return double(esp_random()) / double(UINT32_MAX);

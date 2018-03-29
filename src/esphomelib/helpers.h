@@ -18,9 +18,6 @@ namespace esphomelib {
 /// Gets the MAC address as a string, this can be used as way to identify this ESP32.
 std::string get_mac_address();
 
-/// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
-std::string generate_hostname(const std::string &base);
-
 /// The characters that are allowed in a hostname.
 const static std::string
     HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";

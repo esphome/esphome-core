@@ -63,7 +63,6 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-
   /// Creates a new callback for publishing state changes to MQTT.
   virtual binary_callback_t create_on_new_state_callback();
 

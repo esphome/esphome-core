@@ -61,7 +61,7 @@ void Application::loop() {
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
   assert(this->wifi_ == nullptr && "WiFi already setup!");
-  WiFiComponent *wifi = new WiFiComponent(ssid, password, generate_hostname(this->name_));
+  WiFiComponent *wifi = new WiFiComponent(ssid, password, sanitize_hostname(this->name_));
   this->wifi_ = wifi;
   return this->register_component(wifi);
 }
@@ -81,7 +81,7 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t
       .port = port,
       .username = username,
       .password = password,
-      .client_id = generate_hostname(this->name_)
+      .client_id = sanitize_hostname(this->name_),
   }, this->name_);
   component->set_discovery_info(discovery_prefix, true);
   this->mqtt_client_ = component;
@@ -226,15 +226,15 @@ MQTTClientComponent *Application::get_mqtt_client() const {
 }
 
 #ifdef ARDUINO_ARCH_ESP32
-IRTransmitterComponent *Application::make_ir_transmitter_component(uint8_t pin,
-                                                                   uint8_t carrier_duty_percent,
-                                                                   uint8_t clock_divider) {
+IRTransmitterComponent *Application::make_ir_transmitter(GPIOOutputPin pin,
+                                                         uint8_t carrier_duty_percent,
+                                                         uint8_t clock_divider) {
   return this->register_component(new IRTransmitterComponent(pin, carrier_duty_percent, clock_divider));
 }
 #endif
 
-MQTTSwitchComponent *Application::make_mqtt_switch_for(const std::string &friendly_name,
-                                                       switch_::Switch *switch_) {
+MQTTSwitchComponent *Application::make_mqtt_switch_for(switch_::Switch *switch_,
+                                                       const std::string &friendly_name) {
   return this->register_mqtt_component(new MQTTSwitchComponent(friendly_name, switch_));
 }
 void Application::assert_name() const {
@@ -251,7 +251,7 @@ Application::GPIOSwitchStruct Application::make_gpio_switch(GPIOOutputPin pin,
                                                             const std::string &friendly_name) {
   auto *binary_output = this->make_gpio_output(pin);
   auto *simple_switch = new SimpleSwitch(binary_output);
-  auto *mqtt = this->make_mqtt_switch_for(friendly_name, simple_switch);
+  auto *mqtt = this->make_mqtt_switch_for(simple_switch, friendly_name);
 
   return {
       .gpio = binary_output,
@@ -319,9 +319,8 @@ ADS1115Component *Application::make_ads1115_component(uint8_t address) {
 }
 Application::MakeBMP085Component Application::make_bmp085_sensor(const std::string &temperature_friendly_name,
                                                                  const std::string &pressure_friendly_name,
-                                                                 uint8_t address,
                                                                  uint32_t update_interval) {
-  auto *bmp = this->register_component(new BMP085Component(address, update_interval));
+  auto *bmp = this->register_component(new BMP085Component(update_interval));
 
   return MakeBMP085Component{
       .bmp = bmp,
@@ -329,9 +328,9 @@ Application::MakeBMP085Component Application::make_bmp085_sensor(const std::stri
       .mqtt_pressure = this->make_mqtt_sensor_for(bmp->get_pressure_sensor(), pressure_friendly_name)
   };
 }
-Application::MakeHTU21DComponent Application::make_htu21d_component(const std::string &temperature_friendly_name,
-                                                                    const std::string &humidity_friendly_name,
-                                                                    uint32_t update_interval) {
+Application::MakeHTU21DComponent Application::make_htu21d_sensor(const std::string &temperature_friendly_name,
+                                                                 const std::string &humidity_friendly_name,
+                                                                 uint32_t update_interval) {
   auto *htu21d = this->register_component(new HTU21DComponent(update_interval));
 
   return MakeHTU21DComponent{
