@@ -66,7 +66,6 @@ uint8_t LEDCOutputComponent::get_bit_depth() const {
 }
 void LEDCOutputComponent::set_bit_depth(uint8_t bit_depth) {
   assert_construction_state(this);
-  assert(bit_depth < 16 && bit_depth >= 10);
   this->bit_depth_ = bit_depth;
 }
 float LEDCOutputComponent::get_frequency() const {
