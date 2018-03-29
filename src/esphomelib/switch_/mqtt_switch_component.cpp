@@ -33,9 +33,12 @@ void MQTTSwitchComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->get_icon().c_str());
 
   this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    // TODO: Enable this once a new Home Assistant version is out.
-    // if (!this->get_icon().empty())
-    //   root["icon"] = this->get_icon();
+    if (this->icon_.defined) { // manually defined
+      if (!this->icon_->empty()) // only send if not empty
+        root["icon"] = this->icon_.value;
+    } else if (!this->switch_->icon().empty()) {
+      root["icon"] = this->switch_->icon();
+    }
   });
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
