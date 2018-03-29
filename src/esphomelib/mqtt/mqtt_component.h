@@ -62,11 +62,6 @@ class MQTTComponent : public Component {
   void disable_discovery();
   bool is_discovery_enabled() const;
 
-  void set_custom_entity_id(const std::string &entity_id);
-  std::string get_entity_id() const;
-  /// Generate the Home Assistant entity id by automatically transforming the friendly name.
-  std::string get_default_entity_id() const;
-
   /// Override this method to return the component type (e.g. "light", "sensor", ...)
   virtual std::string component_type() const = 0;
 
@@ -169,9 +164,13 @@ class MQTTComponent : public Component {
    */
   void parse_json(const std::string &message, const json_parse_t &f);
 
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  /// Generate the Home Assistant MQTT discovery object id by automatically transforming the friendly name.
+  std::string get_default_object_id() const;
+
  protected:
   std::string friendly_name_; ///< Discovery friendly name, leave empty for disabled discovery.
-  std::string custom_entity_id_;
   std::map<std::string, std::string> custom_topics_;
   bool retain_;
   Optional<Availability> availability_;

@@ -27,12 +27,12 @@ std::string MQTTComponent::get_discovery_topic() const {
   if (!discovery)
     return "";
   std::string sanitized_name = sanitize_string_whitelist(App.get_name(), DISCOVERY_CHARACTER_WHITELIST);
-  return discovery->prefix + "/" + this->component_type() + "/" + sanitized_name + "/" + this->get_entity_id()
+  return discovery->prefix + "/" + this->component_type() + "/" + sanitized_name + "/" + this->get_default_object_id()
       + "/config";
 }
 
 std::string MQTTComponent::get_default_topic_for(const std::string &suffix) const {
-  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_entity_id() + "/"
+  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id() + "/"
       + suffix;
 }
 
@@ -102,7 +102,7 @@ bool MQTTComponent::is_discovery_enabled() const {
   return !this->friendly_name_.empty();
 }
 
-std::string MQTTComponent::get_default_entity_id() const {
+std::string MQTTComponent::get_default_object_id() const {
   return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name_), DISCOVERY_CHARACTER_WHITELIST);
 }
 
@@ -150,14 +150,6 @@ const std::string MQTTComponent::get_topic_for(const std::string &key) const {
   if (this->custom_topics_.find(key) != this->custom_topics_.end())
     return this->custom_topics_.find(key)->second;
   return this->get_default_topic_for(key);
-}
-void MQTTComponent::set_custom_entity_id(const std::string &entity_id) {
-  this->custom_entity_id_ = entity_id;
-}
-std::string MQTTComponent::get_entity_id() const {
-  if (!this->custom_entity_id_.empty())
-    return this->custom_entity_id_;
-  return this->get_default_entity_id();
 }
 
 const Optional<Availability> &MQTTComponent::get_availability() const {
