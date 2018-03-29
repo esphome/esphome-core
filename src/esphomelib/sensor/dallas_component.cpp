@@ -48,7 +48,7 @@ void DallasComponent::setup() {
 
   delayMicroseconds(10); // improves reliability
   std::vector<uint64_t> sensors = this->scan_devices();
-  ESP_LOGD(TAG, "Found Dallas Sensors:");
+  ESP_LOGD(TAG, "Found Dallas Sensors: %u", sensors.size());
   for (uint64_t i : sensors)
     ESP_LOGD(TAG, "    0x%s", uint64_to_string(i).c_str());
   delayMicroseconds(10); // improves reliability
