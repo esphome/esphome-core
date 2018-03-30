@@ -20,10 +20,10 @@ static const char *TAG = "sensor::bmp085";
 BMP085TemperatureSensor::BMP085TemperatureSensor(BMP085Component *parent)
   : parent_(parent) { }
 std::string BMP085TemperatureSensor::unit_of_measurement() {
-  return UNIT_OF_MEASUREMENT_CELSIUS;
+  return "°C";
 }
 std::string BMP085TemperatureSensor::icon() {
-  return ICON_TEMPERATURE;
+  return "";
 }
 uint32_t BMP085TemperatureSensor::update_interval() {
   return this->parent_->get_update_interval();
@@ -35,10 +35,10 @@ int8_t BMP085TemperatureSensor::accuracy_decimals() {
 BMP085PressureSensor::BMP085PressureSensor(BMP085Component *parent)
   : parent_(parent) { }
 std::string BMP085PressureSensor::unit_of_measurement() {
-  return UNIT_OF_MEASUREMENT_HECTOPASCAL;
+  return "hPa";
 }
 std::string BMP085PressureSensor::icon() {
-  return ICON_PRESSURE;
+  return "mdi:gauge";
 }
 uint32_t BMP085PressureSensor::update_interval() {
   return this->parent_->get_update_interval();

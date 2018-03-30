@@ -12,35 +12,6 @@ namespace esphomelib {
 
 namespace binary_sensor {
 
-/// Home Assistant device classes. See <a href="https://home-assistant.io/components/binary_sensor/">Binary Sensor</a>.
-namespace device_class {
-
-const std::string NONE = "";
-const std::string BATTERY = "";
-const std::string COLD = "cold";
-const std::string CONNECTIVITY = "connectivity";
-const std::string DOOR = "door";
-const std::string GARAGE_DOOR = "garage_door";
-const std::string GAS = "gas";
-const std::string HEAT = "heat";
-const std::string LIGHT = "light";
-const std::string LOCK = "lock";
-const std::string MOISTURE = "moisture";
-const std::string MOTION = "motion";
-const std::string MOVING = "moving";
-const std::string OCCUPANCY = "occupancy";
-const std::string OPENING = "opening";
-const std::string PLUG = "plug";
-const std::string POWER = "power";
-const std::string PRESENCE = "presence";
-const std::string SAFETY = "safety";
-const std::string SMOKE = "smoke";
-const std::string SOUND = "sound";
-const std::string VIBRATION = "vibration";
-const std::string WINDOW = "window";
-
-}
-
 /// typedef for binary_sensor callbacks. First parameter is new value.
 using binary_callback_t = std::function<void(bool)>;
 
@@ -56,7 +27,7 @@ class BinarySensor {
    *
    * @param callback The void(bool) callback.
    */
-  virtual void add_on_new_state_callback(binary_callback_t callback);
+  virtual void add_on_new_state_callback(binary_callback_t &&callback);
 
   /// Set the inverted state of this binary sensor. If true, each published value will be inverted.
   void set_inverted(bool inverted);

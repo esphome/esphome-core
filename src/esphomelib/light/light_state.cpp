@@ -27,8 +27,8 @@ void LightState::start_transition(const LightColorValues &target, uint32_t lengt
   this->send_values();
 }
 
-void LightState::add_send_callback(light_send_callback_t send_callback) {
-  this->send_callback_.add(send_callback);
+void LightState::add_send_callback(light_send_callback_t &&send_callback) {
+  this->send_callback_.add(std::move(send_callback));
 }
 
 void LightState::start_flash(const LightColorValues &target, uint32_t length) {

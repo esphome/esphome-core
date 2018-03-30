@@ -7,14 +7,16 @@
 #include <ArduinoOTA.h>
 
 #include "esphomelib/log.h"
-#include "esphomelib/esppreferences.h"
 #include "esphomelib/application.h"
+#include "esppreferences.h"
 
 namespace esphomelib {
 
 static const char *TAG = "ota";
-static const char *PREF_TAG = "ota"; ///< Tag for preferences.
-static const char *PREF_SAFE_MODE_COUNTER_KEY = "safe_mode";
+#ifdef ARDUINO_ARCH_ESP32
+  static const char *PREF_TAG = "ota"; ///< Tag for preferences.
+  static const char *PREF_SAFE_MODE_COUNTER_KEY = "safe_mode";
+#endif
 
 void OTAComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up OTA...");
@@ -49,7 +51,7 @@ void OTAComponent::setup() {
     ESP_LOGI(TAG, "Rebooting...");
     if (this->has_safe_mode_)
       // Don't make successful OTAs trigger boot loop detection.
-      global_preferences.put_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
+      this->write_rtc_(0);
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
     if (this->at_ota_progress_message_++ % 8 != 0)
@@ -97,7 +99,7 @@ void OTAComponent::loop() {
     this->has_safe_mode_ = false;
     // successful boot, reset counter
     ESP_LOGI(TAG, "Boot seems successful, resetting boot loop counter.");
-    global_preferences.put_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
+    this->write_rtc_(0);
   }
 }
 
@@ -137,12 +139,12 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
   this->safe_mode_start_time_ = millis();
   this->safe_mode_enable_time_ = enable_time;
 
-  uint8_t counter = global_preferences.get_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
+  uint8_t rtc_data = this->read_rtc_();
 
-  ESP_LOGCONFIG(TAG, "Safe mode enabled. There have been %u suspected unsuccessful boot attempts.", counter);
+  ESP_LOGCONFIG(TAG, "Safe mode enabled. There have been %u suspected unsuccessful boot attempts.", rtc_data);
 
-  if (counter >= num_attempts) {
-    global_preferences.put_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0); // reset counter
+  if (rtc_data >= num_attempts) {
+    this->write_rtc_(0);
 
     ESP_LOGE(TAG, "Boot loop detected. Proceeding to safe mode.");
     assert(App.get_wifi() != nullptr);
@@ -160,9 +162,29 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     ESP.restart();
   } else {
     // increment counter
-    auto new_value = static_cast<uint8_t>(counter + 1);
-    global_preferences.put_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, new_value);
+    this->write_rtc_(uint8_t(rtc_data + 1));
   }
+}
+void OTAComponent::write_rtc_(uint8_t val) {
+#ifdef ARDUINO_ARCH_ESP8266
+  uint32_t data = val;
+  ESP.rtcUserMemoryWrite(0, &data, sizeof(data));
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  global_preferences.put_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, static_cast<uint8_t>(val));
+#endif
+}
+uint8_t OTAComponent::read_rtc_() {
+#ifdef ARDUINO_ARCH_ESP8266
+  uint32_t rtc_data;
+  ESP.rtcUserMemoryRead(0, &rtc_data, sizeof(rtc_data));
+  if (rtc_data > 255) // num attempts 255 at max
+    return 0;
+  return uint8_t(rtc_data);
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  return global_preferences.get_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
+#endif
 }
 
 } // namespace esphomelib

@@ -120,10 +120,10 @@ void ADS1115Sensor::set_update_interval(uint32_t update_interval) {
 ADS1115Sensor::ADS1115Sensor(uint8_t multiplexer, uint8_t gain, uint32_t update_interval)
     : multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {}
 std::string ADS1115Sensor::unit_of_measurement() {
-  return sensor::UNIT_OF_MEASUREMENT_VOLT;
+  return "V";
 }
 std::string ADS1115Sensor::icon() {
-  return sensor::ICON_VOLTAGE;
+  return "mdi:flash";
 }
 uint32_t ADS1115Sensor::update_interval() {
   return this->update_interval_;

@@ -171,10 +171,10 @@ std::string DallasTemperatureSensor::get_name() {
   return this->name_ = std::string("0x") + uint64_to_string(this->address_);
 }
 std::string DallasTemperatureSensor::unit_of_measurement() {
-  return sensor::UNIT_OF_MEASUREMENT_CELSIUS;
+  return "°C";
 }
 std::string DallasTemperatureSensor::icon() {
-  return sensor::ICON_TEMPERATURE;
+  return "";
 }
 uint32_t DallasTemperatureSensor::update_interval() {
   return this->get_update_interval();

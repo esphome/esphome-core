@@ -39,11 +39,11 @@ const FanTraits &FanState::get_traits() const {
 void FanState::set_traits(const FanTraits &traits) {
   this->traits_ = traits;
 }
-void FanState::add_on_receive_frontend_state_callback(const std::function<void()> &send_callback) {
-  this->send_callback_.add(send_callback);
+void FanState::add_on_receive_frontend_state_callback(std::function<void()> &&send_callback) {
+  this->send_callback_.add(std::move(send_callback));
 }
-void FanState::add_on_receive_backend_state_callback(const std::function<void()> &update_callback) {
-  this->update_callback_.add(update_callback);
+void FanState::add_on_receive_backend_state_callback(std::function<void()> &&update_callback) {
+  this->update_callback_.add(std::move(update_callback));
 }
 void FanState::load_from_preferences(const std::string &friendly_name) {
   this->set_state(global_preferences.get_bool(friendly_name, "state", false));

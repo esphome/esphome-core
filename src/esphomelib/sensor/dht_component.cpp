@@ -85,10 +85,10 @@ DHTHumiditySensor *DHTComponent::get_humidity_sensor() const {
   return this->humidity_sensor_;
 }
 std::string DHTTemperatureSensor::unit_of_measurement() {
-  return sensor::UNIT_OF_MEASUREMENT_CELSIUS;
+  return "°C";
 }
 std::string DHTTemperatureSensor::icon() {
-  return sensor::ICON_TEMPERATURE;
+  return "";
 }
 uint32_t DHTTemperatureSensor::update_interval() {
   assert(this->parent_ != nullptr);
@@ -101,10 +101,10 @@ int8_t DHTTemperatureSensor::accuracy_decimals() {
 }
 
 std::string DHTHumiditySensor::unit_of_measurement() {
-  return UNIT_OF_MEASUREMENT_PERCENT;
+  return "%";
 }
 std::string DHTHumiditySensor::icon() {
-  return ICON_HUMIDITY;
+  return "mdi:water-percent";
 }
 uint32_t DHTHumiditySensor::update_interval() {
   assert(this->parent_ != nullptr);

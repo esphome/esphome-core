@@ -20,10 +20,10 @@ static const char *TAG = "sensor::htu21d";
 HTU21DTemperatureSensor::HTU21DTemperatureSensor(HTU21DComponent *parent)
     : parent_(parent) { }
 std::string HTU21DTemperatureSensor::unit_of_measurement() {
-  return UNIT_OF_MEASUREMENT_CELSIUS;
+  return "°C";
 }
 std::string HTU21DTemperatureSensor::icon() {
-  return ICON_TEMPERATURE;
+  return "";
 }
 uint32_t HTU21DTemperatureSensor::update_interval() {
   return this->parent_->get_update_interval();
@@ -35,10 +35,10 @@ int8_t HTU21DTemperatureSensor::accuracy_decimals() {
 HTU21DHumiditySensor::HTU21DHumiditySensor(HTU21DComponent *parent)
     : parent_(parent) { }
 std::string HTU21DHumiditySensor::unit_of_measurement() {
-  return UNIT_OF_MEASUREMENT_PERCENT;
+  return "%";
 }
 std::string HTU21DHumiditySensor::icon() {
-  return ICON_HUMIDITY;
+  return "mdi:water-percent";
 }
 uint32_t HTU21DHumiditySensor::update_interval() {
   return this->parent_->get_update_interval();
@@ -48,7 +48,10 @@ int8_t HTU21DHumiditySensor::accuracy_decimals() {
 }
 
 HTU21DComponent::HTU21DComponent(uint32_t update_interval)
-    : PollingComponent(update_interval) { }
+    : PollingComponent(update_interval), temperature_(new HTU21DTemperatureSensor(this)),
+      humidity_(new HTU21DHumiditySensor(this)) {
+
+}
 void HTU21DComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HTU21D...");
   App.assert_i2c_initialized();

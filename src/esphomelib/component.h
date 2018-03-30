@@ -122,7 +122,7 @@ class Component {
    *
    * @see cancel_interval()
    */
-  void set_interval(const std::string &name, uint32_t interval, time_func_t f);
+  void set_interval(std::string &&name, uint32_t interval, time_func_t &&f);
 
   /** Cancel an interval function.
    *
@@ -145,7 +145,7 @@ class Component {
    *
    * @see cancel_timeout()
    */
-  void set_timeout(const std::string &name, uint32_t timeout, time_func_t f);
+  void set_timeout(std::string &&name, uint32_t timeout, time_func_t &&f);
 
   /** Cancel a timeout function.
    *

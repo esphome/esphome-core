@@ -11,7 +11,7 @@
 namespace esphomelib {
 
 std::string binary_sensor::StatusBinarySensor::device_class() {
-  return device_class::CONNECTIVITY;
+  return "connectivity";
 }
 
 } // namespace esphomelib

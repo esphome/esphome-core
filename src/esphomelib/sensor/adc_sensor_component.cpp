@@ -68,10 +68,10 @@ void ADCSensorComponent::update() {
   this->push_new_value(value_v);
 }
 std::string ADCSensorComponent::unit_of_measurement() {
-  return sensor::UNIT_OF_MEASUREMENT_VOLT;
+  return "V";
 }
 std::string ADCSensorComponent::icon() {
-  return sensor::ICON_VOLTAGE;
+  return "mdi:flash";
 }
 int8_t ADCSensorComponent::accuracy_decimals() {
   return 2;

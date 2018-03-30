@@ -175,7 +175,7 @@ class Application {
    *  |____/|_____|_| \_|____/ \___/|_| \_\
    */
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
-  sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string friendly_name);
+  sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string &&friendly_name);
 
   struct MakeDHTComponent {
     sensor::DHTComponent *dht;
@@ -196,8 +196,8 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   MakeDHTComponent make_dht_sensor(uint8_t pin,
-                                   const std::string &temperature_friendly_name,
-                                   const std::string &humidity_friendly_name,
+                                   std::string &&temperature_friendly_name,
+                                   std::string &&humidity_friendly_name,
                                    uint32_t update_interval = 15000);
 
   sensor::DallasComponent *make_dallas_component(OneWire *one_wire);
@@ -222,7 +222,7 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   MakePulseCounter make_pulse_counter_sensor(uint8_t pin,
-                                             const std::string &friendly_name,
+                                             std::string &&friendly_name,
                                              uint32_t update_interval = 15000);
 #endif
 
@@ -243,7 +243,7 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   MakeADCSensor make_adc_sensor(uint8_t pin,
-                                const std::string &friendly_name,
+                                std::string &&friendly_name,
                                 uint32_t update_interval = 15000);
 
   /** Create an ADS1115 component hub. From this hub you can then create individual sensors using `get_sensor()`.
@@ -272,8 +272,8 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeBMP085Component object, use this to set advanced settings.
    */
-  MakeBMP085Component make_bmp085_sensor(const std::string &temperature_friendly_name,
-                                         const std::string &pressure_friendly_name,
+  MakeBMP085Component make_bmp085_sensor(std::string &&temperature_friendly_name,
+                                         std::string &&pressure_friendly_name,
                                          uint32_t update_interval = 30000);
 
   struct MakeHTU21DComponent {
@@ -292,8 +292,8 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeHTU21DComponent, use this to set advanced settings.
    */
-  MakeHTU21DComponent make_htu21d_sensor(const std::string &temperature_friendly_name,
-                                         const std::string &humidity_friendly_name,
+  MakeHTU21DComponent make_htu21d_sensor(std::string &&temperature_friendly_name,
+                                         std::string &&humidity_friendly_name,
                                          uint32_t update_interval = 15000);
 
   struct MakeUltrasonicSensor {
@@ -317,7 +317,7 @@ class Application {
    * @return The Ultrasonic sensor + MQTT sensor pair, use this for advanced settings.
    */
   MakeUltrasonicSensor make_ultrasonic_sensor(GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
-                                              const std::string &friendly_name,
+                                              std::string &&friendly_name,
                                               uint32_t update_interval = 5000);
 
 
@@ -565,6 +565,7 @@ C *Application::register_component(C *c) {
 
 template<class C>
 C *Application::register_mqtt_component(C *c) {
+  mqtt::MQTTComponent *component = c;
   return this->register_component(c);
 }
 

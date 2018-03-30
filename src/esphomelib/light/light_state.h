@@ -80,7 +80,7 @@ class LightState {
    *
    * @param send_callback
    */
-  void add_send_callback(light_send_callback_t send_callback);
+  void add_send_callback(light_send_callback_t &&send_callback);
 
   /// Causes the callback defined by add_send_callback() to trigger.
   void send_values();

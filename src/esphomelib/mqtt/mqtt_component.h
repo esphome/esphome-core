@@ -17,17 +17,6 @@ namespace mqtt {
 /// Callback function typedef for building JsonObjects.
 using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
 
-/// Simple data struct for Home Assistant component availability.
-struct Availability {
-  std::string topic; ///< Empty means disabled
-  std::string payload_available;
-  std::string payload_not_available;
-};
-
-/// All discovery friendly names and node_ids use this whitelist to match the Home Assistant
-/// <a href="https://github.com/home-assistant/home-assistant/blob/dev/homeassistant/components/mqtt/discovery.py#L21">regex</a>.
-const std::string DISCOVERY_CHARACTER_WHITELIST = HOSTNAME_CHARACTER_WHITELIST;
-
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
  *
@@ -50,7 +39,7 @@ class MQTTComponent : public Component {
    *
    * @param friendly_name The friendly name. Leave empty to disable discovery.
    */
-  explicit MQTTComponent(const std::string &friendly_name);
+  explicit MQTTComponent(std::string friendly_name);
 
   /// Set whether state message should be retained.
   void set_retain(bool retain);
@@ -77,14 +66,14 @@ class MQTTComponent : public Component {
    *
    * See See <a href="https://home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
    */
-  void set_availability(const mqtt::Availability &availability);
-  mqtt::Availability get_availability() const;
+  void set_availability(std::string topic, std::string payload_available, std::string payload_not_available);
+  const mqtt::Availability &get_availability() const;
   void disable_availability();
   
  protected:
 
   /// Helper method to get the discovery topic for this component.
-  virtual std::string get_discovery_topic() const;
+  virtual std::string get_discovery_topic(const MQTTDiscoveryInfo &discovery_info) const;
 
   /** Get this components state/command/... topic.
    *
@@ -146,7 +135,7 @@ class MQTTComponent : public Component {
    * @param callback The callback that will be called when a message with matching topic is received.
    * @param qos The MQTT quality of service. Defaults to 0.
    */
-  void subscribe(const std::string &topic, const mqtt_callback_t &callback, uint8_t qos = 0);
+  void subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos = 0);
 
   /** Subscribe to a MQTT topic and automatically parse JSON payload.
    *
@@ -156,7 +145,7 @@ class MQTTComponent : public Component {
    * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
    * @param qos The MQTT quality of service. Defaults to 0.
    */
-  void subscribe_json(const std::string &topic, const json_parse_t &callback, uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
 
   /** Parse a JSON message and call f if the message is valid JSON.
    *
@@ -172,9 +161,9 @@ class MQTTComponent : public Component {
 
  protected:
   std::string friendly_name_; ///< Discovery friendly name, leave empty for disabled discovery.
-  std::map<std::string, std::string> custom_topics_;
+  std::map<std::string, std::string> custom_topics_{};
   bool retain_{true};
-  Optional<Availability> availability_{};
+  Availability *availability_{nullptr};
 };
 
 } // namespace mqtt

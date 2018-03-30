@@ -56,6 +56,13 @@ struct MQTTCredentials {
   std::string client_id; ///< The client ID. Will automatically be truncated to 23 characters.
 };
 
+/// Simple data struct for Home Assistant component availability.
+struct Availability {
+  std::string topic; ///< Empty means disabled
+  std::string payload_available;
+  std::string payload_not_available;
+};
+
 /** Internal struct for MQTT Home Assistant discovery
  *
  * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
@@ -76,13 +83,9 @@ class MQTTClientComponent : public Component {
    * @param qos The QoS.
    * @param retain Whether to retain the testament message.
    */
-  void set_last_will(const std::string &topic, const std::string &payload, uint8_t qos, bool retain);
-  void set_last_will(const MQTTMessage &last_will);
-  /// Return the last will used by the MQTT client, returning the default value if necessary.
-  MQTTMessage get_last_will() const;
+  void set_last_will(std::string topic, std::string payload, uint8_t qos, bool retain);
   /// Remove the last will testament message.
   void disable_last_will();
-  bool is_last_will_enabled();
 
   /** Set the birth message.
    *
@@ -90,13 +93,9 @@ class MQTTClientComponent : public Component {
    * @param payload The payload.
    * @param retain Whether to retain the birth message.
    */
-  void set_birth_message(const std::string &topic, const std::string &payload, bool retain);
-  void set_birth_message(const MQTTMessage &birth_message);
-  /// Return the birth message used by the MQTT client, returning the default value if necessary.
-  MQTTMessage get_birth_message() const;
+  void set_birth_message(std::string &&topic, std::string &&payload, bool retain);
   /// Remove the birth message.
   void disable_birth_message();
-  bool is_birth_message_enabled();
 
   /** Set the Home Assistant discovery info
    *
@@ -104,19 +103,17 @@ class MQTTClientComponent : public Component {
    * @param prefix The Home Assistant discovery prefix.
    * @param retain Whether to retain discovery messages.
    */
-  void set_discovery_info(const std::string &prefix, bool retain);
-  void set_discovery_info(const MQTTDiscoveryInfo &discovery_info);
+  void set_discovery_info(std::string &&prefix, bool retain);
   /// Get Home Assistant discovery info.
-  MQTTDiscoveryInfo get_discovery_info() const;
+  const MQTTDiscoveryInfo &get_discovery_info() const;
   /// Globally disable Home Assistant discovery.
   void disable_discovery();
-  bool is_discovery_enabled();
+  bool is_discovery_enabled() const;
 
   /// Manually set the client id, by default it's <name>-<MAC>, it's automatically truncated to 23 chars.
-  void set_client_id(const std::string &client_id);
+  void set_client_id(std::string client_id);
 
-  /// Helper to efficiently determine whether availability is enabled.
-  bool is_availability_enabled();
+  const Availability &get_availability();
 
   /** Set the topic prefix that will be prepended to all topics together with "/". This will, in most cases,
    * be the name of your Application.
@@ -126,9 +123,9 @@ class MQTTClientComponent : public Component {
    *
    * @param topic_prefix The topic prefix. The last "/" is appended automatically.
    */
-  void set_topic_prefix(const std::string &topic_prefix);
+  void set_topic_prefix(std::string topic_prefix);
   /// Get the topic prefix of this device, using default if necessary
-  std::string get_topic_prefix() const;
+  const std::string &get_topic_prefix() const;
 
   /** Subscribe to an MQTT topic and call callback when a message is received.
    *
@@ -136,7 +133,7 @@ class MQTTClientComponent : public Component {
    * @param callback The callback function.
    * @param qos The QoS of this subscription.
    */
-  void subscribe(const std::string &topic, const mqtt_callback_t &callback, uint8_t qos = 0);
+  void subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos = 0);
 
   /** Subscribe to a MQTT topic and automatically parse JSON payload.
    *
@@ -146,7 +143,7 @@ class MQTTClientComponent : public Component {
    * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
    * @param qos The QoS of this subscription.
    */
-  void subscribe_json(const std::string &topic, const json_parse_t &callback, uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
 
   /** Parse a JSON message and call f if the message is valid JSON.
    *
@@ -181,18 +178,24 @@ class MQTTClientComponent : public Component {
 
   void reconnect();
 
+  void recalculate_availability();
+
   MQTTCredentials credentials_;
   /// The last will message. Disabled optional denotes it being default and
   /// an empty topic denotes the the feature being disabled.
-  Optional<MQTTMessage> last_will_{};
+  MQTTMessage last_will_;
   /// The birth message (e.g. the message that's send on an established connection.
   /// See last_will_ for what different values denote.
-  Optional<MQTTMessage> birth_message_{};
+  MQTTMessage birth_message_;
+  /// Caches availability.
+  Availability availability_{};
   /// The discovery info options for Home Assistant. Undefined optional means
   /// default and empty prefix means disabled.
-  Optional<MQTTDiscoveryInfo> discovery_info_{};
-  Optional<std::string> topic_prefix_{};
-  Optional<bool> availability_enabled_{};
+  MQTTDiscoveryInfo discovery_info_{
+      .prefix = "homeassistant",
+      .retain = true
+  };
+  std::string topic_prefix_{};
 
   std::vector<MQTTSubscription> subscriptions_;
   PubSubClient mqtt_client_;

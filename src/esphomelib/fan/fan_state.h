@@ -32,9 +32,9 @@ class FanState {
   };
 
   /// Register a callback that will be called each time the frontend wants to set a state.
-  void add_on_receive_frontend_state_callback(const std::function<void()> &send_callback);
+  void add_on_receive_frontend_state_callback(std::function<void()> &&send_callback);
   /// Register a callback that will be called each time the backend indicates a state change.
-  void add_on_receive_backend_state_callback(const std::function<void()> &update_callback);
+  void add_on_receive_backend_state_callback(std::function<void()> &&update_callback);
 
   /// Get the current ON/OFF state of this fan.
   bool get_state() const;

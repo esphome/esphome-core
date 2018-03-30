@@ -19,6 +19,7 @@ namespace mqtt {
 MQTTClientComponent::MQTTClientComponent(const MQTTCredentials &credentials)
     : credentials_(credentials) {
   global_mqtt_client = this;
+  this->set_topic_prefix(App.get_name());
 }
 
 void MQTTClientComponent::setup() {
@@ -50,12 +51,12 @@ void MQTTClientComponent::pub_sub_client_callback(char *topic, uint8_t *payload,
       subscription.callback(payload_s);
 }
 
-void MQTTClientComponent::subscribe(const std::string &topic, const mqtt_callback_t &callback, uint8_t qos) {
+void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
   ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u...", topic.c_str(), qos);
   MQTTSubscription subscription{
       .topic = topic,
       .qos = qos,
-      .callback = callback,
+      .callback = std::move(callback),
   };
   this->subscriptions_.push_back(subscription);
 
@@ -63,7 +64,7 @@ void MQTTClientComponent::subscribe(const std::string &topic, const mqtt_callbac
     this->mqtt_client_.subscribe(topic.c_str(), qos);
 }
 
-void MQTTClientComponent::subscribe_json(const std::string &topic, const json_parse_t &callback, uint8_t qos) {
+void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
   ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u with JSON...", topic.c_str(), qos);
   MQTTSubscription subscription{
       .topic = topic,
@@ -86,6 +87,8 @@ void MQTTClientComponent::reconnect() {
   if (this->is_connected())
     return;
 
+  this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
+
   ESP_LOGD(TAG, "Reconnecting to MQTT...");
   uint32_t start = millis();
   do {
@@ -95,7 +98,11 @@ void MQTTClientComponent::reconnect() {
       ESP.restart();
     }
 
-    const char *id = this->credentials_.client_id.c_str();
+    std::string id;
+    if (this->credentials_.client_id.empty())
+      id = generate_hostname(App.get_name());
+    else
+      id = this->credentials_.client_id;
     const char *user = nullptr;
     if (!this->credentials_.username.empty())
       user = this->credentials_.username.c_str();
@@ -106,19 +113,14 @@ void MQTTClientComponent::reconnect() {
     uint8_t will_qos = 0;
     bool will_retain = false;
     const char *will_message = nullptr;
-    if (this->is_last_will_enabled()) {
-      MQTTMessage last_will = this->get_last_will();
-      will_topic = last_will.topic.c_str();
-      will_qos = last_will.qos;
-      will_retain = last_will.retain;
-      will_message = last_will.payload.c_str();
+    if (!this->last_will_.topic.empty()) {
+      will_topic = this->last_will_.topic.c_str();
+      will_qos = this->last_will_.qos;
+      will_retain = this->last_will_.retain;
+      will_message = this->last_will_.payload.c_str();
     }
-    // temporary hack to fix issue in PubSubClient
-    char c[256];
-    strcpy(c, this->credentials_.address.c_str());
-    this->mqtt_client_.setServer(c, this->credentials_.port);
 
-    if (this->mqtt_client_.connect(id, user, pass, will_topic, will_qos, will_retain, will_message)) {
+    if (this->mqtt_client_.connect(id.c_str(), user, pass, will_topic, will_qos, will_retain, will_message)) {
       ESP_LOGD(TAG, "    Connected!");
       break;
     } else {
@@ -129,8 +131,8 @@ void MQTTClientComponent::reconnect() {
     }
   } while (!this->is_connected());
 
-  if (this->is_birth_message_enabled())
-    this->publish(this->get_birth_message());
+  if (!this->birth_message_.topic.empty())
+    this->publish(this->birth_message_.topic, this->birth_message_.payload, this->birth_message_.retain);
 
   for (MQTTSubscription &subscription : this->subscriptions_)
     this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);
@@ -158,40 +160,34 @@ void MQTTClientComponent::publish(const MQTTMessage &message) {
   this->publish(message.topic, message.payload, message.retain);
 }
 
-void MQTTClientComponent::set_last_will(const std::string &topic, const std::string &payload, uint8_t qos,
+void MQTTClientComponent::set_last_will(std::string topic, std::string payload, uint8_t qos,
                                         bool retain) {
-  this->set_last_will(MQTTMessage{
-      .topic = topic,
-      .payload = payload,
+  this->last_will_ = MQTTMessage{
+      .topic = std::move(topic),
+      .payload = std::move(payload),
       .qos = qos,
-      .retain = retain
-  });
-  this->availability_enabled_.defined = false;
-}
-
-void MQTTClientComponent::set_birth_message(const std::string &topic, const std::string &payload, bool retain) {
-  this->set_birth_message(MQTTMessage{
-      .topic = topic,
-      .payload = payload,
-      .qos = 0, // not used
-      .retain = retain
-  });
-}
-
-void MQTTClientComponent::set_discovery_info(const std::string &prefix, bool retain) {
-  this->set_discovery_info(MQTTDiscoveryInfo{
-      .prefix = prefix,
       .retain = retain,
-  });
+  };
+  this->recalculate_availability();
+}
+
+void MQTTClientComponent::set_birth_message(std::string &&topic, std::string &&payload, bool retain) {
+  this->birth_message_ = MQTTMessage{
+      .topic = std::move(topic),
+      .payload = std::move(payload),
+      .qos = 0,
+      .retain = retain,
+  };
+  this->recalculate_availability();
+}
+
+void MQTTClientComponent::set_discovery_info(std::string &&prefix, bool retain) {
+  this->discovery_info_.prefix = std::move(prefix);
+  this->discovery_info_.retain = retain;
 }
 
 void MQTTClientComponent::disable_last_will() {
-  this->set_last_will(MQTTMessage{
-      .topic = "",
-      .payload = "",
-      .qos = 0,
-      .retain = false
-  });
+  this->birth_message_.topic = "";
 }
 
 void MQTTClientComponent::disable_discovery() {
@@ -203,56 +199,16 @@ void MQTTClientComponent::disable_discovery() {
 float MQTTClientComponent::get_setup_priority() const {
   return setup_priority::MQTT_CLIENT;
 }
-MQTTDiscoveryInfo MQTTClientComponent::get_discovery_info() const {
-  if (this->discovery_info_.defined) {
-    return this->discovery_info_.value;
-  } else {
-    return MQTTDiscoveryInfo {
-        .prefix = "homeassistant",
-        .retain = true,
-    };
-  }
+const MQTTDiscoveryInfo &MQTTClientComponent::get_discovery_info() const {
+  return this->discovery_info_;
 }
-void MQTTClientComponent::set_topic_prefix(const std::string &topic_prefix) {
-  this->topic_prefix_ = topic_prefix;
+void MQTTClientComponent::set_topic_prefix(std::string topic_prefix) {
+  this->set_birth_message(topic_prefix + "/status", "online", true);
+  this->set_last_will(topic_prefix + "/status", "offline", 0, true);
+  this->topic_prefix_ = std::move(topic_prefix);
 }
-std::string MQTTClientComponent::get_topic_prefix() const {
-  if (this->topic_prefix_.defined) {
-    return this->topic_prefix_.value;
-  } else {
-    return App.get_name();
-  }
-}
-MQTTMessage MQTTClientComponent::get_birth_message() const {
-  if (this->birth_message_.defined) {
-    return this->birth_message_.value;
-  } else {
-    return MQTTMessage {
-        .topic = this->get_topic_prefix() + "/status",
-        .payload = "online",
-        .qos = 0,
-        .retain = true,
-    };
-  }
-}
-void MQTTClientComponent::set_birth_message(const MQTTMessage &birth_message) {
-  this->birth_message_ = birth_message;
-  this->availability_enabled_.defined = false;
-}
-MQTTMessage MQTTClientComponent::get_last_will() const {
-  if (this->birth_message_.defined) {
-    return this->birth_message_.value;
-  } else {
-    return MQTTMessage {
-        .topic = this->get_topic_prefix() + "/status",
-        .payload = "offline",
-        .qos = 0,
-        .retain = true,
-    };
-  }
-}
-void MQTTClientComponent::set_last_will(const MQTTMessage &last_will) {
-  this->last_will_ = last_will;
+const std::string &MQTTClientComponent::get_topic_prefix() const {
+  return this->topic_prefix_;
 }
 void MQTTClientComponent::parse_json(const std::string &message, const json_parse_t &f) {
   size_t size = message.length() + 1;
@@ -271,40 +227,24 @@ void MQTTClientComponent::parse_json(const std::string &message, const json_pars
   f(root);
 }
 void MQTTClientComponent::disable_birth_message() {
-  this->set_birth_message(MQTTMessage{
-      .topic = "",
-      .payload = "",
-      .qos = 0,
-      .retain = false
-  });
+  this->birth_message_.topic = "";
 }
-void MQTTClientComponent::set_discovery_info(const MQTTDiscoveryInfo &discovery_info) {
-  this->discovery_info_ = discovery_info;
+bool MQTTClientComponent::is_discovery_enabled() const {
+  return !this->discovery_info_.prefix.empty();
 }
-bool MQTTClientComponent::is_discovery_enabled() {
-  return !this->discovery_info_.defined || !this->discovery_info_->prefix.empty();
+void MQTTClientComponent::set_client_id(std::string client_id) {
+  this->credentials_.client_id = std::move(client_id);
 }
-bool MQTTClientComponent::is_last_will_enabled() {
-  return !this->last_will_.defined || !this->last_will_->topic.empty();
+const Availability &MQTTClientComponent::get_availability() {
+  return this->availability_;
 }
-bool MQTTClientComponent::is_birth_message_enabled() {
-  return !this->birth_message_.defined || !this->birth_message_->topic.empty();
-}
-bool MQTTClientComponent::is_availability_enabled() {
-  if (this->availability_enabled_.defined)
-    return this->availability_enabled_.value;
-  bool enabled;
-  if (!this->is_birth_message_enabled() || !this->is_last_will_enabled()) {
-    enabled = false;
-  } else {
-    enabled = this->get_birth_message().topic == this->get_last_will().topic;
+void MQTTClientComponent::recalculate_availability() {
+  if (this->birth_message_.topic.empty() || this->birth_message_.topic != this->last_will_.topic) {
+    this->availability_.topic = "";
   }
-
-  this->availability_enabled_ = enabled;
-  return enabled;
-}
-void MQTTClientComponent::set_client_id(const std::string &client_id) {
-  this->credentials_.client_id = client_id;
+  this->availability_.topic = this->get_topic_prefix() + "/status";
+  this->availability_.payload_available = "online";
+  this->availability_.payload_not_available = "offline";
 }
 
 MQTTClientComponent *global_mqtt_client = nullptr;

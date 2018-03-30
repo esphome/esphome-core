@@ -56,7 +56,7 @@ enum ESPLogLevel {
   #define ESPHOMELIB_LOG_RESET_COLOR
 #endif
 
-int esp_log_printf_(ESPLogLevel level, const std::string &tag, const char *format, ...);
+int esp_log_printf_(ESPLogLevel level, const std::string &tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 int esp_log_vprintf_(ESPLogLevel level, const std::string &tag, const char *format, va_list args);
 int esp_idf_log_vprintf_(const char *format, va_list args);
 

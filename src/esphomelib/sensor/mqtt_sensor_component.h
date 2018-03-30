@@ -25,7 +25,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
    * @param friendly_name The friendly name that should be advertised to Home Assistant.
    * @param sensor The sensor, this can be null to disable automatic setup.
    */
-  MQTTSensorComponent(std::string friendly_name, Sensor *sensor);
+  MQTTSensorComponent(std::string &&friendly_name, Sensor *sensor);
 
   /** Manually set the unit of measurement advertised to Home Assistant.
    *

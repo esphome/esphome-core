@@ -10,7 +10,7 @@ namespace binary_sensor {
 
 static const char *TAG = "binary_sensor::binary_sensor";
 
-void BinarySensor::add_on_new_state_callback(binary_callback_t callback) {
+void BinarySensor::add_on_new_state_callback(binary_callback_t &&callback) {
   this->new_state_callback_.add(std::move(callback));
 }
 

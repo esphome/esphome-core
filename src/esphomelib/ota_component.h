@@ -77,6 +77,9 @@ class OTAComponent : public Component {
   uint16_t get_port() const;
 
  protected:
+  void write_rtc_(uint8_t val);
+  uint8_t read_rtc_();
+
   enum { OPEN, PLAINTEXT, HASH } auth_type_;
 
   union {

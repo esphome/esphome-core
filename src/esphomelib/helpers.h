@@ -22,8 +22,7 @@ std::string get_mac_address();
 std::string generate_hostname(const std::string &base);
 
 /// The characters that are allowed in a hostname.
-const static std::string
-    HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+const static char *HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 
 /// Sanitize the hostname by removing characters that are not in the whitelist and truncating it to 63 chars.
 std::string sanitize_hostname(const std::string &hostname);
@@ -164,7 +163,7 @@ template<typename... Ts>
 class CallbackManager<void(Ts...)> {
  public:
   /// Add a callback to the internal callback list.
-  void add(std::function<void(Ts...)> callback);
+  void add(std::function<void(Ts...)> &&callback);
 
   /// Call all callbacks in this manager.
   void call(Ts... args);
@@ -272,8 +271,8 @@ T run_without_interrupts(const std::function<T()> &f) {
 }
 
 template<typename... Ts>
-void CallbackManager<void(Ts...)>::add(std::function<void(Ts...)> callback) {
-  this->callbacks_.push_back(callback);
+void CallbackManager<void(Ts...)>::add(std::function<void(Ts...)> &&callback) {
+  this->callbacks_.push_back(std::move(callback));
 }
 template<typename... Ts>
 void CallbackManager<void(Ts...)>::call(Ts... args) {

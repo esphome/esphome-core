@@ -94,10 +94,10 @@ void UltrasonicSensorComponent::set_pulse_time_us(uint32_t pulse_time_us) {
   this->pulse_time_us_ = pulse_time_us;
 }
 std::string UltrasonicSensorComponent::unit_of_measurement() {
-  return sensor::UNIT_OF_MEASUREMENT_METER;
+  return "m";
 }
 std::string UltrasonicSensorComponent::icon() {
-  return sensor::ICON_DISTANCE;
+  return "mdi:arrow-expand-vertical";
 }
 int8_t UltrasonicSensorComponent::accuracy_decimals() {
   return 2; // cm precision
