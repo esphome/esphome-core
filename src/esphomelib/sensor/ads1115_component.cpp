@@ -7,7 +7,6 @@
 //
 
 #include "esphomelib/sensor/ads1115_component.h"
-#include "esphomelib/application.h"
 
 namespace esphomelib {
 
@@ -17,7 +16,6 @@ static const char *TAG = "input::ads1115";
 
 void ADS1115Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ADS1115...");
-  App.assert_i2c_initialized();
   ESP_LOGCONFIG(TAG, "    Address: 0x%02x", this->address_);
   this->adc_ = ADS1115(this->address_);
   if (!this->adc_.testConnection()) {

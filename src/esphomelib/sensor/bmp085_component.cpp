@@ -9,7 +9,6 @@
 #include "esphomelib/sensor/bmp085_component.h"
 
 #include "esphomelib/log.h"
-#include "esphomelib/application.h"
 
 namespace esphomelib {
 
@@ -68,7 +67,6 @@ void BMP085Component::update() {
 }
 void BMP085Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BMP085...");
-  App.assert_i2c_initialized();
   ESP_LOGCONFIG(TAG, "    Address: 0x%02x", this->address_);
   this->bmp_ = BMP085(this->address_);
   if (!this->bmp_.testConnection()) {
@@ -90,7 +88,7 @@ void BMP085Component::read_temperature_() {
   }
 
   float temperature = this->bmp_.getTemperatureC();
-  ESP_LOGD(TAG, "Got Temperature=%.1f°C", temperature);
+  ESP_LOGD(TAG, "Got Temperature=%f°C", temperature);
 
   if (!isnan(temperature))
     this->pressure_->push_new_value(temperature);

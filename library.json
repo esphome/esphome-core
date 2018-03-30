@@ -22,7 +22,7 @@
     },
     {
       "name": "ArduinoJson-esphomelib",
-      "version": "https://github.com/OttoWinter/ArduinoJson.git#v5.13.3"
+      "version": "5.13.3"
     },
     {
       "name": "DHT",
@@ -38,7 +38,7 @@
     },
     {
       "name": "I2Cdevlib-esphomelib",
-      "version": "https://github.com/OttoWinter/i2cdevlib.git#v1.1.0"
+      "version": "1.1.0"
     }
   ],
   "license": "GPL-3.0",

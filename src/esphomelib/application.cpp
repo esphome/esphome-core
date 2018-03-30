@@ -113,7 +113,7 @@ PowerSupplyComponent *Application::make_power_supply(GPIOOutputPin pin, uint32_t
 MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor_for(std::string friendly_name,
                                                                     binary_sensor::BinarySensor *binary_sensor,
                                                                     Optional<std::string> device_class) {
-  auto *mqtt = new MQTTBinarySensorComponent(friendly_name, binary_sensor);
+  auto *mqtt = new MQTTBinarySensorComponent(std::move(friendly_name), binary_sensor);
   return this->register_mqtt_component(mqtt);
 }
 
@@ -153,6 +153,7 @@ LEDCOutputComponent *Application::make_ledc_output(uint8_t pin, float frequency,
 #endif
 
 PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
+  this->assert_i2c_initialized();
   auto *pca9685 = new PCA9685OutputComponent(frequency);
   return this->register_component(pca9685);
 }
@@ -311,11 +312,13 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutput
   };
 }
 ADS1115Component *Application::make_ads1115_component(uint8_t address) {
+  this->assert_i2c_initialized();
   return this->register_component(new ADS1115Component(address));
 }
 Application::MakeBMP085Component Application::make_bmp085_sensor(std::string &&temperature_friendly_name,
                                                                  std::string &&pressure_friendly_name,
                                                                  uint32_t update_interval) {
+  this->assert_i2c_initialized();
   auto *bmp = this->register_component(new BMP085Component(update_interval));
 
   return MakeBMP085Component{
@@ -327,6 +330,7 @@ Application::MakeBMP085Component Application::make_bmp085_sensor(std::string &&t
 Application::MakeHTU21DComponent Application::make_htu21d_sensor(std::string &&temperature_friendly_name,
                                                                  std::string &&humidity_friendly_name,
                                                                  uint32_t update_interval) {
+  this->assert_i2c_initialized();
   auto *htu21d = this->register_component(new HTU21DComponent(update_interval));
 
   return MakeHTU21DComponent{

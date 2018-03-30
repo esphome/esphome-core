@@ -5,7 +5,6 @@
 #include "esphomelib/output/pca9685_output_component.h"
 
 #include "esphomelib/log.h"
-#include "esphomelib/application.h"
 
 namespace esphomelib {
 
@@ -24,7 +23,6 @@ PCA9685OutputComponent::PCA9685OutputComponent(float frequency,
 
 void PCA9685OutputComponent::setup() {
   ESP_LOGI(TAG, "Setting up PCA9685OutputComponent.");
-  App.assert_i2c_initialized();
   this->pwm_controller_ = PCA9685(this->i2c_wire_, this->phase_balancer_);
   ESP_LOGV(TAG, "    Resetting devices...");
   this->pwm_controller_.resetDevices();
