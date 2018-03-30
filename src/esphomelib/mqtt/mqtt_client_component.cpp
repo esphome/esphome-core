@@ -303,6 +303,9 @@ bool MQTTClientComponent::is_availability_enabled() {
   this->availability_enabled_ = enabled;
   return enabled;
 }
+void MQTTClientComponent::set_client_id(const std::string &client_id) {
+  this->credentials_.client_id = client_id;
+}
 
 MQTTClientComponent *global_mqtt_client = nullptr;
 

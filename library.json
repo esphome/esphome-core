@@ -17,12 +17,12 @@
   ],
   "dependencies": [
     {
-      "name": "PubSubClient",
-      "version": "~2.6"
+      "name": "PubSubClient-esphomelib",
+      "version": "https://github.com/OttoWinter/pubsubclient.git#v2.7.1"
     },
     {
-      "name": "ArduinoJson",
-      "version": "~5.13.0"
+      "name": "ArduinoJson-esphomelib",
+      "version": "https://github.com/OttoWinter/ArduinoJson.git#v5.13.3"
     },
     {
       "name": "DHT",
@@ -35,6 +35,10 @@
     {
       "name": "PCA9685 16-Channel PWM Driver Module Library",
       "version": "https://github.com/OttoWinter/PCA9685-Arduino.git"
+    },
+    {
+      "name": "I2Cdevlib-esphomelib",
+      "version": "https://github.com/OttoWinter/i2cdevlib.git#v1.1.0"
     }
   ],
   "license": "GPL-3.0",

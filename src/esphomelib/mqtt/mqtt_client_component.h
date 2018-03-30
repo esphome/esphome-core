@@ -112,6 +112,9 @@ class MQTTClientComponent : public Component {
   void disable_discovery();
   bool is_discovery_enabled();
 
+  /// Manually set the client id, by default it's <name>-<MAC>, it's automatically truncated to 23 chars.
+  void set_client_id(const std::string &client_id);
+
   /// Helper to efficiently determine whether availability is enabled.
   bool is_availability_enabled();
 
