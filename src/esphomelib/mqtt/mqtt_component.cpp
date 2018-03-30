@@ -83,7 +83,7 @@ void MQTTComponent::send_discovery(const json_build_t &f,
         root["payload_available"] = global_mqtt_client->get_availability().payload_available;
       if (global_mqtt_client->get_availability().payload_not_available != "offline")
         root["payload_not_available"] = global_mqtt_client->get_availability().payload_not_available;
-    } else {
+    } else if (!this->availability_->topic.empty()) {
       root["availability_topic"] = this->availability_->topic;
       if (this->availability_->payload_available != "online")
         root["payload_available"] = this->availability_->payload_available;
@@ -160,8 +160,7 @@ void MQTTComponent::set_availability(std::string topic, std::string payload_avai
   this->availability_->payload_not_available = std::move(payload_not_available);
 }
 void MQTTComponent::disable_availability() {
-  delete this->availability_;
-  this->availability_ = nullptr;
+  this->set_availability("", "", "");
 }
 
 } // namespace mqtt

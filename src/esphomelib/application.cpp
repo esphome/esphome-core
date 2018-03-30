@@ -114,6 +114,8 @@ MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor_for(std::string 
                                                                     binary_sensor::BinarySensor *binary_sensor,
                                                                     Optional<std::string> device_class) {
   auto *mqtt = new MQTTBinarySensorComponent(std::move(friendly_name), binary_sensor);
+  if (device_class.defined)
+    mqtt->set_device_class(device_class.value);
   return this->register_mqtt_component(mqtt);
 }
 

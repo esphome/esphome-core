@@ -203,9 +203,9 @@ const MQTTDiscoveryInfo &MQTTClientComponent::get_discovery_info() const {
   return this->discovery_info_;
 }
 void MQTTClientComponent::set_topic_prefix(std::string topic_prefix) {
-  this->set_birth_message(topic_prefix + "/status", "online", true);
-  this->set_last_will(topic_prefix + "/status", "offline", 0, true);
   this->topic_prefix_ = std::move(topic_prefix);
+  this->set_birth_message(this->topic_prefix_ + "/status", "online", true);
+  this->set_last_will(this->topic_prefix_ + "/status", "offline", 0, true);
 }
 const std::string &MQTTClientComponent::get_topic_prefix() const {
   return this->topic_prefix_;
