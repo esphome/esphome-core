@@ -32,8 +32,10 @@ void Application::setup() {
     return a->get_setup_priority() > b->get_setup_priority();
   });
   ESP_LOGV(TAG, "Calling setup");
-  for (Component *component : this->components_)
-    component->setup_();
+  for (Component *component : this->components_) {
+    if (component->get_component_state() != Component::FAILED)
+      component->setup_();
+  }
 
   ESP_LOGV(TAG, "Sorting components by loop priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
@@ -51,8 +53,10 @@ void Application::loop() {
     this->application_state_ = Component::LOOP;
   }
 
-  for (Component *component : this->components_)
-    component->loop_();
+  for (Component *component : this->components_) {
+    if (component->get_component_state() != Component::FAILED)
+      component->loop_();
+  }
   yield();
 
   if (first_loop)

@@ -53,11 +53,11 @@ HTU21DComponent::HTU21DComponent(uint32_t update_interval)
 }
 void HTU21DComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HTU21D...");
-  // first initialize, then test connection for this device.
-  this->htu21d_.initialize();
+  this->htu21d_ = HTU21D();
 
   if (!this->htu21d_.testConnection()) {
     ESP_LOGE(TAG, "Connection to HTU21D failed.");
+    this->mark_failed();
     return;
   }
 }

@@ -97,6 +97,9 @@ void Component::loop_internal() {
     TimeFunction *tf = &this->time_functions_[i];
     if (millis() - tf->last_execution > tf->interval) {
       tf->f();
+      if (this->component_state_ == FAILED)
+        // Time function triggered failed state.
+        return;
       tf = &this->time_functions_[i]; // f() may have added new element, invalidating the pointer
       if (tf->type == TimeFunction::TIMEOUT) {
         this->time_functions_.erase(this->time_functions_.begin() + i);
@@ -112,6 +115,10 @@ void Component::loop_internal() {
 void Component::setup_internal() {
   assert_construction_state(this);
   this->component_state_ = SETUP;
+}
+void Component::mark_failed() {
+  ESP_LOGE(TAG, "Component was marked as failed.");
+  this->component_state_ = FAILED;
 }
 
 PollingComponent::PollingComponent(uint32_t update_interval)

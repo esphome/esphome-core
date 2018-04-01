@@ -20,6 +20,7 @@ void ADS1115Component::setup() {
   this->adc_ = ADS1115(this->address_);
   if (!this->adc_.testConnection()) {
     ESP_LOGE(TAG, "Connection to ADS1115 with address 0x%02x failed.", this->address_);
+    this->mark_failed();
     return;
   }
   // copied from initialize()

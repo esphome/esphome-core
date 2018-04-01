@@ -48,7 +48,8 @@ class Component {
   enum ComponentState {
     CONSTRUCTION = 0,
     SETUP = 1,
-    LOOP = 2
+    LOOP = 2,
+    FAILED = 3,
   };
 
   /** Where the component's initialization should happen.
@@ -95,6 +96,14 @@ class Component {
   virtual void setup_();
 
   ComponentState get_component_state() const;
+
+  /** Mark this component as failed. Any future timeouts/intervals/setup/loop will no longer be called.
+   *
+   * This might be useful if a component wants to indicate that a connection to its peripheral failed.
+   * For example, i2c based components can check if the remote device is responding and otherwise
+   * mark the component as failed. Eventually this will also enable smart status LEDs.
+   */
+  virtual void mark_failed();
 
  protected:
   void loop_internal();

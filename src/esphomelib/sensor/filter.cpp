@@ -14,7 +14,7 @@ namespace sensor {
 static const char *TAG = "sensor::filter";
 
 SlidingWindowMovingAverageFilter::SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every)
-    : send_every_(send_every), send_at_(0),
+    : send_every_(send_every), send_at_(send_every - 1),
       value_average_(SlidingWindowMovingAverage<float>(window_size)) {
 
 }
@@ -41,7 +41,7 @@ Optional<float> SlidingWindowMovingAverageFilter::new_value(float value) {
 }
 
 ExponentialMovingAverageFilter::ExponentialMovingAverageFilter(float alpha, size_t send_every)
-    : send_every_(send_every), send_at_(0),
+    : send_every_(send_every), send_at_(send_every - 1),
       value_average_(ExponentialMovingAverage(alpha)),
       accuracy_average_(ExponentialMovingAverage(alpha)) {
 }

@@ -71,6 +71,7 @@ void BMP085Component::setup() {
   this->bmp_ = BMP085(this->address_);
   if (!this->bmp_.testConnection()) {
     ESP_LOGE(TAG, "Connection to BMP085 with address 0x%02x failed.", this->address_);
+    this->mark_failed();
     return;
   }
   this->bmp_.initialize();
