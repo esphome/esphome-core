@@ -31,6 +31,7 @@
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/sensor/htu21d_component.h"
+#include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
 #include "esphomelib/sensor/sensor.h"
@@ -138,8 +139,8 @@ class Application {
    *  |____|___|_| \_/_/   \_|_| \_\|_|   |____/|_____|_| \_|____/ \___/|_| \_\
    */
   /// Create a MQTTBinarySensorComponent for a specific BinarySensor. Mostly for internal use.
-  binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor_for(std::string friendly_name,
-                                                                        binary_sensor::BinarySensor *binary_sensor,
+  binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor_for(binary_sensor::BinarySensor *binary_sensor,
+                                                                        const std::string &friendly_name,
                                                                         Optional<std::string> device_class = Optional<std::string>());
 
   struct MakeGPIOBinarySensor {
@@ -157,8 +158,8 @@ class Application {
    *                     or esphomelib::binary_sensor::device_class
    */
   MakeGPIOBinarySensor make_gpio_binary_sensor(GPIOInputPin pin,
-                                               std::string friendly_name,
-                                               std::string device_class = "");
+                                               const std::string &friendly_name,
+                                               const std::string &device_class = "");
 
   /** Create a simple binary sensor that reports the online/offline state of the node.
    *
@@ -168,7 +169,7 @@ class Application {
    * @param friendly_name The friendly name advertised via MQTT discovery.
    * @return A MQTTBinarySensorComponent. Use this to set custom status messages.
    */
-  binary_sensor::MQTTBinarySensorComponent *make_status_binary_sensor(std::string friendly_name);
+  binary_sensor::MQTTBinarySensorComponent *make_status_binary_sensor(const std::string &friendly_name);
 
 
 
@@ -181,7 +182,7 @@ class Application {
    *  |____/|_____|_| \_|____/ \___/|_| \_\
    */
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
-  sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, std::string &&friendly_name);
+  sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, const std::string &friendly_name);
 
   struct MakeDHTComponent {
     sensor::DHTComponent *dht;
@@ -202,8 +203,8 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   MakeDHTComponent make_dht_sensor(uint8_t pin,
-                                   std::string &&temperature_friendly_name,
-                                   std::string &&humidity_friendly_name,
+                                   const std::string &temperature_friendly_name,
+                                   const std::string &humidity_friendly_name,
                                    uint32_t update_interval = 15000);
 
   sensor::DallasComponent *make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval = 15000);
@@ -228,7 +229,7 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   MakePulseCounter make_pulse_counter_sensor(uint8_t pin,
-                                             std::string &&friendly_name,
+                                             const std::string &friendly_name,
                                              uint32_t update_interval = 15000);
 #endif
 
@@ -249,7 +250,7 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   MakeADCSensor make_adc_sensor(uint8_t pin,
-                                std::string &&friendly_name,
+                                const std::string &friendly_name,
                                 uint32_t update_interval = 15000);
 
   /** Create an ADS1115 component hub. From this hub you can then create individual sensors using `get_sensor()`.
@@ -278,8 +279,8 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeBMP085Component object, use this to set advanced settings.
    */
-  MakeBMP085Component make_bmp085_sensor(std::string &&temperature_friendly_name,
-                                         std::string &&pressure_friendly_name,
+  MakeBMP085Component make_bmp085_sensor(const std::string &temperature_friendly_name,
+                                         const std::string &pressure_friendly_name,
                                          uint32_t update_interval = 30000);
 
   struct MakeHTU21DComponent {
@@ -294,13 +295,33 @@ class Application {
    * with `App.init_i2c(SDA_PIN, SCL_PIN);`.
    *
    * @param temperature_friendly_name The friendly name the temperature sensor should be advertised as.
-   * @param humidity_friendly_name The friendly name the pressure sensor should be advertised as.
+   * @param humidity_friendly_name The friendly name the humidity sensor should be advertised as.
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeHTU21DComponent, use this to set advanced settings.
    */
-  MakeHTU21DComponent make_htu21d_sensor(std::string &&temperature_friendly_name,
-                                         std::string &&humidity_friendly_name,
+  MakeHTU21DComponent make_htu21d_sensor(const std::string &temperature_friendly_name,
+                                         const std::string &humidity_friendly_name,
                                          uint32_t update_interval = 15000);
+
+  struct MakeHDC1080Component {
+    sensor::HDC1080Component *hdc1080;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_humidity;
+  };
+
+  /** Create a HDC1080 i2c-based temperature+humidity sensor.
+   *
+   * Be sure to initialize i2c before calling `App.setup` in order for this to work. Do so
+   * with `App.init_i2c(SDA_PIN, SCL_PIN);`.
+   *
+   * @param temperature_friendly_name The friendly name the temperature sensor should be advertised as.
+   * @param humidity_friendly_name The friendly name the humidity sensor should be advertised as.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return A MakeHDC1080Component, use this to set advanced settings.
+   */
+  MakeHDC1080Component make_hdc1080_sensor(const std::string &temperature_friendly_name,
+                                           const std::string &humidity_friendly_name,
+                                           uint32_t update_interval = 15000);
 
   struct MakeUltrasonicSensor {
     sensor::UltrasonicSensorComponent *ultrasonic;
@@ -323,7 +344,7 @@ class Application {
    * @return The Ultrasonic sensor + MQTT sensor pair, use this for advanced settings.
    */
   MakeUltrasonicSensor make_ultrasonic_sensor(GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
-                                              std::string &&friendly_name,
+                                              const std::string &friendly_name,
                                               uint32_t update_interval = 5000);
 
 
@@ -397,7 +418,7 @@ class Application {
    *  |_____|___\____|_| |_| |_|
    */
   /// Create a MQTTJSONLightComponent. Mostly for internal use.
-  light::MQTTJSONLightComponent *make_mqtt_light_(const std::string &friendly_name, light::LightState *state);
+  light::MQTTJSONLightComponent *make_mqtt_light_(light::LightState *state, const std::string &friendly_name);
 
   struct LightStruct {
     light::LinearLightOutputComponent *output;

@@ -14,8 +14,8 @@ namespace sensor {
 
 static const char *TAG = "sensor::mqtt";
 
-MQTTSensorComponent::MQTTSensorComponent(std::string &&friendly_name, Sensor *sensor)
-    : MQTTComponent(std::move(friendly_name)) {
+MQTTSensorComponent::MQTTSensorComponent(const std::string &friendly_name, Sensor *sensor)
+    : MQTTComponent(friendly_name) {
   assert(sensor != nullptr);
   this->sensor_ = sensor;
   this->sensor_->add_new_value_callback(this->create_new_data_callback());

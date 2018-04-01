@@ -70,7 +70,7 @@ void HTU21DComponent::update() {
   if (!isnan(temperature))
     this->temperature_->push_new_value(temperature);
   else
-    ESP_LOGW(TAG, "Invalid Temperature: %f!C", temperature);
+    ESP_LOGW(TAG, "Invalid Temperature: %f°C", temperature);
 
   if (!isnan(humidity))
     this->humidity_->push_new_value(humidity);

@@ -18,6 +18,7 @@ See :cpp:func:`Application::make_mqtt_sensor_for`.
     ADS1115 ADC Component <ads1115>
     BMP085 Pressure/Temperature Sensor <bmp085>
     HTU21D Temperature/Humidity Sensor <htu21d>
+    HDC1080 Temperature/Humidity Sensor <hdc1080>
 
 
 API Reference

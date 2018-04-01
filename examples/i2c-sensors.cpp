@@ -32,6 +32,7 @@ void setup() {
   App.make_mqtt_sensor_for(ads1115->get_sensor(ADS1115_MUX_P0_NG, ADS1115_PGA_1P024), "ADS1115 Voltage #2");
   App.make_bmp085_sensor("BMP085 Temperature", "BMP085 Pressure");
   App.make_htu21d_sensor("HTU21D Temperature", "HTU21D Humidity");
+  App.make_hdc1080_sensor("HDC1080 Temperature", "HDC1080 Humidity");
 
   App.setup();
 }

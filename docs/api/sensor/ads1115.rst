@@ -1,7 +1,7 @@
 ADS1115 ADC Component
 =====================
 
-.. warning:: This sensor is experimental has not been tested yet. If you can verify it works, notify me on Gitter.
+.. warning:: This sensor is experimental has not been tested yet. If you can verify it works, notify me on discord.
 
 .. cpp:namespace:: esphomelib::input
 

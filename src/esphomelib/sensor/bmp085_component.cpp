@@ -89,10 +89,10 @@ void BMP085Component::read_temperature_() {
   }
 
   float temperature = this->bmp_.getTemperatureC();
-  ESP_LOGD(TAG, "Got Temperature=%f°C", temperature);
+  ESP_LOGD(TAG, "Got Temperature=%.1f°C", temperature);
 
   if (!isnan(temperature))
-    this->pressure_->push_new_value(temperature);
+    this->temperature_->push_new_value(temperature);
   else
     ESP_LOGW(TAG, "Invalid Temperature: %f°C", temperature);
 
