@@ -62,6 +62,9 @@ T lerp(T start, T end, T completion);
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique(Args &&...args);
 
+/// Return a random 32 bit unsigned integer.
+uint32_t random_uint32();
+
 /** Returns a random double between 0 and 1.
  *
  * Note: This function probably doesn't provide a truly uniform distribution.

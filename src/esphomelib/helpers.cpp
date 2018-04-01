@@ -41,12 +41,16 @@ std::string generate_hostname(const std::string &base) {
   return base + std::string("-") + get_mac_address();
 }
 
-double random_double() {
+uint32_t random_uint32() {
 #ifdef ARDUINO_ARCH_ESP32
-  return double(esp_random()) / double(UINT32_MAX);
+  return esp_random();
 #else
-  return double(os_random()) / double(UINT32_MAX);
+  return os_random();
 #endif
+}
+
+double random_double() {
+  return random_uint32() / double(UINT32_MAX);
 }
 
 float random_float() {

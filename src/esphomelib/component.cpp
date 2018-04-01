@@ -6,6 +6,7 @@
 
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
+#include "esphomelib/helpers.h"
 
 namespace esphomelib {
 
@@ -27,15 +28,16 @@ void Component::loop() {
 
 }
 
-void Component::set_interval(std::string &&name, uint32_t interval, time_func_t &&f) {
+void Component::set_interval(const std::string &name, uint32_t interval, time_func_t &&f) {
   ESP_LOGV(TAG, "set_interval(name='%s', interval=%u)", name.c_str(), interval);
 
+  uint32_t offset = random_uint32() % interval;
   this->cancel_interval(name);
   struct TimeFunction function = {
       .name = name,
       .type = TimeFunction::INTERVAL,
       .interval = interval,
-      .last_execution = millis(),
+      .last_execution = millis() + offset,
       .f = std::move(f)
   };
   this->time_functions_.push_back(function);
@@ -45,7 +47,7 @@ bool Component::cancel_interval(const std::string &name) {
   return this->cancel_time_function(name, TimeFunction::INTERVAL);
 }
 
-void Component::set_timeout(std::string &&name, uint32_t timeout, time_func_t &&f) {
+void Component::set_timeout(const std::string &name, uint32_t timeout, time_func_t &&f) {
   ESP_LOGV(TAG, "set_timeout(name='%s', timeout=%u)", name.c_str(), timeout);
 
   this->cancel_timeout(name);
