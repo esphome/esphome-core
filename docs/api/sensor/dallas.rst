@@ -23,16 +23,13 @@ Example Usage
     // By address
     App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0xfe0000031f1eaf29),
                              "Ambient Temperature");
-    // With update interval, every 30 seconds
-    App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0x710000031f0e7e28, 30000),
-                             "Heatpump Temperature");
     // By index
     App.make_mqtt_sensor_for(dallas->get_sensor_by_index(0),
                              "Ambient Temperature");
 
 .. cpp:namespace:: esphomelib
 
-See :cpp:func:`Application::make_dallas_component` and :cpp:func:`Application::make_mqt_sensor_for`.
+See :cpp:func:`Application::make_dallas_component` and :cpp:func:`Application::make_mqtt_sensor_for`.
 
 API Reference
 -------------
