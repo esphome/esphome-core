@@ -240,7 +240,7 @@ must be enabled with the topic `homeassistant/` (the default).
 
 ```yaml
 mqtt:
-  broker: 192.168.0.2
+  broker: 192.168.0.2  # Change this to your broker
   discovery: True
 ```
 
@@ -251,20 +251,26 @@ mqtt:
 * Automatic MQTT handling (birth messages, last will testaments, reconnects, etc.)
 * Powerful, (colored - yay 🌈) logging to Serial **and** MQTT.
 * Over the Air (OTA) updates
+   * OTA "safe mode". esphomelib will automatically detect boot loops and automatically
+     switch to a safe mode where only OTA is enabled if needed.
 * Home Assistant automatic MQTT discovery
 * Binary Sensors
 * Switches
 * Fans
-* Dallas DS18b20 temperature sensors (with "DallasTemperature" library)
+* Dallas DS18b20 temperature sensors
 * DHT11/DHT22 temperature/humidity sensors (with "DHT" library)
 * Lights
     - Binary/Brightness-only/RGB/RGBW
     - Transitions/Flashes
     - Effects (easy to add custom ones)
-* IR Transmitters (with remote control peripheral)
+* IR Transmitters (with ESP32 remote control peripheral)
 * ESP32: LEDC peripheral PWM output
+* ESP8266 Software PWM
 * PCA9685 PWM output (with "PCA9685" library)
 * Power supply Mode - Automatically switch a power supply on/off when it's needed.
+* ADS1115 i2c ADC sensor (experimental)
+* BMP085/BMP180/BMP280 temperature+pressure i2c sensor
+* HTU21D temperature+humidity i2c sensor (experimental)
 
 ## Planned features
 
@@ -274,25 +280,17 @@ mqtt:
 * Covers
 * Status LED
 * More light effects
-* IR Receiver via remote control peripheral
-* Arduino IDE support (if possible)
 * Multiple WiFi Networks
 * **Suggestions?** Feel free to create an issue and tag it with feature request.
 
 ## Advanced Options
-
-### Where to Find Code for Initializing Components?
-
-A good place to start is always to go look in the `Application` class. There, all possible use-cases should have a 
-corresponding helper method. In the future, guides for each component+component type will be set up, so that getting 
-started is a lot easier for beginners. Next, if you want to override the default options for a component, you should 
-look in the component, most options should already have appropriate setters for customization.
 
 ### Static IPs
 
 After `init_wifi()`, call:
 
 ```cpp
+auto *wifi = App.init_wifi(...);
 wifi->set_manual_ip(ManualIP{
     .static_ip = IPAddress(192, 168, 178, 204),
     .gateway = IPAddress(192, 168, 178, 1),
@@ -345,7 +343,7 @@ Next, if you're using MQTT logging, simply subscribe to the debug topic and see 
 messages scroll by:
 
 ```bash
-# for example if using mosquitto
+# for example if using mosquitto and name is livingroom
 mosquitto_sub -h 192.168.178.42 -u USERNAME -P PASSWORD -t livingroom/debug
 ```
 
@@ -367,6 +365,7 @@ However, if you want to use your own MQTT topic prefixes like `home/livingroom/n
 
 ```cpp
 auto *mqtt = App.init_mqtt(...);
+# topic prefix should *not* include trailing "/"
 mqtt->set_topic_prefix("home/livingroom/node1");
 ```
 
