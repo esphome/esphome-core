@@ -109,16 +109,22 @@ class Application {
    *
    * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
    *
+   * SDA/SCL pins default to the values defined by the Arduino framework and are usually
+   * GPIO4 and GPIO5 on the ESP8266 (D2 and D1 on NodeMCU). And for the ESP32 it defaults to
+   * GPIO21 and GPIO22 for SDA and SCL, respectively.
+   *
+   * If you're unsure about what the defaults are on your board, it's always better
+   *
    * @param sda_pin The SDA pin the i2c bus is connected to.
    * @param scl_pin The SCL pin the i2c bus is connected to.
    * @param frequency (only on ESP32) the frequency in Hz the i2c bus should operate at,
    *                  not all components support all frequencies!
    */
 #ifdef ARDUINO_ARCH_ESP32
-  void init_i2c(uint8_t sda_pin, uint8_t scl_pin, uint32_t frequency = 100000);
+  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, uint32_t frequency = 100000);
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  void init_i2c(uint8_t sda_pin, uint8_t scl_pin);
+  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL);
 #endif
 
 

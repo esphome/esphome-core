@@ -20,9 +20,11 @@ void setup() {
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
   App.init_ota()->start_safe_mode();
 
-  // This is required to set up the i2c bus. 14 is SDA pin and 27 is SCL pin.
+  // This is required to set up the i2c bus. 21 is SDA pin and 2 is SCL pin.
+  // Alternatively, you can just writ App.init_i2c(); to use the default i2c
+  // pins on your board.
   // You only need to call this once.
-  App.init_i2c(14, 27);
+  App.init_i2c(21, 22);
 
   // 0x48 is the default address when address pin is pulled low.
   auto *ads1115 = App.make_ads1115_component(0x48);
