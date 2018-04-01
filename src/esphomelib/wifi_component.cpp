@@ -32,6 +32,7 @@ void WiFiComponent::setup() {
 #endif
   delay(10);
   ESP_LOGCONFIG(TAG, "    SSID: '%s'", this->ssid_.c_str());
+  ESP_LOGCONFIG(TAG, "    Password: '%s'", this->password_.c_str());
 
   WiFi.persistent(false);
   bool ret = WiFi.mode(WIFI_STA);
@@ -128,7 +129,7 @@ const std::string &WiFiComponent::get_hostname() const {
 }
 void WiFiComponent::wait_for_connection() {
   assert_setup(this);
-  ESP_LOGV(TAG, "Waiting for WiFi connection");
+  ESP_LOGI(TAG, "Waiting for WiFi connection");
   uint32_t start = millis();
   wl_status_t status;
   while ((status = WiFi.status()) != WL_CONNECTED) {
@@ -142,8 +143,12 @@ void WiFiComponent::wait_for_connection() {
     ESP_LOGV(TAG, ". (status=%d)", status);
   }
 
-  ESP_LOGV(TAG, "    WiFi connected.");
-  ESP_LOGV(TAG, "    IP Address: %s", WiFi.localIP().toString().c_str());
+  ESP_LOGI(TAG, "WiFi connected.");
+  ESP_LOGCONFIG(TAG, "    IP Address: %s", WiFi.localIP().toString().c_str());
+  ESP_LOGCONFIG(TAG, "    Subnet: %s", WiFi.subnetMask().toString().c_str());
+  ESP_LOGCONFIG(TAG, "    Gateway: %s", WiFi.gatewayIP().toString().c_str());
+  ESP_LOGCONFIG(TAG, "    DNS1: %s", WiFi.dnsIP(0).toString().c_str());
+  ESP_LOGCONFIG(TAG, "    DNS2: %s", WiFi.dnsIP(1).toString().c_str());
 }
 const Optional<ManualIP> &WiFiComponent::get_manual_ip() const {
   return this->manual_ip_;

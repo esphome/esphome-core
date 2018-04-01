@@ -31,6 +31,10 @@ void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Password: '%s'", this->credentials_.password.c_str());
   this->credentials_.client_id = truncate_string(this->credentials_.client_id, 23);
   ESP_LOGCONFIG(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
+  if (!this->discovery_info_.prefix.empty()) {
+    ESP_LOGCONFIG(TAG, "    Discovery prefix: '%s'", this->discovery_info_.prefix.c_str());
+    ESP_LOGCONFIG(TAG, "    Discovery retain: %s", this->discovery_info_.retain ? "true" : "false");
+  }
   this->mqtt_client_.setCallback(pub_sub_client_callback);
 
   this->reconnect();
@@ -89,7 +93,7 @@ void MQTTClientComponent::reconnect() {
 
   this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
 
-  ESP_LOGD(TAG, "Reconnecting to MQTT...");
+  ESP_LOGI(TAG, "Reconnecting to MQTT...");
   uint32_t start = millis();
   do {
     ESP_LOGD(TAG, "    Attempting MQTT connection...");
@@ -121,10 +125,10 @@ void MQTTClientComponent::reconnect() {
     }
 
     if (this->mqtt_client_.connect(id.c_str(), user, pass, will_topic, will_qos, will_retain, will_message)) {
-      ESP_LOGD(TAG, "    Connected!");
+      ESP_LOGI(TAG, "    MQTT Connected!");
       break;
     } else {
-      ESP_LOGW(TAG, "    failed, rc=%d", this->mqtt_client_.state());
+      ESP_LOGW(TAG, "    MQTT connection failed, rc=%d", this->mqtt_client_.state());
       ESP_LOGW(TAG, "    Try again in 1 second");
 
       delay(1000);
