@@ -365,7 +365,7 @@ However, if you want to use your own MQTT topic prefixes like `home/livingroom/n
 
 ```cpp
 auto *mqtt = App.init_mqtt(...);
-# topic prefix should *not* include trailing "/"
+// topic prefix should *not* include trailing "/"
 mqtt->set_topic_prefix("home/livingroom/node1");
 ```
 

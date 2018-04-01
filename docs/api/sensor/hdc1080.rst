@@ -1,8 +1,6 @@
 HDC1080 Temperature/Humidity Sensor
 ===================================
 
-.. warning:: This sensor is experimental has not been tested yet. If you can verify it works, notify me on discord.
-
 The HDC1080 component allows you get accurate temperature and humidity readings from your HDC1080
 (`datasheet <http://www.ti.com/lit/ds/symlink/hdc1080.pdf>`_,
 `adafruit <https://www.adafruit.com/product/2635>`_) sensors with esphomelib. To use these
