@@ -239,11 +239,11 @@ MQTTSwitchComponent *Application::make_mqtt_switch_for(switch_::Switch *switch_,
 void Application::assert_name() const {
   assert(!this->name_.empty());
 }
-DallasComponent *Application::make_dallas_component(OneWire *one_wire) {
-  return this->register_component(new DallasComponent(one_wire));
+DallasComponent *Application::make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval) {
+  return this->register_component(new DallasComponent(one_wire, update_interval));
 }
-DallasComponent *Application::make_dallas_component(uint8_t pin) {
-  return this->make_dallas_component(new OneWire(pin));
+DallasComponent *Application::make_dallas_component(uint8_t pin, uint32_t update_interval) {
+  return this->make_dallas_component(new ESPOneWire(pin));
 }
 
 Application::GPIOSwitchStruct Application::make_gpio_switch(GPIOOutputPin pin,

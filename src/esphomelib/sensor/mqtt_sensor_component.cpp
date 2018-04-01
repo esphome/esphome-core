@@ -91,8 +91,8 @@ uint32_t MQTTSensorComponent::get_expire_after() const {
   if (this->expire_after_.defined) {
     return this->expire_after_.value;
   } else {
-    // By default, expire after 30 missed values.
-    return this->sensor_->update_interval() * 30;
+    // By default, expire after 50 missed values (3 sliding window cycles
+    return this->sensor_->update_interval() * 45;
   }
 }
 std::string MQTTSensorComponent::get_unit_of_measurement() const {

@@ -5,9 +5,8 @@
 #ifndef ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
 #define ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
 
-#include <DallasTemperature.h>
-
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esp_one_wire.h"
 
 namespace esphomelib {
 
@@ -19,20 +18,18 @@ class DallasTemperatureSensor;
  *
  * Get the individual sensors with `get_sensor_by_address` or `get_sensor_by_index`.
  */
-class DallasComponent : public Component {
+class DallasComponent : public PollingComponent {
  public:
   /// Construct the DallasComponent hub with the given OneWire instance pointer.
-  explicit DallasComponent(OneWire *one_wire);
+  explicit DallasComponent(ESPOneWire *one_wire, uint32_t update_interval);
 
   /** Get a DallasTemperatureSensor by address.
    *
    * @param address 64-bit unsigned address for this sensor. Check debug logs for getting this.
-   * @param update_interval The interval in ms that the sensor should be checked.
    * @param resolution The resolution for this sensor, 8-12.
    * @return A pointer to a DallasTemperatureSensor, use this to setup MQTT.
    */
   DallasTemperatureSensor *get_sensor_by_address(uint64_t address,
-                                                 uint32_t update_interval = 10000,
                                                  uint8_t resolution = 12);
   /** Get a DallasTemperatureSensor by index.
    *
@@ -40,38 +37,31 @@ class DallasComponent : public Component {
    * if one sensor can't be found (and therefore receives an incorrect index).
    *
    * @param index The index of this sensor, starts with 0.
-   * @param update_interval The interval in ms that the sensor should be checked.
    * @param resolution The resolution for this sensor, 8-12.
    * @return A pointer to a DallasTemperatureSensor, use this to setup MQTT.
    */
   DallasTemperatureSensor *get_sensor_by_index(uint8_t index,
-                                               uint32_t update_interval = 10000,
                                                uint8_t resolution = 12);
-
-  /// Scan all devices on the bus. You can also scroll through the debug logs to get this.
-  std::vector<uint64_t> scan_devices();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  /// Get the internal dallas library instance.
-  DallasTemperature &get_dallas();
-  /// Get the OneWire instance used for this hub.
-  OneWire *get_one_wire() const;
-  /// Manually set the OneWire instance used for this hub.
-  void set_one_wire(OneWire *one_wire);
+  /// Get the ESPOneWire instance used for this hub.
+  /// Manually set the ESPOneWire instance used for this hub.
+  void set_one_wire(ESPOneWire *one_wire);
 
   /// Set up individual sensors and update intervals.
   void setup() override;
   /// HARDWARE_LATE setup priority.
   float get_setup_priority() const override;
 
- protected:
-  /// Request a temperature reading for the given DallasTemperatureSensor.
-  void request_temperature(DallasTemperatureSensor *sensor);
+  void update() override;
 
-  DallasTemperature dallas_;
-  OneWire *one_wire_;
+  ESPOneWire *get_one_wire() const;
+
+ protected:
+  ESPOneWire *one_wire_;
   std::vector<DallasTemperatureSensor *> sensors_;
+  uint8_t resolution_;
 };
 
 /// Internal class that helps us create multiple sensors for one Dallas hub.
@@ -83,12 +73,12 @@ class DallasTemperatureSensor : public Sensor {
    * @param resolution Resolution used for this sensor. Usually 8-12.
    * @param update_interval The interval in ms the sensor should be checked.
    */
-  DallasTemperatureSensor(uint64_t address, uint8_t resolution, uint32_t update_interval);
+  DallasTemperatureSensor(uint64_t address, uint8_t resolution, DallasComponent *parent);
 
   /// Helper to get a pointer to the address as uint8_t.
   uint8_t *get_address8();
   /// Helper to create (and cache) the name for this sensor. For example "0xfe0000031f1eaf29".
-  std::string get_name();
+  const std::string &get_name();
 
   /// Get the 64-bit unsigned address for this sensor.
   uint64_t get_address() const;
@@ -103,11 +93,10 @@ class DallasTemperatureSensor : public Sensor {
   /// Set the resolution for this sensor.
   void set_resolution(uint8_t resolution);
   /// Get the number of milliseconds we have to wait for the conversion phase.
-  uint16_t millis_to_wait_for_conversion() const;
-  /// Get the interval in ms that we will check the sensor for new values.
-  uint32_t get_update_interval() const;
-  /// Set the interval in ms that we will check the sensor for new values.
-  void set_update_interval(uint32_t update_interval);
+  uint16_t millis_to_wait_for_conversion_() const;
+
+  void setup_sensor_();
+  bool read_scratch_pad_();
 
   /// Unit of measurement for MQTT: "°C".
   std::string unit_of_measurement() override;
@@ -118,12 +107,18 @@ class DallasTemperatureSensor : public Sensor {
   /// Accuracy in decimals for this sensor. 1.
   int8_t accuracy_decimals() override;
 
+  bool check_scratch_pad_();
+
+  float get_temp_c();
+
  protected:
   uint64_t address_;
   uint8_t index_;
+
   uint8_t resolution_;
   std::string name_;
-  uint32_t update_interval_;
+  uint8_t scratch_pad_[9] = {0,};
+  DallasComponent *parent_{nullptr};
 };
 
 } // namespace sensor

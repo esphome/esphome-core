@@ -200,9 +200,9 @@ class Application {
                                    std::string &&humidity_friendly_name,
                                    uint32_t update_interval = 15000);
 
-  sensor::DallasComponent *make_dallas_component(OneWire *one_wire);
+  sensor::DallasComponent *make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval = 15000);
 
-  sensor::DallasComponent *make_dallas_component(uint8_t pin);
+  sensor::DallasComponent *make_dallas_component(uint8_t pin, uint32_t update_interval = 15000);
 
 #ifdef ARDUINO_ARCH_ESP32
   struct MakePulseCounter {

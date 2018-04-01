@@ -18,7 +18,7 @@
   "dependencies": [
     {
       "name": "PubSubClient-esphomelib",
-      "version": "https://github.com/OttoWinter/pubsubclient.git#v2.7.1"
+      "version": "2.7.1"
     },
     {
       "name": "ArduinoJson-esphomelib",
@@ -27,10 +27,6 @@
     {
       "name": "DHT",
       "version": "~1.0.0"
-    },
-    {
-      "name": "DallasTemperature",
-      "version": "~3.7.8"
     },
     {
       "name": "PCA9685 16-Channel PWM Driver Module Library",
