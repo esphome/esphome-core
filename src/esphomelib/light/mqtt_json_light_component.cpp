@@ -10,7 +10,7 @@ namespace esphomelib {
 
 namespace light {
 
-static const char *TAG = "light::mqtt_json";
+static const char *TAG = "light.mqtt_json";
 
 std::string MQTTJSONLightComponent::component_type() const {
   return "light";

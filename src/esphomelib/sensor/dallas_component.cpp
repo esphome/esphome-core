@@ -11,7 +11,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::dallas";
+static const char *TAG = "sensor.dallas";
 
 static const uint8_t DALLAS_MODEL_DS18S20 = 0x10;
 static const uint8_t DALLAS_MODEL_DS1822 = 0x22;

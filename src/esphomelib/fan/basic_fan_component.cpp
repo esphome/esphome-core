@@ -10,7 +10,7 @@ namespace esphomelib {
 
 namespace fan {
 
-static const char *TAG = "fan::basic_fan";
+static const char *TAG = "fan.basic_fan";
 
 void BasicFanComponent::set_binary(output::BinaryOutput *output) {
   this->binary_output_ = output;

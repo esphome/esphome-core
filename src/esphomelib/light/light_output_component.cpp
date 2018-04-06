@@ -13,7 +13,7 @@ namespace light {
 
 using esphomelib::output::FloatOutput;
 
-static const char *TAG = "light::light_output";
+static const char *TAG = "light.output";
 
 void LightOutput::set_state(LightState *state) {
   this->state_ = state;

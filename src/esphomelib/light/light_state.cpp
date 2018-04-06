@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace light {
 
-static const char *TAG = "light::light_state";
+static const char *TAG = "light.state";
 
 void LightState::start_transition(const LightColorValues &target, uint32_t length) {
   if (this->traits_.supports_brightness()) {

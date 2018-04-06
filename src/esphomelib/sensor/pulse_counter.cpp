@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::pulse_counter";
+static const char *TAG = "sensor.pulse_counter";
 
 PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval)
   : PollingSensorComponent(update_interval) {

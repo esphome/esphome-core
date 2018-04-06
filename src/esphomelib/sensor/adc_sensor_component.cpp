@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::adc";
+static const char *TAG = "sensor.adc";
 
 ADCSensorComponent::ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval)
     : PollingSensorComponent(update_interval), pin_(pin) { }

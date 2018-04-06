@@ -12,7 +12,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::mqtt";
+static const char *TAG = "sensor.mqtt";
 
 MQTTSensorComponent::MQTTSensorComponent(const std::string &friendly_name, Sensor *sensor)
     : MQTTComponent(friendly_name) {

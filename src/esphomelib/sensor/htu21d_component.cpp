@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::htu21d";
+static const char *TAG = "sensor.htu21d";
 
 HTU21DTemperatureSensor::HTU21DTemperatureSensor(HTU21DComponent *parent)
     : parent_(parent) { }

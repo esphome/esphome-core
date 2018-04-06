@@ -16,7 +16,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::hdc1080";
+static const char *TAG = "sensor.hdc1080";
 static const uint8_t HDC1080_ADDRESS = 0x40; // 0b1000000 from datasheet
 static const uint8_t HDC1080_CMD_CONFIGURATION = 0x02;
 static const uint8_t HDC1080_CMD_TEMPERATURE = 0x00;

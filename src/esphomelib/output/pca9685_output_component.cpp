@@ -10,7 +10,7 @@ namespace esphomelib {
 
 namespace output {
 
-static const char *TAG = "output::pca9685";
+static const char *TAG = "output.pca9685";
 
 PCA9685OutputComponent::PCA9685OutputComponent(float frequency,
                                                PCA9685_PhaseBalancer phase_balancer,

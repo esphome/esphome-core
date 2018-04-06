@@ -10,7 +10,7 @@
 #include "esphomelib/log_component.h"
 #include "esphomelib/application.h"
 
-static const char *TAG = "mqtt:mqtt_client";
+static const char *TAG = "mqtt.client";
 
 namespace esphomelib {
 

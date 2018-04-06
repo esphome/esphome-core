@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace switch_ {
 
-static const char *TAG = "switch_::ir_tx";
+static const char *TAG = "switch.ir_tx";
 
 using namespace esphomelib::switch_::ir;
 

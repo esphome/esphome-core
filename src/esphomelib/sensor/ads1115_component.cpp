@@ -12,7 +12,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "input::ads1115";
+static const char *TAG = "sensor.ads1115";
 
 void ADS1115Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ADS1115...");

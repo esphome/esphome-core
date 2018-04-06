@@ -10,7 +10,7 @@ namespace esphomelib {
 
 namespace fan {
 
-static const char *TAG = "fan::mqtt";
+static const char *TAG = "fan.mqtt";
 
 MQTTFanComponent::MQTTFanComponent(const std::string &friendly_name)
     : MQTTComponent(friendly_name), next_send_(true) {}

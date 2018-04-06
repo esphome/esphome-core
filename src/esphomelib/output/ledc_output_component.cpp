@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace output {
 
-static const char *TAG = "output::ledc";
+static const char *TAG = "output.ledc";
 
 void LEDCOutputComponent::write_state(float adjusted_value) {
   uint32_t max_duty = (uint32_t(1) << this->bit_depth_) - 1;

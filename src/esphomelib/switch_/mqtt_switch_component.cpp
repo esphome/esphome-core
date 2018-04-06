@@ -13,7 +13,7 @@ namespace esphomelib {
 
 namespace switch_ {
 
-static const char *TAG = "switch::mqtt";
+static const char *TAG = "switch.mqtt";
 
 using esphomelib::binary_sensor::binary_callback_t;
 using esphomelib::mqtt::Availability;

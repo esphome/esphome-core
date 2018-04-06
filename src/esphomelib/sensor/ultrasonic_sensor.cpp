@@ -15,7 +15,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::ultrasonic";
+static const char *TAG = "sensor.ultrasonic";
 
 UltrasonicSensorComponent::UltrasonicSensorComponent(GPIOOutputPin trigger_pin,
                                                      GPIOInputPin echo_pin,

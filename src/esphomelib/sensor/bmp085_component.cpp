@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::bmp085";
+static const char *TAG = "sensor.bmp085";
 
 BMP085TemperatureSensor::BMP085TemperatureSensor(BMP085Component *parent)
   : parent_(parent) { }

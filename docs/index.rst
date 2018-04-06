@@ -4,10 +4,11 @@ esphomelib API Reference
 Welcome to the esphomelib API docs!
 -----------------------------------
 
+esphomeyaml docs can be found here: `esphomeyaml docs </esphomeyaml/index.html>`__.
+
 Here you will find all of esphomelib's API documentation together with some examples.
 
-Eventually, guides will also be setup here on how to create your own custom components
-and some basic stuff.
+Eventually, guides will also be setup here on how to create your own custom components and some basic stuff.
 
 Supported First Order Integrations
 ----------------------------------

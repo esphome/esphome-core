@@ -16,7 +16,7 @@ namespace esphomelib {
 
 namespace mqtt {
 
-static const char *TAG = "mqtt::mqtt_component";
+static const char *TAG = "mqtt.component";
 
 void MQTTComponent::set_retain(bool retain) {
   this->retain_ = retain;

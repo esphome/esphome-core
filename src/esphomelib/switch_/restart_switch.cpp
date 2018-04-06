@@ -14,7 +14,7 @@ namespace esphomelib {
 
 namespace switch_ {
 
-static const char *TAG = "switch_::restart";
+static const char *TAG = "switch.restart";
 
 void RestartSwitch::turn_on() {
   ESP_LOGI(TAG, "Restarting device...");

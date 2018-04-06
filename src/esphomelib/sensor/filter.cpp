@@ -11,7 +11,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::filter";
+static const char *TAG = "sensor.filter";
 
 SlidingWindowMovingAverageFilter::SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every)
     : send_every_(send_every), send_at_(send_every - 1),

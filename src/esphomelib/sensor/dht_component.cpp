@@ -13,7 +13,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::dht";
+static const char *TAG = "sensor.dht";
 
 DHTComponent::DHTComponent(uint8_t pin, uint32_t update_interval)
     : temperature_sensor_(new DHTTemperatureSensor(this)),

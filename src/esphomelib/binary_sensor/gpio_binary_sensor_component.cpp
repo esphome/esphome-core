@@ -11,7 +11,7 @@ namespace esphomelib {
 
 namespace binary_sensor {
 
-static const char *TAG = "sensor::gpio_binary_sensor";
+static const char *TAG = "binary_sensor.gpio";
 
 void GPIOBinarySensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO binary sensor.");

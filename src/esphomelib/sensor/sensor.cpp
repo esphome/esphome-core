@@ -10,7 +10,7 @@ namespace esphomelib {
 
 namespace sensor {
 
-static const char *TAG = "sensor::sensor";
+static const char *TAG = "sensor.sensor";
 
 void Sensor::add_new_value_callback(sensor_callback_t callback) {
   this->callback_.add(std::move(callback));
