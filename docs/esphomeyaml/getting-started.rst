@@ -22,7 +22,7 @@ installation:
 
 .. code:: bash
 
-    docker pull OttoWinter/esphomeyaml
+    docker pull ottowinter/esphomeyaml
 
 Creating A Project
 ~~~~~~~~~~~~~~~~~~
@@ -36,7 +36,7 @@ file called ``livingroom.yaml``:
 
     esphomeyaml livingroom.yaml wizard
     # On Docker:
-    docker run --rm -v "`pwd`":/config -it esphomeyaml livingroom.yaml wizard
+    docker run --rm -v "`pwd`":/config -it ottowinter/esphomeyaml livingroom.yaml wizard
 
 At the end of this step, you will have your first YAML configuration
 file ready. It doesn’t do much yet and only makes your device connect to
@@ -118,7 +118,7 @@ Sensor </esphomeyaml/components/binary_sensor/gpio.html>`__.
       - platform: gpio
         name: "Living Room Window"
         pin:
-          number: D0
+          number: 16
           inverted: True
           mode: INPUT_PULLUP
 
@@ -136,7 +136,7 @@ for docker you need to supply an additional parameter:
 
     esphomeyaml livingroom.yaml run
     # On docker
-    docker run --rm -p 6123:6123 -v "`pwd`":/config -it esphomeyaml livingroom.yaml run
+    docker run --rm -p 6123:6123 -v "`pwd`":/config -it ottowinter/esphomeyaml livingroom.yaml run
 
 |image1|
 

@@ -1,10 +1,11 @@
 esphomeyaml
 ===========
 
-Hi! This is the esphomeyaml documentation page. This page contains a list
-of all components currently supported.
+Hi there! This is the documentation for esphomeyaml, a project that aims to make using ESP8266/ESP32 boards with Home Assistant very easy with no programming experience required.
 
 To get started, please see the `Getting Started Guide </esphomeyaml/getting-started.html>`__.
+
+You can find the source for this project `on Github <https://github.com/OttoWinter/esphomeyaml>`__, and the core of this project, `esphomelib is also hosted on Github <https://github.com/OttoWinter/esphomelib>`__.
 
 
 Core Components

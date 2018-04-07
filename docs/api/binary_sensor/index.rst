@@ -52,11 +52,6 @@ BinarySensor
 MQTTBinarySensorComponent
 *************************
 
-.. doxygennamespace:: esphomelib::binary_sensor::device_class
-    :members:
-    :protected-members:
-    :undoc-members:
-
 .. doxygenclass:: esphomelib::binary_sensor::MQTTBinarySensorComponent
     :members:
     :protected-members:

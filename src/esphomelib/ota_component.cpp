@@ -35,7 +35,7 @@ void OTAComponent::setup() {
       break;
     }
     case HASH: {
-      ArduinoOTA.setPasswordHash(this->password_hash_.c_str());
+      ArduinoOTA.setPasswordHash(this->password_.c_str());
       break;
     }
     case OPEN: {}
@@ -117,7 +117,7 @@ void OTAComponent::set_auth_plaintext_password(const std::string &password) {
 }
 void OTAComponent::set_auth_password_hash(const std::string &hash) {
   this->auth_type_ = HASH;
-  this->password_hash_ = hash;
+  this->password_ = hash;
 }
 float OTAComponent::get_setup_priority() const {
   return setup_priority::MQTT_CLIENT;

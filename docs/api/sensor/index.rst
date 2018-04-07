@@ -35,14 +35,6 @@ Sensor
     :undoc-members:
 
 .. doxygentypedef:: esphomelib::sensor::sensor_callback_t
-.. doxygenvariable:: esphomelib::sensor::UNIT_OF_MEASUREMENT_CELSIUS
-.. doxygenvariable:: esphomelib::sensor::UNIT_OF_MEASUREMENT_PERCENT
-.. doxygenvariable:: esphomelib::sensor::UNIT_OF_MEASUREMENT_VOLT
-.. doxygenvariable:: esphomelib::sensor::UNIT_OF_MEASUREMENT_METER
-.. doxygenvariable:: esphomelib::sensor::ICON_TEMPERATURE
-.. doxygenvariable:: esphomelib::sensor::ICON_HUMIDITY
-.. doxygenvariable:: esphomelib::sensor::ICON_VOLTAGE
-.. doxygenvariable:: esphomelib::sensor::ICON_DISTANCE
 
 .. doxygenclass:: esphomelib::sensor::PollingSensorComponent
     :members:

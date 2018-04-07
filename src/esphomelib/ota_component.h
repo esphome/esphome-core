@@ -82,10 +82,7 @@ class OTAComponent : public Component {
 
   enum { OPEN, PLAINTEXT, HASH } auth_type_;
 
-  union {
-    std::string password_;
-    std::string password_hash_;
-  };
+  std::string password_;
 
   uint16_t port_;
   std::string hostname_;
