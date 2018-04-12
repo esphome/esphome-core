@@ -7,6 +7,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_OUTPUT
 
 namespace esphomelib {
 
@@ -83,5 +86,7 @@ class PowerSupplyComponent : public Component {
 };
 
 } // namespace esphomelib
+
+#endif //USE_OUTPUT
 
 #endif //ESPHOMELIB_POWER_SUPPLY_COMPONENT_H

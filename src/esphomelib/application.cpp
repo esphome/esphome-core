@@ -15,12 +15,24 @@
 namespace esphomelib {
 
 using namespace esphomelib::mqtt;
+#ifdef USE_BINARY_SENSOR
 using namespace esphomelib::binary_sensor;
+#endif
+#ifdef USE_SENSOR
 using namespace esphomelib::sensor;
+#endif
+#ifdef USE_OUTPUT
 using namespace esphomelib::output;
+#endif
+#ifdef USE_LIGHT
 using namespace esphomelib::light;
+#endif
+#ifdef USE_FAN
 using namespace esphomelib::fan;
+#endif
+#ifdef USE_SWITCH
 using namespace esphomelib::switch_;
+#endif
 
 static const char *TAG = "application";
 
@@ -109,11 +121,14 @@ LogComponent *Application::init_log(uint32_t baud_rate,
   return this->register_component(log);
 }
 
+#ifdef USE_OUTPUT
 PowerSupplyComponent *Application::make_power_supply(GPIOOutputPin pin, uint32_t enable_time, uint32_t keep_on_time) {
   auto *atx = new PowerSupplyComponent(pin, enable_time, keep_on_time);
   return this->register_component(atx);
 }
+#endif
 
+#ifdef USE_BINARY_SENSOR
 MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor_for(binary_sensor::BinarySensor *binary_sensor,
                                                                     const std::string &friendly_name,
                                                                     Optional<std::string> device_class) {
@@ -122,7 +137,9 @@ MQTTBinarySensorComponent *Application::make_mqtt_binary_sensor_for(binary_senso
     mqtt->set_device_class(device_class.value);
   return this->register_mqtt_component(mqtt);
 }
+#endif
 
+#ifdef USE_GPIO_BINARY_SENSOR
 Application::MakeGPIOBinarySensor Application::make_gpio_binary_sensor(GPIOInputPin pin,
                                                                        const std::string &friendly_name,
                                                                        const std::string &device_class) {
@@ -131,7 +148,9 @@ Application::MakeGPIOBinarySensor Application::make_gpio_binary_sensor(GPIOInput
   s.mqtt = this->make_mqtt_binary_sensor_for(s.gpio, friendly_name, std::move(device_class));
   return s;
 }
+#endif
 
+#ifdef USE_DHT_SENSOR
 Application::MakeDHTComponent Application::make_dht_sensor(uint8_t pin,
                                                            const std::string &temperature_friendly_name,
                                                            const std::string &humidity_friendly_name,
@@ -145,25 +164,31 @@ Application::MakeDHTComponent Application::make_dht_sensor(uint8_t pin,
       .mqtt_humidity = this->make_mqtt_sensor_for(dht->get_humidity_sensor(), std::move(humidity_friendly_name)),
   };
 }
+#endif
 
+#ifdef USE_SENSOR
 sensor::MQTTSensorComponent *Application::make_mqtt_sensor_for(sensor::Sensor *sensor,
                                                                const std::string &friendly_name) {
   return this->register_mqtt_component(new MQTTSensorComponent(friendly_name, sensor));
 }
+#endif
 
-#ifdef ARDUINO_ARCH_ESP32
+#ifdef USE_LEDC_OUTPUT
 LEDCOutputComponent *Application::make_ledc_output(uint8_t pin, float frequency, uint8_t bit_depth) {
   auto *ledc = new LEDCOutputComponent(pin, frequency, bit_depth);
   return this->register_component(ledc);
 }
 #endif
 
+#ifdef USE_PCA9685_OUTPUT
 PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
   this->assert_i2c_initialized();
   auto *pca9685 = new PCA9685OutputComponent(frequency);
   return this->register_component(pca9685);
 }
+#endif
 
+#ifdef USE_LIGHT
 Application::LightStruct Application::make_rgb_light(const std::string &friendly_name,
                                                      FloatOutput *red, FloatOutput *green, FloatOutput *blue) {
   auto *out = new LinearLightOutputComponent();
@@ -172,7 +197,9 @@ Application::LightStruct Application::make_rgb_light(const std::string &friendly
 
   return this->connect_light_(friendly_name, out);
 }
+#endif
 
+#ifdef USE_LIGHT
 Application::LightStruct Application::make_rgbw_light(const std::string &friendly_name,
                                                       output::FloatOutput *red,
                                                       output::FloatOutput *green,
@@ -184,20 +211,29 @@ Application::LightStruct Application::make_rgbw_light(const std::string &friendl
 
   return this->connect_light_(friendly_name, out);
 }
+#endif
 
+#ifdef USE_LIGHT
 MQTTJSONLightComponent *Application::make_mqtt_light_(LightState *state, const std::string &friendly_name) {
   auto *mqtt = new MQTTJSONLightComponent(friendly_name);
   mqtt->set_state(state);
   return this->register_mqtt_component(mqtt);
 }
+#endif
+
 WiFiComponent *Application::get_wifi() const {
   return this->wifi_;
 }
+
+#ifdef USE_OTA
 OTAComponent *Application::init_ota() {
   auto *ota = new OTAComponent();
   ota->set_hostname(this->wifi_->get_hostname());
   return this->register_component(ota);
 }
+#endif
+
+#ifdef USE_LIGHT
 Application::LightStruct Application::make_monochromatic_light(const std::string &friendly_name,
                                                                output::FloatOutput *mono) {
   auto *out = new LinearLightOutputComponent();
@@ -206,6 +242,9 @@ Application::LightStruct Application::make_monochromatic_light(const std::string
 
   return this->connect_light_(friendly_name, out);
 }
+#endif
+
+#ifdef USE_LIGHT
 Application::LightStruct Application::make_binary_light(const std::string &friendly_name,
                                                         output::BinaryOutput *binary) {
   auto *out = new LinearLightOutputComponent();
@@ -214,6 +253,9 @@ Application::LightStruct Application::make_binary_light(const std::string &frien
 
   return this->connect_light_(friendly_name, out);
 }
+#endif
+
+#ifdef USE_LIGHT
 Application::LightStruct Application::connect_light_(const std::string &friendly_name,
                                                      light::LinearLightOutputComponent *out) {
   LightStruct s{};
@@ -224,11 +266,13 @@ Application::LightStruct Application::connect_light_(const std::string &friendly
 
   return s;
 }
+#endif
+
 MQTTClientComponent *Application::get_mqtt_client() const {
   return this->mqtt_client_;
 }
 
-#ifdef ARDUINO_ARCH_ESP32
+#ifdef USE_IR_TRANSMITTER
 IRTransmitterComponent *Application::make_ir_transmitter(GPIOOutputPin pin,
                                                          uint8_t carrier_duty_percent,
                                                          uint8_t clock_divider) {
@@ -236,20 +280,23 @@ IRTransmitterComponent *Application::make_ir_transmitter(GPIOOutputPin pin,
 }
 #endif
 
+#ifdef USE_SWITCH
 MQTTSwitchComponent *Application::make_mqtt_switch_for(switch_::Switch *switch_,
                                                        const std::string &friendly_name) {
   return this->register_mqtt_component(new MQTTSwitchComponent(friendly_name, switch_));
 }
-void Application::assert_name() const {
-  assert(!this->name_.empty());
-}
+#endif
+
+#ifdef USE_DALLAS_SENSOR
 DallasComponent *Application::make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval) {
   return this->register_component(new DallasComponent(one_wire, update_interval));
 }
 DallasComponent *Application::make_dallas_component(uint8_t pin, uint32_t update_interval) {
-  return this->make_dallas_component(new ESPOneWire(pin));
+  return this->make_dallas_component(new ESPOneWire(pin), update_interval);
 }
+#endif
 
+#ifdef USE_GPIO_SWITCH
 Application::GPIOSwitchStruct Application::make_gpio_switch(GPIOOutputPin pin,
                                                             const std::string &friendly_name) {
   auto *binary_output = this->make_gpio_output(pin);
@@ -261,11 +308,13 @@ Application::GPIOSwitchStruct Application::make_gpio_switch(GPIOOutputPin pin,
       .mqtt = mqtt
   };
 }
+#endif
 
 const std::string &Application::get_name() const {
   return this->name_;
 }
 
+#ifdef USE_FAN
 Application::FanStruct Application::make_fan(const std::string &friendly_name) {
   FanStruct s{};
   s.state = new FanState();
@@ -275,12 +324,15 @@ Application::FanStruct Application::make_fan(const std::string &friendly_name) {
   s.output->set_state(s.state);
   return s;
 }
+#endif
 
+#ifdef USE_GPIO_OUTPUT
 output::GPIOBinaryOutputComponent *Application::make_gpio_output(GPIOOutputPin pin) {
   return this->register_component(new GPIOBinaryOutputComponent(pin));
 }
+#endif
 
-#ifdef ARDUINO_ARCH_ESP32
+#ifdef USE_PULSE_COUNTER_SENSOR
 Application::MakePulseCounter Application::make_pulse_counter_sensor(uint8_t pin,
                                                                      const std::string &friendly_name,
                                                                      uint32_t update_interval) {
@@ -293,6 +345,7 @@ Application::MakePulseCounter Application::make_pulse_counter_sensor(uint8_t pin
 }
 #endif
 
+#ifdef USE_ADC_SENSOR
 Application::MakeADCSensor Application::make_adc_sensor(uint8_t pin,
                                                         const std::string &friendly_name,
                                                         uint32_t update_interval) {
@@ -303,7 +356,9 @@ Application::MakeADCSensor Application::make_adc_sensor(uint8_t pin,
       .mqtt = mqtt
   };
 }
+#endif
 
+#ifdef USE_ULTRASONIC_SENSOR
 Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutputPin trigger_pin,
                                                                       GPIOInputPin echo_pin,
                                                                       const std::string &friendly_name,
@@ -317,10 +372,16 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(GPIOOutput
       .mqtt = this->make_mqtt_sensor_for(ultrasonic, friendly_name),
   };
 }
+#endif
+
+#ifdef USE_ADS1115_SENSOR
 ADS1115Component *Application::make_ads1115_component(uint8_t address) {
   this->assert_i2c_initialized();
   return this->register_component(new ADS1115Component(address));
 }
+#endif
+
+#ifdef USE_BMP085_SENSOR
 Application::MakeBMP085Component Application::make_bmp085_sensor(const std::string &temperature_friendly_name,
                                                                  const std::string &pressure_friendly_name,
                                                                  uint32_t update_interval) {
@@ -333,6 +394,9 @@ Application::MakeBMP085Component Application::make_bmp085_sensor(const std::stri
       .mqtt_pressure = this->make_mqtt_sensor_for(bmp->get_pressure_sensor(), pressure_friendly_name),
   };
 }
+#endif
+
+#ifdef USE_HTU21D_SENSOR
 Application::MakeHTU21DComponent Application::make_htu21d_sensor(const std::string &temperature_friendly_name,
                                                                  const std::string &humidity_friendly_name,
                                                                  uint32_t update_interval) {
@@ -345,23 +409,29 @@ Application::MakeHTU21DComponent Application::make_htu21d_sensor(const std::stri
       .mqtt_humidity = this->make_mqtt_sensor_for(htu21d->get_humidity_sensor(), humidity_friendly_name),
   };
 }
+#endif
+
+#ifdef USE_I2C
 #ifdef ARDUINO_ARCH_ESP32
 void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, uint32_t frequency) {
+#else
+void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin) {
+#endif
   if (this->i2c_initialized_) {
     ESP_LOGE(TAG, "You have already initialized i2c, you should only initialize it once.");
     delay(1000);
     ESP.restart();
   }
+#ifdef ARDUINO_ARCH_ESP32
   Wire.begin(sda_pin, scl_pin, frequency);
-  this->i2c_initialized_ = true;
-}
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-void Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin) {
+#else
   Wire.begin(sda_pin, scl_pin);
+#endif
   this->i2c_initialized_ = true;
 }
-#endif
+#endif //USE_I2C
+
+#ifdef USE_I2C
 void Application::assert_i2c_initialized() const {
   if (this->i2c_initialized_)
     return;
@@ -369,6 +439,9 @@ void Application::assert_i2c_initialized() const {
   delay(1000);
   ESP.restart();
 }
+#endif
+
+#ifdef USE_STATUS_BINARY_SENSOR
 MQTTBinarySensorComponent *Application::make_status_binary_sensor(const std::string &friendly_name) {
   auto *binary_sensor = new StatusBinarySensor(); // not a component
   auto *mqtt = this->make_mqtt_binary_sensor_for(binary_sensor, friendly_name);
@@ -378,17 +451,22 @@ MQTTBinarySensorComponent *Application::make_status_binary_sensor(const std::str
   mqtt->disable_availability();
   return mqtt;
 }
+#endif
+
+#ifdef USE_RESTART_SWITCH
 switch_::MQTTSwitchComponent *Application::make_restart_switch(const std::string &friendly_name) {
   auto *switch_ = new RestartSwitch(); // not a component
   return this->make_mqtt_switch_for(switch_, friendly_name);
 }
+#endif
 
-#ifdef ARDUINO_ARCH_ESP8266
+#ifdef USE_ESP8266_PWM_OUTPUT
 ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {
   return this->register_component(new ESP8266PWMOutput(pin));
 }
 #endif
 
+#ifdef USE_HDC1080_SENSOR
 Application::MakeHDC1080Component Application::make_hdc1080_sensor(const std::string &temperature_friendly_name,
                                                                    const std::string &humidity_friendly_name,
                                                                    uint32_t update_interval) {
@@ -401,6 +479,7 @@ Application::MakeHDC1080Component Application::make_hdc1080_sensor(const std::st
       .mqtt_humidity = this->make_mqtt_sensor_for(hdc1080->get_humidity_sensor(), humidity_friendly_name),
   };
 }
+#endif
 
 Application App; // NOLINT
 

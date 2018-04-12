@@ -7,6 +7,8 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 
+#ifdef USE_DALLAS_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -278,3 +280,5 @@ float DallasTemperatureSensor::get_temp_c() {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_DALLAS_SENSOR

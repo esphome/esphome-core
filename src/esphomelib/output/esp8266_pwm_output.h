@@ -9,9 +9,10 @@
 #ifndef ESPHOMELIB_ESP_8266_PWM_OUTPUT_H
 #define ESPHOMELIB_ESP_8266_PWM_OUTPUT_H
 
-#ifdef ARDUINO_ARCH_ESP8266
-
 #include "esphomelib/output/float_output.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_ESP8266_PWM_OUTPUT
 
 namespace esphomelib {
 
@@ -62,6 +63,6 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
 
 } // namespace esphomelib
 
-#endif //ARDUINO_ARCH_ESP8266
+#endif //USE_ESP8266_PWM_OUTPUT
 
 #endif //ESPHOMELIB_ESP_8266_PWM_OUTPUT_H

@@ -7,6 +7,9 @@
 
 #include "esphomelib/output/binary_output.h"
 #include "esphomelib/switch_/switch.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_SWITCH
 
 namespace esphomelib {
 
@@ -31,5 +34,7 @@ class SimpleSwitch : public Switch {
 } // namespace switch_
 
 } // namespace esphomelib
+
+#endif //USE_SWITCH
 
 #endif //ESPHOMELIB_SWITCH_SIMPLE_SWITCH

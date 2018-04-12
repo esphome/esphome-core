@@ -6,6 +6,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_PCA9685_OUTPUT
+
 namespace esphomelib {
 
 namespace output {
@@ -108,3 +110,5 @@ void PCA9685OutputComponent::Channel::write_state(float state) {
 } // namespace output
 
 } // namespace esphomelib
+
+#endif //USE_PCA9685_OUTPUT

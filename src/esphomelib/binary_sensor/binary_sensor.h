@@ -7,6 +7,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_BINARY_SENSOR
 
 namespace esphomelib {
 
@@ -56,5 +59,7 @@ class BinarySensor {
 } // namespace binary_sensor
 
 } // namespace esphomelib
+
+#endif //USE_BINARY_SENSOR
 
 #endif //ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H

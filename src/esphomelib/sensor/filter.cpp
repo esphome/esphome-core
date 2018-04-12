@@ -7,6 +7,8 @@
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
 
+#ifdef USE_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -114,3 +116,5 @@ Optional<float> FilterOutNANFilter::new_value(float value) {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_SENSOR

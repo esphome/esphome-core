@@ -6,6 +6,9 @@
 #define ESPHOMELIB_SWITCH_SWITCH_H
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_SWITCH
 
 namespace esphomelib {
 
@@ -35,5 +38,7 @@ class Switch : public binary_sensor::BinarySensor {
 } // namespace switch_
 
 } // namespace esphomelib
+
+#endif //USE_SWITCH
 
 #endif //ESPHOMELIB_SWITCH_SWITCH_H

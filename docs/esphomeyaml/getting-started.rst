@@ -91,8 +91,8 @@ uploading on the host system:
 
 .. code:: bash
 
-    docker run --rm -v "`pwd`":/config -it esphomeyaml livingroom.yaml compile
-    platformio -d livingroom -t upload
+    docker run --rm -v "`pwd`":/config -it ottowinter/esphomeyaml livingroom.yaml compile
+    platformio run -d livingroom -t upload
 
 Now if you have `MQTT
 Discovery <https://www.home-assistant.io/docs/mqtt/discovery/>`__

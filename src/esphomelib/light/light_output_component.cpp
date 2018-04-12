@@ -7,6 +7,8 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 
+#ifdef USE_LIGHT
+
 namespace esphomelib {
 
 namespace light {
@@ -107,3 +109,5 @@ void LinearLightOutputComponent::setup_binary(output::BinaryOutput *binary) {
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT

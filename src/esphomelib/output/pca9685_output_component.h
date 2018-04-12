@@ -5,9 +5,12 @@
 #ifndef ESPHOMELIB_OUTPUT_PCA9685_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_PCA9685_OUTPUT_COMPONENT_H
 
-#include <PCA9685.h>
-
 #include "esphomelib/output/float_output.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_PCA9685_OUTPUT
+
+#include <PCA9685.h>
 
 namespace esphomelib {
 
@@ -95,5 +98,7 @@ class PCA9685OutputComponent : public Component {
 } // namespace output
 
 } // namespace esphomelib
+
+#endif //USE_PCA9685_OUTPUT
 
 #endif //ESPHOMELIB_OUTPUT_PCA9685_OUTPUT_COMPONENT_H

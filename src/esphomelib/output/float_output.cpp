@@ -7,6 +7,8 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 
+#ifdef USE_OUTPUT
+
 namespace esphomelib {
 
 namespace output {
@@ -57,3 +59,5 @@ void FloatOutput::write_enabled(bool value) {
 } // namespace output
 
 } // namespace esphomelib
+
+#endif //USE_OUTPUT

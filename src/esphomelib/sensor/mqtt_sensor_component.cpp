@@ -8,6 +8,8 @@
 #include "esphomelib/log.h"
 #include "esphomelib/component.h"
 
+#ifdef USE_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -172,3 +174,5 @@ void MQTTSensorComponent::add_filter_out_value_filter(float values_to_filter_out
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_SENSOR

@@ -12,6 +12,9 @@
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_ADC_SENSOR
 
 namespace esphomelib {
 
@@ -73,5 +76,7 @@ class ADCSensorComponent : public PollingSensorComponent {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_ADC_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_ADC_SENSOR_COMPONENT_H

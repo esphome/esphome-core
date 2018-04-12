@@ -6,11 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifdef ARDUINO_ARCH_ESP8266
-
 #include "esphomelib/output/esp8266_pwm_output.h"
 
 #include "esphomelib/log.h"
+
+#ifdef USE_ESP8266_PWM_OUTPUT
 
 namespace esphomelib {
 
@@ -42,4 +42,4 @@ float ESP8266PWMOutput::get_setup_priority() const {
 
 } // namespace esphomelib
 
-#endif
+#endif //USE_ESP8266_PWM_OUTPUT

@@ -7,6 +7,8 @@
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
 
+#ifdef USE_GPIO_BINARY_SENSOR
+
 namespace esphomelib {
 
 namespace binary_sensor {
@@ -37,3 +39,5 @@ GPIOBinarySensorComponent::GPIOBinarySensorComponent(GPIOInputPin pin)
 } // namespace binary_sensor
 
 } // namespace esphomelib
+
+#endif //USE_GPIO_BINARY_SENSOR

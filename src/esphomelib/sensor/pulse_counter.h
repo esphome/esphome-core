@@ -9,12 +9,13 @@
 #ifndef ESPHOMELIB_SENSOR_PULSE_COUNTER_H
 #define ESPHOMELIB_SENSOR_PULSE_COUNTER_H
 
-#ifdef ARDUINO_ARCH_ESP32 // only available on ESP32
-
-#include <driver/pcnt.h>
-
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_PULSE_COUNTER_SENSOR
+
+#include <driver/pcnt.h>
 
 namespace esphomelib {
 
@@ -108,6 +109,6 @@ extern pcnt_unit_t next_pcnt_unit;
 
 } // namespace esphomelib
 
-#endif //ARDUINO_ARCH_ESP32
+#endif //USE_PULSE_COUNTER_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_PULSE_COUNTER_H

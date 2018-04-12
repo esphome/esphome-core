@@ -5,9 +5,10 @@
 #ifndef ESPHOMELIB_OUTPUT_LEDC_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_LEDC_OUTPUT_COMPONENT_H
 
-#ifdef ARDUINO_ARCH_ESP32
-
 #include "esphomelib/output/float_output.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_LEDC_OUTPUT
 
 namespace esphomelib {
 
@@ -63,6 +64,6 @@ extern uint8_t next_ledc_channel;
 
 } // namespace esphomelib
 
-#endif
+#endif //USE_LEDC_OUTPUT
 
 #endif //ESPHOMELIB_OUTPUT_LEDC_OUTPUT_COMPONENT_H

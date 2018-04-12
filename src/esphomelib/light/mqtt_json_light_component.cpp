@@ -6,6 +6,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_LIGHT
+
 namespace esphomelib {
 
 namespace light {
@@ -129,3 +131,5 @@ void MQTTJSONLightComponent::loop() {
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT

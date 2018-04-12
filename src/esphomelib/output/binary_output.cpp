@@ -4,6 +4,8 @@
 
 #include "esphomelib/output/binary_output.h"
 
+#ifdef USE_OUTPUT
+
 namespace esphomelib {
 
 namespace output {
@@ -38,3 +40,5 @@ void BinaryOutput::disable() {
 } // namespace output
 
 } // namespace esphomelib
+
+#endif //USE_OUTPUT

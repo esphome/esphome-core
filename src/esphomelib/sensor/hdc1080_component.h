@@ -11,6 +11,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_HDC1080_SENSOR
 
 namespace esphomelib {
 
@@ -77,5 +80,7 @@ class HDC1080HumiditySensor : public Sensor {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_HDC1080_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_HDC1080_COMPONENT_H

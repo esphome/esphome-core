@@ -6,12 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifdef ARDUINO_ARCH_ESP32
-
 #include "esphomelib/sensor/pulse_counter.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
+
+#ifdef USE_PULSE_COUNTER_SENSOR
 
 namespace esphomelib {
 
@@ -135,4 +135,4 @@ pcnt_unit_t next_pcnt_unit = PCNT_UNIT_0;
 
 } // namespace esphomelib
 
-#endif
+#endif //USE_PULSE_COUNTER_SENSOR

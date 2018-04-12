@@ -13,6 +13,9 @@
 
 #include "esphomelib/log.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_ADS1115_SENSOR
 
 #include "ADS1115.h"
 
@@ -140,5 +143,7 @@ class ADS1115Sensor : public sensor::Sensor {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_ADS1115_SENSOR
 
 #endif //ESPHOMELIB_INPUT_ADS1115_COMPONENT_H

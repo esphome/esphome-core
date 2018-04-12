@@ -13,6 +13,8 @@
 #include "esphomelib/espmath.h"
 #include "esphomelib/esppreferences.h"
 
+#ifdef USE_LIGHT
+
 namespace esphomelib {
 
 namespace light {
@@ -189,3 +191,5 @@ bool LightColorValues::operator!=(const LightColorValues &rhs) const {
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT

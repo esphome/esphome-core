@@ -8,6 +8,9 @@
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/switch_/switch.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_SWITCH
 
 namespace esphomelib {
 
@@ -56,5 +59,7 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
 } // namespace switch_
 
 } // namespace esphomelib
+
+#endif //USE_SWITCH
 
 #endif //ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H

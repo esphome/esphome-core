@@ -7,6 +7,9 @@
 
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/power_supply_component.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_OUTPUT
 
 namespace esphomelib {
 
@@ -66,5 +69,7 @@ class BinaryOutput {
 } // namespace output
 
 } // namespace esphomelib
+
+#endif //USE_OUTPUT
 
 #endif //ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H

@@ -5,6 +5,8 @@
 #include "esphomelib/fan/fan_state.h"
 #include "esphomelib/esppreferences.h"
 
+#ifdef USE_FAN
+
 namespace esphomelib {
 
 namespace fan {
@@ -59,3 +61,5 @@ void FanState::save_to_preferences(const std::string &friendly_name) {
 } // namespace fan
 
 } // namespace esphomelib
+
+#endif //USE_FAN

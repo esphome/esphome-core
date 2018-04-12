@@ -8,9 +8,11 @@
 
 #include "esphomelib/sensor/hdc1080_component.h"
 
-#include <Wire.h>
-
 #include "esphomelib/log.h"
+
+#ifdef USE_HDC1080_SENSOR
+
+#include <Wire.h>
 
 namespace esphomelib {
 
@@ -98,3 +100,5 @@ int8_t HDC1080TemperatureSensor::accuracy_decimals() {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_HDC1080_SENSOR

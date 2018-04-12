@@ -6,6 +6,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -41,3 +43,5 @@ uint32_t PollingSensorComponent::update_interval() {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_SENSOR

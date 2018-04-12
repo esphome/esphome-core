@@ -8,6 +8,8 @@
 
 #include "esphomelib/esp_one_wire.h"
 
+#ifdef USE_ONE_WIRE
+
 namespace esphomelib {
 
 ESPOneWire::ESPOneWire(uint8_t pin) : pin_(pin) {}
@@ -226,3 +228,5 @@ void ESPOneWire::skip() {
 }
 
 } // namespace esphomelib
+
+#endif //USE_ONE_WIRE

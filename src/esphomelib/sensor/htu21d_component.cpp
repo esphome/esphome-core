@@ -10,6 +10,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_HTU21D_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -90,3 +92,5 @@ HTU21DHumiditySensor *HTU21DComponent::get_humidity_sensor() const {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_HTU21D_SENSOR

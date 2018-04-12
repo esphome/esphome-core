@@ -8,6 +8,9 @@
 #include "esphomelib/output/binary_output.h"
 
 #include "esphomelib/component.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_OUTPUT
 
 namespace esphomelib {
 
@@ -66,5 +69,6 @@ class FloatOutput : public BinaryOutput {
 
 } // namespace esphomelib
 
+#endif //USE_OUTPUT
 
 #endif //ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H

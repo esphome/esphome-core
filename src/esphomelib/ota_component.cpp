@@ -3,12 +3,14 @@
 //
 
 #include "esphomelib/ota_component.h"
-
-#include <ArduinoOTA.h>
-
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
-#include "esppreferences.h"
+#include "esphomelib/esppreferences.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_OTA
+
+#include <ArduinoOTA.h>
 
 namespace esphomelib {
 
@@ -186,5 +188,7 @@ uint8_t OTAComponent::read_rtc_() {
   return global_preferences.get_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
 #endif
 }
+
+#endif //USE_OTA
 
 } // namespace esphomelib

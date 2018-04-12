@@ -7,6 +7,31 @@ To get started, please see the `Getting Started Guide </esphomeyaml/getting-star
 
 You can find the source for this project `on Github <https://github.com/OttoWinter/esphomeyaml>`__, and the core of this project, `esphomelib is also hosted on Github <https://github.com/OttoWinter/esphomelib>`__.
 
+About esphomeyaml
+~~~~~~~~~~~~~~~~~
+
+esphomeyaml will:
+
+ * Read your configuration file and warn you about potential errors (like using the invalid pins.)
+ * Create a custom C++ sketch file for you using esphomeyaml's powerful C++ generation engine.
+ * Compile the sketch file for you using `platformio <http://platformio.org/>`__.
+ * Upload the binary to your ESP via Over the Air updates.
+ * Automatically start remote logs via MQTT.
+
+
+Features
+~~~~~~~~
+
+ * **No programming experience required:** just edit YAML configuration
+    files like you're used to with Home Assistant.
+ * **Flexible:** Use `esphomelib <https://github.com/OttoWinter/esphomelib>`__'s powerful core to create custom sensors/outputs.
+ * **Fast and efficient:** Written in C++ and keeps memory consumption to a minimum.
+ * **Made for Home Assistant:** Almost all Home Assistant features are supported out of the box. Including RGB lights and many more.
+ * **Easy reproducible configuration:** No need to go through a long setup process for every single node. Just copy a configuration file and run a single command.
+ * **Smart Over The Air Updates:** esphomeyaml has OTA updates deeply integrated into the system. It even automatically enters a recovery mode if a boot loop is detected.
+ * **Powerful logging engine:** View colorful logs and debug issues remotely.
+ * **It's Open Source 😺**
+
 
 Core Components
 ~~~~~~~~~~~~~~~
@@ -16,9 +41,13 @@ Core Components
 ------------------  ------------------  ------------------
 `Core`_             `WiFi`_             `MQTT`_
 ------------------  ------------------  ------------------
-|I²C Bus|_          |OTA Updates|_      |Power Supply|_
+|I²C Bus|_          |OTA Updates|_      |Logger|_
 ------------------  ------------------  ------------------
-`I²C Bus`_          `OTA Updates`_      `Power Supply`_
+`I²C Bus`_          `OTA Updates`_      `Logger`_
+------------------  ------------------  ------------------
+|Power Supply|_
+------------------  ------------------  ------------------
+`Power Supply`_
 ==================  ==================  ==================
 
 .. |Core| image:: /esphomeyaml/cloud-circle.svg
@@ -40,6 +69,10 @@ Core Components
 .. |OTA Updates| image:: /esphomeyaml/system-update.svg
     :class: component-image
 .. _OTA Updates: /esphomeyaml/components/ota.html
+
+.. |Logger| image:: /esphomeyaml/file-document-box.svg
+    :class: component-image
+.. _Logger: /esphomeyaml/components/logger.html
 
 .. |Power Supply| image:: /esphomeyaml/power.svg
     :class: component-image

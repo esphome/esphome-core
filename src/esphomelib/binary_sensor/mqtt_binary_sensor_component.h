@@ -8,6 +8,9 @@
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_BINARY_SENSOR
 
 namespace esphomelib {
 
@@ -65,5 +68,7 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
 } // namespace binary_sensor
 
 } // namespace esphomelib
+
+#endif //USE_BINARY_SENSOR
 
 #endif //ESPHOMELIB_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H

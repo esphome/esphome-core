@@ -7,6 +7,8 @@
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
 
+#ifdef USE_OUTPUT
+
 namespace esphomelib {
 
 static const char *TAG = "power_supply";
@@ -84,3 +86,5 @@ void PowerSupplyComponent::unrequest_high_power() {
 }
 
 } // namespace esphomelib
+
+#endif //USE_OUTPUT

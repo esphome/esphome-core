@@ -7,6 +7,8 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/esphal.h"
 
+#ifdef USE_LIGHT
+
 namespace esphomelib {
 
 namespace light {
@@ -73,3 +75,5 @@ RandomLightEffect::RandomLightEffect()
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT

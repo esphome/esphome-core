@@ -9,6 +9,9 @@
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/sensor/filter.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
 
 namespace esphomelib {
 
@@ -186,5 +189,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_MQTT_SENSOR_COMPONENT_H

@@ -12,6 +12,9 @@
 #include "esphomelib/sensor/sensor.h"
 
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_ULTRASONIC_SENSOR
 
 namespace esphomelib {
 
@@ -99,5 +102,7 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_ULTRASONIC_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H

@@ -5,6 +5,10 @@
 #ifndef ESPHOMELIB_FAN_FAN_TRAITS_H
 #define ESPHOMELIB_FAN_FAN_TRAITS_H
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_FAN
+
 namespace esphomelib {
 
 namespace fan {
@@ -34,5 +38,7 @@ class FanTraits {
 } // namespace fan
 
 } // namespace esphomelib
+
+#endif //USE_FAN
 
 #endif //ESPHOMELIB_FAN_FAN_TRAITS_H
