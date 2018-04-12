@@ -2,13 +2,13 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#ifdef ARDUINO_ARCH_ESP32
-
 #include "esphomelib/output/ledc_output_component.h"
 
-#include <esp32-hal-ledc.h>
-
 #include "esphomelib/log.h"
+
+#ifdef USE_LEDC_OUTPUT
+
+#include <esp32-hal-ledc.h>
 
 namespace esphomelib {
 
@@ -82,4 +82,4 @@ uint8_t next_ledc_channel = 0;
 
 } // namespace esphomelib
 
-#endif
+#endif //USE_LEDC_OUTPUT

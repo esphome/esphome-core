@@ -11,6 +11,8 @@
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
 
+#ifdef USE_ULTRASONIC_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -106,3 +108,5 @@ int8_t UltrasonicSensorComponent::accuracy_decimals() {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_ULTRASONIC_SENSOR

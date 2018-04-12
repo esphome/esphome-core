@@ -9,6 +9,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
 
 namespace esphomelib {
 
@@ -75,5 +78,6 @@ class PollingSensorComponent : public PollingComponent, public sensor::Sensor {
 
 } // namespace esphomelib
 
+#endif //USE_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_SENSOR_H

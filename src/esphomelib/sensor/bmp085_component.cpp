@@ -10,6 +10,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_BMP085_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -129,3 +131,5 @@ BMP085PressureSensor *BMP085Component::get_pressure_sensor() const {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_BMP085_SENSOR

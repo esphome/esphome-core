@@ -5,9 +5,12 @@
 #ifndef ESPHOMELIB_SENSOR_DHT_COMPONENT_H
 #define ESPHOMELIB_SENSOR_DHT_COMPONENT_H
 
-#include <DHT.h>
-
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_DHT_SENSOR
+
+#include <DHT.h>
 
 namespace esphomelib {
 
@@ -89,5 +92,7 @@ class DHTHumiditySensor : public Sensor {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_DHT_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_DHT_COMPONENT_H

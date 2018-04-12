@@ -9,6 +9,9 @@
 #include <string>
 
 #include "esphomelib/light/light_traits.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
 
 namespace esphomelib {
 
@@ -119,5 +122,6 @@ class LightColorValues {
 
 } // namespace esphomelib
 
+#endif //USE_LIGHT
 
 #endif //ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H

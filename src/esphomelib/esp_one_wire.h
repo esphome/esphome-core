@@ -10,8 +10,11 @@
 #define ESPHOMELIB_ONE_WIRE_H
 
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
 
 #include <vector>
+
+#ifdef USE_ONE_WIRE
 
 namespace esphomelib {
 
@@ -91,5 +94,7 @@ class ESPOneWire {
 };
 
 } // namespace esphomelib
+
+#endif //USE_ONE_WIRE
 
 #endif //ESPHOMELIB_ONE_WIRE_H

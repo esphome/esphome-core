@@ -4,6 +4,8 @@
 
 #include "esphomelib/fan/fan_traits.h"
 
+#ifdef USE_FAN
+
 namespace esphomelib {
 
 namespace fan {
@@ -29,3 +31,5 @@ void FanTraits::set_speed(bool speed) {
 } // namespace fan
 
 } // namespace esphomelib
+
+#endif //USE_FAN

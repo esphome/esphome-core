@@ -8,6 +8,8 @@
 
 #include "esphomelib/sensor/ads1115_component.h"
 
+#ifdef USE_ADS1115_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -134,3 +136,5 @@ int8_t ADS1115Sensor::accuracy_decimals() {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_ADS1115_SENSOR

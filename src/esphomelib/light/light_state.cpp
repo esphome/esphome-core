@@ -10,6 +10,8 @@
 #include "esphomelib/light/light_transformer.h"
 #include "esphomelib/light/light_effect.h"
 
+#ifdef USE_LIGHT
+
 namespace esphomelib {
 
 namespace light {
@@ -130,3 +132,5 @@ void LightState::stop_effect() {
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT

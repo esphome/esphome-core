@@ -9,6 +9,9 @@
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
 
 namespace esphomelib {
 
@@ -146,5 +149,7 @@ class FilterOutNANFilter : public Filter {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_FILTER_H

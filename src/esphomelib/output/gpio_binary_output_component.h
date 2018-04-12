@@ -7,6 +7,9 @@
 
 #include "esphomelib/output/binary_output.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_GPIO_OUTPUT
 
 namespace esphomelib {
 
@@ -54,5 +57,7 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
 } // namespace output
 
 } // namespace esphomelib
+
+#endif //USE_GPIO_OUTPUT
 
 #endif //ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H

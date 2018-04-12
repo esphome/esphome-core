@@ -6,6 +6,9 @@
 #define ESPHOMELIB_LIGHT_LIGHT_TRAITS_H
 
 #include <cstdint>
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
 
 namespace esphomelib {
 
@@ -41,5 +44,7 @@ class LightTraits {
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT
 
 #endif //ESPHOMELIB_LIGHT_LIGHT_TRAITS_H

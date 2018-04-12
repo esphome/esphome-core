@@ -6,6 +6,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_FAN
+
 namespace esphomelib {
 
 namespace fan {
@@ -146,3 +148,5 @@ void MQTTFanComponent::send_state() {
 } // namespace fan
 
 } // namespace esphomelib
+
+#endif //USE_FAN

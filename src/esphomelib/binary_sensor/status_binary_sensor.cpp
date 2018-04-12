@@ -8,10 +8,18 @@
 
 #include "esphomelib/binary_sensor/status_binary_sensor.h"
 
+#ifdef USE_STATUS_BINARY_SENSOR
+
 namespace esphomelib {
 
-std::string binary_sensor::StatusBinarySensor::device_class() {
+namespace binary_sensor {
+
+std::string StatusBinarySensor::device_class() {
   return "connectivity";
 }
 
+} // namespace binary_sensor
+
 } // namespace esphomelib
+
+#endif //USE_STATUS_BINARY_SENSOR

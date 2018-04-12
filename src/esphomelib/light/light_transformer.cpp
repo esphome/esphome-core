@@ -9,6 +9,8 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
 
+#ifdef USE_LIGHT
+
 namespace esphomelib {
 
 namespace light {
@@ -69,3 +71,5 @@ LightFlashTransformer::LightFlashTransformer(uint32_t start_time, uint32_t lengt
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT

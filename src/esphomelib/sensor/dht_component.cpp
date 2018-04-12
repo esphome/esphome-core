@@ -9,6 +9,8 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/espmath.h"
 
+#ifdef USE_DHT_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -119,3 +121,5 @@ int8_t DHTHumiditySensor::accuracy_decimals() {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_DHT_SENSOR

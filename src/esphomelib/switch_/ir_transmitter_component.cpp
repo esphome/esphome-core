@@ -2,16 +2,18 @@
 // Created by Otto Winter on 01.12.17.
 //
 
-#ifdef ARDUINO_ARCH_ESP32
 
-#include "ir_transmitter_component.h"
+#include "esphomelib/switch_/ir_transmitter_component.h"
 
 #include <cstdlib>
+
+#include "esphomelib/log.h"
+
+#ifdef USE_IR_TRANSMITTER
+
 #include <esp32-hal.h>
 #include <driver/rmt.h>
 #include <soc/rmt_struct.h>
-
-#include "esphomelib/log.h"
 
 namespace esphomelib {
 
@@ -291,4 +293,4 @@ rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 
 } // namespace esphomelib
 
-#endif
+#endif //USE_IR_TRANSMITTER

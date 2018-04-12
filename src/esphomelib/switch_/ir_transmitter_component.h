@@ -5,13 +5,14 @@
 #ifndef ESPHOMELIB_SWITCH_IR_TRANSMITTER_COMPONENT_H
 #define ESPHOMELIB_SWITCH_IR_TRANSMITTER_COMPONENT_H
 
-#ifdef ARDUINO_ARCH_ESP32
-
-#include <driver/rmt.h>
-
 #include "esphomelib/component.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_IR_TRANSMITTER
+
+#include <driver/rmt.h>
 
 namespace esphomelib {
 
@@ -202,6 +203,6 @@ extern rmt_channel_t next_rmt_channel;
 
 } // namespace esphomelib
 
-#endif
+#endif //USE_IR_TRANSMITTER
 
 #endif //ESPHOMELIB_SWITCH_IR_TRANSMITTER_COMPONENT_H

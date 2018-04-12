@@ -13,6 +13,9 @@
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_transformer.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
 
 namespace esphomelib {
 
@@ -103,5 +106,6 @@ class LightState {
 
 } // namespace esphomelib
 
+#endif //USE_LIGHT
 
 #endif //ESPHOMELIB_LIGHT_LIGHT_STATE_H

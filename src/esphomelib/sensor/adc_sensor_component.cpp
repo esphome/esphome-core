@@ -10,6 +10,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_ADC_SENSOR
+
 namespace esphomelib {
 
 namespace sensor {
@@ -80,3 +82,5 @@ int8_t ADCSensorComponent::accuracy_decimals() {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_ADC_SENSOR

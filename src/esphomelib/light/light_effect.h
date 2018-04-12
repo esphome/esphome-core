@@ -9,6 +9,9 @@
 
 #include "esphomelib/light/light_traits.h"
 #include "esphomelib/light/light_state.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
 
 namespace esphomelib {
 
@@ -72,5 +75,7 @@ extern std::vector<LightEffect::Entry> light_effect_entries;
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT
 
 #endif //ESPHOMELIB_LIGHT_LIGHT_EFFECT_H

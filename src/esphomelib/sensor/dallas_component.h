@@ -7,6 +7,9 @@
 
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/esp_one_wire.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_DALLAS_SENSOR
 
 namespace esphomelib {
 
@@ -124,5 +127,7 @@ class DallasTemperatureSensor : public Sensor {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_DALLAS_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H

@@ -6,7 +6,7 @@
 #define ESPHOMELIB_APPLICATION_H
 
 #include <vector>
-#include <WiFiClient.h>
+#include "esphomelib/defines.h"
 #include "esphomelib/component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
@@ -79,11 +79,13 @@ class Application {
    */
   WiFiComponent *init_wifi(const std::string &ssid, const std::string &password = "");
 
+#ifdef USE_OTA
   /** Initialize Over-the-Air updates.
    *
    * @return The OTAComponent. Use this to set advanced settings.
    */
   OTAComponent *init_ota();
+#endif
 
   /** Initialize the MQTT client.
    *
@@ -106,26 +108,28 @@ class Application {
   mqtt::MQTTClientComponent *init_mqtt(const std::string &address,
                                        const std::string &username, const std::string &password);
 
-  /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
-   *
-   * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
-   *
-   * SDA/SCL pins default to the values defined by the Arduino framework and are usually
-   * GPIO4 and GPIO5 on the ESP8266 (D2 and D1 on NodeMCU). And for the ESP32 it defaults to
-   * GPIO21 and GPIO22 for SDA and SCL, respectively.
-   *
-   * If you're unsure about what the defaults are on your board, it's always better
-   *
-   * @param sda_pin The SDA pin the i2c bus is connected to.
-   * @param scl_pin The SCL pin the i2c bus is connected to.
-   * @param frequency (only on ESP32) the frequency in Hz the i2c bus should operate at,
-   *                  not all components support all frequencies!
-   */
-#ifdef ARDUINO_ARCH_ESP32
-  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, uint32_t frequency = 100000);
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL);
+#ifdef USE_I2C
+    /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
+     *
+     * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
+     *
+     * SDA/SCL pins default to the values defined by the Arduino framework and are usually
+     * GPIO4 and GPIO5 on the ESP8266 (D2 and D1 on NodeMCU). And for the ESP32 it defaults to
+     * GPIO21 and GPIO22 for SDA and SCL, respectively.
+     *
+     * If you're unsure about what the defaults are on your board, it's always better
+     *
+     * @param sda_pin The SDA pin the i2c bus is connected to.
+     * @param scl_pin The SCL pin the i2c bus is connected to.
+     * @param frequency (only on ESP32) the frequency in Hz the i2c bus should operate at,
+     *                  not all components support all frequencies!
+     */
+  #ifdef ARDUINO_ARCH_ESP32
+    void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, uint32_t frequency = 100000);
+  #endif
+  #ifdef ARDUINO_ARCH_ESP8266
+    void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL);
+  #endif
 #endif
 
 
@@ -138,11 +142,14 @@ class Application {
    *  | |_) | || |\  |/ ___ \|  _ < | |    ___) | |___| |\  |___) | |_| |  _ <
    *  |____|___|_| \_/_/   \_|_| \_\|_|   |____/|_____|_| \_|____/ \___/|_| \_\
    */
+#ifdef USE_BINARY_SENSOR
   /// Create a MQTTBinarySensorComponent for a specific BinarySensor. Mostly for internal use.
   binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor_for(binary_sensor::BinarySensor *binary_sensor,
                                                                         const std::string &friendly_name,
                                                                         Optional<std::string> device_class = Optional<std::string>());
+#endif
 
+#ifdef USE_GPIO_BINARY_SENSOR
   struct MakeGPIOBinarySensor {
     binary_sensor::GPIOBinarySensorComponent *gpio;
     binary_sensor::MQTTBinarySensorComponent *mqtt;
@@ -160,7 +167,9 @@ class Application {
   MakeGPIOBinarySensor make_gpio_binary_sensor(GPIOInputPin pin,
                                                const std::string &friendly_name,
                                                const std::string &device_class = "");
+#endif
 
+#ifdef USE_STATUS_BINARY_SENSOR
   /** Create a simple binary sensor that reports the online/offline state of the node.
    *
    * Uses the MQTT last will and birth message feature. If the values for these features are custom, you need
@@ -170,6 +179,7 @@ class Application {
    * @return A MQTTBinarySensorComponent. Use this to set custom status messages.
    */
   binary_sensor::MQTTBinarySensorComponent *make_status_binary_sensor(const std::string &friendly_name);
+#endif
 
 
 
@@ -181,9 +191,12 @@ class Application {
    *   ___) | |___| |\  |___) | |_| |  _ <
    *  |____/|_____|_| \_|____/ \___/|_| \_\
    */
+#ifdef USE_SENSOR
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
   sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, const std::string &friendly_name);
+#endif
 
+#ifdef USE_DHT_SENSOR
   struct MakeDHTComponent {
     sensor::DHTComponent *dht;
     sensor::MQTTSensorComponent *mqtt_temperature;
@@ -206,12 +219,15 @@ class Application {
                                    const std::string &temperature_friendly_name,
                                    const std::string &humidity_friendly_name,
                                    uint32_t update_interval = 15000);
+#endif
 
+#ifdef USE_DALLAS_SENSOR
   sensor::DallasComponent *make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval = 15000);
 
   sensor::DallasComponent *make_dallas_component(uint8_t pin, uint32_t update_interval = 15000);
+#endif
 
-#ifdef ARDUINO_ARCH_ESP32
+#ifdef USE_PULSE_COUNTER_SENSOR
   struct MakePulseCounter {
     sensor::PulseCounterSensorComponent *pcnt;
     sensor::MQTTSensorComponent *mqtt;
@@ -233,6 +249,7 @@ class Application {
                                              uint32_t update_interval = 15000);
 #endif
 
+#ifdef USE_ADC_SENSOR
   struct MakeADCSensor {
     sensor::ADCSensorComponent *adc;
     sensor::MQTTSensorComponent *mqtt;
@@ -252,7 +269,9 @@ class Application {
   MakeADCSensor make_adc_sensor(uint8_t pin,
                                 const std::string &friendly_name,
                                 uint32_t update_interval = 15000);
+#endif
 
+#ifdef USE_ADS1115_SENSOR
   /** Create an ADS1115 component hub. From this hub you can then create individual sensors using `get_sensor()`.
    *
    * Note that you should have i2c setup for this component to work. To setup i2c call `App.init_i2c(SDA_PIN, SCL_PIN);`
@@ -262,7 +281,9 @@ class Application {
    * @return The ADS1115Component hub. Use this to set advanced setting and create the actual sensors.
    */
   sensor::ADS1115Component *make_ads1115_component(uint8_t address);
+#endif
 
+#ifdef USE_BMP085_SENSOR
   struct MakeBMP085Component {
     sensor::BMP085Component *bmp;
     sensor::MQTTSensorComponent *mqtt_temperature;
@@ -282,7 +303,9 @@ class Application {
   MakeBMP085Component make_bmp085_sensor(const std::string &temperature_friendly_name,
                                          const std::string &pressure_friendly_name,
                                          uint32_t update_interval = 30000);
+#endif
 
+#ifdef USE_HTU21D_SENSOR
   struct MakeHTU21DComponent {
     sensor::HTU21DComponent *htu21d;
     sensor::MQTTSensorComponent *mqtt_temperature;
@@ -302,7 +325,9 @@ class Application {
   MakeHTU21DComponent make_htu21d_sensor(const std::string &temperature_friendly_name,
                                          const std::string &humidity_friendly_name,
                                          uint32_t update_interval = 15000);
+#endif
 
+#ifdef USE_HDC1080_SENSOR
   struct MakeHDC1080Component {
     sensor::HDC1080Component *hdc1080;
     sensor::MQTTSensorComponent *mqtt_temperature;
@@ -322,7 +347,9 @@ class Application {
   MakeHDC1080Component make_hdc1080_sensor(const std::string &temperature_friendly_name,
                                            const std::string &humidity_friendly_name,
                                            uint32_t update_interval = 15000);
+#endif
 
+#ifdef USE_ULTRASONIC_SENSOR
   struct MakeUltrasonicSensor {
     sensor::UltrasonicSensorComponent *ultrasonic;
     sensor::MQTTSensorComponent *mqtt;
@@ -346,6 +373,7 @@ class Application {
   MakeUltrasonicSensor make_ultrasonic_sensor(GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
                                               const std::string &friendly_name,
                                               uint32_t update_interval = 5000);
+#endif
 
 
 
@@ -358,6 +386,7 @@ class Application {
    *  | |_| | |_| | | | |  __/| |_| | | |
    *   \___/ \___/  |_| |_|    \___/  |_|
    */
+#ifdef USE_OUTPUT
   /** Create a power supply component that will automatically switch on and off.
    *
    * @param pin The pin the power supply is connected to.
@@ -367,7 +396,9 @@ class Application {
    */
   PowerSupplyComponent *make_power_supply(GPIOOutputPin pin, uint32_t enable_time = 20,
                                           uint32_t keep_on_time = 10000);
-#ifdef ARDUINO_ARCH_ESP32
+#endif
+
+#ifdef USE_LEDC_OUTPUT
   /** Create a ESP32 LEDC channel.
    *
    * @param pin The pin.
@@ -378,13 +409,16 @@ class Application {
   output::LEDCOutputComponent *make_ledc_output(uint8_t pin, float frequency = 1000.0f, uint8_t bit_depth = 12);
 #endif
 
+#ifdef USE_PCA9685_OUTPUT
   /** Create a PCA9685 component.
    *
    * @param frequency The PWM frequency.
    * @return The PCA9685 component. Use this for advanced settings.
    */
   output::PCA9685OutputComponent *make_pca9685_component(float frequency);
+#endif
 
+#ifdef USE_GPIO_OUTPUT
   /** Create a simple binary GPIO output component.
    *
    * Note: This is *only* a binary output component, not a switch that will be exposed
@@ -394,8 +428,9 @@ class Application {
    * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
    */
   output::GPIOBinaryOutputComponent *make_gpio_output(GPIOOutputPin pin);
+#endif
 
-#ifdef ARDUINO_ARCH_ESP8266
+#ifdef USE_ESP8266_PWM_OUTPUT
   /** Create an ESP8266 software PWM channel.
    *
    * Warning: This is a *software* PWM and therefore can have noticeable flickering. Additionally,
@@ -417,6 +452,7 @@ class Application {
    *  | |___ | | |_| |  _  | | |
    *  |_____|___\____|_| |_| |_|
    */
+#ifdef USE_LIGHT
   /// Create a MQTTJSONLightComponent. Mostly for internal use.
   light::MQTTJSONLightComponent *make_mqtt_light_(light::LightState *state, const std::string &friendly_name);
 
@@ -468,6 +504,7 @@ class Application {
   LightStruct make_rgbw_light(const std::string &friendly_name,
                               output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
                               output::FloatOutput *white);
+#endif
 
 
 
@@ -479,7 +516,7 @@ class Application {
    *   ___) |\ V  V /  | |  | || |___|  _  |
    *  |____/  \_/\_/  |___| |_| \____|_| |_|
    */
-#ifdef ARDUINO_ARCH_ESP32
+#ifdef USE_IR_TRANSMITTER
   /** Create an IR transmitter.
    *
    * @param pin The pin the IR led is connected to.
@@ -492,6 +529,7 @@ class Application {
                                                        uint8_t clock_divider = switch_::DEFAULT_CLOCK_DIVIDER);
 #endif
 
+#ifdef USE_GPIO_SWITCH
   struct GPIOSwitchStruct {
     output::GPIOBinaryOutputComponent *gpio;
     switch_::MQTTSwitchComponent *mqtt;
@@ -504,14 +542,18 @@ class Application {
    * @return A GPIOSwitchStruct, use this to set advanced settings.
    */
   GPIOSwitchStruct make_gpio_switch(GPIOOutputPin pin, const std::string &friendly_name);
+#endif
 
+#ifdef USE_SWITCH
   /// Create a MQTTSwitchComponent for the provided Switch.
   switch_::MQTTSwitchComponent *make_mqtt_switch_for(switch_::Switch *switch_,
                                                      const std::string &friendly_name);
+#endif
 
-
+#ifdef USE_RESTART_SWITCH
   /// Make a simple switch that restarts the device with the provided friendly name.
   switch_::MQTTSwitchComponent *make_restart_switch(const std::string &friendly_name);
+#endif
 
 
 
@@ -523,6 +565,7 @@ class Application {
    *  |  _/ ___ \| |\  |
    *  |_|/_/   \_|_| \_|
    */
+#ifdef USE_FAN
   struct FanStruct {
     fan::BasicFanComponent *output;
     fan::FanState *state;
@@ -535,6 +578,7 @@ class Application {
    * @return A FanStruct, use the output field to set your output channels.
    */
   FanStruct make_fan(const std::string &friendly_name);
+#endif
 
 
 
@@ -562,13 +606,12 @@ class Application {
   WiFiComponent *get_wifi() const;
   mqtt::MQTTClientComponent *get_mqtt_client() const;
 
-  /// Assert that name has been set.
-  void assert_name() const;
-
   /// Get the name of this Application set by set_name().
   const std::string &get_name() const;
 
+#ifdef USE_I2C
   void assert_i2c_initialized() const;
+#endif
 
  protected:
   std::vector<Component *> components_{};
@@ -577,7 +620,9 @@ class Application {
 
   std::string name_;
   Component::ComponentState application_state_{Component::CONSTRUCTION};
+#ifdef USE_I2C
   bool i2c_initialized_{false};
+#endif
 };
 
 /// Global storage of Application pointer - only one Application can exist.

@@ -9,6 +9,9 @@
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/fan/fan_traits.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_FAN
 
 namespace esphomelib {
 
@@ -76,5 +79,7 @@ class FanState {
 } // namespace fan
 
 } // namespace esphomelib
+
+#endif //USE_FAN
 
 #endif //ESPHOMELIB_FAN_FAN_STATE_H

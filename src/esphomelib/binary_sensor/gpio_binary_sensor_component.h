@@ -9,6 +9,9 @@
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_GPIO_BINARY_SENSOR
 
 namespace esphomelib {
 
@@ -49,5 +52,7 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
 } // namespace binary_sensor
 
 } // namespace esphomelib
+
+#endif //USE_GPIO_BINARY_SENSOR
 
 #endif //ESPHOMELIB_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H

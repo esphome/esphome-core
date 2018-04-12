@@ -7,6 +7,9 @@
 
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/fan/fan_state.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_FAN
 
 namespace esphomelib {
 
@@ -52,5 +55,7 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
 } // namespace fan
 
 } // namespace esphomelib
+
+#endif //USE_FAN
 
 #endif //ESPHOMELIB_FAN_MQTT_FAN_COMPONENT_H

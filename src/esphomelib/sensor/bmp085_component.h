@@ -11,6 +11,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_BMP085_SENSOR
 
 #include "BMP085.h"
 
@@ -99,5 +102,7 @@ class BMP085PressureSensor : public Sensor {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_BMP085_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_BMP085_COMPONENT_H

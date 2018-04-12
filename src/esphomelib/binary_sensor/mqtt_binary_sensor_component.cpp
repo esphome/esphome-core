@@ -8,6 +8,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_BINARY_SENSOR
+
 namespace esphomelib {
 
 namespace binary_sensor {
@@ -76,3 +78,5 @@ void MQTTBinarySensorComponent::set_payload_off(std::string payload_off) {
 } // namespace binary_sensor
 
 } // namespace esphomelib
+
+#endif //USE_BINARY_SENSOR

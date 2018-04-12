@@ -6,6 +6,9 @@
 #define ESPHOMELIB_LIGHT_LIGHT_TRANSFORMER_H
 
 #include "esphomelib/light/light_color_values.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
 
 namespace esphomelib {
 
@@ -68,5 +71,7 @@ class LightFlashTransformer : public LightTransformer {
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT
 
 #endif //ESPHOMELIB_LIGHT_LIGHT_TRANSFORMER_H

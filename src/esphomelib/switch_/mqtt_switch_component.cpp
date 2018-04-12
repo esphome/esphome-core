@@ -9,6 +9,8 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esppreferences.h"
 
+#ifdef USE_SWITCH
+
 namespace esphomelib {
 
 namespace switch_ {
@@ -92,3 +94,5 @@ void MQTTSwitchComponent::set_icon(const std::string &icon) {
 } // namespace switch_
 
 } // namespace esphomelib
+
+#endif //USE_SWITCH

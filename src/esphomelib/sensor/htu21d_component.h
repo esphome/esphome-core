@@ -11,6 +11,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_HTU21D_SENSOR
 
 #include "HTU21D.h"
 
@@ -83,5 +86,7 @@ class HTU21DHumiditySensor : public Sensor {
 } // namespace sensor
 
 } // namespace esphomelib
+
+#endif //USE_HTU21D_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_HTU21D_COMPONENT_H

@@ -9,6 +9,9 @@
 #include "esphomelib/output/binary_output.h"
 #include "esphomelib/output/float_output.h"
 #include "esphomelib/fan/fan_state.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_FAN
 
 namespace esphomelib {
 
@@ -60,5 +63,7 @@ class BasicFanComponent : public Component {
 } // namespace fan
 
 } // namespace esphomelib
+
+#endif //USE_FAN
 
 #endif //ESPHOMELIB_FAN_BASIC_FAN_COMPONENT_H

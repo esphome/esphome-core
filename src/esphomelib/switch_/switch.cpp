@@ -4,6 +4,8 @@
 
 #include "esphomelib/switch_/switch.h"
 
+#ifdef USE_SWITCH
+
 namespace esphomelib {
 
 namespace switch_ {
@@ -15,3 +17,5 @@ std::string Switch::icon() {
 } // namespace switch_
 
 } // namespace esphomelib
+
+#endif //USE_SWITCH

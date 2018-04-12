@@ -8,6 +8,9 @@
 #include "esphomelib/component.h"
 #include "esphomelib/output/float_output.h"
 #include "esphomelib/light/light_state.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
 
 namespace esphomelib {
 
@@ -73,5 +76,7 @@ class LinearLightOutputComponent : public LightOutput, public Component {
 } // namespace light
 
 } // namespace esphomelib
+
+#endif //USE_LIGHT
 
 #endif //ESPHOMELIB_LIGHT_LIGHT_OUTPUT_COMPONENT_H

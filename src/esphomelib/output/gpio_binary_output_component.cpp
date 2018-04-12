@@ -7,6 +7,8 @@
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
 
+#ifdef USE_GPIO_OUTPUT
+
 namespace esphomelib {
 
 namespace output {
@@ -34,3 +36,5 @@ GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOOutputPin pin)
 } // namespace output
 
 } // namespace esphomelib
+
+#endif //USE_GPIO_OUTPUT

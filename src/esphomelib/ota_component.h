@@ -8,6 +8,9 @@
 #include <WiFiServer.h>
 
 #include "esphomelib/component.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_OTA
 
 #ifdef ARDUINO_ARCH_ESP32
   const uint16_t OTA_DEFAULT_PORT = 3232;
@@ -95,5 +98,7 @@ class OTAComponent : public Component {
 };
 
 } // namespace esphomelib
+
+#endif //USE_OTA
 
 #endif //ESPHOMELIB_OTA_COMPONENT_H

@@ -10,6 +10,9 @@
 #define ESPHOMELIB_RESTART_SWITCH_H
 
 #include "esphomelib/switch_/switch.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_RESTART_SWITCH
 
 namespace esphomelib {
 
@@ -26,5 +29,7 @@ class RestartSwitch : public Switch {
 } // namespace switch_
 
 } // namespace esphomelib
+
+#endif //USE_RESTART_SWITCH
 
 #endif //ESPHOMELIB_RESTART_SWITCH_H

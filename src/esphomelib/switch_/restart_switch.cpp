@@ -10,6 +10,8 @@
 
 #include "esphomelib/log.h"
 
+#ifdef USE_RESTART_SWITCH
+
 namespace esphomelib {
 
 namespace switch_ {
@@ -35,3 +37,5 @@ void RestartSwitch::turn_off() {
 } // namespace switch_
 
 } // namespace esphomelib
+
+#endif //USE_RESTART_SWITCH
