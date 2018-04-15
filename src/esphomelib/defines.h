@@ -167,6 +167,11 @@
     #define USE_SWITCH
   #endif
 #endif
+#ifdef USE_LIGHT
+  #ifndef USE_OUTPUT
+    #define USE_OUTPUT
+  #endif
+#endif
 
 
 #endif //ESPHOMELIB_DEFINES_H

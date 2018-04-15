@@ -24,11 +24,6 @@ namespace esphomelib {
 
 static const char *TAG = "web_server";
 
-static const char *JS PROGMEM =
-    "var source=new EventSource(\"/events\");source.addEventListener(\"log\",function(e){var t=document.getElementById(\"log\"),n=\"\";e.data.startsWith(\"\u001B[1;31m\")?n=\"e\":e.data.startsWith(\"\u001B[0;33m\")?n=\"w\":e.data.startsWith(\"\u001B[0;32m\")?n=\"i\":e.data.startsWith(\"\u001B[0;35m\")?n=\"c\":e.data.startsWith(\"\u001B[0;36m\")?n=\"d\":e.data.startsWith(\"\u001B[0;37m\")?n=\"v\":t.innerHTML+=e.data+\"\\n\",t.innerHTML+='<span class=\"'+n+'\">'+e.data.substr(7,e.data.length-10)+\"</span>\\n\"}),source.addEventListener(\"state\",function(e){var t=JSON.parse(e.data);document.getElementById(t.id).children[1].innerText=t.state});var states=document.getElementById(\"states\");for(var i=0,row;row=states.rows[i];i++)row.classList.contains(\"switch\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/switch/\"+e.substr(7)+\"/toggle\",!0),n.send()})}(row.id),row.classList.contains(\"fan\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/fan/\"+e.substr(4)+\"/toggle\",!0),n.send()})}(row.id),row.classList.contains(\"light\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/light/\"+e.substr(6)+\"/toggle\",!0),n.send()})}(row.id);";
-static const char *CSS PROGMEM =
-    "#log .v{color:#888}#log .d{color:#0DD}#log .c{color:#ff00ff}#log .i{color:#32cd32}#log .w{color:#ff0}#log .e{color:red;font-weight:700}#log{background-color:#1c1c1c}";
-
 
 void write_row(AsyncResponseStream *stream, Nameable *obj,
                const std::string &klass, const std::string &action) {
@@ -455,9 +450,8 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
   std::string title = App.get_name() + " Web Server";
   stream->print(F("<!DOCTYPE html><html><head><meta charset=UTF-8><title>"));
   stream->print(title.c_str());
-  stream->print(F("</title><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css\"><style>"));
-  stream->print(CSS);
-  stream->print(F("</style></head><body><article class=\"markdown-body\"><h1>"));
+  stream->print(F("</title><link rel=\"stylesheet\" href=\"https://esphomelib.com/_static/webserver-v1.min.css\">"
+                  "</head><body><article class=\"markdown-body\"><h1>"));
   stream->print(title.c_str());
   stream->print(F("</h1><h2>States</h2><table id=\"states\"><thead><tr><th>Name<th>State<th>Actions<tbody>"));
 
@@ -488,10 +482,10 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
 
   stream->print(
       F("</tbody></table><p>See <a href=https://esphomelib.com/web-api/index.html>esphomelib Web API</a> for REST API documentation.</p>"
-        "<h2>Debug Log</h2><pre id=\"log\"></pre><script>")
+        "<h2>Debug Log</h2><pre id=\"log\"></pre>"
+        "<script src=\"https://esphomelib.com/_static/webserver-v1.min.js\"></script>"
+        "</article></body></html>")
   );
-  stream->print(JS);
-  stream->print(F("</script></article></body></html>"));
 
   request->send(stream);
 }
