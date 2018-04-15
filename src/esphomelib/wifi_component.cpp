@@ -139,7 +139,7 @@ void WiFiComponent::wait_for_connection() {
       ESP.restart();
     }
 
-    delay(500);
+    delay(250);
     ESP_LOGV(TAG, ". (status=%d)", status);
   }
 

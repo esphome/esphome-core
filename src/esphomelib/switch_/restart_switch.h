@@ -21,6 +21,8 @@ namespace switch_ {
 /// A simple switch that restarts the device when triggered.
 class RestartSwitch : public Switch {
  public:
+  explicit RestartSwitch(const std::string &name);
+
   void turn_on() override;
   void turn_off() override;
   std::string icon() override;

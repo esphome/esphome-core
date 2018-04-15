@@ -253,8 +253,9 @@ uint8_t IRTransmitterComponent::get_carrier_duty_percent() const {
 void IRTransmitterComponent::set_carrier_duty_percent(uint8_t carrier_duty_percent) {
   this->carrier_duty_percent_ = carrier_duty_percent;
 }
-IRTransmitterComponent::DataTransmitter *IRTransmitterComponent::create_transmitter(const ir::SendData &send_data) {
-  return new DataTransmitter(send_data, this);
+IRTransmitterComponent::DataTransmitter *IRTransmitterComponent::create_transmitter(const std::string &name,
+                                                                                    const ir::SendData &send_data) {
+  return new DataTransmitter(name, send_data, this);
 }
 IRTransmitterComponent::IRTransmitterComponent(GPIOOutputPin pin,
                                                uint8_t carrier_duty_percent,
@@ -271,9 +272,10 @@ GPIOOutputPin IRTransmitterComponent::get_pin() {
 void IRTransmitterComponent::set_pin(const GPIOOutputPin &pin) {
   this->pin_ = pin;
 }
-IRTransmitterComponent::DataTransmitter::DataTransmitter(const ir::SendData &send_data,
+IRTransmitterComponent::DataTransmitter::DataTransmitter(const std::string &name,
+                                                         const ir::SendData &send_data,
                                                          IRTransmitterComponent *parent)
-    : Switch(), send_data_(send_data), parent_(parent) {}
+    : Switch(name), send_data_(send_data), parent_(parent) {}
 
 void IRTransmitterComponent::DataTransmitter::turn_on() {
   this->parent_->send(this->send_data_);

@@ -27,7 +27,8 @@ class DHTComponent : public PollingComponent {
    * @param pin The pin which DHT sensor is connected to.
    * @param update_interval The interval in ms the sensor should be checked.
    */
-  explicit DHTComponent(uint8_t pin, uint32_t update_interval = 15000);
+  explicit DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
+                        uint8_t pin, uint32_t update_interval = 15000);
 
   /// Manually set the pin of this DHT sensor.
   void set_pin(uint8_t pin);
@@ -66,7 +67,7 @@ class DHTComponent : public PollingComponent {
 /// Internal data class used to expose a temperature sensor from the main component.
 class DHTTemperatureSensor : public Sensor {
  public:
-  explicit DHTTemperatureSensor(DHTComponent *parent);
+  explicit DHTTemperatureSensor(const std::string &name, DHTComponent *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -79,7 +80,7 @@ class DHTTemperatureSensor : public Sensor {
 /// Internal data class used to expose a humidity sensor from the main component.
 class DHTHumiditySensor : public Sensor {
  public:
-  explicit DHTHumiditySensor(DHTComponent *parent);
+  explicit DHTHumiditySensor(const std::string &name, DHTComponent *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;

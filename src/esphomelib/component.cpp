@@ -145,4 +145,19 @@ void PollingComponent::set_update_interval(uint32_t update_interval) {
   this->update_interval_ = update_interval;
 }
 
+const std::string &Nameable::get_name() const {
+  return this->name_;
+}
+void Nameable::set_name(const std::string &name) {
+  this->name_ = name;
+}
+Nameable::Nameable(const std::string &name)
+    : name_(name) {}
+const std::string &Nameable::get_name_id() {
+  if (!this->name_id_.empty())
+    return this->name_id_;
+  this->name_id_ = sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+  return this->name_id_;
+}
+
 } // namespace esphomelib

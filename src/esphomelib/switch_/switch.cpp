@@ -13,6 +13,7 @@ namespace switch_ {
 std::string Switch::icon() {
   return "";
 }
+Switch::Switch(const std::string &name) : BinarySensor(name) {}
 
 } // namespace switch_
 

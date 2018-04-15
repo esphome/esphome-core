@@ -17,8 +17,8 @@
   ],
   "dependencies": [
     {
-      "name": "PubSubClient-esphomelib",
-      "version": "2.7.1"
+      "name": "AsyncMqttClient",
+      "version": "0.8.2"
     },
     {
       "name": "ArduinoJson-esphomelib",
@@ -35,6 +35,10 @@
     {
       "name": "I2Cdevlib-esphomelib",
       "version": "1.1.0"
+    },
+    {
+      "name": "ESP Async WebServer",
+      "version": "1.1.1"
     }
   ],
   "license": "GPL-3.0",

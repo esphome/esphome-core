@@ -20,7 +20,8 @@ class BMP180Sensor : public sensor::PollingSensorComponent {
  public:
   Adafruit_BMP085 bmp;
 
-  BMP180Sensor(uint32_t update_interval) : sensor::PollingSensorComponent(update_interval) {}
+  BMP180Sensor(const std::string &friendly_name, uint32_t update_interval)
+      : sensor::PollingSensorComponent(friendly_name, update_interval) {}
 
   void setup() override {
     bmp.begin();
@@ -43,8 +44,8 @@ void setup() {
   App.init_ota()->start_safe_mode();
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
 
-  auto *custom_sensor = App.register_component(new BMP180Sensor(5000));
-  App.make_mqtt_sensor_for(custom_sensor, "Custom Sensor Example");
+  auto *custom_sensor = App.register_component(new BMP180Sensor("Custom Sensor Example", 5000));
+  App.register_sensor(custom_sensor);
 
   App.setup();
 }

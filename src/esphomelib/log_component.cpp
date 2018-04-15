@@ -21,25 +21,21 @@ int LogComponent::log_vprintf_(ESPLogLevel level, const std::string &tag,
                                const char *format, va_list args) {
   auto it = this->log_levels_.find(tag);
   ESPLogLevel max_level = this->global_log_level_;
-  //if (it == this->log_levels_.end())
-  //  max_level = it->second;
+  if (it != this->log_levels_.end())
+     max_level = it->second;
 
   if (level > max_level)
     return 0;
 
   int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(),
                       format, args);
+  if (ret <= 0)
+    return ret;
 
-  if (ret > 0) { // only if format successful
-    if (this->baud_rate_ > 0)
-      Serial.println(this->tx_buffer_.data());
+  if (this->baud_rate_ > 0)
+    Serial.println(this->tx_buffer_.data());
 
-    if (this->mqtt_logging_enabled_ && mqtt::global_mqtt_client != nullptr &&
-        mqtt::global_mqtt_client->is_connected()) // don't try if we're not connected.
-      mqtt::global_mqtt_client->publish(
-          this->get_logging_topic(), this->tx_buffer_.data(), true);
-  }
-
+  this->log_callback_.call(level, this->tx_buffer_.data());
   return ret;
 }
 
@@ -77,20 +73,8 @@ size_t LogComponent::get_tx_buffer_size() const {
 void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) {
   this->tx_buffer_.reserve(tx_buffer_size);
 }
-void LogComponent::set_custom_logging_topic(const std::string &custom_logging_topic) {
-  this->mqtt_logging_topic_ = custom_logging_topic;
-  this->set_mqtt_logging_enabled(true);
-}
-bool LogComponent::is_mqtt_logging_enabled() const {
-  return this->mqtt_logging_enabled_;
-}
-void LogComponent::set_mqtt_logging_enabled(bool mqtt_logging_enabled) {
-  this->mqtt_logging_enabled_ = mqtt_logging_enabled;
-}
-std::string LogComponent::get_logging_topic() {
-  if (this->mqtt_logging_topic_.empty() && mqtt::global_mqtt_client != nullptr)
-    return mqtt::global_mqtt_client->get_topic_prefix() + "/debug";
-  return this->mqtt_logging_topic_;
+void LogComponent::add_on_log_callback(std::function<void(ESPLogLevel, std::string)> &&callback) {
+  this->log_callback_.add(std::move(callback));
 }
 
 LogComponent *global_log_component = nullptr;

@@ -8,6 +8,9 @@
 #include <vector>
 #include "esphomelib/defines.h"
 #include "esphomelib/component.h"
+#include "esphomelib/controller.h"
+#include "esphomelib/debug_component.h"
+#include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
 #include "esphomelib/power_supply_component.h"
@@ -41,6 +44,7 @@
 #include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/switch_/restart_switch.h"
+#include "esphomelib/web_server.h"
 
 namespace esphomelib {
 
@@ -61,12 +65,10 @@ class Application {
   /** Initialize the log system.
    *
    * @param baud_rate The serial baud rate. Set to 0 to disable UART debugging.
-   * @param mqtt_topic The MQTT debug topic. Set to "" to for default topic, and disable the optional for disabling this feature.
    * @param tx_buffer_size The size of the printf buffer.
    * @return The created and initialized LogComponent.
    */
   LogComponent *init_log(uint32_t baud_rate = 115200,
-                         const Optional<std::string> &mqtt_topic = Optional<std::string>(""),
                          size_t tx_buffer_size = 512);
 
   /** Initialize the WiFi system.
@@ -132,6 +134,10 @@ class Application {
   #endif
 #endif
 
+#ifdef USE_WEB_SERVER
+    WebServer *init_web_server(uint16_t port = 80);
+#endif
+
 
 
 
@@ -143,10 +149,8 @@ class Application {
    *  |____|___|_| \_/_/   \_|_| \_\|_|   |____/|_____|_| \_|____/ \___/|_| \_\
    */
 #ifdef USE_BINARY_SENSOR
-  /// Create a MQTTBinarySensorComponent for a specific BinarySensor. Mostly for internal use.
-  binary_sensor::MQTTBinarySensorComponent *make_mqtt_binary_sensor_for(binary_sensor::BinarySensor *binary_sensor,
-                                                                        const std::string &friendly_name,
-                                                                        Optional<std::string> device_class = Optional<std::string>());
+  /// Register a binary sensor and set it up for the front-end.
+  binary_sensor::MQTTBinarySensorComponent *register_binary_sensor(binary_sensor::BinarySensor *binary_sensor);
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -164,8 +168,8 @@ class Application {
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
    *                     or esphomelib::binary_sensor::device_class
    */
-  MakeGPIOBinarySensor make_gpio_binary_sensor(GPIOInputPin pin,
-                                               const std::string &friendly_name,
+  MakeGPIOBinarySensor make_gpio_binary_sensor(const std::string &friendly_name,
+                                               GPIOInputPin pin,
                                                const std::string &device_class = "");
 #endif
 
@@ -193,7 +197,7 @@ class Application {
    */
 #ifdef USE_SENSOR
   /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
-  sensor::MQTTSensorComponent *make_mqtt_sensor_for(sensor::Sensor *sensor, const std::string &friendly_name);
+  sensor::MQTTSensorComponent *register_sensor(sensor::Sensor *sensor);
 #endif
 
 #ifdef USE_DHT_SENSOR
@@ -207,17 +211,17 @@ class Application {
    *
    * Note: This method automatically applies a SlidingWindowMovingAverageFilter.
    *
-   * @param pin The pin the DHT sensor is connected to.
    * @param temperature_friendly_name The name the temperature sensor should be advertised as. Leave empty for no
    *                                  automatic discovery.
    * @param humidity_friendly_name The name the humidity sensor should be advertised as. Leave empty for no
    *                                  automatic discovery.
+   * @param pin The pin the DHT sensor is connected to.
    * @param update_interval The interval (in ms) the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
-  MakeDHTComponent make_dht_sensor(uint8_t pin,
-                                   const std::string &temperature_friendly_name,
+  MakeDHTComponent make_dht_sensor(const std::string &temperature_friendly_name,
                                    const std::string &humidity_friendly_name,
+                                   uint8_t pin,
                                    uint32_t update_interval = 15000);
 #endif
 
@@ -244,8 +248,8 @@ class Application {
    * @param update_interval The interval in ms the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
-  MakePulseCounter make_pulse_counter_sensor(uint8_t pin,
-                                             const std::string &friendly_name,
+  MakePulseCounter make_pulse_counter_sensor(const std::string &friendly_name,
+                                             uint8_t pin,
                                              uint32_t update_interval = 15000);
 #endif
 
@@ -266,8 +270,8 @@ class Application {
    * @param update_interval The interval in ms the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
-  MakeADCSensor make_adc_sensor(uint8_t pin,
-                                const std::string &friendly_name,
+  MakeADCSensor make_adc_sensor(const std::string &friendly_name,
+                                uint8_t pin,
                                 uint32_t update_interval = 15000);
 #endif
 
@@ -364,14 +368,14 @@ class Application {
    * echo, this class has a default timeout of around 2m. You can change that using the return value of this
    * function.
    *
+   * @param friendly_name The friendly name for this sensor advertised to Home Assistant.
    * @param trigger_pin The pin the short pulse will be sent to, can be integer or GPIOOutputPin.
    * @param echo_pin The pin we wait that we wait on for the echo, can be integer or GPIOInputPin.
-   * @param friendly_name The friendly name for this sensor advertised to Home Assistant.
    * @param update_interval The time in ms between updates, defaults to 5 seconds.
    * @return The Ultrasonic sensor + MQTT sensor pair, use this for advanced settings.
    */
-  MakeUltrasonicSensor make_ultrasonic_sensor(GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
-                                              const std::string &friendly_name,
+  MakeUltrasonicSensor make_ultrasonic_sensor(const std::string &friendly_name,
+                                              GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
                                               uint32_t update_interval = 5000);
 #endif
 
@@ -454,7 +458,7 @@ class Application {
    */
 #ifdef USE_LIGHT
   /// Create a MQTTJSONLightComponent. Mostly for internal use.
-  light::MQTTJSONLightComponent *make_mqtt_light_(light::LightState *state, const std::string &friendly_name);
+  light::MQTTJSONLightComponent *register_light(light::LightState *state);
 
   struct LightStruct {
     light::LinearLightOutputComponent *output;
@@ -516,6 +520,11 @@ class Application {
    *   ___) |\ V  V /  | |  | || |___|  _  |
    *  |____/  \_/\_/  |___| |_| \____|_| |_|
    */
+#ifdef USE_SWITCH
+  /// Create a MQTTSwitchComponent for the provided Switch.
+  switch_::MQTTSwitchComponent *register_switch(switch_::Switch *switch_);
+#endif
+
 #ifdef USE_IR_TRANSMITTER
   /** Create an IR transmitter.
    *
@@ -541,13 +550,7 @@ class Application {
    * @param friendly_name The friendly name advertised to Home Assistant for this switch-
    * @return A GPIOSwitchStruct, use this to set advanced settings.
    */
-  GPIOSwitchStruct make_gpio_switch(GPIOOutputPin pin, const std::string &friendly_name);
-#endif
-
-#ifdef USE_SWITCH
-  /// Create a MQTTSwitchComponent for the provided Switch.
-  switch_::MQTTSwitchComponent *make_mqtt_switch_for(switch_::Switch *switch_,
-                                                     const std::string &friendly_name);
+  GPIOSwitchStruct make_gpio_switch(const std::string &friendly_name, GPIOOutputPin pin);
 #endif
 
 #ifdef USE_RESTART_SWITCH
@@ -566,6 +569,8 @@ class Application {
    *  |_|/_/   \_|_| \_|
    */
 #ifdef USE_FAN
+  fan::MQTTFanComponent *register_fan(fan::FanState *state);
+
   struct FanStruct {
     fan::BasicFanComponent *output;
     fan::FanState *state;
@@ -590,12 +595,20 @@ class Application {
    *  |  _  | |___| |___|  __/| |___|  _ < ___) |
    *  |_| |_|_____|_____|_|   |_____|_| \_|____/
    */
-  template<class C>
-  C *register_mqtt_component(C *c);
+#ifdef USE_DEBUG_COMPONENT
+  DebugComponent *make_debug_component();
+#endif
+
+#ifdef USE_DEEP_SLEEP
+  DeepSleepComponent *make_deep_sleep_component();
+#endif
 
   /// Register the component in this Application instance.
   template<class C>
   C *register_component(C *c);
+
+  template<class C>
+  C *register_controller(C *c);
 
   /// Set up all the registered components. Call this at the end of your setup() function.
   void setup();
@@ -615,6 +628,7 @@ class Application {
 
  protected:
   std::vector<Component *> components_{};
+  std::vector<Controller *> controllers_{};
   mqtt::MQTTClientComponent *mqtt_client_{nullptr};
   WiFiComponent *wifi_{nullptr};
 
@@ -631,14 +645,16 @@ extern Application App;
 template<class C>
 C *Application::register_component(C *c) {
   Component *component = c;
-  this->components_.push_back(component);
+  if (c != nullptr)
+    this->components_.push_back(component);
   return c;
 }
 
 template<class C>
-C *Application::register_mqtt_component(C *c) {
-  mqtt::MQTTComponent *component = c;
-  return this->register_component(c);
+C *Application::register_controller(C *c) {
+  Controller *controller = c;
+  this->controllers_.push_back(controller);
+  return c;
 }
 
 } // namespace esphomelib

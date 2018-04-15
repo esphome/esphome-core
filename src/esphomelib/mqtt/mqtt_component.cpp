@@ -51,14 +51,10 @@ void MQTTComponent::send_message(const std::string &topic, const std::string &pa
 }
 
 void MQTTComponent::send_json_message(const std::string &topic, const json_build_t &f, const Optional<bool> &retain) {
-  StaticJsonBuffer<JSON_BUFFER_SIZE> json_buffer;
-  JsonObject &root = json_buffer.createObject();
-
-  f(json_buffer, root);
-
-  char buffer[MQTT_MAX_PACKET_SIZE];
-  root.printTo(buffer, MQTT_MAX_PACKET_SIZE);
-  this->send_message(topic, std::string(buffer), retain);
+  bool actual_retain = this->retain_;
+  if (retain)
+    actual_retain = retain.value;
+  global_mqtt_client->publish_json(topic, f, actual_retain);
 }
 
 void MQTTComponent::send_discovery(const json_build_t &f,
@@ -70,7 +66,7 @@ void MQTTComponent::send_discovery(const json_build_t &f,
   ESP_LOGV(TAG, "Sending discovery...");
 
   this->send_json_message(this->get_discovery_topic(discovery_info), [&](JsonBuffer &buffer, JsonObject &root) {
-    root["name"] = this->friendly_name_;
+    root["name"] = this->friendly_name();
     root["platform"] = platform;
     if (state_topic)
       root["state_topic"] = this->get_state_topic();
@@ -100,48 +96,34 @@ bool MQTTComponent::get_retain() const {
 }
 
 bool MQTTComponent::is_discovery_enabled() const {
-  return !this->friendly_name_.empty() && global_mqtt_client->is_discovery_enabled();
+  return this->discovery_enabled_ && global_mqtt_client->is_discovery_enabled();
 }
 
 std::string MQTTComponent::get_default_object_id() const {
-  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name_), HOSTNAME_CHARACTER_WHITELIST);
-}
-
-const std::string &MQTTComponent::get_friendly_name() const {
-  return this->friendly_name_;
+  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name()), HOSTNAME_CHARACTER_WHITELIST);
 }
 
 void MQTTComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
   global_mqtt_client->subscribe(topic, std::move(callback), qos);
 }
 
-void MQTTComponent::parse_json(const std::string &message, const json_parse_t &f) {
-  MQTTClientComponent::parse_json(message, f);
-}
-
 void MQTTComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
   global_mqtt_client->subscribe_json(topic, std::move(callback), qos);
 }
 
-MQTTComponent::MQTTComponent(std::string friendly_name)
-    : friendly_name_(std::move(friendly_name)),
-      retain_(true) {
+MQTTComponent::MQTTComponent() = default;
 
-}
 float MQTTComponent::get_setup_priority() const {
   return setup_priority::MQTT_COMPONENT;
 }
 void MQTTComponent::disable_discovery() {
-  this->friendly_name_ = "";
+  this->discovery_enabled_ = false;
 }
 void MQTTComponent::set_custom_state_topic(const std::string &custom_state_topic) {
   this->set_custom_topic("state", custom_state_topic);
 }
 void MQTTComponent::set_custom_command_topic(const std::string &custom_command_topic) {
   this->set_custom_topic("command", custom_command_topic);
-}
-void MQTTComponent::set_friendly_name(const std::string &friendly_name) {
-  this->friendly_name_ = friendly_name;
 }
 void MQTTComponent::set_custom_topic(const std::string &key, const std::string &custom_topic) {
   this->custom_topics_[key] = custom_topic;

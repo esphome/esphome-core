@@ -25,23 +25,12 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
  public:
   /** Construct a MQTTBinarySensorComponent.
    *
-   * @param friendly_name The friendly name.
-   * @param binary_sensor The binary sensor to connect the callback to, can be nullptr.
+   * @param binary_sensor The binary sensor.
    */
-  explicit MQTTBinarySensorComponent(std::string friendly_name,
-                                     BinarySensor *binary_sensor = nullptr);
-
-  /// Set the Home Assistant device class (see esphomelib::binary_sensor::device_class)
-  void set_device_class(std::string device_class);
+  explicit MQTTBinarySensorComponent(BinarySensor *binary_sensor);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  /// Creates a new callback for publishing state changes to MQTT.
-  virtual binary_callback_t create_on_new_state_callback();
-
-  /// Set the device class for this binary sensor.
-  const std::string &get_device_class() const;
-
   /// Send discovery.
   void setup() override;
 
@@ -55,12 +44,10 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   void set_payload_off(std::string payload_off);
 
  protected:
+  std::string friendly_name() const override;
   std::string component_type() const override;
 
-  BinarySensor *binary_sensor_{nullptr};
-  std::string device_class_;
-  bool first_run_{true};
-  bool last_state_;
+  BinarySensor *binary_sensor_;
   std::string payload_on_{"ON"};
   std::string payload_off_{"OFF"};
 };

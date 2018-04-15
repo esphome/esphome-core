@@ -35,7 +35,8 @@ class BMP085Component : public PollingComponent {
    * @param address The i2c address of the sensor, defaults to 0x77.
    * @param update_interval The interval in ms to check the sensor.
    */
-  explicit BMP085Component(uint32_t update_interval = 30000);
+  explicit BMP085Component(const std::string &temperature_name, const std::string &pressure_name,
+                           uint32_t update_interval = 30000);
 
   /// Set the i2c address of this sensor.
   void set_address(uint8_t address);
@@ -74,7 +75,7 @@ class BMP085Component : public PollingComponent {
 /// Internal sensor class to represent the temperature state of the BMP085 as a sensor.
 class BMP085TemperatureSensor : public Sensor {
  public:
-  explicit BMP085TemperatureSensor(BMP085Component *parent);
+  explicit BMP085TemperatureSensor(const std::string &name, BMP085Component *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -88,7 +89,7 @@ class BMP085TemperatureSensor : public Sensor {
 /// Internal sensor class to represent the pressure state of the BMP085 as a sensor.
 class BMP085PressureSensor : public Sensor {
  public:
-  explicit BMP085PressureSensor(BMP085Component *parent);
+  explicit BMP085PressureSensor(const std::string &name, BMP085Component *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;

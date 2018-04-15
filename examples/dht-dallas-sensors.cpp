@@ -25,11 +25,11 @@ void setup() {
 
   auto *dallas = App.make_dallas_component(15);
 
-  App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0xfe0000031f1eaf29), "Ambient Temperature");
-  App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0x710000031f0e7e28), "Heatpump Temperature");
+  App.register_sensor(dallas->get_sensor_by_address("Ambient Temperature", 0xfe0000031f1eaf29));
+  App.register_sensor(dallas->get_sensor_by_address("Heatpump Temperature", 0x710000031f0e7e28));
 
-  auto dht = App.make_dht_sensor(12, "Outside Temperature", "Outside Humidity");
-  dht.mqtt_temperature->set_filters({
+  auto dht = App.make_dht_sensor("Outside Temperature", "Outside Humidity", 12);
+  dht.dht->get_temperature_sensor()->set_filters({
       // Take average of 30 last values; report average on every 20th value
       new sensor::SlidingWindowMovingAverageFilter(30, 20),
       // Convert to Fahrenheit
@@ -37,13 +37,13 @@ void setup() {
         return celsius * 9.0/5.0 + 32.0;
       }),
   });
-  dht.mqtt_temperature->set_unit_of_measurement("°F");
+  dht.dht->get_temperature_sensor()->set_unit_of_measurement("°F");
 
   // Built-in Analog to Digital converter, can be used to measure things like luminosity.
-  App.make_adc_sensor(13, "Analog Voltage");
+  App.make_adc_sensor("Analog Voltage", 13);
 
   // Ultrasonic sensor like HC-SR04, can be used to measure distance.
-  App.make_ultrasonic_sensor(23, 22, "Ultrasonic Sensor");
+  App.make_ultrasonic_sensor("Ultrasonic Sensor", 23, 22);
 
   App.setup();
 }

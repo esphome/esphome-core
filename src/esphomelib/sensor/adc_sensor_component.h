@@ -33,7 +33,7 @@ namespace sensor {
 class ADCSensorComponent : public PollingSensorComponent {
  public:
   /// Construct the ADCSensor with the provided pin and update interval in ms.
-  explicit ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval = 15000);
+  explicit ADCSensorComponent(const std::string &name, GPIOInputPin pin, uint32_t update_interval = 15000);
 
   /// Manually set the pin used for this ADC sensor.
   void set_pin(const GPIOInputPin &pin);

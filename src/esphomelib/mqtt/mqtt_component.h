@@ -14,9 +14,6 @@ namespace esphomelib {
 
 namespace mqtt {
 
-/// Callback function typedef for building JsonObjects.
-using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
-
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
  *
@@ -35,18 +32,13 @@ using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
  */
 class MQTTComponent : public Component {
  public:
-  /** Constructs a MQTTComponent.
-   *
-   * @param friendly_name The friendly name. Leave empty to disable discovery.
-   */
-  explicit MQTTComponent(std::string friendly_name);
+  /// Constructs a MQTTComponent.
+  explicit MQTTComponent();
 
   /// Set whether state message should be retained.
   void set_retain(bool retain);
   bool get_retain() const;
 
-  const std::string &get_friendly_name() const;
-  void set_friendly_name(const std::string &friendly_name);
   /// Disable discovery. Sets friendly name to "".
   void disable_discovery();
   bool is_discovery_enabled() const;
@@ -67,7 +59,6 @@ class MQTTComponent : public Component {
    * See See <a href="https://home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
    */
   void set_availability(std::string topic, std::string payload_available, std::string payload_not_available);
-  const mqtt::Availability &get_availability() const;
   void disable_availability();
   
  protected:
@@ -81,6 +72,9 @@ class MQTTComponent : public Component {
    * @return The full topic.
    */
   virtual std::string get_default_topic_for(const std::string &suffix) const;
+
+  /// Get the friendly name of this MQTT component.
+  virtual std::string friendly_name() const = 0;
 
   /// Get the MQTT topic that new states will be shared to.
   const std::string get_state_topic() const;
@@ -147,22 +141,15 @@ class MQTTComponent : public Component {
    */
   void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
 
-  /** Parse a JSON message and call f if the message is valid JSON.
-   *
-   * @param message The JSON message.
-   * @param f The callback.
-   */
-  void parse_json(const std::string &message, const json_parse_t &f);
-
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Generate the Home Assistant MQTT discovery object id by automatically transforming the friendly name.
   std::string get_default_object_id() const;
 
  protected:
-  std::string friendly_name_; ///< Discovery friendly name, leave empty for disabled discovery.
   std::map<std::string, std::string> custom_topics_{};
   bool retain_{true};
+  bool discovery_enabled_{true};
   Availability *availability_{nullptr};
 };
 

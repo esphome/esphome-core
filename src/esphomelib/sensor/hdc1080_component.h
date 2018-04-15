@@ -29,7 +29,8 @@ class HDC1080HumiditySensor;
 class HDC1080Component : public PollingComponent {
  public:
   /// Initialize the component with the provided update interval.
-  explicit HDC1080Component(uint32_t update_interval);
+  explicit HDC1080Component(const std::string &temperature_name, const std::string &humidity_name,
+                            uint32_t update_interval);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -47,14 +48,14 @@ class HDC1080Component : public PollingComponent {
   HDC1080HumiditySensor *get_humidity_sensor() const;
 
  protected:
-  HDC1080TemperatureSensor *temperature_{nullptr};
-  HDC1080HumiditySensor *humidity_{nullptr};
+  HDC1080TemperatureSensor *temperature_;
+  HDC1080HumiditySensor *humidity_;
 };
 
 /// Helper class to expose the temperature of the HDC1080 as a sensor.
 class HDC1080TemperatureSensor : public Sensor {
  public:
-  explicit HDC1080TemperatureSensor(HDC1080Component *parent);
+  explicit HDC1080TemperatureSensor(const std::string &name, HDC1080Component *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -67,7 +68,7 @@ class HDC1080TemperatureSensor : public Sensor {
 /// Helper class to expose the humidity of the HDC1080 as a sensor.
 class HDC1080HumiditySensor : public Sensor {
  public:
-  explicit HDC1080HumiditySensor(HDC1080Component *parent);
+  explicit HDC1080HumiditySensor(const std::string &name, HDC1080Component *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;

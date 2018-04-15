@@ -17,9 +17,10 @@ namespace sensor {
 
 static const char *TAG = "sensor.dht";
 
-DHTComponent::DHTComponent(uint8_t pin, uint32_t update_interval)
-    : temperature_sensor_(new DHTTemperatureSensor(this)),
-      humidity_sensor_(new DHTHumiditySensor(this)),
+DHTComponent::DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
+                           uint8_t pin, uint32_t update_interval)
+    : temperature_sensor_(new DHTTemperatureSensor(temperature_name, this)),
+      humidity_sensor_(new DHTHumiditySensor(humidity_name, this)),
       PollingComponent(update_interval) {
   this->set_pin(pin);
 }
@@ -97,7 +98,9 @@ uint32_t DHTTemperatureSensor::update_interval() {
 
   return this->parent_->get_update_interval();
 }
-DHTTemperatureSensor::DHTTemperatureSensor(DHTComponent *parent) : parent_(parent) {}
+DHTTemperatureSensor::DHTTemperatureSensor(const std::string &name, DHTComponent *parent)
+    : Sensor(name), parent_(parent) {}
+
 int8_t DHTTemperatureSensor::accuracy_decimals() {
   return this->parent_->get_dht().getNumberOfDecimalsTemperature();
 }
@@ -113,7 +116,9 @@ uint32_t DHTHumiditySensor::update_interval() {
 
   return this->parent_->get_update_interval();
 }
-DHTHumiditySensor::DHTHumiditySensor(DHTComponent *parent) : parent_(parent) {}
+DHTHumiditySensor::DHTHumiditySensor(const std::string &name, DHTComponent *parent)
+    : Sensor(name), parent_(parent) {}
+
 int8_t DHTHumiditySensor::accuracy_decimals() {
   return this->parent_->get_dht().getNumberOfDecimalsHumidity();
 }

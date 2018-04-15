@@ -24,6 +24,8 @@ namespace binary_sensor {
  */
 class StatusBinarySensor : public BinarySensor {
  public:
+  explicit StatusBinarySensor(const std::string &name);
+
   std::string device_class() override;
 };
 

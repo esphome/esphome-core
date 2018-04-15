@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "esphomelib/helpers.h"
+#include "esphomelib/component.h"
 #include "esphomelib/fan/fan_traits.h"
 #include "esphomelib/defines.h"
 
@@ -24,7 +25,7 @@ namespace fan {
  * Both the frontend and the backend can register callbacks whenever a state is changed from the
  * frontend and whenever a state is actually changed and should be pushed to the frontend
  */
-class FanState {
+class FanState : public Nameable {
  public:
   /// Simple enum to represent the speed of
   enum Speed {
@@ -33,6 +34,8 @@ class FanState {
     SPEED_MEDIUM, ///< The fan is running on medium speed.
     SPEED_HIGH  ///< The fan is running on high/full speed.
   };
+
+  explicit FanState(const std::string &name);
 
   /// Register a callback that will be called each time the frontend wants to set a state.
   void add_on_receive_frontend_state_callback(std::function<void()> &&send_callback);
@@ -51,21 +54,16 @@ class FanState {
   Speed get_speed() const;
   /// Set the current speed of this fan.
   void set_speed(Speed speed);
+  bool set_speed(const char *speed);
   /// Get the traits of this fan (i.e. what features it supports).
   const FanTraits &get_traits() const;
   /// Set the traits of this fan (i.e. what features it supports).
   void set_traits(const FanTraits &traits);
 
-  /** Load a fan state from the preferences into this object.
-   *
-   * @param friendly_name The key for the preferences.
-   */
-  void load_from_preferences(const std::string &friendly_name);
-  /** Save the fan state from this object into the preferences.
-   *
-   * @param friendly_name The key for the preferences.
-   */
-  void save_to_preferences(const std::string &friendly_name);
+  /// Load a fan state from the preferences into this object.
+  void load_from_preferences();
+  /// Save the fan state from this object into the preferences.
+  void save_to_preferences();
 
  protected:
   bool state_{false};

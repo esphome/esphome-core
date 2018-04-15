@@ -28,8 +28,8 @@ void setup() {
 
   // 0x48 is the default address when address pin is pulled low.
   auto *ads1115 = App.make_ads1115_component(0x48);
-  App.make_mqtt_sensor_for(ads1115->get_sensor(ADS1115_MUX_P0_N1, ADS1115_PGA_6P144), "ADS1115 Voltage #1");
-  App.make_mqtt_sensor_for(ads1115->get_sensor(ADS1115_MUX_P0_NG, ADS1115_PGA_1P024), "ADS1115 Voltage #2");
+  App.register_sensor(ads1115->get_sensor("ADS1115 Voltage #1", ADS1115_MUX_P0_N1, ADS1115_PGA_6P144));
+  App.register_sensor(ads1115->get_sensor("ADS1115 Voltage #2", ADS1115_MUX_P0_NG, ADS1115_PGA_1P024));
   App.make_bmp085_sensor("BMP085 Temperature", "BMP085 Pressure");
   App.make_htu21d_sensor("HTU21D Temperature", "HTU21D Humidity");
   App.make_hdc1080_sensor("HDC1080 Temperature", "HDC1080 Humidity");

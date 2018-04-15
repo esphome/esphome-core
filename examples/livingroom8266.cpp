@@ -17,7 +17,7 @@ void setup() {
   auto *lamp = App.make_gpio_output(32); // on pin 32
   App.make_binary_light("Standing Lamp", lamp);
 
-  App.make_dht_sensor(4, "Livingroom Temperature", "Livingroom Humidity");
+  App.make_dht_sensor("Livingroom Temperature", "Livingroom Humidity", 4);
 
   App.make_monochromatic_light("Desk Lamp", App.make_esp8266_pwm_output(D2));
 

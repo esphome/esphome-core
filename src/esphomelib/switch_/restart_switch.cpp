@@ -33,6 +33,7 @@ void RestartSwitch::turn_off() {
   // Do nothing
   this->publish_state(false);
 }
+RestartSwitch::RestartSwitch(const std::string &name) : Switch(name) {}
 
 } // namespace switch_
 

@@ -24,9 +24,11 @@ static const uint8_t HDC1080_CMD_CONFIGURATION = 0x02;
 static const uint8_t HDC1080_CMD_TEMPERATURE = 0x00;
 static const uint8_t HDC1080_CMD_HUMIDITY = 0x01;
 
-HDC1080Component::HDC1080Component(uint32_t update_interval)
+HDC1080Component::HDC1080Component(const std::string &temperature_name, const std::string &humidity_name,
+                                   uint32_t update_interval)
     : PollingComponent(update_interval),
-      temperature_(new HDC1080TemperatureSensor(this)), humidity_(new HDC1080HumiditySensor(this)) {
+      temperature_(new HDC1080TemperatureSensor(temperature_name, this)),
+      humidity_(new HDC1080HumiditySensor(humidity_name, this)) {
 
 }
 void HDC1080Component::setup() {
@@ -70,7 +72,9 @@ HDC1080HumiditySensor *HDC1080Component::get_humidity_sensor() const {
   return this->humidity_;
 }
 
-HDC1080HumiditySensor::HDC1080HumiditySensor(HDC1080Component *parent) : parent_(parent) {}
+HDC1080HumiditySensor::HDC1080HumiditySensor(const std::string &name, HDC1080Component *parent)
+    : Sensor(name), parent_(parent) {}
+
 std::string HDC1080HumiditySensor::unit_of_measurement() {
   return "%";
 }
@@ -83,7 +87,9 @@ uint32_t HDC1080HumiditySensor::update_interval() {
 int8_t HDC1080HumiditySensor::accuracy_decimals() {
   return 1;
 }
-HDC1080TemperatureSensor::HDC1080TemperatureSensor(HDC1080Component *parent) : parent_(parent) {}
+HDC1080TemperatureSensor::HDC1080TemperatureSensor(const std::string &name, HDC1080Component *parent)
+    : Sensor(name), parent_(parent) {}
+
 std::string HDC1080TemperatureSensor::unit_of_measurement() {
   return "°C";
 }

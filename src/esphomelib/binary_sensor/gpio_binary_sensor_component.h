@@ -27,7 +27,7 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
    *
    * @param pin The input pin, can either be an integer or GPIOInputPin.
    */
-  explicit GPIOBinarySensorComponent(GPIOInputPin pin);
+  explicit GPIOBinarySensorComponent(const std::string &name, GPIOInputPin pin);
 
   /// Set the pin for this GPIO binary sensor.
   void set_pin(const GPIOInputPin &pin);

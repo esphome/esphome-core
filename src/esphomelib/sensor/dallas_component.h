@@ -32,7 +32,7 @@ class DallasComponent : public PollingComponent {
    * @param resolution The resolution for this sensor, 8-12.
    * @return A pointer to a DallasTemperatureSensor, use this to setup MQTT.
    */
-  DallasTemperatureSensor *get_sensor_by_address(uint64_t address,
+  DallasTemperatureSensor *get_sensor_by_address(const std::string &name, uint64_t address,
                                                  uint8_t resolution = 12);
   /** Get a DallasTemperatureSensor by index.
    *
@@ -43,7 +43,7 @@ class DallasComponent : public PollingComponent {
    * @param resolution The resolution for this sensor, 8-12.
    * @return A pointer to a DallasTemperatureSensor, use this to setup MQTT.
    */
-  DallasTemperatureSensor *get_sensor_by_index(uint8_t index,
+  DallasTemperatureSensor *get_sensor_by_index(const std::string &name, uint8_t index,
                                                uint8_t resolution = 12);
 
   // ========== INTERNAL METHODS ==========
@@ -76,12 +76,12 @@ class DallasTemperatureSensor : public Sensor {
    * @param resolution Resolution used for this sensor. Usually 8-12.
    * @param update_interval The interval in ms the sensor should be checked.
    */
-  DallasTemperatureSensor(uint64_t address, uint8_t resolution, DallasComponent *parent);
+  DallasTemperatureSensor(const std::string &name, uint64_t address, uint8_t resolution, DallasComponent *parent);
 
   /// Helper to get a pointer to the address as uint8_t.
   uint8_t *get_address8();
   /// Helper to create (and cache) the name for this sensor. For example "0xfe0000031f1eaf29".
-  const std::string &get_name();
+  const std::string &get_address_name();
 
   /// Get the 64-bit unsigned address for this sensor.
   uint64_t get_address() const;
@@ -119,7 +119,7 @@ class DallasTemperatureSensor : public Sensor {
   uint8_t index_;
 
   uint8_t resolution_;
-  std::string name_;
+  std::string address_name_;
   uint8_t scratch_pad_[9] = {0,};
   DallasComponent *parent_{nullptr};
 };

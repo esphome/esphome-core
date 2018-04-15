@@ -36,9 +36,8 @@ void ADS1115Component::setup() {
   this->adc_.setComparatorQueueMode(ADS1115_COMP_QUE_DISABLE);
 
 
-  for (unsigned int i = 0; i < this->sensors_.size(); i++) {
-    auto *sensor = this->sensors_[i];
-    ESP_LOGCONFIG(TAG, "  Sensor %u", i);
+  for (auto sensor : this->sensors_) {
+    ESP_LOGCONFIG(TAG, "  Sensor %u", sensor->get_name().c_str());
     ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
     ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
     ESP_LOGCONFIG(TAG, "    Update Interval: %u", sensor->get_update_interval());
@@ -72,8 +71,9 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   ESP_LOGD(TAG, "Got Voltage=%fV", v);
   sensor->push_new_value(v);
 }
-ADS1115Sensor *ADS1115Component::get_sensor(uint8_t multiplexer, uint8_t gain, uint32_t update_interval) {
-  auto s = new ADS1115Sensor(multiplexer, gain, update_interval);
+ADS1115Sensor *ADS1115Component::get_sensor(const std::string &name, uint8_t multiplexer, uint8_t gain,
+                                            uint32_t update_interval) {
+  auto s = new ADS1115Sensor(name, multiplexer, gain, update_interval);
   this->sensors_.push_back(s);
   return s;
 }
@@ -118,8 +118,9 @@ uint32_t ADS1115Sensor::get_update_interval() const {
 void ADS1115Sensor::set_update_interval(uint32_t update_interval) {
   this->update_interval_ = update_interval;
 }
-ADS1115Sensor::ADS1115Sensor(uint8_t multiplexer, uint8_t gain, uint32_t update_interval)
-    : multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {}
+ADS1115Sensor::ADS1115Sensor(const std::string &name, uint8_t multiplexer, uint8_t gain, uint32_t update_interval)
+    : Sensor(name), multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {}
+
 std::string ADS1115Sensor::unit_of_measurement() {
   return "V";
 }

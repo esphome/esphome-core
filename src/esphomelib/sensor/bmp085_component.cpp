@@ -18,8 +18,8 @@ namespace sensor {
 
 static const char *TAG = "sensor.bmp085";
 
-BMP085TemperatureSensor::BMP085TemperatureSensor(BMP085Component *parent)
-  : parent_(parent) { }
+BMP085TemperatureSensor::BMP085TemperatureSensor(const std::string &name, BMP085Component *parent)
+  : Sensor(name), parent_(parent) { }
 std::string BMP085TemperatureSensor::unit_of_measurement() {
   return "°C";
 }
@@ -33,8 +33,8 @@ int8_t BMP085TemperatureSensor::accuracy_decimals() {
   return 1;
 }
 
-BMP085PressureSensor::BMP085PressureSensor(BMP085Component *parent)
-  : parent_(parent) { }
+BMP085PressureSensor::BMP085PressureSensor(const std::string &name, BMP085Component *parent)
+  : Sensor(name), parent_(parent) { }
 std::string BMP085PressureSensor::unit_of_measurement() {
   return "hPa";
 }
@@ -78,9 +78,11 @@ void BMP085Component::setup() {
   }
   this->bmp_.initialize();
 }
-BMP085Component::BMP085Component(uint32_t update_interval)
+BMP085Component::BMP085Component(const std::string &temperature_name, const std::string &pressure_name,
+                                 uint32_t update_interval)
   : PollingComponent(update_interval), address_(BMP085_DEFAULT_ADDRESS),
-    temperature_(new BMP085TemperatureSensor(this)), pressure_(new BMP085PressureSensor(this)) {
+    temperature_(new BMP085TemperatureSensor(temperature_name, this)),
+    pressure_(new BMP085PressureSensor(pressure_name, this)) {
 
 }
 

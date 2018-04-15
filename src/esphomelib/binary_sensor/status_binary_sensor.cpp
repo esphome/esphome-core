@@ -17,6 +17,10 @@ namespace binary_sensor {
 std::string StatusBinarySensor::device_class() {
   return "connectivity";
 }
+StatusBinarySensor::StatusBinarySensor(const std::string &name)
+    : BinarySensor(name) {
+  this->value_ = true;
+}
 
 } // namespace binary_sensor
 

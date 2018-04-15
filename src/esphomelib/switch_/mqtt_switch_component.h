@@ -22,10 +22,7 @@ namespace switch_ {
  */
 class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
  public:
-  explicit MQTTSwitchComponent(std::string friendly_name, switch_::Switch *switch_ = nullptr);
-
-  /// Set the internal switch object used for sending states, does not register the state callback.
-  void set_switch(Switch *switch_);
+  explicit MQTTSwitchComponent(switch_::Switch *switch_);
 
   /// Set the icon for this switch. "" for no icon.
   void set_icon(const std::string &icon);
@@ -33,9 +30,6 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   void setup() override;
-  
-  /// Override MQTTBinarySensor's on state received from hw callback.
-  binary_sensor::binary_callback_t create_on_new_state_callback() override;
 
  protected:
   /// Get the internal switch use for setting state.
@@ -53,7 +47,7 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
   std::string get_icon() const;
 
   Optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
-  Switch *switch_{nullptr};
+  Switch *switch_;
 };
 
 } // namespace switch_

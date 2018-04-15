@@ -10,10 +10,21 @@
 #include <memory>
 #include <queue>
 #include <functional>
+#include <ArduinoJson.h>
 
 #include "esphomelib/esphal.h"
 
+#ifndef JSON_BUFFER_SIZE
+  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
+#endif
+
 namespace esphomelib {
+
+/// Callback function typedef for parsing JsonObjects.
+using json_parse_t = std::function<void(JsonObject &)>;
+
+/// Callback function typedef for building JsonObjects.
+using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
 
 /// Gets the MAC address as a string, this can be used as way to identify this ESP32.
 std::string get_mac_address();
@@ -35,6 +46,10 @@ bool is_empty(const IPAddress &address);
 
 /// Convert the string to lowercase_underscore.
 std::string to_lowercase_underscore(std::string s);
+
+std::string build_json(const json_build_t &f);
+
+void parse_json(const std::string &data, const json_parse_t &f);
 
 /** Clamp the value between min and max.
  *
@@ -77,6 +92,10 @@ float random_float();
 /// Applies gamma correction with the provided gamma to value.
 float gamma_correct(float value, float gamma);
 
+/// Create a string from a value and an accuracy in decimals.
+std::string value_accuracy_to_string(float value, int8_t accuracy_decimals);
+
+std::string uint64_to_string(uint64_t num);
 
 /// Sanitizes the input string with the whitelist.
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
@@ -108,6 +127,8 @@ class Optional {
   bool defined{false};
   T value;
 };
+
+Optional<bool> parse_on_off(const char *str, const char *payload_on = "on", const char *payload_off = "off");
 
 /// Helper class that implements a sliding window moving average.
 template<typename T>

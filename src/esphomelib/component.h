@@ -23,6 +23,7 @@ const float WIFI = 10.0f; ///< for WiFi initialization
 const float MQTT_CLIENT = 7.5f; ///< for the MQTT client initialization
 const float HARDWARE_LATE = 0.0f;
 const float MQTT_COMPONENT = -5.0f; ///< for MQTT component initialization
+const float LATE = -10.0f;
 
 } // namespace setup_priority
 
@@ -220,6 +221,18 @@ class PollingComponent : public Component {
   virtual uint32_t get_update_interval() const;
  protected:
   uint32_t update_interval_;
+};
+
+/// Helper class that enables naming of objects so that it doesn't have to be re-implement every single time.
+class Nameable {
+ public:
+  explicit Nameable(const std::string &name);
+  const std::string &get_name() const;
+  void set_name(const std::string &name);
+  const std::string &get_name_id();
+ protected:
+  std::string name_;
+  std::string name_id_;
 };
 
 } // namespace esphomelib

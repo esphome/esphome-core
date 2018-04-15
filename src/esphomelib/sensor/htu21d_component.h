@@ -32,7 +32,8 @@ class HTU21DHumiditySensor;
 class HTU21DComponent : public PollingComponent {
  public:
   /// Construct the HTU21D with the given update interval.
-  explicit HTU21DComponent(uint32_t update_interval = 15000);
+  explicit HTU21DComponent(const std::string &temperature_name, const std::string &humidity_name,
+                           uint32_t update_interval = 15000);
 
   /// Get a reference to the internal i2cdevlib HTU21D object used for communication.
   HTU21D &get_htu21d();
@@ -58,7 +59,7 @@ class HTU21DComponent : public PollingComponent {
 /// Internal helper class to expose temperatures from the HTU21D as a sensor.
 class HTU21DTemperatureSensor : public Sensor {
  public:
-  explicit HTU21DTemperatureSensor(HTU21DComponent *parent);
+  explicit HTU21DTemperatureSensor(const std::string &name, HTU21DComponent *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -72,7 +73,7 @@ class HTU21DTemperatureSensor : public Sensor {
 /// Internal helper class to expose humidities from the HTU21D as a sensor.
 class HTU21DHumiditySensor : public Sensor {
  public:
-  explicit HTU21DHumiditySensor(HTU21DComponent *parent);
+  explicit HTU21DHumiditySensor(const std::string &name, HTU21DComponent *parent);
 
   std::string unit_of_measurement() override;
   std::string icon() override;

@@ -24,13 +24,15 @@ using binary_callback_t = std::function<void(bool)>;
  * The sub classes should notify the front-end of new states via the publish_state() method which
  * handles inverted inputs for you.
  */
-class BinarySensor {
+class BinarySensor : public Nameable {
  public:
+  explicit BinarySensor(const std::string &name);
+
   /** Set callback for state changes.
    *
    * @param callback The void(bool) callback.
    */
-  virtual void add_on_new_state_callback(binary_callback_t &&callback);
+  virtual void add_on_state_callback(binary_callback_t &&callback);
 
   /// Set the inverted state of this binary sensor. If true, each published value will be inverted.
   void set_inverted(bool inverted);
@@ -46,6 +48,14 @@ class BinarySensor {
   /// Get the default device class for this sensor, or empty string for no default.
   virtual std::string device_class();
 
+  bool get_value() const;
+
+  /// Set the Home Assistant device class (see esphomelib::binary_sensor::device_class)
+  void set_device_class(const std::string &device_class);
+
+  /// Get the device class for this binary sensor.
+  std::string get_device_class();
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Return whether all states of this binary sensor should be inverted.
@@ -54,6 +64,9 @@ class BinarySensor {
  protected:
   CallbackManager<void(bool)> new_state_callback_{};
   bool inverted_{false};
+  bool value_{false};
+  bool first_value_{true};
+  Optional<std::string> device_class_;
 };
 
 } // namespace binary_sensor
