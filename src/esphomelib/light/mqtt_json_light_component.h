@@ -25,6 +25,8 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
 
   void loop() override;
 
+  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+
  protected:
   std::string friendly_name() const override;
   std::string component_type() const override;

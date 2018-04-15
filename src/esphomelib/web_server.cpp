@@ -25,9 +25,10 @@ namespace esphomelib {
 static const char *TAG = "web_server";
 
 static const char *JS PROGMEM =
-    "var source=new EventSource(\"/events\");source.addEventListener(\"log\",function(e){var t=document.getElementById(\"log\"),n=\"\";e.data.startsWith(\"\u001B[1;31m\")?n=\"e\":e.data.startsWith(\"\u001B[0;33m\")?n=\"w\":e.data.startsWith(\"\u001B[0;32m\")?n=\"i\":e.data.startsWith(\"\u001B[0;35m\")?n=\"c\":e.data.startsWith(\"\u001B[0;36m\")?n=\"d\":e.data.startsWith(\"\u001B[0;37m\")?n=\"v\":t.innerHTML+=e.data+\"\\n\",t.innerHTML+='<span class=\"'+n+'\">'+e.data.substr(7,e.data.length-10)+\"</span>\\n\"}),source.addEventListener(\"state\",function(e){var t=JSON.parse(e.data);document.getElementById(t.id).children[1].innerText=t.state});var states=document.getElementById(\"states\");for(var i=0,row;row=states.rows[i];i++)row.classList.contains(\"switch\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/switch/\"+e.substr(7)+\"/toggle\",!0),n.send()})}(row.id),row.classList.contains(\"fan\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/fan/\"+e.substr(4)+\"/toggle\",!0),n.send()})}(row.id),row.classList.contains(\"light\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/light/\"+e.substr(4)+\"/toggle\",!0),n.send()})}(row.id);";
+    "var source=new EventSource(\"/events\");source.addEventListener(\"log\",function(e){var t=document.getElementById(\"log\"),n=\"\";e.data.startsWith(\"\u001B[1;31m\")?n=\"e\":e.data.startsWith(\"\u001B[0;33m\")?n=\"w\":e.data.startsWith(\"\u001B[0;32m\")?n=\"i\":e.data.startsWith(\"\u001B[0;35m\")?n=\"c\":e.data.startsWith(\"\u001B[0;36m\")?n=\"d\":e.data.startsWith(\"\u001B[0;37m\")?n=\"v\":t.innerHTML+=e.data+\"\\n\",t.innerHTML+='<span class=\"'+n+'\">'+e.data.substr(7,e.data.length-10)+\"</span>\\n\"}),source.addEventListener(\"state\",function(e){var t=JSON.parse(e.data);document.getElementById(t.id).children[1].innerText=t.state});var states=document.getElementById(\"states\");for(var i=0,row;row=states.rows[i];i++)row.classList.contains(\"switch\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/switch/\"+e.substr(7)+\"/toggle\",!0),n.send()})}(row.id),row.classList.contains(\"fan\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/fan/\"+e.substr(4)+\"/toggle\",!0),n.send()})}(row.id),row.classList.contains(\"light\")&&function(e){row.children[2].children[0].addEventListener(\"click\",function(t){var n=new XMLHttpRequest;n.open(\"POST\",\"/light/\"+e.substr(6)+\"/toggle\",!0),n.send()})}(row.id);";
 static const char *CSS PROGMEM =
     "#log .v{color:#888}#log .d{color:#0DD}#log .c{color:#ff00ff}#log .i{color:#32cd32}#log .w{color:#ff0}#log .e{color:red;font-weight:700}#log{background-color:#1c1c1c}";
+
 
 void write_row(AsyncResponseStream *stream, Nameable *obj,
                const std::string &klass, const std::string &action) {
@@ -71,65 +72,12 @@ UrlMatch match_url(const std::string &url, bool only_domain = false) {
 }
 
 void WebServer::setup() {
-  MDNS.addService("http", "tcp", 80);
-
-  this->server_.on("/", HTTP_GET, [this](AsyncWebServerRequest *request) {
-    AsyncResponseStream *stream = request->beginResponseStream("text/html");
-    std::string title = App.get_name() + " Web Server";
-    stream->print("<!DOCTYPE html><html><head><meta charset=UTF-8><title>");
-    stream->print(title.c_str());
-    stream->print(
-        R"(</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">)"
-    );
-    stream->print("<style>");
-    stream->print(CSS);
-    stream->print("</style>");
-    stream->print("</head>");
-
-    stream->print("<body><article class=\"markdown-body\"><h1>");
-    stream->print(title.c_str());
-    stream->print("</h1><h2>States</h2><table id=\"states\"><thead><tr><th>Name<th>State<th>Actions<tbody>");
-#ifdef USE_SENSOR
-    for (auto *obj : this->sensors_)
-      write_row(stream, obj, "sensor", "");
-#endif
-
-#ifdef USE_SWITCH
-    for (auto *obj : this->switches_)
-      write_row(stream, obj, "switch", "<button>Toggle</button>");
-#endif
-
-#ifdef USE_BINARY_SENSOR
-    for (auto *obj : this->binary_sensors_)
-      write_row(stream, obj, "binary_sensor", "");
-#endif
-
-#ifdef USE_FAN
-    for (auto *obj : this->fans_)
-      write_row(stream, obj, "fan", "<button>Toggle</button>");
-#endif
-
-#ifdef USE_FAN
-    for (auto *obj : this->lights_)
-      write_row(stream, obj, "light", "<button>Toggle</button>");
-#endif
-
-    stream->print("</tbody></table>");
-    stream->print(
-        "<p>See <a href=https://esphomelib.com/web-api/index.html>esphomelib Web API</a> for REST API documentation.</p>"
-    );
-    stream->print("<h2>Debug Log</h2><pre id=\"log\"></pre>");
-    stream->print("<script>");
-    stream->print(JS);
-    stream->print("</script>");
-    stream->print("</article></body></html>");
-
-    request->send(stream);
-  });
+  this->server_ = new AsyncWebServer(this->port_);
+  MDNS.addService("http", "tcp", this->port_);
 
   this->events_.onConnect([this](AsyncEventSourceClient *client) {
     // Configure reconnect timeout
-    client->send("Hello!", nullptr, millis(), 30000);
+    client->send("", "ping", millis(), 30000);
 
 #ifdef USE_SENSOR
     for (auto *obj : this->sensors_)
@@ -156,22 +104,23 @@ void WebServer::setup() {
       client->send(this->light_json(obj).c_str(), "state");
 #endif
   });
+
   if (global_log_component != nullptr)
     global_log_component->add_on_log_callback([this](ESPLogLevel level, std::string message) {
       this->events_.send(message.c_str(), "log", millis());
     });
-  this->server_.addHandler(this);
-  this->server_.addHandler(&this->events_);
+  this->server_->addHandler(this);
+  this->server_->addHandler(&this->events_);
 
-  this->server_.begin();
+  this->server_->begin();
 
   this->set_interval("ping", 10000, [this](){
-    this->events_.send("", "ping", millis());
+    this->events_.send("", "ping", millis(), 30000);
   });
 }
 
 WebServer::WebServer(uint16_t port)
-    : server_(AsyncWebServer(port)) {
+    : port_(port) {
 
 }
 float WebServer::get_setup_priority() const {
@@ -346,6 +295,9 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
 #endif
 
 bool WebServer::canHandle(AsyncWebServerRequest *request) {
+  if (request->url() == "/")
+    return true;
+
   UrlMatch match = match_url(request->url().c_str(), true);
   if (!match.valid)
     return false;
@@ -380,6 +332,11 @@ bool WebServer::canHandle(AsyncWebServerRequest *request) {
   return false;
 }
 void WebServer::handleRequest(AsyncWebServerRequest *request) {
+  if (request->url() == "/") {
+    this->handle_index_request(request);
+    return;
+  }
+
   UrlMatch match = match_url(request->url().c_str());
 #ifdef USE_SENSOR
   if (match.domain == "sensor") {
@@ -486,12 +443,64 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
 }
 std::string WebServer::light_json(light::LightState *obj) {
   return build_json([obj](JsonBuffer &buffer, JsonObject &root) {
-    root["id"] = "fan-" + obj->get_name_id();
+    root["id"] = "light-" + obj->get_name_id();
     root["state"] = obj->get_remote_values().get_state() == 1.0 ? "ON" : "OFF";
     obj->dump_json(buffer, root);
   });
 }
 #endif
+
+void WebServer::handle_index_request(AsyncWebServerRequest *request) {
+  AsyncResponseStream *stream = request->beginResponseStream("text/html");
+  std::string title = App.get_name() + " Web Server";
+  stream->print(F("<!DOCTYPE html><html><head><meta charset=UTF-8><title>"));
+  stream->print(title.c_str());
+  stream->print(F("</title><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css\"><style>"));
+  stream->print(CSS);
+  stream->print(F("</style></head><body><article class=\"markdown-body\"><h1>"));
+  stream->print(title.c_str());
+  stream->print(F("</h1><h2>States</h2><table id=\"states\"><thead><tr><th>Name<th>State<th>Actions<tbody>"));
+
+#ifdef USE_SENSOR
+  for (auto *obj : this->sensors_)
+    write_row(stream, obj, "sensor", "");
+#endif
+
+#ifdef USE_SWITCH
+  for (auto *obj : this->switches_)
+    write_row(stream, obj, "switch", "<button>Toggle</button>");
+#endif
+
+#ifdef USE_BINARY_SENSOR
+  for (auto *obj : this->binary_sensors_)
+    write_row(stream, obj, "binary_sensor", "");
+#endif
+
+#ifdef USE_FAN
+  for (auto *obj : this->fans_)
+    write_row(stream, obj, "fan", "<button>Toggle</button>");
+#endif
+
+#ifdef USE_LIGHT
+  for (auto *obj : this->lights_)
+    write_row(stream, obj, "light", "<button>Toggle</button>");
+#endif
+
+  stream->print(
+      F("</tbody></table><p>See <a href=https://esphomelib.com/web-api/index.html>esphomelib Web API</a> for REST API documentation.</p>"
+        "<h2>Debug Log</h2><pre id=\"log\"></pre><script>")
+  );
+  stream->print(JS);
+  stream->print(F("</script></article></body></html>"));
+
+  request->send(stream);
+}
+uint16_t WebServer::get_port() const {
+  return this->port_;
+}
+void WebServer::set_port(uint16_t port) {
+  this->port_ = port;
+}
 
 } // namespace esphomelib
 

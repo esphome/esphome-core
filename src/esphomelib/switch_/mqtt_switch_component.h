@@ -31,6 +31,8 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
   // (In most use cases you won't need these)
   void setup() override;
 
+  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+
  protected:
   /// Get the internal switch use for setting state.
   Switch *get_switch() const;

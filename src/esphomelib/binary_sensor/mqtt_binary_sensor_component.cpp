@@ -21,15 +21,6 @@ std::string MQTTBinarySensorComponent::component_type() const {
 }
 
 void MQTTBinarySensorComponent::setup() {
-  this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    if (!this->binary_sensor_->device_class().empty())
-      root["device_class"] = this->binary_sensor_->get_device_class();
-    if (this->payload_on_ != "ON")
-      root["payload_on"] = this->payload_on_;
-    if (this->payload_off_ != "OFF")
-      root["payload_off"] = this->payload_off_;
-  }, true, false);
-
   this->binary_sensor_->add_on_state_callback([this](bool value) {
     std::string state = value ? this->get_payload_on() : this->get_payload_off();
     this->send_message(this->get_state_topic(), state);
@@ -54,6 +45,15 @@ void MQTTBinarySensorComponent::set_payload_off(std::string payload_off) {
 }
 std::string MQTTBinarySensorComponent::friendly_name() const {
   return this->binary_sensor_->get_name();
+}
+void MQTTBinarySensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+  if (!this->binary_sensor_->device_class().empty())
+    root["device_class"] = this->binary_sensor_->get_device_class();
+  if (this->payload_on_ != "ON")
+    root["payload_on"] = this->payload_on_;
+  if (this->payload_off_ != "OFF")
+    root["payload_off"] = this->payload_off_;
+  config.command_topic = false;
 }
 
 } // namespace binary_sensor

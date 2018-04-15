@@ -19,7 +19,7 @@ void BinarySensor::publish_state(bool state) {
   bool actual = state != this->inverted_;
   if (!this->first_value_ && actual == this->value_)
     return;
-  this->first_value_ = true;
+  this->first_value_ = false;
   this->value_ = actual;
   this->new_state_callback_.call(actual);
 }

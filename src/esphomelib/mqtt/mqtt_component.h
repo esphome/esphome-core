@@ -14,6 +14,12 @@ namespace esphomelib {
 
 namespace mqtt {
 
+struct SendDiscoveryConfig {
+  bool state_topic{true};
+  bool command_topic{true};
+  const char *platform{"mqtt"};
+};
+
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
  *
@@ -34,6 +40,10 @@ class MQTTComponent : public Component {
  public:
   /// Constructs a MQTTComponent.
   explicit MQTTComponent();
+
+  void setup_() override;
+
+  virtual void send_discovery(JsonBuffer &buffer, JsonObject &root, SendDiscoveryConfig &config) = 0;
 
   /// Set whether state message should be retained.
   void set_retain(bool retain);
@@ -98,10 +108,7 @@ class MQTTComponent : public Component {
    * @param command_topic Whether to include "command_topic".
    * @param platform
    */
-  void send_discovery(const json_build_t &f,
-                      bool state_topic = true,
-                      bool command_topic = true,
-                      const std::string &platform = "mqtt");
+  void send_discovery_();
 
   /** Send a MQTT message.
    *

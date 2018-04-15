@@ -79,6 +79,8 @@ class OTAComponent : public Component {
 
   uint16_t get_port() const;
 
+  void clean_rtc();
+
  protected:
   void write_rtc_(uint8_t val);
   uint8_t read_rtc_();
@@ -96,6 +98,8 @@ class OTAComponent : public Component {
   uint32_t safe_mode_enable_time_{60000}; ///< The time safe mode should be on for.
   uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
 };
+
+extern OTAComponent *global_ota_component;
 
 } // namespace esphomelib
 

@@ -17,9 +17,8 @@ namespace sensor {
 static const char *TAG = "sensor.mqtt";
 
 MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
-    : MQTTComponent() {
+    : MQTTComponent(), sensor_(sensor) {
   assert(sensor != nullptr);
-  this->sensor_ = sensor;
 }
 
 void MQTTSensorComponent::setup() {
@@ -30,17 +29,6 @@ void MQTTSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Accuracy Decimals: %i", this->sensor_->get_accuracy_decimals());
   ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->sensor_->get_icon().c_str());
   ESP_LOGCONFIG(TAG, "    Number Filters: %u", this->sensor_->get_filters().size());
-
-  this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    if (!this->sensor_->get_unit_of_measurement().empty())
-      root["unit_of_measurement"] = this->sensor_->get_unit_of_measurement();
-
-    if (this->get_expire_after() > 0)
-      root["expire_after"] = this->get_expire_after() / 1000;
-
-    if (!this->sensor_->get_icon().empty())
-      root["icon"] = this->sensor_->get_icon();
-  }, true, false); // enable state topic, disable command topic
 
   this->sensor_->add_on_value_callback([this](float value) {
     int8_t accuracy = this->sensor_->get_accuracy_decimals();
@@ -71,6 +59,18 @@ void MQTTSensorComponent::disable_expire_after() {
 }
 std::string MQTTSensorComponent::friendly_name() const {
   return this->sensor_->get_name();
+}
+void MQTTSensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+  if (!this->sensor_->get_unit_of_measurement().empty())
+    root["unit_of_measurement"] = this->sensor_->get_unit_of_measurement();
+
+  if (this->get_expire_after() > 0)
+    root["expire_after"] = this->get_expire_after() / 1000;
+
+  if (!this->sensor_->get_icon().empty())
+    root["icon"] = this->sensor_->get_icon();
+
+  config.command_topic = false;
 }
 
 } // namespace sensor

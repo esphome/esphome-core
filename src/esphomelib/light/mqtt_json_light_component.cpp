@@ -19,27 +19,7 @@ std::string MQTTJSONLightComponent::component_type() const {
 }
 
 void MQTTJSONLightComponent::setup() {
-  assert(this->state_ != nullptr);
   ESP_LOGD(TAG, "Setting up MQTT light...");
-
-  this->send_discovery([&](JsonBuffer &buffer, JsonObject &root) {
-    if (this->state_->get_traits().supports_brightness())
-      root["brightness"] = true;
-    if (this->state_->get_traits().supports_rgb())
-      root["rgb"] = true;
-    root["flash"] = true;
-    if (this->state_->get_traits().has_rgb_white_value())
-      root["white_value"] = true;
-    if (this->state_->supports_effects()) {
-      root["effect"] = true;
-      JsonArray &effect_list = root.createNestedArray("effect_list");
-      for (const LightEffect::Entry &entry : light_effect_entries) {
-        if (!this->state_->get_traits().supports_traits(entry.requirements))
-          continue;
-        effect_list.add(entry.name);
-      }
-    }
-  }, true, true, "mqtt_json");
 
   LightColorValues recovered_values;
   recovered_values.load_from_preferences(this->state_->get_name());
@@ -77,6 +57,25 @@ void MQTTJSONLightComponent::loop() {
 }
 std::string MQTTJSONLightComponent::friendly_name() const {
   return this->state_->get_name();
+}
+void MQTTJSONLightComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+  if (this->state_->get_traits().supports_brightness())
+    root["brightness"] = true;
+  if (this->state_->get_traits().supports_rgb())
+    root["rgb"] = true;
+  root["flash"] = true;
+  if (this->state_->get_traits().has_rgb_white_value())
+    root["white_value"] = true;
+  if (this->state_->supports_effects()) {
+    root["effect"] = true;
+    JsonArray &effect_list = root.createNestedArray("effect_list");
+    for (const LightEffect::Entry &entry : light_effect_entries) {
+      if (!this->state_->get_traits().supports_traits(entry.requirements))
+        continue;
+      effect_list.add(entry.name);
+    }
+  }
+  config.platform = "mqtt_json";
 }
 
 } // namespace light

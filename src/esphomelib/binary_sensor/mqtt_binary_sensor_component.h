@@ -29,6 +29,8 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
    */
   explicit MQTTBinarySensorComponent(BinarySensor *binary_sensor);
 
+  void send_discovery(JsonBuffer &buffer, JsonObject &obj, mqtt::SendDiscoveryConfig &config) override;
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Send discovery.

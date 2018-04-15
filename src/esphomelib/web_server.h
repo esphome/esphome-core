@@ -33,10 +33,11 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
  public:
   explicit WebServer(uint16_t port);
   void setup() override;
+
+  void handle_index_request(AsyncWebServerRequest *request);
+
 #ifdef USE_SENSOR
   void register_sensor(sensor::Sensor *obj) override;
-
-  void send_sensor_event(sensor::Sensor *obj, float value);
 
   void handle_sensor_request(AsyncWebServerRequest *request, UrlMatch match);
 
@@ -81,8 +82,12 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   void handleRequest(AsyncWebServerRequest *request) override;
   bool isRequestHandlerTrivial() override;
 
+  uint16_t get_port() const;
+  void set_port(uint16_t port);
+
  protected:
-  AsyncWebServer server_;
+  uint16_t port_;
+  AsyncWebServer *server_;
   AsyncEventSource events_{"/events"};
 };
 

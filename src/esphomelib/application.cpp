@@ -510,6 +510,9 @@ WebServer *Application::init_web_server(uint16_t port) {
   this->register_component(web_server);
   return this->register_controller(web_server);
 }
+#endif
+
+#ifdef USE_DEEP_SLEEP
 DeepSleepComponent *Application::make_deep_sleep_component() {
   return this->register_component(new DeepSleepComponent());
 }

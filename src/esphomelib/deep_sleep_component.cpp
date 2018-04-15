@@ -9,6 +9,9 @@
 #include <Esp.h>
 #include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/log.h"
+#include "esphomelib/ota_component.h"
+
+#ifdef USE_DEEP_SLEEP
 
 namespace esphomelib {
 
@@ -57,6 +60,12 @@ void DeepSleepComponent::set_run_duration(uint32_t time_ms) {
 }
 void DeepSleepComponent::begin_sleep() {
   ESP_LOGI(TAG, "Beginning Deep Sleep");
+
+#ifdef USE_OTA
+  if (global_ota_component != nullptr)
+    global_ota_component->clean_rtc();
+#endif
+
 #ifdef ARDUINO_ARCH_ESP32
   if (this->sleep_duration_)
     esp_sleep_enable_timer_wakeup(this->sleep_duration_.value);
@@ -71,3 +80,5 @@ void DeepSleepComponent::begin_sleep() {
 }
 
 } // namespace esphomelib
+
+#endif //USE_DEEP_SLEEP

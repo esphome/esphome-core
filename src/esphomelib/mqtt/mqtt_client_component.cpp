@@ -76,7 +76,8 @@ void MQTTClientComponent::setup() {
   });
   if (!this->get_log_topic().empty())
     global_log_component->add_on_log_callback([this](ESPLogLevel level, std::string message) {
-      this->publish(this->get_log_topic(), message, true);
+      if (this->is_connected())
+        this->publish(this->get_log_topic(), message, true);
     });
 
   this->reconnect();
@@ -161,6 +162,7 @@ void MQTTClientComponent::reconnect() {
     } while (!this->mqtt_client_.connected() && millis() - start_time < 10000);
     if (this->mqtt_client_.connected()) {
       ESP_LOGI(TAG, "    MQTT Connected!");
+      this->on_connect_.call();
       break;
     } else {
       ESP_LOGW(TAG, "    MQTT connection failed");
@@ -271,10 +273,13 @@ void MQTTClientComponent::publish_json(const std::string &topic, const json_buil
 void MQTTClientComponent::set_log_topic(const std::string &topic) {
   this->log_topic_ = topic;
 }
-std::string MQTTClientComponent::get_log_topic() const {
-  if (this->log_topic_.defined)
-    return this->log_topic_.value;
-  return this->topic_prefix_ + "/debug";
+const std::string &MQTTClientComponent::get_log_topic() {
+  if (!this->log_topic_.defined)
+    this->log_topic_ = this->topic_prefix_ + "/debug";
+  return this->log_topic_.value;
+}
+void MQTTClientComponent::add_on_connect_callback(std::function<void()> &&callback) {
+  this->on_connect_.add(std::move(callback));
 }
 
 #if ASYNC_TCP_SSL_ENABLED

@@ -34,6 +34,8 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   /// Disable Home Assistant value exiry.
   void disable_expire_after();
 
+  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Override setup.

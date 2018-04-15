@@ -137,7 +137,7 @@ class MQTTClientComponent : public Component {
   const std::string &get_topic_prefix() const;
 
   void set_log_topic(const std::string &topic);
-  std::string get_log_topic() const;
+  const std::string &get_log_topic();
 
   /** Subscribe to an MQTT topic and call callback when a message is received.
    *
@@ -182,6 +182,8 @@ class MQTTClientComponent : public Component {
   /// Return whether this client is currently connected to the MQTT server.
   bool is_connected();
 
+  void add_on_connect_callback(std::function<void()> &&callback);
+
   void setup() override;
   void loop() override;
   float get_setup_priority() const override;
@@ -211,6 +213,7 @@ class MQTTClientComponent : public Component {
 
   std::vector<MQTTSubscription> subscriptions_;
   AsyncMqttClient mqtt_client_;
+  CallbackManager<void()> on_connect_{};
 };
 
 extern MQTTClientComponent *global_mqtt_client;

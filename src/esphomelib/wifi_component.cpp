@@ -67,9 +67,6 @@ void WiFiComponent::setup() {
       ESP_LOGE(TAG, "WiFi.config() failed!");
   }
 
-  wl_status_t reti = WiFi.begin(this->ssid_.c_str(), this->password_.c_str());
-  if (reti == WL_CONNECT_FAILED)
-    ESP_LOGE(TAG, "WiFi.begin() failed: %d", reti);
   this->wait_for_connection();
 }
 
@@ -128,7 +125,11 @@ const std::string &WiFiComponent::get_hostname() const {
   return this->hostname_;
 }
 void WiFiComponent::wait_for_connection() {
-  assert_setup(this);
+  if (WiFi.status() == WL_CONNECTED)
+    return;
+  wl_status_t reti = WiFi.begin(this->ssid_.c_str(), this->password_.c_str());
+  if (reti == WL_CONNECT_FAILED)
+    ESP_LOGE(TAG, "WiFi.begin() failed: %d", reti);
   ESP_LOGI(TAG, "Waiting for WiFi connection");
   uint32_t start = millis();
   wl_status_t status;
