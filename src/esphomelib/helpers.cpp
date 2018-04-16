@@ -166,4 +166,23 @@ Optional<bool> parse_on_off(const char *str, const char *payload_on, const char 
   return Optional<bool>();
 }
 
+static CallbackManager<void()> shutdown_hooks;
+static CallbackManager<void()> safe_shutdown_hooks;
+
+void shutdown() {
+  ESP_LOGI(TAG, "Restarting...");
+  shutdown_hooks.call();
+  ESP.restart();
+}
+void add_shutdown_hook(std::function<void()> &&f) {
+  shutdown_hooks.add(std::move(f));
+}
+void safe_shutdown() {
+  safe_shutdown_hooks.call();
+  shutdown();
+}
+void add_safe_shutdown_hook(std::function<void()> &&f) {
+  safe_shutdown_hooks.add(std::move(f));
+}
+
 } // namespace esphomelib

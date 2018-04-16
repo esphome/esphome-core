@@ -39,46 +39,54 @@ void MQTTClientComponent::setup() {
       ESP_LOGE(TAG, "Sorry, payload too long!");
       return;
     }
-    ESP_LOGD(TAG, "%s -> %s (len=%u, index=%u, total=%u, qos=%u, dup=%u, retain=%d)", topic, payload, len, index, total, properties.qos, properties.dup, properties.retain);
     std::string payload_s(payload, len);
+    ESP_LOGD(TAG, "%s -> %s", topic, payload_s.c_str());
     std::string topic_s(topic);
     for (auto &subscription : this->subscriptions_)
       if (topic_s == subscription.topic)
         subscription.callback(payload_s);
   });
   this->mqtt_client_.onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
+    const char *reason_s = nullptr;
     switch (reason) {
       case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
-        ESP_LOGE(TAG, "MQTT Disconnected: TCP disconnected.");
+        reason_s = "TCP disconnected";
         break;
       case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
-        ESP_LOGE(TAG, "MQTT Disconnected: Unacceptable Protocol Version.");
+        reason_s = "Unacceptable Protocol Version";
         break;
       case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
-        ESP_LOGE(TAG, "MQTT Disconnected: Identifier Rejected.");
+        reason_s = "Identifier Rejected";
         break;
       case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
-        ESP_LOGE(TAG, "MQTT Disconnected: Server Unavailable.");
+        reason_s = "Server Unavailable";
         break;
       case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
-        ESP_LOGE(TAG, "MQTT Disconnected: Malformed Credentials.");
+        reason_s = "Malformed Credentials";
         break;
       case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
-        ESP_LOGE(TAG, "MQTT Disconnected: Not Authorized.");
+        reason_s = "Not Authorized";
         break;
       case AsyncMqttClientDisconnectReason::ESP8266_NOT_ENOUGH_SPACE:
-        ESP_LOGE(TAG, "MQTT Disconnected: Not Enough Space.");
+        reason_s = "Not Enough Space";
         break;
       case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
-        ESP_LOGE(TAG, "MQTT Disconnected: TLS Bad Fingerprint.");
+        reason_s = "TLS Bad Fingerprint";
+        break;
+      default:
+        reason_s = "Unknown";
         break;
     }
+    ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
   });
   if (!this->get_log_topic().empty())
-    global_log_component->add_on_log_callback([this](ESPLogLevel level, std::string message) {
+    global_log_component->add_on_log_callback([this](ESPLogLevel level, const char *message) {
       if (this->is_connected())
         this->publish(this->get_log_topic(), message, true);
     });
+  add_shutdown_hook([this](){
+    this->mqtt_client_.disconnect(true);
+  });
 
   this->reconnect();
 }
@@ -129,7 +137,7 @@ void MQTTClientComponent::reconnect() {
     ESP_LOGD(TAG, "    Attempting MQTT connection...");
     if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-      ESP.restart();
+      shutdown();
     }
 
     std::string id;
@@ -160,20 +168,18 @@ void MQTTClientComponent::reconnect() {
       ESP_LOGD(TAG, ".");
       delay(250);
     } while (!this->mqtt_client_.connected() && millis() - start_time < 10000);
+
     if (this->mqtt_client_.connected()) {
       ESP_LOGI(TAG, "    MQTT Connected!");
       this->on_connect_.call();
       break;
     } else {
       ESP_LOGW(TAG, "    MQTT connection failed");
-      ESP_LOGW(TAG, "    Try again in 1 second");
-
-      delay(1000);
     }
   } while (!this->is_connected());
 
   if (!this->birth_message_.topic.empty())
-    this->publish(this->birth_message_.topic, this->birth_message_.payload, this->birth_message_.retain);
+    this->publish(this->birth_message_);
 
   for (MQTTSubscription &subscription : this->subscriptions_)
     this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);

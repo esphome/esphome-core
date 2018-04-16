@@ -174,6 +174,11 @@ class Application {
 #endif
 
 #ifdef USE_STATUS_BINARY_SENSOR
+  struct MakeStatusBinarySensor {
+    binary_sensor::StatusBinarySensor *status;
+    binary_sensor::MQTTBinarySensorComponent *mqtt;
+  };
+
   /** Create a simple binary sensor that reports the online/offline state of the node.
    *
    * Uses the MQTT last will and birth message feature. If the values for these features are custom, you need
@@ -182,7 +187,7 @@ class Application {
    * @param friendly_name The friendly name advertised via MQTT discovery.
    * @return A MQTTBinarySensorComponent. Use this to set custom status messages.
    */
-  binary_sensor::MQTTBinarySensorComponent *make_status_binary_sensor(const std::string &friendly_name);
+  MakeStatusBinarySensor make_status_binary_sensor(const std::string &friendly_name);
 #endif
 
 
@@ -201,7 +206,7 @@ class Application {
 #endif
 
 #ifdef USE_DHT_SENSOR
-  struct MakeDHTComponent {
+  struct MakeDHTSensor {
     sensor::DHTComponent *dht;
     sensor::MQTTSensorComponent *mqtt_temperature;
     sensor::MQTTSensorComponent *mqtt_humidity;
@@ -219,10 +224,10 @@ class Application {
    * @param update_interval The interval (in ms) the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
-  MakeDHTComponent make_dht_sensor(const std::string &temperature_friendly_name,
-                                   const std::string &humidity_friendly_name,
-                                   uint8_t pin,
-                                   uint32_t update_interval = 15000);
+  MakeDHTSensor make_dht_sensor(const std::string &temperature_friendly_name,
+                                const std::string &humidity_friendly_name,
+                                uint8_t pin,
+                                uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_DALLAS_SENSOR
@@ -232,7 +237,7 @@ class Application {
 #endif
 
 #ifdef USE_PULSE_COUNTER_SENSOR
-  struct MakePulseCounter {
+  struct MakePulseCounterSensor {
     sensor::PulseCounterSensorComponent *pcnt;
     sensor::MQTTSensorComponent *mqtt;
   };
@@ -248,9 +253,9 @@ class Application {
    * @param update_interval The interval in ms the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
-  MakePulseCounter make_pulse_counter_sensor(const std::string &friendly_name,
-                                             uint8_t pin,
-                                             uint32_t update_interval = 15000);
+  MakePulseCounterSensor make_pulse_counter_sensor(const std::string &friendly_name,
+                                                   uint8_t pin,
+                                                   uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_ADC_SENSOR
@@ -288,7 +293,7 @@ class Application {
 #endif
 
 #ifdef USE_BMP085_SENSOR
-  struct MakeBMP085Component {
+  struct MakeBMP085Sensor {
     sensor::BMP085Component *bmp;
     sensor::MQTTSensorComponent *mqtt_temperature;
     sensor::MQTTSensorComponent *mqtt_pressure;
@@ -304,13 +309,13 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeBMP085Component object, use this to set advanced settings.
    */
-  MakeBMP085Component make_bmp085_sensor(const std::string &temperature_friendly_name,
-                                         const std::string &pressure_friendly_name,
-                                         uint32_t update_interval = 30000);
+  MakeBMP085Sensor make_bmp085_sensor(const std::string &temperature_friendly_name,
+                                      const std::string &pressure_friendly_name,
+                                      uint32_t update_interval = 30000);
 #endif
 
 #ifdef USE_HTU21D_SENSOR
-  struct MakeHTU21DComponent {
+  struct MakeHTU21DSensor {
     sensor::HTU21DComponent *htu21d;
     sensor::MQTTSensorComponent *mqtt_temperature;
     sensor::MQTTSensorComponent *mqtt_humidity;
@@ -326,13 +331,13 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    * @return A MakeHTU21DComponent, use this to set advanced settings.
    */
-  MakeHTU21DComponent make_htu21d_sensor(const std::string &temperature_friendly_name,
-                                         const std::string &humidity_friendly_name,
-                                         uint32_t update_interval = 15000);
+  MakeHTU21DSensor make_htu21d_sensor(const std::string &temperature_friendly_name,
+                                      const std::string &humidity_friendly_name,
+                                      uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_HDC1080_SENSOR
-  struct MakeHDC1080Component {
+  struct MakeHDC1080Sensor {
     sensor::HDC1080Component *hdc1080;
     sensor::MQTTSensorComponent *mqtt_temperature;
     sensor::MQTTSensorComponent *mqtt_humidity;
@@ -346,11 +351,11 @@ class Application {
    * @param temperature_friendly_name The friendly name the temperature sensor should be advertised as.
    * @param humidity_friendly_name The friendly name the humidity sensor should be advertised as.
    * @param update_interval The interval in ms to update the sensor values.
-   * @return A MakeHDC1080Component, use this to set advanced settings.
+   * @return A MakeHDC1080Sensor, use this to set advanced settings.
    */
-  MakeHDC1080Component make_hdc1080_sensor(const std::string &temperature_friendly_name,
-                                           const std::string &humidity_friendly_name,
-                                           uint32_t update_interval = 15000);
+  MakeHDC1080Sensor make_hdc1080_sensor(const std::string &temperature_friendly_name,
+                                        const std::string &humidity_friendly_name,
+                                        uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_ULTRASONIC_SENSOR
@@ -460,14 +465,14 @@ class Application {
   /// Create a MQTTJSONLightComponent. Mostly for internal use.
   light::MQTTJSONLightComponent *register_light(light::LightState *state);
 
-  struct LightStruct {
+  struct MakeLight {
     light::LinearLightOutputComponent *output;
     light::LightState *state;
     light::MQTTJSONLightComponent *mqtt;
   };
 
   /// Create and connect a MQTTJSONLightComponent to the provided light output component. Mostly for internal use.
-  LightStruct connect_light_(const std::string &friendly_name, light::LinearLightOutputComponent *out);
+  MakeLight connect_light_(const std::string &friendly_name, light::LinearLightOutputComponent *out);
 
   /** Create a binary light.
    *
@@ -475,7 +480,7 @@ class Application {
    * @param binary The binary output channel.
    * @return The components for this light. Use this for advanced settings.
    */
-  LightStruct make_binary_light(const std::string &friendly_name, output::BinaryOutput *binary);
+  MakeLight make_binary_light(const std::string &friendly_name, output::BinaryOutput *binary);
 
   /** Create a monochromatic light.
    *
@@ -483,7 +488,7 @@ class Application {
    * @param mono The output channel.
    * @return The components for this light. Use this for advanced settings.
    */
-  LightStruct make_monochromatic_light(const std::string &friendly_name, output::FloatOutput *mono);
+  MakeLight make_monochromatic_light(const std::string &friendly_name, output::FloatOutput *mono);
 
   /** Create a RGB light.
    *
@@ -493,8 +498,8 @@ class Application {
    * @param blue The blue output channel.
    * @return The components for this light. Use this for advanced settings.
    */
-  LightStruct make_rgb_light(const std::string &friendly_name,
-                             output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue);
+  MakeLight make_rgb_light(const std::string &friendly_name,
+                           output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue);
 
   /** Create a RGBW light.
    *
@@ -505,9 +510,9 @@ class Application {
    * @param white The white output channel.
    * @return The components for this light. Use this for advanced settings.
    */
-  LightStruct make_rgbw_light(const std::string &friendly_name,
-                              output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
-                              output::FloatOutput *white);
+  MakeLight make_rgbw_light(const std::string &friendly_name,
+                            output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
+                            output::FloatOutput *white);
 #endif
 
 
@@ -539,8 +544,9 @@ class Application {
 #endif
 
 #ifdef USE_GPIO_SWITCH
-  struct GPIOSwitchStruct {
+  struct MakeGPIOSwitch {
     output::GPIOBinaryOutputComponent *gpio;
+    switch_::SimpleSwitch *switch_;
     switch_::MQTTSwitchComponent *mqtt;
   };
 
@@ -550,12 +556,17 @@ class Application {
    * @param friendly_name The friendly name advertised to Home Assistant for this switch-
    * @return A GPIOSwitchStruct, use this to set advanced settings.
    */
-  GPIOSwitchStruct make_gpio_switch(const std::string &friendly_name, GPIOOutputPin pin);
+  MakeGPIOSwitch make_gpio_switch(const std::string &friendly_name, GPIOOutputPin pin);
 #endif
 
 #ifdef USE_RESTART_SWITCH
+  struct MakeRestartSwitch {
+    switch_::RestartSwitch *restart;
+    switch_::MQTTSwitchComponent *mqtt;
+  };
+
   /// Make a simple switch that restarts the device with the provided friendly name.
-  switch_::MQTTSwitchComponent *make_restart_switch(const std::string &friendly_name);
+  MakeRestartSwitch make_restart_switch(const std::string &friendly_name);
 #endif
 
 
@@ -571,7 +582,7 @@ class Application {
 #ifdef USE_FAN
   fan::MQTTFanComponent *register_fan(fan::FanState *state);
 
-  struct FanStruct {
+  struct MakeFan {
     fan::BasicFanComponent *output;
     fan::FanState *state;
     fan::MQTTFanComponent *mqtt;
@@ -582,7 +593,7 @@ class Application {
    * @param friendly_name The friendly name of the Fan to advertise.
    * @return A FanStruct, use the output field to set your output channels.
    */
-  FanStruct make_fan(const std::string &friendly_name);
+  MakeFan make_fan(const std::string &friendly_name);
 #endif
 
 

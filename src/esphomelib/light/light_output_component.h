@@ -61,6 +61,8 @@ class LinearLightOutputComponent : public LightOutput, public Component {
                   output::FloatOutput *white);
 
   void loop() override;
+  void setup() override;
+  float get_setup_priority() const override;
 
  protected:
   output::BinaryOutput *binary_;

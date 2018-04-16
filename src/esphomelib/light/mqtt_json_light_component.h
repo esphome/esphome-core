@@ -23,8 +23,6 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
 
   void setup() override;
 
-  void loop() override;
-
   void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
  protected:
@@ -34,7 +32,6 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
   void send_light_values();
 
   LightState *state_;
-  bool next_send_{true};
 };
 
 } // namespace light

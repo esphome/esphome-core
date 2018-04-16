@@ -117,6 +117,8 @@ class Component {
    */
   using time_func_t = std::function<void()>;
 
+  void set_interval(uint32_t interval, time_func_t &&f);
+
   /** Set an interval function with a unique name. Empty name means no cancelling possible.
    *
    * This will call f every interval ms. Can be cancelled via CancelInterval().
@@ -141,6 +143,8 @@ class Component {
    */
   bool cancel_interval(const std::string &name);
 
+  void set_timeout(uint32_t timeout, time_func_t &&f);
+
   /** Set a timeout function with a unique name.
    *
    * Similar to javascript's setTimeout(). Empty name means no cancelling possible.
@@ -164,14 +168,23 @@ class Component {
    */
   bool cancel_timeout(const std::string &name);
 
+  void defer(const std::string &name, time_func_t &&f);
+
+  void defer(time_func_t &&f);
+
+  bool cancel_defer(const std::string &name);
+
   /// Internal struct for storing timeout/interval functions.
   struct TimeFunction {
     std::string name; ///< The name/id of this TimeFunction.
-    enum Type { TIMEOUT, INTERVAL } type; ///< The type of this TimeFunction. Either TIMEOUT or INTERVAL.
+    enum Type { TIMEOUT, INTERVAL, DEFER } type; ///< The type of this TimeFunction. Either TIMEOUT, INTERVAL or DEFER.
     uint32_t interval; ///< The interval/timeout of this function.
     /// The last execution for interval functions and the time, SetInterval was called, for timeout functions.
     uint32_t last_execution;
     time_func_t f; ///< The function (or callback) itself.
+    bool remove;
+
+    bool should_run() const;
   };
 
   /// Cancel an only time function. If name is empty, won't do anything.

@@ -29,7 +29,7 @@ class LightEffect;
 /** This class represents the communication layer between the front-end MQTT layer and the
  * hardware output layer.
  */
-class LightState : public Nameable {
+class LightState : public Nameable, public Component {
  public:
   /// Construct this LightState using the provided traits.
   explicit LightState(const std::string &name, const LightTraits &traits);
@@ -42,6 +42,9 @@ class LightState : public Nameable {
 
   /// Stop the current effect (if one is active).
   void stop_effect();
+
+  void setup() override;
+  float get_setup_priority() const override;
 
   /** Start a linear transition to the provided target values for a specific amount of time.
    *

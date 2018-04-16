@@ -6,7 +6,7 @@
 
 #include "esphomelib/log.h"
 
-#ifdef USE_SWITCH
+#ifdef USE_SIMPLE_SWITCH
 
 namespace esphomelib {
 
@@ -32,4 +32,4 @@ void SimpleSwitch::turn_off() {
 
 } // namespace esphomelib
 
-#endif //USE_SWITCH
+#endif //USE_SIMPLE_SWITCH

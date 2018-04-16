@@ -101,15 +101,15 @@ void WebServer::setup() {
   });
 
   if (global_log_component != nullptr)
-    global_log_component->add_on_log_callback([this](ESPLogLevel level, std::string message) {
-      this->events_.send(message.c_str(), "log", millis());
+    global_log_component->add_on_log_callback([this](ESPLogLevel level, const char *message) {
+      this->events_.send(message, "log", millis());
     });
   this->server_->addHandler(this);
   this->server_->addHandler(&this->events_);
 
   this->server_->begin();
 
-  this->set_interval("ping", 10000, [this](){
+  this->set_interval(10000, [this](){
     this->events_.send("", "ping", millis(), 30000);
   });
 }
@@ -125,7 +125,9 @@ float WebServer::get_setup_priority() const {
 void WebServer::register_sensor(sensor::Sensor *obj) {
   StoringController::register_sensor(obj);
   obj->add_on_value_callback([this, obj](float value) {
-    this->events_.send(this->sensor_json(obj, value).c_str(), "state");
+    this->defer([this, obj, value] {
+      this->events_.send(this->sensor_json(obj, value).c_str(), "state");
+    });
   });
 }
 void WebServer::handle_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
@@ -154,7 +156,9 @@ std::string WebServer::sensor_json(sensor::Sensor *obj, float value) {
 void WebServer::register_switch(switch_::Switch *obj) {
   StoringController::register_switch(obj);
   obj->add_on_state_callback([this, obj](bool value) {
-    this->events_.send(this->switch_json(obj, value).c_str(), "state");
+    this->defer([this, obj, value] {
+      this->events_.send(this->switch_json(obj, value).c_str(), "state");
+    });
   });
 }
 std::string WebServer::switch_json(switch_::Switch *obj, bool value) {
@@ -197,7 +201,9 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
 void WebServer::register_binary_sensor(binary_sensor::BinarySensor *obj) {
   StoringController::register_binary_sensor(obj);
   obj->add_on_state_callback([this, obj](bool value) {
-    this->events_.send(this->binary_sensor_json(obj, value).c_str(), "state");
+    this->defer([this, obj, value] {
+      this->events_.send(this->binary_sensor_json(obj, value).c_str(), "state");
+    });
   });
 }
 std::string WebServer::binary_sensor_json(binary_sensor::BinarySensor *obj, bool value) {
@@ -223,7 +229,9 @@ void WebServer::handle_binary_sensor_request(AsyncWebServerRequest *request, Url
 void WebServer::register_fan(fan::FanState *obj) {
   StoringController::register_fan(obj);
   obj->add_on_receive_backend_state_callback([this, obj]() {
-    this->events_.send(this->fan_json(obj).c_str(), "state");
+    this->defer([this, obj] {
+      this->events_.send(this->fan_json(obj).c_str(), "state");
+    });
   });
 }
 std::string WebServer::fan_json(fan::FanState *obj) {
@@ -375,7 +383,9 @@ bool WebServer::isRequestHandlerTrivial() {
 void WebServer::register_light(light::LightState *obj) {
   StoringController::register_light(obj);
   obj->add_send_callback([this, obj]() {
-    this->events_.send(this->light_json(obj).c_str(), "state");
+    this->defer([this, obj] {
+      this->events_.send(this->light_json(obj).c_str(), "state");
+    });
   });
 }
 void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch match) {
@@ -396,18 +406,19 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
       request->send(200);
     } else if (match.method == "turn_on") {
       auto v = obj->get_remote_values();
+      v.set_state(1.0f);
       if (obj->get_traits().supports_brightness() && request->hasParam("brightness"))
-        v.set_brightness(request->getParam("brightness")->value().toFloat());
+        v.set_brightness(request->getParam("brightness")->value().toFloat() / 255.0f);
       if (obj->get_traits().supports_rgb()) {
         if (request->hasParam("r"))
-          v.set_red(request->getParam("r")->value().toFloat());
+          v.set_red(request->getParam("r")->value().toFloat() / 255.0f);
         if (request->hasParam("g"))
-          v.set_green(request->getParam("g")->value().toFloat());
+          v.set_green(request->getParam("g")->value().toFloat() / 255.0f);
         if (request->hasParam("b"))
-          v.set_blue(request->getParam("b")->value().toFloat());
+          v.set_blue(request->getParam("b")->value().toFloat() / 255.0f);
       }
       if (obj->get_traits().has_rgb_white_value() && request->hasParam("white_value"))
-        v.set_blue(request->getParam("white_value")->value().toFloat());
+        v.set_white(request->getParam("white_value")->value().toFloat() / 255.0f);
 
       v.normalize_color(obj->get_traits());
 
@@ -427,7 +438,12 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
     } else if (match.method == "turn_off") {
       auto v = obj->get_remote_values();
       v.set_state(0.0f);
-      obj->start_default_transition(v);
+      if (request->hasParam("transition")) {
+        uint32_t length = request->getParam("transition")->value().toFloat() * 1000;
+        obj->start_transition(v, length);
+      } else {
+        obj->start_default_transition(v);
+      }
       request->send(200);
     } else {
       request->send(404);

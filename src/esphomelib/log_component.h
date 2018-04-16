@@ -54,16 +54,16 @@ class LogComponent : public Component {
 
   size_t get_tx_buffer_size() const;
 
-  int log_vprintf_(ESPLogLevel level, const std::string &tag, const char *format, va_list args);
+  int log_vprintf_(ESPLogLevel level, const char *tag, const char *format, va_list args);
 
-  void add_on_log_callback(std::function<void(ESPLogLevel, std::string)> &&callback);
+  void add_on_log_callback(std::function<void(ESPLogLevel, const char *)> &&callback);
 
  protected:
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
   ESPLogLevel global_log_level_{ESPHOMELIB_LOG_LEVEL};
   std::unordered_map<std::string, ESPLogLevel> log_levels_;
-  CallbackManager<void(ESPLogLevel, std::string)> log_callback_{};
+  CallbackManager<void(ESPLogLevel, const char *)> log_callback_{};
 };
 
 extern LogComponent *global_log_component;

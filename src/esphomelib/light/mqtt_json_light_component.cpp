@@ -19,19 +19,19 @@ std::string MQTTJSONLightComponent::component_type() const {
 }
 
 void MQTTJSONLightComponent::setup() {
-  ESP_LOGD(TAG, "Setting up MQTT light...");
-
-  LightColorValues recovered_values;
-  recovered_values.load_from_preferences(this->state_->get_name());
-  this->state_->set_immediately(recovered_values);
+  ESP_LOGCONFIG(TAG, "Setting up MQTT light...");
 
   this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
     this->state_->parse_json(root);
   });
 
-  this->state_->add_send_callback([&]() {
-    this->next_send_ = true;
+  this->state_->add_send_callback([this]() {
+    this->defer("send", [this]() {
+      this->send_light_values();
+    });
   });
+
+  this->send_light_values();
 }
 
 MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
@@ -48,12 +48,6 @@ void MQTTJSONLightComponent::send_light_values() {
 }
 LightState *MQTTJSONLightComponent::get_state() const {
   return this->state_;
-}
-void MQTTJSONLightComponent::loop() {
-  if (this->next_send_) {
-    this->next_send_ = false;
-    this->send_light_values();
-  }
 }
 std::string MQTTJSONLightComponent::friendly_name() const {
   return this->state_->get_name();

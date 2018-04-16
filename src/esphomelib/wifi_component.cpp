@@ -40,6 +40,9 @@ void WiFiComponent::setup() {
     ESP_LOGE(TAG, "WiFi.mode(WIFI_STA) failed!");
   WiFi.setAutoConnect(false);
   WiFi.setAutoReconnect(false);
+  add_shutdown_hook([]() {
+    WiFi.mode(WIFI_OFF);
+  });
 
   if (!this->hostname_.empty()) {
     ESP_LOGCONFIG(TAG, "    Hostname: '%s'", this->hostname_.c_str());
@@ -136,8 +139,7 @@ void WiFiComponent::wait_for_connection() {
   while ((status = WiFi.status()) != WL_CONNECTED) {
     if (status == WL_CONNECT_FAILED || millis() - start > 10000) {
       ESP_LOGE(TAG, "    Can't connect to WiFi network, restarting...");
-      WiFi.mode(WIFI_OFF);
-      ESP.restart();
+      shutdown();
     }
 
     delay(250);

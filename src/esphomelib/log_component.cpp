@@ -17,7 +17,7 @@ namespace esphomelib {
 
 static const char *TAG = "log_component";
 
-int LogComponent::log_vprintf_(ESPLogLevel level, const std::string &tag,
+int LogComponent::log_vprintf_(ESPLogLevel level, const char *tag,
                                const char *format, va_list args) {
   auto it = this->log_levels_.find(tag);
   ESPLogLevel max_level = this->global_log_level_;
@@ -73,7 +73,7 @@ size_t LogComponent::get_tx_buffer_size() const {
 void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) {
   this->tx_buffer_.reserve(tx_buffer_size);
 }
-void LogComponent::add_on_log_callback(std::function<void(ESPLogLevel, std::string)> &&callback) {
+void LogComponent::add_on_log_callback(std::function<void(ESPLogLevel, const char *)> &&callback) {
   this->log_callback_.add(std::move(callback));
 }
 

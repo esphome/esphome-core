@@ -24,7 +24,7 @@ void RestartSwitch::turn_on() {
   this->publish_state(false);
   // then execute
   delay(100); // Let MQTT settle a bit
-  ESP.restart();
+  safe_shutdown();
 }
 std::string RestartSwitch::icon() {
   return "mdi:restart";

@@ -171,6 +171,14 @@ void LightState::dump_json(JsonBuffer &buffer, JsonObject &root) {
 void LightState::start_default_transition(const LightColorValues &target) {
   this->start_transition(target, this->default_transition_length_);
 }
+void LightState::setup() {
+  LightColorValues recovered_values;
+  recovered_values.load_from_preferences(this->get_name());
+  this->set_immediately(recovered_values);
+}
+float LightState::get_setup_priority() const {
+  return setup_priority::HARDWARE - 1.0f;
+}
 
 } // namespace light
 

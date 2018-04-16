@@ -34,8 +34,6 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   // (In most use cases you won't need these)
   /// Setup the fan subscriptions and discovery.
   void setup() override;
-  /// Send state via MQTT if state next_send_ is true.
-  void loop() override;
   /// Send the full current state to MQTT.
   void send_state();
   /// 'fan' component type for discovery.
@@ -52,7 +50,6 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   std::string friendly_name() const override;
 
   FanState *state_;
-  bool next_send_{true};
 };
 
 } // namespace fan

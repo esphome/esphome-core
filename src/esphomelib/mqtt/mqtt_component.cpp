@@ -32,8 +32,7 @@ std::string MQTTComponent::get_discovery_topic(const MQTTDiscoveryInfo &discover
 
 std::string MQTTComponent::get_default_topic_for(const std::string &suffix) const {
   return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id()
-      + "/"
-      + suffix;
+      + "/" + suffix;
 }
 
 const std::string MQTTComponent::get_state_topic() const {

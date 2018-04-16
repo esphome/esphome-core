@@ -40,6 +40,7 @@
   #endif
   #define USE_LIGHT
   #define USE_SWITCH
+  #define USE_SIMPLE_SWITCH
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_IR_TRANSMITTER
   #endif
@@ -129,6 +130,37 @@
     #define USE_SENSOR
   #endif
 #endif
+#ifdef USE_IR_TRANSMITTER
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+#endif
+#ifdef USE_GPIO_SWITCH
+  #ifndef USE_SIMPLE_SWITCH
+    #define USE_SIMPLE_SWITCH
+  #endif
+  #ifndef USE_GPIO_OUTPUT
+    #define USE_GPIO_OUTPUT
+  #endif
+#endif
+#ifdef USE_RESTART_SWITCH
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+#endif
+#ifdef USE_LIGHT
+  #ifndef USE_OUTPUT
+    #define USE_OUTPUT
+  #endif
+#endif
+#ifdef USE_SIMPLE_SWITCH
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+  #ifndef USE_OUTPUT
+    #define USE_OUTPUT
+  #endif
+#endif
 #ifdef USE_LEDC_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
@@ -148,26 +180,6 @@
   #endif
 #endif
 #ifdef USE_ESP8266_PWM_OUTPUT
-  #ifndef USE_OUTPUT
-    #define USE_OUTPUT
-  #endif
-#endif
-#ifdef USE_IR_TRANSMITTER
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_GPIO_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_RESTART_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_LIGHT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
   #endif

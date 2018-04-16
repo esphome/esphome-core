@@ -35,6 +35,15 @@ class Switch : public binary_sensor::BinarySensor {
    * @return The icon of this switch, for example "mdi:fan".
    */
   virtual std::string icon();
+
+  /// Set the icon for this switch. "" for no icon.
+  void set_icon(const std::string &icon);
+
+  /// Get the icon for this switch.
+  std::string get_icon();
+
+ protected:
+  Optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
 };
 
 } // namespace switch_

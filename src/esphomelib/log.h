@@ -17,9 +17,8 @@ enum ESPLogLevel {
   ESPHOMELIB_LOG_LEVEL_ERROR = 1,
   ESPHOMELIB_LOG_LEVEL_WARN = 2,
   ESPHOMELIB_LOG_LEVEL_INFO = 3,
-  ESPHOMELIB_LOG_LEVEL_CONFIG = 4,
-  ESPHOMELIB_LOG_LEVEL_DEBUG = 5,
-  ESPHOMELIB_LOG_LEVEL_VERBOSE = 6
+  ESPHOMELIB_LOG_LEVEL_DEBUG = 4,
+  ESPHOMELIB_LOG_LEVEL_VERBOSE = 5
 };
 
 #ifndef ESPHOMELIB_LOG_LEVEL
@@ -57,8 +56,8 @@ enum ESPLogLevel {
   #define ESPHOMELIB_LOG_RESET_COLOR
 #endif
 
-int esp_log_printf_(ESPLogLevel level, const std::string &tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
-int esp_log_vprintf_(ESPLogLevel level, const std::string &tag, const char *format, va_list args);
+int esp_log_printf_(ESPLogLevel level, const char *tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+int esp_log_vprintf_(ESPLogLevel level, const char *tag, const char *format, va_list args);
 int esp_idf_log_vprintf_(const char *format, va_list args);
 
 #define ESPHOMELIB_SHORT_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter format ESPHOMELIB_LOG_RESET_COLOR

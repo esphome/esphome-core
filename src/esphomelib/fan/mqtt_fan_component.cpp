@@ -55,7 +55,11 @@ void MQTTFanComponent::setup() {
     });
   }
 
-  this->state_->add_on_receive_backend_state_callback([this]() { this->next_send_ = true; });
+  this->state_->add_on_receive_backend_state_callback([this]() {
+    this->defer("send", [this]() {
+      this->send_state();
+    });
+  });
 
   this->state_->load_from_preferences();
 }
@@ -83,10 +87,6 @@ const std::string MQTTFanComponent::get_speed_command_topic() const {
 const std::string MQTTFanComponent::get_speed_state_topic() const {
   return this->get_topic_for("speed/state");
 }
-void MQTTFanComponent::loop() {
-  if (this->next_send_)
-    this->send_state();
-}
 void MQTTFanComponent::send_state() {
   ESP_LOGD(TAG, "Sending state.");
   this->send_message(this->get_state_topic(), this->state_->get_state() ? "ON" : "OFF");
@@ -94,7 +94,7 @@ void MQTTFanComponent::send_state() {
     this->send_message(this->get_oscillation_state_topic(),
                        this->state_->is_oscillating() ? "oscillate_on" : "oscillate_off");
   if (this->state_->get_traits().supports_speed()) {
-    std::string payload;
+    const char *payload;
     switch (this->state_->get_speed()) {
       case FanState::SPEED_OFF: {
         payload = "off";
@@ -112,11 +112,12 @@ void MQTTFanComponent::send_state() {
         payload = "high";
         break;
       }
+      default:
+        assert(false);
     }
     this->send_message(this->get_speed_state_topic(), payload);
   }
   this->state_->save_to_preferences();
-  this->next_send_ = false;
 }
 std::string MQTTFanComponent::friendly_name() const {
   return this->state_->get_name();

@@ -29,7 +29,7 @@ void MQTTSwitchComponent::setup() {
   assert(this->switch_ != nullptr);
 
   ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->switch_->get_name().c_str());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->get_icon().c_str());
+  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->switch_->get_icon().c_str());
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
     if (strcasecmp(payload.c_str(), this->get_payload_on().c_str()) == 0)
@@ -58,23 +58,9 @@ void MQTTSwitchComponent::turn_off() {
   ESP_LOGD(TAG, "Turning Switch off.");
   this->switch_->turn_off();
 }
-Switch *MQTTSwitchComponent::get_switch() const {
-  return this->switch_;
-}
-std::string MQTTSwitchComponent::get_icon() const {
-  if (this->icon_.defined)
-    return this->icon_.value;
-  else {
-    assert(this->switch_ != nullptr);
-    return this->switch_->icon();
-  }
-}
-void MQTTSwitchComponent::set_icon(const std::string &icon) {
-  this->icon_ = icon;
-}
 void MQTTSwitchComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
-  if (!this->get_icon().empty())
-    root["icon"] = this->get_icon();
+  if (!this->switch_->get_icon().empty())
+    root["icon"] = this->switch_->get_icon();
   if (this->get_payload_on() != "ON")
     root["payload_on"] = this->get_payload_on();
   if (this->get_payload_off() != "OFF")

@@ -14,7 +14,7 @@ namespace esphomelib {
 static const char *TAG = "power_supply";
 
 void PowerSupplyComponent::setup() {
-  ESP_LOGD(TAG, "Setting up Power Supply...");
+  ESP_LOGCONFIG(TAG, "Setting up Power Supply...");
 
   this->pin_.setup();
   this->pin_.write_value(false);

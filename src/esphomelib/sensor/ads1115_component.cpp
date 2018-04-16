@@ -42,7 +42,7 @@ void ADS1115Component::setup() {
     ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
     ESP_LOGCONFIG(TAG, "    Update Interval: %u", sensor->get_update_interval());
 
-    this->set_interval("", sensor->get_update_interval(), [this, sensor]{
+    this->set_interval(sensor->get_name(), sensor->get_update_interval(), [this, sensor]{
       this->request_measurement_(sensor);
     });
   }

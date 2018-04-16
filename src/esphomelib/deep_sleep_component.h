@@ -21,9 +21,9 @@ class DeepSleepComponent : public Component {
  public:
   void set_sleep_duration(uint32_t time_ms);
 #ifdef ARDUINO_ARCH_ESP32
-  void set_wakeup_pin(uint8_t pin, bool level);
+  void set_wakeup_pin(GPIOInputPin pin);
 #endif
-  void set_loop_cycles(uint32_t cycles);
+  void set_run_cycles(uint32_t cycles);
   void set_run_duration(uint32_t time_ms);
 
   void setup() override;
@@ -35,8 +35,7 @@ class DeepSleepComponent : public Component {
 
   Optional<uint64_t> sleep_duration_{};
 #ifdef ARDUINO_ARCH_ESP32
-  Optional<uint8_t> wakeup_pin_{};
-  bool wakeup_level_{};
+  Optional<GPIOInputPin> wakeup_pin_{};
 #endif
   Optional<uint32_t> loop_cycles_{};
   uint32_t at_loop_cycle_{0};

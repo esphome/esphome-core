@@ -44,6 +44,14 @@ std::string truncate_string(const std::string &s, size_t length);
 /// Checks whether the provided IPAddress is empty (is 0.0.0.0).
 bool is_empty(const IPAddress &address);
 
+void shutdown();
+
+void add_shutdown_hook(std::function<void()> &&f);
+
+void safe_shutdown();
+
+void add_safe_shutdown_hook(std::function<void()> &&f);
+
 /// Convert the string to lowercase_underscore.
 std::string to_lowercase_underscore(std::string s);
 

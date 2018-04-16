@@ -42,6 +42,9 @@ class GPIOPin {
    */
   GPIOPin(uint8_t pin, uint8_t mode, bool inverted = false);
 
+  /// Default constructor so that it can be stored in optionals
+  GPIOPin();
+
   /// Setup the pin mode.
   void setup();
   /// Read the binary value from this pin using digitalRead (and inverts automatically).
@@ -77,6 +80,8 @@ class GPIOPin {
  */
 class GPIOOutputPin : public GPIOPin {
  public:
+  GPIOOutputPin();
+
   GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false); // NOLINT
 };
 
@@ -88,6 +93,8 @@ class GPIOOutputPin : public GPIOPin {
  */
 class GPIOInputPin : public GPIOPin {
  public:
+  GPIOInputPin();
+
   GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false); // NOLINT
 };
 

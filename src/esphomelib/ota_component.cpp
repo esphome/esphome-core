@@ -89,6 +89,14 @@ void OTAComponent::setup() {
     this->ota_triggered_ = false;
   });
   ArduinoOTA.begin();
+  add_shutdown_hook([]() {
+    ArduinoOTA.end();
+  });
+  if (this->has_safe_mode_) {
+    add_safe_shutdown_hook([this]() {
+      this->clean_rtc();
+    });
+  }
 
   global_ota_component = this;
 }
@@ -163,7 +171,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
       App.get_wifi()->loop_();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");
-    ESP.restart();
+    shutdown();
   } else {
     // increment counter
     this->write_rtc_(uint8_t(rtc_data + 1));
