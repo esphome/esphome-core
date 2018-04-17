@@ -50,7 +50,8 @@ void OTAComponent::setup() {
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
-    safe_shutdown();
+    safe_shutdown_hooks.call();
+    shutdown_hooks.call();
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
     if (this->at_ota_progress_message_++ % 8 != 0)
