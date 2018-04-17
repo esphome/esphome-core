@@ -32,10 +32,3 @@ Setup Priorities
 ****************
 
 .. doxygennamespace:: esphomelib::setup_priority
-
-Assertions
-**********
-
-.. doxygendefine:: assert_is_pin
-.. doxygendefine:: assert_setup
-.. doxygendefine:: assert_construction_state

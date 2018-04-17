@@ -53,11 +53,6 @@ MQTTComponent
     :protected-members:
     :undoc-members:
 
-.. doxygenstruct:: esphomelib::mqtt::Availability
-    :members:
-    :protected-members:
-    :undoc-members:
-
 .. doxygenstruct:: esphomelib::mqtt::SendDiscoveryConfig
     :members:
     :protected-members:

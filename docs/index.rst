@@ -4,11 +4,13 @@ esphomelib API Reference
 Welcome to the esphomelib API docs!
 -----------------------------------
 
-esphomeyaml docs can be found here: `esphomeyaml docs </esphomeyaml/index.html>`__.
+esphomeyaml docs can be found here: `esphomeyaml docs`_.
 
 Here you will find all of esphomelib's API documentation together with some examples.
 
 Eventually, guides will also be setup here on how to create your own custom components and some basic stuff.
+
+.. _esphomeyaml docs: /esphomeyaml/index.html
 
 Supported First Order Integrations
 ----------------------------------
@@ -35,6 +37,13 @@ a light is a combination of output components.
     api/sensor/pulse-counter.rst
     api/sensor/ultrasonic.rst
     api/switch/ir-transmitter.rst
+
+Web Server API
+--------------
+
+See `Web Server API`_ for documentation of the web server REST API.
+
+.. _Web Server API: /web-api/index.html
 
 API Reference
 -------------
