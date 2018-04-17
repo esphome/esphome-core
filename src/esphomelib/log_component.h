@@ -20,7 +20,7 @@
 
 namespace esphomelib {
 
-/**  A simple component that enables logging to Serial and MQTT via ESP_LOG* macros.
+/** A simple component that enables logging to Serial via the ESP_LOG* macros.
  *
  * This component should optimally be setup very early because only after its setup log messages are actually sent.
  * To do this, simply call pre_setup() as early as possible.
@@ -56,6 +56,7 @@ class LogComponent : public Component {
 
   int log_vprintf_(ESPLogLevel level, const char *tag, const char *format, va_list args);
 
+  /// Register a callback that will be called for every log message sent
   void add_on_log_callback(std::function<void(ESPLogLevel, const char *)> &&callback);
 
  protected:

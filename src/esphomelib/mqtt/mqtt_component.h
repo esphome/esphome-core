@@ -14,10 +14,11 @@ namespace esphomelib {
 
 namespace mqtt {
 
+/// Simple Helper struct used for Home Assistant MQTT send_discovery().
 struct SendDiscoveryConfig {
-  bool state_topic{true};
-  bool command_topic{true};
-  const char *platform{"mqtt"};
+  bool state_topic{true}; ///< If the state topic should be included. Defaults to true.
+  bool command_topic{true}; ///< If the command topic should be included. Default to true.
+  const char *platform{"mqtt"}; ///< The platform of this component. Defaults to "mqtt".
 };
 
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
@@ -28,7 +29,7 @@ struct SendDiscoveryConfig {
  *
  * In order to implement automatic Home Assistant discovery, all sub-classes should:
  *
- *  1. Call send_discovery() with a callback that adds discovery information during setup().
+ *  1. Implement send_discovery that creates a Home Assistant discovery payload.
  *  2. Override component_type() to return the appropriate component type such as "light" or "sensor".
  *  3. Subscribe to command topics using subscribe() or subscribe_json() during setup().
  *
@@ -41,8 +42,10 @@ class MQTTComponent : public Component {
   /// Constructs a MQTTComponent.
   explicit MQTTComponent();
 
+  /// Override setup_ so that we can call send_discovery() when needed.
   void setup_() override;
 
+  /// Send discovery info the Home Assistant, override this.
   virtual void send_discovery(JsonBuffer &buffer, JsonObject &root, SendDiscoveryConfig &config) = 0;
 
   /// Set whether state message should be retained.
@@ -62,6 +65,7 @@ class MQTTComponent : public Component {
   void set_custom_command_topic(const std::string &custom_command_topic);
   void set_custom_topic(const std::string &key, const std::string &custom_topic);
 
+  /// MQTT_COMPONENT setup priority.
   float get_setup_priority() const override;
 
   /** Set the Home Assistant availability data.
@@ -96,18 +100,7 @@ class MQTTComponent : public Component {
   /// Otherwise, one will be generated with get_default_topic_for().
   const std::string get_topic_for(const std::string &key) const;
 
-  /** Send discovery info.
-   *
-   * Sends discovery info to the topic returned by get_discovery_topic() using the specified component type ("light",
-   * "sensor", ...). Automatically populates "name" and "platform" which defaults to "mqtt" but can be overridden.
-   * If state_topic is set to true, the state topic from get_state_topic() is aditionally included. The same applies to
-   * command_topic. Aditionally a "platform" can be specified to specify which platform should
-   *
-   * @param f This method will be called for building the discovery info.
-   * @param state_topic Whether to include "state_topic".
-   * @param command_topic Whether to include "command_topic".
-   * @param platform
-   */
+  /// Internal method to start sending discovery info, this will call send_discovery().
   void send_discovery_();
 
   /** Send a MQTT message.
@@ -124,7 +117,7 @@ class MQTTComponent : public Component {
    *
    * @param topic The topic.
    * @param f The Json Message builder.
-   * @param retain Whether to retain the message.
+   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
   void send_json_message(const std::string &topic,
                          const json_build_t &f,

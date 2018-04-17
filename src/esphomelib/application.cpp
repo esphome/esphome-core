@@ -74,10 +74,9 @@ void Application::loop() {
 }
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
-  assert(this->wifi_ == nullptr && "WiFi already setup!");
-  WiFiComponent *wifi = new WiFiComponent(ssid, password, sanitize_hostname(this->name_));
-  this->wifi_ = wifi;
-  return this->register_component(wifi);
+  WiFiComponent *wifi = this->init_wifi();
+  wifi->set_sta(ssid, password);
+  return wifi;
 }
 
 void Application::set_name(const std::string &name) {
@@ -520,6 +519,14 @@ DeepSleepComponent *Application::make_deep_sleep_component() {
   return this->register_component(new DeepSleepComponent());
 }
 #endif
+
+WiFiComponent *Application::init_wifi() {
+  assert(this->wifi_ == nullptr && "WiFi already setup!");
+  auto *wifi = new WiFiComponent();
+  wifi->set_hostname(sanitize_hostname(this->name_));
+  this->wifi_ = wifi;
+  return this->register_component(wifi);
+}
 
 Application App; // NOLINT
 

@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace fan {
 
-/// BasicFanComponent - Simple fan helper that pushes the states to BinaryOutput/FloatOutput devices.
+/// Simple fan helper that pushes the states to BinaryOutput/FloatOutput devices.
 class BasicFanComponent : public Component {
  public:
   /** Create a fan that supports binary state operation (ON/OFF). Can't be mixed with set_speed.
@@ -35,6 +35,7 @@ class BasicFanComponent : public Component {
    * @param high_speed The speed that should be sent to the output if the fan is in HIGH speed mode.
    */
   void set_speed(output::FloatOutput *output, float off_speed = 0.0, float low_speed = 0.33, float medium_speed = 0.66, float high_speed = 1.0);
+
   /** Set an oscillation output for this fan.
    *
    * @param oscillating_output The binary output where all oscillation commands should land.

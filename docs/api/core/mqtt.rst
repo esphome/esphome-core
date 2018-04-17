@@ -18,8 +18,6 @@ MQTTClientComponent
 
 .. doxygentypedef:: esphomelib::mqtt::mqtt_callback_t
 
-.. doxygentypedef:: esphomelib::mqtt::json_parse_t
-
 .. doxygenstruct:: esphomelib::mqtt::MQTTMessage
     :members:
     :protected-members:
@@ -31,6 +29,11 @@ MQTTClientComponent
     :undoc-members:
 
 .. doxygenstruct:: esphomelib::mqtt::MQTTCredentials
+    :members:
+    :protected-members:
+    :undoc-members:
+
+.. doxygenstruct:: esphomelib::mqtt::Availability
     :members:
     :protected-members:
     :undoc-members:
@@ -55,4 +58,8 @@ MQTTComponent
     :protected-members:
     :undoc-members:
 
-.. doxygentypedef:: esphomelib::mqtt::json_build_t
+.. doxygenstruct:: esphomelib::mqtt::SendDiscoveryConfig
+    :members:
+    :protected-members:
+    :undoc-members:
+

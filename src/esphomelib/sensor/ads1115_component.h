@@ -69,7 +69,7 @@ class ADS1115Component : public Component {
    * If the address pin is tied to SDA, the address is 0x4A.
    * If the address pin is tied to SCL, the address is 0x4B.
    *
-   * @param address
+   * @param address The i2c address
    */
   void set_address(uint8_t address);
   /// Manually set whether this ADS1115 should operate in continuous mode, defaults to true.

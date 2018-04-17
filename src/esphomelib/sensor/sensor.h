@@ -170,9 +170,9 @@ class Sensor : public Nameable {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  /// The MQTT sensor class uses this to register itself as a listener for new values.
+  /// Add a callback that will be called every time a filtered value arrives.
   void add_on_value_callback(sensor_callback_t callback);
-
+  /// Add a callback that will be called every time the sensor sends a raw value.
   void add_on_raw_value_callback(sensor_callback_t callback);
 
  protected:

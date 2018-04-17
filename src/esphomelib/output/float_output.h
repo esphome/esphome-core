@@ -16,7 +16,7 @@ namespace esphomelib {
 
 namespace output {
 
-/** FloatOutput - Base class for all output components that can output a variable level, like PWM.
+/** Base class for all output components that can output a variable level, like PWM.
  *
  * Floating Point Outputs always use output values in the range from 0.0 to 1.0 (inclusive), where 0.0 means off
  * and 1.0 means fully on. While using floating point numbers might make computation slower, it

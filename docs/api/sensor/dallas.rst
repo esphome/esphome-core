@@ -21,15 +21,13 @@ Example Usage
     auto *dallas = App.make_dallas_component(15);
 
     // By address
-    App.make_mqtt_sensor_for(dallas->get_sensor_by_address(0xfe0000031f1eaf29),
-                             "Ambient Temperature");
+    App.register_sensor(dallas->get_sensor_by_address("Ambient Temperature", 0xfe0000031f1eaf29));
     // By index
-    App.make_mqtt_sensor_for(dallas->get_sensor_by_index(0),
-                             "Ambient Temperature");
+    App.register_sensor(dallas->get_sensor_by_index("Ambient Temperature", 0));
 
 .. cpp:namespace:: esphomelib
 
-See :cpp:func:`Application::make_dallas_component` and :cpp:func:`Application::make_mqtt_sensor_for`.
+See :cpp:func:`Application::make_dallas_component` and :cpp:func:`Application::register_sensor`.
 
 API Reference
 -------------

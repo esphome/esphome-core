@@ -66,6 +66,21 @@ UrlMatch match_url(const std::string &url, bool only_domain = false) {
   return match;
 }
 
+WebServer::WebServer(uint16_t port)
+    : port_(port) {
+
+}
+
+void WebServer::set_css_url(const char *css_url) {
+  this->css_url_ = css_url;
+}
+void WebServer::set_js_url(const char *js_url) {
+  this->js_url_ = js_url;
+}
+void WebServer::set_port(uint16_t port) {
+  this->port_ = port;
+}
+
 void WebServer::setup() {
   this->server_ = new AsyncWebServer(this->port_);
   MDNS.addService("http", "tcp", this->port_);
@@ -113,14 +128,65 @@ void WebServer::setup() {
     this->events_.send("", "ping", millis(), 30000);
   });
 }
-
-WebServer::WebServer(uint16_t port)
-    : port_(port) {
-
-}
 float WebServer::get_setup_priority() const {
   return setup_priority::MQTT_CLIENT;
 }
+
+void WebServer::handle_index_request(AsyncWebServerRequest *request) {
+  AsyncResponseStream *stream = request->beginResponseStream("text/html");
+  std::string title = App.get_name() + " Web Server";
+  stream->print(F("<!DOCTYPE html><html><head><meta charset=UTF-8><title>"));
+  stream->print(title.c_str());
+  stream->print(F("</title><link rel=\"stylesheet\" href=\""));
+  if (this->css_url_ != nullptr) {
+    stream->print(this->css_url_);
+  } else {
+    stream->print(F("https://esphomelib.com/_static/webserver-v1.min.css"));
+  }
+  stream->print(F("\"></head><body><article class=\"markdown-body\"><h1>"));
+  stream->print(title.c_str());
+  stream->print(F("</h1><h2>States</h2><table id=\"states\"><thead><tr><th>Name<th>State<th>Actions<tbody>"));
+
+#ifdef USE_SENSOR
+  for (auto *obj : this->sensors_)
+    write_row(stream, obj, "sensor", "");
+#endif
+
+#ifdef USE_SWITCH
+  for (auto *obj : this->switches_)
+    write_row(stream, obj, "switch", "<button>Toggle</button>");
+#endif
+
+#ifdef USE_BINARY_SENSOR
+  for (auto *obj : this->binary_sensors_)
+    write_row(stream, obj, "binary_sensor", "");
+#endif
+
+#ifdef USE_FAN
+  for (auto *obj : this->fans_)
+    write_row(stream, obj, "fan", "<button>Toggle</button>");
+#endif
+
+#ifdef USE_LIGHT
+  for (auto *obj : this->lights_)
+    write_row(stream, obj, "light", "<button>Toggle</button>");
+#endif
+
+  stream->print(
+      F("</tbody></table><p>See <a href=\"https://esphomelib.com/web-api/index.html\">esphomelib Web API</a> for REST API documentation.</p>"
+        "<h2>Debug Log</h2><pre id=\"log\"></pre>"
+        "<script src=\"")
+  );
+  if (this->js_url_ != nullptr) {
+    stream->print(this->js_url_);
+  } else {
+    stream->print(F("https://esphomelib.com/_static/webserver-v1.min.js"));
+  }
+  stream->print(F("\"></script></article></body></html>"));
+
+  request->send(stream);
+}
+
 #ifdef USE_SENSOR
 void WebServer::register_sensor(sensor::Sensor *obj) {
   StoringController::register_sensor(obj);
@@ -228,7 +294,7 @@ void WebServer::handle_binary_sensor_request(AsyncWebServerRequest *request, Url
 #ifdef USE_FAN
 void WebServer::register_fan(fan::FanState *obj) {
   StoringController::register_fan(obj);
-  obj->add_on_receive_backend_state_callback([this, obj]() {
+  obj->add_on_state_change_callback([this, obj]() {
     this->defer([this, obj] {
       this->events_.send(this->fan_json(obj).c_str(), "state");
     });
@@ -297,88 +363,6 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
 }
 #endif
 
-bool WebServer::canHandle(AsyncWebServerRequest *request) {
-  if (request->url() == "/")
-    return true;
-
-  UrlMatch match = match_url(request->url().c_str(), true);
-  if (!match.valid)
-    return false;
-#ifdef USE_SENSOR
-  if (request->method() == HTTP_GET && match.domain == "sensor")
-    return true;
-#endif
-
-#ifdef USE_SWITCH
-  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
-      match.domain == "switch")
-    return true;
-#endif
-
-#ifdef USE_BINARY_SENSOR
-  if (request->method() == HTTP_GET && match.domain == "binary_sensor")
-    return true;
-#endif
-
-#ifdef USE_FAN
-  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
-      match.domain == "fan")
-    return true;
-#endif
-
-#ifdef USE_LIGHT
-  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
-      match.domain == "light")
-    return true;
-#endif
-
-  return false;
-}
-void WebServer::handleRequest(AsyncWebServerRequest *request) {
-  if (request->url() == "/") {
-    this->handle_index_request(request);
-    return;
-  }
-
-  UrlMatch match = match_url(request->url().c_str());
-#ifdef USE_SENSOR
-  if (match.domain == "sensor") {
-    this->handle_sensor_request(request, match);
-    return;
-  }
-#endif
-
-#ifdef USE_SWITCH
-  if (match.domain == "switch") {
-    this->handle_switch_request(request, match);
-    return;
-  }
-#endif
-
-#ifdef USE_BINARY_SENSOR
-  if (match.domain == "binary_sensor") {
-    this->handle_binary_sensor_request(request, match);
-    return;
-  }
-#endif
-
-#ifdef USE_FAN
-  if (match.domain == "fan") {
-    this->handle_fan_request(request, match);
-    return;
-  }
-#endif
-
-#ifdef USE_LIGHT
-  if (match.domain == "light") {
-    this->handle_light_request(request, match);
-    return;
-  }
-#endif
-}
-bool WebServer::isRequestHandlerTrivial() {
-  return false;
-}
 #ifdef USE_LIGHT
 void WebServer::register_light(light::LightState *obj) {
   StoringController::register_light(obj);
@@ -461,55 +445,88 @@ std::string WebServer::light_json(light::LightState *obj) {
 }
 #endif
 
-void WebServer::handle_index_request(AsyncWebServerRequest *request) {
-  AsyncResponseStream *stream = request->beginResponseStream("text/html");
-  std::string title = App.get_name() + " Web Server";
-  stream->print(F("<!DOCTYPE html><html><head><meta charset=UTF-8><title>"));
-  stream->print(title.c_str());
-  stream->print(F("</title><link rel=\"stylesheet\" href=\"https://esphomelib.com/_static/webserver-v1.min.css\">"
-                  "</head><body><article class=\"markdown-body\"><h1>"));
-  stream->print(title.c_str());
-  stream->print(F("</h1><h2>States</h2><table id=\"states\"><thead><tr><th>Name<th>State<th>Actions<tbody>"));
+bool WebServer::canHandle(AsyncWebServerRequest *request) {
+  if (request->url() == "/")
+    return true;
 
+  UrlMatch match = match_url(request->url().c_str(), true);
+  if (!match.valid)
+    return false;
 #ifdef USE_SENSOR
-  for (auto *obj : this->sensors_)
-    write_row(stream, obj, "sensor", "");
+  if (request->method() == HTTP_GET && match.domain == "sensor")
+    return true;
 #endif
 
 #ifdef USE_SWITCH
-  for (auto *obj : this->switches_)
-    write_row(stream, obj, "switch", "<button>Toggle</button>");
+  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
+      match.domain == "switch")
+    return true;
 #endif
 
 #ifdef USE_BINARY_SENSOR
-  for (auto *obj : this->binary_sensors_)
-    write_row(stream, obj, "binary_sensor", "");
+  if (request->method() == HTTP_GET && match.domain == "binary_sensor")
+    return true;
 #endif
 
 #ifdef USE_FAN
-  for (auto *obj : this->fans_)
-    write_row(stream, obj, "fan", "<button>Toggle</button>");
+  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
+      match.domain == "fan")
+    return true;
 #endif
 
 #ifdef USE_LIGHT
-  for (auto *obj : this->lights_)
-    write_row(stream, obj, "light", "<button>Toggle</button>");
+  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
+      match.domain == "light")
+    return true;
 #endif
 
-  stream->print(
-      F("</tbody></table><p>See <a href=https://esphomelib.com/web-api/index.html>esphomelib Web API</a> for REST API documentation.</p>"
-        "<h2>Debug Log</h2><pre id=\"log\"></pre>"
-        "<script src=\"https://esphomelib.com/_static/webserver-v1.min.js\"></script>"
-        "</article></body></html>")
-  );
+  return false;
+}
+void WebServer::handleRequest(AsyncWebServerRequest *request) {
+  if (request->url() == "/") {
+    this->handle_index_request(request);
+    return;
+  }
 
-  request->send(stream);
+  UrlMatch match = match_url(request->url().c_str());
+#ifdef USE_SENSOR
+  if (match.domain == "sensor") {
+    this->handle_sensor_request(request, match);
+    return;
+  }
+#endif
+
+#ifdef USE_SWITCH
+  if (match.domain == "switch") {
+    this->handle_switch_request(request, match);
+    return;
+  }
+#endif
+
+#ifdef USE_BINARY_SENSOR
+  if (match.domain == "binary_sensor") {
+    this->handle_binary_sensor_request(request, match);
+    return;
+  }
+#endif
+
+#ifdef USE_FAN
+  if (match.domain == "fan") {
+    this->handle_fan_request(request, match);
+    return;
+  }
+#endif
+
+#ifdef USE_LIGHT
+  if (match.domain == "light") {
+    this->handle_light_request(request, match);
+    return;
+  }
+#endif
 }
-uint16_t WebServer::get_port() const {
-  return this->port_;
-}
-void WebServer::set_port(uint16_t port) {
-  this->port_ = port;
+
+bool WebServer::isRequestHandlerTrivial() {
+  return false;
 }
 
 } // namespace esphomelib

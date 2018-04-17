@@ -136,7 +136,9 @@ class MQTTClientComponent : public Component {
   /// Get the topic prefix of this device, using default if necessary
   const std::string &get_topic_prefix() const;
 
+  /// Manually set the topic used for logging.
   void set_log_topic(const std::string &topic);
+  /// Get the topic used for logging. Defaults to "<topic_prefix>/debug" and the value is cached for speed.
   const std::string &get_log_topic();
 
   /** Subscribe to an MQTT topic and call callback when a message is received.
@@ -182,15 +184,21 @@ class MQTTClientComponent : public Component {
   /// Return whether this client is currently connected to the MQTT server.
   bool is_connected();
 
+  /// Add a callback that will be called every time the MQTT client reconnects.
   void add_on_connect_callback(std::function<void()> &&callback);
 
+  /// Setup the MQTT client, registering a bunch of callbacks and attempting to connect.
   void setup() override;
+  /// Reconnect if required
   void loop() override;
+  /// MQTT client setup priority
   float get_setup_priority() const override;
 
  protected:
+  /// Reconnect to the MQTT broker if not already connected.
   void reconnect();
 
+  /// Re-calculate the availability property.
   void recalculate_availability();
 
   MQTTCredentials credentials_;

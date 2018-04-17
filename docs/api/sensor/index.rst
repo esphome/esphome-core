@@ -5,7 +5,7 @@ The `esphomelib::sensor` namespace contains all sensors.
 
 .. cpp:namespace:: esphomelib
 
-See :cpp:func:`Application::make_mqtt_sensor_for`.
+See :cpp:func:`Application::register_sensor`.
 
 .. toctree::
     :maxdepth: 1

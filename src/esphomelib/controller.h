@@ -18,6 +18,7 @@
 
 namespace esphomelib {
 
+/// Controllers allow an object to be notified of every component that's added to the Application.
 class Controller {
  public:
 #ifdef USE_BINARY_SENSOR
@@ -41,6 +42,7 @@ class Controller {
 #endif
 };
 
+/// A StoringController is a controller that automatically stores all components internally in vectors.
 class StoringController : public Controller {
  public:
 #ifdef USE_BINARY_SENSOR

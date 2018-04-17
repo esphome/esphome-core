@@ -39,7 +39,7 @@ class Switch : public binary_sensor::BinarySensor {
   /// Set the icon for this switch. "" for no icon.
   void set_icon(const std::string &icon);
 
-  /// Get the icon for this switch.
+  /// Get the icon for this switch. Using icon() if not manually set
   std::string get_icon();
 
  protected:

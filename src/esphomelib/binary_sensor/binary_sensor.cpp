@@ -12,7 +12,7 @@ namespace binary_sensor {
 static const char *TAG = "binary_sensor.binary_sensor";
 
 void BinarySensor::add_on_state_callback(binary_callback_t &&callback) {
-  this->new_state_callback_.add(std::move(callback));
+  this->state_callback_.add(std::move(callback));
 }
 
 void BinarySensor::publish_state(bool state) {
@@ -21,7 +21,7 @@ void BinarySensor::publish_state(bool state) {
     return;
   this->first_value_ = false;
   this->value_ = actual;
-  this->new_state_callback_.call(actual);
+  this->state_callback_.call(actual);
 }
 bool BinarySensor::is_inverted() const {
   return this->inverted_;

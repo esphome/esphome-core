@@ -16,13 +16,14 @@
 
 namespace esphomelib {
 
+/// The debug component prints out debug information like free heap size on startup.
 class DebugComponent : public Component {
  public:
   void setup() override;
   void loop() override;
   float get_setup_priority() const override;
  protected:
-  uint32_t free_heap_;
+  uint32_t free_heap_{};
 };
 
 } // namespace esphomelib

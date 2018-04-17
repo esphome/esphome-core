@@ -18,14 +18,17 @@ namespace esphomelib {
 
 namespace binary_sensor {
 
-/** Simple binary sensor that reports the online/offline state of the node.
+/** Simple binary sensor that reports the online/offline state of the node using MQTT
  *
  * Most of the magic doesn't happen here, but in Application.make_status_binary_sensor.
  */
 class StatusBinarySensor : public BinarySensor {
  public:
+  /// Construct the status binary sensor
   explicit StatusBinarySensor(const std::string &name);
 
+ protected:
+  /// "connectivity" device class.
   std::string device_class() override;
 };
 

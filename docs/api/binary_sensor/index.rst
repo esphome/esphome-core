@@ -24,17 +24,14 @@ Example Usage
 .. code-block:: cpp
 
     // Basic
-    App.make_mqtt_binary_sensor_for("Custom Binary Sensor",
-                                    binary_sensor::device_class::MOTION,
-                                    custom_binary_sensor);
+    App.register_binary_sensor(custom_binary_sensor);
     // GPIO Binary Sensor
-    App.make_gpio_binary_sensor(36, "Window Open",
-                                binary_sensor::device_class::WINDOW);
+    App.make_gpio_binary_sensor("Window Open", 36);
 
 
 .. cpp:namespace:: esphomelib
 
-See :cpp:func:`Application::make_mqtt_binary_sensor_for` and :cpp:func:`Application::make_gpio_binary_sensor`.
+See :cpp:func:`Application::register_binary_sensor` and :cpp:func:`Application::make_gpio_binary_sensor`.
 
 API Reference
 -------------

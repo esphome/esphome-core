@@ -26,6 +26,10 @@ using binary_callback_t = std::function<void(bool)>;
  */
 class BinarySensor : public Nameable {
  public:
+  /** Construct a binary sensor with the specified name
+   *
+   * @param name Name of this binary sensor.
+   */
   explicit BinarySensor(const std::string &name);
 
   /** Set callback for state changes.
@@ -45,15 +49,13 @@ class BinarySensor : public Nameable {
    */
   virtual void publish_state(bool state);
 
-  /// Get the default device class for this sensor, or empty string for no default.
-  virtual std::string device_class();
-
+  /// Get the current boolean value of this binary sensor.
   bool get_value() const;
 
-  /// Set the Home Assistant device class (see esphomelib::binary_sensor::device_class)
+  /// Manually set the Home Assistant device class (see esphomelib::binary_sensor::device_class)
   void set_device_class(const std::string &device_class);
 
-  /// Get the device class for this binary sensor.
+  /// Get the device class for this binary sensor, using the manual override if specified.
   std::string get_device_class();
 
   // ========== INTERNAL METHODS ==========
@@ -62,11 +64,16 @@ class BinarySensor : public Nameable {
   bool is_inverted() const;
 
  protected:
-  CallbackManager<void(bool)> new_state_callback_{};
+  // ========== OVERRIDE METHODS ==========
+  // (You'll only need this when creating your own custom sensor)
+  /// Get the default device class for this sensor, or empty string for no default.
+  virtual std::string device_class();
+
+  CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
   bool value_{false};
   bool first_value_{true};
-  Optional<std::string> device_class_;
+  Optional<std::string> device_class_{}; ///< Stores the override of the device class
 };
 
 } // namespace binary_sensor

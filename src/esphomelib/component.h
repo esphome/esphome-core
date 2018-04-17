@@ -168,10 +168,19 @@ class Component {
    */
   bool cancel_timeout(const std::string &name);
 
+  /** Defer a callback to the next loop() call.
+   *
+   * If name is specified and a defer() object with the same name exists, the old one is first removed.
+   *
+   * @param name The name of the defer function.
+   * @param f The callback.
+   */
   void defer(const std::string &name, time_func_t &&f);
 
+  /// Defer a callback to the next loop() call.
   void defer(time_func_t &&f);
 
+  /// Cancel a defer callback using the specified name, name must not be empty.
   bool cancel_defer(const std::string &name);
 
   /// Internal struct for storing timeout/interval functions.
@@ -242,6 +251,7 @@ class Nameable {
   explicit Nameable(const std::string &name);
   const std::string &get_name() const;
   void set_name(const std::string &name);
+  /// Get the sanitized name of this nameable as an ID. Caching it internally.
   const std::string &get_name_id();
  protected:
   std::string name_;

@@ -1,8 +1,6 @@
 HTU21D Temperature/Humidity Sensor
 ==================================
 
-.. warning:: This sensor is experimental has not been tested yet. If you can verify it works, notify me on discord.
-
 The HTU21D component allows you get accurate temperature and humidity readings from your HTU21D
 (`datasheet <https://cdn-shop.adafruit.com/datasheets/1899_HTU21D.pdf>`_,
 `adafruit <https://www.adafruit.com/product/1899>`_) sensors with esphomelib. To use these

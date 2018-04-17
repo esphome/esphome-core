@@ -16,7 +16,7 @@ namespace esphomelib {
 
 namespace binary_sensor {
 
-/** Simple MQTT component for a binary_sensor.
+/** Simple MQTT front-end component for a binary_sensor.
  *
  * After construction of this class, it should be connected to the BinarySensor by setting the callback returned
  * by create_on_new_state_callback() in BinarySensor::on_new_state().
@@ -29,12 +29,13 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
    */
   explicit MQTTBinarySensorComponent(BinarySensor *binary_sensor);
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &obj, mqtt::SendDiscoveryConfig &config) override;
-
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Send discovery.
   void setup() override;
+
+  /// Send Home Assistant discovery info
+  void send_discovery(JsonBuffer &buffer, JsonObject &obj, mqtt::SendDiscoveryConfig &config) override;
 
   /// Get the payload this binary sensor uses for an ON value.
   const std::string &get_payload_on() const;
@@ -46,7 +47,9 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   void set_payload_off(std::string payload_off);
 
  protected:
+  /// Return the friendly name of this binary sensor.
   std::string friendly_name() const override;
+  /// "binary_sensor" component type.
   std::string component_type() const override;
 
   BinarySensor *binary_sensor_;

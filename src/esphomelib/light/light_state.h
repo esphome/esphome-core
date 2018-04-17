@@ -31,7 +31,7 @@ class LightEffect;
  */
 class LightState : public Nameable, public Component {
  public:
-  /// Construct this LightState using the provided traits.
+  /// Construct this LightState using the provided traits and name.
   explicit LightState(const std::string &name, const LightTraits &traits);
 
   /** Start an effect by name. Uses light_effect_entries in light_effect.h for finding the correct effect.
@@ -43,7 +43,9 @@ class LightState : public Nameable, public Component {
   /// Stop the current effect (if one is active).
   void stop_effect();
 
+  /// Load state from preferences
   void setup() override;
+  /// Shortly after HARDWARE.
   float get_setup_priority() const override;
 
   /** Start a linear transition to the provided target values for a specific amount of time.
@@ -100,8 +102,10 @@ class LightState : public Nameable, public Component {
   const LightTraits &get_traits() const;
   void set_traits(const LightTraits &traits);
 
+  /// Parse and apply the provided JSON payload.
   void parse_json(const JsonObject &root);
 
+  /// Dump the state of this light as JSON.
   void dump_json(JsonBuffer &buffer, JsonObject &root);
 
   /// Defaults to 1 second (1000 ms).

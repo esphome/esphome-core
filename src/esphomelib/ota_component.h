@@ -54,7 +54,7 @@ class OTAComponent : public Component {
   /// Set the hostname advertised with mDNS. Empty for default hostname.
   void set_hostname(const std::string &hostname);
 
-  /** Star OTA safe mode. When called at startup, this method will automatically detect boot loops.
+  /** Start OTA safe mode. When called at startup, this method will automatically detect boot loops.
    *
    * If a boot loop is detected (by `num_attempts` boots which each lasted less than `enable_time`),
    * this method will block startup and enable just WiFi and OTA so that users can flash a new image.
@@ -98,8 +98,6 @@ class OTAComponent : public Component {
   uint32_t safe_mode_enable_time_{60000}; ///< The time safe mode should be on for.
   uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
 };
-
-extern OTAComponent *global_ota_component;
 
 } // namespace esphomelib
 

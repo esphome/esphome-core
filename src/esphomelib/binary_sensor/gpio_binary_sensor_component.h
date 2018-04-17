@@ -17,7 +17,7 @@ namespace esphomelib {
 
 namespace binary_sensor {
 
-/** GPIOBinarySensorComponent - Simple binary_sensor component for a GPIO pin.
+/** Simple binary_sensor component for a GPIO pin.
  *
  * This class allows you to observe the digital state of a certain GPIO pin.
  */
@@ -25,6 +25,7 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
  public:
   /** Construct a GPIOBinarySensorComponent.
    *
+   * @param name The name for this binary sensor.
    * @param pin The input pin, can either be an integer or GPIOInputPin.
    */
   explicit GPIOBinarySensorComponent(const std::string &name, GPIOInputPin pin);
@@ -34,7 +35,6 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-
   /// Setup pin
   void setup() override;
   /// Hardware priority

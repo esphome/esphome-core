@@ -55,7 +55,7 @@ void MQTTFanComponent::setup() {
     });
   }
 
-  this->state_->add_on_receive_backend_state_callback([this]() {
+  this->state_->add_on_state_change_callback([this]() {
     this->defer("send", [this]() {
       this->send_state();
     });

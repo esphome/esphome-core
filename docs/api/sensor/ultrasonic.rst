@@ -7,9 +7,9 @@ Example Usage
 .. code-block:: cpp
 
     // Basic
-    App.make_ultrasonic(12, 13); // trigger pin: 12, echo pin: 13
+    App.make_ultrasonic("Ultrasonic", 12, 13); // trigger pin: 12, echo pin: 13
     // Filter out timeouts
-    auto ultrasonic = App.make_ultrasonic(12, 13);
+    auto ultrasonic = App.make_ultrasonic("Ultrasonic", 12, 13);
     ultrasonic.mqtt->set_filters({
         new sensor::FilterOutNANFilter(), // filter out timeouts
     });

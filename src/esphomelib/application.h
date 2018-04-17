@@ -48,10 +48,7 @@
 
 namespace esphomelib {
 
-/** This is the class that combines all components.
- *
- * Firstly, this class is used the register component
- */
+/// This is the class that combines all components.
 class Application {
  public:
   /** Set the name of the item that is running this app.
@@ -62,7 +59,7 @@ class Application {
    */
   void set_name(const std::string &name);
 
-  /** Initialize the log system.
+  /** Initialize the logging engine.
    *
    * @param baud_rate The serial baud rate. Set to 0 to disable UART debugging.
    * @param tx_buffer_size The size of the printf buffer.
@@ -71,7 +68,7 @@ class Application {
   LogComponent *init_log(uint32_t baud_rate = 115200,
                          size_t tx_buffer_size = 512);
 
-  /** Initialize the WiFi system.
+  /** Initialize the WiFi engine in client mode.
    *
    * Note: for advanced options, such as manual ip, use the return value.
    *
@@ -80,6 +77,9 @@ class Application {
    * @return The WiFiComponent.
    */
   WiFiComponent *init_wifi(const std::string &ssid, const std::string &password = "");
+
+  /// Initialize the WiFi engine with no initial mode. Use this if you just want an Access Point.
+  WiFiComponent *init_wifi();
 
 #ifdef USE_OTA
   /** Initialize Over-the-Air updates.
@@ -111,31 +111,37 @@ class Application {
                                        const std::string &username, const std::string &password);
 
 #ifdef USE_I2C
-    /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
-     *
-     * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
-     *
-     * SDA/SCL pins default to the values defined by the Arduino framework and are usually
-     * GPIO4 and GPIO5 on the ESP8266 (D2 and D1 on NodeMCU). And for the ESP32 it defaults to
-     * GPIO21 and GPIO22 for SDA and SCL, respectively.
-     *
-     * If you're unsure about what the defaults are on your board, it's always better
-     *
-     * @param sda_pin The SDA pin the i2c bus is connected to.
-     * @param scl_pin The SCL pin the i2c bus is connected to.
-     * @param frequency (only on ESP32) the frequency in Hz the i2c bus should operate at,
-     *                  not all components support all frequencies!
-     */
-  #ifdef ARDUINO_ARCH_ESP32
-    void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, uint32_t frequency = 100000);
-  #endif
-  #ifdef ARDUINO_ARCH_ESP8266
-    void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL);
-  #endif
+  /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
+   *
+   * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
+   *
+   * SDA/SCL pins default to the values defined by the Arduino framework and are usually
+   * GPIO4 and GPIO5 on the ESP8266 (D2 and D1 on NodeMCU). And for the ESP32 it defaults to
+   * GPIO21 and GPIO22 for SDA and SCL, respectively.
+   *
+   * If you're unsure about what the defaults are on your board, it's always better
+   *
+   * @param sda_pin The SDA pin the i2c bus is connected to.
+   * @param scl_pin The SCL pin the i2c bus is connected to.
+   * @param frequency (only on ESP32) the frequency in Hz the i2c bus should operate at,
+   *                  not all components support all frequencies!
+   */
+#ifdef ARDUINO_ARCH_ESP32
+  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, uint32_t frequency = 100000);
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL);
+#endif
 #endif
 
 #ifdef USE_WEB_SERVER
-    WebServer *init_web_server(uint16_t port = 80);
+  /** Initialize the web server. Note that this will take up quite a bit of flash space and
+   * RAM of the node. Especially on ESP8266 boards this can quickly cause memory problems.
+   *
+   * @param port The port of the web server, defaults to 80.
+   * @return The WebServer object, use this for advanced settings.
+   */
+  WebServer *init_web_server(uint16_t port = 80);
 #endif
 
 
@@ -163,10 +169,9 @@ class Application {
    *
    * Note: advanced options such as inverted input are available in the return value.
    *
-   * @param pin The GPIO pin.
    * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
+   * @param pin The GPIO pin.
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
-   *                     or esphomelib::binary_sensor::device_class
    */
   MakeGPIOBinarySensor make_gpio_binary_sensor(const std::string &friendly_name,
                                                GPIOInputPin pin,
@@ -201,7 +206,7 @@ class Application {
    *  |____/|_____|_| \_|____/ \___/|_| \_\
    */
 #ifdef USE_SENSOR
-  /// Create a MQTTSensorComponent for the provided Sensor and connect them. Mostly for internal use.
+  /// Register a sensor and create a MQTT Sensor if the MQTT client is set up
   sensor::MQTTSensorComponent *register_sensor(sensor::Sensor *sensor);
 #endif
 
@@ -329,7 +334,7 @@ class Application {
    * @param temperature_friendly_name The friendly name the temperature sensor should be advertised as.
    * @param humidity_friendly_name The friendly name the humidity sensor should be advertised as.
    * @param update_interval The interval in ms to update the sensor values.
-   * @return A MakeHTU21DComponent, use this to set advanced settings.
+   * @return A MakeHTU21DSensor, use this to set advanced settings.
    */
   MakeHTU21DSensor make_htu21d_sensor(const std::string &temperature_friendly_name,
                                       const std::string &humidity_friendly_name,
@@ -462,7 +467,7 @@ class Application {
    *  |_____|___\____|_| |_| |_|
    */
 #ifdef USE_LIGHT
-  /// Create a MQTTJSONLightComponent. Mostly for internal use.
+  /// Register a light within esphomelib.
   light::MQTTJSONLightComponent *register_light(light::LightState *state);
 
   struct MakeLight {
@@ -526,7 +531,7 @@ class Application {
    *  |____/  \_/\_/  |___| |_| \____|_| |_|
    */
 #ifdef USE_SWITCH
-  /// Create a MQTTSwitchComponent for the provided Switch.
+  /// Register a Switch internally, creating a MQTT Switch if the MQTT client is set up
   switch_::MQTTSwitchComponent *register_switch(switch_::Switch *switch_);
 #endif
 
@@ -550,7 +555,7 @@ class Application {
     switch_::MQTTSwitchComponent *mqtt;
   };
 
-  /** Create a simple GPIO switch that can be toggled on/off and appears in the Home Assistant frontend.
+  /** Create a simple GPIO switch that can be toggled on/off and appears in the frontend.
    *
    * @param pin The pin used for this switch. Can be integer or GPIOOutputPin.
    * @param friendly_name The friendly name advertised to Home Assistant for this switch-
@@ -580,6 +585,7 @@ class Application {
    *  |_|/_/   \_|_| \_|
    */
 #ifdef USE_FAN
+  /// Register a fan internally.
   fan::MQTTFanComponent *register_fan(fan::FanState *state);
 
   struct MakeFan {

@@ -25,7 +25,7 @@
 
 namespace esphomelib {
 
-/** GPIOPin - A high-level abstraction class that can expose a pin together with useful options like pinMode.
+/** A high-level abstraction class that can expose a pin together with useful options like pinMode.
  *
  * Set the parameters for this at construction time and use setup() to apply them. The inverted parameter will
  * automatically invert the input/output for you.
@@ -72,7 +72,7 @@ class GPIOPin {
   bool inverted_{false};
 };
 
-/** GPIOOutputPin - Basically just a GPIOPin, but defaults to OUTPUT pinMode.
+/**  Basically just a GPIOPin, but defaults to OUTPUT pinMode.
  *
  * Note that theoretically you can still assign an INPUT pinMode to this - we intentionally don't check this.
  *
@@ -85,7 +85,7 @@ class GPIOOutputPin : public GPIOPin {
   GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false); // NOLINT
 };
 
-/** GPIOInputPin - Basically just a GPIOPin, but defaults to INPUT pinMode.
+/** Basically just a GPIOPin, but defaults to INPUT pinMode.
  *
  * Note that theoretically you can still assign an OUTPUT pinMode to this - we intentionally don't check this.
  *

@@ -18,25 +18,24 @@ static const char *TAG = "sensor.sensor";
 void Sensor::push_new_value(float value) {
   this->raw_value_ = value;
   this->raw_callback_.call(value);
-  float current_value = value;
 
   ESP_LOGV(TAG, "'%s': Received new value %f", this->name_.c_str(), value);
 
   unsigned int i = 0;
   for (auto *filter : this->filters_) {
-    auto optional_value = filter->new_value(current_value);
+    auto optional_value = filter->new_value(value);
     if (!optional_value.defined) {
       ESP_LOGV(TAG, "'%s':  Filter #%u aborted chain", this->name_.c_str(), i);
       // The filter aborted the chain
       return;
     }
     ESP_LOGV(TAG, "'%s':  Filter #%u %.2f -> %.2f",
-             this->name_.c_str(), i, current_value, optional_value.value);
-    current_value = optional_value.value;
+             this->name_.c_str(), i, value, optional_value.value);
+    value = optional_value.value;
     i++;
   }
 
-  this->value_ = current_value;
+  this->value_ = value;
   this->callback_.call(value);
 }
 std::string Sensor::unit_of_measurement() {

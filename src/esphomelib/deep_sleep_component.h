@@ -17,13 +17,25 @@
 
 namespace esphomelib {
 
+/** This component allows setting up the node to go into deep sleep mode to conserve battery.
+ *
+ * To set this component up, first set *when* the deep sleep should trigger using set_run_cycles
+ * and set_run_duration, then set how long the deep sleep should last using set_sleep_duration and optionally
+ * on the ESP32 set_wakeup_pin.
+ */
 class DeepSleepComponent : public Component {
  public:
+  /// Set the duration in ms the component should sleep once it's in deep sleep mode.
   void set_sleep_duration(uint32_t time_ms);
 #ifdef ARDUINO_ARCH_ESP32
+  /** Set the pin to wake up to on the ESP32 once it's in deep sleep mode.
+   * Use the inverted property to set the wakeup level.
+   */
   void set_wakeup_pin(GPIOInputPin pin);
 #endif
+  /// Set the number of loop cycles after which the node should go into deep sleep mode.
   void set_run_cycles(uint32_t cycles);
+  /// Set a duration in ms for how long the code should run before entering deep sleep mode.
   void set_run_duration(uint32_t time_ms);
 
   void setup() override;
@@ -31,6 +43,7 @@ class DeepSleepComponent : public Component {
   float get_loop_priority() const override;
 
  protected:
+  /// Helper to enter deep sleep mode
   void begin_sleep();
 
   Optional<uint64_t> sleep_duration_{};

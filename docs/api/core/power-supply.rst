@@ -23,6 +23,3 @@ PowerSupplyComponent
     :members:
     :protected-members:
     :undoc-members:
-
-
-

@@ -18,7 +18,7 @@ namespace esphomelib {
 
 namespace fan {
 
-/** FanState - This class is shared between the hardware backend and the MQTT frontend to share state.
+/** This class is shared between the hardware backend and the MQTT frontend to share state.
  *
  * A fan state has several variables that determine the current state: state (ON/OFF),
  * speed (OFF, LOW, MEDIUM, HIGH), oscillating (ON/OFF) and traits (what features are supported).
@@ -35,12 +35,11 @@ class FanState : public Nameable {
     SPEED_HIGH  ///< The fan is running on high/full speed.
   };
 
+  /// Construct the fan state with name.
   explicit FanState(const std::string &name);
 
-  /// Register a callback that will be called each time the frontend wants to set a state.
-  void add_on_receive_frontend_state_callback(std::function<void()> &&send_callback);
-  /// Register a callback that will be called each time the backend indicates a state change.
-  void add_on_receive_backend_state_callback(std::function<void()> &&update_callback);
+  /// Register a callback that will be called each time the state changes.
+  void add_on_state_change_callback(std::function<void()> &&update_callback);
 
   /// Get the current ON/OFF state of this fan.
   bool get_state() const;
@@ -70,8 +69,7 @@ class FanState : public Nameable {
   bool oscillating_{false};
   Speed speed_{SPEED_HIGH};
   FanTraits traits_{};
-  CallbackManager<void()> send_callback_{};
-  CallbackManager<void()> update_callback_{};
+  CallbackManager<void()> state_callback_{};
 };
 
 } // namespace fan

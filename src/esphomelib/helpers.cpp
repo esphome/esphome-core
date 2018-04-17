@@ -166,8 +166,8 @@ Optional<bool> parse_on_off(const char *str, const char *payload_on, const char 
   return Optional<bool>();
 }
 
-static CallbackManager<void()> shutdown_hooks;
-static CallbackManager<void()> safe_shutdown_hooks;
+CallbackManager<void()> shutdown_hooks;
+CallbackManager<void()> safe_shutdown_hooks;
 
 void shutdown() {
   ESP_LOGI(TAG, "Restarting...");
@@ -178,6 +178,7 @@ void add_shutdown_hook(std::function<void()> &&f) {
   shutdown_hooks.add(std::move(f));
 }
 void safe_shutdown() {
+  ESP_LOGI(TAG, "Restarting safely...");
   safe_shutdown_hooks.call();
   shutdown();
 }

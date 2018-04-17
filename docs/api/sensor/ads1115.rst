@@ -32,12 +32,12 @@ Doing so requires some steps:
 
 3. Create the sensors, you can have multiple of these. Do so by calling :cpp:func:`get_sensor` with
     the multiplexer channel you want (essentially between which pins you want to measure voltage) and
-    the gain for that sensor and register that sensor to MQTT.
+    the gain for that sensor and register that sensor.
 
     .. code-block:: cpp
 
-        auto *sensor = ads1115->get_sensor(ADS1115_MUX_P0_N1, ADS1115_PGA_6P144);
-        App.make_mqtt_sensor_for(sensor, "ADS1115 Voltage #1");
+        auto *sensor = ads1115->get_sensor("ADS1115 Voltage #1", ADS1115_MUX_P0_N1, ADS1115_PGA_6P144);
+        App.register_sensor(sensor);
 
 .. cpp:namespace:: esphomelib
 
