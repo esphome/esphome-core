@@ -54,7 +54,7 @@ class OTAComponent : public Component {
   /// Set the hostname advertised with mDNS. Empty for default hostname.
   void set_hostname(const std::string &hostname);
 
-  /** Star OTA safe mode. When called at startup, this method will automatically detect boot loops.
+  /** Start OTA safe mode. When called at startup, this method will automatically detect boot loops.
    *
    * If a boot loop is detected (by `num_attempts` boots which each lasted less than `enable_time`),
    * this method will block startup and enable just WiFi and OTA so that users can flash a new image.
@@ -78,6 +78,8 @@ class OTAComponent : public Component {
   const std::string &get_hostname() const;
 
   uint16_t get_port() const;
+
+  void clean_rtc();
 
  protected:
   void write_rtc_(uint8_t val);

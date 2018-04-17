@@ -50,10 +50,8 @@ void OTAComponent::setup() {
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
-    ESP_LOGI(TAG, "Rebooting...");
-    if (this->has_safe_mode_)
-      // Don't make successful OTAs trigger boot loop detection.
-      this->write_rtc_(0);
+    safe_shutdown_hooks.call();
+    shutdown_hooks.call();
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
     if (this->at_ota_progress_message_++ % 8 != 0)
@@ -89,6 +87,16 @@ void OTAComponent::setup() {
     this->ota_triggered_ = false;
   });
   ArduinoOTA.begin();
+#ifdef ARDUINO_ARCH_ESP32
+  add_shutdown_hook([]() {
+    ArduinoOTA.end();
+  });
+#endif
+  if (this->has_safe_mode_) {
+    add_safe_shutdown_hook([this]() {
+      this->clean_rtc();
+    });
+  }
 }
 
 void OTAComponent::loop() {
@@ -143,10 +151,10 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
 
   uint8_t rtc_data = this->read_rtc_();
 
-  ESP_LOGCONFIG(TAG, "Safe mode enabled. There have been %u suspected unsuccessful boot attempts.", rtc_data);
+  ESP_LOGCONFIG(TAG, "There have been %u suspected unsuccessful boot attempts.", rtc_data);
 
   if (rtc_data >= num_attempts) {
-    this->write_rtc_(0);
+    this->clean_rtc();
 
     ESP_LOGE(TAG, "Boot loop detected. Proceeding to safe mode.");
     assert(App.get_wifi() != nullptr);
@@ -161,7 +169,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
       App.get_wifi()->loop_();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");
-    ESP.restart();
+    shutdown();
   } else {
     // increment counter
     this->write_rtc_(uint8_t(rtc_data + 1));
@@ -187,6 +195,9 @@ uint8_t OTAComponent::read_rtc_() {
 #ifdef ARDUINO_ARCH_ESP32
   return global_preferences.get_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
 #endif
+}
+void OTAComponent::clean_rtc() {
+  this->write_rtc_(0);
 }
 
 #endif //USE_OTA

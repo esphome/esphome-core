@@ -11,6 +11,7 @@ BUILDDIR      = _build
 html:
 	@doxygen Doxygen
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@./minify.sh
 
 # Put it first so that "make" without argument is like "make help".
 help:

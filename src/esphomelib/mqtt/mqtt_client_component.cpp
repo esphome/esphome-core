@@ -24,7 +24,6 @@ MQTTClientComponent::MQTTClientComponent(const MQTTCredentials &credentials)
 
 void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT...");
-  this->mqtt_client_.setClient(this->client_);
 
   ESP_LOGCONFIG(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
   ESP_LOGCONFIG(TAG, "    Username: '%s'", this->credentials_.username.c_str());
@@ -35,24 +34,65 @@ void MQTTClientComponent::setup() {
     ESP_LOGCONFIG(TAG, "    Discovery prefix: '%s'", this->discovery_info_.prefix.c_str());
     ESP_LOGCONFIG(TAG, "    Discovery retain: %s", this->discovery_info_.retain ? "true" : "false");
   }
-  this->mqtt_client_.setCallback(pub_sub_client_callback);
+  this->mqtt_client_.onMessage([this](char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total){
+    if (properties.dup) {
+      ESP_LOGE(TAG, "Sorry, payload too long!");
+      return;
+    }
+    std::string payload_s(payload, len);
+    ESP_LOGD(TAG, "%s -> %s", topic, payload_s.c_str());
+    std::string topic_s(topic);
+    for (auto &subscription : this->subscriptions_)
+      if (topic_s == subscription.topic)
+        subscription.callback(payload_s);
+  });
+  this->mqtt_client_.onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
+    const char *reason_s = nullptr;
+    switch (reason) {
+      case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
+        reason_s = "TCP disconnected";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
+        reason_s = "Unacceptable Protocol Version";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
+        reason_s = "Identifier Rejected";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
+        reason_s = "Server Unavailable";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
+        reason_s = "Malformed Credentials";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
+        reason_s = "Not Authorized";
+        break;
+      case AsyncMqttClientDisconnectReason::ESP8266_NOT_ENOUGH_SPACE:
+        reason_s = "Not Enough Space";
+        break;
+      case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
+        reason_s = "TLS Bad Fingerprint";
+        break;
+      default:
+        reason_s = "Unknown";
+        break;
+    }
+    ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
+  });
+  if (!this->get_log_topic().empty())
+    global_log_component->add_on_log_callback([this](ESPLogLevel level, const char *message) {
+      if (this->is_connected())
+        this->publish(this->get_log_topic(), message, true);
+    });
+  add_shutdown_hook([this](){
+    this->mqtt_client_.disconnect(true);
+  });
 
   this->reconnect();
 }
 
 void MQTTClientComponent::loop() {
   this->reconnect();
-  this->mqtt_client_.loop();
-}
-
-void MQTTClientComponent::pub_sub_client_callback(char *topic, uint8_t *payload, unsigned int length) {
-  std::string payload_s(reinterpret_cast<char *>(payload), length);
-  std::string topic_s(topic);
-  ESP_LOGV(TAG, "mqtt_callback(topic='%s', payload='%s')", topic_s.c_str(), payload_s.c_str());
-
-  for (auto &subscription : global_mqtt_client->subscriptions_)
-    if (topic_s == subscription.topic)
-      subscription.callback(payload_s);
 }
 
 void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
@@ -74,7 +114,7 @@ void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t 
       .topic = topic,
       .qos = qos,
       .callback = [this, callback](const std::string &payload) {
-        this->parse_json(payload, callback);
+        parse_json(payload, callback);
       },
   };
   this->subscriptions_.push_back(subscription);
@@ -91,15 +131,13 @@ void MQTTClientComponent::reconnect() {
   if (this->is_connected())
     return;
 
-  this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
-
   ESP_LOGI(TAG, "Reconnecting to MQTT...");
   uint32_t start = millis();
   do {
     ESP_LOGD(TAG, "    Attempting MQTT connection...");
-    if (millis() - start > 20000) {
+    if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-      ESP.restart();
+      shutdown();
     }
 
     std::string id;
@@ -107,56 +145,56 @@ void MQTTClientComponent::reconnect() {
       id = generate_hostname(App.get_name());
     else
       id = this->credentials_.client_id;
-    const char *user = nullptr;
+    this->mqtt_client_.setClientId(id.c_str());
+
+    const char *username = nullptr;
     if (!this->credentials_.username.empty())
-      user = this->credentials_.username.c_str();
-    const char *pass = nullptr;
+      username = this->credentials_.username.c_str();
+    const char *password = nullptr;
     if (!this->credentials_.password.empty())
-      pass = this->credentials_.password.c_str();
-    const char *will_topic = nullptr;
-    uint8_t will_qos = 0;
-    bool will_retain = false;
-    const char *will_message = nullptr;
+      password = this->credentials_.password.c_str();
+    this->mqtt_client_.setCredentials(username, password);
+
+    this->mqtt_client_.setCredentials(this->credentials_.username.c_str(), this->credentials_.password.c_str());
+    this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
     if (!this->last_will_.topic.empty()) {
-      will_topic = this->last_will_.topic.c_str();
-      will_qos = this->last_will_.qos;
-      will_retain = this->last_will_.retain;
-      will_message = this->last_will_.payload.c_str();
+      this->mqtt_client_.setWill(this->last_will_.topic.c_str(), this->last_will_.qos, this->last_will_.retain,
+                                 this->last_will_.payload.c_str(), this->last_will_.payload.length());
     }
 
-    if (this->mqtt_client_.connect(id.c_str(), user, pass, will_topic, will_qos, will_retain, will_message)) {
+    this->mqtt_client_.connect();
+    uint32_t start_time = millis();
+    do {
+      ESP_LOGD(TAG, ".");
+      delay(250);
+    } while (!this->mqtt_client_.connected() && millis() - start_time < 10000);
+
+    if (this->mqtt_client_.connected()) {
       ESP_LOGI(TAG, "    MQTT Connected!");
+      this->on_connect_.call();
       break;
     } else {
-      ESP_LOGW(TAG, "    MQTT connection failed, rc=%d", this->mqtt_client_.state());
-      ESP_LOGW(TAG, "    Try again in 1 second");
-
-      delay(1000);
+      ESP_LOGW(TAG, "    MQTT connection failed");
     }
   } while (!this->is_connected());
 
   if (!this->birth_message_.topic.empty())
-    this->publish(this->birth_message_.topic, this->birth_message_.payload, this->birth_message_.retain);
+    this->publish(this->birth_message_);
 
   for (MQTTSubscription &subscription : this->subscriptions_)
     this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);
 }
 
 void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, bool retain) {
-  bool logging_topic = topic == global_log_component->get_logging_topic();
+  bool logging_topic = topic == this->get_log_topic();
   if (!logging_topic) {
     ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload.c_str(), retain);
   }
 
-  const auto *payload_data = reinterpret_cast<const uint8_t *>(payload.data());
   this->reconnect();
-  bool ret = this->mqtt_client_.publish(topic.c_str(), payload_data, payload.length(), retain);
-  if (!ret && !logging_topic)
-    ESP_LOGW(TAG, "PubSubClient::publish() failed (connected=%d, MQTT_MAX_PACKET_SIZE=%d)!", this->is_connected(),
-             MQTT_MAX_PACKET_SIZE);
-  ret = this->mqtt_client_.loop();
-  if (!ret && !logging_topic)
-    ESP_LOGW(TAG, "PubSubClient::loop() failed!");
+  uint16_t ret = this->mqtt_client_.publish(topic.c_str(), 0, retain, payload.data(), payload.length());
+  if (ret == 0 && !logging_topic)
+    ESP_LOGW(TAG, "Publish failed!");
   yield();
 }
 
@@ -214,22 +252,6 @@ void MQTTClientComponent::set_topic_prefix(std::string topic_prefix) {
 const std::string &MQTTClientComponent::get_topic_prefix() const {
   return this->topic_prefix_;
 }
-void MQTTClientComponent::parse_json(const std::string &message, const json_parse_t &f) {
-  size_t size = message.length() + 1;
-  char payload_s[size];
-  memcpy(payload_s, message.c_str(), size);
-  payload_s[size - 1] = 0;
-
-  StaticJsonBuffer<JSON_BUFFER_SIZE> buffer;
-  JsonObject &root = buffer.parseObject(payload_s);
-
-  if (!root.success()) {
-    ESP_LOGW(TAG, "Parsing JSON failed.");
-    return;
-  }
-
-  f(root);
-}
 void MQTTClientComponent::disable_birth_message() {
   this->birth_message_.topic = "";
 }
@@ -250,6 +272,28 @@ void MQTTClientComponent::recalculate_availability() {
   this->availability_.payload_available = "online";
   this->availability_.payload_not_available = "offline";
 }
+void MQTTClientComponent::publish_json(const std::string &topic, const json_build_t &f, bool retain) {
+  std::string message = build_json(f);
+  this->publish(topic, message, retain);
+}
+void MQTTClientComponent::set_log_topic(const std::string &topic) {
+  this->log_topic_ = topic;
+}
+const std::string &MQTTClientComponent::get_log_topic() {
+  if (!this->log_topic_.defined)
+    this->log_topic_ = this->topic_prefix_ + "/debug";
+  return this->log_topic_.value;
+}
+void MQTTClientComponent::add_on_connect_callback(std::function<void()> &&callback) {
+  this->on_connect_.add(std::move(callback));
+}
+
+#if ASYNC_TCP_SSL_ENABLED
+void MQTTClientComponent::add_ssl_fingerprint(const std::array<uint8_t, SHA1_SIZE> &fingerprint) {
+  this->mqtt_client_.setSecure(true);
+  this->mqtt_client_.addServerFingerprint(fingerprint.data());
+}
+#endif
 
 MQTTClientComponent *global_mqtt_client = nullptr;
 

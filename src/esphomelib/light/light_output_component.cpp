@@ -105,6 +105,12 @@ void LinearLightOutputComponent::setup_binary(output::BinaryOutput *binary) {
   this->binary_ = binary;
   this->traits_ = LightTraits(false, false, false);
 }
+void LinearLightOutputComponent::setup() {
+  this->loop();
+}
+float LinearLightOutputComponent::get_setup_priority() const {
+  return setup_priority::HARDWARE - 2.0f; // after light
+}
 
 } // namespace light
 

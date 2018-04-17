@@ -59,7 +59,8 @@ class ADS1115Component : public Component {
    * @param update_interval The interval in milliseconds the value for this sensor should be checked.
    * @return An ADS1115Sensor, use this for advanced options.
    */
-  ADS1115Sensor *get_sensor(uint8_t multiplexer, uint8_t gain, uint32_t update_interval = 15000);
+  ADS1115Sensor *get_sensor(const std::string &name, uint8_t multiplexer, uint8_t gain,
+                            uint32_t update_interval = 15000);
 
   /** Manually set the i2c address for this ADS1115.
    *
@@ -68,7 +69,7 @@ class ADS1115Component : public Component {
    * If the address pin is tied to SDA, the address is 0x4A.
    * If the address pin is tied to SCL, the address is 0x4B.
    *
-   * @param address
+   * @param address The i2c address
    */
   void set_address(uint8_t address);
   /// Manually set whether this ADS1115 should operate in continuous mode, defaults to true.
@@ -117,7 +118,7 @@ class ADS1115Component : public Component {
 /// Internal holder class that is in instance of Sensor so that the hub can create individual sensors.
 class ADS1115Sensor : public sensor::Sensor {
  public:
-  ADS1115Sensor(uint8_t multiplexer, uint8_t gain, uint32_t update_interval);
+  ADS1115Sensor(const std::string &name, uint8_t multiplexer, uint8_t gain, uint32_t update_interval);
 
   void set_multiplexer(uint8_t multiplexer);
   void set_update_interval(uint32_t update_interval);

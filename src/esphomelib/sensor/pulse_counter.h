@@ -42,7 +42,7 @@ class PulseCounterSensorComponent : public PollingSensorComponent {
    * @param pin The pin.
    * @param update_interval The update interval in ms.
    */
-  explicit PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval = 30000);
+  explicit PulseCounterSensorComponent(const std::string &name, uint8_t pin, uint32_t update_interval = 30000);
 
   /// Manually set the pin for the pulse counter unit.
   void set_pin(uint8_t pin);

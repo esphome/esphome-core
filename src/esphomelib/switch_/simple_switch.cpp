@@ -6,14 +6,14 @@
 
 #include "esphomelib/log.h"
 
-#ifdef USE_SWITCH
+#ifdef USE_SIMPLE_SWITCH
 
 namespace esphomelib {
 
 namespace switch_ {
 
-SimpleSwitch::SimpleSwitch(output::BinaryOutput *output)
-    : output_(output) { }
+SimpleSwitch::SimpleSwitch(const std::string &name, output::BinaryOutput *output)
+    : Switch(name), output_(output) { }
 
 void SimpleSwitch::turn_on() {
   assert(this->output_ != nullptr);
@@ -32,4 +32,4 @@ void SimpleSwitch::turn_off() {
 
 } // namespace esphomelib
 
-#endif //USE_SWITCH
+#endif //USE_SIMPLE_SWITCH

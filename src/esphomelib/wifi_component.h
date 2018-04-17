@@ -33,31 +33,33 @@ struct ManualIP {
 /// This component is responsible for managing the ESP WiFi interface.
 class WiFiComponent : public Component {
  public:
-  /** Construct a WiFiComponent.
-   *
-   * @param ssid The station ssid.
-   * @param password The station password, leave empty for an open network.
-   * @param hostname The hostname of this device, leave empty for standard one.
-   */
-  WiFiComponent(std::string ssid, std::string password, std::string hostname);
+  /// Construct a WiFiComponent.
+  WiFiComponent();
 
-  /// Set the hostname, automatically sanitizes it.
-  void set_hostname(const std::string &hostname);
+  /// Setup the STA (client) mode. The parameters define which station to connect to.
+  void set_sta(const std::string &ssid, const std::string &password);
 
   /// Manually set a static IP for this WiFi interface.
-  void set_manual_ip(Optional<ManualIP> manual_ip);
+  void set_sta_manual_ip(ManualIP manual_ip);
 
-  void set_ssid(const std::string &ssid);
+  /** Setup an Access Point that should be created if no connection to a station can be made.
+   *
+   * This can also be used without set_sta(). Then the AP will always be active.
+   *
+   * If both STA and AP are defined, then both will be enabled at startup, but if a connection to a station
+   * can be made, the AP will be turned off again.
+   */
+  void set_ap(const std::string &ssid, const std::string &password = "", uint8_t channel = 1);
 
-  void set_password(const std::string &password);
+  /// Manually set the manual IP for the AP.
+  void set_ap_manual_ip(ManualIP manual_ip);
+
+  /// Set the advertised hostname, defaults to the App name.
+  void set_hostname(std::string &&hostname);
+  const std::string &get_hostname();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  const std::string &get_hostname() const;
-  const Optional<ManualIP> &get_manual_ip() const;
-  const std::string &get_ssid() const;
-  const std::string &get_password() const;
-
   /// Setup WiFi interface.
   void setup() override;
   /// WIFI setup_priority.
@@ -65,18 +67,39 @@ class WiFiComponent : public Component {
   /// Reconnect WiFi if required.
   void loop() override;
 
+  bool has_sta() const;
+  bool has_ap() const;
+
  protected:
+  void setup_sta_config(bool show_config = true);
+
+  void setup_ap_config();
+
+#ifdef ARDUINO_ARCH_ESP32
   /// Used for logging WiFi events.
   static void on_wifi_event(WiFiEvent_t event);
+#endif
 
   /// Waits for the WiFi class to return a connected state.
-  void wait_for_connection();
+  void wait_for_sta();
 
-  std::string ssid_;
-  std::string password_;
+  void sta_connected();
+
   std::string hostname_;
-  Optional<ManualIP> manual_ip_;
+
+  bool sta_on_;
+  std::string sta_ssid_;
+  std::string sta_password_;
+  Optional<ManualIP> sta_manual_ip_{};
+
+  bool ap_on_;
+  std::string ap_ssid_;
+  std::string ap_password_;
+  uint8_t ap_channel_;
+  Optional<ManualIP> ap_manual_ip_{};
 };
+
+extern WiFiComponent *global_wifi_component;
 
 } // namespace esphomelib
 

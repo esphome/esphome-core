@@ -33,8 +33,9 @@ GPIOInputPin &GPIOBinarySensorComponent::get_pin() {
 void GPIOBinarySensorComponent::set_pin(const GPIOInputPin &pin) {
   this->pin_ = pin;
 }
-GPIOBinarySensorComponent::GPIOBinarySensorComponent(GPIOInputPin pin)
-  : pin_(pin) { }
+
+GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GPIOInputPin pin)
+  : BinarySensor(name), pin_(pin) { }
 
 } // namespace binary_sensor
 

@@ -9,7 +9,7 @@
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/defines.h"
 
-#ifdef USE_SWITCH
+#ifdef USE_SIMPLE_SWITCH
 
 namespace esphomelib {
 
@@ -19,7 +19,7 @@ namespace switch_ {
 class SimpleSwitch : public Switch {
  public:
   /// Construct this SimpleSwitch with the provided BinaryOutput.
-  explicit SimpleSwitch(output::BinaryOutput *output);
+  explicit SimpleSwitch(const std::string &name, output::BinaryOutput *output);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -35,6 +35,6 @@ class SimpleSwitch : public Switch {
 
 } // namespace esphomelib
 
-#endif //USE_SWITCH
+#endif //USE_SIMPLE_SWITCH
 
 #endif //ESPHOMELIB_SWITCH_SIMPLE_SWITCH

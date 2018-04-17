@@ -9,15 +9,11 @@
 #include <functional>
 #include <vector>
 #include <ArduinoJson.h>
-#include <PubSubClient.h>
+#include <AsyncMqttClient.h>
 #include <WiFiClient.h>
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
-
-#ifndef JSON_BUFFER_SIZE
-#define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
-#endif
 
 namespace esphomelib {
 
@@ -28,9 +24,6 @@ namespace mqtt {
  * First parameter is the topic, the second one is the payload.
  */
 using mqtt_callback_t = std::function<void(const std::string &)>;
-
-/// Callback function typedef for parsing JsonObjects.
-using json_parse_t = std::function<void(JsonObject &)>;
 
 /// internal struct for MQTT messages.
 struct MQTTMessage {
@@ -113,6 +106,22 @@ class MQTTClientComponent : public Component {
   /// Manually set the client id, by default it's <name>-<MAC>, it's automatically truncated to 23 chars.
   void set_client_id(std::string client_id);
 
+#if ASYNC_TCP_SSL_ENABLED
+  /** Add a SSL fingerprint to use for TCP SSL connections to the MQTT broker.
+   *
+   * To use this feature you first have to globally enable the `ASYNC_TCP_SSL_ENABLED` define flag.
+   * This function can be called multiple times and any certificate that matches any of the provided fingerprints
+   * will match. Calling this method will also automatically disable all non-ssl connections.
+   *
+   * @warning This is *not* secure and *not* how SSL is usually done. You'll have to add
+   *          a separate fingerprint for every certificate you use. Additionally, the hashing
+   *          algorithm used here due to the constraints of the MCU, SHA1, is known to be insecure.
+   *
+   * @param fingerprint The SSL fingerprint as a 20 value long std::array.
+   */
+  void add_ssl_fingerprint(const std::array<uint8_t, SHA1_SIZE> &fingerprint);
+#endif
+
   const Availability &get_availability();
 
   /** Set the topic prefix that will be prepended to all topics together with "/". This will, in most cases,
@@ -126,6 +135,11 @@ class MQTTClientComponent : public Component {
   void set_topic_prefix(std::string topic_prefix);
   /// Get the topic prefix of this device, using default if necessary
   const std::string &get_topic_prefix() const;
+
+  /// Manually set the topic used for logging.
+  void set_log_topic(const std::string &topic);
+  /// Get the topic used for logging. Defaults to "<topic_prefix>/debug" and the value is cached for speed.
+  const std::string &get_log_topic();
 
   /** Subscribe to an MQTT topic and call callback when a message is received.
    *
@@ -145,13 +159,6 @@ class MQTTClientComponent : public Component {
    */
   void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
 
-  /** Parse a JSON message and call f if the message is valid JSON.
-   *
-   * @param message The JSON message.
-   * @param f The callback.
-   */
-  static void parse_json(const std::string &message, const json_parse_t &f);
-
   /** Publish a MQTTMessage
    *
    * @param message The message.
@@ -166,18 +173,32 @@ class MQTTClientComponent : public Component {
    */
   void publish(const std::string &topic, const std::string &payload, bool retain);
 
+  /** Construct and send a JSON MQTT message.
+   *
+   * @param topic The topic.
+   * @param f The Json Message builder.
+   * @param retain Whether to retain the message.
+   */
+  void publish_json(const std::string &topic, const json_build_t &f, bool retain);
+
   /// Return whether this client is currently connected to the MQTT server.
   bool is_connected();
 
+  /// Add a callback that will be called every time the MQTT client reconnects.
+  void add_on_connect_callback(std::function<void()> &&callback);
+
+  /// Setup the MQTT client, registering a bunch of callbacks and attempting to connect.
   void setup() override;
+  /// Reconnect if required
   void loop() override;
+  /// MQTT client setup priority
   float get_setup_priority() const override;
 
  protected:
-  static void pub_sub_client_callback(char *topic, uint8_t *payload, unsigned int length);
-
+  /// Reconnect to the MQTT broker if not already connected.
   void reconnect();
 
+  /// Re-calculate the availability property.
   void recalculate_availability();
 
   MQTTCredentials credentials_;
@@ -196,10 +217,11 @@ class MQTTClientComponent : public Component {
       .retain = true
   };
   std::string topic_prefix_{};
+  Optional<std::string> log_topic_{};
 
   std::vector<MQTTSubscription> subscriptions_;
-  PubSubClient mqtt_client_;
-  WiFiClient client_;
+  AsyncMqttClient mqtt_client_;
+  CallbackManager<void()> on_connect_{};
 };
 
 extern MQTTClientComponent *global_mqtt_client;

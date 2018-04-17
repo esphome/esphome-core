@@ -10,19 +10,30 @@
 #include <memory>
 #include <queue>
 #include <functional>
+#include <ArduinoJson.h>
 
 #include "esphomelib/esphal.h"
 
+#ifndef JSON_BUFFER_SIZE
+  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
+#endif
+
 namespace esphomelib {
+
+/// Callback function typedef for parsing JsonObjects.
+using json_parse_t = std::function<void(JsonObject &)>;
+
+/// Callback function typedef for building JsonObjects.
+using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
+
+/// The characters that are allowed in a hostname.
+const static char *HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 
 /// Gets the MAC address as a string, this can be used as way to identify this ESP32.
 std::string get_mac_address();
 
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
-
-/// The characters that are allowed in a hostname.
-const static char *HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 
 /// Sanitize the hostname by removing characters that are not in the whitelist and truncating it to 63 chars.
 std::string sanitize_hostname(const std::string &hostname);
@@ -33,8 +44,26 @@ std::string truncate_string(const std::string &s, size_t length);
 /// Checks whether the provided IPAddress is empty (is 0.0.0.0).
 bool is_empty(const IPAddress &address);
 
+/// Force a shutdown (and reboot) of the ESP, calling any registered shutdown hooks.
+void shutdown();
+
+/// Add a shutdown callback.
+void add_shutdown_hook(std::function<void()> &&f);
+
+/// Create a safe shutdown (and reboot) of the ESP, calling any registered shutdown and safe shutdown hooks.
+void safe_shutdown();
+
+/// Add a safe shutdown callback that will be called if the device is shut down intentionally.
+void add_safe_shutdown_hook(std::function<void()> &&f);
+
 /// Convert the string to lowercase_underscore.
 std::string to_lowercase_underscore(std::string s);
+
+/// Build a JSON string with the provided json build function.
+std::string build_json(const json_build_t &f);
+
+/// Parse a JSON string and run the provided json parse function if it's valid.
+void parse_json(const std::string &data, const json_parse_t &f);
 
 /** Clamp the value between min and max.
  *
@@ -77,6 +106,11 @@ float random_float();
 /// Applies gamma correction with the provided gamma to value.
 float gamma_correct(float value, float gamma);
 
+/// Create a string from a value and an accuracy in decimals.
+std::string value_accuracy_to_string(float value, int8_t accuracy_decimals);
+
+/// Convert a uint64_t to a hex string
+std::string uint64_to_string(uint64_t num);
 
 /// Sanitizes the input string with the whitelist.
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
@@ -108,6 +142,8 @@ class Optional {
   bool defined{false};
   T value;
 };
+
+Optional<bool> parse_on_off(const char *str, const char *payload_on = "on", const char *payload_off = "off");
 
 /// Helper class that implements a sliding window moving average.
 template<typename T>
@@ -174,6 +210,9 @@ class CallbackManager<void(Ts...)> {
  protected:
   std::vector<std::function<void(Ts...)>> callbacks_;
 };
+
+extern CallbackManager<void()> shutdown_hooks;
+extern CallbackManager<void()> safe_shutdown_hooks;
 
 // ================================================
 //                 Definitions

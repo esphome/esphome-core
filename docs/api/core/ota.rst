@@ -32,4 +32,3 @@ OTAComponent
     :members:
     :protected-members:
     :undoc-members:
-

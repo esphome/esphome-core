@@ -87,11 +87,20 @@ void GPIOPin::setup() {
   pinMode(this->pin_, this->mode_);
 
 }
+GPIOPin::GPIOPin() : pin_(0), inverted_(false), mode_(0) {
+
+}
 
 GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}
+GPIOOutputPin::GPIOOutputPin() : GPIOPin() {
+
+}
 
 GPIOInputPin::GPIOInputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}
+GPIOInputPin::GPIOInputPin() : GPIOPin() {
+
+}
 
 } // namespace esphomelib

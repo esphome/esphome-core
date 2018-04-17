@@ -19,10 +19,10 @@ namespace sensor {
 
 static const char *TAG = "sensor.ultrasonic";
 
-UltrasonicSensorComponent::UltrasonicSensorComponent(GPIOOutputPin trigger_pin,
-                                                     GPIOInputPin echo_pin,
+UltrasonicSensorComponent::UltrasonicSensorComponent(const std::string &name,
+                                                     GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
                                                      uint32_t update_interval)
-    : PollingSensorComponent(update_interval),
+    : PollingSensorComponent(name, update_interval),
       trigger_pin_(trigger_pin), echo_pin_(echo_pin) {
 
 }

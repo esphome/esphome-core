@@ -31,8 +31,8 @@ std::string MQTTComponent::get_discovery_topic(const MQTTDiscoveryInfo &discover
 }
 
 std::string MQTTComponent::get_default_topic_for(const std::string &suffix) const {
-  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id() + "/"
-      + suffix;
+  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id()
+      + "/" + suffix;
 }
 
 const std::string MQTTComponent::get_state_topic() const {
@@ -51,30 +51,30 @@ void MQTTComponent::send_message(const std::string &topic, const std::string &pa
 }
 
 void MQTTComponent::send_json_message(const std::string &topic, const json_build_t &f, const Optional<bool> &retain) {
-  StaticJsonBuffer<JSON_BUFFER_SIZE> json_buffer;
-  JsonObject &root = json_buffer.createObject();
-
-  f(json_buffer, root);
-
-  char buffer[MQTT_MAX_PACKET_SIZE];
-  root.printTo(buffer, MQTT_MAX_PACKET_SIZE);
-  this->send_message(topic, std::string(buffer), retain);
+  bool actual_retain = this->retain_;
+  if (retain)
+    actual_retain = retain.value;
+  global_mqtt_client->publish_json(topic, f, actual_retain);
 }
 
-void MQTTComponent::send_discovery(const json_build_t &f,
-                                   bool state_topic, bool command_topic, const std::string &platform) {
-  if (!this->is_discovery_enabled())
-    return;
+void MQTTComponent::send_discovery_() {
   const MQTTDiscoveryInfo &discovery_info = global_mqtt_client->get_discovery_info();
 
   ESP_LOGV(TAG, "Sending discovery...");
 
   this->send_json_message(this->get_discovery_topic(discovery_info), [&](JsonBuffer &buffer, JsonObject &root) {
-    root["name"] = this->friendly_name_;
-    root["platform"] = platform;
-    if (state_topic)
+    SendDiscoveryConfig config;
+    config.state_topic = true;
+    config.command_topic = true;
+    config.platform = "mqtt";
+
+    this->send_discovery(buffer, root, config);
+
+    root["name"] = this->friendly_name();
+    root["platform"] = config.platform;
+    if (config.state_topic)
       root["state_topic"] = this->get_state_topic();
-    if (command_topic)
+    if (config.command_topic)
       root["command_topic"] = this->get_command_topic();
 
     if (this->availability_ == nullptr) {
@@ -90,8 +90,6 @@ void MQTTComponent::send_discovery(const json_build_t &f,
       if (this->availability_->payload_not_available != "offline")
         root["payload_not_available"] = this->availability_->payload_not_available;
     }
-
-    f(buffer, root);
   }, discovery_info.retain);
 }
 
@@ -100,48 +98,34 @@ bool MQTTComponent::get_retain() const {
 }
 
 bool MQTTComponent::is_discovery_enabled() const {
-  return !this->friendly_name_.empty() && global_mqtt_client->is_discovery_enabled();
+  return this->discovery_enabled_ && global_mqtt_client->is_discovery_enabled();
 }
 
 std::string MQTTComponent::get_default_object_id() const {
-  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name_), HOSTNAME_CHARACTER_WHITELIST);
-}
-
-const std::string &MQTTComponent::get_friendly_name() const {
-  return this->friendly_name_;
+  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name()), HOSTNAME_CHARACTER_WHITELIST);
 }
 
 void MQTTComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
   global_mqtt_client->subscribe(topic, std::move(callback), qos);
 }
 
-void MQTTComponent::parse_json(const std::string &message, const json_parse_t &f) {
-  MQTTClientComponent::parse_json(message, f);
-}
-
 void MQTTComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
   global_mqtt_client->subscribe_json(topic, std::move(callback), qos);
 }
 
-MQTTComponent::MQTTComponent(std::string friendly_name)
-    : friendly_name_(std::move(friendly_name)),
-      retain_(true) {
+MQTTComponent::MQTTComponent() = default;
 
-}
 float MQTTComponent::get_setup_priority() const {
   return setup_priority::MQTT_COMPONENT;
 }
 void MQTTComponent::disable_discovery() {
-  this->friendly_name_ = "";
+  this->discovery_enabled_ = false;
 }
 void MQTTComponent::set_custom_state_topic(const std::string &custom_state_topic) {
   this->set_custom_topic("state", custom_state_topic);
 }
 void MQTTComponent::set_custom_command_topic(const std::string &custom_command_topic) {
   this->set_custom_topic("command", custom_command_topic);
-}
-void MQTTComponent::set_friendly_name(const std::string &friendly_name) {
-  this->friendly_name_ = friendly_name;
 }
 void MQTTComponent::set_custom_topic(const std::string &key, const std::string &custom_topic) {
   this->custom_topics_[key] = custom_topic;
@@ -152,7 +136,9 @@ const std::string MQTTComponent::get_topic_for(const std::string &key) const {
   return this->get_default_topic_for(key);
 }
 
-void MQTTComponent::set_availability(std::string topic, std::string payload_available, std::string payload_not_available) {
+void MQTTComponent::set_availability(std::string topic,
+                                     std::string payload_available,
+                                     std::string payload_not_available) {
   delete this->availability_;
   this->availability_ = new Availability();
   this->availability_->topic = std::move(topic);
@@ -161,6 +147,19 @@ void MQTTComponent::set_availability(std::string topic, std::string payload_avai
 }
 void MQTTComponent::disable_availability() {
   this->set_availability("", "", "");
+}
+void MQTTComponent::setup_() {
+  // Call component internal setup.
+  this->setup_internal();
+
+  // Let the polling component subclass setup their HW.
+  this->setup();
+
+  this->send_discovery_();
+
+  global_mqtt_client->add_on_connect_callback([this]() {
+    this->send_discovery_();
+  });
 }
 
 } // namespace mqtt

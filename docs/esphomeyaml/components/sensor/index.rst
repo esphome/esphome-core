@@ -171,6 +171,6 @@ fahrenheit.
 
 .. code:: yaml
 
-    fiters:
+    filters:
       - lambda: x * (9.0/5.0) + 32.0
     unit_of_measurement: "°F"

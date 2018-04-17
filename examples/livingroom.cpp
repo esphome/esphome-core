@@ -20,7 +20,7 @@ void setup() {
   auto *blue = App.make_ledc_output(34);
   App.make_rgb_light("Livingroom Light", red, green, blue);
 
-  App.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
+  App.make_dht_sensor("Livingroom Temperature", "Livingroom Humidity", 12);
   App.make_status_binary_sensor("Livingroom Node Status");
   App.make_restart_switch("Livingroom Restart");
 

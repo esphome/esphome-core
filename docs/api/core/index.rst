@@ -12,3 +12,6 @@ Core
     Helpers <helpers>
     Logging Engine <log>
     Power Supply <power-supply>
+    Controller <controller>
+    Web Server <web-server>
+    Deep Sleep <deep-sleep>

@@ -122,5 +122,68 @@ void run_without_interrupts(const std::function<void()> &f) {
   interrupts();
 #endif
 }
+std::string value_accuracy_to_string(float value, int8_t accuracy_decimals) {
+  auto multiplier = float(pow10(accuracy_decimals));
+  float value_rounded = roundf(value * multiplier) / multiplier;
+  char tmp[32]; // should be enough, but we should maybe improve this at some point.
+  dtostrf(value_rounded, 0, uint8_t(std::max(0, int(accuracy_decimals))), tmp);
+  return std::string(tmp);
+}
+std::string uint64_to_string(uint64_t num) {
+  char buffer[17];
+  auto *address16 = reinterpret_cast<uint16_t *>(&num);
+  snprintf(buffer, sizeof(buffer), "%04X%04X%04X%04X",
+           address16[3], address16[2], address16[1], address16[0]);
+  return std::string(buffer);
+}
+std::string build_json(const json_build_t &f) {
+  StaticJsonBuffer<JSON_BUFFER_SIZE> json_buffer;
+  JsonObject &root = json_buffer.createObject();
+
+  f(json_buffer, root);
+
+  std::string buffer;
+  root.printTo(buffer);
+  return buffer;
+}
+void parse_json(const std::string &data, const json_parse_t &f) {
+  StaticJsonBuffer<JSON_BUFFER_SIZE> buffer;
+  JsonObject &root = buffer.parseObject(data);
+
+  if (!root.success()) {
+    ESP_LOGW(TAG, "Parsing JSON failed.");
+    return;
+  }
+
+  f(root);
+}
+Optional<bool> parse_on_off(const char *str, const char *payload_on, const char *payload_off) {
+  if (strcasecmp(str, payload_on) == 0)
+    return true;
+  if (strcasecmp(str, payload_off) == 0)
+    return false;
+
+  return Optional<bool>();
+}
+
+CallbackManager<void()> shutdown_hooks;
+CallbackManager<void()> safe_shutdown_hooks;
+
+void shutdown() {
+  ESP_LOGI(TAG, "Restarting...");
+  shutdown_hooks.call();
+  ESP.restart();
+}
+void add_shutdown_hook(std::function<void()> &&f) {
+  shutdown_hooks.add(std::move(f));
+}
+void safe_shutdown() {
+  ESP_LOGI(TAG, "Restarting safely...");
+  safe_shutdown_hooks.call();
+  shutdown();
+}
+void add_safe_shutdown_hook(std::function<void()> &&f) {
+  safe_shutdown_hooks.add(std::move(f));
+}
 
 } // namespace esphomelib

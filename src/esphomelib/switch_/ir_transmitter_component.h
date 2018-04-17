@@ -137,7 +137,7 @@ class IRTransmitterComponent : public Component {
    * @param send_data The SendData.
    * @return A DataTransmitter which can be used as a Switch.
    */
-  DataTransmitter *create_transmitter(const ir::SendData &send_data);
+  DataTransmitter *create_transmitter(const std::string &name, const ir::SendData &send_data);
 
   /// Set the RMT channel used.
   void set_channel(rmt_channel_t channel);
@@ -156,7 +156,8 @@ class IRTransmitterComponent : public Component {
   /// Internal helper class that exposes a SendData as a Switch.
   class DataTransmitter : public switch_::Switch {
    public:
-    DataTransmitter(const ir::SendData &send_data, IRTransmitterComponent *parent);
+    DataTransmitter(const std::string &name, const ir::SendData &send_data,
+                    IRTransmitterComponent *parent);
 
     void turn_on() override;
     void turn_off() override;

@@ -13,7 +13,7 @@ namespace esphomelib {
 
 namespace fan {
 
-/// FanTraits - This class represents the capabilities/feature set of a fan.
+/// This class represents the capabilities/feature set of a fan.
 class FanTraits {
  public:
   /// Construct an empty FanTraits object. All features will be marked unsupported.

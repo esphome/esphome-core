@@ -14,8 +14,12 @@ namespace esphomelib {
 
 namespace mqtt {
 
-/// Callback function typedef for building JsonObjects.
-using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
+/// Simple Helper struct used for Home Assistant MQTT send_discovery().
+struct SendDiscoveryConfig {
+  bool state_topic{true}; ///< If the state topic should be included. Defaults to true.
+  bool command_topic{true}; ///< If the command topic should be included. Default to true.
+  const char *platform{"mqtt"}; ///< The platform of this component. Defaults to "mqtt".
+};
 
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
@@ -25,7 +29,7 @@ using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
  *
  * In order to implement automatic Home Assistant discovery, all sub-classes should:
  *
- *  1. Call send_discovery() with a callback that adds discovery information during setup().
+ *  1. Implement send_discovery that creates a Home Assistant discovery payload.
  *  2. Override component_type() to return the appropriate component type such as "light" or "sensor".
  *  3. Subscribe to command topics using subscribe() or subscribe_json() during setup().
  *
@@ -35,18 +39,19 @@ using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
  */
 class MQTTComponent : public Component {
  public:
-  /** Constructs a MQTTComponent.
-   *
-   * @param friendly_name The friendly name. Leave empty to disable discovery.
-   */
-  explicit MQTTComponent(std::string friendly_name);
+  /// Constructs a MQTTComponent.
+  explicit MQTTComponent();
+
+  /// Override setup_ so that we can call send_discovery() when needed.
+  void setup_() override;
+
+  /// Send discovery info the Home Assistant, override this.
+  virtual void send_discovery(JsonBuffer &buffer, JsonObject &root, SendDiscoveryConfig &config) = 0;
 
   /// Set whether state message should be retained.
   void set_retain(bool retain);
   bool get_retain() const;
 
-  const std::string &get_friendly_name() const;
-  void set_friendly_name(const std::string &friendly_name);
   /// Disable discovery. Sets friendly name to "".
   void disable_discovery();
   bool is_discovery_enabled() const;
@@ -60,6 +65,7 @@ class MQTTComponent : public Component {
   void set_custom_command_topic(const std::string &custom_command_topic);
   void set_custom_topic(const std::string &key, const std::string &custom_topic);
 
+  /// MQTT_COMPONENT setup priority.
   float get_setup_priority() const override;
 
   /** Set the Home Assistant availability data.
@@ -67,7 +73,6 @@ class MQTTComponent : public Component {
    * See See <a href="https://home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
    */
   void set_availability(std::string topic, std::string payload_available, std::string payload_not_available);
-  const mqtt::Availability &get_availability() const;
   void disable_availability();
   
  protected:
@@ -82,6 +87,9 @@ class MQTTComponent : public Component {
    */
   virtual std::string get_default_topic_for(const std::string &suffix) const;
 
+  /// Get the friendly name of this MQTT component.
+  virtual std::string friendly_name() const = 0;
+
   /// Get the MQTT topic that new states will be shared to.
   const std::string get_state_topic() const;
 
@@ -92,22 +100,8 @@ class MQTTComponent : public Component {
   /// Otherwise, one will be generated with get_default_topic_for().
   const std::string get_topic_for(const std::string &key) const;
 
-  /** Send discovery info.
-   *
-   * Sends discovery info to the topic returned by get_discovery_topic() using the specified component type ("light",
-   * "sensor", ...). Automatically populates "name" and "platform" which defaults to "mqtt" but can be overridden.
-   * If state_topic is set to true, the state topic from get_state_topic() is aditionally included. The same applies to
-   * command_topic. Aditionally a "platform" can be specified to specify which platform should
-   *
-   * @param f This method will be called for building the discovery info.
-   * @param state_topic Whether to include "state_topic".
-   * @param command_topic Whether to include "command_topic".
-   * @param platform
-   */
-  void send_discovery(const json_build_t &f,
-                      bool state_topic = true,
-                      bool command_topic = true,
-                      const std::string &platform = "mqtt");
+  /// Internal method to start sending discovery info, this will call send_discovery().
+  void send_discovery_();
 
   /** Send a MQTT message.
    *
@@ -123,7 +117,7 @@ class MQTTComponent : public Component {
    *
    * @param topic The topic.
    * @param f The Json Message builder.
-   * @param retain Whether to retain the message.
+   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
   void send_json_message(const std::string &topic,
                          const json_build_t &f,
@@ -147,22 +141,15 @@ class MQTTComponent : public Component {
    */
   void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
 
-  /** Parse a JSON message and call f if the message is valid JSON.
-   *
-   * @param message The JSON message.
-   * @param f The callback.
-   */
-  void parse_json(const std::string &message, const json_parse_t &f);
-
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Generate the Home Assistant MQTT discovery object id by automatically transforming the friendly name.
   std::string get_default_object_id() const;
 
  protected:
-  std::string friendly_name_; ///< Discovery friendly name, leave empty for disabled discovery.
   std::map<std::string, std::string> custom_topics_{};
   bool retain_{true};
+  bool discovery_enabled_{true};
   Availability *availability_{nullptr};
 };
 

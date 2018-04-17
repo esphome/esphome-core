@@ -7,7 +7,7 @@ Example Usage
 .. code-block:: cpp
 
     // Basic
-    App.make_dht_sensor(12, "Outside Temperature", "Outside Humidity");
+    App.make_dht_sensor("Outside Temperature", "Outside Humidity", 12);
 
 .. cpp:namespace:: esphomelib
 

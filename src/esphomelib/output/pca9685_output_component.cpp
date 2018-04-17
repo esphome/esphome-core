@@ -24,14 +24,17 @@ PCA9685OutputComponent::PCA9685OutputComponent(float frequency,
 }
 
 void PCA9685OutputComponent::setup() {
-  ESP_LOGI(TAG, "Setting up PCA9685OutputComponent.");
+  ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent.");
   this->pwm_controller_ = PCA9685(this->i2c_wire_, this->phase_balancer_);
   ESP_LOGV(TAG, "    Resetting devices...");
   this->pwm_controller_.resetDevices();
-  ESP_LOGV(TAG, "    Initializing...");
+  ESP_LOGCONFIG(TAG, "    Address: %02X", this->address_);
+  ESP_LOGCONFIG(TAG, "    Mode: %02X", this->mode_);
   this->pwm_controller_.init(this->address_, this->mode_);
-  ESP_LOGV(TAG, "    Setting Frequency (%.0f)...", this->frequency_);
+  ESP_LOGCONFIG(TAG, "    Frequency: %.0f", this->frequency_);
   this->pwm_controller_.setPWMFrequency(this->frequency_);
+
+  this->loop();
 }
 
 void PCA9685OutputComponent::loop() {

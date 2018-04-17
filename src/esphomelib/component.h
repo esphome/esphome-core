@@ -23,6 +23,7 @@ const float WIFI = 10.0f; ///< for WiFi initialization
 const float MQTT_CLIENT = 7.5f; ///< for the MQTT client initialization
 const float HARDWARE_LATE = 0.0f;
 const float MQTT_COMPONENT = -5.0f; ///< for MQTT component initialization
+const float LATE = -10.0f;
 
 } // namespace setup_priority
 
@@ -116,6 +117,8 @@ class Component {
    */
   using time_func_t = std::function<void()>;
 
+  void set_interval(uint32_t interval, time_func_t &&f);
+
   /** Set an interval function with a unique name. Empty name means no cancelling possible.
    *
    * This will call f every interval ms. Can be cancelled via CancelInterval().
@@ -140,6 +143,8 @@ class Component {
    */
   bool cancel_interval(const std::string &name);
 
+  void set_timeout(uint32_t timeout, time_func_t &&f);
+
   /** Set a timeout function with a unique name.
    *
    * Similar to javascript's setTimeout(). Empty name means no cancelling possible.
@@ -163,14 +168,32 @@ class Component {
    */
   bool cancel_timeout(const std::string &name);
 
+  /** Defer a callback to the next loop() call.
+   *
+   * If name is specified and a defer() object with the same name exists, the old one is first removed.
+   *
+   * @param name The name of the defer function.
+   * @param f The callback.
+   */
+  void defer(const std::string &name, time_func_t &&f);
+
+  /// Defer a callback to the next loop() call.
+  void defer(time_func_t &&f);
+
+  /// Cancel a defer callback using the specified name, name must not be empty.
+  bool cancel_defer(const std::string &name);
+
   /// Internal struct for storing timeout/interval functions.
   struct TimeFunction {
     std::string name; ///< The name/id of this TimeFunction.
-    enum Type { TIMEOUT, INTERVAL } type; ///< The type of this TimeFunction. Either TIMEOUT or INTERVAL.
+    enum Type { TIMEOUT, INTERVAL, DEFER } type; ///< The type of this TimeFunction. Either TIMEOUT, INTERVAL or DEFER.
     uint32_t interval; ///< The interval/timeout of this function.
     /// The last execution for interval functions and the time, SetInterval was called, for timeout functions.
     uint32_t last_execution;
     time_func_t f; ///< The function (or callback) itself.
+    bool remove;
+
+    bool should_run() const;
   };
 
   /// Cancel an only time function. If name is empty, won't do anything.
@@ -220,6 +243,19 @@ class PollingComponent : public Component {
   virtual uint32_t get_update_interval() const;
  protected:
   uint32_t update_interval_;
+};
+
+/// Helper class that enables naming of objects so that it doesn't have to be re-implement every single time.
+class Nameable {
+ public:
+  explicit Nameable(const std::string &name);
+  const std::string &get_name() const;
+  void set_name(const std::string &name);
+  /// Get the sanitized name of this nameable as an ID. Caching it internally.
+  const std::string &get_name_id();
+ protected:
+  std::string name_;
+  std::string name_id_;
 };
 
 } // namespace esphomelib

@@ -41,6 +41,9 @@ Optional<float> SlidingWindowMovingAverageFilter::new_value(float value) {
   }
   return Optional<float>();
 }
+uint32_t SlidingWindowMovingAverageFilter::expected_interval(uint32_t input) {
+  return input * this->send_every_;
+}
 
 ExponentialMovingAverageFilter::ExponentialMovingAverageFilter(float alpha, size_t send_every)
     : send_every_(send_every), send_at_(send_every - 1),
@@ -68,6 +71,9 @@ float ExponentialMovingAverageFilter::get_alpha() const {
 void ExponentialMovingAverageFilter::set_alpha(float alpha) {
   this->value_average_.set_alpha(alpha);
   this->accuracy_average_.set_alpha(alpha);
+}
+uint32_t ExponentialMovingAverageFilter::expected_interval(uint32_t input) {
+  return input * this->send_every_;
 }
 LambdaFilter::LambdaFilter(lambda_filter_t lambda_filter)
     : lambda_filter_(std::move(lambda_filter)) {
@@ -113,6 +119,9 @@ Optional<float> FilterOutNANFilter::new_value(float value) {
   return value;
 }
 
+uint32_t Filter::expected_interval(uint32_t input) {
+  return input;
+}
 } // namespace sensor
 
 } // namespace esphomelib

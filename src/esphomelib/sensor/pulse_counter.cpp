@@ -19,8 +19,8 @@ namespace sensor {
 
 static const char *TAG = "sensor.pulse_counter";
 
-PulseCounterSensorComponent::PulseCounterSensorComponent(uint8_t pin, uint32_t update_interval)
-  : PollingSensorComponent(update_interval) {
+PulseCounterSensorComponent::PulseCounterSensorComponent(const std::string &name, uint8_t pin, uint32_t update_interval)
+  : PollingSensorComponent(name, update_interval) {
   this->set_pin(pin);
 
   this->set_pcnt_unit(next_pcnt_unit);

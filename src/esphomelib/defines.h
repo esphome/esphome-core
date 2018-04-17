@@ -9,6 +9,8 @@
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
+#define ESPHOMELIB_VERSION "1.2.1-dev"
+
 #ifndef ESPHOMEYAML_USE
   #define USE_OTA
   #define USE_I2C
@@ -38,12 +40,16 @@
   #endif
   #define USE_LIGHT
   #define USE_SWITCH
+  #define USE_SIMPLE_SWITCH
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_IR_TRANSMITTER
   #endif
   #define USE_GPIO_SWITCH
   #define USE_RESTART_SWITCH
   #define USE_FAN
+  #define USE_DEBUG_COMPONENT
+  #define USE_WEB_SERVER
+  #define USE_DEEP_SLEEP
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -124,6 +130,37 @@
     #define USE_SENSOR
   #endif
 #endif
+#ifdef USE_IR_TRANSMITTER
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+#endif
+#ifdef USE_GPIO_SWITCH
+  #ifndef USE_SIMPLE_SWITCH
+    #define USE_SIMPLE_SWITCH
+  #endif
+  #ifndef USE_GPIO_OUTPUT
+    #define USE_GPIO_OUTPUT
+  #endif
+#endif
+#ifdef USE_RESTART_SWITCH
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+#endif
+#ifdef USE_LIGHT
+  #ifndef USE_OUTPUT
+    #define USE_OUTPUT
+  #endif
+#endif
+#ifdef USE_SIMPLE_SWITCH
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+  #ifndef USE_OUTPUT
+    #define USE_OUTPUT
+  #endif
+#endif
 #ifdef USE_LEDC_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
@@ -145,21 +182,6 @@
 #ifdef USE_ESP8266_PWM_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
-  #endif
-#endif
-#ifdef USE_IR_TRANSMITTER
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_GPIO_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_RESTART_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
   #endif
 #endif
 

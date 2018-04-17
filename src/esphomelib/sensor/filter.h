@@ -8,7 +8,6 @@
 #include <cstdint>
 
 #include "esphomelib/helpers.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_SENSOR
@@ -34,6 +33,9 @@ class Filter {
    * @return An optional float, the new value that should be pushed out.
    */
   virtual Optional<float> new_value(float value) = 0;
+
+  /// Return the amount of time that this filter is expected to take based on the input time interval.
+  virtual uint32_t expected_interval(uint32_t input);
 };
 
 /** Simple sliding window moving average filter.
@@ -57,6 +59,8 @@ class SlidingWindowMovingAverageFilter : public Filter {
   size_t get_window_size() const;
   void set_window_size(size_t window_size);
 
+  uint32_t expected_interval(uint32_t input) override;
+
  protected:
   SlidingWindowMovingAverage<float> value_average_;
   size_t send_every_;
@@ -78,6 +82,8 @@ class ExponentialMovingAverageFilter : public Filter {
   void set_send_every(size_t send_every);
   float get_alpha() const;
   void set_alpha(float alpha);
+
+  uint32_t expected_interval(uint32_t input) override;
 
  protected:
   ExponentialMovingAverage value_average_;

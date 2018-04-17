@@ -17,7 +17,7 @@ namespace fan {
 
 class MQTTFanComponent : public mqtt::MQTTComponent {
  public:
-  explicit MQTTFanComponent(const std::string &friendly_name);
+  explicit MQTTFanComponent(FanState *state);
 
   /// Set a custom oscillation command topic. Defaults to "<base>/oscillation/command".
   void set_custom_oscillation_command_topic(const std::string &topic);
@@ -28,12 +28,12 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   /// Set a custom speed state topic. Defaults to "<base>/speed/state".
   void set_custom_speed_state_topic(const std::string &topic);
 
+  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Setup the fan subscriptions and discovery.
   void setup() override;
-  /// Send state via MQTT if state next_send_ is true.
-  void loop() override;
   /// Send the full current state to MQTT.
   void send_state();
   /// 'fan' component type for discovery.
@@ -45,11 +45,11 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   const std::string get_speed_state_topic() const;
 
   FanState *get_state() const;
-  void set_state(FanState *state);
 
  protected:
+  std::string friendly_name() const override;
+
   FanState *state_;
-  bool next_send_;
 };
 
 } // namespace fan

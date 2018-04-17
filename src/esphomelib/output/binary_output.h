@@ -15,11 +15,11 @@ namespace esphomelib {
 
 namespace output {
 
-/** BinaryOutput - The base class for all binary outputs i.e. outputs that can only be switched on/off.
+/** The base class for all binary outputs i.e. outputs that can only be switched on/off.
  *
  * This interface class provides one method you need to override in order to create a binary output
  * component yourself: write_value(). This method will be called for you by the MQTT Component through
- * set_state() to indicate that a new value should be written to hardware.
+ * enable()/disable() to indicate that a new value should be written to hardware.
  *
  * Note that this class also allows the user to invert any state, but you don't need to worry about that
  * because the value will already be inverted (if specified by the user) within set_state_(). So write_state

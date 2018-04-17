@@ -18,8 +18,8 @@ namespace sensor {
 
 static const char *TAG = "sensor.bmp085";
 
-BMP085TemperatureSensor::BMP085TemperatureSensor(BMP085Component *parent)
-  : parent_(parent) { }
+BMP085TemperatureSensor::BMP085TemperatureSensor(const std::string &name, BMP085Component *parent)
+    : Sensor(name), parent_(parent) {}
 std::string BMP085TemperatureSensor::unit_of_measurement() {
   return "°C";
 }
@@ -33,8 +33,8 @@ int8_t BMP085TemperatureSensor::accuracy_decimals() {
   return 1;
 }
 
-BMP085PressureSensor::BMP085PressureSensor(BMP085Component *parent)
-  : parent_(parent) { }
+BMP085PressureSensor::BMP085PressureSensor(const std::string &name, BMP085Component *parent)
+    : Sensor(name), parent_(parent) {}
 std::string BMP085PressureSensor::unit_of_measurement() {
   return "hPa";
 }
@@ -65,7 +65,7 @@ void BMP085Component::update() {
   this->measurement_mode_ = TEMPERATURE;
   this->bmp_.setControl(BMP085_MODE_TEMPERATURE);
 
-  this->set_timeout("temperature", 5, std::bind(&BMP085Component::read_temperature_, this));
+  this->set_timeout("temperature", 5, [this]() { this->read_temperature_(); });
 }
 void BMP085Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BMP085...");
@@ -78,9 +78,11 @@ void BMP085Component::setup() {
   }
   this->bmp_.initialize();
 }
-BMP085Component::BMP085Component(uint32_t update_interval)
-  : PollingComponent(update_interval), address_(BMP085_DEFAULT_ADDRESS),
-    temperature_(new BMP085TemperatureSensor(this)), pressure_(new BMP085PressureSensor(this)) {
+BMP085Component::BMP085Component(const std::string &temperature_name, const std::string &pressure_name,
+                                 uint32_t update_interval)
+    : PollingComponent(update_interval), address_(BMP085_DEFAULT_ADDRESS),
+      temperature_(new BMP085TemperatureSensor(temperature_name, this)),
+      pressure_(new BMP085PressureSensor(pressure_name, this)) {
 
 }
 
@@ -101,7 +103,7 @@ void BMP085Component::read_temperature_() {
   this->measurement_mode_ = PRESSURE;
   this->bmp_.setControl(BMP085_MODE_PRESSURE_3);
 
-  this->set_timeout("pressure", 26, std::bind(&BMP085Component::read_pressure_, this));
+  this->set_timeout("pressure", 26, [this]() { this->read_pressure_(); });
 }
 void BMP085Component::read_pressure_() {
   if (this->measurement_mode_ != PRESSURE) {

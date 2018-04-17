@@ -24,13 +24,19 @@ using binary_callback_t = std::function<void(bool)>;
  * The sub classes should notify the front-end of new states via the publish_state() method which
  * handles inverted inputs for you.
  */
-class BinarySensor {
+class BinarySensor : public Nameable {
  public:
+  /** Construct a binary sensor with the specified name
+   *
+   * @param name Name of this binary sensor.
+   */
+  explicit BinarySensor(const std::string &name);
+
   /** Set callback for state changes.
    *
    * @param callback The void(bool) callback.
    */
-  virtual void add_on_new_state_callback(binary_callback_t &&callback);
+  virtual void add_on_state_callback(binary_callback_t &&callback);
 
   /// Set the inverted state of this binary sensor. If true, each published value will be inverted.
   void set_inverted(bool inverted);
@@ -43,8 +49,14 @@ class BinarySensor {
    */
   virtual void publish_state(bool state);
 
-  /// Get the default device class for this sensor, or empty string for no default.
-  virtual std::string device_class();
+  /// Get the current boolean value of this binary sensor.
+  bool get_value() const;
+
+  /// Manually set the Home Assistant device class (see esphomelib::binary_sensor::device_class)
+  void set_device_class(const std::string &device_class);
+
+  /// Get the device class for this binary sensor, using the manual override if specified.
+  std::string get_device_class();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -52,8 +64,16 @@ class BinarySensor {
   bool is_inverted() const;
 
  protected:
-  CallbackManager<void(bool)> new_state_callback_{};
+  // ========== OVERRIDE METHODS ==========
+  // (You'll only need this when creating your own custom sensor)
+  /// Get the default device class for this sensor, or empty string for no default.
+  virtual std::string device_class();
+
+  CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
+  bool value_{false};
+  bool first_value_{true};
+  Optional<std::string> device_class_{}; ///< Stores the override of the device class
 };
 
 } // namespace binary_sensor

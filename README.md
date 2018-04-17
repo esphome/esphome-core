@@ -18,15 +18,16 @@ void setup() {
     App.init_log();
 
     App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-    App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
     App.init_ota()->start_safe_mode();
+    App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+    App.init_web_server();
 
     auto *red = App.make_ledc_output(32); // on pin 32, only available with ESP32
     auto *green = App.make_ledc_output(33);
     auto *blue = App.make_ledc_output(34);
     App.make_rgb_light("Livingroom Light", red, green, blue);
     
-    App.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
+    App.make_dht_sensor("Livingroom Temperature", "Livingroom Humidity", 12);
 
     App.setup();
 }
@@ -84,6 +85,8 @@ Then create a new project for an [ESP32-based board](http://docs.platformio.org/
 
 ```ini
 ; ...
+platform = espressif32
+board = nodemcu-32s
 framework = arduino
 lib_deps = esphomelib
 ```
@@ -128,8 +131,8 @@ void setup() {
     App.init_log();
 
     App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-    App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
     App.init_ota()->start_safe_mode();
+    App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
     // ...
 
 ```
@@ -291,7 +294,7 @@ After `init_wifi()`, call:
 
 ```cpp
 auto *wifi = App.init_wifi(...);
-wifi->set_manual_ip(ManualIP{
+wifi->set_sta_manual_ip(ManualIP{
     .static_ip = IPAddress(192, 168, 178, 204),
     .gateway = IPAddress(192, 168, 178, 1),
     .subnet = IPAddress(255, 255, 255, 0)

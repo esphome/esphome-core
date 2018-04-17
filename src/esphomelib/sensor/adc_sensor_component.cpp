@@ -18,8 +18,8 @@ namespace sensor {
 
 static const char *TAG = "sensor.adc";
 
-ADCSensorComponent::ADCSensorComponent(GPIOInputPin pin, uint32_t update_interval)
-    : PollingSensorComponent(update_interval), pin_(pin) { }
+ADCSensorComponent::ADCSensorComponent(const std::string &name, GPIOInputPin pin, uint32_t update_interval)
+    : PollingSensorComponent(name, update_interval), pin_(pin) { }
 
 #ifdef ARDUINO_ARCH_ESP32
 adc_attenuation_t ADCSensorComponent::get_attenuation() const {
@@ -32,7 +32,7 @@ void ADCSensorComponent::set_attenuation(adc_attenuation_t attenuation) {
 #endif
 
 void ADCSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up ADC");
+  ESP_LOGCONFIG(TAG, "Setting up ADC '%s'", this->get_name().c_str());
   this->pin_.setup();
 
 #ifdef ARDUINO_ARCH_ESP32

@@ -24,14 +24,6 @@ static const uint8_t DALLAS_COMMAND_START_CONVERSION = 0x44;
 static const uint8_t DALLAS_COMMAND_READ_SCRATCH_PAD = 0xBE;
 static const uint8_t DALLAS_COMMAND_WRITE_SCRATCH_PAD = 0x4E;
 
-std::string uint64_to_string(uint64_t num) {
-  char buffer[17];
-  auto *address16 = reinterpret_cast<uint16_t *>(&num);
-  snprintf(buffer, sizeof(buffer), "%04X%04X%04X%04X",
-           address16[3], address16[2], address16[1], address16[0]);
-  return std::string(buffer);
-}
-
 uint16_t DallasTemperatureSensor::millis_to_wait_for_conversion_() const {
   switch (this->resolution_) {
     case 9:return 94;
@@ -60,29 +52,30 @@ void DallasComponent::setup() {
     std::string s = uint64_to_string(address);
     auto *address8 = reinterpret_cast<uint8_t *>(&address);
     if (ESPOneWire::crc8(address8, 7) != address8[7]) {
-      ESP_LOGE(TAG, "Dallas device 0x%s has invalid CRC.", s.c_str());
+      ESP_LOGW(TAG, "Dallas device 0x%s has invalid CRC.", s.c_str());
       continue;
     }
     if (address8[0] != DALLAS_MODEL_DS18S20 && address8[0] != DALLAS_MODEL_DS1822 &&
         address8[0] != DALLAS_MODEL_DS18B20 && address8[0] != DALLAS_MODEL_DS1825 &&
         address8[0] != DALLAS_MODEL_DS28EA00) {
-      ESP_LOGE(TAG, "Unknown device type %02X.", address8[0]);
+      ESP_LOGW(TAG, "Unknown device type %02X.", address8[0]);
       continue;
     }
     ESP_LOGD(TAG, "    0x%s", s.c_str());
     out.push_back(address);
   }
   for (auto sensor : this->sensors_) {
+    ESP_LOGCONFIG(TAG, "Device '%s':", sensor->get_name().c_str());
     if (sensor->get_address() == 0) {
-      ESP_LOGCONFIG(TAG, "Device with index %u", sensor->get_index());
+      ESP_LOGCONFIG(TAG, "    Index %u", sensor->get_index());
       if (sensor->get_index() >= out.size()) {
         ESP_LOGE(TAG, "Couldn't find sensor by index - not connected. Proceeding without it.");
         continue;
       }
       sensor->set_address(out[sensor->get_index()]);
-      ESP_LOGCONFIG(TAG, "     -> Address: %s", sensor->get_name().c_str());
+      ESP_LOGCONFIG(TAG, "     -> Address: %s", sensor->get_address_name().c_str());
     } else {
-      ESP_LOGCONFIG(TAG, "Device %s:", sensor->get_name().c_str());
+      ESP_LOGCONFIG(TAG, "     -> Address: %s", sensor->get_address_name().c_str());
     }
     ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
 
@@ -90,18 +83,18 @@ void DallasComponent::setup() {
   }
 }
 
-DallasTemperatureSensor *DallasComponent::get_sensor_by_address(uint64_t address,
-                                                                uint8_t resolution) {
-  auto s = new DallasTemperatureSensor(address, resolution, this);
+DallasTemperatureSensor *DallasComponent::get_sensor_by_address(const std::string &name,
+                                                                uint64_t address, uint8_t resolution) {
+  auto s = new DallasTemperatureSensor(name, address, resolution, this);
   this->sensors_.push_back(s);
   return s;
 }
 float DallasComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-DallasTemperatureSensor *DallasComponent::get_sensor_by_index(uint8_t index,
-                                                              uint8_t resolution) {
-  auto s = this->get_sensor_by_address(0, resolution);
+DallasTemperatureSensor *DallasComponent::get_sensor_by_index(const std::string &name,
+                                                              uint8_t index, uint8_t resolution) {
+  auto s = this->get_sensor_by_address(name, 0, resolution);
   s->set_index(index);
   return s;
 }
@@ -121,7 +114,7 @@ void DallasComponent::update() {
   }
 
   for (auto *sensor : this->sensors_) {
-    this->set_timeout(sensor->get_name(), sensor->millis_to_wait_for_conversion_(), [sensor] {
+    this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion_(), [sensor] {
       auto res = run_without_interrupts<bool>([sensor] {
         return sensor->read_scratch_pad_();
       });
@@ -131,7 +124,7 @@ void DallasComponent::update() {
         return;
 
       float tempc = sensor->get_temp_c();
-      ESP_LOGD(TAG, "%s: Got Temperature=%.1f°C", sensor->get_name().c_str(), tempc);
+      ESP_LOGD(TAG, "'%s': Got Temperature=%.1f°C", sensor->get_name().c_str(), tempc);
       sensor->push_new_value(tempc);
     });
   }
@@ -144,10 +137,10 @@ ESPOneWire *DallasComponent::get_one_wire() const {
   return this->one_wire_;
 }
 
-DallasTemperatureSensor::DallasTemperatureSensor(uint64_t address,
-                                                 uint8_t resolution,
+DallasTemperatureSensor::DallasTemperatureSensor(const std::string &name,
+                                                 uint64_t address, uint8_t resolution,
                                                  DallasComponent *parent)
-    : sensor::Sensor(), parent_(parent) {
+    : Sensor(name), parent_(parent) {
   this->set_address(address);
   this->set_resolution(resolution);
 }
@@ -173,12 +166,12 @@ void DallasTemperatureSensor::set_index(uint8_t index) {
 uint8_t *DallasTemperatureSensor::get_address8() {
   return reinterpret_cast<uint8_t *>(&this->address_);
 }
-const std::string &DallasTemperatureSensor::get_name() {
-  if (this->name_.empty()) {
-    this->name_ = std::string("0x") + uint64_to_string(this->address_);
+const std::string &DallasTemperatureSensor::get_address_name() {
+  if (this->address_name_.empty()) {
+    this->address_name_ = std::string("0x") + uint64_to_string(this->address_);
   }
 
-  return this->name_;
+  return this->address_name_;
 }
 std::string DallasTemperatureSensor::unit_of_measurement() {
   return "°C";

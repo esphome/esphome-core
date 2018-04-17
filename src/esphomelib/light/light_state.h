@@ -8,10 +8,11 @@
 #include <memory>
 #include <functional>
 #include <vector>
-
 #include "esphomelib/light/light_color_values.h"
+
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_transformer.h"
+#include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
 
@@ -28,10 +29,10 @@ class LightEffect;
 /** This class represents the communication layer between the front-end MQTT layer and the
  * hardware output layer.
  */
-class LightState {
+class LightState : public Nameable, public Component {
  public:
-  /// Construct this LightState using the provided traits.
-  explicit LightState(const LightTraits &traits);
+  /// Construct this LightState using the provided traits and name.
+  explicit LightState(const std::string &name, const LightTraits &traits);
 
   /** Start an effect by name. Uses light_effect_entries in light_effect.h for finding the correct effect.
    *
@@ -41,6 +42,11 @@ class LightState {
 
   /// Stop the current effect (if one is active).
   void stop_effect();
+
+  /// Load state from preferences
+  void setup() override;
+  /// Shortly after HARDWARE.
+  float get_setup_priority() const override;
 
   /** Start a linear transition to the provided target values for a specific amount of time.
    *
@@ -64,6 +70,8 @@ class LightState {
 
   /// Set the color values immediately.
   void set_immediately(const LightColorValues &target);
+
+  void start_default_transition(const LightColorValues &target);
 
   /// Applies the effect, transformer and then returns the current values.
   LightColorValues get_current_values();
@@ -94,10 +102,22 @@ class LightState {
   const LightTraits &get_traits() const;
   void set_traits(const LightTraits &traits);
 
+  /// Parse and apply the provided JSON payload.
+  void parse_json(const JsonObject &root);
+
+  /// Dump the state of this light as JSON.
+  void dump_json(JsonBuffer &buffer, JsonObject &root);
+
+  /// Defaults to 1 second (1000 ms).
+  uint32_t get_default_transition_length() const;
+  /// Set the default transition length, i.e. the transition length when no transition is provided.
+  void set_default_transition_length(uint32_t default_transition_length);
+
  protected:
-  std::unique_ptr<LightEffect> effect_;
-  std::unique_ptr<LightTransformer> transformer_;
-  LightColorValues values_;
+  uint32_t default_transition_length_{1000};
+  std::unique_ptr<LightEffect> effect_{nullptr};
+  std::unique_ptr<LightTransformer> transformer_{nullptr};
+  LightColorValues values_{};
   CallbackManager<void()> send_callback_{};
   LightTraits traits_;
 };

@@ -19,6 +19,8 @@ namespace light {
 static const char *TAG = "light.state";
 
 void LightState::start_transition(const LightColorValues &target, uint32_t length) {
+  ESP_LOGD(TAG, "Starting transition with length=%u ms", length);
+
   if (this->traits_.supports_brightness()) {
     this->transformer_ = make_unique<LightTransitionTransformer>(millis(), length,
                                                                  this->get_current_values_lazy(),
@@ -26,6 +28,10 @@ void LightState::start_transition(const LightColorValues &target, uint32_t lengt
   } else {
     this->set_immediately(target);
   }
+  if (target.get_state() == 0.0f)
+    // Turn of effect if transitioning to off.
+    this->stop_effect();
+
   this->send_values();
 }
 
@@ -34,8 +40,9 @@ void LightState::add_send_callback(light_send_callback_t &&send_callback) {
 }
 
 void LightState::start_flash(const LightColorValues &target, uint32_t length) {
-  if (length <= 0)
+  if (length == 0)
     return;
+  ESP_LOGD(TAG, "Starting flash with length=%u ms", length);
 
   LightColorValues end_colors = this->values_;
   if (this->transformer_ != nullptr)
@@ -44,8 +51,8 @@ void LightState::start_flash(const LightColorValues &target, uint32_t length) {
   this->send_values();
 }
 
-LightState::LightState(const LightTraits &traits)
-    : traits_(traits), effect_(nullptr), transformer_(nullptr), values_(LightColorValues()) {
+LightState::LightState(const std::string &name, const LightTraits &traits)
+    : Nameable(name), traits_(traits) {
   this->effect_ = std::move(NoneLightEffect::create());
 }
 
@@ -101,6 +108,8 @@ std::string LightState::get_effect_name() {
 }
 
 void LightState::start_effect(const std::string &name) {
+  ESP_LOGD(TAG, "Starting effect '%s'", name.c_str());
+
   for (const LightEffect::Entry &entry : light_effect_entries) {
     if (!this->traits_.supports_traits(entry.requirements))
       continue;
@@ -127,6 +136,48 @@ void LightState::set_transformer(std::unique_ptr<LightTransformer> transformer) 
 }
 void LightState::stop_effect() {
   this->effect_ = std::move(NoneLightEffect::create());
+}
+void LightState::parse_json(const JsonObject &root) {
+  ESP_LOGV(TAG, "Interpreting light JSON.");
+  LightColorValues v = this->get_remote_values(); // use remote values for fallback
+  v.parse_json(root);
+  v.normalize_color(this->get_traits());
+
+  if (root.containsKey("flash")) {
+    auto length = uint32_t(float(root["flash"]) * 1000);
+    this->start_flash(v, length);
+  } else if (root.containsKey("transition")) {
+    auto length = uint32_t(float(root["transition"]) * 1000);
+    this->start_transition(v, length);
+  } else if (root.containsKey("effect")) {
+    const char *effect = root["effect"];
+    this->start_effect(effect);
+  } else {
+    this->start_default_transition(v);
+  }
+}
+
+void LightState::set_default_transition_length(uint32_t default_transition_length) {
+  this->default_transition_length_ = default_transition_length;
+}
+uint32_t LightState::get_default_transition_length() const {
+  return this->default_transition_length_;
+}
+void LightState::dump_json(JsonBuffer &buffer, JsonObject &root) {
+  if (this->supports_effects())
+    root["effect"] = this->get_effect_name();
+  this->get_remote_values().dump_json(root, this->get_traits());
+}
+void LightState::start_default_transition(const LightColorValues &target) {
+  this->start_transition(target, this->default_transition_length_);
+}
+void LightState::setup() {
+  LightColorValues recovered_values;
+  recovered_values.load_from_preferences(this->get_name());
+  this->set_immediately(recovered_values);
+}
+float LightState::get_setup_priority() const {
+  return setup_priority::HARDWARE - 1.0f;
 }
 
 } // namespace light

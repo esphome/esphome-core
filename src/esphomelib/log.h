@@ -42,22 +42,22 @@ enum ESPLogLevel {
   #define ESPHOMELIB_LOG_COLOR_E       ESPHOMELIB_LOG_BOLD(ESPHOMELIB_LOG_COLOR_RED)
   #define ESPHOMELIB_LOG_COLOR_W       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_YELLOW)
   #define ESPHOMELIB_LOG_COLOR_I       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_GREEN)
+  #define ESPHOMELIB_LOG_COLOR_C       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_MAGENTA)
   #define ESPHOMELIB_LOG_COLOR_D       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_CYAN)
   #define ESPHOMELIB_LOG_COLOR_V       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_GRAY)
-  #define ESPHOMELIB_LOG_COLOR_C       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_MAGENTA)
   #define ESPHOMELIB_LOG_RESET_COLOR   "\033[0m"
 #else
   #define ESPHOMELIB_LOG_COLOR_E
   #define ESPHOMELIB_LOG_COLOR_W
   #define ESPHOMELIB_LOG_COLOR_I
+  #define ESPHOMELIB_LOG_COLOR_C
   #define ESPHOMELIB_LOG_COLOR_D
   #define ESPHOMELIB_LOG_COLOR_V
-  #define ESPHOMELIB_LOG_COLOR_C
   #define ESPHOMELIB_LOG_RESET_COLOR
 #endif
 
-int esp_log_printf_(ESPLogLevel level, const std::string &tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
-int esp_log_vprintf_(ESPLogLevel level, const std::string &tag, const char *format, va_list args);
+int esp_log_printf_(ESPLogLevel level, const char *tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+int esp_log_vprintf_(ESPLogLevel level, const char *tag, const char *format, va_list args);
 int esp_idf_log_vprintf_(const char *format, va_list args);
 
 #define ESPHOMELIB_SHORT_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter format ESPHOMELIB_LOG_RESET_COLOR

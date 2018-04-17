@@ -12,9 +12,9 @@ Example Usage
 .. code-block:: cpp
 
     // Basic
-    App.make_pulse_counter_sensor(13, "Stromverbrauch Wärmepumpe");
+    App.make_pulse_counter_sensor("Stromverbrauch Wärmepumpe", 13);
     // Unit conversion
-    auto strom_warme = App.make_pulse_counter_sensor(13, "Stromverbrauch Wärmepumpe");
+    auto strom_warme = App.make_pulse_counter_sensor("Stromverbrauch Wärmepumpe", 13);
     strom_warme.mqtt->set_unit_of_measurement("kW");
     strom_warme.mqtt->clear_filters();
     strom_warme.mqtt->add_multiply_filter(0.06f); // convert from Wh pulse to kW
