@@ -64,6 +64,8 @@ class WiFiComponent : public Component {
   void setup() override;
   /// WIFI setup_priority.
   float get_setup_priority() const override;
+  float get_loop_priority() const override;
+
   /// Reconnect WiFi if required.
   void loop() override;
 

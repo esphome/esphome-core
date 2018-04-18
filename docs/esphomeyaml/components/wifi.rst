@@ -24,11 +24,11 @@ dramatically improve connection times.
 Configuration variables:
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
--  **ssid** (**Required**, string): The name (or `service set
+-  **ssid** (*Optional*, string): The name (or `service set
    identifier <https://www.lifewire.com/definition-of-service-set-identifier-816547>`__)
    of the WiFi access point your device should connect to.
--  **password** (**Required**, string): The password (or PSK) for your
-   WiFi network.
+-  **password** (*Optional*, string): The password (or PSK) for your
+   WiFi network. Leave empty for no password.
 -  **manual_ip** (*Optional*): Manually configure the static IP of the
    node.
 
@@ -44,6 +44,25 @@ Configuration variables:
 -  **hostname** (*Optional*, string): Manually set the hostname of the
    node. Can only be 63 long at max and must only contain alphanumeric
    characters plus dashes and underscores.
+-  **ap** (*Optional*): Enable an access point mode on the node.
+
+   -  **ssid** (*Required*, string): The name of the access point to create.
+   -  **password** (*Optional* string): The password for the access point. Leave empty for
+      no password.
+   -  **channel** (*Optional*, int): The channel the AP should operate on from 1 to 14.
+      Defaults to 1.
+   -  **manual_ip** (*Optional*): Manually set the IP options for the AP. Same options as
+      manual_ip for station mode.
+
 -  **id** (*Optional*,
    `id </esphomeyaml/configuration-types.html#id>`__): Manually specify
    the ID used for code generation.
+
+Access Point Mode
+~~~~~~~~~~~~~~~~~
+
+Since version 1.3, esphomelib has an optional "Access Point Mode". If you include ``ap:``
+in your wifi configuration, esphomelib will automatically set up an access point that you
+can connect to. Additionally, you can specify both a "normal" station mode and AP mode at the
+same time. This will cause esphomelib to only enable the access point when no connection
+to the wifi router can be made.

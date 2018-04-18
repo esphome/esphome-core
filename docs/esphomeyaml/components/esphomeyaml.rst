@@ -40,3 +40,7 @@ Configuration variables:
 -  **simplify** (*Optional*, boolean): Whether to simplify the
    auto-generated code, i.e. whether to remove unused variables, use
    ``auto`` types and so on. Defaults to ``true``.
+-  **use_build_flags** (*Optional*, boolean): If esphomeyaml should manually set
+   build flags that specifically set what should be included in the binary. Most of
+   this is already done automatically by the linker but this option can help with
+   shrinking the firmware size while slowing down compilation. Defaults to ``false``.

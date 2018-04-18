@@ -82,7 +82,7 @@ void MQTTClientComponent::setup() {
   if (!this->get_log_topic().empty())
     global_log_component->add_on_log_callback([this](ESPLogLevel level, const char *message) {
       if (this->is_connected())
-        this->publish(this->get_log_topic(), message, true);
+        this->publish(this->get_log_topic(), message, false);
     });
   add_shutdown_hook([this](){
     this->mqtt_client_.disconnect(true);
@@ -134,6 +134,10 @@ void MQTTClientComponent::reconnect() {
   ESP_LOGI(TAG, "Reconnecting to MQTT...");
   uint32_t start = millis();
   do {
+    // Force disconnect first
+    this->mqtt_client_.disconnect(true);
+    global_wifi_component->loop();
+
     ESP_LOGD(TAG, "    Attempting MQTT connection...");
     if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
@@ -171,7 +175,6 @@ void MQTTClientComponent::reconnect() {
 
     if (this->mqtt_client_.connected()) {
       ESP_LOGI(TAG, "    MQTT Connected!");
-      this->on_connect_.call();
       break;
     } else {
       ESP_LOGW(TAG, "    MQTT connection failed");
@@ -183,6 +186,8 @@ void MQTTClientComponent::reconnect() {
 
   for (MQTTSubscription &subscription : this->subscriptions_)
     this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);
+
+  this->on_connect_.call();
 }
 
 void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, bool retain) {

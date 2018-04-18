@@ -43,6 +43,9 @@ Configuration variables:
 -  **will_message** (*Optional*, MQTTMessage): The message to send when
    the MQTT connection is dropped. See `Last Will And Birth
    Messages <#last-will-and-birth-messages>`__ for more information.
+-  **ssl_fingerprints** (*Optional*, list): Only on ESP8266. A list of SHA1 hashes used
+   for verifying SSL connections. See `SSL Fingerprints <#ssl-fingerprints>`__
+   for more information.
 -  **id** (*Optional*,
    `id </esphomeyaml/configuration-types.html#id>`__): Manually specify
    the ID used for code generation.
@@ -152,6 +155,32 @@ You can change these messages by overriding the ``birth_message`` and
 If the birth message and last will message have empty topics or topics
 that are different from each other, availabilty reporting will be
 disabled.
+
+SSL Fingerprints
+~~~~~~~~~~~~~~~~
+
+On the ESP8266 you have the option to use SSL connections for MQTT. This feature
+will get expanded to the ESP32 once the base library, AsyncTCP, supports it. Please
+note that the SSL feature only checks the SHA1 hash of the SSL certificate to verify
+the integrity of the connection, so every time the certificate changes, you'll have to
+update the fingerprints variable. Additionally, SHA1 is known to be partially insecure
+and with some computing power the fingerprint can be faked.
+
+To get this fingerprint, first put the broker and port options in the configuration and
+then run the ``mqtt-fingerprint`` script of esphomeyaml to get the certificate:
+
+.. code:: bash
+
+    esphomeyaml livingroom.yaml mqtt-fingerprint
+    > SHA1 Fingerprint: a502ff13999f8b398ef1834f1123650b3236fc07
+    > Copy above string into mqtt.ssl_fingerprints section of livingroom.yaml
+
+.. code:: yaml
+
+    mqtt:
+      # ...
+      ssl_fingerprints:
+        - a502ff13999f8b398ef1834f1123650b3236fc07
 
 MQTT Component Base Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

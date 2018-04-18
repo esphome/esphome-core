@@ -45,9 +45,9 @@ Core Components
 ------------------  ------------------  ------------------
 `I²C Bus`_          `OTA Updates`_      `Logger`_
 ------------------  ------------------  ------------------
-|Power Supply|_
+|Web Server|_       |Power Supply|_     |Deep Sleep|_
 ------------------  ------------------  ------------------
-`Power Supply`_
+`Web Server`_       `Power Supply`_     `Deep Sleep`_
 ==================  ==================  ==================
 
 .. |Core| image:: /esphomeyaml/cloud-circle.svg
@@ -73,6 +73,14 @@ Core Components
 .. |Logger| image:: /esphomeyaml/file-document-box.svg
     :class: component-image
 .. _Logger: /esphomeyaml/components/logger.html
+
+.. |Web Server| image:: /esphomeyaml/http.svg
+    :class: component-image
+.. _Web Server: /esphomeyaml/components/web_server.html
+
+.. |Deep Sleep| image:: /esphomeyaml/hotel.svg
+    :class: component-image
+.. _Deep Sleep: /esphomeyaml/components/deep_sleep.html
 
 .. |Power Supply| image:: /esphomeyaml/power.svg
     :class: component-image
@@ -291,9 +299,9 @@ Misc Components
 ------------------------  ------------------------  ------------------------
 `Dallas Hub`_             `IR Transmitter Hub`_     `PCA9685 Hub`_
 ------------------------  ------------------------  ------------------------
-|ADS1115 Hub|_
+|ADS1115 Hub|_            |Debug Component|_
 ------------------------  ------------------------  ------------------------
-`ADS1115 Hub`_
+`ADS1115 Hub`_            `Debug Component`_
 ========================  ========================  ========================
 
 .. |Dallas Hub| image:: /esphomeyaml/ds18b20.jpg
@@ -312,6 +320,10 @@ Misc Components
     :class: component-image
 .. _ADS1115 Hub: /esphomeyaml/components/ads1115.html
 
+.. |Debug Component| image:: /esphomeyaml/bug-report.svg
+    :class: component-image
+.. _Debug Component: /esphomeyaml/components/debug.html
+
 
 Full Index
 ~~~~~~~~~~
@@ -329,6 +341,9 @@ Full Index
     components/wifi.rst
     components/mqtt.rst
     components/ota.rst
+    components/web_server.rst
+    components/deep_sleep.rst
+    components/debug.rst
     components/ads1115.rst
     components/binary_sensor/index.rst
     components/binary_sensor/gpio.rst

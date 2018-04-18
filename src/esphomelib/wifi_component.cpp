@@ -45,9 +45,11 @@ void WiFiComponent::setup() {
     this->setup_ap_config();
     this->setup_sta_config();
   } else if (this->has_sta()) {
+    WiFi.enableAP(false);
     this->setup_sta_config();
     this->wait_for_sta();
   } else if (this->has_ap()) {
+    WiFi.enableSTA(false);
     this->setup_ap_config();
   } else {
     assert(false);
@@ -151,10 +153,12 @@ void WiFiComponent::wait_for_sta() {
       this->setup_sta_config(false);
 #endif
 
-    if (status == WL_CONNECT_FAILED || millis() - start > 30000) {
+    if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to WiFi network");
       shutdown();
     }
+    if (status == WL_CONNECT_FAILED)
+      this->setup_sta_config(false);
 
     delay(250);
     ESP_LOGV(TAG, ". (status=%d)", status);
@@ -292,6 +296,9 @@ void WiFiComponent::set_hostname(std::string &&hostname) {
 }
 const std::string &WiFiComponent::get_hostname() {
   return this->hostname_;
+}
+float WiFiComponent::get_loop_priority() const {
+  return 10.0f; // before other loop components
 }
 
 WiFiComponent *global_wifi_component;

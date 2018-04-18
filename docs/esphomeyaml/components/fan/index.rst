@@ -47,6 +47,6 @@ Configuration variables:
 -  All other options from `MQTT
    Component </esphomeyaml/components/mqtt.html#mqtt-component-base-configuration>`__.
 
-.. |image0| image:: /esphomeyaml/components/fan/fan-example.png
+.. |image0| image:: /esphomeyaml/components/fan/fan.png
    :class: align-center
    :width: 70.0%
