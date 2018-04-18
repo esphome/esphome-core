@@ -9,7 +9,7 @@
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
-#define ESPHOMELIB_VERSION "1.2.1-dev"
+#define ESPHOMELIB_VERSION "1.3.0"
 
 #ifndef ESPHOMEYAML_USE
   #define USE_OTA
