@@ -1,8 +1,11 @@
 # esphomelib [![Build Status](https://travis-ci.org/OttoWinter/esphomelib.svg?branch=master)](https://travis-ci.org/OttoWinter/esphomelib) [![Discord Chat](https://img.shields.io/discord/429907082951524364.svg)](https://discord.gg/KhAMKrd) [![GitHub release](https://img.shields.io/github/release/OttoWinter/esphomelib.svg)](https://GitHub.com/OttoWinter/esphomelib/releases/)
 
+
 **esphomelib** is a library designed to greatly simplify your firmware code for ESP32/ESP8266-based devices with full 
 seamless Home Assistant integration (with automatic MQTT discovery!) so that you can focus on creating the hardware, 
 not the software.
+
+## See [esphomeyaml](https://github.com/OttoWinter/esphomeyaml) for an easy way to use esphomelib
 
 ## Example
 For example, the software for a device with an RGB light using the internal PWM and a 
