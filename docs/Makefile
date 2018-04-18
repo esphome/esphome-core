@@ -9,26 +9,27 @@ SOURCEDIR     = .
 BUILDDIR      = _build
 
 
-doxygen:
-	doxygen Doxygen
-
 html:
+	doxygen Doxygen
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 cleanhtml:
-	rm -rf "$(BUILDDIR)/html/*"
+	rm -rf "$(BUILDDIR)/html/*" _doxyxml/
 
 minifyhtml: html
 	./minify.sh
 
-dist: cleanhtml doxygen html minifyhtml
+deploy: cleanhtml html minifyhtml
+	touch "$(BUILDDIR)/html/.nojekyll"
+	echo "esphomelib.com" >"$(BUILDDIR)/html/CNAME"
 	cd "$(BUILDDIR)/html" && git add --all && git commit -m "Deploy to gh-pages"
+	@printf "Run \033[0;36mcd $(BUILDDIR)/html && git push origin gh-pages\033[0m to deploy\n"
 
 help:
 	$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 webserver: html
-	cd "$(BUILDDIR)/html" && python2 -m SimpleHTTPServer
+	cd "$(BUILDDIR)/html" && python3 -m http.server
 
 .PHONY: help Makefile
 
