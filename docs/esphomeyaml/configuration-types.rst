@@ -28,15 +28,27 @@ names <http://venus.cs.qc.cuny.edu/~krishna/cs111/lectures/D3_C++_Variables.pdf>
 Pin
 ~~~
 
-esphomeyaml always uses the microcontroller-internal GPIO numbers for
-simplicity. For most boards (defined in `esphomeyaml
-section </esphomeyaml/components/esphomeyaml.html>`__), there are helper
-functions available though. For example, on the NodeMCU ESP8266, you can
-specify the GPIO16 through the abreviation ``D0``.
+esphomeyaml always uses the **chip-internal GPIO numbers**. These
+internal numbers are always integers like ``16`` and can be prefixed by
+``GPIO``. For example to use the pin with the **internal** GPIO number 16,
+you could type ``GPIO16`` or just ``16``.
+
+Most boards however have aliases for certain pins. For example the NodeMCU
+ESP8266 uses pin names ``D0`` through ``D8`` as aliases for the internal GPIO
+pin numbers. Each board (defined in `esphomeyaml
+section </esphomeyaml/components/esphomeyaml.html>`__)
+has their own aliases and so not all of them are supported yet. For example,
+for the ``D0`` (as printed on the PCB silkscreen) pin on the NodeMCU ESP8266
+has the internal GPIO name ``GPIO16``, but also has an alias ``D0``. So using
+either one of these names in your configuration will lead to the same result.
 
 .. code:: yaml
 
     some_config_option:
+      pin: GPIO16
+
+    some_config_option:
+      # alias on the NodeMCU ESP8266:
       pin: D0
 
 Pin Schema
