@@ -14,8 +14,6 @@ namespace esphomelib {
 
 namespace binary_sensor {
 
-static const char *TAG = "binary_sensor.mqtt";
-
 std::string MQTTBinarySensorComponent::component_type() const {
   return "binary_sensor";
 }

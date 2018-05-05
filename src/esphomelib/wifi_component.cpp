@@ -14,6 +14,9 @@
 #endif
 
 #include <utility>
+#ifdef ARDUINO_ARCH_ESP8266
+  #include <ping.h>
+#endif
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
@@ -54,6 +57,16 @@ void WiFiComponent::setup() {
   } else {
     assert(false);
   }
+
+#ifdef ARDUINO_ARCH_ESP8266
+  if (this->self_ping_interval_ != 0) {
+    auto *opt = new ping_option{};
+    opt->count = 1u << 32;
+    opt->ip = WiFi.localIP();
+    opt->coarse_time = this->self_ping_interval_;
+    ping_start(opt);
+  }
+#endif
 }
 
 void WiFiComponent::loop() {
@@ -155,7 +168,7 @@ void WiFiComponent::wait_for_sta() {
 
     if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to WiFi network");
-      shutdown();
+      reboot();
     }
     if (status == WL_CONNECT_FAILED)
       this->setup_sta_config(false);
@@ -299,6 +312,12 @@ const std::string &WiFiComponent::get_hostname() {
 }
 float WiFiComponent::get_loop_priority() const {
   return 10.0f; // before other loop components
+}
+void WiFiComponent::set_self_ping_interval(uint32_t self_ping_interval) {
+  this->self_ping_interval_ = self_ping_interval;
+}
+void WiFiComponent::disable_self_ping() {
+  this->self_ping_interval_ = 0;
 }
 
 WiFiComponent *global_wifi_component;

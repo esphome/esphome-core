@@ -27,7 +27,7 @@ using json_parse_t = std::function<void(JsonObject &)>;
 using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
 
 /// The characters that are allowed in a hostname.
-const static char *HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+extern const char *HOSTNAME_CHARACTER_WHITELIST;
 
 /// Gets the MAC address as a string, this can be used as way to identify this ESP32.
 std::string get_mac_address();
@@ -45,16 +45,22 @@ std::string truncate_string(const std::string &s, size_t length);
 bool is_empty(const IPAddress &address);
 
 /// Force a shutdown (and reboot) of the ESP, calling any registered shutdown hooks.
-void shutdown();
+void reboot();
 
 /// Add a shutdown callback.
 void add_shutdown_hook(std::function<void()> &&f);
 
 /// Create a safe shutdown (and reboot) of the ESP, calling any registered shutdown and safe shutdown hooks.
-void safe_shutdown();
+void safe_reboot();
+
+/// Run shutdown hooks.
+void run_shutdown_hooks();
 
 /// Add a safe shutdown callback that will be called if the device is shut down intentionally.
 void add_safe_shutdown_hook(std::function<void()> &&f);
+
+/// Run safe shutdown and force shutdown hooks.
+void run_safe_shutdown_hooks();
 
 /// Convert the string to lowercase_underscore.
 std::string to_lowercase_underscore(std::string s);

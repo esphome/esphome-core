@@ -116,23 +116,18 @@ class ADS1115Component : public Component {
 };
 
 /// Internal holder class that is in instance of Sensor so that the hub can create individual sensors.
-class ADS1115Sensor : public sensor::Sensor {
+class ADS1115Sensor : public sensor::EmptySensor<3, ICON_FLASH, UNIT_V> {
  public:
   ADS1115Sensor(const std::string &name, uint8_t multiplexer, uint8_t gain, uint32_t update_interval);
 
   void set_multiplexer(uint8_t multiplexer);
-  void set_update_interval(uint32_t update_interval);
   void set_gain(uint8_t gain);
 
-  std::string unit_of_measurement() override;
-  std::string icon() override;
   uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   uint8_t get_multiplexer() const;
-  uint32_t get_update_interval() const;
   uint8_t get_gain() const;
 
  protected:

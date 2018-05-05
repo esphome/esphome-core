@@ -43,18 +43,26 @@ const std::string MQTTComponent::get_command_topic() const {
   return this->get_topic_for("command");
 }
 
-void MQTTComponent::send_message(const std::string &topic, const std::string &payload, const Optional<bool> &retain) {
+void MQTTComponent::send_message(const std::string &topic, const std::string &payload,
+                                 const Optional<uint8_t> &qos, const Optional<bool> &retain) {
   bool actual_retain = this->retain_;
   if (retain)
     actual_retain = retain.value;
-  global_mqtt_client->publish(topic, payload, actual_retain);
+  uint8_t actual_qos = 0;
+  if (qos)
+    actual_qos = qos.value;
+  global_mqtt_client->publish(topic, payload, actual_qos, actual_retain);
 }
 
-void MQTTComponent::send_json_message(const std::string &topic, const json_build_t &f, const Optional<bool> &retain) {
+void MQTTComponent::send_json_message(const std::string &topic, const json_build_t &f,
+                                      const Optional<uint8_t> &qos, const Optional<bool> &retain) {
   bool actual_retain = this->retain_;
   if (retain)
     actual_retain = retain.value;
-  global_mqtt_client->publish_json(topic, f, actual_retain);
+  uint8_t actual_qos = 0;
+  if (qos)
+    actual_qos = qos.value;
+  global_mqtt_client->publish_json(topic, f, actual_qos, actual_retain);
 }
 
 void MQTTComponent::send_discovery_() {
@@ -90,7 +98,7 @@ void MQTTComponent::send_discovery_() {
       if (this->availability_->payload_not_available != "offline")
         root["payload_not_available"] = this->availability_->payload_not_available;
     }
-  }, discovery_info.retain);
+  }, 0, discovery_info.retain);
 }
 
 bool MQTTComponent::get_retain() const {

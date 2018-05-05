@@ -35,16 +35,9 @@ void MQTTClientComponent::setup() {
     ESP_LOGCONFIG(TAG, "    Discovery retain: %s", this->discovery_info_.retain ? "true" : "false");
   }
   this->mqtt_client_.onMessage([this](char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total){
-    if (properties.dup) {
-      ESP_LOGE(TAG, "Sorry, payload too long!");
-      return;
-    }
     std::string payload_s(payload, len);
-    ESP_LOGD(TAG, "%s -> %s", topic, payload_s.c_str());
     std::string topic_s(topic);
-    for (auto &subscription : this->subscriptions_)
-      if (topic_s == subscription.topic)
-        subscription.callback(payload_s);
+    this->on_message(topic_s, payload_s);
   });
   this->mqtt_client_.onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
     const char *reason_s = nullptr;
@@ -79,10 +72,11 @@ void MQTTClientComponent::setup() {
     }
     ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
   });
-  if (!this->get_log_topic().empty())
+  if (this->is_log_message_enabled())
     global_log_component->add_on_log_callback([this](ESPLogLevel level, const char *message) {
-      if (this->is_connected())
-        this->publish(this->get_log_topic(), message, false);
+      if (this->is_connected()) {
+        this->publish(this->log_message_.topic, message, this->log_message_.qos, this->log_message_.retain);
+      }
     });
   add_shutdown_hook([this](){
     this->mqtt_client_.disconnect(true);
@@ -141,7 +135,7 @@ void MQTTClientComponent::reconnect() {
     ESP_LOGD(TAG, "    Attempting MQTT connection...");
     if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-      shutdown();
+      reboot();
     }
 
     std::string id;
@@ -190,41 +184,30 @@ void MQTTClientComponent::reconnect() {
   this->on_connect_.call();
 }
 
-void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, bool retain) {
-  bool logging_topic = topic == this->get_log_topic();
+void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain) {
+  bool logging_topic = topic == this->log_message_.topic;
   if (!logging_topic) {
     ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload.c_str(), retain);
   }
 
   this->reconnect();
-  uint16_t ret = this->mqtt_client_.publish(topic.c_str(), 0, retain, payload.data(), payload.length());
+  uint16_t ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload.data(), payload.length());
   if (ret == 0 && !logging_topic)
     ESP_LOGW(TAG, "Publish failed!");
   yield();
 }
 
 void MQTTClientComponent::publish(const MQTTMessage &message) {
-  this->publish(message.topic, message.payload, message.retain);
+  this->publish(message.topic, message.payload, message.qos, message.retain);
 }
 
-void MQTTClientComponent::set_last_will(std::string topic, std::string payload, uint8_t qos,
-                                        bool retain) {
-  this->last_will_ = MQTTMessage{
-      .topic = std::move(topic),
-      .payload = std::move(payload),
-      .qos = qos,
-      .retain = retain,
-  };
+void MQTTClientComponent::set_last_will(MQTTMessage &&message) {
+  this->last_will_ = std::move(message);
   this->recalculate_availability();
 }
 
-void MQTTClientComponent::set_birth_message(std::string &&topic, std::string &&payload, bool retain) {
-  this->birth_message_ = MQTTMessage{
-      .topic = std::move(topic),
-      .payload = std::move(payload),
-      .qos = 0,
-      .retain = retain,
-  };
+void MQTTClientComponent::set_birth_message(MQTTMessage &&message) {
+  this->birth_message_ = std::move(message);
   this->recalculate_availability();
 }
 
@@ -251,8 +234,24 @@ const MQTTDiscoveryInfo &MQTTClientComponent::get_discovery_info() const {
 }
 void MQTTClientComponent::set_topic_prefix(std::string topic_prefix) {
   this->topic_prefix_ = std::move(topic_prefix);
-  this->set_birth_message(this->topic_prefix_ + "/status", "online", true);
-  this->set_last_will(this->topic_prefix_ + "/status", "offline", 0, true);
+  this->set_birth_message(MQTTMessage{
+      .topic = this->topic_prefix_ + "/status",
+      .payload = "online",
+      .qos = 0,
+      .retain = true,
+  });
+  this->set_last_will(MQTTMessage{
+      .topic = this->topic_prefix_ + "/status",
+      .payload = "offline",
+      .qos = 0,
+      .retain = true,
+  });
+  this->set_log_message_template(MQTTMessage{
+      .topic = this->topic_prefix_ + "/debug",
+      .payload = "",
+      .qos = 0,
+      .retain = false,
+  });
 }
 const std::string &MQTTClientComponent::get_topic_prefix() const {
   return this->topic_prefix_;
@@ -277,20 +276,33 @@ void MQTTClientComponent::recalculate_availability() {
   this->availability_.payload_available = "online";
   this->availability_.payload_not_available = "offline";
 }
-void MQTTClientComponent::publish_json(const std::string &topic, const json_build_t &f, bool retain) {
+void MQTTClientComponent::publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain) {
   std::string message = build_json(f);
-  this->publish(topic, message, retain);
+  this->publish(topic, message, qos, retain);
 }
-void MQTTClientComponent::set_log_topic(const std::string &topic) {
-  this->log_topic_ = topic;
-}
-const std::string &MQTTClientComponent::get_log_topic() {
-  if (!this->log_topic_.defined)
-    this->log_topic_ = this->topic_prefix_ + "/debug";
-  return this->log_topic_.value;
+void MQTTClientComponent::set_log_message_template(MQTTMessage &&message) {
+  this->log_message_ = std::move(message);
 }
 void MQTTClientComponent::add_on_connect_callback(std::function<void()> &&callback) {
   this->on_connect_.add(std::move(callback));
+}
+
+void MQTTClientComponent::on_message(const std::string &topic, const std::string &payload) {
+#ifdef ARDUINO_ARCH_ESP8266
+  this->defer([this, topic, payload]() {
+#endif
+    for (auto &subscription : this->subscriptions_)
+      if (topic == subscription.topic)
+        subscription.callback(payload);
+#ifdef ARDUINO_ARCH_ESP8266
+  });
+#endif
+}
+void MQTTClientComponent::disable_log_message() {
+  this->log_message_.topic = "";
+}
+bool MQTTClientComponent::is_log_message_enabled() const {
+  return !this->log_message_.topic.empty();
 }
 
 #if ASYNC_TCP_SSL_ENABLED

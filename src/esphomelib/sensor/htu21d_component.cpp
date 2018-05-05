@@ -18,38 +18,6 @@ namespace sensor {
 
 static const char *TAG = "sensor.htu21d";
 
-HTU21DTemperatureSensor::HTU21DTemperatureSensor(const std::string &name, HTU21DComponent *parent)
-    : Sensor(name), parent_(parent) { }
-
-std::string HTU21DTemperatureSensor::unit_of_measurement() {
-  return "°C";
-}
-std::string HTU21DTemperatureSensor::icon() {
-  return "";
-}
-uint32_t HTU21DTemperatureSensor::update_interval() {
-  return this->parent_->get_update_interval();
-}
-int8_t HTU21DTemperatureSensor::accuracy_decimals() {
-  return 0;
-}
-
-HTU21DHumiditySensor::HTU21DHumiditySensor(const std::string &name, HTU21DComponent *parent)
-    : Sensor(name), parent_(parent) { }
-
-std::string HTU21DHumiditySensor::unit_of_measurement() {
-  return "%";
-}
-std::string HTU21DHumiditySensor::icon() {
-  return "mdi:water-percent";
-}
-uint32_t HTU21DHumiditySensor::update_interval() {
-  return this->parent_->get_update_interval();
-}
-int8_t HTU21DHumiditySensor::accuracy_decimals() {
-  return 0;
-}
-
 HTU21DComponent::HTU21DComponent(const std::string &temperature_name, const std::string &humidity_name,
                                  uint32_t update_interval)
     : PollingComponent(update_interval), temperature_(new HTU21DTemperatureSensor(temperature_name, this)),

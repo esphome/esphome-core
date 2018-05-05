@@ -72,37 +72,6 @@ HDC1080HumiditySensor *HDC1080Component::get_humidity_sensor() const {
   return this->humidity_;
 }
 
-HDC1080HumiditySensor::HDC1080HumiditySensor(const std::string &name, HDC1080Component *parent)
-    : Sensor(name), parent_(parent) {}
-
-std::string HDC1080HumiditySensor::unit_of_measurement() {
-  return "%";
-}
-std::string HDC1080HumiditySensor::icon() {
-  return "mdi:water-percent";
-}
-uint32_t HDC1080HumiditySensor::update_interval() {
-  return this->parent_->get_update_interval();
-}
-int8_t HDC1080HumiditySensor::accuracy_decimals() {
-  return 1;
-}
-HDC1080TemperatureSensor::HDC1080TemperatureSensor(const std::string &name, HDC1080Component *parent)
-    : Sensor(name), parent_(parent) {}
-
-std::string HDC1080TemperatureSensor::unit_of_measurement() {
-  return "°C";
-}
-std::string HDC1080TemperatureSensor::icon() {
-  return "";
-}
-uint32_t HDC1080TemperatureSensor::update_interval() {
-  return this->parent_->get_update_interval();
-}
-int8_t HDC1080TemperatureSensor::accuracy_decimals() {
-  return 1;
-}
-
 } // namespace sensor
 
 } // namespace esphomelib

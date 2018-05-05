@@ -10,8 +10,6 @@ namespace esphomelib {
 
 namespace light {
 
-static const char *TAG = "light.traits";
-
 bool LightTraits::supports_brightness() const {
   return this->brightness_;
 }

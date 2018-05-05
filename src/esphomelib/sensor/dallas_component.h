@@ -64,11 +64,10 @@ class DallasComponent : public PollingComponent {
  protected:
   ESPOneWire *one_wire_;
   std::vector<DallasTemperatureSensor *> sensors_;
-  uint8_t resolution_;
 };
 
 /// Internal class that helps us create multiple sensors for one Dallas hub.
-class DallasTemperatureSensor : public Sensor {
+class DallasTemperatureSensor : public EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C, DallasComponent> {
  public:
   /** Construct the temperature sensor with the given address.
    *
@@ -101,19 +100,11 @@ class DallasTemperatureSensor : public Sensor {
   void setup_sensor_();
   bool read_scratch_pad_();
 
-  /// Unit of measurement for MQTT: "°C".
-  std::string unit_of_measurement() override;
-  /// Icon for MQTT: ""
-  std::string icon() override;
-  /// Update interval for MQTT's automatic expiry: `update_interval`.
-  uint32_t update_interval() override;
-  /// Accuracy in decimals for this sensor. 1.
-  int8_t accuracy_decimals() override;
-
   bool check_scratch_pad_();
 
   float get_temp_c();
 
+  std::string unique_id() override;
  protected:
   uint64_t address_;
   uint8_t index_;
@@ -121,7 +112,6 @@ class DallasTemperatureSensor : public Sensor {
   uint8_t resolution_;
   std::string address_name_;
   uint8_t scratch_pad_[9] = {0,};
-  DallasComponent *parent_{nullptr};
 };
 
 } // namespace sensor

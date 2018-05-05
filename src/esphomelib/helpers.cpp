@@ -169,21 +169,32 @@ Optional<bool> parse_on_off(const char *str, const char *payload_on, const char 
 CallbackManager<void()> shutdown_hooks;
 CallbackManager<void()> safe_shutdown_hooks;
 
-void shutdown() {
-  ESP_LOGI(TAG, "Restarting...");
-  shutdown_hooks.call();
+void reboot() {
+  ESP_LOGI(TAG, "Forcing a reboot...");
+  run_shutdown_hooks();
   ESP.restart();
 }
 void add_shutdown_hook(std::function<void()> &&f) {
   shutdown_hooks.add(std::move(f));
 }
-void safe_shutdown() {
-  ESP_LOGI(TAG, "Restarting safely...");
-  safe_shutdown_hooks.call();
-  shutdown();
+void safe_reboot() {
+  ESP_LOGI(TAG, "Rebooting safely...");
+  run_safe_shutdown_hooks();
+  ESP.restart();
 }
 void add_safe_shutdown_hook(std::function<void()> &&f) {
   safe_shutdown_hooks.add(std::move(f));
 }
+
+void run_shutdown_hooks() {
+  shutdown_hooks.call();
+}
+
+void run_safe_shutdown_hooks() {
+  safe_shutdown_hooks.call();
+  shutdown_hooks.call();
+}
+
+const char *HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 
 } // namespace esphomelib

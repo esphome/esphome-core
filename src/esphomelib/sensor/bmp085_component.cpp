@@ -18,39 +18,6 @@ namespace sensor {
 
 static const char *TAG = "sensor.bmp085";
 
-BMP085TemperatureSensor::BMP085TemperatureSensor(const std::string &name, BMP085Component *parent)
-    : Sensor(name), parent_(parent) {}
-std::string BMP085TemperatureSensor::unit_of_measurement() {
-  return "°C";
-}
-std::string BMP085TemperatureSensor::icon() {
-  return "";
-}
-uint32_t BMP085TemperatureSensor::update_interval() {
-  return this->parent_->get_update_interval();
-}
-int8_t BMP085TemperatureSensor::accuracy_decimals() {
-  return 1;
-}
-
-BMP085PressureSensor::BMP085PressureSensor(const std::string &name, BMP085Component *parent)
-    : Sensor(name), parent_(parent) {}
-std::string BMP085PressureSensor::unit_of_measurement() {
-  return "hPa";
-}
-std::string BMP085PressureSensor::icon() {
-  return "mdi:gauge";
-}
-uint32_t BMP085PressureSensor::update_interval() {
-  return this->parent_->get_update_interval();
-}
-int8_t BMP085PressureSensor::accuracy_decimals() {
-  return 1;
-}
-
-uint8_t BMP085Component::get_address() const {
-  return this->address_;
-}
 void BMP085Component::set_address(uint8_t address) {
   this->address_ = address;
 }

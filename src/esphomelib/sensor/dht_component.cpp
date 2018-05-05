@@ -19,9 +19,9 @@ static const char *TAG = "sensor.dht";
 
 DHTComponent::DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
                            uint8_t pin, uint32_t update_interval)
-    : temperature_sensor_(new DHTTemperatureSensor(temperature_name, this)),
-      humidity_sensor_(new DHTHumiditySensor(humidity_name, this)),
-      PollingComponent(update_interval) {
+    : PollingComponent(update_interval),
+      temperature_sensor_(new DHTTemperatureSensor(temperature_name, this)),
+      humidity_sensor_(new DHTHumiditySensor(humidity_name, this)) {
   this->set_pin(pin);
 }
 
@@ -46,7 +46,7 @@ void DHTComponent::update() {
     // and humidity is exactly 1%. This *exact* value pair shouldn't really happen
     // that much out in the wild (unless you're in a very cold dry room).
     // FIXME
-    ESP_LOGW(TAG, "Got invalid temperature %f°C and humidity %f%% pair.");
+    ESP_LOGW(TAG, "Got invalid temperature and humidity pair.");
     return;
   }
 
@@ -86,41 +86,6 @@ DHTTemperatureSensor *DHTComponent::get_temperature_sensor() const {
 }
 DHTHumiditySensor *DHTComponent::get_humidity_sensor() const {
   return this->humidity_sensor_;
-}
-std::string DHTTemperatureSensor::unit_of_measurement() {
-  return "°C";
-}
-std::string DHTTemperatureSensor::icon() {
-  return "";
-}
-uint32_t DHTTemperatureSensor::update_interval() {
-  assert(this->parent_ != nullptr);
-
-  return this->parent_->get_update_interval();
-}
-DHTTemperatureSensor::DHTTemperatureSensor(const std::string &name, DHTComponent *parent)
-    : Sensor(name), parent_(parent) {}
-
-int8_t DHTTemperatureSensor::accuracy_decimals() {
-  return this->parent_->get_dht().getNumberOfDecimalsTemperature();
-}
-
-std::string DHTHumiditySensor::unit_of_measurement() {
-  return "%";
-}
-std::string DHTHumiditySensor::icon() {
-  return "mdi:water-percent";
-}
-uint32_t DHTHumiditySensor::update_interval() {
-  assert(this->parent_ != nullptr);
-
-  return this->parent_->get_update_interval();
-}
-DHTHumiditySensor::DHTHumiditySensor(const std::string &name, DHTComponent *parent)
-    : Sensor(name), parent_(parent) {}
-
-int8_t DHTHumiditySensor::accuracy_decimals() {
-  return this->parent_->get_dht().getNumberOfDecimalsHumidity();
 }
 
 } // namespace sensor

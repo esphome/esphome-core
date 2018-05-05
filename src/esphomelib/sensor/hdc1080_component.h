@@ -19,8 +19,8 @@ namespace esphomelib {
 
 namespace sensor {
 
-class HDC1080TemperatureSensor;
-class HDC1080HumiditySensor;
+using HDC1080TemperatureSensor = EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>;
+using HDC1080HumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNIT_PERCENT>;
 
 /** HDC1080 temperature+humidity i2c sensor integration.
  *
@@ -50,32 +50,6 @@ class HDC1080Component : public PollingComponent {
  protected:
   HDC1080TemperatureSensor *temperature_;
   HDC1080HumiditySensor *humidity_;
-};
-
-/// Helper class to expose the temperature of the HDC1080 as a sensor.
-class HDC1080TemperatureSensor : public Sensor {
- public:
-  explicit HDC1080TemperatureSensor(const std::string &name, HDC1080Component *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
- protected:
-  HDC1080Component *parent_;
-};
-
-/// Helper class to expose the humidity of the HDC1080 as a sensor.
-class HDC1080HumiditySensor : public Sensor {
- public:
-  explicit HDC1080HumiditySensor(const std::string &name, HDC1080Component *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
- protected:
-  HDC1080Component *parent_;
 };
 
 } // namespace sensor

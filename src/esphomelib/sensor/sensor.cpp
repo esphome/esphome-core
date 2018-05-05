@@ -128,6 +128,7 @@ float Sensor::get_value() const {
 float Sensor::get_raw_value() const {
   return this->raw_value_;
 }
+std::string Sensor::unique_id() { return ""; }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
     : PollingComponent(update_interval), Sensor(name) {}
@@ -135,6 +136,15 @@ PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t
 uint32_t PollingSensorComponent::update_interval() {
   return this->get_update_interval();
 }
+
+const char ICON_FLASH[] = "mdi:flash";
+const char UNIT_V[] = "V";
+const char ICON_EMPTY[] = "";
+const char UNIT_C[] = "°C";
+const char ICON_GAUGE[] = "mdi:gauge";
+const char UNIT_HPA[] = "hPa";
+const char ICON_WATER_PERCENT[] = "mdi:water-percent";
+const char UNIT_PERCENT[] = "%";
 
 } // namespace sensor
 

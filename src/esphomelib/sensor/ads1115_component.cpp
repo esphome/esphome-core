@@ -37,12 +37,12 @@ void ADS1115Component::setup() {
 
 
   for (auto sensor : this->sensors_) {
-    ESP_LOGCONFIG(TAG, "  Sensor %u", sensor->get_name().c_str());
+    ESP_LOGCONFIG(TAG, "  Sensor %s", sensor->get_name().c_str());
     ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
     ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
-    ESP_LOGCONFIG(TAG, "    Update Interval: %u", sensor->get_update_interval());
+    ESP_LOGCONFIG(TAG, "    Update Interval: %u", sensor->update_interval());
 
-    this->set_interval(sensor->get_name(), sensor->get_update_interval(), [this, sensor]{
+    this->set_interval(sensor->get_name(), sensor->update_interval(), [this, sensor]{
       this->request_measurement_(sensor);
     });
   }
@@ -112,26 +112,10 @@ uint8_t ADS1115Sensor::get_gain() const {
 void ADS1115Sensor::set_gain(uint8_t gain) {
   this->gain_ = gain;
 }
-uint32_t ADS1115Sensor::get_update_interval() const {
-  return this->update_interval_;
-}
-void ADS1115Sensor::set_update_interval(uint32_t update_interval) {
-  this->update_interval_ = update_interval;
-}
 ADS1115Sensor::ADS1115Sensor(const std::string &name, uint8_t multiplexer, uint8_t gain, uint32_t update_interval)
-    : Sensor(name), multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {}
-
-std::string ADS1115Sensor::unit_of_measurement() {
-  return "V";
-}
-std::string ADS1115Sensor::icon() {
-  return "mdi:flash";
-}
+    : EmptySensor(name), multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {}
 uint32_t ADS1115Sensor::update_interval() {
   return this->update_interval_;
-}
-int8_t ADS1115Sensor::accuracy_decimals() {
-  return 3;
 }
 
 } // namespace sensor

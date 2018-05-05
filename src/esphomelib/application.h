@@ -41,9 +41,10 @@
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/switch_/ir_transmitter_component.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
+#include "esphomelib/switch_/restart_switch.h"
+#include "esphomelib/switch_/shutdown_switch.h"
 #include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/switch.h"
-#include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/web_server.h"
 
 namespace esphomelib {
@@ -572,6 +573,16 @@ class Application {
 
   /// Make a simple switch that restarts the device with the provided friendly name.
   MakeRestartSwitch make_restart_switch(const std::string &friendly_name);
+#endif
+
+#ifdef USE_SHUTDOWN_SWITCH
+  struct MakeShutdownSwitch {
+    switch_::ShutdownSwitch *shutdown;
+    switch_::MQTTSwitchComponent *mqtt;
+  };
+
+  /// Make a simple switch that shuts the node down indefinitely.
+  MakeShutdownSwitch make_shutdown_switch(const std::string &friendly_name);
 #endif
 
 

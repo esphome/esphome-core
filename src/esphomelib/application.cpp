@@ -437,7 +437,7 @@ void Application::assert_i2c_initialized() const {
     return;
   ESP_LOGE(TAG, "You need to call App.init_i2c() because a component requires i2c to work.");
   delay(1000);
-  shutdown();
+  reboot();
 }
 #endif
 
@@ -462,6 +462,16 @@ Application::MakeRestartSwitch Application::make_restart_switch(const std::strin
   auto *switch_ = new RestartSwitch(friendly_name); // not a component
   return MakeRestartSwitch{
       .restart = switch_,
+      .mqtt = this->register_switch(switch_),
+  };
+}
+#endif
+
+#ifdef USE_SHUTDOWN_SWITCH
+Application::MakeShutdownSwitch Application::make_shutdown_switch(const std::string &friendly_name) {
+  auto *switch_ = new ShutdownSwitch(friendly_name);
+  return MakeShutdownSwitch{
+      .shutdown = switch_,
       .mqtt = this->register_switch(switch_),
   };
 }

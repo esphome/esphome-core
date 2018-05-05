@@ -21,7 +21,7 @@ static const char *TAG = "deep_sleep";
 void DeepSleepComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Deep Sleep...");
   if (this->sleep_duration_)
-    ESP_LOGCONFIG(TAG, "  Sleep Duration: %u ms", this->sleep_duration_.value / 1000);
+    ESP_LOGCONFIG(TAG, "  Sleep Duration: %llu ms", this->sleep_duration_.value / 1000);
   if (this->run_duration_)
     ESP_LOGCONFIG(TAG, "  Run Duration: %u ms", this->run_duration_.value);
   if (this->loop_cycles_)
@@ -59,8 +59,7 @@ void DeepSleepComponent::set_run_duration(uint32_t time_ms) {
 void DeepSleepComponent::begin_sleep() {
   ESP_LOGI(TAG, "Beginning Deep Sleep");
 
-  safe_shutdown_hooks.call();
-  shutdown_hooks.call();
+  run_safe_shutdown_hooks();
 
 #ifdef ARDUINO_ARCH_ESP32
   if (this->sleep_duration_)

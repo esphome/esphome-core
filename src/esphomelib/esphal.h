@@ -46,11 +46,11 @@ class GPIOPin {
   GPIOPin();
 
   /// Setup the pin mode.
-  void setup();
+  virtual void setup() const;
   /// Read the binary value from this pin using digitalRead (and inverts automatically).
-  bool read_value() const;
+  virtual bool read_value() const;
   /// Write the binary value to this pin using digitalWrite (and inverts automatically).
-  void write_value(bool value) const;
+  virtual void write_value(bool value) const;
 
   /// Set the inverted mode of this pin.
   void set_inverted(bool inverted);
@@ -69,7 +69,7 @@ class GPIOPin {
  protected:
   uint8_t pin_;
   uint8_t mode_;
-  bool inverted_{false};
+  bool inverted_;
 };
 
 /**  Basically just a GPIOPin, but defaults to OUTPUT pinMode.

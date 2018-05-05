@@ -50,8 +50,7 @@ void OTAComponent::setup() {
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
-    safe_shutdown_hooks.call();
-    shutdown_hooks.call();
+    run_safe_shutdown_hooks();
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
     if (this->at_ota_progress_message_++ % 8 != 0)
@@ -169,7 +168,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
       App.get_wifi()->loop_();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");
-    shutdown();
+    reboot();
   } else {
     // increment counter
     this->write_rtc_(uint8_t(rtc_data + 1));

@@ -21,8 +21,8 @@ namespace esphomelib {
 
 namespace sensor {
 
-class HTU21DTemperatureSensor;
-class HTU21DHumiditySensor;
+using HTU21DTemperatureSensor = EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>;
+using HTU21DHumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNIT_PERCENT>;
 
 /** This component represents the HTU21D i2c temperature+humidity sensor in esphomelib.
  *
@@ -54,34 +54,6 @@ class HTU21DComponent : public PollingComponent {
   HTU21D htu21d_;
   HTU21DTemperatureSensor *temperature_{nullptr};
   HTU21DHumiditySensor *humidity_{nullptr};
-};
-
-/// Internal helper class to expose temperatures from the HTU21D as a sensor.
-class HTU21DTemperatureSensor : public Sensor {
- public:
-  explicit HTU21DTemperatureSensor(const std::string &name, HTU21DComponent *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
-
- protected:
-  HTU21DComponent *parent_{nullptr};
-};
-
-/// Internal helper class to expose humidities from the HTU21D as a sensor.
-class HTU21DHumiditySensor : public Sensor {
- public:
-  explicit HTU21DHumiditySensor(const std::string &name, HTU21DComponent *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
-
- protected:
-  HTU21DComponent *parent_{nullptr};
 };
 
 } // namespace sensor

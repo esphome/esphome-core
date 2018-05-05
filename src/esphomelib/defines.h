@@ -46,10 +46,12 @@
   #endif
   #define USE_GPIO_SWITCH
   #define USE_RESTART_SWITCH
+  #define USE_SHUTDOWN_SWITCH
   #define USE_FAN
   #define USE_DEBUG_COMPONENT
   #define USE_WEB_SERVER
   #define USE_DEEP_SLEEP
+  #define USE_PCF8574
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -182,6 +184,11 @@
 #ifdef USE_ESP8266_PWM_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
+  #endif
+#endif
+#ifdef USE_PCF8574
+  #ifndef USE_I2C
+    #define USE_I2C
   #endif
 #endif
 

@@ -16,8 +16,8 @@ namespace esphomelib {
 
 namespace sensor {
 
-class DHTTemperatureSensor;
-class DHTHumiditySensor;
+using DHTTemperatureSensor = EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>;
+using DHTHumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNIT_PERCENT>;
 
 /// DHTComponent - Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
 class DHTComponent : public PollingComponent {
@@ -62,32 +62,6 @@ class DHTComponent : public PollingComponent {
   DHT::DHT_MODEL_t model_{DHT::AUTO_DETECT};
   DHTTemperatureSensor *temperature_sensor_;
   DHTHumiditySensor *humidity_sensor_;
-};
-
-/// Internal data class used to expose a temperature sensor from the main component.
-class DHTTemperatureSensor : public Sensor {
- public:
-  explicit DHTTemperatureSensor(const std::string &name, DHTComponent *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
- protected:
-  DHTComponent *parent_{nullptr};
-};
-
-/// Internal data class used to expose a humidity sensor from the main component.
-class DHTHumiditySensor : public Sensor {
- public:
-  explicit DHTHumiditySensor(const std::string &name, DHTComponent *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
- protected:
-  DHTComponent *parent_{nullptr};
 };
 
 } // namespace sensor

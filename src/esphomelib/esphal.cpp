@@ -50,7 +50,7 @@ bool GPIOPin::is_inverted() const {
 void GPIOPin::set_inverted(bool inverted) {
   this->inverted_ = inverted;
 }
-void GPIOPin::setup() {
+void GPIOPin::setup() const {
   if_config {
     std::string mode_s;
     switch (this->mode_) {

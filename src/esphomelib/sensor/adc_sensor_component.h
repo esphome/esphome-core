@@ -65,6 +65,10 @@ class ADCSensorComponent : public PollingSensorComponent {
   /// `HARDWARE_LATE` setup priority.
   float get_setup_priority() const override;
 
+#ifdef ARDUINO_ESP8266
+  std::string unique_id() override;
+#endif
+
  protected:
   GPIOInputPin pin_;
 

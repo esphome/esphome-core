@@ -96,7 +96,7 @@ void Component::loop_internal() {
   assert_setup(this);
   this->component_state_ = LOOP;
 
-  for (int i = 0; i < this->time_functions_.size(); i++) { // NOLINT
+  for (unsigned int i = 0; i < this->time_functions_.size(); i++) { // NOLINT
     TimeFunction *tf = &this->time_functions_[i];
     if (tf->should_run()) {
       tf->f();
@@ -133,8 +133,6 @@ bool Component::cancel_defer(const std::string &name) {
   return this->cancel_time_function(name, TimeFunction::DEFER);
 }
 void Component::defer(const std::string &name, Component::time_func_t &&f) {
-  ESP_LOGV(TAG, "defer(name='%s')", name.c_str());
-
   this->cancel_defer(name);
   struct TimeFunction function = {
       .name = name,

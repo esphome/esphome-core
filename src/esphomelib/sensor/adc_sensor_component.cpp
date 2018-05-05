@@ -78,6 +78,11 @@ std::string ADCSensorComponent::icon() {
 int8_t ADCSensorComponent::accuracy_decimals() {
   return 2;
 }
+#ifdef ARDUINO_ESP8266
+std::string ADCSensorComponent::unique_id() {
+  return get_mac_address() + "-adc";
+}
+#endif
 
 } // namespace sensor
 

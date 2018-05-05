@@ -130,7 +130,7 @@ void DallasComponent::update() {
   }
 }
 DallasComponent::DallasComponent(ESPOneWire *one_wire, uint32_t update_interval)
-    : one_wire_(one_wire), PollingComponent(update_interval) {
+    : PollingComponent(update_interval), one_wire_(one_wire) {
 
 }
 ESPOneWire *DallasComponent::get_one_wire() const {
@@ -140,7 +140,7 @@ ESPOneWire *DallasComponent::get_one_wire() const {
 DallasTemperatureSensor::DallasTemperatureSensor(const std::string &name,
                                                  uint64_t address, uint8_t resolution,
                                                  DallasComponent *parent)
-    : Sensor(name), parent_(parent) {
+    : EmptyPollingParentSensor(name, parent) {
   this->set_address(address);
   this->set_resolution(resolution);
 }
@@ -172,18 +172,6 @@ const std::string &DallasTemperatureSensor::get_address_name() {
   }
 
   return this->address_name_;
-}
-std::string DallasTemperatureSensor::unit_of_measurement() {
-  return "°C";
-}
-std::string DallasTemperatureSensor::icon() {
-  return "";
-}
-uint32_t DallasTemperatureSensor::update_interval() {
-  return this->parent_->get_update_interval();
-}
-int8_t DallasTemperatureSensor::accuracy_decimals() {
-  return 1;
 }
 bool DallasTemperatureSensor::read_scratch_pad_() {
   ESPOneWire *wire = this->parent_->get_one_wire();
@@ -268,6 +256,11 @@ float DallasTemperatureSensor::get_temp_c() {
   }
 
   return temp / 128.0f;
+}
+std::string DallasTemperatureSensor::unique_id() {
+  if (this->address_ == 0)
+    return "";
+  return "dallas-" + uint64_to_string(this->address_);
 }
 
 } // namespace sensor

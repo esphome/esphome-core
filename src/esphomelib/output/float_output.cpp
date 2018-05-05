@@ -13,8 +13,6 @@ namespace esphomelib {
 
 namespace output {
 
-static const char *TAG = "output.float";
-
 void FloatOutput::set_max_power(float max_power) {
   this->max_power_ = clamp(0.0f, 1.0f, max_power);
 }

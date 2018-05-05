@@ -21,8 +21,8 @@ namespace esphomelib {
 
 namespace sensor {
 
-class BMP085TemperatureSensor;
-class BMP085PressureSensor;
+using BMP085TemperatureSensor = sensor::EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>;
+using BMP085PressureSensor = sensor::EmptyPollingParentSensor<1, ICON_GAUGE, UNIT_HPA>;
 
 /** This Component represents a BMP085/BMP180/BMP280 Pressure+Temperature i2c sensor.
  *
@@ -43,10 +43,7 @@ class BMP085Component : public PollingComponent {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  /// Get the i2c address for this sensor.
-  uint8_t get_address() const;
-
-  /// Get a handle to the internal i2cdevlib BMP085 object, be careful with this.
+  /// Get a handle to the internal i2cdevlib BMP085 object.
   BMP085 &get_bmp();
 
   /// Get the internal temperature sensor used to expose the temperature as a sensor object.
@@ -70,34 +67,6 @@ class BMP085Component : public PollingComponent {
   enum { IDLE, TEMPERATURE, PRESSURE } measurement_mode_{IDLE}; ///< The mode the sensor is currently in.
   BMP085TemperatureSensor *temperature_{nullptr};
   BMP085PressureSensor *pressure_{nullptr};
-};
-
-/// Internal sensor class to represent the temperature state of the BMP085 as a sensor.
-class BMP085TemperatureSensor : public Sensor {
- public:
-  explicit BMP085TemperatureSensor(const std::string &name, BMP085Component *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
-
- protected:
-  BMP085Component *parent_{nullptr};
-};
-
-/// Internal sensor class to represent the pressure state of the BMP085 as a sensor.
-class BMP085PressureSensor : public Sensor {
- public:
-  explicit BMP085PressureSensor(const std::string &name, BMP085Component *parent);
-
-  std::string unit_of_measurement() override;
-  std::string icon() override;
-  uint32_t update_interval() override;
-  int8_t accuracy_decimals() override;
-
- protected:
-  BMP085Component *parent_{nullptr};
 };
 
 } // namespace sensor

@@ -69,24 +69,13 @@ class MQTTClientComponent : public Component {
  public:
   explicit MQTTClientComponent(const MQTTCredentials &credentials);
 
-  /** Set the last will testament message.
-   *
-   * @param topic The topic.
-   * @param payload The payload.
-   * @param qos The QoS.
-   * @param retain Whether to retain the testament message.
-   */
-  void set_last_will(std::string topic, std::string payload, uint8_t qos, bool retain);
+  /// Set the last will testament message.
+  void set_last_will(MQTTMessage &&message);
   /// Remove the last will testament message.
   void disable_last_will();
 
-  /** Set the birth message.
-   *
-   * @param topic The topic.
-   * @param payload The payload.
-   * @param retain Whether to retain the birth message.
-   */
-  void set_birth_message(std::string &&topic, std::string &&payload, bool retain);
+  /// Set the birth message.
+  void set_birth_message(MQTTMessage &&message);
   /// Remove the birth message.
   void disable_birth_message();
 
@@ -137,9 +126,10 @@ class MQTTClientComponent : public Component {
   const std::string &get_topic_prefix() const;
 
   /// Manually set the topic used for logging.
-  void set_log_topic(const std::string &topic);
+  void set_log_message_template(MQTTMessage &&message);
   /// Get the topic used for logging. Defaults to "<topic_prefix>/debug" and the value is cached for speed.
-  const std::string &get_log_topic();
+  void disable_log_message();
+  bool is_log_message_enabled() const;
 
   /** Subscribe to an MQTT topic and call callback when a message is received.
    *
@@ -171,7 +161,7 @@ class MQTTClientComponent : public Component {
    * @param payload The payload.
    * @param retain Whether to retain the message.
    */
-  void publish(const std::string &topic, const std::string &payload, bool retain);
+  void publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain);
 
   /** Construct and send a JSON MQTT message.
    *
@@ -179,7 +169,7 @@ class MQTTClientComponent : public Component {
    * @param f The Json Message builder.
    * @param retain Whether to retain the message.
    */
-  void publish_json(const std::string &topic, const json_build_t &f, bool retain);
+  void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain);
 
   /// Return whether this client is currently connected to the MQTT server.
   bool is_connected();
@@ -193,6 +183,8 @@ class MQTTClientComponent : public Component {
   void loop() override;
   /// MQTT client setup priority
   float get_setup_priority() const override;
+
+  void on_message(const std::string &topic, const std::string &payload);
 
  protected:
   /// Reconnect to the MQTT broker if not already connected.
@@ -217,7 +209,7 @@ class MQTTClientComponent : public Component {
       .retain = true
   };
   std::string topic_prefix_{};
-  Optional<std::string> log_topic_{};
+  MQTTMessage log_message_;
 
   std::vector<MQTTSubscription> subscriptions_;
   AsyncMqttClient mqtt_client_;

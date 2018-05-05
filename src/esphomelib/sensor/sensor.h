@@ -175,6 +175,13 @@ class Sensor : public Nameable {
   /// Add a callback that will be called every time the sensor sends a raw value.
   void add_on_raw_value_callback(sensor_callback_t callback);
 
+  /** A unique ID for this sensor, empty for no unique id. See unique ID requirements:
+   * https://developers.home-assistant.io/docs/en/entity_registry_index.html#unique-id-requirements
+   *
+   * @return The unique id as a string.
+   */
+  virtual std::string unique_id();
+
  protected:
   float value_{NAN}; ///< Stores the last filtered value.
   float raw_value_{NAN}; ///< Stores the last raw value.
@@ -186,12 +193,66 @@ class Sensor : public Nameable {
   std::list<Filter *> filters_{}; ///< Store all active filters.
 };
 
-class PollingSensorComponent : public PollingComponent, public sensor::Sensor {
+class PollingSensorComponent : public PollingComponent, public Sensor {
  public:
   explicit PollingSensorComponent(const std::string &name, uint32_t update_interval);
 
   uint32_t update_interval() override;
 };
+
+template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement>
+class EmptySensor;
+
+template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement>
+class EmptySensor : public Sensor {
+ public:
+  explicit EmptySensor(const std::string &name)
+      : Sensor(name) {
+
+  }
+
+  std::string unit_of_measurement() override {
+    return default_unit_of_measurement;
+  }
+  std::string icon() override {
+    return default_icon;
+  }
+  int8_t accuracy_decimals() override {
+    return default_accuracy_decimals;
+  }
+};
+
+template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement,
+    class ParentType = PollingComponent>
+class EmptyPollingParentSensor;
+
+template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement,
+    class ParentType>
+class EmptyPollingParentSensor
+    : public EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement> {
+ public:
+  EmptyPollingParentSensor(const std::string &name, ParentType *parent)
+    : EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement>(name), parent_(parent) {
+
+  }
+
+  uint32_t update_interval() override {
+    return parent_->get_update_interval();
+  }
+
+ protected:
+  ParentType *parent_;
+};
+
+extern const char ICON_EMPTY[];
+extern const char ICON_WATER_PERCENT[];
+extern const char ICON_GAUGE[];
+extern const char ICON_FLASH[];
+
+extern const char UNIT_C[];
+extern const char UNIT_PERCENT[];
+extern const char UNIT_HPA[];
+extern const char UNIT_V[];
 
 } // namespace sensor
 
