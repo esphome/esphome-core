@@ -308,12 +308,12 @@ DallasComponent *Application::make_dallas_component(uint8_t pin, uint32_t update
 Application::MakeGPIOSwitch Application::make_gpio_switch(const std::string &friendly_name,
                                                           const GPIOOutputPin &pin) {
   auto *binary_output = this->make_gpio_output(pin);
-  auto *simple_switch = new SimpleSwitch(friendly_name, binary_output);
+  auto simple_switch = this->make_simple_switch(friendly_name, binary_output);
 
   return {
       .gpio = binary_output,
-      .switch_ = simple_switch,
-      .mqtt = this->register_switch(simple_switch),
+      .switch_ = simple_switch.switch_,
+      .mqtt = simple_switch.mqtt,
   };
 }
 #endif
@@ -545,6 +545,16 @@ PCF8574Component *Application::make_pcf8574_component(uint8_t address, bool pcf8
 sensor::MPU6050Component *Application::make_mpu6050_sensor(uint8_t address, uint32_t update_interval) {
   this->assert_i2c_initialized();
   return this->register_component(new MPU6050Component(address, update_interval));
+}
+#endif
+
+#ifdef USE_SIMPLE_SWITCH
+Application::MakeSimpleSwitch Application::make_simple_switch(const std::string &friendly_name, BinaryOutput *output) {
+  auto *s = new SimpleSwitch(friendly_name, output);
+  return {
+      .switch_ = s,
+      .mqtt = this->register_switch(s)
+  };
 }
 #endif
 

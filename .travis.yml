@@ -40,6 +40,8 @@ script:
   - platformio run -e i2c-sensors
   - platformio run -e pcf8574
 
+# Together:
+# platformio run -e livingroom -e dht-dallas-sensors -e switch-binarysensor -e fan-example -e lights -e livingroom8266 -e custombmp180 -e i2c-sensors -e pcf8574
 
 #
 # Template #2: The project is intended to by used as a library with examples

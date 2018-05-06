@@ -586,6 +586,17 @@ class Application {
   MakeShutdownSwitch make_shutdown_switch(const std::string &friendly_name);
 #endif
 
+#ifdef USE_SIMPLE_SWITCH
+  struct MakeSimpleSwitch {
+    switch_::SimpleSwitch *switch_;
+    switch_::MQTTSwitchComponent *mqtt;
+  };
+
+  /// Make a simple switch that exposes a binary output as a switch
+  MakeSimpleSwitch make_simple_switch(const std::string &friendly_name, output::BinaryOutput *output);
+#endif
+
+
 
 
 
