@@ -10,6 +10,10 @@ Currently supported switch platforms:
 |GPIO Switch|_            |IR Transmitter|_         |Restart Switch|_
 ------------------------  ------------------------  ------------------------
 `GPIO Switch`_            `IR Transmitter`_         `Restart Switch`_
+------------------------  ------------------------  ------------------------
+|Shutdown Switch|_        |Output Switch|_
+------------------------  ------------------------  ------------------------
+`Shutdown Switch`_        `Output Switch`_
 ========================  ========================  ========================
 
 .. |GPIO Switch| image:: /esphomeyaml/pin.svg
@@ -24,6 +28,13 @@ Currently supported switch platforms:
     :class: component-image
 .. _Restart Switch: /esphomeyaml/components/switch/restart.html
 
+.. |Shutdown Switch| image:: /esphomeyaml/power.svg
+    :class: component-image
+.. _Shutdown Switch: /esphomeyaml/components/switch/shutdown.html
+
+.. |Output Switch| image:: /esphomeyaml/upload.svg
+    :class: component-image
+.. _Output Switch: /esphomeyaml/components/switch/output.html
 
 Base Switch Configuration
 -------------------------

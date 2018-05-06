@@ -16,9 +16,13 @@ Currently supported sensor platforms:
 ----------------------  ----------------------  ----------------------
 `Dallas`_               `DHT`_                  `HDC1080`_
 ----------------------  ----------------------  ----------------------
-|HTU21D|_               |Pulse Counter|_        |Ultrasonic Sensor|_
+|HTU21D|_               |MPU6050|_              |Pulse Counter|_
 ----------------------  ----------------------  ----------------------
-`HTU21D`_               `Pulse Counter`_        `Ultrasonic Sensor`_
+`HTU21D`_               `MPU6050`_              `Pulse Counter`_
+----------------------  ----------------------  ----------------------
+|Ultrasonic Sensor|_
+----------------------  ----------------------  ----------------------
+`Ultrasonic Sensor`_
 ======================  ======================  ======================
 
 .. |ADC| image:: /esphomeyaml/flash.svg
@@ -48,6 +52,10 @@ Currently supported sensor platforms:
 .. |HTU21D| image:: /esphomeyaml/htu21d.jpg
     :class: component-image
 .. _HTU21D: /esphomeyaml/components/sensor/htu21d.html
+
+.. |MPU6050| image:: /esphomeyaml/mpu6050.jpg
+    :class: component-image
+.. _MPU6050: /esphomeyaml/components/sensor/mpu6050.html
 
 .. |Pulse Counter| image:: /esphomeyaml/pulse.svg
     :class: component-image

@@ -2,7 +2,8 @@ GPIO Output
 ===========
 
 The GPIO output component is quite simple: It exposes a single GPIO pin
-as an output component.
+as an output component. Note that output components are **not** switches and
+will not show up in Home Assistant. See `GPIO Switch </esphomeyaml/components/switch/gpio.html>`__.
 
 .. code:: yaml
 

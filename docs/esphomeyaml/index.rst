@@ -99,13 +99,13 @@ Sensor Components
 ----------------------  ----------------------  ----------------------
 `BMP085`_               `Dallas`_               `DHT`_
 ----------------------  ----------------------  ----------------------
-|HDC1080|_              |HTU21D|_               |Pulse Counter|_
+|HDC1080|_              |HTU21D|_               |MPU6050|_
 ----------------------  ----------------------  ----------------------
-`HDC1080`_              `HTU21D`_               `Pulse Counter`_
+`HDC1080`_              `HTU21D`_               `MPU6050`_
 ----------------------  ----------------------  ----------------------
-|Ultrasonic Sensor|_
+|Pulse Counter|_        |Ultrasonic Sensor|_
 ----------------------  ----------------------  ----------------------
-`Ultrasonic Sensor`_
+`Pulse Counter`_        `Ultrasonic Sensor`_
 ======================  ======================  ======================
 
 .. |Sensor Core| image:: /esphomeyaml/folder-open.svg
@@ -139,6 +139,10 @@ Sensor Components
 .. |HTU21D| image:: /esphomeyaml/htu21d.jpg
     :class: component-image
 .. _HTU21D: /esphomeyaml/components/sensor/htu21d.html
+
+.. |MPU6050| image:: /esphomeyaml/mpu6050.jpg
+    :class: component-image
+.. _MPU6050: /esphomeyaml/components/sensor/mpu6050.html
 
 .. |Pulse Counter| image:: /esphomeyaml/pulse.svg
     :class: component-image
@@ -247,9 +251,9 @@ Switch Components
 ------------------------  ------------------------  ------------------------
 `Switch Core`_            `GPIO Switch`_            `IR Transmitter`_
 ------------------------  ------------------------  ------------------------
-|Restart Switch|_
+|Restart Switch|_         |Shutdown Switch|_        |Output Switch|_
 ------------------------  ------------------------  ------------------------
-`Restart Switch`_
+`Restart Switch`_         `Shutdown Switch`_        `Output Switch`_
 ========================  ========================  ========================
 
 .. |Switch Core| image:: /esphomeyaml/folder-open.svg
@@ -267,6 +271,14 @@ Switch Components
 .. |Restart Switch| image:: /esphomeyaml/restart.svg
     :class: component-image
 .. _Restart Switch: /esphomeyaml/components/switch/restart.html
+
+.. |Shutdown Switch| image:: /esphomeyaml/power.svg
+    :class: component-image
+.. _Shutdown Switch: /esphomeyaml/components/switch/shutdown.html
+
+.. |Output Switch| image:: /esphomeyaml/upload.svg
+    :class: component-image
+.. _Output Switch: /esphomeyaml/components/switch/output.html
 
 
 Fan Components
@@ -299,9 +311,9 @@ Misc Components
 ------------------------  ------------------------  ------------------------
 `Dallas Hub`_             `IR Transmitter Hub`_     `PCA9685 Hub`_
 ------------------------  ------------------------  ------------------------
-|ADS1115 Hub|_            |Debug Component|_
+|ADS1115 Hub|_            |Debug Component|_        |PCF8574 I/O Expander|_
 ------------------------  ------------------------  ------------------------
-`ADS1115 Hub`_            `Debug Component`_
+`ADS1115 Hub`_            `Debug Component`_        `PCF8574 I/O Expander`_
 ========================  ========================  ========================
 
 .. |Dallas Hub| image:: /esphomeyaml/ds18b20.jpg
@@ -323,6 +335,10 @@ Misc Components
 .. |Debug Component| image:: /esphomeyaml/bug-report.svg
     :class: component-image
 .. _Debug Component: /esphomeyaml/components/debug.html
+
+.. |PCF8574 I/O Expander| image:: /esphomeyaml/pcf8574.jpg
+    :class: component-image
+.. _PCF8574 I/O Expander: /esphomeyaml/components/pcf8574.html
 
 
 Full Index
@@ -357,6 +373,7 @@ Full Index
     components/sensor/htu21d.rst
     components/sensor/pulse_counter.rst
     components/sensor/ultrasonic.rst
+    components/sensor/mpu6050.rst
     components/output/index.rst
     components/power_supply.rst
     components/output/esp8266_pwm.rst
@@ -371,6 +388,8 @@ Full Index
     components/light/rgbw.rst
     components/switch/index.rst
     components/switch/gpio.rst
+    components/switch/shutdown.rst
+    components/switch/output.rst
     components/ir_transmitter.rst
     components/switch/ir_transmitter.rst
     components/switch/restart.rst

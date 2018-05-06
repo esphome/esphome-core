@@ -37,18 +37,57 @@ Configuration variables:
 -  **topic_prefix** (*Optional*, string): The prefix used for all MQTT
    messages. Should not contain trailing slash. Defaults to
    ``<APP_NAME>``.
--  **birth_message** (*Optional*, MQTTMessage): The message to send when
+-  **log_topic** (*Optional*, `MQTTMessage <#mqttmessage>`__) The topic to send MQTT log
+   messages to.
+-  **birth_message** (*Optional*, `MQTTMessage <#mqttmessage>`__): The message to send when
    a connection to the broker is established. See `Last Will And Birth
    Messages <#last-will-and-birth-messages>`__ for more information.
--  **will_message** (*Optional*, MQTTMessage): The message to send when
+-  **will_message** (*Optional*, `MQTTMessage <#mqttmessage>`__): The message to send when
    the MQTT connection is dropped. See `Last Will And Birth
    Messages <#last-will-and-birth-messages>`__ for more information.
 -  **ssl_fingerprints** (*Optional*, list): Only on ESP8266. A list of SHA1 hashes used
    for verifying SSL connections. See `SSL Fingerprints <#ssl-fingerprints>`__
    for more information.
+-  **keepalive** (*Optional*, `time </esphomeyaml/configuration-types.html#time>`__): The time
+   to keep the MQTT socket alive, decreasing this can help with overall stability due to more
+   WiFi traffic with more pings. Defaults to 15 seconds.
 -  **id** (*Optional*,
    `id </esphomeyaml/configuration-types.html#id>`__): Manually specify
    the ID used for code generation.
+
+MQTTMessage
+~~~~~~~~~~~
+
+With the MQTT Message schema you can tell esphomeyaml how a specific MQTT message should be sent.
+It is used in several places like last will and birth messages or MQTT log options.
+
+.. code:: yaml
+
+    # Simple:
+    some_option: topic/to/send/to
+
+    # Disable:
+    some_option:
+
+    # Advanced:
+    some_option:
+      topic: topic/to/send/to
+      payload: online
+      qos: 0
+      retain: True
+
+
+Configuration options:
+
+-  **topic** (*Required*, string): The MQTT topic to publish the message.
+-  **payload** (*Required*, string): The message content. Will be filled by the actual payload with some
+   options, like log_topic.
+-  **qos** (*Optional*, int): The `Quality of
+   Service <https://www.hivemq.com/blog/mqtt-essentials-part-6-mqtt-quality-of-service-levels>`__
+   level of the topic. Defaults to 0.
+-  **retain** (*Optional*, boolean): If the published message should
+   have a retain flag on or not. Defaults to ``True``.
+
 
 Using with Home Assistant
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -132,25 +171,8 @@ You can change these messages by overriding the ``birth_message`` and
         topic: myavailability/topic
         payload: offline
 
--  **birth_message** (*Optional*, MQTTMessage):
-
-   -  **topic** (*Required*, string): The MQTT topic to publish the
-      message.
-   -  **payload** (*Required*, string): The message content.
-   -  **qos** (*Optional*, int): The `Quality of
-      Service <https://www.hivemq.com/blog/mqtt-essentials-part-6-mqtt-quality-of-service-levels>`__
-      level of the topic. Defaults to 0.
-   -  **retain** (*Optional*, boolean): If the published message should
-      have a retain flag on or not. Defaults to ``True``.
-
--  **will_message** (*Optional*, MQTTMessage):
-
-   -  **topic** (*Required*, string): The MQTT topic to publish the
-      message.
-   -  **payload** (*Required*, string): The message content. level of
-      the topic. Defaults to 0.
-   -  **retain** (*Optional*, boolean): If the published message should
-      have a retain flag on or not. Defaults to ``True``.
+-  **birth_message** (*Optional*, `MQTTMessage <#mqttmessage>`__)
+-  **will_message** (*Optional*, `MQTTMessage <#mqttmessage>`__)
 
 If the birth message and last will message have empty topics or topics
 that are different from each other, availabilty reporting will be

@@ -9,9 +9,9 @@ for several other components:
 -----------------------  -----------------------  -----------------------
 `PCA9685 PWM`_           `ADS1115`_               `BMP085`_
 -----------------------  -----------------------  -----------------------
-|HDC1080|_               |HTU21D|_
+|HDC1080|_               |HTU21D|_                |MPU6050|_
 -----------------------  -----------------------  -----------------------
-`HDC1080`_               `HTU21D`_
+`HDC1080`_               `HTU21D`_                `MPU6050`_
 =======================  =======================  =======================
 
 .. |PCA9685 PWM| image:: /esphomeyaml/pca9685.jpg
@@ -34,6 +34,10 @@ for several other components:
     :class: component-image
 .. _HTU21D: /esphomeyaml/components/sensor/htu21d.html
 
+.. |MPU6050| image:: /esphomeyaml/mpu6050.jpg
+    :class: component-image
+.. _MPU6050: /esphomeyaml/components/sensor/mpu6050.html
+
 In order for those components to work correctly, you need to define the
 i²c bus in your configuration.
 
@@ -43,6 +47,7 @@ i²c bus in your configuration.
     i2c:
       sda: 21
       scl: 22
+      scan: False
 
 Configuration variables:
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,6 +58,9 @@ Configuration variables:
 -  **sdc** (*Optional*, `pin </esphomeyaml/configuration-types.html#pin>`__): The pin for the clock line of the i²c bus.
    Defaults to the default of your board (usually GPIO22 for ESP32 and
    GPIO5 for ESP8266).
+-  **scan** (*Optional*, boolean): If esphomelib should do a search of the i2c address space on startup.
+   Note that this can slow down startup and is only recommended for when setting up new sensors. Defaults to
+   ``False``.
 -  **frequency** (*Optional*, float): Only on ESP32. Set the frequency
    the i²c bus should operate on. Defaults to “100kHz”. Accepts most
    metric suffixes.

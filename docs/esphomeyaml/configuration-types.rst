@@ -106,13 +106,12 @@ In lots of places in esphomeyaml you need to define time lengths, most
 notably of these is an ``update_interval`` in milliseconds. Internally,
 epshomelib always tries to work with millisecond values. But as
 esphomeyaml is trying to make your lifes as easy as possible, there are
-lots of helpers for defining times in a more simple manner.
+lots of helpers for defining times.
 
 .. code:: yaml
 
     some_config_option:
-      some_time_option: 1000  # integer value is interpreted as milliseconds
-      some_time_option: 1000ms  # the same as above
+      some_time_option: 1000ms  # 1000 milliseconds
       some_time_option: 1.5s  # 1.5 seconds
       some_time_option: 0.5min  # half a minute
       some_time_option: 2h  # 2 hours
