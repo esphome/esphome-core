@@ -41,6 +41,31 @@ Sensor
     :protected-members:
     :undoc-members:
 
+.. doxygenclass:: esphomelib::sensor::EmptySensor
+    :members:
+    :protected-members:
+    :undoc-members:
+
+.. doxygenclass:: esphomelib::sensor::EmptyPollingParentSensor
+    :members:
+    :protected-members:
+    :undoc-members:
+
+.. doxygenvariable:: esphomelib::sensor::ICON_EMPTY
+.. doxygenvariable:: esphomelib::sensor::ICON_WATER_PERCENT
+.. doxygenvariable:: esphomelib::sensor::ICON_GAUGE
+.. doxygenvariable:: esphomelib::sensor::ICON_FLASH
+.. doxygenvariable:: esphomelib::sensor::ICON_SCREEN_ROTATION
+.. doxygenvariable:: esphomelib::sensor::ICON_BRIEFCASE_DOWNLOAD
+
+.. doxygenvariable:: esphomelib::sensor::UNIT_C
+.. doxygenvariable:: esphomelib::sensor::UNIT_PERCENT
+.. doxygenvariable:: esphomelib::sensor::UNIT_HPA
+.. doxygenvariable:: esphomelib::sensor::UNIT_V
+.. doxygenvariable:: esphomelib::sensor::UNIT_DEGREES_PER_SECOND
+.. doxygenvariable:: esphomelib::sensor::UNIT_M_PER_S_SQAURED
+
+
 Filter
 ******
 

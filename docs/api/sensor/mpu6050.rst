@@ -1,0 +1,43 @@
+MPU6050 Accelerometer/Gyroscope Component
+=========================================
+
+The MPU6050 allows you to use your MPU6050 i2c-enabled accelerometers/gyroscopes with
+esphomelib (`datasheet <https://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf>`__,
+`Sparkfun <https://www.sparkfun.com/products/11028>`__). It requires i2c to be setup to work.
+
+This component only supports reading in the measurements directly from the registers of the chip
+at the moment. If you do need some more complicated signal processing and/or configuration options,
+I would recommend copying the code over and creating your own custom component, as supporting every
+single possible configuration is not esphomelib's ultimate goal with a chip that supports such a
+variety of options.
+
+Example Usage
+-------------
+
+.. code-block:: cpp
+
+    // inside setup()
+    App.init_i2c(SDA_PIN, SCL_PIN); // change these values for your pins.
+    // create sensors
+    auto *mpu6050 = App.make_mpu6050_sensor();
+    App.register_sensor(mpu6050->make_accel_x_sensor("MPU6050 Accel X"));
+    App.register_sensor(mpu6050->make_accel_y_sensor("MPU6050 Accel Y"));
+    App.register_sensor(mpu6050->make_accel_z_sensor("MPU6050 Accel Z"));
+    App.register_sensor(mpu6050->make_gyro_x_sensor("MPU6050 Gyro X"));
+    App.register_sensor(mpu6050->make_gyro_y_sensor("MPU6050 Gyro Y"));
+    App.register_sensor(mpu6050->make_gyro_z_sensor("MPU6050 Gyro Z"));
+    App.register_sensor(mpu6050->make_temperature_sensor("MPU6050 Temperature"));
+
+.. cpp:namespace:: esphomelib
+
+See :cpp:func:`Application::make_mpu6050_sensor`.
+
+API Reference
+-------------
+
+.. cpp:namespace:: nullptr
+
+.. doxygenclass:: esphomelib::sensor::MPU6050Component
+    :members:
+    :protected-members:
+    :undoc-members:

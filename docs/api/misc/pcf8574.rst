@@ -1,0 +1,44 @@
+PCF8574 I/O Expander
+====================
+
+The PCF8574 component allows you to use PCF8574 and PCF8575 I/O port expanders with many of
+esphomelib's components. With most components, you are able to specify GPIOOutputPin or
+GPIOInputPin for internal pins. The PCF8574 component subclasses those types.
+
+Example Usage
+-------------
+
+.. code-block:: cpp
+
+    auto *pcf8574 = App.make_pcf8574_component(0x21);
+    App.make_gpio_binary_sensor("PCF pin 0 sensor", pcf8574->make_input_pin(0, PCF8574_INPUT));
+    App.make_gpio_binary_sensor("PCF pin 0 sensor", 0);
+    App.make_gpio_switch("PCF pin 1 switch", pcf8574->make_output_pin(1));
+    auto *out = App.make_gpio_output(pcf8574->make_output_pin(2));
+    App.make_binary_light("PCF pin 2 light", out);
+
+.. cpp:namespace:: esphomelib
+
+See :cpp:func:`Application::make_pcf8574_component`.
+
+API Reference
+-------------
+
+.. cpp:namespace:: nullptr
+
+.. doxygenenum:: esphomelib::PCF8574GPIOMode
+
+.. doxygenclass:: esphomelib::io::PCF8574Component
+    :members:
+    :protected-members:
+    :undoc-members:
+
+.. doxygenclass:: esphomelib::io::PCF8574GPIOInputPin
+    :members:
+    :protected-members:
+    :undoc-members:
+
+.. doxygenclass:: esphomelib::io::PCF8574GPIOOutputPin
+    :members:
+    :protected-members:
+    :undoc-members:

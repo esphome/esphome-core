@@ -22,13 +22,3 @@ API Reference
     :members:
     :protected-members:
     :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::DHTTemperatureSensor
-    :members:
-    :protected-members:
-    :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::DHTHumiditySensor
-    :members:
-    :protected-members:
-    :undoc-members:

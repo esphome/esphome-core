@@ -7,6 +7,7 @@ The `esphomelib::switch_` namespace contains all switch helpers.
 
     IR Transmitter <ir-transmitter>
     Restart Switch <restart>
+    Shutdown Switch <shutdown>
 
 API Reference
 -------------

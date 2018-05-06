@@ -30,13 +30,3 @@ API Reference
     :members:
     :protected-members:
     :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::HDC1080TemperatureSensor
-    :members:
-    :protected-members:
-    :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::HDC1080HumiditySensor
-    :members:
-    :protected-members:
-    :undoc-members:

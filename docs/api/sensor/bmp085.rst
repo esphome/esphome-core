@@ -34,13 +34,3 @@ API Reference
     :members:
     :protected-members:
     :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::BMP085TemperatureSensor
-    :members:
-    :protected-members:
-    :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::BMP085PressureSensor
-    :members:
-    :protected-members:
-    :undoc-members:

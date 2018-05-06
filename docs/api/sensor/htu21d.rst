@@ -30,13 +30,3 @@ API Reference
     :members:
     :protected-members:
     :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::HTU21DTemperatureSensor
-    :members:
-    :protected-members:
-    :undoc-members:
-
-.. doxygenclass:: esphomelib::sensor::HTU21DHumiditySensor
-    :members:
-    :protected-members:
-    :undoc-members:

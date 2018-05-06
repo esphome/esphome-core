@@ -36,7 +36,9 @@ a light is a combination of output components.
     api/sensor/hdc1080.rst
     api/sensor/pulse-counter.rst
     api/sensor/ultrasonic.rst
+    api/sensor/mpu6050.rst
     api/switch/ir-transmitter.rst
+    api/misc/pcf8574.rst
 
 Web Server API
 --------------

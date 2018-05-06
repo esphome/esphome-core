@@ -25,11 +25,11 @@ helpers.h
 
 .. doxygenfunction:: esphomelib::is_empty
 
-.. doxygenfunction:: esphomelib::shutdown
+.. doxygenfunction:: esphomelib::reboot
 
 .. doxygenfunction:: esphomelib::add_shutdown_hook
 
-.. doxygenfunction:: esphomelib::safe_shutdown
+.. doxygenfunction:: esphomelib::safe_reboot
 
 .. doxygenfunction:: esphomelib::add_safe_shutdown_hook
 
