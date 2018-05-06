@@ -45,22 +45,22 @@ std::string truncate_string(const std::string &s, size_t length);
 bool is_empty(const IPAddress &address);
 
 /// Force a shutdown (and reboot) of the ESP, calling any registered shutdown hooks.
-void reboot();
+void reboot(const char *cause);
 
 /// Add a shutdown callback.
-void add_shutdown_hook(std::function<void()> &&f);
+void add_shutdown_hook(std::function<void(const char *)> &&f);
 
 /// Create a safe shutdown (and reboot) of the ESP, calling any registered shutdown and safe shutdown hooks.
-void safe_reboot();
+void safe_reboot(const char *cause);
 
 /// Run shutdown hooks.
-void run_shutdown_hooks();
+void run_shutdown_hooks(const char *cause);
 
 /// Add a safe shutdown callback that will be called if the device is shut down intentionally.
-void add_safe_shutdown_hook(std::function<void()> &&f);
+void add_safe_shutdown_hook(std::function<void(const char *)> &&f);
 
 /// Run safe shutdown and force shutdown hooks.
-void run_safe_shutdown_hooks();
+void run_safe_shutdown_hooks(const char *cause);
 
 /// Convert the string to lowercase_underscore.
 std::string to_lowercase_underscore(std::string s);
@@ -217,8 +217,8 @@ class CallbackManager<void(Ts...)> {
   std::vector<std::function<void(Ts...)>> callbacks_;
 };
 
-extern CallbackManager<void()> shutdown_hooks;
-extern CallbackManager<void()> safe_shutdown_hooks;
+extern CallbackManager<void(const char *)> shutdown_hooks;
+extern CallbackManager<void(const char *)> safe_shutdown_hooks;
 
 // ================================================
 //                 Definitions

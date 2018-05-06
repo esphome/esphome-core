@@ -145,6 +145,10 @@ const char ICON_GAUGE[] = "mdi:gauge";
 const char UNIT_HPA[] = "hPa";
 const char ICON_WATER_PERCENT[] = "mdi:water-percent";
 const char UNIT_PERCENT[] = "%";
+const char ICON_SCREEN_ROTATION[] = "mdi:screen-rotation";
+const char ICON_BRIEFCASE_DOWNLOAD[] = "mdi:briefcase-download";
+const char UNIT_DEGREES_PER_SECOND[] = "°/s";
+const char UNIT_M_PER_S_SQUARED[] = "m/s²";
 
 } // namespace sensor
 

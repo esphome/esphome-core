@@ -22,9 +22,6 @@
 
 namespace esphomelib {
 
-static const char *TAG = "web_server";
-
-
 void write_row(AsyncResponseStream *stream, Nameable *obj,
                const std::string &klass, const std::string &action) {
   stream->print("<tr class=\"");
@@ -116,7 +113,7 @@ void WebServer::setup() {
   });
 
   if (global_log_component != nullptr)
-    global_log_component->add_on_log_callback([this](ESPLogLevel level, const char *message) {
+    global_log_component->add_on_log_callback([this](int level, const char *message) {
       this->events_.send(message, "log", millis());
     });
   this->server_->addHandler(this);

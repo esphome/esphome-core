@@ -79,6 +79,9 @@ class MQTTClientComponent : public Component {
   /// Remove the birth message.
   void disable_birth_message();
 
+  /// Set the keep alive time in seconds, every 0.7*keep_alive a ping will be sent.
+  void set_keep_alive(uint16_t keep_alive_s);
+
   /** Set the Home Assistant discovery info
    *
    * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.

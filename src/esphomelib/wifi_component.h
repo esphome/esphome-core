@@ -42,12 +42,6 @@ class WiFiComponent : public Component {
   /// Manually set a static IP for this WiFi interface.
   void set_sta_manual_ip(ManualIP manual_ip);
 
-  /// Set the interval to ping the internal WiFi interface to create an artificial load in order to fix some issues.
-  void set_self_ping_interval(uint32_t self_ping_interval);
-
-  /// Disable self pinging.
-  void disable_self_ping();
-
   /** Setup an Access Point that should be created if no connection to a station can be made.
    *
    * This can also be used without set_sta(). Then the AP will always be active.
@@ -105,8 +99,6 @@ class WiFiComponent : public Component {
   std::string ap_password_;
   uint8_t ap_channel_;
   Optional<ManualIP> ap_manual_ip_{};
-
-  uint32_t self_ping_interval_{0};
 };
 
 extern WiFiComponent *global_wifi_component;

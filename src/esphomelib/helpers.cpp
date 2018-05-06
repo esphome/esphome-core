@@ -166,33 +166,33 @@ Optional<bool> parse_on_off(const char *str, const char *payload_on, const char 
   return Optional<bool>();
 }
 
-CallbackManager<void()> shutdown_hooks;
-CallbackManager<void()> safe_shutdown_hooks;
+CallbackManager<void(const char *)> shutdown_hooks;
+CallbackManager<void(const char *)> safe_shutdown_hooks;
 
-void reboot() {
-  ESP_LOGI(TAG, "Forcing a reboot...");
-  run_shutdown_hooks();
+void reboot(const char *cause) {
+  ESP_LOGI(TAG, "Forcing a reboot... Cause: '%s'", cause);
+  run_shutdown_hooks(cause);
   ESP.restart();
 }
-void add_shutdown_hook(std::function<void()> &&f) {
+void add_shutdown_hook(std::function<void(const char *)> &&f) {
   shutdown_hooks.add(std::move(f));
 }
-void safe_reboot() {
-  ESP_LOGI(TAG, "Rebooting safely...");
-  run_safe_shutdown_hooks();
+void safe_reboot(const char *cause) {
+  ESP_LOGI(TAG, "Rebooting safely... Cause: '%s'", cause);
+  run_safe_shutdown_hooks(cause);
   ESP.restart();
 }
-void add_safe_shutdown_hook(std::function<void()> &&f) {
+void add_safe_shutdown_hook(std::function<void(const char *)> &&f) {
   safe_shutdown_hooks.add(std::move(f));
 }
 
-void run_shutdown_hooks() {
-  shutdown_hooks.call();
+void run_shutdown_hooks(const char *cause) {
+  shutdown_hooks.call(cause);
 }
 
-void run_safe_shutdown_hooks() {
-  safe_shutdown_hooks.call();
-  shutdown_hooks.call();
+void run_safe_shutdown_hooks(const char *cause) {
+  safe_shutdown_hooks.call(cause);
+  shutdown_hooks.call(cause);
 }
 
 const char *HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";

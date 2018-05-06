@@ -28,10 +28,7 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
    * @param name The name for this binary sensor.
    * @param pin The input pin, can either be an integer or GPIOInputPin.
    */
-  explicit GPIOBinarySensorComponent(const std::string &name, GPIOInputPin pin);
-
-  /// Set the pin for this GPIO binary sensor.
-  void set_pin(const GPIOInputPin &pin);
+  explicit GPIOBinarySensorComponent(const std::string &name, GPIOPin *pin);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -42,11 +39,8 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
   /// Check sensor
   void loop() override;
 
-  /// Get the pin for this GPIO binary sensor.
-  GPIOInputPin &get_pin();
-
  protected:
-  GPIOInputPin pin_;
+  GPIOPin *pin_;
 };
 
 } // namespace binary_sensor

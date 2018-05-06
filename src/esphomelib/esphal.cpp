@@ -13,47 +13,15 @@ namespace esphomelib {
 
 static const char *TAG = "esphal";
 
-GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted) {
-  this->set_pin(pin);
-  this->set_mode(mode);
-  this->set_inverted(inverted);
+GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
+  : pin_(pin), mode_(mode), inverted_(inverted) {
+
 }
 
-unsigned char GPIOPin::get_pin() const {
-  return this->pin_;
-}
-
-void GPIOPin::set_pin(unsigned char pin) {
-  this->pin_ = pin;
-}
-
-unsigned char GPIOPin::get_mode() const {
-  return this->mode_;
-}
-
-void GPIOPin::set_mode(unsigned char mode) {
-  this->mode_ = mode;
-}
-
-bool GPIOPin::read_value() const {
-  return (digitalRead(this->pin_) == HIGH) != this->inverted_;
-}
-
-void GPIOPin::write_value(bool value) const {
-  digitalWrite(this->pin_, uint8_t(value != this->inverted_));
-}
-
-bool GPIOPin::is_inverted() const {
-  return this->inverted_;
-}
-
-void GPIOPin::set_inverted(bool inverted) {
-  this->inverted_ = inverted;
-}
-void GPIOPin::setup() const {
+void print_pin_mode(uint8_t pin, uint8_t mode) {
   if_config {
-    std::string mode_s;
-    switch (this->mode_) {
+    const char *mode_s;
+    switch (mode) {
       case INPUT: mode_s = "INPUT"; break;
       case OUTPUT: mode_s = "OUTPUT"; break;
       case INPUT_PULLUP: mode_s = "INPUT_PULLUP"; break;
@@ -82,14 +50,47 @@ void GPIOPin::setup() const {
 
       default: mode_s = "UNKNOWN"; break;
     }
-    ESP_LOGCONFIG(TAG, "    GPIO Pin %u with mode %s", this->pin_, mode_s.c_str());
+    ESP_LOGCONFIG(TAG, "    GPIO Pin %u with mode %s", pin, mode_s);
   }
-  pinMode(this->pin_, this->mode_);
+}
 
+unsigned char GPIOPin::get_pin() const {
+  return this->pin_;
+}
+
+void GPIOPin::set_pin(unsigned char pin) {
+  this->pin_ = pin;
+}
+
+unsigned char GPIOPin::get_mode() const {
+  return this->mode_;
+}
+
+void GPIOPin::set_mode(unsigned char mode) {
+  this->mode_ = mode;
+}
+
+bool GPIOPin::is_inverted() const {
+  return this->inverted_;
+}
+
+void GPIOPin::set_inverted(bool inverted) {
+  this->inverted_ = inverted;
 }
 GPIOPin::GPIOPin() : pin_(0), inverted_(false), mode_(0) {
 
 }
+void GPIOPin::setup() const {
+  print_pin_mode(this->pin_, this->mode_);
+  pinMode(this->pin_, this->mode_);
+}
+bool GPIOPin::digital_read() const {
+  return (digitalRead(this->pin_) == HIGH) != this->inverted_;
+}
+void GPIOPin::digital_write(bool value) const {
+  digitalWrite(this->pin_, this->inverted_ != value ? HIGH : LOW);
+}
+GPIOPin *GPIOPin::copy() const { return new GPIOPin(*this); }
 
 GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}

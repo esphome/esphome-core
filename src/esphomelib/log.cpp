@@ -6,7 +6,7 @@
 
 #include "esphomelib/log_component.h"
 
-int esp_log_printf_(ESPLogLevel level, const char *tag, const char *format, ...) {
+int esp_log_printf_(int level, const char *tag, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
   int ret = esp_log_vprintf_(level, tag, format, arg);
@@ -14,7 +14,7 @@ int esp_log_printf_(ESPLogLevel level, const char *tag, const char *format, ...)
   return ret;
 }
 
-int esp_log_vprintf_(ESPLogLevel level, const char *tag, const char *format, va_list args) {
+int esp_log_vprintf_(int level, const char *tag, const char *format, va_list args) {
   auto *log = esphomelib::global_log_component;
   if (log == nullptr)
     return 0;

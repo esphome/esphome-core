@@ -248,11 +248,15 @@ extern const char ICON_EMPTY[];
 extern const char ICON_WATER_PERCENT[];
 extern const char ICON_GAUGE[];
 extern const char ICON_FLASH[];
+extern const char ICON_SCREEN_ROTATION[];
+extern const char ICON_BRIEFCASE_DOWNLOAD[];
 
 extern const char UNIT_C[];
 extern const char UNIT_PERCENT[];
 extern const char UNIT_HPA[];
 extern const char UNIT_V[];
+extern const char UNIT_DEGREES_PER_SECOND[];
+extern const char UNIT_M_PER_S_SQUARED[];
 
 } // namespace sensor
 

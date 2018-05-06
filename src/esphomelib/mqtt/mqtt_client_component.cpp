@@ -73,16 +73,19 @@ void MQTTClientComponent::setup() {
     ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
   });
   if (this->is_log_message_enabled())
-    global_log_component->add_on_log_callback([this](ESPLogLevel level, const char *message) {
+    global_log_component->add_on_log_callback([this](int level, const char *message) {
       if (this->is_connected()) {
         this->publish(this->log_message_.topic, message, this->log_message_.qos, this->log_message_.retain);
       }
     });
-  add_shutdown_hook([this](){
+  add_shutdown_hook([this](const char *cause){
     this->mqtt_client_.disconnect(true);
   });
 
   this->reconnect();
+}
+void MQTTClientComponent::set_keep_alive(uint16_t keep_alive_s) {
+  this->mqtt_client_.setKeepAlive(keep_alive_s);
 }
 
 void MQTTClientComponent::loop() {
@@ -135,7 +138,7 @@ void MQTTClientComponent::reconnect() {
     ESP_LOGD(TAG, "    Attempting MQTT connection...");
     if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-      reboot();
+      reboot("mqtt");
     }
 
     std::string id;

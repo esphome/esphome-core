@@ -10,16 +10,14 @@
 #include <string>
 
 // avoid esp-idf redefining our macros
-#include "esphal.h"
+#include "esphomelib/esphal.h"
 
-enum ESPLogLevel {
-  ESPHOMELIB_LOG_LEVEL_NONE = 0,
-  ESPHOMELIB_LOG_LEVEL_ERROR = 1,
-  ESPHOMELIB_LOG_LEVEL_WARN = 2,
-  ESPHOMELIB_LOG_LEVEL_INFO = 3,
-  ESPHOMELIB_LOG_LEVEL_DEBUG = 4,
-  ESPHOMELIB_LOG_LEVEL_VERBOSE = 5
-};
+#define ESPHOMELIB_LOG_LEVEL_NONE 0
+#define ESPHOMELIB_LOG_LEVEL_ERROR 1
+#define ESPHOMELIB_LOG_LEVEL_WARN 2
+#define ESPHOMELIB_LOG_LEVEL_INFO 3
+#define ESPHOMELIB_LOG_LEVEL_DEBUG 4
+#define ESPHOMELIB_LOG_LEVEL_VERBOSE 5
 
 #ifndef ESPHOMELIB_LOG_LEVEL
   #define ESPHOMELIB_LOG_LEVEL ESPHOMELIB_LOG_LEVEL_DEBUG
@@ -56,14 +54,14 @@ enum ESPLogLevel {
   #define ESPHOMELIB_LOG_RESET_COLOR
 #endif
 
-int esp_log_printf_(ESPLogLevel level, const char *tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
-int esp_log_vprintf_(ESPLogLevel level, const char *tag, const char *format, va_list args);
+int esp_log_printf_(int level, const char *tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+int esp_log_vprintf_(int level, const char *tag, const char *format, va_list args);
 int esp_idf_log_vprintf_(const char *format, va_list args);
 
 #define ESPHOMELIB_SHORT_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter format ESPHOMELIB_LOG_RESET_COLOR
 #define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%s:%u]: " format ESPHOMELIB_LOG_RESET_COLOR, tag, __FUNCTION__, __LINE__
 
-#if ESPHOMELIB_LOG_LEVEL >= ESP_LOG_LEVEL_VERBOSE
+#if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_VERBOSE
   #define esph_log_v(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_VERBOSE, tag, ESPHOMELIB_LOG_FORMAT(tag, V, format), ##__VA_ARGS__)
 
   #define if_verbose if (true)
@@ -73,7 +71,7 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
   #define if_verbose if (false)
 #endif
 
-#if ESPHOMELIB_LOG_LEVEL >= ESP_LOG_LEVEL_DEBUG
+#if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_DEBUG
   #define esph_log_d(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_DEBUG, tag, ESPHOMELIB_LOG_FORMAT(tag, D, format), ##__VA_ARGS__)
 
   #define esph_log_config(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_DEBUG, tag, ESPHOMELIB_LOG_FORMAT(tag, C, format), ##__VA_ARGS__)
@@ -89,7 +87,7 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
   #define if_config if (false)
 #endif
 
-#if ESPHOMELIB_LOG_LEVEL >= ESP_LOG_LEVEL_INFO
+#if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_INFO
   #define esph_log_i(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_INFO, tag, ESPHOMELIB_LOG_FORMAT(tag, I, format), ##__VA_ARGS__)
 
   #define if_info if (true)
@@ -99,7 +97,7 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
   #define if_info if (false)
 #endif
 
-#if ESPHOMELIB_LOG_LEVEL >= ESP_LOG_LEVEL_WARN
+#if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_WARN
   #define esph_log_w(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_WARN, tag, ESPHOMELIB_LOG_FORMAT(tag, W, format), ##__VA_ARGS__)
 
   #define if_warn if (true)
@@ -109,7 +107,7 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
   #define if_warn if (false)
 #endif
 
-#if ESPHOMELIB_LOG_LEVEL >= ESP_LOG_LEVEL_ERROR
+#if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_ERROR
   #define esph_log_e(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_ERROR, tag, ESPHOMELIB_LOG_FORMAT(tag, E, format), ##__VA_ARGS__)
 
   #define if_error if (true)
@@ -141,5 +139,16 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
 #define ESP_LOGD(tag, ...)  esph_log_d(tag, __VA_ARGS__)
 #define ESP_LOGV(tag, ...)  esph_log_v(tag, __VA_ARGS__)
 #define ESP_LOGCONFIG(tag, ...)  esph_log_config(tag, __VA_ARGS__)
+
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
 
 #endif //ESPHOMELIB_LOG_H

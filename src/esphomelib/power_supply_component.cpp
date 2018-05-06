@@ -16,8 +16,8 @@ static const char *TAG = "power_supply";
 void PowerSupplyComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Power Supply...");
 
-  this->pin_.setup();
-  this->pin_.write_value(false);
+  this->pin_->setup();
+  this->pin_->digital_write(false);
   this->enabled_ = false;
 }
 
@@ -25,7 +25,7 @@ float PowerSupplyComponent::get_setup_priority() const {
   return setup_priority::HARDWARE + 1.0f; // shortly before other hardware
 }
 
-PowerSupplyComponent::PowerSupplyComponent(GPIOOutputPin pin, uint32_t enable_time, uint32_t keep_on_time)
+PowerSupplyComponent::PowerSupplyComponent(GPIOPin *pin, uint32_t enable_time, uint32_t keep_on_time)
     : pin_(pin), enable_time_(enable_time), keep_on_time_(keep_on_time) {}
 
 bool PowerSupplyComponent::is_enabled() const {
@@ -43,16 +43,10 @@ uint32_t PowerSupplyComponent::get_keep_on_time() const {
 void PowerSupplyComponent::set_keep_on_time(uint32_t keep_on_time) {
   this->keep_on_time_ = keep_on_time;
 }
-GPIOOutputPin &PowerSupplyComponent::get_pin() {
-  return this->pin_;
-}
-void PowerSupplyComponent::set_pin(const GPIOOutputPin &pin) {
-  this->pin_ = pin;
-}
 
 void PowerSupplyComponent::request_high_power() {
   this->cancel_timeout("power-supply-off");
-  this->pin_.write_value(true);
+  this->pin_->digital_write(true);
 
   if (this->active_requests_ == 0) {
     // we need to enable the power supply.
@@ -79,7 +73,7 @@ void PowerSupplyComponent::unrequest_high_power() {
     // set timeout for power supply off
     this->set_timeout("power-supply-off", this->keep_on_time_, [this](){
       ESP_LOGI(TAG, "Disabling power supply.");
-      this->pin_.write_value(false);
+      this->pin_->digital_write(false);
       this->enabled_ = false;
     });
   }

@@ -50,7 +50,7 @@ void OTAComponent::setup() {
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
-    run_safe_shutdown_hooks();
+    run_safe_shutdown_hooks("ota");
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
     if (this->at_ota_progress_message_++ % 8 != 0)
@@ -86,14 +86,10 @@ void OTAComponent::setup() {
     this->ota_triggered_ = false;
   });
   ArduinoOTA.begin();
-#ifdef ARDUINO_ARCH_ESP32
-  add_shutdown_hook([]() {
-    ArduinoOTA.end();
-  });
-#endif
   if (this->has_safe_mode_) {
-    add_safe_shutdown_hook([this]() {
-      this->clean_rtc();
+    add_safe_shutdown_hook([this](const char *cause) {
+      if (strcmp(cause, "ota") != 0)
+        this->clean_rtc();
     });
   }
 }
@@ -168,7 +164,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
       App.get_wifi()->loop_();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");
-    reboot();
+    reboot("ota-safe-mode");
   } else {
     // increment counter
     this->write_rtc_(uint8_t(rtc_data + 1));

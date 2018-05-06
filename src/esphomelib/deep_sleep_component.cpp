@@ -59,7 +59,7 @@ void DeepSleepComponent::set_run_duration(uint32_t time_ms) {
 void DeepSleepComponent::begin_sleep() {
   ESP_LOGI(TAG, "Beginning Deep Sleep");
 
-  run_safe_shutdown_hooks();
+  run_safe_shutdown_hooks("deep-sleep");
 
 #ifdef ARDUINO_ARCH_ESP32
   if (this->sleep_duration_)

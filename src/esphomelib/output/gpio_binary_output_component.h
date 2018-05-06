@@ -31,10 +31,7 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
    *
    * @param pin The output pin to use for this output, can be integer or GPIOOutputPin.
    */
-  explicit GPIOBinaryOutputComponent(GPIOOutputPin pin);
-
-  /// Manually set the output pin.
-  void set_pin(const GPIOOutputPin &pin);
+  explicit GPIOBinaryOutputComponent(GPIOPin *pin);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -44,14 +41,11 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
   /// Hardware setup priority.
   float get_setup_priority() const override;
 
-  /// Return the output pin.
-  GPIOOutputPin &get_pin();
-
   /// Override the BinaryOutput method for writing values to HW.
   void write_enabled(bool value) override;
 
  protected:
-  GPIOOutputPin pin_;
+  GPIOPin *pin_;
 };
 
 } // namespace output

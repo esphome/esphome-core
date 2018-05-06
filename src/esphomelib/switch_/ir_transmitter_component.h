@@ -126,7 +126,7 @@ class IRTransmitterComponent : public Component {
    * @param carrier_duty_percent The duty percentage (from 0-100) for this transmitter.
    * @param clock_divider The clock divider used.
    */
-  explicit IRTransmitterComponent(GPIOOutputPin pin,
+  explicit IRTransmitterComponent(GPIOPin *pin,
                                   uint8_t carrier_duty_percent = 50,
                                   uint8_t clock_divider = DEFAULT_CLOCK_DIVIDER);
 
@@ -141,9 +141,6 @@ class IRTransmitterComponent : public Component {
 
   /// Set the RMT channel used.
   void set_channel(rmt_channel_t channel);
-
-  /// Manually set the pin used.
-  void set_pin(const GPIOOutputPin &pin);
 
   /// Set the carrier duty percentage (from 0-100).
   void set_carrier_duty_percent(uint8_t carrier_duty_percent);
@@ -176,8 +173,6 @@ class IRTransmitterComponent : public Component {
 
   /// Get the RMT channel used.
   rmt_channel_t get_channel() const;
-  /// Get the pin used.
-  GPIOOutputPin get_pin();
   /// Get the clock divider for RMT:
   uint8_t get_clock_divider() const;
   /// Get the carrier duty percentage.
@@ -192,7 +187,7 @@ class IRTransmitterComponent : public Component {
   void configure_rmt();
 
   rmt_channel_t channel_;
-  GPIOOutputPin pin_;
+  GPIOPin *pin_;
   uint8_t clock_divider_;
   uint32_t last_carrier_frequency_{DEFAULT_CARRIER_FREQUENCY_HZ};
   uint8_t carrier_duty_percent_;

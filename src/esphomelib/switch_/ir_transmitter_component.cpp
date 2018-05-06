@@ -184,8 +184,8 @@ void IRTransmitterComponent::configure_rmt() {
   c.clk_div = this->clock_divider_;
   ESP_LOGCONFIG(TAG, "    clock divider: %u", this->clock_divider_);
   ESP_LOGCONFIG(TAG, "     -> ticks for 10 µs: %u", this->get_ticks_for_10_us());
-  c.gpio_num = gpio_num_t(this->pin_.get_pin());
-  ESP_LOGCONFIG(TAG, "    gpio pin: %u", this->pin_.get_pin());
+  c.gpio_num = gpio_num_t(this->pin_->get_pin());
+  ESP_LOGCONFIG(TAG, "    gpio pin: %u", this->pin_->get_pin());
   c.mem_block_num = 1;
   c.tx_config.loop_en = false;
   c.tx_config.carrier_freq_hz = this->last_carrier_frequency_;
@@ -194,7 +194,7 @@ void IRTransmitterComponent::configure_rmt() {
   ESP_LOGCONFIG(TAG, "    carrier duty percent: %u", this->carrier_duty_percent_);
   c.tx_config.carrier_en = true;
   c.tx_config.idle_output_en = true;
-  if (!this->pin_.is_inverted()) {
+  if (!this->pin_->is_inverted()) {
     ESP_LOGCONFIG(TAG, "    carrier level: HIGH");
     c.tx_config.carrier_level = RMT_CARRIER_LEVEL_HIGH;
     ESP_LOGCONFIG(TAG, "    idle level: LOW");
@@ -257,7 +257,7 @@ IRTransmitterComponent::DataTransmitter *IRTransmitterComponent::create_transmit
                                                                                     const ir::SendData &send_data) {
   return new DataTransmitter(name, send_data, this);
 }
-IRTransmitterComponent::IRTransmitterComponent(GPIOOutputPin pin,
+IRTransmitterComponent::IRTransmitterComponent(GPIOPin *pin,
                                                uint8_t carrier_duty_percent,
                                                uint8_t clock_divider)
     : clock_divider_(clock_divider),
@@ -265,12 +265,6 @@ IRTransmitterComponent::IRTransmitterComponent(GPIOOutputPin pin,
       pin_(pin) {
   this->set_channel(next_rmt_channel);
   next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
-}
-GPIOOutputPin IRTransmitterComponent::get_pin() {
-  return this->pin_;
-}
-void IRTransmitterComponent::set_pin(const GPIOOutputPin &pin) {
-  this->pin_ = pin;
 }
 IRTransmitterComponent::DataTransmitter::DataTransmitter(const std::string &name,
                                                          const ir::SendData &send_data,

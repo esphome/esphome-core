@@ -22,6 +22,8 @@
 #include "esphomelib/binary_sensor/status_binary_sensor.h"
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
+#include "esphomelib/i2c_component.h"
+#include "esphomelib/io/pcf8574_component.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
@@ -36,6 +38,7 @@
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
+#include "esphomelib/sensor/mpu6050_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
@@ -124,15 +127,9 @@ class Application {
    *
    * @param sda_pin The SDA pin the i2c bus is connected to.
    * @param scl_pin The SCL pin the i2c bus is connected to.
-   * @param frequency (only on ESP32) the frequency in Hz the i2c bus should operate at,
-   *                  not all components support all frequencies!
+   * @param scan If a scan of connected i2c devices should be done at startup.
    */
-#ifdef ARDUINO_ARCH_ESP32
-  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, uint32_t frequency = 100000);
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-  void init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL);
-#endif
+  I2CComponent *init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, bool scan = false);
 #endif
 
 #ifdef USE_WEB_SERVER
@@ -175,7 +172,7 @@ class Application {
    * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
    */
   MakeGPIOBinarySensor make_gpio_binary_sensor(const std::string &friendly_name,
-                                               GPIOInputPin pin,
+                                               const GPIOInputPin &pin,
                                                const std::string &device_class = "");
 #endif
 
@@ -386,8 +383,12 @@ class Application {
    * @return The Ultrasonic sensor + MQTT sensor pair, use this for advanced settings.
    */
   MakeUltrasonicSensor make_ultrasonic_sensor(const std::string &friendly_name,
-                                              GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
+                                              const GPIOOutputPin &trigger_pin, const GPIOInputPin &echo_pin,
                                               uint32_t update_interval = 5000);
+#endif
+
+#ifdef USE_MPU6050
+  sensor::MPU6050Component *make_mpu6050_sensor(uint8_t address = 0x68, uint32_t update_interval = 15000);
 #endif
 
 
@@ -409,7 +410,7 @@ class Application {
    * @param keep_on_time The time (in ms) the power supply should stay on when it is not used.
    * @return The PowerSupplyComponent.
    */
-  PowerSupplyComponent *make_power_supply(GPIOOutputPin pin, uint32_t enable_time = 20,
+  PowerSupplyComponent *make_power_supply(const GPIOOutputPin &pin, uint32_t enable_time = 20,
                                           uint32_t keep_on_time = 10000);
 #endif
 
@@ -442,7 +443,7 @@ class Application {
    * @param pin The GPIO pin.
    * @return The GPIOBinaryOutputComponent. Use this for advanced settings.
    */
-  output::GPIOBinaryOutputComponent *make_gpio_output(GPIOOutputPin pin);
+  output::GPIOBinaryOutputComponent *make_gpio_output(const GPIOOutputPin &pin);
 #endif
 
 #ifdef USE_ESP8266_PWM_OUTPUT
@@ -544,7 +545,7 @@ class Application {
    * @param clock_divider The clock divider for the rmt peripheral.
    * @return The IRTransmitterComponent. Use this for advanced settings.
    */
-  switch_::IRTransmitterComponent *make_ir_transmitter(GPIOOutputPin pin,
+  switch_::IRTransmitterComponent *make_ir_transmitter(const GPIOOutputPin &pin,
                                                        uint8_t carrier_duty_percent = 50,
                                                        uint8_t clock_divider = switch_::DEFAULT_CLOCK_DIVIDER);
 #endif
@@ -562,7 +563,7 @@ class Application {
    * @param friendly_name The friendly name advertised to Home Assistant for this switch-
    * @return A GPIOSwitchStruct, use this to set advanced settings.
    */
-  MakeGPIOSwitch make_gpio_switch(const std::string &friendly_name, GPIOOutputPin pin);
+  MakeGPIOSwitch make_gpio_switch(const std::string &friendly_name, const GPIOOutputPin &pin);
 #endif
 
 #ifdef USE_RESTART_SWITCH
@@ -631,6 +632,23 @@ class Application {
   DeepSleepComponent *make_deep_sleep_component();
 #endif
 
+#ifdef USE_PCF8574
+  /** Create a PCF8574/PCF8575 port expander component.
+   *
+   * This component will allow you to emulate GPIOInputPin and GPIOOutputPin instances that
+   * are used within esphomelib. You can therefore simply pass the result of calling
+   * `make_pin` on the component to any method accepting GPIOInputPin or GPIOOutputPin.
+   *
+   * Optionally, this component also has support for the 16-channel PCF8575 port expander.
+   * To use the PCF8575, set the pcf8575 in this helper function.
+   *
+   * @param address The i2c address to use for this port expander. Defaults to 0x21.
+   * @param pcf8575 If this is an PCF8575. Defaults to PCF8574.
+   * @return The PCF8574Component instance to get individual pins.
+   */
+  io::PCF8574Component *make_pcf8574_component(uint8_t address = 0x21, bool pcf8575 = false);
+#endif
+
   /// Register the component in this Application instance.
   template<class C>
   C *register_component(C *c);
@@ -672,6 +690,7 @@ extern Application App;
 
 template<class C>
 C *Application::register_component(C *c) {
+  static_assert(std::is_base_of<Component, C>::value, "Only Component subclasses can be registered");
   Component *component = c;
   if (c != nullptr)
     this->components_.push_back(component);
@@ -680,6 +699,7 @@ C *Application::register_component(C *c) {
 
 template<class C>
 C *Application::register_controller(C *c) {
+  static_assert(std::is_base_of<Controller, C>::value, "Only Controller subclasses can be registered");
   Controller *controller = c;
   this->controllers_.push_back(controller);
   return c;

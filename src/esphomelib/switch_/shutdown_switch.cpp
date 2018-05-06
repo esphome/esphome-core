@@ -28,7 +28,7 @@ void ShutdownSwitch::turn_on() {
   // then execute
   delay(100); // Let MQTT settle a bit
 
-  run_safe_shutdown_hooks();
+  run_safe_shutdown_hooks("shutdown");
   ESP.deepSleep(0);
 }
 void ShutdownSwitch::turn_off() {

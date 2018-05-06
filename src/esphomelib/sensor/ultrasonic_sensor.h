@@ -49,17 +49,13 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
    * @param update_interval The interval in ms the sensor should check for new values.
    */
   UltrasonicSensorComponent(const std::string &name,
-                            GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
+                            GPIOPin *trigger_pin, GPIOPin *echo_pin,
                             uint32_t update_interval = 5000);
 
   /// Set the timeout for waiting for the echo in µs.
   void set_timeout_us(uint32_t timeout_us);
   /// Set the timeout for waiting for the echo in meter.
   void set_timeout_m(float timeout_m);
-  /// Manually set the trigger pin.
-  void set_trigger_pin(const GPIOOutputPin &trigger_pin);
-  /// Manually set the echo pin.
-  void set_echo_pin(const GPIOInputPin &echo_pin);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -67,10 +63,6 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
   float get_timeout_m() const;
   /// Get the timeout in µs for waiting for the echo.
   uint32_t get_timeout_us() const;
-  /// Return the echo pin.
-  GPIOInputPin &get_echo_pin();
-  /// Return the trigger pin.
-  GPIOOutputPin &get_trigger_pin();
 
   /// Set up pins and register interval.
   void setup() override;
@@ -95,8 +87,8 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
   /// Helper function to convert the specified distance in meters to the echo duration in µs.
   static uint32_t m_to_us(float m);
 
-  GPIOOutputPin trigger_pin_;
-  GPIOInputPin echo_pin_;
+  GPIOPin *trigger_pin_;
+  GPIOPin *echo_pin_;
   uint32_t timeout_us_{11662}; /// 2 meters.
   uint32_t pulse_time_us_{10};
 };

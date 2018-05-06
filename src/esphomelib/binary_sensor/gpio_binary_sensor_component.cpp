@@ -17,24 +17,18 @@ static const char *TAG = "binary_sensor.gpio";
 
 void GPIOBinarySensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO binary sensor.");
-  this->pin_.setup();
+  this->pin_->setup();
 }
 
 void GPIOBinarySensorComponent::loop() {
-  this->publish_state(this->pin_.read_value());
+  this->publish_state(this->pin_->digital_read());
 }
 
 float GPIOBinarySensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-GPIOInputPin &GPIOBinarySensorComponent::get_pin() {
-  return this->pin_;
-}
-void GPIOBinarySensorComponent::set_pin(const GPIOInputPin &pin) {
-  this->pin_ = pin;
-}
 
-GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GPIOInputPin pin)
+GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GPIOPin *pin)
   : BinarySensor(name), pin_(pin) { }
 
 } // namespace binary_sensor

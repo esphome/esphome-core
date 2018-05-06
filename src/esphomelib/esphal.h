@@ -45,12 +45,14 @@ class GPIOPin {
   /// Default constructor so that it can be stored in optionals
   GPIOPin();
 
+  virtual GPIOPin *copy() const;;
+
   /// Setup the pin mode.
   virtual void setup() const;
   /// Read the binary value from this pin using digitalRead (and inverts automatically).
-  virtual bool read_value() const;
+  virtual bool digital_read() const;
   /// Write the binary value to this pin using digitalWrite (and inverts automatically).
-  virtual void write_value(bool value) const;
+  virtual void digital_write(bool value) const;
 
   /// Set the inverted mode of this pin.
   void set_inverted(bool inverted);

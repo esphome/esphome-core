@@ -20,39 +20,27 @@ namespace sensor {
 static const char *TAG = "sensor.ultrasonic";
 
 UltrasonicSensorComponent::UltrasonicSensorComponent(const std::string &name,
-                                                     GPIOOutputPin trigger_pin, GPIOInputPin echo_pin,
+                                                     GPIOPin *trigger_pin, GPIOPin *echo_pin,
                                                      uint32_t update_interval)
     : PollingSensorComponent(name, update_interval),
       trigger_pin_(trigger_pin), echo_pin_(echo_pin) {
 
 }
-GPIOOutputPin &UltrasonicSensorComponent::get_trigger_pin() {
-  return this->trigger_pin_;
-}
-void UltrasonicSensorComponent::set_trigger_pin(const GPIOOutputPin &trigger_pin) {
-  this->trigger_pin_ = trigger_pin;
-}
-GPIOInputPin &UltrasonicSensorComponent::get_echo_pin() {
-  return this->echo_pin_;
-}
-void UltrasonicSensorComponent::set_echo_pin(const GPIOInputPin &echo_pin) {
-  this->echo_pin_ = echo_pin;
-}
 void UltrasonicSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Ultrasonic Sensor...");
-  this->echo_pin_.setup();
-  this->trigger_pin_.setup();
-  this->trigger_pin_.write_value(false);
+  this->echo_pin_->setup();
+  this->trigger_pin_->setup();
+  this->trigger_pin_->digital_write(false);
   ESP_LOGCONFIG(TAG, "    Pulse time: %uµs", this->pulse_time_us_);
   ESP_LOGCONFIG(TAG, "    Timeout: %uµs", this->timeout_us_);
 }
 void UltrasonicSensorComponent::update() {
-  this->trigger_pin_.write_value(true);
+  this->trigger_pin_->digital_write(true);
   delayMicroseconds(this->pulse_time_us_);
-  this->trigger_pin_.write_value(false);
+  this->trigger_pin_->digital_write(false);
   auto time = run_without_interrupts<uint32_t>([this] {
-    return pulseIn(this->echo_pin_.get_pin(),
-                   uint8_t(!this->echo_pin_.is_inverted()),
+    return pulseIn(this->echo_pin_->get_pin(),
+                   uint8_t(!this->echo_pin_->is_inverted()),
                    this->timeout_us_);
   });
 
