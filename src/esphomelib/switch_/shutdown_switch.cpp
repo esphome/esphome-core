@@ -29,7 +29,12 @@ void ShutdownSwitch::turn_on() {
   delay(100); // Let MQTT settle a bit
 
   run_safe_shutdown_hooks("shutdown");
+#ifdef ARDUINO_ARCH_ESP8266
   ESP.deepSleep(0);
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  esp_deep_sleep_start();
+#endif
 }
 void ShutdownSwitch::turn_off() {
   // Do nothing
