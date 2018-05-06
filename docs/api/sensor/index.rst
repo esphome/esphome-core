@@ -19,6 +19,7 @@ See :cpp:func:`Application::register_sensor`.
     BMP085 Pressure/Temperature Sensor <bmp085>
     HTU21D Temperature/Humidity Sensor <htu21d>
     HDC1080 Temperature/Humidity Sensor <hdc1080>
+    MPU6050 Accelerometer/Gyroscope Sensor <mpu6050>
 
 
 API Reference
@@ -63,7 +64,7 @@ Sensor
 .. doxygenvariable:: esphomelib::sensor::UNIT_HPA
 .. doxygenvariable:: esphomelib::sensor::UNIT_V
 .. doxygenvariable:: esphomelib::sensor::UNIT_DEGREES_PER_SECOND
-.. doxygenvariable:: esphomelib::sensor::UNIT_M_PER_S_SQAURED
+.. doxygenvariable:: esphomelib::sensor::UNIT_M_PER_S_SQUARED
 
 
 Filter

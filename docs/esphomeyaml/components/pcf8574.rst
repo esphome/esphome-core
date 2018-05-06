@@ -20,7 +20,7 @@ not work.
    :target: `Sparkfun`_
    :width: 50.0%
 
-       ADS1115 16-Bit ADC. Image by `Sparkfun`_.
+   PCF8574 16-Bit ADC. Image by `Sparkfun`_.
 
 .. _Sparkfun: https://www.sparkfun.com/products/retired/8130
 

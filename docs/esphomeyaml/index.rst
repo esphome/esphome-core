@@ -396,3 +396,4 @@ Full Index
     components/fan/index.rst
     components/fan/binary.rst
     components/fan/speed.rst
+    components/pcf8574.rst
