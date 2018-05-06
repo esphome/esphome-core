@@ -74,6 +74,9 @@ void MQTTSensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, m
   if (!this->sensor_->get_icon().empty())
     root["icon"] = this->sensor_->get_icon();
 
+  if (!this->sensor_->unique_id().empty())
+    root["unique_id"] = this->sensor_->unique_id();
+
   config.command_topic = false;
 }
 
