@@ -26,7 +26,7 @@ for several other components:
     :class: component-image
 .. _BMP085: /esphomeyaml/components/sensor/bmp085.html
 
-.. |HDC1080| image:: /esphomeyaml/hdc1080.jpg
+.. |HDC1080| image:: /esphomeyaml/HDC1080.jpg
     :class: component-image
 .. _HDC1080: /esphomeyaml/components/sensor/hdc1080.html
 

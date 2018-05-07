@@ -22,7 +22,7 @@ Configuration variables:
 -  **output** (**Required**,
    `id </esphomeyaml/configuration-types.html#id>`__): The id of the
    binary `output
-   component <esphomeyaml/components/output/index.html>`__ to use for
+   component </esphomeyaml/components/output/index.html>`__ to use for
    this light.
 -  **id** (*Optional*,
    `id </esphomeyaml/configuration-types.html#id>`__): Manually specify

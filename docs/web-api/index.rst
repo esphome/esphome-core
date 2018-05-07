@@ -11,7 +11,7 @@ not something like configuring the node, as that would quickly blow up the requi
 memory size.
 
 First up, to use the web server enable it using ``App.init_web_server()`` directly from code
-or using the `Web Server Section </esphomeyaml/components/web_server.rst>`__ in esphomeyaml.
+or using the `Web Server Section </esphomeyaml/components/web_server.html>`__ in esphomeyaml.
 Then, navigate to the front end interface with the IP of the node or alternatively using
 mDNS with ``<name>.local/``. So for example to navigate to the web server of a node called
 ``livingroom``, you would enter ``livingroom.local/`` in your browser.

@@ -52,8 +52,8 @@ Configuration variables:
    sensors: 12.
 -  **id** (*Optional*, `id </esphomeyaml/configuration-types.html#id>`__): Manually specify the ID used for code
    generation.
--  All other options from `MQTT
-   Sensor </esphomeyaml/components/sensor.html#mqtt-sensor>`__.
+-  All other options from `Sensor </esphomeyaml/components/sensor/index.html#base-sensor-configuration>`__
+   and `MQTT Component </esphomeyaml/components/mqtt.html#mqtt-component-base-configuration>`__.
 
 Getting Sensor IDs
 ~~~~~~~~~~~~~~~~~~

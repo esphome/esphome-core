@@ -21,7 +21,7 @@ Configuration variables:
 -  **name** (**Required**, string): The name of the light.
 -  **output** (**Required**,
    `id </esphomeyaml/configuration-types.html#id>`__): The id of the
-   float `output component <esphomeyaml/components/output/index.html>`__
+   float `output component </esphomeyaml/components/output/index.html>`__
    to use for this light.
 -  **gamma_correct** (*Optional*, float): The `gamma correction
    factor <https://en.wikipedia.org/wiki/Gamma_correction>`__ for the
