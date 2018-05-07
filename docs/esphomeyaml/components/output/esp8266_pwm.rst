@@ -4,7 +4,7 @@ ESP8266 Software PWM Output
 The ESP8266 Software PWM platform allows you to use a software PWM on
 the pins GPIO0-GPIO16 on your ESP8266. As this is only a software PWM
 and not a hardware PWM (like the `ESP32 LEDC
-PWM </esphomeyaml/components/output/ledc.md>`__) and has a few
+PWM </esphomeyaml/components/output/ledc.html>`__) and has a few
 limitations.
 
 -  There can be a noticeable amount of flickering with increased WiFi
@@ -16,7 +16,7 @@ limitations.
 
 If you need a stable PWM signal, it’s definitely recommended to use the
 successor of the ESP8266, the ESP32, and its `LEDC
-peripheral </esphomeyaml/components/output/ledc.md>`__ instead.
+peripheral </esphomeyaml/components/output/ledc.html>`__ instead.
 
 .. code:: yaml
 
