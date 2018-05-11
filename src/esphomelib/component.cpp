@@ -30,7 +30,8 @@ void Component::loop() {
 }
 
 void Component::set_interval(const std::string &name, uint32_t interval, time_func_t &&f) {
-  uint32_t offset = random_uint32() % interval;
+  // only put offset in lower half
+  uint32_t offset = (random_uint32() % interval) / 2;
   ESP_LOGV(TAG, "set_interval(name='%s', interval=%u, offset=%u)", name.c_str(), interval, offset);
 
   this->cancel_interval(name);
@@ -102,8 +103,8 @@ void Component::loop_internal() {
     if (tf->should_run(now)) {
       if_very_verbose {
         const char *type = tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
-        ESP_LOGV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)",
-                 type, tf->name.c_str(), i, tf->interval, tf->last_execution, now);
+        ESP_LOGVV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)",
+                  type, tf->name.c_str(), i, tf->interval, tf->last_execution, now);
       }
 
       tf->f();

@@ -34,6 +34,8 @@ class Filter {
    */
   virtual Optional<float> new_value(float value) = 0;
 
+  virtual ~Filter();
+
   /// Return the amount of time that this filter is expected to take based on the input time interval.
   virtual uint32_t expected_interval(uint32_t input);
 };

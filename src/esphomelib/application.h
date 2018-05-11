@@ -18,6 +18,7 @@
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/binary_sensor/esp32_touch_binary_sensor.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/status_binary_sensor.h"
 #include "esphomelib/fan/basic_fan_component.h"
@@ -193,6 +194,12 @@ class Application {
    */
   MakeStatusBinarySensor make_status_binary_sensor(const std::string &friendly_name);
 #endif
+
+#ifdef USE_ESP32_TOUCH_BINARY_SENSOR
+  binary_sensor::ESP32TouchComponent *make_esp32_touch_component();
+#endif
+
+
 
 
 
@@ -568,6 +575,8 @@ class Application {
    */
   output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin);
 #endif
+
+
 
 
 

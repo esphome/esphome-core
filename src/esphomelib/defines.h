@@ -59,6 +59,9 @@
   #define USE_BME280
   #define USE_BME680
   #define USE_SHT3XD
+  #ifdef ARDUINO_ARCH_ESP32
+    #define USE_ESP32_TOUCH_BINARY_SENSOR
+  #endif
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -67,6 +70,11 @@
   #endif
 #endif
 #ifdef USE_STATUS_BINARY_SENSOR
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+#endif
+#ifdef USE_ESP32_TOUCH_BINARY_SENSOR
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
   #endif

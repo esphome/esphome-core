@@ -638,6 +638,12 @@ Application::MakeSHT3XDSensor Application::make_sht3xd_sensor(const std::string 
 }
 #endif
 
+#ifdef USE_ESP32_TOUCH_BINARY_SENSOR
+ESP32TouchComponent *Application::make_esp32_touch_component() {
+  return this->register_component(new ESP32TouchComponent());
+}
+#endif
+
 Application App; // NOLINT
 
 } // namespace esphomelib

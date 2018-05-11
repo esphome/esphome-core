@@ -32,7 +32,6 @@ DHTComponent::DHTComponent(const std::string &temperature_name, const std::strin
 
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
-  ESP_LOGCONFIG(TAG, "    Pin: %u", this->pin_);
 
   if (this->model_ == DHTModel::AUTO_DETECT) {
     this->model_ = DHTModel::DHT22;

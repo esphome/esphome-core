@@ -120,6 +120,9 @@ Optional<float> FilterOutNANFilter::new_value(float value) {
 uint32_t Filter::expected_interval(uint32_t input) {
   return input;
 }
+
+Filter::~Filter() = default;
+
 } // namespace sensor
 
 } // namespace esphomelib
