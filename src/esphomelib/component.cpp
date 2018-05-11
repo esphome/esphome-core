@@ -97,13 +97,22 @@ void Component::loop_internal() {
   this->component_state_ = LOOP;
 
   for (unsigned int i = 0; i < this->time_functions_.size(); i++) { // NOLINT
+    const uint32_t now = millis();
     TimeFunction *tf = &this->time_functions_[i];
-    if (tf->should_run()) {
+    if (tf->should_run(now)) {
+      if_very_verbose {
+        const char *type = tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
+        ESP_LOGV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)",
+                 type, tf->name.c_str(), i, tf->interval, tf->last_execution, now);
+      }
+
       tf->f();
+      // The vector might have reallocated due to new items
+      tf = &this->time_functions_[i];
 
       if (tf->type == TimeFunction::INTERVAL) {
-        uint32_t amount = (millis() - tf->last_execution) / tf->interval;
-        tf->last_execution += amount * tf->interval;
+        const uint32_t amount = (now - tf->last_execution) / tf->interval;
+        tf->last_execution += (amount * tf->interval);
       } else if (tf->type == TimeFunction::DEFER || tf->type == TimeFunction::TIMEOUT) {
         tf->remove = true;
       }
@@ -188,12 +197,12 @@ const std::string &Nameable::get_name_id() {
   return this->name_id_;
 }
 
-bool Component::TimeFunction::should_run() const {
+bool Component::TimeFunction::should_run(uint32_t now) const {
   if (this->remove)
     return false;
   if (this->type == DEFER)
     return true;
-  return millis() - this->last_execution > this->interval;
+  return now - this->last_execution > this->interval;
 }
 
 } // namespace esphomelib

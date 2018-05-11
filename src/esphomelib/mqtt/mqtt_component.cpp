@@ -79,7 +79,8 @@ void MQTTComponent::send_discovery_() {
     this->send_discovery(buffer, root, config);
 
     root["name"] = this->friendly_name();
-    root["platform"] = config.platform;
+    if (strcmp(config.platform, "mqtt") != 0)
+      root["platform"] = config.platform;
     if (config.state_topic)
       root["state_topic"] = this->get_state_topic();
     if (config.command_topic)

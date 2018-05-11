@@ -193,7 +193,7 @@ class Component {
     time_func_t f; ///< The function (or callback) itself.
     bool remove;
 
-    bool should_run() const;
+    bool should_run(uint32_t now) const;
   };
 
   /// Cancel an only time function. If name is empty, won't do anything.

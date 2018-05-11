@@ -40,7 +40,6 @@ void DallasComponent::set_one_wire(ESPOneWire *one_wire) {
 }
 void DallasComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DallasComponent...");
-  ESP_LOGCONFIG(TAG, "    Update Interval: %u", this->get_update_interval());
   ESP_LOGCONFIG(TAG, "    Want device count: %u", this->sensors_.size());
 
   yield();
