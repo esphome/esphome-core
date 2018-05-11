@@ -18,6 +18,7 @@
 #define ESPHOMELIB_LOG_LEVEL_INFO 3
 #define ESPHOMELIB_LOG_LEVEL_DEBUG 4
 #define ESPHOMELIB_LOG_LEVEL_VERBOSE 5
+#define ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE 6
 
 #ifndef ESPHOMELIB_LOG_LEVEL
   #define ESPHOMELIB_LOG_LEVEL ESPHOMELIB_LOG_LEVEL_DEBUG
@@ -43,6 +44,7 @@
   #define ESPHOMELIB_LOG_COLOR_C       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_MAGENTA)
   #define ESPHOMELIB_LOG_COLOR_D       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_CYAN)
   #define ESPHOMELIB_LOG_COLOR_V       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_GRAY)
+  #define ESPHOMELIB_LOG_COLOR_VV       ESPHOMELIB_LOG_COLOR(ESPHOMELIB_LOG_COLOR_WHITE)
   #define ESPHOMELIB_LOG_RESET_COLOR   "\033[0m"
 #else
   #define ESPHOMELIB_LOG_COLOR_E
@@ -51,6 +53,7 @@
   #define ESPHOMELIB_LOG_COLOR_C
   #define ESPHOMELIB_LOG_COLOR_D
   #define ESPHOMELIB_LOG_COLOR_V
+  #define ESPHOMELIB_LOG_COLOR_VV
   #define ESPHOMELIB_LOG_RESET_COLOR
 #endif
 
@@ -59,7 +62,17 @@ int esp_log_vprintf_(int level, const char *tag, const char *format, va_list arg
 int esp_idf_log_vprintf_(const char *format, va_list args);
 
 #define ESPHOMELIB_SHORT_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter format ESPHOMELIB_LOG_RESET_COLOR
-#define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%s:%u]: " format ESPHOMELIB_LOG_RESET_COLOR, tag, __FUNCTION__, __LINE__
+#define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%03u]: " format ESPHOMELIB_LOG_RESET_COLOR, tag, __LINE__
+
+#if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE
+  #define esph_log_vv(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE, tag, ESPHOMELIB_LOG_FORMAT(tag, VV, format), ##__VA_ARGS__)
+
+  #define if_very_verbose if (true)
+#else
+  #define esph_log_vv(tag, format, ...)
+
+  #define if_very_verbose if (false)
+#endif
 
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_VERBOSE
   #define esph_log_v(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_VERBOSE, tag, ESPHOMELIB_LOG_FORMAT(tag, V, format), ##__VA_ARGS__)
@@ -138,6 +151,7 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
 #define ESP_LOGI(tag, ...)  esph_log_i(tag, __VA_ARGS__)
 #define ESP_LOGD(tag, ...)  esph_log_d(tag, __VA_ARGS__)
 #define ESP_LOGV(tag, ...)  esph_log_v(tag, __VA_ARGS__)
+#define ESP_LOGVV(tag, ...)  esph_log_vv(tag, __VA_ARGS__)
 #define ESP_LOGCONFIG(tag, ...)  esph_log_config(tag, __VA_ARGS__)
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"

@@ -12,6 +12,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
+#include "esphomelib/i2c_component.h"
 
 #ifdef USE_HDC1080_SENSOR
 
@@ -26,10 +27,11 @@ using HDC1080HumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UN
  *
  * Based off of implementation by ClosedCube: https://github.com/closedcube/ClosedCube_HDC1080_Arduino
  */
-class HDC1080Component : public PollingComponent {
+class HDC1080Component : public PollingComponent, public I2CDevice {
  public:
   /// Initialize the component with the provided update interval.
-  explicit HDC1080Component(const std::string &temperature_name, const std::string &humidity_name,
+  explicit HDC1080Component(I2CComponent *parent,
+                            const std::string &temperature_name, const std::string &humidity_name,
                             uint32_t update_interval);
 
   // ========== INTERNAL METHODS ==========
@@ -38,9 +40,6 @@ class HDC1080Component : public PollingComponent {
   void setup() override;
   /// Retrieve the latest sensor values. This operation takes approximately 16ms.
   void update() override;
-
-  /// Helper to send the provided command and read back the 16-bit unsigned value.
-  uint16_t read_data_(uint8_t cmd);
 
   /// Get the internal temperature sensor.
   HDC1080TemperatureSensor *get_temperature_sensor() const;

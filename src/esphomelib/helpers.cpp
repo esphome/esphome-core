@@ -109,19 +109,6 @@ float ExponentialMovingAverage::next_value(float value) {
   return this->calculate_average();
 }
 
-void run_without_interrupts(const std::function<void()> &f) {
-#ifdef ARDUINO_ARCH_ESP32
-  portDISABLE_INTERRUPTS();
-#else
-  noInterrupts();
-#endif
-  f();
-#ifdef ARDUINO_ARCH_ESP32
-  portENABLE_INTERRUPTS();
-#else
-  interrupts();
-#endif
-}
 std::string value_accuracy_to_string(float value, int8_t accuracy_decimals) {
   auto multiplier = float(pow10(accuracy_decimals));
   float value_rounded = roundf(value * multiplier) / multiplier;
@@ -134,6 +121,12 @@ std::string uint64_to_string(uint64_t num) {
   auto *address16 = reinterpret_cast<uint16_t *>(&num);
   snprintf(buffer, sizeof(buffer), "%04X%04X%04X%04X",
            address16[3], address16[2], address16[1], address16[0]);
+  return std::string(buffer);
+}
+std::string uint32_to_string(uint32_t num) {
+  char buffer[9];
+  auto *address16 = reinterpret_cast<uint16_t *>(&num);
+  snprintf(buffer, sizeof(buffer), "%04X%04X", address16[1], address16[0]);
   return std::string(buffer);
 }
 std::string build_json(const json_build_t &f) {
@@ -196,5 +189,36 @@ void run_safe_shutdown_hooks(const char *cause) {
 }
 
 const char *HOSTNAME_CHARACTER_WHITELIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+
+void disable_interrupts() {
+#ifdef ARDUINO_ARCH_ESP32
+  portDISABLE_INTERRUPTS();
+#else
+  noInterrupts();
+#endif
+}
+void enable_interrupts() {
+#ifdef ARDUINO_ARCH_ESP32
+  portENABLE_INTERRUPTS();
+#else
+  interrupts();
+#endif
+}
+
+uint8_t crc8(uint8_t *data, uint8_t len) {
+  uint8_t crc = 0;
+
+  while ((len--) != 0u) {
+    uint8_t inbyte = *data++;
+    for (uint8_t i = 8; i != 0u; i--) {
+      bool mix = (crc ^ inbyte) & 0x01;
+      crc >>= 1;
+      if (mix)
+        crc ^= 0x8C;
+      inbyte >>= 1;
+    }
+  }
+  return crc;
+}
 
 } // namespace esphomelib

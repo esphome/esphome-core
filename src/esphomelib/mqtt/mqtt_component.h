@@ -45,6 +45,8 @@ class MQTTComponent : public Component {
   /// Override setup_ so that we can call send_discovery() when needed.
   void setup_() override;
 
+  void loop_() override;
+
   /// Send discovery info the Home Assistant, override this.
   virtual void send_discovery(JsonBuffer &buffer, JsonObject &root, SendDiscoveryConfig &config) = 0;
 
@@ -153,6 +155,7 @@ class MQTTComponent : public Component {
   bool retain_{true};
   bool discovery_enabled_{true};
   Availability *availability_{nullptr};
+  bool next_send_discovery_{true};
 };
 
 } // namespace mqtt

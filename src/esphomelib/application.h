@@ -32,6 +32,9 @@
 #include "esphomelib/output/pca9685_output_component.h"
 #include "esphomelib/sensor/adc_sensor_component.h"
 #include "esphomelib/sensor/ads1115_component.h"
+#include "esphomelib/sensor/bh1750_sensor.h"
+#include "esphomelib/sensor/bme280_component.h"
+#include "esphomelib/sensor/bme680_component.h"
 #include "esphomelib/sensor/bmp085_component.h"
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht_component.h"
@@ -41,6 +44,8 @@
 #include "esphomelib/sensor/mpu6050_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/sensor/sht3xd_component.h"
+#include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/switch_/ir_transmitter_component.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
@@ -117,13 +122,9 @@ class Application {
 #ifdef USE_I2C
   /** Initialize the i2c bus on the provided SDA and SCL pins for use with other components.
    *
-   * Note: YOU ONLY NEED TO CALL THIS METHOD ONCE.
-   *
    * SDA/SCL pins default to the values defined by the Arduino framework and are usually
    * GPIO4 and GPIO5 on the ESP8266 (D2 and D1 on NodeMCU). And for the ESP32 it defaults to
    * GPIO21 and GPIO22 for SDA and SCL, respectively.
-   *
-   * If you're unsure about what the defaults are on your board, it's always better
    *
    * @param sda_pin The SDA pin the i2c bus is connected to.
    * @param scl_pin The SCL pin the i2c bus is connected to.
@@ -229,14 +230,14 @@ class Application {
    */
   MakeDHTSensor make_dht_sensor(const std::string &temperature_friendly_name,
                                 const std::string &humidity_friendly_name,
-                                uint8_t pin,
+                                const GPIOOutputPin &pin,
                                 uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_DALLAS_SENSOR
   sensor::DallasComponent *make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval = 15000);
 
-  sensor::DallasComponent *make_dallas_component(uint8_t pin, uint32_t update_interval = 15000);
+  sensor::DallasComponent *make_dallas_component(const GPIOOutputPin &pin, uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_PULSE_COUNTER_SENSOR
@@ -388,7 +389,117 @@ class Application {
 #endif
 
 #ifdef USE_MPU6050
+  /** Create a MPU6050 Accelerometer+Gyroscope+Temperature sensor hub.
+   *
+   * This integration can be used to get accurate accelerometer readings and uncalibrated gyroscope
+   * values (in degrees per second). If you need the latter with calibration applied, your best bet
+   * it to just copy the source and do it yourself, as calibration must be performed while the sensor
+   * is at rest and this property can not be asserted for all use cases.
+   *
+   * @param address The address of the device, defaults to 0x68.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return An MPU6050Component, use this to create the individual sensors and register them with `register_sensor`.
+   */
   sensor::MPU6050Component *make_mpu6050_sensor(uint8_t address = 0x68, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_TSL2561
+  struct MakeTSL2561Sensor {
+    sensor::TSL2561Sensor *tsl2561;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  /** Create a TSL2561 accurate ambient light sensor.
+   *
+   * This i2c-based device can provide very precise illuminance readings with great accuracy regarding the human
+   * eye response to the brightness level. By default, this sensor uses the i2c address 0x39, but you can change it
+   * with `set_address` later using the return value of this function (address 0x29 if '0' shorted on board, address
+   * 0x49 if '1' shorted on board).
+   *
+   * The sensor values that are pushed out will be the transformed illuminance values in lx taking using the
+   * internal IR and Full Spectrum photodiodes.
+   *
+   * Additionally, you can specify the time the sensor takes for accumulating the values (higher is better for
+   * lower light conditions, defaults to 402ms - the max) and a gain that should be used for the ADCs (defaults to
+   * 1x). Finally, this integration is energy efficient and only turns on the sensor when the values are read out.
+   *
+   * @param name The friendly name how the sensor should be advertised.
+   * @param address The address of this i2c device.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return The TSL2561Sensor + MQTT sensor pair, use this for advanced settings.
+   */
+  MakeTSL2561Sensor make_tsl2561_sensor(const std::string &name, uint8_t address = 0x23,
+                                       uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_BH1750
+  struct MakeBH1750Sensor {
+    sensor::BH1750Sensor *bh1750;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  /** Create a BH1750 ambient light sensor.
+   *
+   * This i2c-based provides ambient light readings in lx with resolutions of 4LX, 1LX and 0.5LX (the default).
+   * To change the resolution, call set_resolution on the return value of this function.
+   *
+   * By default, this sensor uses the i2c address 0x23 (the default if ADDR is pulled low). If the ADDR pin
+   * is pulled high (above 0.7VCC), then you can manually set the address to 0x5C using set_address.
+   *
+   * @param name The friendly name that this sensor should be advertised as.
+   * @param address The address of this i2c device.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return The BH1750Sensor + MQTT sensor pair, use this for advanced settings.
+   */
+  MakeBH1750Sensor make_bh1750_sensor(const std::string &name, uint8_t address = 0x23,
+                                      uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_BME280
+  struct MakeBME280Sensor {
+    sensor::BME280Component *bme280;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_pressure;
+    sensor::MQTTSensorComponent *mqtt_humidity;
+  };
+
+  /** Create a BME280 Temperature+Pressure+Humidity i2c sensor.
+   *
+   * @param temperature_name The friendly name the temperature sensor should be advertised as.
+   * @param pressure_name The friendly name the pressure sensor should be advertised as.
+   * @param humidity_name The friendly name the humidity sensor should be advertised as.
+   * @param address The i2c address of the sensor. Defaults to 0x77 (SDO to V_DDIO), can also be 0x76.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return The BME280Component + MQTT sensors tuple, use this for advanced settings.
+   */
+  MakeBME280Sensor make_bme280_sensor(const std::string &temperature_name, const std::string &pressure_name,
+                                      const std::string &humidity_name,
+                                      uint8_t address = 0x77, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_BME680
+  struct MakeBME680Sensor {
+    sensor::BME680Component *bme680;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_pressure;
+    sensor::MQTTSensorComponent *mqtt_humidity;
+    sensor::MQTTSensorComponent *mqtt_gas_resistance;
+  };
+
+  MakeBME680Sensor make_bme680_sensor(const std::string &temperature_name, const std::string &pressure_name,
+                                      const std::string &humidity_name, const std::string &gas_resistance_name,
+                                      uint8_t address = 0x76, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_SHT3XD
+  struct MakeSHT3XDSensor {
+    sensor::SHT3XDComponent *sht3xd;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_humidity;
+  };
+
+  MakeSHT3XDSensor make_sht3xd_sensor(const std::string &temperature_name, const std::string &humidity_name,
+                                      uint8_t address = 0x44, uint32_t update_interval = 15000);
 #endif
 
 
@@ -679,10 +790,6 @@ class Application {
   /// Get the name of this Application set by set_name().
   const std::string &get_name() const;
 
-#ifdef USE_I2C
-  void assert_i2c_initialized() const;
-#endif
-
  protected:
   std::vector<Component *> components_{};
   std::vector<Controller *> controllers_{};
@@ -692,7 +799,7 @@ class Application {
   std::string name_;
   Component::ComponentState application_state_{Component::CONSTRUCTION};
 #ifdef USE_I2C
-  bool i2c_initialized_{false};
+  I2CComponent *i2c_{nullptr};
 #endif
 };
 

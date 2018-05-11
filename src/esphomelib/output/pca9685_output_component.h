@@ -6,29 +6,33 @@
 #define ESPHOMELIB_OUTPUT_PCA9685_OUTPUT_COMPONENT_H
 
 #include "esphomelib/output/float_output.h"
+#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_PCA9685_OUTPUT
-
-#include <PCA9685.h>
 
 namespace esphomelib {
 
 namespace output {
 
+extern const uint8_t PCA9685_MODE_INVERTED; // Inverts polarity of channel output signal
+extern const uint8_t PCA9685_MODE_OUTPUT_ONACK; // Channel update happens upon ACK (post-set) rather than on STOP (endTransmission)
+extern const uint8_t PCA9685_MODE_OUTPUT_TOTEM_POLE; // Use a totem-pole (push-pull) style output rather than an open-drain structure.
+extern const uint8_t PCA9685_MODE_OUTNE_HIGHZ; // For active low output enable, sets channel output to high-impedance state
+extern const uint8_t PCA9685_MODE_OUTNE_LOW; // Similarly, sets channel output to high if in totem-pole mode, otherwise high-impedance state
+
 /// PCA9685 float output component.
-class PCA9685OutputComponent : public Component {
+class PCA9685OutputComponent : public Component, public I2CDevice {
  public:
   class Channel;
   /** Construct the component.
    *
    * @param frequency The frequency of the PCA9685.
    * @param phase_balancer How to balance phases.
-   * @param mode The output mode. For example, PCA9685_MODE_OUTPUT_ONACK or PCA9685_MODE_OUTPUT_TPOLE.
+   * @param mode The output mode. For example, PCA9685_MODE_OUTPUT_ONACK or PCA9685_MODE_OUTPUT_TOTEM_POLE.
    */
-  explicit PCA9685OutputComponent(float frequency,
-                                  PCA9685_PhaseBalancer phase_balancer = PCA9685_PhaseBalancer_Linear,
-                                  uint8_t mode = PCA9685_MODE_OUTPUT_ONACK | PCA9685_MODE_OUTPUT_TPOLE);
+  PCA9685OutputComponent(I2CComponent *parent, float frequency,
+                         uint8_t mode = PCA9685_MODE_OUTPUT_ONACK | PCA9685_MODE_OUTPUT_TOTEM_POLE);
 
   /** Get a PCA9685 output channel.
    *
@@ -41,24 +45,12 @@ class PCA9685OutputComponent : public Component {
 
   /// Manually set the frequency of this PCA9685.
   void set_frequency(float frequency);
-  /// Manually set the i2c TwoWire instance used for communication.
-  void set_i2c_wire(TwoWire &i2c_wire);
-  /** Manually set the PCA9685 used.
-   *
-   * Either PCA9685_PhaseBalancer_None, PCA9685_PhaseBalancer_Linear or PCA9685_PhaseBalancer_Weaved
-   */
-  void set_phase_balancer(PCA9685_PhaseBalancer phase_balancer);
-  /// Set the i2c address for this PCA9685.
-  void set_address(uint8_t address);
   /// Manually set the PCA9685 output mode, see constructor for more details.
   void set_mode(uint8_t mode);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   float get_frequency() const;
-  TwoWire &get_i2c_wire() const;
-  PCA9685_PhaseBalancer get_phase_balancer() const;
-  uint8_t get_address() const;
   uint8_t get_mode() const;
 
   /// Setup the PCA9685.
@@ -83,12 +75,8 @@ class PCA9685OutputComponent : public Component {
   void set_channel_value(uint8_t channel, uint16_t value);
 
   float frequency_;
-  TwoWire &i2c_wire_;
-  PCA9685_PhaseBalancer phase_balancer_;
-  uint8_t address_;
   uint8_t mode_;
 
-  PCA9685 pwm_controller_;
   uint8_t min_channel_;
   uint8_t max_channel_;
   uint16_t pwm_amounts_[16];

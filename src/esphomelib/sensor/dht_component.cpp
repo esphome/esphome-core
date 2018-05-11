@@ -1,6 +1,8 @@
 //
 // Created by Otto Winter on 26.11.17.
 //
+// Based on:
+//   - https://github.com/markruys/arduino-DHT
 
 #include "esphomelib/sensor/dht_component.h"
 
@@ -17,75 +19,134 @@ namespace sensor {
 
 static const char *TAG = "sensor.dht";
 
+static const uint8_t DHT_ERROR_TIMEOUT = 1;
+static const uint8_t DHT_ERROR_CHECKSUM = 2;
+
 DHTComponent::DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
-                           uint8_t pin, uint32_t update_interval)
-    : PollingComponent(update_interval),
+                           GPIOPin *pin, uint32_t update_interval)
+    : PollingComponent(update_interval), pin_(pin),
       temperature_sensor_(new DHTTemperatureSensor(temperature_name, this)),
       humidity_sensor_(new DHTHumiditySensor(humidity_name, this)) {
-  this->set_pin(pin);
+
 }
 
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
   ESP_LOGCONFIG(TAG, "    Pin: %u", this->pin_);
+
+  if (this->model_ == DHTModel::AUTO_DETECT) {
+    this->model_ = DHTModel::DHT22;
+    float temp1, temp2;
+    if (this->read_sensor_safe_(&temp1, &temp2) == DHT_ERROR_TIMEOUT)
+      this->model_ = DHTModel::DHT11;
+  }
+
   ESP_LOGCONFIG(TAG, "    Model: %u", this->model_);
-  this->dht_.setup(this->pin_, this->model_);
-  if (this->model_ == DHT::AUTO_DETECT)
-    ESP_LOGD(TAG, "    DHT.setup() -> status: %u", this->dht_.getStatus());
 }
 
 void DHTComponent::update() {
-  auto temp_hum = run_without_interrupts<std::pair<float, float>>([this] {
-    return std::make_pair(this->dht_.getTemperature(), this->dht_.getHumidity());
-  });
-  float temperature = temp_hum.first;
-  float humidity = temp_hum.second;
+  float temperature, humidity;
+  this->read_sensor_safe_(&temperature, &humidity);
 
-  if (temperature == 0.0 && humidity == 1.0) {
-    // Sometimes DHT22 queries fail in a weird way where temperature is exactly 0.0 °C
-    // and humidity is exactly 1%. This *exact* value pair shouldn't really happen
-    // that much out in the wild (unless you're in a very cold dry room).
-    // FIXME
-    ESP_LOGW(TAG, "Got invalid temperature and humidity pair.");
-    return;
-  }
+  if (!isnan(temperature) && !isnan(humidity)) {
+    ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
-  ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
-
-  if (!isnan(temperature))
     this->temperature_sensor_->push_new_value(temperature);
-  else
-    ESP_LOGW(TAG, "Invalid Temperature: %f!C", temperature);
-
-  if (!isnan(humidity))
     this->humidity_sensor_->push_new_value(humidity);
-  else
-    ESP_LOGW(TAG, "Invalid Humidity: %f%%", humidity);
+  } else {
+    ESP_LOGW(TAG, "Invalid readings!");
+  }
 }
 
 float DHTComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-uint8_t DHTComponent::get_pin() const {
-  return this->pin_;
-}
-void DHTComponent::set_pin(uint8_t pin) {
-  assert_is_pin(pin);
-  assert_construction_state(this);
-  this->pin_ = pin;
-}
-void DHTComponent::set_dht_model(DHT::DHT_MODEL_t model) {
-  assert_construction_state(this);
+void DHTComponent::set_dht_model(DHTModel model) {
   this->model_ = model;
-}
-DHT &DHTComponent::get_dht() {
-  return this->dht_;
 }
 DHTTemperatureSensor *DHTComponent::get_temperature_sensor() const {
   return this->temperature_sensor_;
 }
 DHTHumiditySensor *DHTComponent::get_humidity_sensor() const {
   return this->humidity_sensor_;
+}
+uint8_t DHTComponent::read_sensor_(float *temperature, float *humidity) {
+  *humidity = NAN;
+  *temperature = NAN;
+
+  this->pin_->digital_write(false);
+  this->pin_->pin_mode(OUTPUT);
+
+  if (this->model_ == DHTModel::DHT11)
+    delay(18);
+  else
+    delayMicroseconds(800);
+
+  this->pin_->pin_mode(INPUT);
+  this->pin_->digital_write(true);
+
+  uint16_t raw_humidity = 0;
+  uint16_t raw_temperature = 0;
+  uint16_t data = 0;
+
+  for (int8_t i = -3; i < 80; i++) {
+    uint8_t age;
+    uint32_t start_time = micros();
+
+    do {
+      age = micros() - start_time;
+      if (age > 90)
+        return DHT_ERROR_TIMEOUT;
+    } while (this->pin_->digital_read() == ((i & 1) == 1));
+
+    if (i >= 0 && (i & 1) == 1) {
+      data <<= 1;
+
+      if (age > 30)
+        data |= 1;
+    }
+
+    switch (i) {
+      case 31:
+        raw_humidity = data;
+        break;
+      case 63:
+        raw_temperature = data;
+        data = 0;
+        break;
+      default:break;
+    }
+  }
+
+  uint8_t checksum = (raw_humidity & 0xFF) + (raw_humidity >> 8)
+      + (raw_temperature & 0xFF) + (raw_temperature >> 8);
+  if (checksum != data)
+    return DHT_ERROR_CHECKSUM;
+
+  if (this->model_ == DHTModel::DHT11) {
+    *humidity = raw_humidity >> 8;
+    *temperature = raw_temperature >> 8;
+  } else {
+    *humidity = raw_humidity * 0.1f;
+
+    if ((raw_temperature & 0x8000) != 0)
+      raw_temperature = ~(raw_temperature & 0x7FFF);
+
+    *temperature = int16_t(raw_temperature) * 0.1f;
+  }
+
+  if (*temperature == 0.0f && *humidity == 1.0f) {
+    *temperature = NAN;
+    *humidity = NAN;
+  }
+
+  return 0;
+}
+uint8_t DHTComponent::read_sensor_safe_(float *temperature, float *humidity) {
+  disable_interrupts();
+  uint8_t ret = this->read_sensor_(temperature, humidity);
+  enable_interrupts();
+  return ret;
 }
 
 } // namespace sensor

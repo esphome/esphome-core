@@ -31,6 +31,11 @@ void WiFiComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up WiFi...");
   global_wifi_component = this;
 
+  add_shutdown_hook([](const char *cause) {
+    if (strcmp(cause, "ota") != 0)
+      WiFi.mode(WIFI_OFF);
+  });
+
 #ifdef ARDUINO_ARCH_ESP32
   WiFi.onEvent(on_wifi_event);
 #endif
@@ -152,7 +157,6 @@ void WiFiComponent::wait_for_sta() {
 
     if (millis() - start > 30000) {
       ESP_LOGE(TAG, "    Can't connect to WiFi network");
-      WiFi.mode(WIFI_OFF);
       reboot("wifi");
     }
     if (status == WL_CONNECT_FAILED)

@@ -12,51 +12,51 @@
 
 namespace esphomelib {
 
-ESPOneWire::ESPOneWire(uint8_t pin) : pin_(pin) {}
+ESPOneWire::ESPOneWire(GPIOPin *pin) : pin_(pin) {}
 
 bool ESPOneWire::reset() {
   uint8_t retries = 125;
 
   // Wait for communication to clear
-  this->pin_mode_(INPUT);
+  this->pin_->pin_mode(INPUT);
   do {
     if (--retries == 0)
       return false;
     delayMicroseconds(2);
-  } while (!this->digital_read_());
+  } while (!this->pin_->digital_read());
 
   // Send 480µs LOW TX reset pulse
-  this->pin_mode_(OUTPUT);
-  this->digital_write_(LOW);
+  this->pin_->pin_mode(OUTPUT);
+  this->pin_->digital_write(false);
   delayMicroseconds(480);
 
   // Switch into RX mode, letting the pin float
-  this->pin_mode_(INPUT);
+  this->pin_->pin_mode(INPUT);
   // after 15µs-60µs wait time, slave pulls low for 60µs-240µs
   // let's have 70µs just in case
   delayMicroseconds(70);
 
-  bool r = !this->digital_read_();
+  bool r = !this->pin_->digital_read();
   delayMicroseconds(410);
   return r;
 }
 
 void ESPOneWire::write_bit(bool bit) {
   // Initiate write/read by pulling low.
-  this->pin_mode_(OUTPUT);
-  this->digital_write_(LOW);
+  this->pin_->pin_mode(OUTPUT);
+  this->pin_->digital_write(false);
 
   // bus sampled within 15µs and 60µs after pulling LOW.
   if (bit) {
     // pull high/release within 15µs
     delayMicroseconds(10);
-    this->digital_write_(HIGH);
+    this->pin_->digital_write(true);
     // in total minimum of 60µs long
     delayMicroseconds(55);
   } else {
     // continue pulling LOW for at least 60µs
     delayMicroseconds(65);
-    this->digital_write_(HIGH);
+    this->pin_->digital_write(true);
     // grace period, 1µs recovery time
     delayMicroseconds(5);
   }
@@ -64,15 +64,15 @@ void ESPOneWire::write_bit(bool bit) {
 
 bool ESPOneWire::read_bit() {
   // Initiate read slot by pulling LOW for at least 1µs
-  this->pin_mode_(OUTPUT);
-  this->digital_write_(LOW);
+  this->pin_->pin_mode(OUTPUT);
+  this->pin_->digital_write(false);
   delayMicroseconds(3);
 
   // release bus, we have to sample within 15µs of pulling low
-  this->pin_mode_(INPUT);
+  this->pin_->pin_mode(INPUT);
   delayMicroseconds(10);
 
-  bool r = this->digital_read_();
+  bool r = this->pin_->digital_read();
   // read time slot at least 60µs long + 1µs recovery time between slots
   delayMicroseconds(53);
   return r;
@@ -207,21 +207,6 @@ std::vector<uint64_t> ESPOneWire::search_vec() {
     res.push_back(address);
 
   return res;
-}
-uint8_t ESPOneWire::crc8(uint8_t *addr, uint8_t len) {
-  uint8_t crc = 0;
-
-  while ((len--) != 0u) {
-    uint8_t inbyte = *addr++;
-    for (uint8_t i = 8; i != 0u; i--) {
-      bool mix = (crc ^ inbyte) & 0x01;
-      crc >>= 1;
-      if (mix)
-        crc ^= 0x8C;
-      inbyte >>= 1;
-    }
-  }
-  return crc;
 }
 void ESPOneWire::skip() {
   this->write8(0xCC); // skip ROM

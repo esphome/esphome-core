@@ -5,14 +5,15 @@
 //  Created by Otto Winter on 01.04.18.
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
+// Based on:
+//   - https://github.com/closedcube/ClosedCube_HDC1080_Arduino
+//   - http://www.ti.com/lit/ds/symlink/hdc1080.pdf
 
 #include "esphomelib/sensor/hdc1080_component.h"
 
 #include "esphomelib/log.h"
 
 #ifdef USE_HDC1080_SENSOR
-
-#include <Wire.h>
 
 namespace esphomelib {
 
@@ -24,9 +25,10 @@ static const uint8_t HDC1080_CMD_CONFIGURATION = 0x02;
 static const uint8_t HDC1080_CMD_TEMPERATURE = 0x00;
 static const uint8_t HDC1080_CMD_HUMIDITY = 0x01;
 
-HDC1080Component::HDC1080Component(const std::string &temperature_name, const std::string &humidity_name,
+HDC1080Component::HDC1080Component(I2CComponent *parent,
+                                   const std::string &temperature_name, const std::string &humidity_name,
                                    uint32_t update_interval)
-    : PollingComponent(update_interval),
+    : PollingComponent(update_interval), I2CDevice(parent, HDC1080_ADDRESS),
       temperature_(new HDC1080TemperatureSensor(temperature_name, this)),
       humidity_(new HDC1080HumiditySensor(humidity_name, this)) {
 
@@ -34,36 +36,29 @@ HDC1080Component::HDC1080Component(const std::string &temperature_name, const st
 void HDC1080Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HDC1080...");
 
-  Wire.beginTransmission(HDC1080_ADDRESS);
-  Wire.write(HDC1080_CMD_CONFIGURATION);
-  Wire.write(0b00000000); // resolution 14bit for both humidity and temperature
-  Wire.write(0x00); // reserved
-  uint8_t result = Wire.endTransmission();
+  const uint8_t data[2] = {
+      0b00000000, // resolution 14bit for both humidity and temperature
+      0b00000000 // reserved
+  };
 
-  if (result != 0) {
-    ESP_LOGE(TAG, "Connection to HDC1080 failed: %u", result);
+  if (this->write_bytes(HDC1080_CMD_CONFIGURATION, data, 2)) {
+    ESP_LOGE(TAG, "Connection to HDC1080 failed");
     this->mark_failed();
     return;
   }
 }
 void HDC1080Component::update() {
-  uint16_t raw_temp = this->read_data_(HDC1080_CMD_TEMPERATURE);
+  uint16_t raw_temp;
+  if (!this->read_byte_16(HDC1080_CMD_TEMPERATURE, &raw_temp, 9))
+    return;
   float temp = raw_temp * 0.0025177f - 40.0f; // raw * 2^-16 * 165 - 40
   this->temperature_->push_new_value(temp);
 
-  uint16_t raw_humidity = this->read_data_(HDC1080_CMD_HUMIDITY);
+  uint16_t raw_humidity;
+  if (!this->read_byte_16(HDC1080_CMD_HUMIDITY, &raw_humidity, 9))
+    return;
   float humidity = raw_humidity * 0.001525879f; // raw * 2^-16 * 100
   this->humidity_->push_new_value(humidity);
-}
-uint16_t HDC1080Component::read_data_(uint8_t cmd) {
-  Wire.beginTransmission(HDC1080_ADDRESS);
-  Wire.write(cmd);
-  Wire.endTransmission();
-  delay(9); // 9ms shouldn't be too bad. Maybe convert this to async code some time.
-  Wire.requestFrom(HDC1080_ADDRESS, 2u); // read 2 bytes
-  uint8_t msb = Wire.read();
-  uint8_t lsb = Wire.read();
-  return uint16_t(msb) << 8 | lsb;
 }
 HDC1080TemperatureSensor *HDC1080Component::get_temperature_sensor() const {
   return this->temperature_;

@@ -118,13 +118,17 @@ std::string value_accuracy_to_string(float value, int8_t accuracy_decimals);
 /// Convert a uint64_t to a hex string
 std::string uint64_to_string(uint64_t num);
 
+/// Convert a uint32_t to a hex string
+std::string uint32_to_string(uint32_t num);
+
 /// Sanitizes the input string with the whitelist.
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
 
-template<typename T>
-T run_without_interrupts(const std::function<T()> &f);
+void disable_interrupts();
 
-void run_without_interrupts(const std::function<void()> &f);
+void enable_interrupts();
+
+uint8_t crc8(uint8_t *data, uint8_t len);
 
 /// Helper class to represent an optional value.
 template<typename T>
@@ -300,22 +304,6 @@ void SlidingWindowMovingAverage<T>::set_max_size(size_t max_size) {
     this->sum_ -= this->queue_.front();
     this->queue_.pop();
   }
-}
-
-template<typename T>
-T run_without_interrupts(const std::function<T()> &f) {
-#ifdef ARDUINO_ARCH_ESP32
-  portDISABLE_INTERRUPTS();
-#else
-  noInterrupts();
-#endif
-  T ret = f();
-#ifdef ARDUINO_ARCH_ESP32
-  portENABLE_INTERRUPTS();
-#else
-  interrupts();
-#endif
-  return ret;
 }
 
 template<typename... Ts>

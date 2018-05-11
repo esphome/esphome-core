@@ -1,6 +1,9 @@
 //
 // Created by Otto Winter on 26.11.17.
 //
+// Based on:
+//   - https://github.com/NachtRaveVL/PCA9685-Arduino
+//   - https://cdn-shop.adafruit.com/datasheets/PCA9685.pdf
 
 #include "esphomelib/output/pca9685_output_component.h"
 
@@ -14,25 +17,59 @@ namespace output {
 
 static const char *TAG = "output.pca9685";
 
-PCA9685OutputComponent::PCA9685OutputComponent(float frequency,
-                                               PCA9685_PhaseBalancer phase_balancer,
+const uint8_t PCA9685_MODE_INVERTED = 0x10;
+const uint8_t PCA9685_MODE_OUTPUT_ONACK = 0x08;
+const uint8_t PCA9685_MODE_OUTPUT_TOTEM_POLE = 0x04;
+const uint8_t PCA9685_MODE_OUTNE_HIGHZ = 0x02;
+const uint8_t PCA9685_MODE_OUTNE_LOW = 0x01;
+
+static const uint8_t PCA9685_REGISTER_SOFTWARE_RESET = 0x06;
+static const uint8_t PCA9685_REGISTER_MODE1 = 0x00;
+static const uint8_t PCA9685_REGISTER_MODE2 = 0x01;
+static const uint8_t PCA9685_REGISTER_LED0 = 0x06;
+static const uint8_t PCA9685_REGISTER_PRE_SCALE = 0xFE;
+
+static const uint8_t PCA9685_MODE1_RESTART = 0b10000000;
+static const uint8_t PCA9685_MODE1_AUTOINC = 0b00100000;
+static const uint8_t PCA9685_MODE1_SLEEP = 0b00010000;
+
+static const uint16_t PCA9685_PWM_FULL = 4096;
+
+static const uint8_t PCA9685_ADDRESS = 0x40;
+
+PCA9685OutputComponent::PCA9685OutputComponent(I2CComponent *parent, float frequency,
                                                uint8_t mode)
-    : frequency_(frequency), phase_balancer_(phase_balancer), address_(0x00),
-      mode_(mode), min_channel_(0xFF), max_channel_(0x00), update_(true), i2c_wire_(Wire) {
+    : I2CDevice(parent, PCA9685_ADDRESS), frequency_(frequency),
+      mode_(mode), min_channel_(0xFF), max_channel_(0x00), update_(true) {
   for (uint16_t &pwm_amount : this->pwm_amounts_)
     pwm_amount = 0;
 }
 
 void PCA9685OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent.");
-  this->pwm_controller_ = PCA9685(this->i2c_wire_, this->phase_balancer_);
-  ESP_LOGV(TAG, "    Resetting devices...");
-  this->pwm_controller_.resetDevices();
-  ESP_LOGCONFIG(TAG, "    Address: %02X", this->address_);
   ESP_LOGCONFIG(TAG, "    Mode: %02X", this->mode_);
-  this->pwm_controller_.init(this->address_, this->mode_);
+
+  ESP_LOGV(TAG, "    Resetting devices...");
+  this->write_bytes(PCA9685_REGISTER_SOFTWARE_RESET, nullptr, 0);
+
+  this->write_byte(PCA9685_REGISTER_MODE1, PCA9685_MODE1_RESTART | PCA9685_MODE1_AUTOINC);
+  this->write_byte(PCA9685_REGISTER_MODE2, this->mode_);
+
   ESP_LOGCONFIG(TAG, "    Frequency: %.0f", this->frequency_);
-  this->pwm_controller_.setPWMFrequency(this->frequency_);
+
+  int pre_scaler = (25000000 / (4096 * this->frequency_)) - 1;
+  if (pre_scaler > 255) pre_scaler = 255;
+  if (pre_scaler < 3) pre_scaler = 3;
+
+  uint8_t mode1;
+  this->read_byte(PCA9685_REGISTER_MODE1, &mode1);
+  mode1 = (mode1 & ~PCA9685_MODE1_RESTART) | PCA9685_MODE1_SLEEP;
+  this->write_byte(PCA9685_REGISTER_MODE1, mode1);
+  this->write_byte(PCA9685_REGISTER_PRE_SCALE, pre_scaler);
+
+  mode1 = (mode1 & ~PCA9685_MODE1_SLEEP) | PCA9685_MODE1_RESTART;
+  this->write_byte(PCA9685_REGISTER_MODE1, mode1);
+  delayMicroseconds(500);
 
   this->loop();
 }
@@ -41,10 +78,33 @@ void PCA9685OutputComponent::loop() {
   if (this->min_channel_ == 0xFF || !this->update_)
     return;
 
-  uint16_t *p = &this->pwm_amounts_[this->min_channel_];
-  int len = this->max_channel_ - this->min_channel_ + 1;
+  uint8_t data[16*4];
+  uint8_t len = 0;
+  const uint16_t num_channels = this->max_channel_ - this->min_channel_ + 1;
+  for (uint8_t channel = this->min_channel_; channel <= this->max_channel_; channel++) {
+    uint16_t phase_begin = uint16_t(channel - this->min_channel_) / num_channels * 4096 ;
+    uint16_t phase_end;
+    uint16_t amount = this->pwm_amounts_[channel];
+    if (amount == 0) {
+      phase_end = 4096;
+    } else if (amount >= 4096) {
+      phase_begin = 4096;
+      phase_end = 0;
+    } else {
+      phase_end = phase_begin + amount;
+      if (phase_end >= 4096)
+        phase_end -= 4096;
+    }
 
-  this->pwm_controller_.setChannelsPWM(this->min_channel_, len, p);
+    ESP_LOGVV(TAG, "Channel %02u: amount=%04u phase_begin=%04u phase_end=%04u", channel, amount, phase_begin, phase_end);
+
+    data[len++] = phase_begin & 0xFF;
+    data[len++] = (phase_begin >> 8) & 0xFF;
+    data[len++] = phase_end & 0xFF;
+    data[len++] = (phase_end >> 8) & 0xFF;
+  }
+  this->write_bytes(PCA9685_REGISTER_LED0 + 4 * this->min_channel_, data, len);
+
   this->update_ = false;
 }
 
@@ -75,24 +135,6 @@ float PCA9685OutputComponent::get_frequency() const {
 }
 void PCA9685OutputComponent::set_frequency(float frequency) {
   this->frequency_ = frequency;
-}
-TwoWire &PCA9685OutputComponent::get_i2c_wire() const {
-  return this->i2c_wire_;
-}
-void PCA9685OutputComponent::set_i2c_wire(TwoWire &i2c_wire) {
-  this->i2c_wire_ = i2c_wire;
-}
-PCA9685_PhaseBalancer PCA9685OutputComponent::get_phase_balancer() const {
-  return this->phase_balancer_;
-}
-void PCA9685OutputComponent::set_phase_balancer(PCA9685_PhaseBalancer phase_balancer) {
-  this->phase_balancer_ = phase_balancer;
-}
-uint8_t PCA9685OutputComponent::get_address() const {
-  return this->address_;
-}
-void PCA9685OutputComponent::set_address(uint8_t address) {
-  this->address_ = address;
 }
 uint8_t PCA9685OutputComponent::get_mode() const {
   return this->mode_;

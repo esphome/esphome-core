@@ -12,10 +12,9 @@
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
+#include "esphomelib/i2c_component.h"
 
 #ifdef USE_BMP085_SENSOR
-
-#include "BMP085.h"
 
 namespace esphomelib {
 
@@ -28,24 +27,15 @@ using BMP085PressureSensor = sensor::EmptyPollingParentSensor<1, ICON_GAUGE, UNI
  *
  * It's built up similar to the DHT component: a central hub that has two sensors.
  */
-class BMP085Component : public PollingComponent {
+class BMP085Component : public PollingComponent, public I2CDevice {
  public:
-  /** Construct the BMP085Component using the provided address and update interval.
-   *
-   * @param address The i2c address of the sensor, defaults to 0x77.
-   * @param update_interval The interval in ms to check the sensor.
-   */
-  explicit BMP085Component(const std::string &temperature_name, const std::string &pressure_name,
-                           uint32_t update_interval = 30000);
-
-  /// Set the i2c address of this sensor.
-  void set_address(uint8_t address);
+  /// Construct the BMP085Component using the provided address and update interval.
+  BMP085Component(I2CComponent *parent,
+                  const std::string &temperature_name, const std::string &pressure_name,
+                  uint32_t update_interval = 30000);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  /// Get a handle to the internal i2cdevlib BMP085 object.
-  BMP085 &get_bmp();
-
   /// Get the internal temperature sensor used to expose the temperature as a sensor object.
   BMP085TemperatureSensor *get_temperature_sensor() const;
   /// Get the internal pressure sensor used to expose the pressure as a sensor object.
@@ -57,16 +47,23 @@ class BMP085Component : public PollingComponent {
   void setup() override;
 
  protected:
+  struct CalibrationData {
+    int16_t ac1, ac2, ac3, ac4, ac5, ac6;
+    int16_t b1, b2;
+    int16_t mb, mc, md;
+    int32_t b5;
+  };
+
   /// Internal method to read the temperature from the component after it has been scheduled.
   void read_temperature_();
   /// Internal method to read the pressure from the component after it has been scheduled.
   void read_pressure_();
 
-  BMP085 bmp_;
-  uint8_t address_;
-  enum { IDLE, TEMPERATURE, PRESSURE } measurement_mode_{IDLE}; ///< The mode the sensor is currently in.
+  bool set_mode_(uint8_t mode);
+
   BMP085TemperatureSensor *temperature_{nullptr};
   BMP085PressureSensor *pressure_{nullptr};
+  CalibrationData calibration_;
 };
 
 } // namespace sensor

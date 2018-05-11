@@ -149,6 +149,10 @@ const char ICON_SCREEN_ROTATION[] = "mdi:screen-rotation";
 const char ICON_BRIEFCASE_DOWNLOAD[] = "mdi:briefcase-download";
 const char UNIT_DEGREES_PER_SECOND[] = "°/s";
 const char UNIT_M_PER_S_SQUARED[] = "m/s²";
+const char ICON_BRIGHTNESS_5[] = "mdi:brightness-5";
+const char UNIT_LX[] = "lx";
+const char UNIT_OHM[] = "Ω";
+const char ICON_GAS_CYLINDER[] = "mdi:gas-cylinder";
 
 } // namespace sensor
 

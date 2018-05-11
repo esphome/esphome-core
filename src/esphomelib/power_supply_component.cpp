@@ -6,6 +6,7 @@
 
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
+#include "esphomelib/helpers.h"
 
 #ifdef USE_OUTPUT
 
@@ -19,6 +20,11 @@ void PowerSupplyComponent::setup() {
   this->pin_->setup();
   this->pin_->digital_write(false);
   this->enabled_ = false;
+
+  add_shutdown_hook([this](const char *cause) {
+    this->active_requests_ = 0;
+    this->pin_->digital_write(false);
+  });
 }
 
 float PowerSupplyComponent::get_setup_priority() const {

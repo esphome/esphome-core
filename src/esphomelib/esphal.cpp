@@ -80,17 +80,21 @@ void GPIOPin::set_inverted(bool inverted) {
 GPIOPin::GPIOPin() : pin_(0), inverted_(false), mode_(0) {
 
 }
-void GPIOPin::setup() const {
+void GPIOPin::setup() {
   print_pin_mode(this->pin_, this->mode_);
-  pinMode(this->pin_, this->mode_);
+  this->pin_mode(this->mode_);
 }
-bool GPIOPin::digital_read() const {
+bool GPIOPin::digital_read() {
   return (digitalRead(this->pin_) == HIGH) != this->inverted_;
 }
-void GPIOPin::digital_write(bool value) const {
+void GPIOPin::digital_write(bool value) {
   digitalWrite(this->pin_, this->inverted_ != value ? HIGH : LOW);
 }
 GPIOPin *GPIOPin::copy() const { return new GPIOPin(*this); }
+
+void GPIOPin::pin_mode(uint8_t mode) {
+  pinMode(this->pin_, mode);
+}
 
 GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}

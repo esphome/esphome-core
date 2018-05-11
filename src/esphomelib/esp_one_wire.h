@@ -29,7 +29,7 @@ const int ONE_WIRE_ROM_SEARCH = 0xF0;
 class ESPOneWire {
  public:
   /// Construct a OneWire instance for the specified pin. There should only exist one instance per pin.
-  explicit ESPOneWire(uint8_t pin);
+  explicit ESPOneWire(GPIOPin *pin);
 
   /** Reset the bus, should be done before all write operations.
    *
@@ -72,20 +72,11 @@ class ESPOneWire {
   /// Helper that wraps search in a std::vector.
   std::vector<uint64_t> search_vec();
 
-  /// Helper to create a CRC8 bit checksum for the specified address and length.
-  static uint8_t crc8(uint8_t *addr, uint8_t len);
-
  protected:
-  /// Helper to read the value on the bus.
-  inline bool digital_read_() { return digitalRead(this->pin_) == HIGH; }
-  /// Helper to pull the bus low/high.
-  inline void digital_write_(uint8_t state) { digitalWrite(this->pin_, state); }
-  /// Helper to set the pin mode on the bus.
-  inline void pin_mode_(uint8_t mode) { pinMode(this->pin_, mode); }
   /// Helper to get the internal 64-bit unsigned rom number as a 8-bit integer pointer.
   inline uint8_t *rom_number8_() { return reinterpret_cast<uint8_t *>(&this->rom_number); }
 
-  uint8_t pin_;
+  GPIOPin *pin_;
   uint8_t last_discrepancy_{0};
   uint8_t last_family_discrepancy_{0};
   bool last_device_flag_{false};

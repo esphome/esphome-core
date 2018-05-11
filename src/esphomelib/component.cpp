@@ -38,7 +38,7 @@ void Component::set_interval(const std::string &name, uint32_t interval, time_fu
       .name = name,
       .type = TimeFunction::INTERVAL,
       .interval = interval,
-      .last_execution = millis() + offset,
+      .last_execution = millis() - interval - offset,
       .f = std::move(f),
       .remove = false,
   };

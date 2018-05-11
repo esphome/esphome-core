@@ -13,15 +13,32 @@
 
 #include "esphomelib/log.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ADS1115_SENSOR
 
-#include "ADS1115.h"
-
 namespace esphomelib {
 
 namespace sensor {
+
+extern const uint8_t ADS1115_MULTIPLEXER_P0_N1;
+extern const uint8_t ADS1115_MULTIPLEXER_P0_N3;
+extern const uint8_t ADS1115_MULTIPLEXER_P1_N3;
+extern const uint8_t ADS1115_MULTIPLEXER_P2_N3;
+extern const uint8_t ADS1115_MULTIPLEXER_P0_NG;
+extern const uint8_t ADS1115_MULTIPLEXER_P1_NG;
+extern const uint8_t ADS1115_MULTIPLEXER_P2_NG;
+extern const uint8_t ADS1115_MULTIPLEXER_P3_NG;
+
+extern const uint8_t ADS1115_GAIN_6P144;
+extern const uint8_t ADS1115_GAIN_4P096;
+extern const uint8_t ADS1115_GAIN_2P048;
+extern const uint8_t ADS1115_GAIN_1P024;
+extern const uint8_t ADS1115_GAIN_0P512;
+extern const uint8_t ADS1115_GAIN_0P256;
+extern const uint8_t ADS1115_GAIN_0P256B;
+extern const uint8_t ADS1115_GAIN_0P256C;
 
 class ADS1115Sensor;
 
@@ -38,23 +55,21 @@ class ADS1115Sensor;
  *
  * before the call to `App.setup()`.
  */
-class ADS1115Component : public Component {
+class ADS1115Component : public Component, public I2CDevice {
  public:
   /** Construct the component hub for this ADS1115.
    *
-   * @see set_address() for possible addresses.
-   *
    * @param address The i2c address for this sensor.
    */
-  explicit ADS1115Component(uint8_t address);
+  ADS1115Component(I2CComponent *parent, uint8_t address);
 
   /** Get a sensor from this ADS1115 from the specified multiplexer and gain.
    *
    * You can have one ADS1115 create multiple sensors with different multiplexers and/or gains.
    *
-   * @param multiplexer The multiplexer, one of `ADS1115_MUX_` then `P0_N1`, `P0_N3`, `P1_N3`, `P2_N3`,
+   * @param multiplexer The multiplexer, one of `ADS1115_MULTIPLEXER_` then `P0_N1`, `P0_N3`, `P1_N3`, `P2_N3`,
    *              `P0_NG`, `P1_NG`, `P2_NG`, `P3_NG`.
-   * @param gain The gain, one of ADS1115_PGA_` then `6P144`, `4P096`, `2P048`, `1P024`,
+   * @param gain The gain, one of ADS1115_GAIN_` then `6P144`, `4P096`, `2P048`, `1P024`,
    *             `0P512`, `0P256` (B/C).
    * @param update_interval The interval in milliseconds the value for this sensor should be checked.
    * @return An ADS1115Sensor, use this for advanced options.
@@ -62,56 +77,17 @@ class ADS1115Component : public Component {
   ADS1115Sensor *get_sensor(const std::string &name, uint8_t multiplexer, uint8_t gain,
                             uint32_t update_interval = 15000);
 
-  /** Manually set the i2c address for this ADS1115.
-   *
-   * If the address pin is pulled to GND, the address is 0x48.
-   * If the address pin is pulled to VCC, the address is 0x49.
-   * If the address pin is tied to SDA, the address is 0x4A.
-   * If the address pin is tied to SCL, the address is 0x4B.
-   *
-   * @param address The i2c address
-   */
-  void set_address(uint8_t address);
-  /// Manually set whether this ADS1115 should operate in continuous mode, defaults to true.
-  void set_continuous_mode(bool continuous_mode);
-  /** Manually set the rate that the ADS1115 uses internally, defaults to `ADS1115_RATE_128`.
-   *
-   * Possible values are `ADS1115_RATE_` then 8, 16, 32, 64, 128, 250, 475 and 860.
-   *
-   * @param rate The rate the sensor uses for its measurements internally (not or poll rate!).
-   */
-  void set_rate(uint8_t rate);
-
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Set up the internal sensor array.
   void setup() override;
   /// HARDWARE_LATE setup priority
   float get_setup_priority() const override;
-  /// Get the rate at which this sensor should be checked.
-  uint8_t get_rate() const;
-  /// Get the i2c address for this ADS1115.
-  uint8_t get_address() const;
-  /// Is this ADS1115 is continuous (non-singleshot mode)?
-  bool is_continuous_mode() const;
-  /// Get the ADS1115 instance used internally. Be careful with it, using this incorrectly might break stuff.
-  ADS1115 &get_adc();
 
  protected:
-  /// Helper method to set a gain if it isn't already the selected one.
-  void set_gain_(uint8_t gain, bool force = false);
-  /// Helper method to set the multiplexer if it isn't already the selected one.
-  void set_multiplexer_(uint8_t multiplexer, bool force = false);
-
   /// Helper method to request a measurement from a sensor.
   void request_measurement_(ADS1115Sensor *sensor);
 
-  ADS1115 adc_;
-  uint8_t address_;
-  uint8_t current_gain_;
-  uint8_t current_multiplexer_;
-  bool continuous_mode_{true};
-  uint8_t rate_{ADS1115_RATE_128};
   std::vector<ADS1115Sensor *> sensors_;
 };
 

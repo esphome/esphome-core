@@ -11,6 +11,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_PCF8574
@@ -19,9 +20,9 @@ namespace esphomelib {
 
 /// Modes for PCF8574 pins
 enum PCF8574GPIOMode {
-  PCF8574_INPUT = 0,
-  PCF8574_INPUT_PULLUP,
-  PCF8574_OUTPUT,
+  PCF8574_INPUT = INPUT,
+  PCF8574_INPUT_PULLUP = INPUT_PULLUP,
+  PCF8574_OUTPUT = OUTPUT,
 };
 
 namespace io {
@@ -29,9 +30,9 @@ namespace io {
 class PCF8574GPIOInputPin;
 class PCF8574GPIOOutputPin;
 
-class PCF8574Component : public Component {
+class PCF8574Component : public Component, public I2CDevice {
  public:
-  explicit PCF8574Component(uint8_t address, bool pcf8575 = false);
+  PCF8574Component(I2CComponent *parent, uint8_t address, bool pcf8575 = false);
 
   /** Make a GPIOPin that can be used in other components.
    *
@@ -62,8 +63,6 @@ class PCF8574Component : public Component {
   // (In most use cases you won't need these)
   /// Check i2c availability and setup masks
   void setup() override;
-  /// Write & Read pin masks to the PCF8574
-  void loop() override;
   /// Helper function to read the value of a pin. Doesn't do any I/O.
   bool digital_read_(uint8_t pin);
   /// Helper function to write the value of a pin. Doesn't do any I/O.
@@ -74,9 +73,8 @@ class PCF8574Component : public Component {
  protected:
   bool read_gpio_();
 
-  void write_gpio_();
+  bool write_gpio_();
 
-  uint8_t address_;
   uint16_t ddr_mask_{0x00};
   uint16_t input_mask_{0x00};
   uint16_t port_mask_{0x00};
@@ -90,9 +88,10 @@ class PCF8574GPIOInputPin : public GPIOInputPin {
 
   GPIOPin *copy() const override;
 
-  void setup() const override;
-  bool digital_read() const override;
-  void digital_write(bool value) const override;
+  void setup() override;
+  void pin_mode(uint8_t mode) override;
+  bool digital_read() override;
+  void digital_write(bool value) override;
 
  protected:
   PCF8574Component *parent_;
@@ -105,9 +104,10 @@ class PCF8574GPIOOutputPin : public GPIOOutputPin {
 
   GPIOPin *copy() const override;
 
-  void setup() const override;
-  bool digital_read() const override;
-  void digital_write(bool value) const override;
+  void setup() override;
+  void pin_mode(uint8_t mode) override;
+  bool digital_read() override;
+  void digital_write(bool value) override;
 
  protected:
   PCF8574Component *parent_;

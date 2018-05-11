@@ -1,6 +1,8 @@
 //
 // Created by Otto Winter on 28.12.17.
 //
+// Based on:
+//   - https://github.com/milesburton/Arduino-Temperature-Control-Library
 
 #include "esphomelib/sensor/dallas_component.h"
 
@@ -42,16 +44,16 @@ void DallasComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Want device count: %u", this->sensors_.size());
 
   yield();
-  auto raw_sensors = run_without_interrupts<std::vector<uint64_t>>([this]() {
-    return this->one_wire_->search_vec();
-  });
+  disable_interrupts();
+  std::vector<uint64_t> raw_sensors = this->one_wire_->search_vec();
+  enable_interrupts();
 
   ESP_LOGD(TAG, "Found sensors:");
   std::vector<uint64_t> out;
   for (auto &address : raw_sensors) {
     std::string s = uint64_to_string(address);
     auto *address8 = reinterpret_cast<uint8_t *>(&address);
-    if (ESPOneWire::crc8(address8, 7) != address8[7]) {
+    if (crc8(address8, 7) != address8[7]) {
       ESP_LOGW(TAG, "Dallas device 0x%s has invalid CRC.", s.c_str());
       continue;
     }
@@ -99,14 +101,16 @@ DallasTemperatureSensor *DallasComponent::get_sensor_by_index(const std::string 
   return s;
 }
 void DallasComponent::update() {
-  auto result = run_without_interrupts<bool>([this] {
-    if (!this->one_wire_->reset())
-      return false;
-
+  disable_interrupts();
+  bool result;
+  if (!this->one_wire_->reset()) {
+    result = false;
+  } else {
+    result = true;
     this->one_wire_->skip();
     this->one_wire_->write8(DALLAS_COMMAND_START_CONVERSION);
-    return true;
-  });
+  }
+  enable_interrupts();
 
   if (!result) {
     ESP_LOGE(TAG, "Requesting conversion failed");
@@ -115,9 +119,10 @@ void DallasComponent::update() {
 
   for (auto *sensor : this->sensors_) {
     this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion_(), [sensor] {
-      auto res = run_without_interrupts<bool>([sensor] {
-        return sensor->read_scratch_pad_();
-      });
+      disable_interrupts();
+      bool res = sensor->read_scratch_pad_();
+      enable_interrupts();
+
       if (!res)
         return;
       if (!sensor->check_scratch_pad_())
@@ -189,9 +194,11 @@ bool DallasTemperatureSensor::read_scratch_pad_() {
   return true;
 }
 void DallasTemperatureSensor::setup_sensor_() {
-  auto r = run_without_interrupts<bool>([this]() {
-    return this->read_scratch_pad_();
-  });
+
+  disable_interrupts();
+  bool r = this->read_scratch_pad_();
+  enable_interrupts();
+
   if (!r)
     return;
   if (!this->check_scratch_pad_())
@@ -219,10 +226,8 @@ void DallasTemperatureSensor::setup_sensor_() {
   }
 
   ESPOneWire *wire = this->parent_->get_one_wire();
-  run_without_interrupts([this, wire]() {
-    if (!wire->reset())
-      return;
-
+  disable_interrupts();
+  if (wire->reset()) {
     wire->select(this->address_);
     wire->write8(DALLAS_COMMAND_WRITE_SCRATCH_PAD);
     wire->write8(this->scratch_pad_[2]); // high alarm temp
@@ -233,16 +238,17 @@ void DallasTemperatureSensor::setup_sensor_() {
     // write value to EEPROM
     wire->select(this->address_);
     wire->write8(0x48);
-  });
+  }
+  enable_interrupts();
 
   delay(20);  // allow it to finish operation
   wire->reset();
 }
 bool DallasTemperatureSensor::check_scratch_pad_() {
-  //auto *c = this->scratch_pad_;
-  //ESP_LOGV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)",
-  //         c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], ESPOneWire::crc8(this->scratch_pad_, 8));
-  if (ESPOneWire::crc8(this->scratch_pad_, 8) != this->scratch_pad_[8]) {
+  auto *c = this->scratch_pad_;
+  ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)",
+            c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], crc8(this->scratch_pad_, 8));
+  if (crc8(this->scratch_pad_, 8) != this->scratch_pad_[8]) {
     ESP_LOGE(TAG, "Reading scratch pad from Dallas Sensor failed");
     return false;
   }
@@ -258,8 +264,6 @@ float DallasTemperatureSensor::get_temp_c() {
   return temp / 128.0f;
 }
 std::string DallasTemperatureSensor::unique_id() {
-  if (this->address_ == 0)
-    return "";
   return "dallas-" + uint64_to_string(this->address_);
 }
 

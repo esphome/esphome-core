@@ -11,11 +11,10 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_HTU21D_SENSOR
-
-#include "HTU21D.h"
 
 namespace esphomelib {
 
@@ -29,14 +28,12 @@ using HTU21DHumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNI
  * It's basically an i2c-based accurate temperature and humidity sensor.
  * See https://www.adafruit.com/product/1899 for more information.
  */
-class HTU21DComponent : public PollingComponent {
+class HTU21DComponent : public PollingComponent, public I2CDevice {
  public:
   /// Construct the HTU21D with the given update interval.
-  explicit HTU21DComponent(const std::string &temperature_name, const std::string &humidity_name,
-                           uint32_t update_interval = 15000);
-
-  /// Get a reference to the internal i2cdevlib HTU21D object used for communication.
-  HTU21D &get_htu21d();
+  HTU21DComponent(I2CComponent *parent,
+                  const std::string &temperature_name, const std::string &humidity_name,
+                  uint32_t update_interval = 15000);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -51,7 +48,6 @@ class HTU21DComponent : public PollingComponent {
   void update() override;
 
  protected:
-  HTU21D htu21d_;
   HTU21DTemperatureSensor *temperature_{nullptr};
   HTU21DHumiditySensor *humidity_{nullptr};
 };

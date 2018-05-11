@@ -160,14 +160,23 @@ void MQTTComponent::setup_() {
   // Call component internal setup.
   this->setup_internal();
 
-  // Let the polling component subclass setup their HW.
   this->setup();
 
-  this->send_discovery_();
-
   global_mqtt_client->add_on_connect_callback([this]() {
-    this->send_discovery_();
+    this->next_send_discovery_ = true;
   });
+}
+void MQTTComponent::loop_() {
+  this->loop_internal();
+
+  this->loop();
+
+  if (this->next_send_discovery_) {
+    if (this->is_discovery_enabled())
+      this->send_discovery_();
+
+    this->next_send_discovery_ = false;
+  }
 }
 
 } // namespace mqtt

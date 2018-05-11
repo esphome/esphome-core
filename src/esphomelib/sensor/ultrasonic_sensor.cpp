@@ -38,11 +38,11 @@ void UltrasonicSensorComponent::update() {
   this->trigger_pin_->digital_write(true);
   delayMicroseconds(this->pulse_time_us_);
   this->trigger_pin_->digital_write(false);
-  auto time = run_without_interrupts<uint32_t>([this] {
-    return pulseIn(this->echo_pin_->get_pin(),
-                   uint8_t(!this->echo_pin_->is_inverted()),
-                   this->timeout_us_);
-  });
+  disable_interrupts();
+  uint32_t time = pulseIn(this->echo_pin_->get_pin(),
+                          uint8_t(!this->echo_pin_->is_inverted()),
+                          this->timeout_us_);
+  enable_interrupts();
 
   float result = 0;
   if (time == 0)

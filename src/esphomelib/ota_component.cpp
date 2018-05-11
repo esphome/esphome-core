@@ -50,6 +50,7 @@ void OTAComponent::setup() {
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
+    delay(100);
     run_safe_shutdown_hooks("ota");
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
@@ -86,6 +87,14 @@ void OTAComponent::setup() {
     this->ota_triggered_ = false;
   });
   ArduinoOTA.begin();
+
+#ifdef ARDUINO_ARCH_ESP32
+  add_shutdown_hook([](const char *cause) {
+    if (strcmp(cause, "ota") != 0)
+      ArduinoOTA.end();
+  });
+#endif
+
   if (this->has_safe_mode_) {
     add_safe_shutdown_hook([this](const char *cause) {
       if (strcmp(cause, "ota") != 0)
@@ -195,6 +204,6 @@ void OTAComponent::clean_rtc() {
   this->write_rtc_(0);
 }
 
-#endif //USE_OTA
-
 } // namespace esphomelib
+
+#endif //USE_OTA

@@ -10,14 +10,20 @@
 
 #ifdef USE_DHT_SENSOR
 
-#include <DHT.h>
-
 namespace esphomelib {
 
 namespace sensor {
 
 using DHTTemperatureSensor = EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>;
 using DHTHumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNIT_PERCENT>;
+
+enum class DHTModel {
+  AUTO_DETECT = 0,
+  DHT11,
+  DHT22,
+  AM2302,
+  RHT03,
+};
 
 /// DHTComponent - Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
 class DHTComponent : public PollingComponent {
@@ -27,27 +33,22 @@ class DHTComponent : public PollingComponent {
    * @param pin The pin which DHT sensor is connected to.
    * @param update_interval The interval in ms the sensor should be checked.
    */
-  explicit DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
-                        uint8_t pin, uint32_t update_interval = 15000);
-
-  /// Manually set the pin of this DHT sensor.
-  void set_pin(uint8_t pin);
-
-  // ========== INTERNAL METHODS ==========
-  // (In most use cases you won't need these)
-  uint8_t get_pin() const;
-  DHTTemperatureSensor *get_temperature_sensor() const;
-  DHTHumiditySensor *get_humidity_sensor() const;
+  DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
+               GPIOPin *pin, uint32_t update_interval = 15000);
 
   /** Manually select the DHT model.
    *
-   * Valid values are: DHT::AUTO_DETECT (default), DHT::DHT11, DHT::DHT22, DHT::AM2302, and DHT::RHT03.
+   * Valid values are: DHTModel::AUTO_DETECT (default), DHTModel::DHT11, DHTModel::DHT22,
+   * DHTModel::AM2302 and DHTModel::RHT03.
    *
    * @param model The DHT model.
    */
-  void set_dht_model(DHT::DHT_MODEL_t model);
+  void set_dht_model(DHTModel model);
 
-  DHT &get_dht();
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
+  DHTTemperatureSensor *get_temperature_sensor() const;
+  DHTHumiditySensor *get_humidity_sensor() const;
 
   /// Set up the pins and check connection.
   void setup() override;
@@ -57,9 +58,11 @@ class DHTComponent : public PollingComponent {
   float get_setup_priority() const override;
 
  protected:
-  uint8_t pin_;
-  DHT dht_;
-  DHT::DHT_MODEL_t model_{DHT::AUTO_DETECT};
+  uint8_t read_sensor_(float *temperature, float *humidity);
+  uint8_t read_sensor_safe_(float *temperature, float *humidity);
+
+  GPIOPin *pin_;
+  DHTModel model_{DHTModel::AUTO_DETECT};
   DHTTemperatureSensor *temperature_sensor_;
   DHTHumiditySensor *humidity_sensor_;
 };

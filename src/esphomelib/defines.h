@@ -54,6 +54,11 @@
   #define USE_PCF8574
   #define USE_IO
   #define USE_MPU6050
+  #define USE_TSL2561
+  #define USE_BH1750
+  #define USE_BME280
+  #define USE_BME680
+  #define USE_SHT3XD
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -130,6 +135,46 @@
   #endif
 #endif
 #ifdef USE_MPU6050
+  #ifndef USE_SENSOR
+    #define SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_TSL2561
+  #ifndef USE_SENSOR
+    #define SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_BH1750
+  #ifndef USE_SENSOR
+  #define SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_BME280
+  #ifndef USE_SENSOR
+    #define SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_BME680
+  #ifndef USE_SENSOR
+    #define SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_SHT3XD
   #ifndef USE_SENSOR
     #define SENSOR
   #endif

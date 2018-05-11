@@ -148,9 +148,9 @@ Application::MakeGPIOBinarySensor Application::make_gpio_binary_sensor(const std
 #ifdef USE_DHT_SENSOR
 Application::MakeDHTSensor Application::make_dht_sensor(const std::string &temperature_friendly_name,
                                                         const std::string &humidity_friendly_name,
-                                                        uint8_t pin,
+                                                        const GPIOOutputPin &pin,
                                                         uint32_t check_interval) {
-  auto *dht = new DHTComponent(temperature_friendly_name, humidity_friendly_name, pin, check_interval);
+  auto *dht = new DHTComponent(temperature_friendly_name, humidity_friendly_name, pin.copy(), check_interval);
   this->register_component(dht);
 
   return MakeDHTSensor{
@@ -181,8 +181,7 @@ LEDCOutputComponent *Application::make_ledc_output(uint8_t pin, float frequency,
 
 #ifdef USE_PCA9685_OUTPUT
 PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
-  this->assert_i2c_initialized();
-  auto *pca9685 = new PCA9685OutputComponent(frequency);
+  auto *pca9685 = new PCA9685OutputComponent(this->i2c_, frequency);
   return this->register_component(pca9685);
 }
 #endif
@@ -299,8 +298,8 @@ MQTTSwitchComponent *Application::register_switch(switch_::Switch *switch_) {
 DallasComponent *Application::make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval) {
   return this->register_component(new DallasComponent(one_wire, update_interval));
 }
-DallasComponent *Application::make_dallas_component(uint8_t pin, uint32_t update_interval) {
-  return this->make_dallas_component(new ESPOneWire(pin), update_interval);
+DallasComponent *Application::make_dallas_component(const GPIOOutputPin &pin, uint32_t update_interval) {
+  return this->make_dallas_component(new ESPOneWire(pin.copy()), update_interval);
 }
 #endif
 
@@ -383,8 +382,7 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(const std:
 
 #ifdef USE_ADS1115_SENSOR
 ADS1115Component *Application::make_ads1115_component(uint8_t address) {
-  this->assert_i2c_initialized();
-  return this->register_component(new ADS1115Component(address));
+  return this->register_component(new ADS1115Component(this->i2c_, address));
 }
 #endif
 
@@ -392,9 +390,11 @@ ADS1115Component *Application::make_ads1115_component(uint8_t address) {
 Application::MakeBMP085Sensor Application::make_bmp085_sensor(const std::string &temperature_friendly_name,
                                                               const std::string &pressure_friendly_name,
                                                               uint32_t update_interval) {
-  this->assert_i2c_initialized();
-  auto *bmp = this->register_component(new BMP085Component(temperature_friendly_name, pressure_friendly_name,
-                                                           update_interval));
+  auto *bmp = this->register_component(
+      new BMP085Component(this->i2c_,
+                          temperature_friendly_name, pressure_friendly_name,
+                          update_interval)
+  );
 
   return MakeBMP085Sensor{
       .bmp = bmp,
@@ -408,9 +408,10 @@ Application::MakeBMP085Sensor Application::make_bmp085_sensor(const std::string 
 Application::MakeHTU21DSensor Application::make_htu21d_sensor(const std::string &temperature_friendly_name,
                                                               const std::string &humidity_friendly_name,
                                                               uint32_t update_interval) {
-  this->assert_i2c_initialized();
-  auto *htu21d = this->register_component(new HTU21DComponent(temperature_friendly_name, humidity_friendly_name,
-                                                              update_interval));
+  auto *htu21d = this->register_component(
+      new HTU21DComponent(this->i2c_, temperature_friendly_name, humidity_friendly_name,
+                          update_interval)
+  );
 
   return MakeHTU21DSensor{
       .htu21d = htu21d,
@@ -422,19 +423,10 @@ Application::MakeHTU21DSensor Application::make_htu21d_sensor(const std::string 
 
 #ifdef USE_I2C
 I2CComponent *Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, bool scan) {
-  assert(!this->i2c_initialized_);
-  this->i2c_initialized_ = true;
-  return this->register_component(new I2CComponent(sda_pin, scl_pin, scan));
-}
-#endif //USE_I2C
-
-#ifdef USE_I2C
-void Application::assert_i2c_initialized() const {
-  if (this->i2c_initialized_)
-    return;
-  ESP_LOGE(TAG, "You need to call App.init_i2c() because a component requires i2c to work.");
-  delay(1000);
-  reboot("i2c");
+  auto *i2c = this->register_component(new I2CComponent(sda_pin, scl_pin, scan));
+  if (this->i2c_ == nullptr)
+    this->i2c_ = i2c;
+  return i2c;
 }
 #endif
 
@@ -484,9 +476,11 @@ ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {
 Application::MakeHDC1080Sensor Application::make_hdc1080_sensor(const std::string &temperature_friendly_name,
                                                                 const std::string &humidity_friendly_name,
                                                                 uint32_t update_interval) {
-  this->assert_i2c_initialized();
-  auto *hdc1080 = this->register_component(new HDC1080Component(temperature_friendly_name, humidity_friendly_name,
-                                                                update_interval));
+  auto *hdc1080 = this->register_component(
+      new HDC1080Component(this->i2c_,
+                           temperature_friendly_name, humidity_friendly_name,
+                           update_interval)
+  );
 
   return MakeHDC1080Sensor{
       .hdc1080 = hdc1080,
@@ -537,14 +531,13 @@ WiFiComponent *Application::init_wifi() {
 
 #ifdef USE_PCF8574
 PCF8574Component *Application::make_pcf8574_component(uint8_t address, bool pcf8575) {
-  return this->register_component(new PCF8574Component(address, pcf8575));
+  return this->register_component(new PCF8574Component(this->i2c_, address, pcf8575));
 }
 #endif
 
 #ifdef USE_MPU6050
 sensor::MPU6050Component *Application::make_mpu6050_sensor(uint8_t address, uint32_t update_interval) {
-  this->assert_i2c_initialized();
-  return this->register_component(new MPU6050Component(address, update_interval));
+  return this->register_component(new MPU6050Component(this->i2c_, address, update_interval));
 }
 #endif
 
@@ -554,6 +547,93 @@ Application::MakeSimpleSwitch Application::make_simple_switch(const std::string 
   return {
       .switch_ = s,
       .mqtt = this->register_switch(s)
+  };
+}
+#endif
+
+#ifdef USE_TSL2561
+Application::MakeTSL2561Sensor Application::make_tsl2561_sensor(const std::string &name,
+                                                                uint8_t address,
+                                                                uint32_t update_interval) {
+  auto *tsl = this->register_component(new TSL2561Sensor(this->i2c_, name, address, update_interval));
+  return {
+      .tsl2561 = tsl,
+      .mqtt = this->register_sensor(tsl)
+  };
+}
+#endif
+
+#ifdef USE_BH1750
+Application::MakeBH1750Sensor Application::make_bh1750_sensor(const std::string &name,
+                                                              uint8_t address,
+                                                              uint32_t update_interval) {
+  auto *bh1750 = this->register_component(new BH1750Sensor(this->i2c_, name, address, update_interval));
+  return {
+      .bh1750 = bh1750,
+      .mqtt = this->register_sensor(bh1750)
+  };
+}
+#endif
+
+#ifdef USE_BME280
+Application::MakeBME280Sensor Application::make_bme280_sensor(const std::string &temperature_name,
+                                                              const std::string &pressure_name,
+                                                              const std::string &humidity_name,
+                                                              uint8_t address,
+                                                              uint32_t update_interval) {
+  auto *bme280 = this->register_component(
+      new BME280Component(this->i2c_,
+                          temperature_name, pressure_name, humidity_name,
+                          address, update_interval)
+  );
+
+  return {
+      .bme280 = bme280,
+      .mqtt_temperature = this->register_sensor(bme280->get_temperature_sensor()),
+      .mqtt_pressure = this->register_sensor(bme280->get_pressure_sensor()),
+      .mqtt_humidity = this->register_sensor(bme280->get_humidity_sensor()),
+  };
+}
+#endif
+
+#ifdef USE_BME680
+Application::MakeBME680Sensor Application::make_bme680_sensor(const std::string &temperature_name,
+                                                              const std::string &pressure_name,
+                                                              const std::string &humidity_name,
+                                                              const std::string &gas_resistance_name,
+                                                              uint8_t address,
+                                                              uint32_t update_interval) {
+  auto *bme680 = this->register_component(
+      new BME680Component(this->i2c_,
+                          temperature_name, pressure_name, humidity_name, gas_resistance_name,
+                          address, update_interval)
+  );
+
+  return {
+      .bme680 = bme680,
+      .mqtt_temperature = this->register_sensor(bme680->get_temperature_sensor()),
+      .mqtt_pressure = this->register_sensor(bme680->get_pressure_sensor()),
+      .mqtt_humidity = this->register_sensor(bme680->get_humidity_sensor()),
+      .mqtt_gas_resistance = this->register_sensor(bme680->get_gas_resistance_sensor())
+  };
+}
+#endif
+
+#ifdef USE_SHT3XD
+Application::MakeSHT3XDSensor Application::make_sht3xd_sensor(const std::string &temperature_name,
+                                                              const std::string &humidity_name,
+                                                              uint8_t address,
+                                                              uint32_t update_interval) {
+  auto *sht3xd = this->register_component(
+      new SHT3XDComponent(this->i2c_,
+                          temperature_name, humidity_name,
+                          address, update_interval)
+  );
+
+  return {
+      .sht3xd = sht3xd,
+      .mqtt_temperature = this->register_sensor(sht3xd->get_temperature_sensor()),
+      .mqtt_humidity = this->register_sensor(sht3xd->get_humidity_sensor()),
   };
 }
 #endif

@@ -25,18 +25,6 @@
       "version": "5.13.3"
     },
     {
-      "name": "DHT",
-      "version": "~1.0.0"
-    },
-    {
-      "name": "PCA9685 16-Channel PWM Driver Module Library",
-      "version": "https://github.com/OttoWinter/PCA9685-Arduino.git"
-    },
-    {
-      "name": "I2Cdevlib-esphomelib",
-      "version": "1.1.0"
-    },
-    {
       "name": "ESP Async WebServer",
       "version": "1.1.1"
     }
