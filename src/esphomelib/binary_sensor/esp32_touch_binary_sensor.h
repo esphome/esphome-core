@@ -31,6 +31,11 @@ class ESP32TouchComponent : public Component {
 
   void set_setup_mode(bool setup_mode);
   void set_iir_filter(uint32_t iir_filter);
+  void set_sleep_cycle(uint16_t sleep_cycle);
+  void set_meas_cycle(uint16_t meas_cycle);
+  void set_low_voltage_reference(touch_low_volt_t low_voltage_reference);
+  void set_high_voltage_reference(touch_high_volt_t high_voltage_reference);
+  void set_voltage_attenuation(touch_volt_atten_t voltage_attenuation);
 
   float get_setup_priority() const override;
 

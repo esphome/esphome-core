@@ -129,6 +129,21 @@ void ESP32TouchComponent::set_iir_filter(uint32_t iir_filter) {
 float ESP32TouchComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
+void ESP32TouchComponent::set_sleep_cycle(uint16_t sleep_cycle) {
+  this->sleep_cycle_ = sleep_cycle;
+}
+void ESP32TouchComponent::set_meas_cycle(uint16_t meas_cycle) {
+  this->meas_cycle_ = meas_cycle;
+}
+void ESP32TouchComponent::set_low_voltage_reference(touch_low_volt_t low_voltage_reference) {
+  this->low_voltage_reference_ = low_voltage_reference;
+}
+void ESP32TouchComponent::set_high_voltage_reference(touch_high_volt_t high_voltage_reference) {
+  this->high_voltage_reference_ = high_voltage_reference;
+}
+void ESP32TouchComponent::set_voltage_attenuation(touch_volt_atten_t voltage_attenuation) {
+  this->voltage_attenuation_ = voltage_attenuation;
+}
 
 ESP32TouchBinarySensor::ESP32TouchBinarySensor(const std::string &name, touch_pad_t touch_pad, uint16_t threshold)
     : BinarySensor(name), touch_pad_(touch_pad), threshold_(threshold) {
