@@ -644,6 +644,12 @@ ESP32TouchComponent *Application::make_esp32_touch_component() {
 }
 #endif
 
+#ifdef USE_ESP32_BLE_TRACKER
+ESP32BLETracker *Application::make_esp32_ble_tracker() {
+  return this->register_component(new ESP32BLETracker());
+}
+#endif
+
 Application App; // NOLINT
 
 } // namespace esphomelib

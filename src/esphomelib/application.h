@@ -9,6 +9,7 @@
 #include "esphomelib/defines.h"
 #include "esphomelib/component.h"
 #include "esphomelib/controller.h"
+#include "esphomelib/esp32_ble_tracker.h"
 #include "esphomelib/debug_component.h"
 #include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/log.h"
@@ -142,6 +143,22 @@ class Application {
    * @return The WebServer object, use this for advanced settings.
    */
   WebServer *init_web_server(uint16_t port = 80);
+#endif
+
+#ifdef USE_ESP32_BLE_TRACKER
+  /** Setup an ESP32 BLE Tracker Hub.
+   *
+   * Only one of these should be created. Individual sensors can be created using make_device() on
+   * the return value.
+   *
+   * Note that this component is currently not completely stable (probably due to some issues in the
+   * esp-idf core that are being worked on). Enabling this integration will increase the created binary
+   * size by up to 500kB, can cause seemingly random reboots/resets and only can discover a small
+   * number of devices at the moment.
+   *
+   * @return An ESP32BLETracker instance, use this to create individual trackers as binary sensors.
+   */
+  ESP32BLETracker *make_esp32_ble_tracker();
 #endif
 
 
