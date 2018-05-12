@@ -63,7 +63,7 @@ void setup() {
 
   auto bme680 = App.make_bme680_sensor("BME680 Temperature", "BME680 Pressure", "BME680 Humidity", "BME680 Gas Resistance");
   // default is no iir filter
-  bme680.bme680->set_iir_filter(sensor::BME680_IIR_FILTER_X15);
+  bme680.bme680->set_iir_filter(sensor::BME680_IIR_FILTER_15X);
   // set heater to 200°C for 100ms, default is off
   bme680.bme680->set_heater(200, 100);
 

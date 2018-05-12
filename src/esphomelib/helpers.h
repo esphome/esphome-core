@@ -124,10 +124,18 @@ std::string uint32_to_string(uint32_t num);
 /// Sanitizes the input string with the whitelist.
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
 
+/** Cross-platform method to disable interrupts.
+ *
+ * Useful when you need to do some timing-dependent communication.
+ *
+ * @see Do not forget to call `enable_interrupts()` again or otherwise things will go very wrong.
+ */
 void disable_interrupts();
 
+/// Cross-platform method to enable interrupts after they have been disabled.
 void enable_interrupts();
 
+/// Calculate a crc8 of data with the provided data length.
 uint8_t crc8(uint8_t *data, uint8_t len);
 
 /// Helper class to represent an optional value.

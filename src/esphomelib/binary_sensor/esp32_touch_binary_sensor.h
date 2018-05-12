@@ -40,11 +40,11 @@ class ESP32TouchBinarySensor;
  * but fewer ghost touch events will happen. The IIR Filter is off by default.
  *
  * Additionally, if you want to tinker around with the internal values for esp-idf in order to improve
- * performance and decrease power usage, you can use the set_sleep_cycle, set_meas_cycle,
- * set_low_voltage_reference, set_high_voltage_reference and set_voltage_attenuation methods.
+ * performance and decrease power usage, you can use the set_sleep_cycle, `set_meas_cycle()`,
+ * `set_low_voltage_reference()`, `set_high_voltage_reference()` and `set_voltage_attenuation()` methods.
  *
  * When setting up the threshold values, it can be useful to get the "real" measured touch values
- * and not just the binary ON/OFF state. For this there's the set_setup_mode() method which can be
+ * and not just the binary ON/OFF state. For this there's the `set_setup_mode()` method which can be
  * used to enable, as the name implies, a setup mode. In this mode the component will regularly send out
  * the measured touch values in the logs using the DEBUG log level. Be sure to turn it off again afterwards!
  */
@@ -54,21 +54,23 @@ class ESP32TouchComponent : public Component {
    *
    * Values for touch_pad can be:
    *
-   *  - TOUCH_PAD_NUM0 (GPIO 4)
-   *  - TOUCH_PAD_NUM1 (GPIO 0)
-   *  - TOUCH_PAD_NUM2 (GPIO 2)
-   *  - TOUCH_PAD_NUM3 (GPIO 15)
-   *  - TOUCH_PAD_NUM4 (GPIO 13)
-   *  - TOUCH_PAD_NUM5 (GPIO 12)
-   *  - TOUCH_PAD_NUM6 (GPIO 14)
-   *  - TOUCH_PAD_NUM7 (GPIO 27)
-   *  - TOUCH_PAD_NUM8 (GPIO 33)
-   *  - TOUCH_PAD_NUM9 (GPIO 32)
+   *  - `TOUCH_PAD_NUM0` (GPIO 4)
+   *  - `TOUCH_PAD_NUM1` (GPIO 0)
+   *  - `TOUCH_PAD_NUM2` (GPIO 2)
+   *  - `TOUCH_PAD_NUM3` (GPIO 15)
+   *  - `TOUCH_PAD_NUM4` (GPIO 13)
+   *  - `TOUCH_PAD_NUM5` (GPIO 12)
+   *  - `TOUCH_PAD_NUM6` (GPIO 14)
+   *  - `TOUCH_PAD_NUM7` (GPIO 27)
+   *  - `TOUCH_PAD_NUM8` (GPIO 33)
+   *  - `TOUCH_PAD_NUM9` (GPIO 32)
    *
    * Additionally, you need to register the touch pad in the application instance like this:
    *
    * ```cpp
-   * App.register_binary_sensor(touch_hub->make_touch_pad("ESP32 Touch Pad 9", TOUCH_PAD_NUM9, 1000));
+   * App.register_binary_sensor(
+   *     touch_hub->make_touch_pad("ESP32 Touch Pad 9", TOUCH_PAD_NUM9, 1000)
+   * );
    * ```
    *
    * @param name The name of the binary sensor.
@@ -90,8 +92,8 @@ class ESP32TouchComponent : public Component {
 
   /** Setup an infinite impulse response filter to improve accuracy of the touch readings.
    *
-   * See https://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/touch_pad.html#filtering-of-measurements
-   * for more information. Good values for this can be 20ms or so, but often the default of no filter works
+   * See [Filtering Pulses](https://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/touch_pad.html#filtering-of-measurements
+   * for more information). Good values for this can be 20ms or so, but often the default of no filter works
    * just fine.
    *
    * @param iir_filter The new IIR Filter period in ms. Default is OFF (0).
@@ -125,13 +127,12 @@ class ESP32TouchComponent : public Component {
    *
    * Possible values are:
    *
-   *  - TOUCH_LVOLT_0V5 (default)
-   *  - TOUCH_LVOLT_0V6
-   *  - TOUCH_LVOLT_0V7
-   *  - TOUCH_LVOLT_0V8
+   *  - `TOUCH_LVOLT_0V5` (default)
+   *  - `TOUCH_LVOLT_0V6`
+   *  - `TOUCH_LVOLT_0V7`
+   *  - `TOUCH_LVOLT_0V8`
    *
-   * @see set_high_voltage_reference
-   * @see set_voltage_attenuation
+   * @see set_high_voltage_reference and set_voltage_attenuation
    * @param low_voltage_reference The new low voltage reference.
    */
   void set_low_voltage_reference(touch_low_volt_t low_voltage_reference);
@@ -145,13 +146,12 @@ class ESP32TouchComponent : public Component {
    *
    * Possible values are:
    *
-   *  - TOUCH_HVOLT_2V4
-   *  - TOUCH_HVOLT_2V5
-   *  - TOUCH_HVOLT_2V6
-   *  - TOUCH_HVOLT_2V7 (default)
+   *  - `TOUCH_HVOLT_2V4`
+   *  - `TOUCH_HVOLT_2V5`
+   *  - `TOUCH_HVOLT_2V6`
+   *  - `TOUCH_HVOLT_2V7` (default)
    *
-   * @see set_low_voltage_reference
-   * @see set_voltage_attenuation
+   * @see set_low_voltage_reference and set_voltage_attenuation
    * @param high_voltage_reference The new high voltage reference.
    */
   void set_high_voltage_reference(touch_high_volt_t high_voltage_reference);
@@ -160,13 +160,12 @@ class ESP32TouchComponent : public Component {
    *
    * Possible values are:
    *
-   *  - TOUCH_HVOLT_ATTEN_1V5
-   *  - TOUCH_HVOLT_ATTEN_1V
-   *  - TOUCH_HVOLT_ATTEN_0V5
-   *  - TOUCH_HVOLT_ATTEN_0V (default)
+   *  - `TOUCH_HVOLT_ATTEN_1V5`
+   *  - `TOUCH_HVOLT_ATTEN_1V`
+   *  - `TOUCH_HVOLT_ATTEN_0V5`
+   *  - `TOUCH_HVOLT_ATTEN_0V` (default)
    *
-   * @see set_low_voltage_reference
-   * @see set_high_voltage_reference
+   * @see set_low_voltage_reference and set_high_voltage_reference
    * @param voltage_attenuation The new voltage attenuation
    */
   void set_voltage_attenuation(touch_volt_atten_t voltage_attenuation);

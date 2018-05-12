@@ -22,6 +22,7 @@ namespace sensor {
 extern float BME680_GAS_LOOKUP_TABLE_1[16] PROGMEM;
 extern float BME680_GAS_LOOKUP_TABLE_2[16] PROGMEM;
 
+/// Enum listing all IIR Filter options for the BME680.
 enum BME680IIRFilter {
   BME680_IIR_FILTER_OFF = 0b000,
   BME680_IIR_FILTER_1X = 0b001,
@@ -33,6 +34,7 @@ enum BME680IIRFilter {
   BME680_IIR_FILTER_127X = 0b111,
 };
 
+/// Enum listing all oversampling options for the BME680.
 enum BME680Oversampling {
   BME680_OVERSAMPLING_NONE = 0b000,
   BME680_OVERSAMPLING_1X = 0b001,
@@ -42,6 +44,7 @@ enum BME680Oversampling {
   BME680_OVERSAMPLING_16X = 0b101,
 };
 
+/// Struct for storing calibration data for the BME680.
 struct BME680CalibrationData {
   uint16_t t1;
   uint16_t t2;
@@ -90,15 +93,31 @@ class BME680Component : public PollingComponent, public I2CDevice {
                   const std::string &humidity_name, const std::string &gas_resistance_name,
                   uint8_t address = 0x76, uint32_t update_interval = 15000);
 
+  /// Set the temperature oversampling value. Defaults to 16X.
+  void set_temperature_oversampling(BME680Oversampling temperature_oversampling);
+  /// Set the pressure oversampling value. Defaults to 16X.
+  void set_pressure_oversampling(BME680Oversampling pressure_oversampling);
+  /// Set the humidity oversampling value. Defaults to 16X.
+  void set_humidity_oversampling(BME680Oversampling humidity_oversampling);
+  /// Set the IIR Filter value. Defaults to no IIR Filter.
+  void set_iir_filter(BME680IIRFilter iir_filter);
+
+  /** Set how the internal heater should operate.
+   *
+   * By default, the heater is off. If you want to to have more reliable
+   * humidity and Gas Resistance values, you can however setup the heater
+   * with this method.
+   *
+   * @param heater_temperature The temperature of the heater in °C.
+   * @param heater_duration The duration in ms that the heater should turn on for when measuring.
+   */
+  void set_heater(uint16_t heater_temperature, uint16_t heater_duration);
+
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
   void setup() override;
   float get_setup_priority() const override;
   void update() override;
-
-  void set_temperature_oversampling(BME680Oversampling temperature_oversampling);
-  void set_pressure_oversampling(BME680Oversampling pressure_oversampling);
-  void set_humidity_oversampling(BME680Oversampling humidity_oversampling);
-  void set_iir_filter(BME680IIRFilter iir_filter);
-  void set_heater(uint16_t heater_temperature, uint16_t heater_duration);
 
   BME680TemperatureSensor *get_temperature_sensor() const;
   BME680PressureSensor *get_pressure_sensor() const;
@@ -106,14 +125,22 @@ class BME680Component : public PollingComponent, public I2CDevice {
   BME680GasResistanceSensor *get_gas_resistance_sensor() const;
 
  protected:
+  /// Calculate the heater resistance value to send to the BME680 register.
   uint8_t calc_heater_resistance_(uint16_t temperature);
+  /// Calculate the heater duration value to send to the BME680 register.
   uint8_t calc_heater_duration_(uint16_t duration);
+  /// Read data from the BME680 and publish results.
   void read_data_();
 
+  /// Calculate the temperature in °C using the provided raw ADC value.
   float calc_temperature_(uint32_t raw_temperature);
+  /// Calculate the pressure in hPa using the provided raw ADC value.
   float calc_pressure_(uint32_t raw_pressure);
+  /// Calculate the relative humidity in % using the provided raw ADC value.
   float calc_humidity_(uint16_t raw_humidity);
+  /// Calculate the gas resistance in Ω using the provided raw ADC value.
   uint32_t calc_gas_resistance_(uint16_t raw_gas, uint8_t range);
+  /// Calculate how long the sensor will take until we can retrieve data.
   uint32_t calc_meas_duration_();
 
   BME680CalibrationData calibration_;

@@ -37,7 +37,7 @@ class ESP32BLEDevice;
  * its own stack.
  *
  * Also, currently only BLE beacons seem to be picked up by this component. In the future I will
- * try to also make this work with standard BLE devices (like smartwatches, phones, ...), but that
+ * try to also make this work with standard BLE devices (like smart-watches, phones, ...), but that
  * will require a bit of reading up on the (very complicated) Bluetooth standard and might take a while.
  */
 class ESP32BLETracker : public Component {
@@ -68,7 +68,7 @@ class ESP32BLETracker : public Component {
    *     Name: 'Google Home Mini'
    * ```
    *
-   * If the Address Type shown in the logs is "RANDOM", you unfortunately can't track that device at
+   * If the Address Type shown in the logs is `RANDOM`, you unfortunately can't track that device at
    * the moment as the device constantly changes its MAC address as a "security" feature.
    *
    * @see set_scan_interval
@@ -99,11 +99,11 @@ class ESP32BLETracker : public Component {
   void start_scan(bool first);
   /// Callback that will handle all GAP events and redistribute them to other callbacks.
   static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
-  /// Called when a ESP_GAP_BLE_SCAN_RESULT_EVT event is received.
+  /// Called when a `ESP_GAP_BLE_SCAN_RESULT_EVT` event is received.
   void gap_scan_result(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param);
-  /// Called when a ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT event is received.
+  /// Called when a `ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT` event is received.
   void gap_scan_set_param_complete(const esp_ble_gap_cb_param_t::ble_scan_param_cmpl_evt_param &param);
-  /// Called when a ESP_GAP_BLE_SCAN_START_COMPLETE_EVT event is received.
+  /// Called when a `ESP_GAP_BLE_SCAN_START_COMPLETE_EVT` event is received.
   void gap_scan_start_complete(const esp_ble_gap_cb_param_t::ble_scan_start_cmpl_evt_param &param);
 
   /// An array of registered devices to track

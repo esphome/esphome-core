@@ -19,6 +19,7 @@ namespace esphomelib {
 
 namespace sensor {
 
+/// Internal struct storing the calibration values of an BME280.
 struct BME280CalibrationData {
   uint16_t t1; // 0x88 - 0x89
   int16_t t2;  // 0x8A - 0x8B
@@ -42,6 +43,11 @@ struct BME280CalibrationData {
   int8_t h6;   // 0xE7
 };
 
+/** Enum listing all Oversampling values for the BME280.
+ *
+ * Oversampling basically means measuring a condition multiple times. Higher oversampling
+ * values therefore increase the time required to read sensor values but increase accuracy.
+ */
 enum BME280Oversampling {
   BME280_OVERSAMPLING_NONE = 0b000,
   BME280_OVERSAMPLING_1X = 0b001,
@@ -51,6 +57,10 @@ enum BME280Oversampling {
   BME280_OVERSAMPLING_16X = 0b101,
 };
 
+/** Enum listing all Infinite Impulse Filter values for the BME280.
+ *
+ * Higher values increase accuracy, but decrease response time.
+ */
 enum BME280IIRFilter {
   BME280_IIR_FILTER_OFF = 0b000,
   BME280_IIR_FILTER_2X = 0b001,
@@ -63,6 +73,7 @@ using BME280TemperatureSensor = sensor::EmptyPollingParentSensor<1, ICON_EMPTY, 
 using BME280PressureSensor = sensor::EmptyPollingParentSensor<1, ICON_GAUGE, UNIT_HPA>;
 using BME280HumiditySensor = sensor::EmptyPollingParentSensor<1, ICON_WATER_PERCENT, UNIT_PERCENT>;
 
+/// This class implements support for the BME280 Temperature+Pressure+Humidity i2c sensor.
 class BME280Component : public PollingComponent, public I2CDevice {
  public:
   BME280Component(I2CComponent *parent,
@@ -70,23 +81,31 @@ class BME280Component : public PollingComponent, public I2CDevice {
                   const std::string &humidity_name,
                   uint8_t address = 0x77, uint32_t update_interval = 15000);
 
+  /// Set the oversampling value for the temperature sensor. Default is 16x.
   void set_temperature_oversampling(BME280Oversampling temperature_over_sampling);
+  /// Set the oversampling value for the pressure sensor. Default is 16x.
   void set_pressure_oversampling(BME280Oversampling pressure_over_sampling);
+  /// Set the oversampling value for the humidity sensor. Default is 16x.
   void set_humidity_oversampling(BME280Oversampling humidity_over_sampling);
+  /// Set the IIR Filter used to increase accuracy, defaults to no IIR Filter.
   void set_iir_filter(BME280IIRFilter iir_filter);
 
+  // ========== INTERNAL METHODS ==========
+  // (In most use cases you won't need these)
   BME280TemperatureSensor *get_temperature_sensor() const;
   BME280PressureSensor *get_pressure_sensor() const;
   BME280HumiditySensor *get_humidity_sensor() const;
 
   void setup() override;
-  void loop() override;
   float get_setup_priority() const override;
   void update() override;
 
  protected:
+  /// Read the temperature value and store the calculated ambient temperature in t_fine.
   float read_temperature_(int32_t *t_fine);
+  /// Read the pressure value in hPa using the provided t_fine value.
   float read_pressure_(int32_t t_fine);
+  /// Read the humidity value in % using the provided t_fine value.
   float read_humidity_(int32_t t_fine);
   uint8_t read_u8(uint8_t register_);
   uint16_t read_u16_le(uint8_t register_);

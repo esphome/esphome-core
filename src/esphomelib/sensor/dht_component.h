@@ -17,15 +17,15 @@ namespace sensor {
 using DHTTemperatureSensor = EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>;
 using DHTHumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNIT_PERCENT>;
 
-enum class DHTModel {
-  AUTO_DETECT = 0,
-  DHT11,
-  DHT22,
-  AM2302,
-  RHT03,
+enum DHTModel {
+  DHT_MODEL_AUTO_DETECT = 0,
+  DHT_MODEL_DHT11,
+  DHT_MODEL_DHT22,
+  DHT_MODEL_AM2302,
+  DHT_MODEL_RHT03,
 };
 
-/// DHTComponent - Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
+/// Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
 class DHTComponent : public PollingComponent {
  public:
   /** Construct a DHTComponent.
@@ -38,8 +38,13 @@ class DHTComponent : public PollingComponent {
 
   /** Manually select the DHT model.
    *
-   * Valid values are: DHTModel::AUTO_DETECT (default), DHTModel::DHT11, DHTModel::DHT22,
-   * DHTModel::AM2302 and DHTModel::RHT03.
+   * Valid values are:
+   *
+   *  - DHT_MODEL_AUTO_DETECT (default)
+   *  - DHT_MODEL_DHT11
+   *  - DHT_MODEL_DHT22
+   *  - DHT_MODEL_AM2302
+   *  - DHT_MODEL_RHT03
    *
    * @param model The DHT model.
    */
@@ -62,7 +67,7 @@ class DHTComponent : public PollingComponent {
   uint8_t read_sensor_safe_(float *temperature, float *humidity);
 
   GPIOPin *pin_;
-  DHTModel model_{DHTModel::AUTO_DETECT};
+  DHTModel model_{DHT_MODEL_AUTO_DETECT};
   DHTTemperatureSensor *temperature_sensor_;
   DHTHumiditySensor *humidity_sensor_;
 };

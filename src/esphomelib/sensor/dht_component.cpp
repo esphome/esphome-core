@@ -33,11 +33,11 @@ DHTComponent::DHTComponent(const std::string &temperature_name, const std::strin
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
 
-  if (this->model_ == DHTModel::AUTO_DETECT) {
-    this->model_ = DHTModel::DHT22;
+  if (this->model_ == DHT_MODEL_AUTO_DETECT) {
+    this->model_ = DHT_MODEL_DHT22;
     float temp1, temp2;
     if (this->read_sensor_safe_(&temp1, &temp2) == DHT_ERROR_TIMEOUT)
-      this->model_ = DHTModel::DHT11;
+      this->model_ = DHT_MODEL_DHT11;
   }
 
   ESP_LOGCONFIG(TAG, "    Model: %u", this->model_);
@@ -76,7 +76,7 @@ uint8_t DHTComponent::read_sensor_(float *temperature, float *humidity) {
   this->pin_->digital_write(false);
   this->pin_->pin_mode(OUTPUT);
 
-  if (this->model_ == DHTModel::DHT11)
+  if (this->model_ == DHT_MODEL_DHT11)
     delay(18);
   else
     delayMicroseconds(800);
@@ -122,7 +122,7 @@ uint8_t DHTComponent::read_sensor_(float *temperature, float *humidity) {
   if (checksum != data)
     return DHT_ERROR_CHECKSUM;
 
-  if (this->model_ == DHTModel::DHT11) {
+  if (this->model_ == DHT_MODEL_DHT11) {
     *humidity = raw_humidity >> 8;
     *temperature = raw_temperature >> 8;
   } else {
