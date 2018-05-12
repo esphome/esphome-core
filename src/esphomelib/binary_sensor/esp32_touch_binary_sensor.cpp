@@ -100,7 +100,7 @@ void ESP32TouchComponent::loop() {
       child->publish_state(value < child->get_threshold());
 
       if (this->setup_mode_) {
-        ESP_LOGD(TAG, "Touch Pad T%d: %u", child->get_touch_pad(), value);
+        ESP_LOGD(TAG, "Touch Pad '%s' (T%u): %u", child->get_name().c_str(), child->get_touch_pad(), value);
       }
     }
 
