@@ -213,6 +213,13 @@ class Application {
 #endif
 
 #ifdef USE_ESP32_TOUCH_BINARY_SENSOR
+  /** Setup an ESP32TouchComponent to detect touches on certain pins of the ESP32 using the built-in touch peripheral.
+   *
+   * First set up the global hub using this method. Then create individual binary sensors using the make_touch_pad
+   * function on the return type.
+   *
+   * @return The new ESP32TouchComponent. Use this to create the binary sensors.
+   */
   binary_sensor::ESP32TouchComponent *make_esp32_touch_component();
 #endif
 
