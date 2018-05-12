@@ -22,23 +22,27 @@ namespace esphomelib {
 
 namespace sensor {
 
-extern const uint8_t ADS1115_MULTIPLEXER_P0_N1;
-extern const uint8_t ADS1115_MULTIPLEXER_P0_N3;
-extern const uint8_t ADS1115_MULTIPLEXER_P1_N3;
-extern const uint8_t ADS1115_MULTIPLEXER_P2_N3;
-extern const uint8_t ADS1115_MULTIPLEXER_P0_NG;
-extern const uint8_t ADS1115_MULTIPLEXER_P1_NG;
-extern const uint8_t ADS1115_MULTIPLEXER_P2_NG;
-extern const uint8_t ADS1115_MULTIPLEXER_P3_NG;
+enum ADS1115Multiplexer {
+  ADS1115_MULTIPLEXER_P0_N1 = 0b000,
+  ADS1115_MULTIPLEXER_P0_N3 = 0b001,
+  ADS1115_MULTIPLEXER_P1_N3 = 0b010,
+  ADS1115_MULTIPLEXER_P2_N3 = 0b011,
+  ADS1115_MULTIPLEXER_P0_NG = 0b100,
+  ADS1115_MULTIPLEXER_P1_NG = 0b101,
+  ADS1115_MULTIPLEXER_P2_NG = 0b110,
+  ADS1115_MULTIPLEXER_P3_NG = 0b111,
+};
 
-extern const uint8_t ADS1115_GAIN_6P144;
-extern const uint8_t ADS1115_GAIN_4P096;
-extern const uint8_t ADS1115_GAIN_2P048;
-extern const uint8_t ADS1115_GAIN_1P024;
-extern const uint8_t ADS1115_GAIN_0P512;
-extern const uint8_t ADS1115_GAIN_0P256;
-extern const uint8_t ADS1115_GAIN_0P256B;
-extern const uint8_t ADS1115_GAIN_0P256C;
+enum ADS1115Gain {
+  ADS1115_GAIN_6P144 = 0b000,
+  ADS1115_GAIN_4P096 = 0b001,
+  ADS1115_GAIN_2P048 = 0b010,
+  ADS1115_GAIN_1P024 = 0b011,
+  ADS1115_GAIN_0P512 = 0b100,
+  ADS1115_GAIN_0P256 = 0b101,
+  ADS1115_GAIN_0P256B = 0b110,
+  ADS1115_GAIN_0P256C = 0b111,
+};
 
 class ADS1115Sensor;
 
@@ -74,7 +78,7 @@ class ADS1115Component : public Component, public I2CDevice {
    * @param update_interval The interval in milliseconds the value for this sensor should be checked.
    * @return An ADS1115Sensor, use this for advanced options.
    */
-  ADS1115Sensor *get_sensor(const std::string &name, uint8_t multiplexer, uint8_t gain,
+  ADS1115Sensor *get_sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,
                             uint32_t update_interval = 15000);
 
   // ========== INTERNAL METHODS ==========
@@ -94,10 +98,11 @@ class ADS1115Component : public Component, public I2CDevice {
 /// Internal holder class that is in instance of Sensor so that the hub can create individual sensors.
 class ADS1115Sensor : public sensor::EmptySensor<3, ICON_FLASH, UNIT_V> {
  public:
-  ADS1115Sensor(const std::string &name, uint8_t multiplexer, uint8_t gain, uint32_t update_interval);
+  ADS1115Sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,
+                uint32_t update_interval);
 
-  void set_multiplexer(uint8_t multiplexer);
-  void set_gain(uint8_t gain);
+  void set_multiplexer(ADS1115Multiplexer multiplexer);
+  void set_gain(ADS1115Gain gain);
 
   uint32_t update_interval() override;
 
@@ -107,8 +112,8 @@ class ADS1115Sensor : public sensor::EmptySensor<3, ICON_FLASH, UNIT_V> {
   uint8_t get_gain() const;
 
  protected:
-  uint8_t multiplexer_;
-  uint8_t gain_;
+  ADS1115Multiplexer multiplexer_;
+  ADS1115Gain gain_;
   uint32_t update_interval_;
 };
 

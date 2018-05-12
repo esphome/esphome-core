@@ -20,24 +20,6 @@ static const uint8_t ADS1115_REGISTER_CONFIG = 0x01;
 
 static const uint8_t ADS1115_DATA_RATE_860_SPS = 0b111;
 
-const uint8_t ADS1115_MULTIPLEXER_P0_N1 = 0b000;
-const uint8_t ADS1115_MULTIPLEXER_P0_N3 = 0b001;
-const uint8_t ADS1115_MULTIPLEXER_P1_N3 = 0b010;
-const uint8_t ADS1115_MULTIPLEXER_P2_N3 = 0b011;
-const uint8_t ADS1115_MULTIPLEXER_P0_NG = 0b100;
-const uint8_t ADS1115_MULTIPLEXER_P1_NG = 0b101;
-const uint8_t ADS1115_MULTIPLEXER_P2_NG = 0b110;
-const uint8_t ADS1115_MULTIPLEXER_P3_NG = 0b111;
-
-const uint8_t ADS1115_GAIN_6P144 = 0b000;
-const uint8_t ADS1115_GAIN_4P096 = 0b001;
-const uint8_t ADS1115_GAIN_2P048 = 0b010;
-const uint8_t ADS1115_GAIN_1P024 = 0b011;
-const uint8_t ADS1115_GAIN_0P512 = 0b100;
-const uint8_t ADS1115_GAIN_0P256 = 0b101;
-const uint8_t ADS1115_GAIN_0P256B = 0b110;
-const uint8_t ADS1115_GAIN_0P256C = 0b111;
-
 void ADS1115Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ADS1115...");
   ESP_LOGCONFIG(TAG, "    Address: 0x%02x", this->address_);
@@ -84,7 +66,7 @@ void ADS1115Component::setup() {
   config |= 0b0000000000000011;
 
   this->write_byte_16(ADS1115_REGISTER_CONFIG, config);
-  for (auto sensor : this->sensors_) {
+  for (auto *sensor : this->sensors_) {
     ESP_LOGCONFIG(TAG, "  Sensor %s", sensor->get_name().c_str());
     ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
     ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
@@ -146,7 +128,7 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   sensor->push_new_value(v);
 }
 
-ADS1115Sensor *ADS1115Component::get_sensor(const std::string &name, uint8_t multiplexer, uint8_t gain,
+ADS1115Sensor *ADS1115Component::get_sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,
                                             uint32_t update_interval) {
   auto s = new ADS1115Sensor(name, multiplexer, gain, update_interval);
   this->sensors_.push_back(s);
@@ -157,16 +139,17 @@ ADS1115Component::ADS1115Component(I2CComponent *parent, uint8_t address) : I2CD
 uint8_t ADS1115Sensor::get_multiplexer() const {
   return this->multiplexer_;
 }
-void ADS1115Sensor::set_multiplexer(uint8_t multiplexer) {
+void ADS1115Sensor::set_multiplexer(ADS1115Multiplexer multiplexer) {
   this->multiplexer_ = multiplexer;
 }
 uint8_t ADS1115Sensor::get_gain() const {
   return this->gain_;
 }
-void ADS1115Sensor::set_gain(uint8_t gain) {
+void ADS1115Sensor::set_gain(ADS1115Gain gain) {
   this->gain_ = gain;
 }
-ADS1115Sensor::ADS1115Sensor(const std::string &name, uint8_t multiplexer, uint8_t gain, uint32_t update_interval)
+ADS1115Sensor::ADS1115Sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,
+                             uint32_t update_interval)
     : EmptySensor(name), multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {}
 uint32_t ADS1115Sensor::update_interval() {
   return this->update_interval_;
