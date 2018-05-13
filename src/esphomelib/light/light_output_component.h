@@ -16,63 +16,52 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
-/// Interface to write LightColorValues to hardware.
-class LightOutput {
+class BinaryLightOutput : public LightOutput {
  public:
-  LightOutput();
-
-  void set_state(LightState *state);
-  LightState *get_state() const;
-
-  /// Return the LightTraits of this LightCouput.
-  virtual const LightTraits &get_traits() const = 0;
-  LightColorValues get_current_values();
+  explicit BinaryLightOutput(output::BinaryOutput *output);
+  LightTraits get_traits() override;
+  void write_state(LightState *state) override;
 
  protected:
-  LightState *state_;
+  output::BinaryOutput *output_;
 };
 
-/** Enables simple light output to FloatOutputs
- *
- * Supports several light types: monochromatic, RGB, and RGBW. Aditionally supports gamma correction.
- */
-class LinearLightOutputComponent : public LightOutput, public Component {
+class MonochromaticLightOutput : public LightOutput {
  public:
-  /// Construct a LinearLightOutputComponent with 2.8 as the gamma correction factor.
-  LinearLightOutputComponent();
+  explicit MonochromaticLightOutput(output::FloatOutput *output);
+  LightTraits get_traits() override;
+  void write_state(LightState *state) override;
 
-  const LightTraits &get_traits() const override;
+ protected:
+  output::FloatOutput *output_;
+};
 
-  float get_gamma_correct() const;
-  void set_gamma_correct(float gamma_correct);
+class RGBLightOutput : public LightOutput {
+ public:
+  RGBLightOutput(output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue);
+  LightTraits get_traits() override;
+  void write_state(LightState *state) override;
 
-  void setup_binary(output::BinaryOutput *binary);
+ protected:
+  output::FloatOutput *red_;
+  output::FloatOutput *green_;
+  output::FloatOutput *blue_;
+};
 
-  /// Set up a monochromatic light.
-  void setup_monochromatic(output::FloatOutput *monochromatic);
-
-  /// Set up an RGB light.
-  void setup_rgb(output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue);
-
-  /// Set up an RGBW light.
-  void setup_rgbw(output::FloatOutput *red,
+class RGBWLightOutput : public LightOutput {
+ public:
+  RGBWLightOutput(output::FloatOutput *red,
                   output::FloatOutput *green,
                   output::FloatOutput *blue,
                   output::FloatOutput *white);
-
-  void loop() override;
-  void setup() override;
-  float get_setup_priority() const override;
+  LightTraits get_traits() override;
+  void write_state(LightState *state) override;
 
  protected:
-  output::BinaryOutput *binary_;
-  output::FloatOutput *monochromatic_;
   output::FloatOutput *red_;
   output::FloatOutput *green_;
   output::FloatOutput *blue_;
   output::FloatOutput *white_;
-  LightTraits traits_;
-  float gamma_correct_;
 };
 
 } // namespace light

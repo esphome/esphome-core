@@ -23,7 +23,10 @@ class LightTransformer {
   LightTransformer() = delete;
 
   /// Whether this transformation is finished
-  bool is_finished();
+  virtual bool is_finished();
+
+  /// Whether the output needs to be written in every loop cycle.
+  virtual bool is_continuous() = 0;
 
   /// This will be called to get the current values for output.
   virtual LightColorValues get_values() = 0;
@@ -56,6 +59,8 @@ class LightTransitionTransformer : public LightTransformer {
                              const LightColorValues &target_values);
 
   LightColorValues get_values() override;
+
+  bool is_continuous() override;
 };
 
 class LightFlashTransformer : public LightTransformer {
@@ -66,6 +71,8 @@ class LightFlashTransformer : public LightTransformer {
   LightColorValues get_values() override;
 
   LightColorValues get_end_values() override;
+
+  bool is_continuous() override;
 };
 
 } // namespace light

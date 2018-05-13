@@ -26,6 +26,7 @@
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/i2c_component.h"
 #include "esphomelib/io/pcf8574_component.h"
+#include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
@@ -617,13 +618,12 @@ class Application {
   light::MQTTJSONLightComponent *register_light(light::LightState *state);
 
   struct MakeLight {
-    light::LinearLightOutputComponent *output;
+    light::LightOutput *output;
     light::LightState *state;
     light::MQTTJSONLightComponent *mqtt;
   };
 
-  /// Create and connect a MQTTJSONLightComponent to the provided light output component. Mostly for internal use.
-  MakeLight connect_light_(const std::string &friendly_name, light::LinearLightOutputComponent *out);
+  MakeLight make_light_for_light_output(const std::string &name, light::LightOutput *output);
 
   /** Create a binary light.
    *
@@ -664,6 +664,16 @@ class Application {
   MakeLight make_rgbw_light(const std::string &friendly_name,
                             output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
                             output::FloatOutput *white);
+#endif
+
+#ifdef USE_FAST_LED_LIGHT
+  struct MakeFastLEDLight {
+    light::FastLEDLightOutput *fast_led;
+    light::LightState *state;
+    light::MQTTJSONLightComponent *mqtt;
+  };
+
+  MakeFastLEDLight make_fast_led_light(const std::string &name);
 #endif
 
 

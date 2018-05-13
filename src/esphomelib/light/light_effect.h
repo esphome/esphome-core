@@ -41,6 +41,9 @@ class LightEffect {
   /// Initialize this LightEffect. Will be called once after creation.
   virtual void initialize(LightState *state);
 
+  /// Called when this effect is about to be removed
+  virtual void stop(LightState *state);
+
   /// Apply this effect. Use the provided state for starting transitions, ...
   virtual void apply_effect(LightState *state) = 0;
 };

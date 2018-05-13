@@ -75,6 +75,7 @@
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_ESP32_BLE_TRACKER
   #endif
+  #define USE_FAST_LED_LIGHT
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -229,6 +230,11 @@
 #ifdef USE_RESTART_SWITCH
   #ifndef USE_SWITCH
     #define USE_SWITCH
+  #endif
+#endif
+#ifdef USE_FAST_LED_LIGHT
+  #ifndef USE_LIGHT
+    #define USE_LIGHT
   #endif
 #endif
 #ifdef USE_LIGHT

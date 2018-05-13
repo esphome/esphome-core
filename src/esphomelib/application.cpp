@@ -189,11 +189,8 @@ PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
 #ifdef USE_LIGHT
 Application::MakeLight Application::make_rgb_light(const std::string &friendly_name,
                                                    FloatOutput *red, FloatOutput *green, FloatOutput *blue) {
-  auto *out = new LinearLightOutputComponent();
-  out->setup_rgb(red, green, blue);
-  this->register_component(out);
-
-  return this->connect_light_(friendly_name, out);
+  auto *out = new RGBLightOutput(red, green, blue);
+  return this->make_light_for_light_output(friendly_name, out);
 }
 #endif
 
@@ -203,11 +200,8 @@ Application::MakeLight Application::make_rgbw_light(const std::string &friendly_
                                                     output::FloatOutput *green,
                                                     output::FloatOutput *blue,
                                                     output::FloatOutput *white) {
-  auto *out = new LinearLightOutputComponent();
-  out->setup_rgbw(red, green, blue, white);
-  this->register_component(out);
-
-  return this->connect_light_(friendly_name, out);
+  auto *out = new RGBWLightOutput(red, green, blue, white);
+  return this->make_light_for_light_output(friendly_name, out);
 }
 #endif
 
@@ -237,36 +231,28 @@ OTAComponent *Application::init_ota() {
 #ifdef USE_LIGHT
 Application::MakeLight Application::make_monochromatic_light(const std::string &friendly_name,
                                                              output::FloatOutput *mono) {
-  auto *out = new LinearLightOutputComponent();
-  out->setup_monochromatic(mono);
-  this->register_component(out);
-
-  return this->connect_light_(friendly_name, out);
+  auto *out = new MonochromaticLightOutput(mono);
+  return this->make_light_for_light_output(friendly_name, out);
 }
 #endif
 
 #ifdef USE_LIGHT
 Application::MakeLight Application::make_binary_light(const std::string &friendly_name,
                                                       output::BinaryOutput *binary) {
-  auto *out = new LinearLightOutputComponent();
-  out->setup_binary(binary);
-  this->register_component(out);
-
-  return this->connect_light_(friendly_name, out);
+  auto *out = new BinaryLightOutput(binary);
+  return this->make_light_for_light_output(friendly_name, out);
 }
 #endif
 
 #ifdef USE_LIGHT
-Application::MakeLight Application::connect_light_(const std::string &friendly_name,
-                                                   light::LinearLightOutputComponent *out) {
-  MakeLight s{};
-  s.state = new LightState(friendly_name, out->get_traits());
-  this->register_component(s.state);
-  out->set_state(s.state);
-  s.output = out;
-  s.mqtt = this->register_light(s.state);
+Application::MakeLight Application::make_light_for_light_output(const std::string &name, light::LightOutput *output) {
+  LightState *state = this->register_component(new LightState(name, output));
 
-  return s;
+  return MakeLight{
+      .output = output,
+      .state = state,
+      .mqtt = this->register_light(state),
+  };
 }
 #endif
 
@@ -647,6 +633,19 @@ ESP32TouchComponent *Application::make_esp32_touch_component() {
 #ifdef USE_ESP32_BLE_TRACKER
 ESP32BLETracker *Application::make_esp32_ble_tracker() {
   return this->register_component(new ESP32BLETracker());
+}
+#endif
+
+#ifdef USE_FAST_LED_LIGHT
+Application::MakeFastLEDLight Application::make_fast_led_light(const std::string &name) {
+  auto *fast_led = this->register_component(new FastLEDLightOutput());
+  auto make = this->make_light_for_light_output(name, fast_led);
+
+  return MakeFastLEDLight{
+      .fast_led = fast_led,
+      .state = make.state,
+      .mqtt = make.mqtt,
+  };
 }
 #endif
 

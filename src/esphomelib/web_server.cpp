@@ -363,7 +363,7 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
 #ifdef USE_LIGHT
 void WebServer::register_light(light::LightState *obj) {
   StoringController::register_light(obj);
-  obj->add_send_callback([this, obj]() {
+  obj->add_new_remote_values_callback([this, obj]() {
     this->defer([this, obj] {
       this->events_.send(this->light_json(obj).c_str(), "state");
     });

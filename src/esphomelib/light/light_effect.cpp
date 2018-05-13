@@ -29,6 +29,9 @@ std::vector<LightEffect::Entry> light_effect_entries = { // NOLINT
 void LightEffect::initialize(LightState *state) {
 
 }
+void LightEffect::stop(LightState *state) {
+
+}
 
 std::string NoneLightEffect::get_name() const {
   return "None";

@@ -25,7 +25,7 @@ void MQTTJSONLightComponent::setup() {
     this->state_->parse_json(root);
   });
 
-  this->state_->add_send_callback([this]() {
+  this->state_->add_new_remote_values_callback([this]() {
     this->defer("send", [this]() {
       this->send_light_values();
     });

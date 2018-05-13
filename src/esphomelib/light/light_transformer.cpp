@@ -54,6 +54,9 @@ LightTransitionTransformer::LightTransitionTransformer(uint32_t start_time,
                                                        const LightColorValues &start_values,
                                                        const LightColorValues &target_values) :
     LightTransformer(start_time, length, start_values, target_values) {}
+bool LightTransitionTransformer::is_continuous() {
+  return true;
+}
 
 LightColorValues LightFlashTransformer::get_values() {
   return this->get_target_values();
@@ -67,6 +70,9 @@ LightFlashTransformer::LightFlashTransformer(uint32_t start_time, uint32_t lengt
                                              const LightColorValues &start_values,
                                              const LightColorValues &target_values)
     : LightTransformer(start_time, length, start_values, target_values) {}
+bool LightFlashTransformer::is_continuous() {
+  return false;
+}
 
 } // namespace light
 

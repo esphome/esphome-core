@@ -87,6 +87,14 @@ class LightColorValues {
    */
   void normalize_color(const LightTraits &traits);
 
+  void as_binary(bool *binary) const;
+
+  void as_brightness(float *brightness) const;
+
+  void as_rgb(float *red, float *green, float *blue) const;
+
+  void as_rgbw(float *red, float *green, float *blue, float *white) const;
+
   /// Compare this LightColorValues to rhs, return true iff all attributes match.
   bool operator==(const LightColorValues &rhs) const;
   bool operator!=(const LightColorValues &rhs) const;

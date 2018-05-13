@@ -185,6 +185,21 @@ bool LightColorValues::operator==(const LightColorValues &rhs) const {
 bool LightColorValues::operator!=(const LightColorValues &rhs) const {
   return !(rhs == *this);
 }
+void LightColorValues::as_rgbw(float *red, float *green, float *blue, float *white) const {
+  this->as_rgb(red, green, blue);
+  *white = this->state_ * this->brightness_ * this->white_;
+}
+void LightColorValues::as_rgb(float *red, float *green, float *blue) const {
+  *red = this->state_ * this->brightness_ * this->red_;
+  *green = this->state_ * this->brightness_ * this->green_;
+  *blue = this->state_ * this->brightness_ * this->blue_;
+}
+void LightColorValues::as_brightness(float *brightness) const {
+  *brightness = this->state_ * this->brightness_;
+}
+void LightColorValues::as_binary(bool *binary) const {
+  *binary = this->state_ == 1.0f;
+}
 
 } // namespace light
 
