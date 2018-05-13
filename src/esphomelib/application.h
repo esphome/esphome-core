@@ -697,12 +697,10 @@ class Application {
    *
    * @param pin The pin the IR led is connected to.
    * @param carrier_duty_percent The duty cycle of the IR output. Decrease this if your LED gets hot.
-   * @param clock_divider The clock divider for the rmt peripheral.
    * @return The IRTransmitterComponent. Use this for advanced settings.
    */
   switch_::IRTransmitterComponent *make_ir_transmitter(const GPIOOutputPin &pin,
-                                                       uint8_t carrier_duty_percent = 50,
-                                                       uint8_t clock_divider = switch_::DEFAULT_CLOCK_DIVIDER);
+                                                       uint8_t carrier_duty_percent = 50);
 #endif
 
 #ifdef USE_GPIO_SWITCH

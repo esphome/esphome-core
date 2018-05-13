@@ -1,6 +1,8 @@
 //
 // Created by Otto Winter on 01.12.17.
 //
+// ESP8266 code based on IRRemote8266: https://github.com/markszabo/IRremoteESP8266
+// DataTransmitter from_* based on IRRemote: https://github.com/z3t0/Arduino-IRremote
 
 
 #include "esphomelib/switch_/ir_transmitter_component.h"
@@ -8,12 +10,15 @@
 #include <cstdlib>
 
 #include "esphomelib/log.h"
+#include "esphomelib/espmath.h"
 
 #ifdef USE_IR_TRANSMITTER
 
+#ifdef ARDUINO_ARCH_ESP32
 #include <esp32-hal.h>
 #include <driver/rmt.h>
 #include <soc/rmt_struct.h>
+#endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -25,6 +30,16 @@ using namespace esphomelib::switch_::ir;
 
 namespace ir {
 
+void SendData::mark(uint16_t duration_us) {
+  this->data.push_back(static_cast<short>(duration_us));
+}
+void SendData::space(uint16_t duration_us) {
+  this->data.push_back(static_cast<short>(duration_us * -1));
+}
+void SendData::add_item(uint16_t high_us, uint16_t low_us) {
+  this->mark(high_us);
+  this->space(low_us);
+}
 SendData SendData::from_raw(std::vector<int> &raw_data, uint32_t carrier_frequency) {
   SendData send_data{};
   send_data.carrier_frequency = carrier_frequency;
@@ -38,12 +53,7 @@ SendData SendData::from_raw(std::vector<int> &raw_data, uint32_t carrier_frequen
   }
   return send_data;
 }
-void SendData::mark(uint16_t duration_us) {
-  this->data.push_back(static_cast<short>(duration_us));
-}
-void SendData::space(uint16_t duration_us) {
-  this->data.push_back(static_cast<short>(duration_us * -1));
-}
+
 SendData SendData::from_nec(uint16_t address, uint16_t command) {
   SendData send_data{};
   send_data.carrier_frequency = nec::CARRIER_FREQUENCY_HZ;
@@ -67,11 +77,6 @@ SendData SendData::from_nec(uint16_t address, uint16_t command) {
 
   send_data.add_item(nec::BIT_HIGH_US, 0);
   return send_data;
-}
-
-void SendData::add_item(uint16_t high_us, uint16_t low_us) {
-  this->mark(high_us);
-  this->space(low_us);
 }
 SendData SendData::from_lg(uint32_t data, uint8_t nbits) {
   SendData send_data{};
@@ -104,27 +109,6 @@ SendData SendData::from_sony(uint32_t data, uint8_t nbits) {
   return send_data;
 }
 
-std::vector<rmt_item32_t> SendData::get_rmt_data(uint16_t ticks_for_10_us) {
-  std::vector<rmt_item32_t> rmt_data((this->data.size() + 1) / 2, rmt_item32_t {});
-
-  for (uint32_t i = 0; i < this->data.size(); i++) {
-    int16_t x = this->data[i];
-    bool level = x >= 0;
-    auto duration = uint16_t(fabsf(x) / 10 * ticks_for_10_us);
-
-    rmt_item32_t *item = &rmt_data[i / 2];
-    if (i % 2 == 0) {
-      item->level0 = static_cast<uint32_t>(level);
-      item->duration0 = duration;
-    } else {
-      item->level1 = static_cast<uint32_t>(level);
-      item->duration1 = duration;
-    }
-  }
-  ESP_LOGV(TAG, "RMT Data Length: %u ms", this->total_length_ms());
-
-  return rmt_data;
-}
 SendData SendData::from_panasonic(uint16_t address, uint32_t data) {
   SendData send_data{};
   send_data.carrier_frequency = panasonic::CARRIER_FREQUENCY_HZ;
@@ -159,7 +143,7 @@ SendData SendData::repeat(uint16_t times, uint16_t wait_us) {
 uint32_t SendData::total_length_ms() const {
   uint32_t total = 0;
   for (auto &&v : this->data)
-    total += fabsf(v);
+    total += std::abs(v);
 
   uint32_t result = (this->repeat_times - 1) * (total + this->repeat_wait);
   result += total;
@@ -167,13 +151,38 @@ uint32_t SendData::total_length_ms() const {
   return result / 1000;
 }
 
+#ifdef ARDUINO_ARCH_ESP32
+std::vector<rmt_item32_t> SendData::get_rmt_data(uint16_t ticks_for_10_us) {
+  std::vector<rmt_item32_t> rmt_data((this->data.size() + 1) / 2, rmt_item32_t {});
+
+  for (uint32_t i = 0; i < this->data.size(); i++) {
+    int16_t x = this->data[i];
+    bool level = x >= 0;
+    auto duration = uint16_t(fabsf(x) / 10 * ticks_for_10_us);
+
+    rmt_item32_t *item = &rmt_data[i / 2];
+    if (i % 2 == 0) {
+      item->level0 = static_cast<uint32_t>(level);
+      item->duration0 = duration;
+    } else {
+      item->level1 = static_cast<uint32_t>(level);
+      item->duration1 = duration;
+    }
+  }
+  ESP_LOGV(TAG, "RMT Data Length: %u ms", this->total_length_ms());
+
+  return rmt_data;
+}
+#endif
+
+
 } // namespace ir
 
+#ifdef ARDUINO_ARCH_ESP32
 void IRTransmitterComponent::setup() {
   this->configure_rmt();
   rmt_driver_install(this->channel_, 0, 0);
 }
-
 void IRTransmitterComponent::configure_rmt() {
   rmt_config_t c{};
 
@@ -213,16 +222,6 @@ void IRTransmitterComponent::configure_rmt() {
 uint16_t IRTransmitterComponent::get_ticks_for_10_us() {
   return static_cast<uint16_t>(BASE_CLOCK_HZ / this->clock_divider_ / 100000);
 }
-
-void IRTransmitterComponent::require_carrier_frequency(uint32_t carrier_frequency) {
-  if (this->last_carrier_frequency_ == carrier_frequency)
-    return;
-  this->last_carrier_frequency_ = carrier_frequency;
-  this->configure_rmt();
-}
-float IRTransmitterComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
 void IRTransmitterComponent::send(ir::SendData &send_data) {
   this->require_carrier_frequency(send_data.carrier_frequency);
 
@@ -233,22 +232,133 @@ void IRTransmitterComponent::send(ir::SendData &send_data) {
   }
   rmt_write_items(this->channel_, v.data(), v.size(), true);
 }
+void IRTransmitterComponent::require_carrier_frequency(uint32_t carrier_frequency) {
+  if (this->last_carrier_frequency_ == carrier_frequency)
+    return;
+  this->last_carrier_frequency_ = carrier_frequency;
 
-rmt_channel_t IRTransmitterComponent::get_channel() const {
-  return this->channel_;
+  this->configure_rmt();
 }
 void IRTransmitterComponent::set_channel(rmt_channel_t channel) {
   assert(channel < RMT_CHANNEL_MAX);
   this->channel_ = channel;
 }
-uint8_t IRTransmitterComponent::get_clock_divider() const {
-  return this->clock_divider_;
-}
 void IRTransmitterComponent::set_clock_divider(uint8_t clock_divider) {
   this->clock_divider_ = clock_divider;
 }
-uint8_t IRTransmitterComponent::get_carrier_duty_percent() const {
-  return this->carrier_duty_percent_;
+
+rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+void IRTransmitterComponent::setup() {
+
+}
+#endif
+
+IRTransmitterComponent::IRTransmitterComponent(GPIOPin *pin,
+                                               uint8_t carrier_duty_percent)
+    : carrier_duty_percent_(carrier_duty_percent),
+      pin_(pin) {
+#ifdef ARDUINO_ARCH_ESP32
+  this->set_channel(next_rmt_channel);
+  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
+#endif
+}
+
+#ifdef ARDUINO_ARCH_ESP8266
+void IRTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequency,
+                                                    uint32_t *on_time_period,
+                                                    uint32_t *off_time_period) {
+  if (carrier_frequency == 0)
+    carrier_frequency = 1;
+  uint32_t period = (1000000UL + carrier_frequency / 2) / carrier_frequency; // round(1000000/freq)
+  period = std::max(uint32_t(1), period);
+  *on_time_period = (period * this->carrier_duty_percent_) / 100;
+  *off_time_period = period - *on_time_period;
+}
+void IRTransmitterComponent::delay_microseconds_accurate_(uint32_t usec) {
+  if (usec == 0)
+    return;
+
+  if (usec <= 16383UL) {
+    delayMicroseconds(usec);
+  } else {
+    delay(usec / 1000UL);
+    delayMicroseconds(usec % 1000UL);
+  }
+}
+void IRTransmitterComponent::send(ir::SendData &send_data) {
+  // maintain timing across marks/spaces
+  for (uint16_t i = 0; i < send_data.repeat_times; i++) {
+    uint32_t last_end_time = micros();
+
+    uint32_t on_time, off_time;
+    this->calculate_on_off_time_(send_data.carrier_frequency, &on_time, &off_time);
+
+    enable_interrupts();
+    for (int16_t item : send_data.data) {
+      const uint32_t length = std::abs(item);
+      const uint32_t now = micros();
+      const uint32_t target_time = (last_end_time + length) - now;
+      last_end_time += length;
+
+      if (target_time > length) {
+        // overflow, the last operation took longer than length
+        continue;
+      }
+
+      if (item > 0) {
+        this->mark_(on_time, off_time, length);
+      } else {
+        this->space_(length);
+      }
+
+      ESP.wdtFeed();
+    }
+    disable_interrupts();
+
+    if (i + 1 < send_data.repeat_times) {
+      uint32_t wait_ms = send_data.repeat_wait / 1000UL;
+      if (wait_ms > 0)
+        delay(wait_ms);
+      delayMicroseconds(send_data.repeat_wait % 1000UL);
+    }
+  }
+}
+void IRTransmitterComponent::mark_(uint32_t on_time, uint32_t off_time, uint32_t usec) {
+  if (this->carrier_duty_percent_ == 100) {
+    this->pin_->digital_write(true);
+    this->delay_microseconds_accurate_(usec);
+    this->pin_->digital_write(false);
+    return;
+  }
+
+  const uint32_t start_time = micros();
+  uint32_t current_time = start_time;
+
+  while (current_time - start_time < usec) {
+    const uint32_t elapsed = current_time - start_time;
+    this->pin_->digital_write(true);
+
+    this->delay_microseconds_accurate_(std::min(on_time, usec - elapsed));
+    this->pin_->digital_write(false);
+    if (elapsed + on_time >= usec)
+      return;
+
+    this->delay_microseconds_accurate_(std::min(usec - elapsed - on_time, off_time));
+
+    current_time = micros();
+  }
+}
+void IRTransmitterComponent::space_(uint32_t usec) {
+  this->pin_->digital_write(false);
+  this->delay_microseconds_accurate_(usec);
+}
+#endif
+
+float IRTransmitterComponent::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
 }
 void IRTransmitterComponent::set_carrier_duty_percent(uint8_t carrier_duty_percent) {
   this->carrier_duty_percent_ = carrier_duty_percent;
@@ -257,15 +367,7 @@ IRTransmitterComponent::DataTransmitter *IRTransmitterComponent::create_transmit
                                                                                     const ir::SendData &send_data) {
   return new DataTransmitter(name, send_data, this);
 }
-IRTransmitterComponent::IRTransmitterComponent(GPIOPin *pin,
-                                               uint8_t carrier_duty_percent,
-                                               uint8_t clock_divider)
-    : clock_divider_(clock_divider),
-      carrier_duty_percent_(carrier_duty_percent),
-      pin_(pin) {
-  this->set_channel(next_rmt_channel);
-  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
-}
+
 IRTransmitterComponent::DataTransmitter::DataTransmitter(const std::string &name,
                                                          const ir::SendData &send_data,
                                                          IRTransmitterComponent *parent)
@@ -282,8 +384,6 @@ void IRTransmitterComponent::DataTransmitter::turn_off() {
 std::string IRTransmitterComponent::DataTransmitter::icon() {
   return "mdi:remote";
 }
-
-rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 
 } // namespace output
 

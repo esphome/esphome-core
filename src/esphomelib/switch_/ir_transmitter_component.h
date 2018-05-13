@@ -12,7 +12,9 @@
 
 #ifdef USE_IR_TRANSMITTER
 
+#ifdef ARDUINO_ARCH_ESP32
 #include <driver/rmt.h>
+#endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -73,11 +75,13 @@ const uint32_t BIT_ONE_LOW_US = 1244;
 struct SendData {
   uint32_t carrier_frequency; ///< The carrier frequency of the IR protocol.
   std::vector<int16_t> data; ///< Raw IR data, negative means off, positive means on.
-  uint16_t repeat_times{1}; ///< How often to repeat this data.
+  uint16_t repeat_times{1}; ///< How often to perform this data set.
   uint16_t repeat_wait; ///< How long to wait between repeats.
 
+#ifdef ARDUINO_ARCH_ESP32
   /// Return the internal data as an RMT interface-compatible vector.
   std::vector<rmt_item32_t> get_rmt_data(uint16_t ticks_for_10_us);
+#endif
 
   /// Push back a high value for the specified duration to the data.
   void mark(uint16_t duration_us);
@@ -124,11 +128,9 @@ class IRTransmitterComponent : public Component {
    *
    * @param pin The pin for this IR Transmitter.
    * @param carrier_duty_percent The duty percentage (from 0-100) for this transmitter.
-   * @param clock_divider The clock divider used.
    */
   explicit IRTransmitterComponent(GPIOPin *pin,
-                                  uint8_t carrier_duty_percent = 50,
-                                  uint8_t clock_divider = DEFAULT_CLOCK_DIVIDER);
+                                  uint8_t carrier_duty_percent = 50);
 
   class DataTransmitter;
 
@@ -139,14 +141,8 @@ class IRTransmitterComponent : public Component {
    */
   DataTransmitter *create_transmitter(const std::string &name, const ir::SendData &send_data);
 
-  /// Set the RMT channel used.
-  void set_channel(rmt_channel_t channel);
-
   /// Set the carrier duty percentage (from 0-100).
   void set_carrier_duty_percent(uint8_t carrier_duty_percent);
-
-  /// Set the clock divier for RMT.
-  void set_clock_divider(uint8_t clock_divider);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -169,31 +165,51 @@ class IRTransmitterComponent : public Component {
   void setup() override;
   /// HARDWARE_LATE setup priority.
   float get_setup_priority() const override;
+
+  /// Send an IR SendData object on this pin.
   void send(ir::SendData &send_data);
 
-  /// Get the RMT channel used.
-  rmt_channel_t get_channel() const;
-  /// Get the clock divider for RMT:
-  uint8_t get_clock_divider() const;
-  /// Get the carrier duty percentage.
-  uint8_t get_carrier_duty_percent() const;
+#ifdef ARDUINO_ARCH_ESP32
+  /// Set the clock divier for RMT.
+  void set_clock_divider(uint8_t clock_divider);
+
+  /// Set the RMT channel used.
+  void set_channel(rmt_channel_t channel);
+#endif
 
  protected:
+#ifdef ARDUINO_ARCH_ESP32
   /// Setup the RMT peripheral for the specified carrier frequency, if it's already the used frequency, does nothing.
   void require_carrier_frequency(uint32_t carrier_frequency);
+
   /// Get the number of ticks (from the clock divider) for 10 µs.
   uint16_t get_ticks_for_10_us();
+
   /// Configure the RMT peripheral using the internal information.
   void configure_rmt();
 
   rmt_channel_t channel_;
-  GPIOPin *pin_;
-  uint8_t clock_divider_;
+  uint8_t clock_divider_{DEFAULT_CLOCK_DIVIDER};
   uint32_t last_carrier_frequency_{DEFAULT_CARRIER_FREQUENCY_HZ};
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+  void calculate_on_off_time_(uint32_t carrier_frequency, uint32_t *on_time_period, uint32_t *off_time_period);
+
+  void delay_microseconds_accurate_(uint32_t usec);
+
+  void mark_(uint32_t on_time, uint32_t off_time, uint32_t usec);
+
+  void space_(uint32_t usec);
+#endif
+
+  GPIOPin *pin_;
   uint8_t carrier_duty_percent_;
 };
 
+#ifdef ARDUINO_ARCH_ESP32
 extern rmt_channel_t next_rmt_channel;
+#endif
 
 } // namespace switch_
 

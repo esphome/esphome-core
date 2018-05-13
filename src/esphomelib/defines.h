@@ -51,9 +51,7 @@
   #define USE_LIGHT
   #define USE_SWITCH
   #define USE_SIMPLE_SWITCH
-  #ifdef ARDUINO_ARCH_ESP32
-    #define USE_IR_TRANSMITTER
-  #endif
+  #define USE_IR_TRANSMITTER
   #define USE_GPIO_SWITCH
   #define USE_RESTART_SWITCH
   #define USE_SHUTDOWN_SWITCH

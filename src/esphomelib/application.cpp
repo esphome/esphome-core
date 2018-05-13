@@ -262,10 +262,8 @@ MQTTClientComponent *Application::get_mqtt_client() const {
 
 #ifdef USE_IR_TRANSMITTER
 IRTransmitterComponent *Application::make_ir_transmitter(const GPIOOutputPin &pin,
-                                                         uint8_t carrier_duty_percent,
-                                                         uint8_t clock_divider) {
-  return this->register_component(new IRTransmitterComponent(pin.copy(), carrier_duty_percent,
-                                                             clock_divider));
+                                                         uint8_t carrier_duty_percent) {
+  return this->register_component(new IRTransmitterComponent(pin.copy(), carrier_duty_percent));
 }
 #endif
 
