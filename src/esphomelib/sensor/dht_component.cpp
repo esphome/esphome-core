@@ -13,7 +13,7 @@
 
 #ifdef USE_DHT_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -150,6 +150,6 @@ uint8_t DHTComponent::read_sensor_safe_(float *temperature, float *humidity) {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_DHT_SENSOR

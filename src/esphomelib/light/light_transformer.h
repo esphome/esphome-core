@@ -10,7 +10,7 @@
 
 #ifdef USE_LIGHT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
@@ -70,7 +70,7 @@ class LightFlashTransformer : public LightTransformer {
 
 } // namespace light
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_LIGHT
 

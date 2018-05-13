@@ -15,7 +15,7 @@
 
 #ifdef USE_MPU6050
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -149,6 +149,6 @@ float MPU6050Component::get_setup_priority() const {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_MPUT6050

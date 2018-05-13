@@ -16,7 +16,7 @@
 
 #ifdef USE_HDC1080_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -53,7 +53,7 @@ class HDC1080Component : public PollingComponent, public I2CDevice {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_HDC1080_SENSOR
 

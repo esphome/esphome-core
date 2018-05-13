@@ -18,7 +18,7 @@
 
 #ifdef USE_ADS1115_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -119,7 +119,7 @@ class ADS1115Sensor : public sensor::EmptySensor<3, ICON_FLASH, UNIT_V> {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ADS1115_SENSOR
 

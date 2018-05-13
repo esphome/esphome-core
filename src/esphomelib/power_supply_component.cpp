@@ -10,7 +10,7 @@
 
 #ifdef USE_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "power_supply";
 
@@ -85,6 +85,6 @@ void PowerSupplyComponent::unrequest_high_power() {
   }
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_OUTPUT

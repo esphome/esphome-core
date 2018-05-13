@@ -15,7 +15,7 @@
 
 #ifdef USE_TSL2561
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -98,7 +98,7 @@ class TSL2561Sensor : public PollingSensorComponent, public I2CDevice {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_TSL2561
 

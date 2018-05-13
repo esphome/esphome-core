@@ -10,7 +10,7 @@
 
 #ifdef USE_LEDC_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -62,7 +62,7 @@ extern uint8_t next_ledc_channel;
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_LEDC_OUTPUT
 

@@ -9,7 +9,7 @@
 
 #ifdef USE_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -156,6 +156,6 @@ const char ICON_GAS_CYLINDER[] = "mdi:gas-cylinder";
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SENSOR

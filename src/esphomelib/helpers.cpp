@@ -16,7 +16,7 @@
 #include "esphomelib/espmath.h"
 #include "esphomelib/esphal.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "helpers";
 
@@ -221,4 +221,4 @@ uint8_t crc8(uint8_t *data, uint8_t len) {
   return crc;
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

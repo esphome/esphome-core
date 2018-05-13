@@ -13,7 +13,7 @@
 
 #ifdef USE_ULTRASONIC_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -95,6 +95,6 @@ int8_t UltrasonicSensorComponent::accuracy_decimals() {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ULTRASONIC_SENSOR

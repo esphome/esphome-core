@@ -13,7 +13,7 @@
 
 #ifdef USE_SHUTDOWN_SWITCH
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -45,6 +45,6 @@ std::string ShutdownSwitch::icon() {
 
 } // namespace switch_
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SHUTDOWN_SWITCH

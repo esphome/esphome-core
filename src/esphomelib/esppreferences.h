@@ -12,8 +12,9 @@
 #endif
 
 #include "esphomelib/espmath.h"
+#include "esphomelib/defines.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Helper class to allow easy access to non-volatile storage like SPIFFS to save preferences.
 class ESPPreferences {
@@ -57,6 +58,6 @@ class ESPPreferences {
 
 extern ESPPreferences global_preferences;
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_ESPPREFERENCES_H

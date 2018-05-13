@@ -19,7 +19,7 @@
 #ifdef ARDUINO_ARCH_ESP8266
 #endif
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "debug";
 
@@ -148,6 +148,6 @@ float DebugComponent::get_setup_priority() const {
   return setup_priority::LATE; // display debug info via MQTT
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_DEBUG_COMPONENT

@@ -10,7 +10,7 @@
 
 #ifdef USE_ADS1115_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -157,6 +157,6 @@ uint32_t ADS1115Sensor::update_interval() {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ADS1115_SENSOR

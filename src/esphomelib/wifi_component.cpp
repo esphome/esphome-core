@@ -19,7 +19,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "wifi";
 
@@ -305,4 +305,4 @@ float WiFiComponent::get_loop_priority() const {
 
 WiFiComponent *global_wifi_component;
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

@@ -8,7 +8,7 @@
 
 #ifdef USE_FAN
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace fan {
 
@@ -135,6 +135,6 @@ void MQTTFanComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt
 
 } // namespace fan
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_FAN

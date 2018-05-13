@@ -14,7 +14,7 @@
 
 #ifdef USE_ESP32_TOUCH_BINARY_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
@@ -205,7 +205,7 @@ class ESP32TouchBinarySensor : public BinarySensor {
 
 } // namespace binary_sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ESP32_TOUCH_BINARY_SENSOR
 

@@ -12,7 +12,7 @@
 
 #include <ArduinoOTA.h>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "ota";
 #ifdef ARDUINO_ARCH_ESP32
@@ -204,6 +204,6 @@ void OTAComponent::clean_rtc() {
   this->write_rtc_(0);
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_OTA

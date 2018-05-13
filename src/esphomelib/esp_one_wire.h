@@ -16,7 +16,7 @@
 
 #ifdef USE_ONE_WIRE
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 const uint8_t ONE_WIRE_ROM_SELECT = 0x55;
 const int ONE_WIRE_ROM_SEARCH = 0xF0;
@@ -84,7 +84,7 @@ class ESPOneWire {
 
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ONE_WIRE
 

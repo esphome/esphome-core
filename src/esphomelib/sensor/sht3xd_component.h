@@ -15,7 +15,7 @@
 
 #ifdef USE_SHT3XD
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -85,7 +85,7 @@ class SHT3XDHumiditySensor : public EmptyPollingParentSensor<1, ICON_WATER_PERCE
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SHT3XD
 

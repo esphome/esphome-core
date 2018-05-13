@@ -16,7 +16,7 @@
 
 #ifdef USE_ULTRASONIC_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -95,7 +95,7 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ULTRASONIC_SENSOR
 

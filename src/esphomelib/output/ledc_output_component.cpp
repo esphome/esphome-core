@@ -10,7 +10,7 @@
 
 #include <esp32-hal-ledc.h>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -80,6 +80,6 @@ uint8_t next_ledc_channel = 0;
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_LEDC_OUTPUT

@@ -10,7 +10,7 @@
 
 #ifdef USE_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -82,6 +82,6 @@ void MQTTSensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, m
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SENSOR

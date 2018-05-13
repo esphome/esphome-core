@@ -16,7 +16,7 @@
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/defines.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Controllers allow an object to be notified of every component that's added to the Application.
 class Controller {
@@ -97,6 +97,6 @@ class StoringController : public Controller {
 #endif
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_CONTROLLER_H

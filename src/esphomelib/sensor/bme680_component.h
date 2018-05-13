@@ -15,7 +15,7 @@
 
 #ifdef USE_BME680
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -159,7 +159,7 @@ class BME680Component : public PollingComponent, public I2CDevice {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BME680
 

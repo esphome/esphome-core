@@ -18,8 +18,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/defines.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Struct for setting static IPs in WiFiComponent.
 struct ManualIP {
@@ -103,6 +104,6 @@ class WiFiComponent : public Component {
 
 extern WiFiComponent *global_wifi_component;
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_WIFI_COMPONENT_H

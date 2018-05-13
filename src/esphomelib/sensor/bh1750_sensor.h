@@ -15,7 +15,7 @@
 
 #ifdef USE_BH1750
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -61,7 +61,7 @@ class BH1750Sensor : public PollingSensorComponent, public I2CDevice {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BH1750
 

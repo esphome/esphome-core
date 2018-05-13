@@ -9,7 +9,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "component";
 
@@ -206,4 +206,4 @@ bool Component::TimeFunction::should_run(uint32_t now) const {
   return now - this->last_execution > this->interval;
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

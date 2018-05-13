@@ -9,8 +9,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
+#include "esphomelib/defines.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace mqtt {
 
@@ -160,6 +161,6 @@ class MQTTComponent : public Component {
 
 } // namespace mqtt
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_MQTT_MQTT_COMPONENT_H

@@ -15,7 +15,7 @@
 
 #ifdef USE_HTU21D_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -71,6 +71,6 @@ HTU21DHumiditySensor *HTU21DComponent::get_humidity_sensor() const {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_HTU21D_SENSOR

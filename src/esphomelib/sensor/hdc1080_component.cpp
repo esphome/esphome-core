@@ -15,7 +15,7 @@
 
 #ifdef USE_HDC1080_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -69,6 +69,6 @@ HDC1080HumiditySensor *HDC1080Component::get_humidity_sensor() const {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_HDC1080_SENSOR

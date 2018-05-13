@@ -9,7 +9,7 @@
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "esphal";
 
@@ -108,4 +108,4 @@ GPIOInputPin::GPIOInputPin() : GPIOPin() {
 
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

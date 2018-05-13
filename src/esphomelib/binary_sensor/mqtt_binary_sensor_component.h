@@ -12,7 +12,7 @@
 
 #ifdef USE_BINARY_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
@@ -59,7 +59,7 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
 
 } // namespace binary_sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BINARY_SENSOR
 

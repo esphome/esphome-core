@@ -14,7 +14,7 @@
 
 #ifdef USE_PCF8574
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace io {
 
@@ -142,6 +142,6 @@ void PCF8574GPIOOutputPin::pin_mode(uint8_t mode) {
 
 } // namespace io
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_PCF8574

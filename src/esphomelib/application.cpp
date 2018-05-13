@@ -10,7 +10,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esppreferences.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 using namespace esphomelib::mqtt;
 #ifdef USE_BINARY_SENSOR
@@ -652,4 +652,4 @@ ESP32BLETracker *Application::make_esp32_ble_tracker() {
 
 Application App; // NOLINT
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

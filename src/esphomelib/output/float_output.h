@@ -12,7 +12,7 @@
 
 #ifdef USE_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -67,7 +67,7 @@ class FloatOutput : public BinaryOutput {
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_OUTPUT
 

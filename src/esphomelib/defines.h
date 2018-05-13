@@ -11,6 +11,16 @@
 
 #define ESPHOMELIB_VERSION "1.5.0-dev"
 
+#ifndef DOXYGEN
+  #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {
+  #define ESPHOMELIB_NAMESPACE_END }
+  #define ESPHOMELIB_NAMESPACE esphomelib
+#else
+  #define ESPHOMELIB_NAMESPACE_BEGIN /##/
+  #define ESPHOMELIB_NAMESPACE_END /##/
+  #define ESPHOMELIB_NAMESPACE
+#endif
+
 #ifndef ESPHOMEYAML_USE
   #define USE_OTA
   #define USE_I2C

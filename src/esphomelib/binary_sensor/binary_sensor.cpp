@@ -5,7 +5,8 @@
 #include "esphomelib/binary_sensor/binary_sensor.h"
 
 #ifdef USE_BINARY_SENSOR
-namespace esphomelib {
+
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
@@ -45,6 +46,6 @@ std::string BinarySensor::get_device_class() {
 
 } // namespace binary_sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BINARY_SENSOR

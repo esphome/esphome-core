@@ -12,7 +12,7 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/application.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace mqtt {
 
@@ -182,4 +182,4 @@ void MQTTComponent::loop_() {
 
 } // namespace mqtt
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

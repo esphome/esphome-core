@@ -10,7 +10,7 @@
 
 #ifdef USE_ONE_WIRE
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 ESPOneWire::ESPOneWire(GPIOPin *pin) : pin_(pin) {}
 
@@ -212,6 +212,6 @@ void ESPOneWire::skip() {
   this->write8(0xCC); // skip ROM
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ONE_WIRE

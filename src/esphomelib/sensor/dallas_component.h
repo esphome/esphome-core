@@ -11,7 +11,7 @@
 
 #ifdef USE_DALLAS_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -116,7 +116,7 @@ class DallasTemperatureSensor : public EmptyPollingParentSensor<1, ICON_EMPTY, U
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_DALLAS_SENSOR
 

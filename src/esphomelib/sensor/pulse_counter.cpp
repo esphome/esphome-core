@@ -13,7 +13,7 @@
 
 #ifdef USE_PULSE_COUNTER_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -133,6 +133,6 @@ pcnt_unit_t next_pcnt_unit = PCNT_UNIT_0;
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_PULSE_COUNTER_SENSOR

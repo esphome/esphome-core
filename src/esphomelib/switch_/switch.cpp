@@ -6,7 +6,7 @@
 
 #ifdef USE_SWITCH
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -27,6 +27,6 @@ void Switch::set_icon(const std::string &icon) {
 
 } // namespace switch_
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SWITCH

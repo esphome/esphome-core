@@ -57,7 +57,7 @@
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/web_server.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// This is the class that combines all components.
 class Application {
@@ -856,6 +856,6 @@ C *Application::register_controller(C *c) {
   return c;
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_APPLICATION_H

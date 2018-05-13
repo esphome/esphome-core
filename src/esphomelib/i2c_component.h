@@ -16,7 +16,7 @@
 
 #include <Wire.h>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /** The I2CComponent is the base of esphomelib's i2c communication.
  *
@@ -225,7 +225,7 @@ class I2CDevice {
   I2CComponent *parent_;
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_I2C
 

@@ -12,7 +12,7 @@
 
 #ifdef USE_SWITCH
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -44,7 +44,7 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
 
 } // namespace switch_
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SWITCH
 

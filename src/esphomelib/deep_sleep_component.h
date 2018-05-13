@@ -15,7 +15,7 @@
 
 #ifdef USE_DEEP_SLEEP
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /** This component allows setting up the node to go into deep sleep mode to conserve battery.
  *
@@ -55,7 +55,7 @@ class DeepSleepComponent : public Component {
   Optional<uint32_t> run_duration_{};
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_DEEP_SLEEP
 

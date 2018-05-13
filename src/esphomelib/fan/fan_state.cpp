@@ -8,7 +8,7 @@
 
 #ifdef USE_FAN
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace fan {
 
@@ -76,6 +76,6 @@ bool FanState::set_speed(const char *speed) {
 
 } // namespace fan
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_FAN

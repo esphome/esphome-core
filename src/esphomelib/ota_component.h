@@ -19,7 +19,7 @@
   const uint16_t OTA_DEFAULT_PORT = 8266;
 #endif
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// OTAComponent provides a simple way to integrate Over-the-Air updates into your app using ArduinoOTA.
 class OTAComponent : public Component {
@@ -99,7 +99,7 @@ class OTAComponent : public Component {
   uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_OTA
 

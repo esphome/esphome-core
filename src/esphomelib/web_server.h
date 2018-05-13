@@ -20,7 +20,7 @@
 
 #include <ESPAsyncWebServer.h>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Internal helper struct that is used to parse incoming URLs
 struct UrlMatch {
@@ -144,7 +144,7 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   const char *js_url_{nullptr};
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_WEB_SERVER
 

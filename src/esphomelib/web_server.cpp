@@ -20,7 +20,7 @@
 
 #include <cstdlib>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 void write_row(AsyncResponseStream *stream, Nameable *obj,
                const std::string &klass, const std::string &action) {
@@ -526,6 +526,6 @@ bool WebServer::isRequestHandlerTrivial() {
   return false;
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
-#endif
+#endif //USE_WEB_SERVER

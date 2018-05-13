@@ -10,7 +10,7 @@
 
 #ifdef USE_STATUS_BINARY_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
@@ -24,6 +24,6 @@ StatusBinarySensor::StatusBinarySensor(const std::string &name)
 
 } // namespace binary_sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_STATUS_BINARY_SENSOR

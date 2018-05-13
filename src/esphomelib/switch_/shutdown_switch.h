@@ -14,7 +14,7 @@
 
 #ifdef USE_SHUTDOWN_SWITCH
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -30,7 +30,7 @@ class ShutdownSwitch : public Switch {
 
 } // namespace switch_
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_RESTART_SWITCH
 

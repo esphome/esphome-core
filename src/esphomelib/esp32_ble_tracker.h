@@ -19,7 +19,7 @@
 #include <array>
 #include <esp_gap_ble_api.h>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 class ESP32BLEDevice;
 
@@ -130,7 +130,7 @@ class ESP32BLEDevice : public binary_sensor::BinarySensor {
 extern ESP32BLETracker *global_esp32_ble_tracker;
 extern SemaphoreHandle_t semaphore_scan_end;
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ESP32_BLE_TRACKER
 

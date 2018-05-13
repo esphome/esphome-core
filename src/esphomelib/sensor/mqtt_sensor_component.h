@@ -13,7 +13,7 @@
 
 #ifdef USE_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -57,7 +57,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SENSOR
 

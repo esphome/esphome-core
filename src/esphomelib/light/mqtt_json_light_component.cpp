@@ -8,7 +8,7 @@
 
 #ifdef USE_LIGHT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
@@ -74,6 +74,6 @@ void MQTTJSONLightComponent::send_discovery(JsonBuffer &buffer, JsonObject &root
 
 } // namespace light
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_LIGHT

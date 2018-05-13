@@ -13,7 +13,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "log_component";
 
@@ -79,4 +79,4 @@ void LogComponent::add_on_log_callback(std::function<void(int, const char *)> &&
 
 LogComponent *global_log_component = nullptr;
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

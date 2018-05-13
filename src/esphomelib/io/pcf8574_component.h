@@ -16,7 +16,7 @@
 
 #ifdef USE_PCF8574
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Modes for PCF8574 pins
 enum PCF8574GPIOMode {
@@ -115,7 +115,7 @@ class PCF8574GPIOOutputPin : public GPIOOutputPin {
 
 } // namespace io
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_PCF8574
 

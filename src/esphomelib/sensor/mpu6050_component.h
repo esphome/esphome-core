@@ -16,7 +16,7 @@
 
 #ifdef USE_MPU6050
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -54,7 +54,7 @@ class MPU6050Component : public PollingComponent, public I2CDevice {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_MPU6050
 

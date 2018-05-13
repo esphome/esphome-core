@@ -12,6 +12,7 @@
   #include "Arduino.h"
 #endif
 #include "esphomelib/espmath.h"
+#include "esphomelib/defines.h"
 
 #ifdef bool
   #undef bool
@@ -23,7 +24,7 @@
   #undef false
 #endif
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /** A high-level abstraction class that can expose a pin together with useful options like pinMode.
  *
@@ -102,6 +103,6 @@ class GPIOInputPin : public GPIOPin {
   GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false); // NOLINT
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_ESPHAL_H

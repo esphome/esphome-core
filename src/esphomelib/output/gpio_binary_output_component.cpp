@@ -9,7 +9,7 @@
 
 #ifdef USE_GPIO_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -29,6 +29,6 @@ GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin)
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_GPIO_OUTPUT

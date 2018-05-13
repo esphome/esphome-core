@@ -14,7 +14,7 @@
 
 #ifdef USE_TSL2561
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -161,6 +161,6 @@ float TSL2561Sensor::get_setup_priority() const {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_TSL2561

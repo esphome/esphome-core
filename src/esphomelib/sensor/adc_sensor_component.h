@@ -16,7 +16,7 @@
 
 #ifdef USE_ADC_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -79,7 +79,7 @@ class ADCSensorComponent : public PollingSensorComponent {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ADC_SENSOR
 

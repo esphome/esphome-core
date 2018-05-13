@@ -15,7 +15,7 @@
 
 #ifdef USE_SHT3XD
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -157,6 +157,6 @@ std::string SHT3XDHumiditySensor::unique_id() {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SHT3XD

@@ -15,7 +15,7 @@
 
 #ifdef USE_LIGHT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
@@ -188,6 +188,6 @@ bool LightColorValues::operator!=(const LightColorValues &rhs) const {
 
 } // namespace light
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_LIGHT

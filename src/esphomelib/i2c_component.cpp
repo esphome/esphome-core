@@ -11,7 +11,7 @@
 
 #ifdef USE_I2C
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "i2c";
 
@@ -235,6 +235,6 @@ void I2CDevice::set_parent(I2CComponent *parent) {
   uint8_t next_i2c_bus_num_ = 0;
 #endif
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_I2C

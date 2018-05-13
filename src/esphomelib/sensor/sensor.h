@@ -15,7 +15,7 @@
 
 #ifdef USE_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -264,7 +264,7 @@ extern const char UNIT_OHM[];
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SENSOR
 

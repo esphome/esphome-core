@@ -17,8 +17,9 @@
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /** A simple component that enables logging to Serial via the ESP_LOG* macros.
  *
@@ -69,6 +70,6 @@ class LogComponent : public Component {
 
 extern LogComponent *global_log_component;
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_LOG_COMPONENT_H

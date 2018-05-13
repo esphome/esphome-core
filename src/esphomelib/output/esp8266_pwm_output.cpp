@@ -12,7 +12,7 @@
 
 #ifdef USE_ESP8266_PWM_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -40,6 +40,6 @@ float ESP8266PWMOutput::get_setup_priority() const {
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ESP8266_PWM_OUTPUT

@@ -15,7 +15,7 @@
 #include <driver/rmt.h>
 #include <soc/rmt_struct.h>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -287,6 +287,6 @@ rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_IR_TRANSMITTER

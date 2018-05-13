@@ -11,7 +11,7 @@
 
 #ifdef USE_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /** This class represents an power supply.
  *
@@ -80,7 +80,7 @@ class PowerSupplyComponent : public Component {
   int16_t active_requests_{0};  // use signed integer to make catching negative requests easier.
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_OUTPUT
 

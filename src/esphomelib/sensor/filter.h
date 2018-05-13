@@ -12,7 +12,7 @@
 
 #ifdef USE_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -156,7 +156,7 @@ class FilterOutNANFilter : public Filter {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SENSOR
 

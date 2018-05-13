@@ -12,7 +12,7 @@
 
 static const char *TAG = "mqtt.client";
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace mqtt {
 
@@ -319,4 +319,4 @@ MQTTClientComponent *global_mqtt_client = nullptr;
 
 } // namespace mqtt
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

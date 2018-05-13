@@ -8,7 +8,7 @@
 
 #include "esphomelib/helpers.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 #ifdef ARDUINO_ARCH_ESP32
 void ESPPreferences::begin(const std::string &name) {
@@ -166,4 +166,4 @@ size_t ESPPreferences::put_double(const std::string &friendly_name, const std::s
 
 ESPPreferences global_preferences;
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

@@ -12,7 +12,7 @@
 
 #ifdef USE_ADC_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -86,6 +86,6 @@ std::string ADCSensorComponent::unique_id() {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ADC_SENSOR

@@ -14,7 +14,7 @@
 
 #ifdef USE_DEBUG_COMPONENT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// The debug component prints out debug information like free heap size on startup.
 class DebugComponent : public Component {
@@ -26,7 +26,7 @@ class DebugComponent : public Component {
   uint32_t free_heap_{};
 };
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_DEBUG_COMPONENT
 

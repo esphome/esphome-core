@@ -11,7 +11,7 @@
 
 #ifdef USE_ESP32_TOUCH_BINARY_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
@@ -155,6 +155,6 @@ uint16_t ESP32TouchBinarySensor::get_threshold() const {
 
 } // namespace binary_sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ESP32_TOUCH_BINARY_SENSOR

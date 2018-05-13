@@ -9,7 +9,7 @@
 
 #ifdef USE_GPIO_BINARY_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
@@ -33,6 +33,6 @@ GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GP
 
 } // namespace binary_sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_GPIO_BINARY_SENSOR

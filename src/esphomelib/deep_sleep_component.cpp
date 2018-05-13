@@ -14,7 +14,7 @@
 
 #ifdef USE_DEEP_SLEEP
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "deep_sleep";
 
@@ -75,6 +75,6 @@ void DeepSleepComponent::begin_sleep() {
 #endif
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_DEEP_SLEEP

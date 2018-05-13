@@ -11,7 +11,7 @@
 
 #ifdef USE_LIGHT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
@@ -70,6 +70,6 @@ LightFlashTransformer::LightFlashTransformer(uint32_t start_time, uint32_t lengt
 
 } // namespace light
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_LIGHT

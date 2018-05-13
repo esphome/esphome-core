@@ -14,7 +14,7 @@
 
 #ifdef USE_ESP8266_PWM_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -61,7 +61,7 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ESP8266_PWM_OUTPUT
 

@@ -6,7 +6,7 @@
 
 #ifdef USE_LIGHT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
@@ -53,6 +53,6 @@ void LightTraits::set_rgb_white_value(bool rgb_white_value) {
 
 } // namespace light
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_LIGHT

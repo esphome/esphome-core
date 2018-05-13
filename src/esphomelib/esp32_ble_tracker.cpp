@@ -18,7 +18,7 @@
 #include <esp_gap_ble_api.h>
 #include "esphomelib/log.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 // bt_trace.h
 #undef TAG
@@ -245,6 +245,6 @@ ESP32BLEDevice::ESP32BLEDevice(const std::string &name, uint64_t address)
 
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_ESP32_BLE_TRACKER

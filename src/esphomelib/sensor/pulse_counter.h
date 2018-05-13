@@ -17,7 +17,7 @@
 
 #include <driver/pcnt.h>
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -107,7 +107,7 @@ extern pcnt_unit_t next_pcnt_unit;
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_PULSE_COUNTER_SENSOR
 

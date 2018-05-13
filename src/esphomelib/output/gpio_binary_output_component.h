@@ -11,7 +11,7 @@
 
 #ifdef USE_GPIO_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -50,7 +50,7 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_GPIO_OUTPUT
 

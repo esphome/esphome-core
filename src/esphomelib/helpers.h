@@ -13,12 +13,13 @@
 #include <ArduinoJson.h>
 
 #include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
 
 #ifndef JSON_BUFFER_SIZE
   #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
 #endif
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Callback function typedef for parsing JsonObjects.
 using json_parse_t = std::function<void(JsonObject &)>;
@@ -324,6 +325,6 @@ void CallbackManager<void(Ts...)>::call(Ts... args) {
     cb(args...);
 }
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_HELPERS_H

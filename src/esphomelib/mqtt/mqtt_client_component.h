@@ -14,8 +14,9 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/defines.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace mqtt {
 
@@ -223,6 +224,6 @@ extern MQTTClientComponent *global_mqtt_client;
 
 } // namespace mqtt
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H

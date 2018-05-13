@@ -11,7 +11,7 @@
 
 #ifdef USE_PCA9685_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -154,6 +154,6 @@ void PCA9685OutputComponent::Channel::write_state(float state) {
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_PCA9685_OUTPUT

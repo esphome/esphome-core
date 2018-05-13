@@ -6,7 +6,7 @@
 
 #ifdef USE_FAN
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace fan {
 
@@ -30,6 +30,6 @@ void FanTraits::set_speed(bool speed) {
 
 } // namespace fan
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_FAN

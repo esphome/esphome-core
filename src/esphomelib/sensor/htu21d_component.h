@@ -16,7 +16,7 @@
 
 #ifdef USE_HTU21D_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -54,7 +54,7 @@ class HTU21DComponent : public PollingComponent, public I2CDevice {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_HTU21D_SENSOR
 

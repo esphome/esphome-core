@@ -6,7 +6,7 @@
 
 #ifdef USE_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -39,6 +39,6 @@ void BinaryOutput::disable() {
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_OUTPUT

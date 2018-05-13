@@ -10,7 +10,7 @@
 
 #ifdef USE_SWITCH
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -48,7 +48,7 @@ class Switch : public binary_sensor::BinarySensor {
 
 } // namespace switch_
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SWITCH
 

@@ -15,7 +15,7 @@
 
 #ifdef USE_BMP085_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -136,6 +136,6 @@ bool BMP085Component::set_mode_(uint8_t mode) {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BMP085_SENSOR

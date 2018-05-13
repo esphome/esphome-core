@@ -12,7 +12,7 @@
 
 #ifdef USE_RESTART_SWITCH
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -37,6 +37,6 @@ RestartSwitch::RestartSwitch(const std::string &name) : Switch(name) {}
 
 } // namespace switch_
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_RESTART_SWITCH

@@ -15,7 +15,7 @@
 
 #ifdef USE_BH1750
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -94,6 +94,6 @@ void BH1750Sensor::set_resolution(BH1750Resolution resolution) {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BH1750

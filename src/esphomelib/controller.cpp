@@ -8,7 +8,7 @@
 
 #include "esphomelib/controller.h"
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 #ifdef USE_BINARY_SENSOR
 void Controller::register_binary_sensor(binary_sensor::BinarySensor *obj) {
@@ -40,4 +40,4 @@ void Controller::register_switch(switch_::Switch *obj) {
 }
 #endif
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END

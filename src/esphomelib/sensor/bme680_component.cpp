@@ -17,7 +17,7 @@
 
 #ifdef USE_BME680
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -445,6 +445,6 @@ void BME680Component::set_heater(uint16_t heater_temperature, uint16_t heater_du
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BME680

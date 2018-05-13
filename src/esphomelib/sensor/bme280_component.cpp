@@ -16,7 +16,7 @@
 
 #ifdef USE_BME280
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -305,6 +305,6 @@ int16_t BME280Component::read_s16_le(uint8_t register_) {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_BME280

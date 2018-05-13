@@ -10,7 +10,7 @@
 
 #ifdef USE_DHT_SENSOR
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
@@ -74,7 +74,7 @@ class DHTComponent : public PollingComponent {
 
 } // namespace sensor
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_DHT_SENSOR
 

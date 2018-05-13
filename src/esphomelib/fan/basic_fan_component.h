@@ -13,7 +13,7 @@
 
 #ifdef USE_FAN
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace fan {
 
@@ -63,7 +63,7 @@ class BasicFanComponent : public Component {
 
 } // namespace fan
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_FAN
 

@@ -8,7 +8,7 @@
 
 #ifdef USE_SIMPLE_SWITCH
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
@@ -30,6 +30,6 @@ void SimpleSwitch::turn_off() {
 
 } // namespace switch_
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_SIMPLE_SWITCH

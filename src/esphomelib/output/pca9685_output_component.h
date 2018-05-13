@@ -11,7 +11,7 @@
 
 #ifdef USE_PCA9685_OUTPUT
 
-namespace esphomelib {
+ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
@@ -85,7 +85,7 @@ class PCA9685OutputComponent : public Component, public I2CDevice {
 
 } // namespace output
 
-} // namespace esphomelib
+ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_PCA9685_OUTPUT
 
