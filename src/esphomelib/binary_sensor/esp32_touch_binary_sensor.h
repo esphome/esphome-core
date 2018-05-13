@@ -104,19 +104,19 @@ class ESP32TouchComponent : public Component {
    *
    * Smaller values can improve power usage, but negatively affect response times.
    *
-   * @see set_meas_cycle
-   * @param sleep_cycle The sleep length. Default is 4096 (27.3 ms)
+   * @see set_measurement_duration
+   * @param sleep_duration The sleep length. Default is 4096 (27.3 ms)
    */
-  void set_sleep_cycle(uint16_t sleep_cycle);
+  void set_sleep_duration(uint16_t sleep_duration);
 
   /** Set how many APB clock cycles (8MHz) the touch pad peripheral should stay active for measuring.
    *
    * Higher values can improve response times, but negatively affect power usage.
    *
-   * @see set_sleep_cycle
+   * @see set_sleep_duration
    * @param meas_cycle The measurement cycle length. Default is the maximum of 65535 (8ms).
    */
-  void set_meas_cycle(uint16_t meas_cycle);
+  void set_measurement_duration(uint16_t meas_cycle);
 
   /** Set the touch sensor low voltage reference for discharging.
    *

@@ -126,10 +126,10 @@ void ESP32TouchComponent::set_iir_filter(uint32_t iir_filter) {
 float ESP32TouchComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-void ESP32TouchComponent::set_sleep_cycle(uint16_t sleep_cycle) {
-  this->sleep_cycle_ = sleep_cycle;
+void ESP32TouchComponent::set_sleep_duration(uint16_t sleep_duration) {
+  this->sleep_cycle_ = sleep_duration;
 }
-void ESP32TouchComponent::set_meas_cycle(uint16_t meas_cycle) {
+void ESP32TouchComponent::set_measurement_duration(uint16_t meas_cycle) {
   this->meas_cycle_ = meas_cycle;
 }
 void ESP32TouchComponent::set_low_voltage_reference(touch_low_volt_t low_voltage_reference) {
