@@ -638,7 +638,7 @@ ESP32BLETracker *Application::make_esp32_ble_tracker() {
 
 #ifdef USE_FAST_LED_LIGHT
 Application::MakeFastLEDLight Application::make_fast_led_light(const std::string &name) {
-  auto *fast_led = this->register_component(new FastLEDLightOutput());
+  auto *fast_led = this->register_component(new FastLEDLightOutputComponent());
   auto make = this->make_light_for_light_output(name, fast_led);
 
   return MakeFastLEDLight{

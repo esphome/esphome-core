@@ -19,7 +19,7 @@ class CustomLightEffect : public light::LightEffect {
   std::string get_name() const override { return "Rainbow Effect"; }
 
   void apply_effect(light::LightState *state) override {
-    auto *output = (light::FastLEDLightOutput *) state->get_output();
+    auto *output = (light::FastLEDLightOutputComponent *) state->get_output();
     uint8_t hue = millis() / 20;
     fill_rainbow(output->get_leds(), output->get_num_leds(), hue, 7);
 
@@ -32,12 +32,12 @@ class CustomLightEffect : public light::LightEffect {
   // this effect is active, all LEDS would briefly go to the new color but then right back due
   // to this effect
   void initialize(light::LightState *state) override {
-    auto *output = (light::FastLEDLightOutput *) state->get_output();
+    auto *output = (light::FastLEDLightOutputComponent *) state->get_output();
     output->prevent_writing_leds();
   }
   // Tell the light output to respond to normal requests again.
   void stop(light::LightState *state) override {
-    auto *output = (light::FastLEDLightOutput *) state->get_output();
+    auto *output = (light::FastLEDLightOutputComponent *) state->get_output();
     output->unprevent_writing_leds();
   }
 };

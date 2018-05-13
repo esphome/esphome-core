@@ -24,22 +24,41 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
-class FastLEDLightOutput : public LightOutput, public Component {
+/** This component implements support for many types of addressable LED lights.
+ *
+ * To do this, it uses the FastLED library. The API for setting up the different
+ * types of lights FastLED supports is intentionally kept as close to FastLEDs defaults
+ * as possible. To use FastLED lights with esphomelib, first set up the component using
+ * the helper in Application, then add the LEDs using the `add_leds` helper functions.
+ *
+ * These add_leds helpers can, however, only be called once on a FastLEDLightOutput. Also,
+ * with this component you cannot pass in the CRGB array and offset values as you would be
+ * able to do with FastLED as the component manage the lights itself.
+ */
+class FastLEDLightOutputComponent : public LightOutput, public Component {
  public:
+  /// Only for custom effects: Tell this component to write the new color values on the next loop() iteration.
   void schedule_show();
 
+  /// Only for custom effects: Get a pointer to the internal array of CRGB color values.
   CRGB *get_leds() const;
 
-  CLEDController *get_controller() const;
-
-  void set_max_refresh_rate(uint32_t interval_us);
-
+  /// Only for custom effects: Get the number of LEDs managed by this component.
   int get_num_leds() const;
 
+  /// Only for custom effects: Get the internal controller.
+  CLEDController *get_controller() const;
+
+  /// Set a maximum refresh rate in µs as some lights do not like being updated too often.
+  void set_max_refresh_rate(uint32_t interval_us);
+
+  /// Only for custom effects: Prevent the LightState from writing over all color values in CRGB.
   void prevent_writing_leds();
 
+  /// Only for custom effects: Stop prevent_writing_leds. Call this when your effect terminates.
   void unprevent_writing_leds();
 
+  /// Add some LEDS, can only be called once.
   CLEDController &add_leds(CLEDController *controller, int num_leds);
 
   template<ESPIChipsets CHIPSET, uint8_t DATA_PIN, uint8_t CLOCK_PIN, EOrder RGB_ORDER, uint8_t SPI_DATA_RATE>

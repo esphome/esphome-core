@@ -17,10 +17,10 @@ namespace light {
 
 static const char *TAG = "light.fast_led";
 
-LightTraits FastLEDLightOutput::get_traits() {
+LightTraits FastLEDLightOutputComponent::get_traits() {
   return {true, true, false};
 }
-void FastLEDLightOutput::write_state(LightState *state) {
+void FastLEDLightOutputComponent::write_state(LightState *state) {
   if (this->prevent_writing_leds_)
     return;
 
@@ -33,7 +33,7 @@ void FastLEDLightOutput::write_state(LightState *state) {
 
   this->schedule_show();
 }
-void FastLEDLightOutput::setup() {
+void FastLEDLightOutputComponent::setup() {
   assert(this->controller_ != nullptr && "You need to add LEDs to this controller!");
   this->controller_->init();
   this->controller_->setLeds(this->leds_, this->num_leds_);
@@ -41,7 +41,7 @@ void FastLEDLightOutput::setup() {
     this->set_max_refresh_rate(this->controller_->getMaxRefreshRate());
   }
 }
-void FastLEDLightOutput::loop() {
+void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_)
     return;
 
@@ -55,10 +55,12 @@ void FastLEDLightOutput::loop() {
 
   this->controller_->showLeds();
 }
-void FastLEDLightOutput::schedule_show() {
+void FastLEDLightOutputComponent::schedule_show() {
   this->next_show_ = true;
 }
-CLEDController &FastLEDLightOutput::add_leds(CLEDController *controller, int num_leds) {
+CLEDController &FastLEDLightOutputComponent::add_leds(CLEDController *controller, int num_leds) {
+  assert(this->controller_ == nullptr && "FastLEDLightOutputComponent only supports one controller at a time.");
+
   this->controller_ = controller;
   this->num_leds_ = num_leds;
   this->leds_ = new CRGB[num_leds];
@@ -68,26 +70,26 @@ CLEDController &FastLEDLightOutput::add_leds(CLEDController *controller, int num
 
   return *this->controller_;
 }
-CRGB *FastLEDLightOutput::get_leds() const {
+CRGB *FastLEDLightOutputComponent::get_leds() const {
   return this->leds_;
 }
-CLEDController *FastLEDLightOutput::get_controller() const {
+CLEDController *FastLEDLightOutputComponent::get_controller() const {
   return this->controller_;
 }
-void FastLEDLightOutput::set_max_refresh_rate(uint32_t interval_us) {
+void FastLEDLightOutputComponent::set_max_refresh_rate(uint32_t interval_us) {
   this->max_refresh_rate_.value = interval_us;
   this->max_refresh_rate_.defined = true;
 }
-int FastLEDLightOutput::get_num_leds() const {
+int FastLEDLightOutputComponent::get_num_leds() const {
   return this->num_leds_;
 }
-void FastLEDLightOutput::unprevent_writing_leds() {
+void FastLEDLightOutputComponent::unprevent_writing_leds() {
   this->prevent_writing_leds_ = false;
 }
-void FastLEDLightOutput::prevent_writing_leds() {
+void FastLEDLightOutputComponent::prevent_writing_leds() {
   this->prevent_writing_leds_ = true;
 }
-float FastLEDLightOutput::get_setup_priority() const {
+float FastLEDLightOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 

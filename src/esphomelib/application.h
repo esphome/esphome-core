@@ -668,11 +668,12 @@ class Application {
 
 #ifdef USE_FAST_LED_LIGHT
   struct MakeFastLEDLight {
-    light::FastLEDLightOutput *fast_led;
+    light::FastLEDLightOutputComponent *fast_led;
     light::LightState *state;
     light::MQTTJSONLightComponent *mqtt;
   };
 
+  /// Create an FastLED light.
   MakeFastLEDLight make_fast_led_light(const std::string &name);
 #endif
 
