@@ -18,7 +18,7 @@ namespace light {
 static const char *TAG = "light.fast_led";
 
 LightTraits FastLEDLightOutputComponent::get_traits() {
-  return {true, true, false};
+  return {true, true, false, true};
 }
 void FastLEDLightOutputComponent::write_state(LightState *state) {
   if (this->prevent_writing_leds_)
@@ -52,6 +52,8 @@ void FastLEDLightOutputComponent::loop() {
   }
   this->last_refresh_ = now;
   this->next_show_ = false;
+
+  ESP_LOGVV(TAG, "Writing RGB values to bus...");
 
   this->controller_->showLeds();
 }

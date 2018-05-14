@@ -73,6 +73,24 @@ class RandomLightEffect : public LightEffect {
   uint32_t last_color_change_;
 };
 
+#ifdef USE_FAST_LED_LIGHT
+/// Rainbow effect for FastLED
+class FastLEDRainbowLightEffect : public LightEffect {
+ public:
+  FastLEDRainbowLightEffect() = default;
+
+  static std::unique_ptr<light::LightEffect> create();
+
+  std::string get_name() const override;
+
+  void apply_effect(light::LightState *state) override;
+
+  void initialize(light::LightState *state) override;
+
+  void stop(light::LightState *state) override;
+};
+#endif
+
 extern std::vector<LightEffect::Entry> light_effect_entries;
 
 } // namespace light

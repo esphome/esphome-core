@@ -147,9 +147,9 @@ void LightColorValues::parse_json(const JsonObject &root) {
 }
 
 void LightColorValues::normalize_color(const LightTraits &traits) {
-  if (traits.supports_rgb()) {
+  if (traits.has_rgb()) {
     float max_value = fmaxf(this->get_red(), fmaxf(this->get_green(), this->get_blue()));
-    if (traits.supports_rgbw()) {
+    if (traits.has_rgb_white_value()) {
       max_value = fmaxf(max_value, this->get_white());
       this->set_white(this->get_white() / max_value);
     }
@@ -161,15 +161,15 @@ void LightColorValues::normalize_color(const LightTraits &traits) {
 
 void LightColorValues::dump_json(JsonObject &root, const LightTraits &traits) const {
   root["state"] = (this->get_state() != 0.0f) ? "ON" : "OFF";
-  if (traits.supports_brightness())
+  if (traits.has_brightness())
     root["brightness"] = uint8_t(this->get_brightness() * 255);
-  if (traits.supports_rgb()) {
+  if (traits.has_rgb()) {
     JsonObject &color = root.createNestedObject("color");
     color["r"] = uint8_t(this->get_red() * 255);
     color["g"] = uint8_t(this->get_green() * 255);
     color["b"] = uint8_t(this->get_blue() * 255);
   }
-  if (traits.supports_rgbw())
+  if (traits.has_rgb_white_value())
     root["white_value"] = uint8_t(this->get_white() * 255);
 }
 

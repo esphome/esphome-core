@@ -16,7 +16,7 @@ class CustomLightEffect : public light::LightEffect {
  public:
   static std::unique_ptr<light::LightEffect> create() { return make_unique<CustomLightEffect>(); }
 
-  std::string get_name() const override { return "Rainbow Effect"; }
+  std::string get_name() const override { return "Custom Rainbow Effect"; }
 
   void apply_effect(light::LightState *state) override {
     auto *output = (light::FastLEDLightOutputComponent *) state->get_output();
@@ -46,8 +46,8 @@ class CustomLightEffect : public light::LightEffect {
 // Note that you need to register it too (see setup())
 light::LightEffect::Entry custom_light_entry = {
   .name = "Rainbow Effect",
-  // This effect requires the Brightness and RGB traits
-  .requirements = light::LightTraits(true, true, false),
+  // This effect requires the Brightness and RGB traits and must be used with FastLED
+  .requirements = light::LightTraits(true, true, false, true),
   .constructor = CustomLightEffect::create
 };
 

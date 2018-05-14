@@ -189,30 +189,30 @@ void IRTransmitterComponent::configure_rmt() {
   ESP_LOGCONFIG(TAG, "Configuring RMT TX...");
   c.rmt_mode = RMT_MODE_TX;
   c.channel = this->channel_;
-  ESP_LOGCONFIG(TAG, "    channel: %d", this->channel_);
+  ESP_LOGCONFIG(TAG, "    Channel: %d", this->channel_);
   c.clk_div = this->clock_divider_;
-  ESP_LOGCONFIG(TAG, "    clock divider: %u", this->clock_divider_);
-  ESP_LOGCONFIG(TAG, "     -> ticks for 10 µs: %u", this->get_ticks_for_10_us());
+  ESP_LOGCONFIG(TAG, "    Clock divider: %u", this->clock_divider_);
+  ESP_LOGV(TAG, "     -> ticks for 10 µs: %u", this->get_ticks_for_10_us());
   c.gpio_num = gpio_num_t(this->pin_->get_pin());
-  ESP_LOGCONFIG(TAG, "    gpio pin: %u", this->pin_->get_pin());
+  ESP_LOGCONFIG(TAG, "    GPIO Pin: %u", this->pin_->get_pin());
   c.mem_block_num = 1;
   c.tx_config.loop_en = false;
   c.tx_config.carrier_freq_hz = this->last_carrier_frequency_;
-  ESP_LOGCONFIG(TAG, "    carrier frequency: %u", this->last_carrier_frequency_);
+  ESP_LOGCONFIG(TAG, "    Carrier Frequency: %u", this->last_carrier_frequency_);
   c.tx_config.carrier_duty_percent = this->carrier_duty_percent_;
-  ESP_LOGCONFIG(TAG, "    carrier duty percent: %u", this->carrier_duty_percent_);
+  ESP_LOGCONFIG(TAG, "    Carrier Duty: %u%", this->carrier_duty_percent_);
   c.tx_config.carrier_en = true;
   c.tx_config.idle_output_en = true;
   if (!this->pin_->is_inverted()) {
-    ESP_LOGCONFIG(TAG, "    carrier level: HIGH");
+    ESP_LOGV(TAG, "    Carrier level: HIGH");
     c.tx_config.carrier_level = RMT_CARRIER_LEVEL_HIGH;
-    ESP_LOGCONFIG(TAG, "    idle level: LOW");
+    ESP_LOGV(TAG, "    Idle level: LOW");
     c.tx_config.idle_level = RMT_IDLE_LEVEL_LOW;
   } else {
     c.tx_config.carrier_level = RMT_CARRIER_LEVEL_LOW;
-    ESP_LOGCONFIG(TAG, "    carrier level: HIGH");
+    ESP_LOGV(TAG, "    Carrier level: HIGH");
     c.tx_config.idle_level = RMT_IDLE_LEVEL_HIGH;
-    ESP_LOGCONFIG(TAG, "    idle level: LOW");
+    ESP_LOGV(TAG, "    Idle level: LOW");
   }
   ESP_LOGCONFIG(TAG, "    Applying...");
 
@@ -291,29 +291,18 @@ void IRTransmitterComponent::delay_microseconds_accurate_(uint32_t usec) {
 void IRTransmitterComponent::send(ir::SendData &send_data) {
   // maintain timing across marks/spaces
   for (uint16_t i = 0; i < send_data.repeat_times; i++) {
-    uint32_t last_end_time = micros();
-
     uint32_t on_time, off_time;
     this->calculate_on_off_time_(send_data.carrier_frequency, &on_time, &off_time);
 
     enable_interrupts();
     for (int16_t item : send_data.data) {
-      const uint32_t length = std::abs(item);
-      const uint32_t now = micros();
-      const uint32_t target_time = (last_end_time + length) - now;
-      last_end_time += length;
-
-      if (target_time > length) {
-        // overflow, the last operation took longer than length
-        continue;
-      }
-
       if (item > 0) {
+        const auto length = static_cast<uint16_t>(item);
         this->mark_(on_time, off_time, length);
       } else {
+        const auto length = static_cast<uint16_t>(-item);
         this->space_(length);
       }
-
       ESP.wdtFeed();
     }
     disable_interrupts();

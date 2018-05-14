@@ -388,9 +388,9 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
     } else if (match.method == "turn_on") {
       auto v = obj->get_remote_values();
       v.set_state(1.0f);
-      if (obj->get_traits().supports_brightness() && request->hasParam("brightness"))
+      if (obj->get_traits().has_brightness() && request->hasParam("brightness"))
         v.set_brightness(request->getParam("brightness")->value().toFloat() / 255.0f);
-      if (obj->get_traits().supports_rgb()) {
+      if (obj->get_traits().has_rgb()) {
         if (request->hasParam("r"))
           v.set_red(request->getParam("r")->value().toFloat() / 255.0f);
         if (request->hasParam("g"))

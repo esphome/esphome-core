@@ -53,9 +53,9 @@ std::string MQTTJSONLightComponent::friendly_name() const {
   return this->state_->get_name();
 }
 void MQTTJSONLightComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
-  if (this->state_->get_traits().supports_brightness())
+  if (this->state_->get_traits().has_brightness())
     root["brightness"] = true;
-  if (this->state_->get_traits().supports_rgb())
+  if (this->state_->get_traits().has_rgb())
     root["rgb"] = true;
   root["flash"] = true;
   if (this->state_->get_traits().has_rgb_white_value())

@@ -21,7 +21,7 @@ static const char *TAG = "light.state";
 void LightState::start_transition(const LightColorValues &target, uint32_t length) {
   ESP_LOGD(TAG, "Starting transition with length=%u ms", length);
 
-  if (this->get_traits().supports_brightness()) {
+  if (this->get_traits().has_brightness()) {
     this->transformer_ = make_unique<LightTransitionTransformer>(millis(), length,
                                                                  this->get_current_values_lazy(),
                                                                  target);

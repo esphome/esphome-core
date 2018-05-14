@@ -15,6 +15,10 @@
 
 #ifdef USE_FAST_LED_LIGHT
 
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+#define FASTLED_ESP32_RAW_PIN_ORDER
+#define FASTLED_RMT_BUILTIN_DRIVER 1
+
 // Avoid annoying compiler messages
 #define FASTLED_INTERNAL
 
@@ -201,15 +205,6 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
     static CHIPSET<DATA_PIN> c;
     return add_leds(&c, num_leds);
   }
-
-#ifdef FASTSPI_USE_DMX_SIMPLE
-  template<EClocklessChipsets CHIPSET, uint8_t DATA_PIN, EOrder RGB_ORDER=RGB>
-  CLEDController &add_leds(int num_leds) {
-    switch(CHIPSET) {
-      case DMX: { static DMXController<DATA_PIN> controller; return add_leds(&controller, num_leds); }
-    }
-  }
-#endif
 #endif
 
   template<template<EOrder RGB_ORDER> class CHIPSET, EOrder RGB_ORDER>
@@ -331,7 +326,7 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 
   template<EBlockChipsets CHIPSET, int NUM_LANES>
   CLEDController &add_leds(int num_leds) {
-      return add_leds<CHIPSET,NUM_LANES,GRB>(num_leds);
+      return add_leds<CHIPSET, NUM_LANES, GRB>(num_leds);
   }
 #endif
 
