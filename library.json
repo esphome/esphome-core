@@ -30,7 +30,7 @@
     },
     {
       "name": "FastLED",
-      "version": "https://github.com/FastLED/FastLED.git#d41694"
+      "version": "https://github.com/FastLED/FastLED.git#d41619400bbe77fe14dd1ccdca7521b152f460ef"
     }
   ],
   "license": "GPL-3.0",

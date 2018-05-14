@@ -21,8 +21,8 @@ void ESP32TouchComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ESP32 Touch Hub...");
   touch_pad_init();
 
-  ESP_LOGCONFIG(TAG, "    Meas cycle: %.2fms", this->meas_cycle_ / 8000000.0f);
-  ESP_LOGCONFIG(TAG, "    Sleep cycle: %.2fms", this->sleep_cycle_ / 150000.0f);
+  ESP_LOGCONFIG(TAG, "    Meas cycle: %.2fms", this->meas_cycle_ / (8000000.0f / 1000.0f));
+  ESP_LOGCONFIG(TAG, "    Sleep cycle: %.2fms", this->sleep_cycle_ / (150000.0f / 1000.0f));
 
   if_config {
     const char *lv_s;

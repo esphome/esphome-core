@@ -124,6 +124,8 @@ class ESP32BLEDevice : public binary_sensor::BinarySensor {
  protected:
   friend ESP32BLETracker;
 
+  std::string device_class() override;
+
   uint64_t address_;
 };
 

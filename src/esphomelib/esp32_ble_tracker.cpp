@@ -34,11 +34,11 @@ void ESP32BLETracker::setup() {
   xTaskCreatePinnedToCore(
       ESP32BLETracker::ble_core_task,
       "ble_task", // name
-      10000, // stack size (in words
+      10000, // stack size (in words)
       nullptr, // input params
       1, // priority
       nullptr, // Handle, not needed
-      0
+      0 // core
   );
 }
 
@@ -243,6 +243,9 @@ void ESP32BLETracker::set_scan_interval(uint32_t scan_interval) {
 ESP32BLEDevice::ESP32BLEDevice(const std::string &name, uint64_t address)
     : BinarySensor(name), address_(address) {
 
+}
+std::string ESP32BLEDevice::device_class() {
+  return "presence";
 }
 
 ESPHOMELIB_NAMESPACE_END
