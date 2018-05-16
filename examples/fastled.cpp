@@ -45,10 +45,10 @@ class CustomLightEffect : public light::LightEffect {
 // Make an effect entry so that esphomelib can know about it.
 // Note that you need to register it too (see setup())
 light::LightEffect::Entry custom_light_entry = {
-  .name = "Rainbow Effect",
-  // This effect requires the Brightness and RGB traits and must be used with FastLED
-  .requirements = light::LightTraits(true, true, false, true),
-  .constructor = CustomLightEffect::create
+    .name = "Rainbow Effect",
+    // This effect requires the Brightness and RGB traits and must be used with FastLED
+    .requirements = light::LightTraits(true, true, false, true),
+    .constructor = CustomLightEffect::create
 };
 
 void setup() {
