@@ -248,6 +248,11 @@
     #define USE_OUTPUT
   #endif
 #endif
+#ifdef USE_SWITCH
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+#endif
 #ifdef USE_LEDC_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
