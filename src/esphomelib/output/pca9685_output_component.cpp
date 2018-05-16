@@ -47,7 +47,7 @@ PCA9685OutputComponent::PCA9685OutputComponent(I2CComponent *parent, float frequ
 
 void PCA9685OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent.");
-  ESP_LOGCONFIG(TAG, "    Mode: %02X", this->mode_);
+  ESP_LOGCONFIG(TAG, "    Mode: 0x%02X", this->mode_);
 
   ESP_LOGV(TAG, "    Resetting devices...");
   this->write_bytes(PCA9685_REGISTER_SOFTWARE_RESET, nullptr, 0);

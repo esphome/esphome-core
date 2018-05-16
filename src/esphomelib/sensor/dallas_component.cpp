@@ -59,7 +59,7 @@ void DallasComponent::setup() {
     if (address8[0] != DALLAS_MODEL_DS18S20 && address8[0] != DALLAS_MODEL_DS1822 &&
         address8[0] != DALLAS_MODEL_DS18B20 && address8[0] != DALLAS_MODEL_DS1825 &&
         address8[0] != DALLAS_MODEL_DS28EA00) {
-      ESP_LOGW(TAG, "Unknown device type %02X.", address8[0]);
+      ESP_LOGW(TAG, "Unknown device type 0x%02X.", address8[0]);
       continue;
     }
     ESP_LOGD(TAG, "    0x%s", s.c_str());

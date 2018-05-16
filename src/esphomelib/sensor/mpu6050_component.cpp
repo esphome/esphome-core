@@ -41,7 +41,7 @@ MPU6050Component::MPU6050Component(I2CComponent *parent, uint8_t address, uint32
 }
 
 void MPU6050Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MPU6050 on address 0x%X...", this->address_);
+  ESP_LOGCONFIG(TAG, "Setting up MPU6050 on address 0x%02X...", this->address_);
   uint8_t who_am_i;
   if (!this->read_byte(MPU6050_REGISTER_WHO_AM_I, &who_am_i) || who_am_i != 0x68) {
     ESP_LOGE(TAG, "Can't communicate with MPU6050.");

@@ -25,7 +25,7 @@ PCF8574Component::PCF8574Component(I2CComponent *parent, uint8_t address, bool p
 
 void PCF8574Component::setup() {
   if (!this->read_gpio_()) {
-    ESP_LOGE(TAG, "PCF8574 not available under %x", this->address_);
+    ESP_LOGE(TAG, "PCF8574 not available under 0x%02X", this->address_);
     this->mark_failed();
     return;
   }
