@@ -67,6 +67,9 @@ void PCF8574Component::pin_mode_(uint8_t pin, uint8_t mode) {
   this->write_gpio_();
 }
 bool PCF8574Component::read_gpio_() {
+  if (this->is_failed())
+    return false;
+
   if (this->pcf8575_) {
     if (!this->parent_->receive_16_(this->address_, &this->input_mask_, 1))
       return false;
@@ -80,6 +83,9 @@ bool PCF8574Component::read_gpio_() {
   return true;
 }
 bool PCF8574Component::write_gpio_() {
+  if (this->is_failed())
+    return false;
+
   uint16_t value = (this->input_mask_ & ~this->ddr_mask_) | this->port_mask_;
 
   this->parent_->begin_transmission_(this->address_);

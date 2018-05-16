@@ -160,6 +160,9 @@ void Component::set_timeout(uint32_t timeout, Component::time_func_t &&f) {
 void Component::set_interval(uint32_t interval, Component::time_func_t &&f) {
   this->set_interval("", interval, std::move(f));
 }
+bool Component::is_failed() {
+  return this->component_state_ == FAILED;
+}
 
 PollingComponent::PollingComponent(uint32_t update_interval)
     : Component(), update_interval_(update_interval) {}

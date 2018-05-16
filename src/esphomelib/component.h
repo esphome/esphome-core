@@ -107,6 +107,8 @@ class Component {
    */
   virtual void mark_failed();
 
+  bool is_failed();
+
  protected:
   void loop_internal();
   void setup_internal();

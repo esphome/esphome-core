@@ -46,7 +46,7 @@ void Application::setup() {
   });
   ESP_LOGV(TAG, "Calling setup");
   for (Component *component : this->components_) {
-    if (component->get_component_state() != Component::FAILED)
+    if (!component->is_failed())
       component->setup_();
   }
 
@@ -67,7 +67,7 @@ void Application::loop() {
   }
 
   for (Component *component : this->components_) {
-    if (component->get_component_state() != Component::FAILED)
+    if (!component->is_failed())
       component->loop_();
   }
   yield();
