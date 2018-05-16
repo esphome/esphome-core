@@ -86,6 +86,10 @@ class TSL2561Sensor : public PollingSensorComponent, public I2CDevice {
   int8_t accuracy_decimals() override;
   float get_setup_priority() const override;
 
+  bool tsl2561_read_byte(uint8_t register_, uint8_t *value);
+  bool tsl2561_read_uint(uint8_t register_, uint16_t *value);
+  bool tsl2561_write_byte(uint8_t register_, uint8_t value);
+
  protected:
   float get_integration_time_ms_();
   void read_data_();
