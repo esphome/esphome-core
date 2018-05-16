@@ -39,6 +39,7 @@ script:
   - platformio run -e custombmp180
   - platformio run -e i2c-sensors
   - platformio run -e pcf8574
+  - platformio run -e fastled
 
 # Together:
 # platformio run -e livingroom -e dht-dallas-sensors -e switch-binarysensor -e fan-example -e lights -e livingroom8266 -e custombmp180 -e i2c-sensors -e pcf8574
