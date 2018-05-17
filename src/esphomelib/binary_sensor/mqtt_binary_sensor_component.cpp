@@ -14,12 +14,15 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
+static const char *TAG = "binary_sensor.mqtt";
+
 std::string MQTTBinarySensorComponent::component_type() const {
   return "binary_sensor";
 }
 
 void MQTTBinarySensorComponent::setup() {
   this->binary_sensor_->add_on_state_callback([this](bool value) {
+    ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), value ? "ON" : "OFF");
     std::string state = value ? this->get_payload_on() : this->get_payload_off();
     this->send_message(this->get_state_topic(), state);
   });

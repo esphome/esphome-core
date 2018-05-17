@@ -100,6 +100,11 @@ void OTAComponent::setup() {
       if (strcmp(cause, "ota") != 0)
         this->clean_rtc();
     });
+
+    if (this->safe_mode_rtc_value_ > 1) {
+      ESP_LOGW(TAG, "Last Boot was an unhandled reset, will proceed to safe mode in %d restarts",
+               this->safe_mode_num_attempts_ - this->safe_mode_rtc_value_);
+    }
   }
 }
 
@@ -134,7 +139,7 @@ void OTAComponent::set_auth_password_hash(const std::string &hash) {
   this->password_ = hash;
 }
 float OTAComponent::get_setup_priority() const {
-  return setup_priority::MQTT_CLIENT;
+  return setup_priority::MQTT_CLIENT - 1.0f;
 }
 uint16_t OTAComponent::get_port() const {
   return this->port_;
@@ -152,12 +157,12 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
   this->has_safe_mode_ = true;
   this->safe_mode_start_time_ = millis();
   this->safe_mode_enable_time_ = enable_time;
+  this->safe_mode_num_attempts_ = num_attempts;
+  this->safe_mode_rtc_value_ = this->read_rtc_();
 
-  uint8_t rtc_data = this->read_rtc_();
+  ESP_LOGCONFIG(TAG, "There have been %u suspected unsuccessful boot attempts.", this->safe_mode_rtc_value_);
 
-  ESP_LOGCONFIG(TAG, "There have been %u suspected unsuccessful boot attempts.", rtc_data);
-
-  if (rtc_data >= num_attempts) {
+  if (this->safe_mode_rtc_value_ >= num_attempts) {
     this->clean_rtc();
 
     ESP_LOGE(TAG, "Boot loop detected. Proceeding to safe mode.");
@@ -176,7 +181,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     reboot("ota-safe-mode");
   } else {
     // increment counter
-    this->write_rtc_(uint8_t(rtc_data + 1));
+    this->write_rtc_(uint8_t(this->safe_mode_rtc_value_ + 1));
   }
 }
 void OTAComponent::write_rtc_(uint8_t val) {
