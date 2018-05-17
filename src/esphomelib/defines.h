@@ -74,6 +74,7 @@
     #define USE_ESP32_BLE_TRACKER
   #endif
   #define USE_FAST_LED_LIGHT
+  #define USE_ROTARY_ENCODER_SENSOR
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -208,6 +209,11 @@
   #endif
 #endif
 #ifdef USE_ULTRASONIC_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_ROTARY_ENCODER_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif

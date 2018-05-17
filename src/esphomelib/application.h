@@ -46,6 +46,7 @@
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/mpu6050_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
+#include "esphomelib/sensor/rotary_encoder.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/sensor/sht3xd_component.h"
 #include "esphomelib/sensor/tsl2561_sensor.h"
@@ -533,6 +534,38 @@ class Application {
   MakeSHT3XDSensor make_sht3xd_sensor(const std::string &temperature_name, const std::string &humidity_name,
                                       uint8_t address = 0x44, uint32_t update_interval = 15000);
 #endif
+
+#ifdef USE_ROTARY_ENCODER_SENSOR
+  struct MakeRotaryEncoderSensor {
+    sensor::RotaryEncoderSensor *rotary_encoder;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  /** Create a continuous rotary encoder sensor with a digital signal.
+   *
+   * It will keep track of how far the encoder has been turned using the signals from the two required pins A & B.
+   * There's also support for a third "index" pin. Each time this pin is pulled high, the counter will reset to 0.
+   *
+   * Additionally, you can specify a resolution for the rotary encoder. By default, the encoder will only increment
+   * the counter once a full cycle of A&B signals has been detected to prevent triggers from noise. You can change
+   * this behavior using the set_resolution method.
+   *
+   * The output value of this rotary encoder is a raw integer step value. Use filters
+   * to convert this raw value to something sensible like degrees. Next, this sensor pushes its state on every detected
+   * counter change.
+   *
+   * Read https://playground.arduino.cc/Main/RotaryEncoders to see how they work.
+   *
+   * @param name The name of the rotary encoder.
+   * @param pin_a The first pin of the sensor.
+   * @param pin_b The second pin of the sensor.
+   * @return A MakeRotaryEncoderSensor, use this for advanced settings.
+   */
+  MakeRotaryEncoderSensor make_rotary_encoder_sensor(const std::string &name,
+                                                     const GPIOInputPin &pin_a,
+                                                     const GPIOInputPin &pin_b);
+#endif
+
 
 
 
