@@ -29,6 +29,7 @@
   #define USE_STATUS_BINARY_SENSOR
   #define USE_SENSOR
   #define USE_DHT_SENSOR
+  #define USE_DHT12_SENSOR
   #define USE_DALLAS_SENSOR
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_PULSE_COUNTER_SENSOR
@@ -97,6 +98,11 @@
   #endif
 #endif
 #ifdef USE_DHT_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_DHT12_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif

@@ -41,6 +41,7 @@
 #include "esphomelib/sensor/bmp085_component.h"
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht_component.h"
+#include "esphomelib/sensor/dht12_component.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
@@ -532,6 +533,17 @@ class Application {
 
   MakeSHT3XDSensor make_sht3xd_sensor(const std::string &temperature_name, const std::string &humidity_name,
                                       uint8_t address = 0x44, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_DHT12_SENSOR
+  struct MakeDHT12Sensor {
+    sensor::DHT12Component *dht12;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_humidity;
+  };
+
+  MakeDHT12Sensor make_dht12_sensor(const std::string &temperature_name, const std::string &humidity_name,
+                                    uint32_t update_interval = 15000);
 #endif
 
 

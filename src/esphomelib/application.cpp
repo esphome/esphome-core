@@ -647,6 +647,22 @@ Application::MakeFastLEDLight Application::make_fast_led_light(const std::string
 }
 #endif
 
+#ifdef USE_DHT12_SENSOR
+Application::MakeDHT12Sensor Application::make_dht12_sensor(const std::string &temperature_name,
+                                                            const std::string &humidity_name,
+                                                            uint32_t update_interval) {
+  auto *dht12 = this->register_component(
+      new DHT12Component(this->i2c_, temperature_name, humidity_name, update_interval)
+  );
+
+  return {
+      .dht12 = dht12,
+      .mqtt_temperature = this->register_sensor(dht12->get_temperature_sensor()),
+      .mqtt_humidity = this->register_sensor(dht12->get_humidity_sensor()),
+  };
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
