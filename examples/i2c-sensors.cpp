@@ -71,6 +71,8 @@ void setup() {
   // default accuracy is high
   sht3xd.sht3xd->set_accuracy(sensor::SHT3XD_ACCURACY_LOW);
 
+  App.make_dht12_sensor("DHT12 Temperature", "DHT12 Humidity");
+
   App.setup();
 }
 
