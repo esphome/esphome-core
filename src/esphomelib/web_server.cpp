@@ -240,16 +240,13 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
       std::string data = this->switch_json(obj, obj->get_value());
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      if (obj->get_value())
-        obj->turn_off();
-      else
-        obj->turn_on();
+      obj->write_state(!obj->get_value());
       request->send(200);
     } else if (match.method == "turn_on") {
-      obj->turn_on();
+      obj->write_state(true);
       request->send(200);
     } else if (match.method == "turn_off") {
-      obj->turn_off();
+      obj->write_state(false);
       request->send(200);
     } else {
       request->send(404);

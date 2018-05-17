@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "esphomelib/log.h"
-#include "esphomelib/esppreferences.h"
 
 #ifdef USE_SWITCH
 
@@ -39,11 +38,7 @@ void MQTTSwitchComponent::setup() {
   this->switch_->add_on_state_callback([this](bool enabled){
     std::string state = enabled ? this->get_payload_on() : this->get_payload_off();
     this->send_message(this->get_state_topic(), state);
-    global_preferences.put_bool(this->switch_->get_name(), "state", enabled);
   });
-
-  bool initial_state = global_preferences.get_bool(this->switch_->get_name(), "state", false);
-  if (initial_state) this->turn_on(); else this->turn_off();
 }
 
 std::string MQTTSwitchComponent::component_type() const {
@@ -51,11 +46,11 @@ std::string MQTTSwitchComponent::component_type() const {
 }
 void MQTTSwitchComponent::turn_on() {
   ESP_LOGD(TAG, "Turning Switch on.");
-  this->switch_->turn_on();
+  this->switch_->write_state(true);
 }
 void MQTTSwitchComponent::turn_off() {
   ESP_LOGD(TAG, "Turning Switch off.");
-  this->switch_->turn_off();
+  this->switch_->write_state(false);
 }
 void MQTTSwitchComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->switch_->get_icon().empty())

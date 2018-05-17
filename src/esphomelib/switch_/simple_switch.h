@@ -23,11 +23,12 @@ class SimpleSwitch : public Switch {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
+ protected:
   /// Turn this SimpleSwitch on.
   void turn_on() override;
   /// Turn this SimpleSwitch off.
   void turn_off() override;
- protected:
+
   output::BinaryOutput *output_;
 };
 
