@@ -125,9 +125,14 @@ void LightState::start_effect(const std::string &name) {
 }
 
 bool LightState::supports_effects() {
+  bool found_none_effect = false;
   for (const LightEffect::Entry &entry : light_effect_entries)
     if (this->get_traits().supports_traits(entry.requirements))
-      return true;
+      if (found_none_effect) {
+        return true;
+      } else {
+        found_none_effect = true;
+      }
   return false;
 }
 void LightState::set_transformer(std::unique_ptr<LightTransformer> transformer) {
