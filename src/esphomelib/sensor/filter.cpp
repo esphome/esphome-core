@@ -123,6 +123,66 @@ uint32_t Filter::expected_interval(uint32_t input) {
 
 Filter::~Filter() = default;
 
+ThrottleFilter::ThrottleFilter(uint32_t min_time_between_updates)
+    : min_time_between_updates_(min_time_between_updates), Filter() {
+
+}
+Optional<float> ThrottleFilter::new_value(float value) {
+  const uint32_t now = millis();
+  if (this->last_update_ == 0 || now - this->last_update_ >= min_time_between_updates_) {
+    this->last_update_ = now;
+    return value;
+  }
+  return Optional<float>();
+}
+DeltaFilter::DeltaFilter(float min_delta)
+    : min_delta_(min_delta), last_value_(NAN) {
+
+}
+Optional<float> DeltaFilter::new_value(float value) {
+  if (isnan(value))
+    return Optional<float>();
+  if (isnan(this->last_value_)) {
+    return this->last_value_ = value;
+  }
+  if (fabsf(value - this->last_value_) >= this->min_delta_) {
+    return this->last_value_ = value;
+  }
+  return Optional<float>();
+}
+OrFilter::OrFilter(std::list<Filter *> filters)
+    : filters_(std::move(filters)) {
+
+}
+Optional<float> OrFilter::new_value(float value) {
+  for (Filter *filter : this->filters_) {
+    auto out = filter->new_value(value);
+    if (out.defined)
+      return out.value;
+  }
+
+  return Optional<float>();
+}
+AndFilter::AndFilter(std::list<Filter *> filters)
+    : filters_(std::move(filters)) {
+
+}
+Optional<float> AndFilter::new_value(float value) {
+  for (Filter *filter : this->filters_) {
+    auto out = filter->new_value(value);
+    if (!out.defined)
+      return Optional<float>();
+  }
+  return value;
+}
+
+Optional<float> UniqueFilter::new_value(float value) {
+  if (isnan(this->last_value_) || value != this->last_value_) {
+    return this->last_value_ = value;
+  }
+  return Optional<float>();
+}
+
 } // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END

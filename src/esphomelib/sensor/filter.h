@@ -6,7 +6,8 @@
 #define ESPHOMELIB_SENSOR_FILTER_H
 
 #include <cstdint>
-
+#include <utility>
+#include <list>
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
 
@@ -152,6 +153,56 @@ class FilterOutValueFilter : public Filter {
 class FilterOutNANFilter : public Filter {
  public:
   Optional<float> new_value(float value) override;
+};
+
+class ThrottleFilter : public Filter {
+ public:
+  explicit ThrottleFilter(uint32_t min_time_between_updates);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  uint32_t last_update_{0};
+  uint32_t min_time_between_updates_;
+};
+
+class DeltaFilter : public Filter {
+ public:
+  explicit DeltaFilter(float min_delta);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  float min_delta_;
+  float last_value_{NAN};
+};
+
+class OrFilter : public Filter {
+ public:
+  explicit OrFilter(std::list<Filter *> filters);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  std::list<Filter *> filters_;
+};
+
+class AndFilter : public Filter {
+ public:
+  explicit AndFilter(std::list<Filter *> filters);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  std::list<Filter *> filters_;
+};
+
+class UniqueFilter : public Filter {
+ public:
+  Optional<float> new_value(float value) override;
+
+ protected:
+  float last_value_{NAN};
 };
 
 } // namespace sensor

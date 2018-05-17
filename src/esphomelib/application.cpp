@@ -663,6 +663,19 @@ Application::MakeDHT12Sensor Application::make_dht12_sensor(const std::string &t
 }
 #endif
 
+#ifdef USE_ROTARY_ENCODER_SENSOR
+Application::MakeRotaryEncoderSensor Application::make_rotary_encoder_sensor(const std::string &name,
+                                                                             const GPIOInputPin &pin_a,
+                                                                             const GPIOInputPin &pin_b) {
+  auto *encoder = this->register_component(new RotaryEncoderSensor(name, pin_a.copy(), pin_b.copy()));
+
+  return MakeRotaryEncoderSensor{
+      .rotary_encoder = encoder,
+      .mqtt = this->register_sensor(encoder),
+  };
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END

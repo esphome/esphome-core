@@ -32,6 +32,11 @@ void ESP8266PWMOutput::setup() {
 void ESP8266PWMOutput::write_state(float state) {
   const uint16_t max_duty = 1023;
   auto duty = static_cast<uint16_t>(state * max_duty);
+
+  // Also check pin inversion
+  if (this->pin_.is_inverted()) {
+    duty = max_duty - duty;
+  }
   analogWrite(this->pin_.get_pin(), duty);
 }
 float ESP8266PWMOutput::get_setup_priority() const {
