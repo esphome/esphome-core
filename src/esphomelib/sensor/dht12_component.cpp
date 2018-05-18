@@ -45,7 +45,7 @@ void DHT12Component::update() {
   const uint16_t raw_humidity = uint16_t(data[0]) * 10 + data[1];
   float humidity = raw_humidity / 10.0f;
 
-  ESP_LOGD(TAG, "Got temperature=%.2°C humidity=%.2f%%", temperature, humidity);
+  ESP_LOGD(TAG, "Got temperature=%.2f°C humidity=%.2f%%", temperature, humidity);
   this->temperature_sensor_->push_new_value(temperature);
   this->humidity_sensor_->push_new_value(humidity);
 }

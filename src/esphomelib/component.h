@@ -10,7 +10,6 @@
 #include <vector>
 #include "esphomelib/defines.h"
 
-#define assert_is_pin(num) assert((0 <= (num) && (num) <= 39) && "Is not a valid pin number")
 #define assert_setup(t) assert((t)->get_component_state() == esphomelib::Component::SETUP || (t)->get_component_state() == esphomelib::Component::LOOP)
 #define assert_construction_state(t) assert((t)->get_component_state() == esphomelib::Component::CONSTRUCTION)
 
