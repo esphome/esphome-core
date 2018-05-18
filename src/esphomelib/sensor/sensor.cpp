@@ -21,22 +21,11 @@ void Sensor::push_new_value(float value) {
 
   ESP_LOGV(TAG, "'%s': Received new value %f", this->name_.c_str(), value);
 
-  unsigned int i = 0;
-  for (auto *filter : this->filters_) {
-    auto optional_value = filter->new_value(value);
-    if (!optional_value.defined) {
-      ESP_LOGV(TAG, "'%s':  Filter #%u aborted chain", this->name_.c_str(), i);
-      // The filter aborted the chain
-      return;
-    }
-    ESP_LOGV(TAG, "'%s':  Filter #%u %.2f -> %.2f",
-             this->name_.c_str(), i, value, optional_value.value);
-    value = optional_value.value;
-    i++;
+  if (this->filter_list_ == nullptr) {
+    this->send_value_to_frontend(value);
+  } else {
+    this->filter_list_->input(value);
   }
-
-  this->value_ = value;
-  this->callback_.call(value);
 }
 std::string Sensor::unit_of_measurement() {
   return "";
@@ -87,10 +76,27 @@ int8_t Sensor::get_accuracy_decimals() {
   return this->accuracy_decimals();
 }
 void Sensor::add_filter(Filter *filter) {
-  this->filters_.push_back(filter);
+  // inefficient, but only happens once on every sensor setup and nobody's going to have massive amounts of
+  // filters
+  if (this->filter_list_ == nullptr) {
+    this->filter_list_ = filter;
+  } else {
+    Filter *last_filter = this->filter_list_;
+    while (last_filter->next_ != nullptr)
+      last_filter = last_filter->next_;
+    last_filter->next_ = filter;
+    last_filter->output_ = [filter] (float value) {
+      filter->input(value);
+    };
+  }
+  filter->initialize([this](float value) {
+    this->send_value_to_frontend(value);
+  });
 }
 void Sensor::add_filters(const std::list<Filter *> &filters) {
-  this->filters_.insert(this->filters_.end(), filters.begin(), filters.end());
+  for (Filter *filter : filters) {
+    this->add_filter(filter);
+  }
 }
 void Sensor::set_filters(const std::list<Filter *> &filters) {
   this->clear_filters();
@@ -115,12 +121,14 @@ void Sensor::add_exponential_moving_average_filter(float alpha, size_t send_ever
   this->add_filter(new ExponentialMovingAverageFilter(alpha, send_every));
 }
 void Sensor::clear_filters() {
-  for (auto *filter : this->filters_)
+  Filter *filter = this->filter_list_;
+  while (filter != nullptr) {
+    Filter *next_filter = filter->next_;
     delete filter;
-  this->filters_.clear();
-}
-std::list<Filter *> Sensor::get_filters() const {
-  return this->filters_;
+    filter = next_filter;
+  }
+
+  this->filter_list_ = nullptr;
 }
 float Sensor::get_value() const {
   return this->value_;
@@ -129,6 +137,11 @@ float Sensor::get_raw_value() const {
   return this->raw_value_;
 }
 std::string Sensor::unique_id() { return ""; }
+
+void Sensor::send_value_to_frontend(float value) {
+  this->value_ = value;
+  this->callback_.call(value);
+}
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
     : PollingComponent(update_interval), Sensor(name) {}

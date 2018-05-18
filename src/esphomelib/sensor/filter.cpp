@@ -3,6 +3,7 @@
 //
 
 #include "esphomelib/sensor/filter.h"
+#include "esphomelib/sensor/sensor.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
@@ -120,19 +121,30 @@ Optional<float> FilterOutNANFilter::new_value(float value) {
 uint32_t Filter::expected_interval(uint32_t input) {
   return input;
 }
+void Filter::input(float value) {
+  Optional<float> out = this->new_value(value);
+  if (out.defined)
+    this->output_(out.value);
+}
+void Filter::initialize(std::function<void(float)> &&output) {
+  this->output_ = std::move(output);
+}
 
-Filter::~Filter() = default;
+Filter::~Filter() {
+  delete this->next_;
+}
 
-ThrottleFilter::ThrottleFilter(uint32_t min_time_between_updates)
-    : min_time_between_updates_(min_time_between_updates), Filter() {
+ThrottleFilter::ThrottleFilter(uint32_t min_time_between_inputs)
+    : min_time_between_inputs_(min_time_between_inputs), Filter() {
 
 }
 Optional<float> ThrottleFilter::new_value(float value) {
   const uint32_t now = millis();
-  if (this->last_update_ == 0 || now - this->last_update_ >= min_time_between_updates_) {
-    this->last_update_ = now;
+  if (this->last_input_ == 0 || now - this->last_input_ >= min_time_between_inputs_) {
+    this->last_input_ = now;
     return value;
   }
+  this->last_input_ = now;
   return Optional<float>();
 }
 DeltaFilter::DeltaFilter(float min_delta)
@@ -155,32 +167,74 @@ OrFilter::OrFilter(std::list<Filter *> filters)
 
 }
 Optional<float> OrFilter::new_value(float value) {
-  for (Filter *filter : this->filters_) {
-    auto out = filter->new_value(value);
-    if (out.defined)
-      return out.value;
-  }
+  for (Filter *filter : this->filters_)
+    filter->input(value);
 
   return Optional<float>();
 }
-AndFilter::AndFilter(std::list<Filter *> filters)
-    : filters_(std::move(filters)) {
-
-}
-Optional<float> AndFilter::new_value(float value) {
+OrFilter::~OrFilter() {
+  delete this->next_;
   for (Filter *filter : this->filters_) {
-    auto out = filter->new_value(value);
-    if (!out.defined)
-      return Optional<float>();
+    delete filter;
   }
-  return value;
+}
+
+void OrFilter::initialize(std::function<void(float)> &&output) {
+  Filter::initialize(std::move(output));
+  for (Filter *filter : this->filters_) {
+    filter->initialize([this](float value) {
+      this->output_(value);
+    });
+  }
+}
+
+uint32_t OrFilter::expected_interval(uint32_t input) {
+  uint32_t min_interval = UINT32_MAX;
+  for (Filter *filter : this->filters_) {
+    min_interval = std::min(min_interval, filter->expected_interval(input));
+  }
+
+  return min_interval;
 }
 
 Optional<float> UniqueFilter::new_value(float value) {
   if (isnan(this->last_value_) || value != this->last_value_) {
     return this->last_value_ = value;
   }
+
   return Optional<float>();
+}
+
+Optional<float> DebounceFilter::new_value(float value) {
+  this->set_timeout("debounce", this->time_period_, [this, value](){
+    this->output_(value);
+  });
+
+  return Optional<float>();
+}
+
+DebounceFilter::DebounceFilter(uint32_t time_period)
+    : time_period_(time_period) {
+
+}
+
+HeartbeatFilter::HeartbeatFilter(uint32_t time_period)
+    : time_period_(time_period), last_input_(NAN) {
+
+}
+
+Optional<float> HeartbeatFilter::new_value(float value) {
+  this->last_input_ = value;
+
+  return Optional<float>();
+}
+uint32_t HeartbeatFilter::expected_interval(uint32_t input) {
+  return this->time_period_;
+}
+void HeartbeatFilter::setup() {
+  this->set_interval("heartbeat", this->time_period_, [this]() {
+    this->output_(this->last_input_);
+  });
 }
 
 } // namespace sensor

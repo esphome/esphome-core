@@ -22,14 +22,13 @@ MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
 }
 
 void MQTTSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT Sensor '%s'", this->sensor_->get_name().c_str());
+  ESP_LOGCONFIG(TAG, "Setting up MQTT Sensor '%s'...", this->sensor_->get_name().c_str());
   if (this->get_expire_after() > 0) {
     ESP_LOGCONFIG(TAG, "    Expire After: %us", this->get_expire_after() / 1000);
   }
   ESP_LOGCONFIG(TAG, "    Unit of Measurement: '%s'", this->sensor_->get_unit_of_measurement().c_str());
   ESP_LOGCONFIG(TAG, "    Accuracy Decimals: %i", this->sensor_->get_accuracy_decimals());
   ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->sensor_->get_icon().c_str());
-  ESP_LOGCONFIG(TAG, "    Number Filters: %u", this->sensor_->get_filters().size());
   if (!this->sensor_->unique_id().empty()) {
     ESP_LOGCONFIG(TAG, "    Unique ID: '%s'", this->sensor_->unique_id().c_str());
   }
@@ -50,8 +49,11 @@ uint32_t MQTTSensorComponent::get_expire_after() const {
     return this->expire_after_.value;
   } else {
     uint32_t interval = this->sensor_->update_interval();
-    for (auto *filter : this->sensor_->get_filters())
+    Filter *filter = this->sensor_->filter_list_;
+    while (filter != nullptr) {
       interval = filter->expected_interval(interval);
+      filter = filter->next_;
+    }
     return interval * 3;
   }
 }

@@ -21,6 +21,8 @@ namespace sensor {
 
 using sensor_callback_t = std::function<void(float)>;
 
+class MQTTSensorComponent;
+
 /** Base-class for all sensors.
  *
  * A sensor has unit of measurement and can use push_new_value to send out a new value with the specified accuracy.
@@ -117,15 +119,6 @@ class Sensor : public Nameable {
   /// Get the latest raw value from this sensor.
   float get_raw_value() const;
 
-  /** Return the vector of filters this component uses for its value calculations.
-   *
-   * Note that if you're using this method, you're probably doing something wrong.
-   * The clear_filters() and add_filter() methods should be the only methods you need.
-   *
-   * @return Returns an std::vector<Filter *> of all filters in the filter chain.
-   */
-  std::list<Filter *> get_filters() const;
-
   /// Get the accuracy in decimals used by this MQTT Sensor, first checks override, then sensor.
   int8_t get_accuracy_decimals();
 
@@ -183,6 +176,11 @@ class Sensor : public Nameable {
   virtual std::string unique_id();
 
  protected:
+  friend Filter;
+  friend MQTTSensorComponent;
+
+  void send_value_to_frontend(float value);
+
   float value_{NAN}; ///< Stores the last filtered value.
   float raw_value_{NAN}; ///< Stores the last raw value.
   CallbackManager<void(float)> raw_callback_{}; ///< Storage for raw value callbacks.
@@ -190,7 +188,7 @@ class Sensor : public Nameable {
   Optional<std::string> unit_of_measurement_{}; ///< Override the unit of measurement
   Optional<std::string> icon_{}; // Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
   Optional<int8_t> accuracy_decimals_{}; ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
-  std::list<Filter *> filters_{}; ///< Store all active filters.
+  Filter *filter_list_{nullptr}; ///< Store all active filters.
 };
 
 class PollingSensorComponent : public PollingComponent, public Sensor {

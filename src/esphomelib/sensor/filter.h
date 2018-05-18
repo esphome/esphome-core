@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <utility>
 #include <list>
+#include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
 
@@ -16,6 +17,9 @@
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
+
+class Sensor;
+class MQTTSensorComponent;
 
 /** Apply a filter to sensor values such as moving average.
  *
@@ -37,8 +41,19 @@ class Filter {
 
   virtual ~Filter();
 
+  virtual void initialize(std::function<void(float)> &&output);
+
+  void input(float value);
+
   /// Return the amount of time that this filter is expected to take based on the input time interval.
   virtual uint32_t expected_interval(uint32_t input);
+
+ protected:
+  friend Sensor;
+  friend MQTTSensorComponent;
+
+  std::function<void(float)> output_;
+  Filter *next_{nullptr};
 };
 
 /** Simple sliding window moving average filter.
@@ -157,13 +172,38 @@ class FilterOutNANFilter : public Filter {
 
 class ThrottleFilter : public Filter {
  public:
-  explicit ThrottleFilter(uint32_t min_time_between_updates);
+  explicit ThrottleFilter(uint32_t min_time_between_inputs);
 
   Optional<float> new_value(float value) override;
 
  protected:
-  uint32_t last_update_{0};
-  uint32_t min_time_between_updates_;
+  uint32_t last_input_{0};
+  uint32_t min_time_between_inputs_;
+};
+
+class DebounceFilter : public Filter, public Component {
+ public:
+  explicit DebounceFilter(uint32_t time_period);
+
+  Optional<float> new_value(float value) override;
+
+ protected:
+  uint32_t time_period_;
+};
+
+class HeartbeatFilter : public Filter, public Component {
+ public:
+  explicit HeartbeatFilter(uint32_t time_period);
+
+  void setup() override;
+
+  Optional<float> new_value(float value) override;
+
+  uint32_t expected_interval(uint32_t input) override;
+
+ protected:
+  uint32_t time_period_;
+  float last_input_;
 };
 
 class DeltaFilter : public Filter {
@@ -181,15 +221,9 @@ class OrFilter : public Filter {
  public:
   explicit OrFilter(std::list<Filter *> filters);
 
-  Optional<float> new_value(float value) override;
-
- protected:
-  std::list<Filter *> filters_;
-};
-
-class AndFilter : public Filter {
- public:
-  explicit AndFilter(std::list<Filter *> filters);
+  ~OrFilter() override;
+  void initialize(std::function<void(float)> &&output) override;
+  uint32_t expected_interval(uint32_t input) override;
 
   Optional<float> new_value(float value) override;
 
