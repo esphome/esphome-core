@@ -9,6 +9,7 @@
 #ifndef ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H
 #define ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H
 
+#include "esphomelib/power_supply_component.h"
 #include "esphomelib/light/light_state.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
@@ -61,6 +62,8 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 
   /// Only for custom effects: Stop prevent_writing_leds. Call this when your effect terminates.
   void unprevent_writing_leds();
+
+  void set_power_supply(PowerSupplyComponent *power_supply);
 
   /// Add some LEDS, can only be called once.
   CLEDController &add_leds(CLEDController *controller, int num_leds);
@@ -346,6 +349,10 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
   Optional<uint32_t> max_refresh_rate_{};
   bool prevent_writing_leds_{false};
   bool next_show_{true};
+#ifdef USE_OUTPUT
+  PowerSupplyComponent *power_supply_{nullptr};
+  bool has_requested_high_power_{false};
+#endif
 };
 
 } // namespace light

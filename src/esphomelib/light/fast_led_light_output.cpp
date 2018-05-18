@@ -34,12 +34,14 @@ void FastLEDLightOutputComponent::write_state(LightState *state) {
   this->schedule_show();
 }
 void FastLEDLightOutputComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up FastLED light...");
   assert(this->controller_ != nullptr && "You need to add LEDs to this controller!");
   this->controller_->init();
   this->controller_->setLeds(this->leds_, this->num_leds_);
   if (!this->max_refresh_rate_.defined) {
     this->set_max_refresh_rate(this->controller_->getMaxRefreshRate());
   }
+  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", this->max_refresh_rate_.value);
 }
 void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_)
@@ -54,6 +56,27 @@ void FastLEDLightOutputComponent::loop() {
   this->next_show_ = false;
 
   ESP_LOGVV(TAG, "Writing RGB values to bus...");
+
+#ifdef USE_OUTPUT
+  if (this->power_supply_ != nullptr) {
+    bool is_on = false;
+    for (int i = 0; i < this->num_leds_; i++) {
+      if (bool(this->leds_[i])) {
+        is_on = true;
+        break;
+      }
+    }
+
+    if (is_on && !this->has_requested_high_power_) {
+      this->power_supply_->request_high_power();
+      this->has_requested_high_power_ = true;
+    }
+    if (!is_on && this->has_requested_high_power_) {
+      this->power_supply_->unrequest_high_power();
+      this->has_requested_high_power_ = false;
+    }
+  }
+#endif
 
   this->controller_->showLeds();
 }
@@ -94,6 +117,11 @@ void FastLEDLightOutputComponent::prevent_writing_leds() {
 float FastLEDLightOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
+#ifdef USE_OUTPUT
+void FastLEDLightOutputComponent::set_power_supply(PowerSupplyComponent *power_supply) {
+  this->power_supply_ = power_supply;
+}
+#endif
 
 } // namespace light
 
