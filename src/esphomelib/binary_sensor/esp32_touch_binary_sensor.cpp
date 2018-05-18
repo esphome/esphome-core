@@ -73,6 +73,10 @@ void ESP32TouchComponent::setup() {
   for (auto *child : this->children_) {
     // Disable interrupt threshold
     touch_pad_config(child->get_touch_pad(), 0);
+
+    ESP_LOGCONFIG(TAG, "    Pad '%s'", child->get_name().c_str());
+    ESP_LOGCONFIG(TAG, "      Touch Pad: T%d", child->get_touch_pad());
+    ESP_LOGCONFIG(TAG, "      Threshold: %u", child->get_threshold());
   }
 
   add_shutdown_hook([this](const char *cause) {

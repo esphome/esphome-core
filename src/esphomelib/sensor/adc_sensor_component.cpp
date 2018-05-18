@@ -26,13 +26,12 @@ adc_attenuation_t ADCSensorComponent::get_attenuation() const {
   return this->attenuation_;
 }
 void ADCSensorComponent::set_attenuation(adc_attenuation_t attenuation) {
-  assert_construction_state(this);
   this->attenuation_ = attenuation;
 }
 #endif
 
 void ADCSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up ADC '%s'", this->get_name().c_str());
+  ESP_LOGCONFIG(TAG, "Setting up ADC '%s'...", this->get_name().c_str());
   this->pin_.setup();
 
 #ifdef ARDUINO_ARCH_ESP32

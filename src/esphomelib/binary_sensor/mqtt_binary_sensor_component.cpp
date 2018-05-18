@@ -21,6 +21,10 @@ std::string MQTTBinarySensorComponent::component_type() const {
 }
 
 void MQTTBinarySensorComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up MQTT binary sensor '%s'...", this->binary_sensor_->get_name().c_str());
+  if (!this->binary_sensor_->get_device_class().empty()) {
+    ESP_LOGCONFIG(TAG, "    Device Class: '%s'", this->binary_sensor_->get_device_class().c_str());
+  }
   this->binary_sensor_->add_on_state_callback([this](bool value) {
     ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), value ? "ON" : "OFF");
     std::string state = value ? this->get_payload_on() : this->get_payload_off();

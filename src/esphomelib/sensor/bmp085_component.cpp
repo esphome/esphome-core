@@ -36,6 +36,7 @@ void BMP085Component::update() {
 }
 void BMP085Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BMP085...");
+  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t data[22];
   if (!this->read_bytes(BMP085_REGISTER_AC1_H, data, 22)) {
     ESP_LOGE(TAG, "Connection to BMP085 failed.");
@@ -131,6 +132,7 @@ BMP085PressureSensor *BMP085Component::get_pressure_sensor() const {
   return this->pressure_;
 }
 bool BMP085Component::set_mode_(uint8_t mode) {
+  ESP_LOGV(TAG, "Setting mode to 0x%02X...", mode);
   return this->write_byte(BMP085_REGISTER_CONTROL, mode);
 }
 

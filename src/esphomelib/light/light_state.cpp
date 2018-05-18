@@ -109,12 +109,11 @@ std::string LightState::get_effect_name() {
 }
 
 void LightState::start_effect(const std::string &name) {
-  ESP_LOGD(TAG, "Starting effect '%s'", name.c_str());
-
   for (const LightEffect::Entry &entry : light_effect_entries) {
     if (!this->get_traits().supports_traits(entry.requirements))
       continue;
     if (strcasecmp(name.c_str(), entry.name.c_str()) == 0) {
+      ESP_LOGD(TAG, "Starting effect '%s'", name.c_str());
       this->effect_->stop(this);
       this->effect_ = std::move(entry.constructor());
       this->effect_->initialize(this);
@@ -177,6 +176,7 @@ void LightState::start_default_transition(const LightColorValues &target) {
   this->start_transition(target, this->default_transition_length_);
 }
 void LightState::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up light '%s'...", this->get_name().c_str());
   LightColorValues recovered_values;
   recovered_values.load_from_preferences(this->get_name());
   this->set_immediately(recovered_values);

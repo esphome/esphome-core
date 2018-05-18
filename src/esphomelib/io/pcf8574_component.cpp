@@ -24,6 +24,9 @@ PCF8574Component::PCF8574Component(I2CComponent *parent, uint8_t address, bool p
     : Component(), I2CDevice(parent, address), pcf8575_(pcf8575) {}
 
 void PCF8574Component::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up PCF8574...");
+  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
+  ESP_LOGCONFIG(TAG, "    Is PCF8575: %s", this->pcf8575_ ? "YES" : "NO");
   if (!this->read_gpio_()) {
     ESP_LOGE(TAG, "PCF8574 not available under 0x%02X", this->address_);
     this->mark_failed();

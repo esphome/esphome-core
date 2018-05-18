@@ -24,7 +24,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-static const char *TAG = "switch.ir_tx";
+static const char *TAG = "switch.ir_transmitter";
 
 using namespace esphomelib::switch_::ir;
 

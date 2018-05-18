@@ -23,8 +23,11 @@ void LEDCOutputComponent::write_state(float adjusted_value) {
 }
 
 void LEDCOutputComponent::setup() {
-  ESP_LOGD(TAG, "Setting up LEDCComponent with pin=%u, channel=%u, freq=%f, bit_depth=%u",
-           this->pin_, this->channel_, this->frequency_, this->bit_depth_);
+  ESP_LOGCONFIG(TAG, "Setting up ledc output...");
+  ESP_LOGCONFIG(TAG, "    Pin: %u", this->pin_);
+  ESP_LOGCONFIG(TAG, "    LEDC Channel: %u", this->channel_);
+  ESP_LOGCONFIG(TAG, "    Frequency: %.1f", this->frequency_);
+  ESP_LOGCONFIG(TAG, "    Bit Depth: %u", this->bit_depth_);
 
   ledcSetup(this->channel_, this->frequency_, this->bit_depth_);
   ledcAttachPin(this->pin_, this->channel_);
@@ -49,30 +52,24 @@ uint8_t LEDCOutputComponent::get_pin() const {
   return this->pin_;
 }
 void LEDCOutputComponent::set_pin(uint8_t pin) {
-  assert_construction_state(this);
-  assert_is_pin(pin);
   this->pin_ = pin;
 }
 uint8_t LEDCOutputComponent::get_channel() const {
   return this->channel_;
 }
 void LEDCOutputComponent::set_channel(uint8_t channel) {
-  assert_construction_state(this);
-  assert(channel < 16);
   this->channel_ = channel;
 }
 uint8_t LEDCOutputComponent::get_bit_depth() const {
   return this->bit_depth_;
 }
 void LEDCOutputComponent::set_bit_depth(uint8_t bit_depth) {
-  assert_construction_state(this);
   this->bit_depth_ = bit_depth;
 }
 float LEDCOutputComponent::get_frequency() const {
   return this->frequency_;
 }
 void LEDCOutputComponent::set_frequency(float frequency) {
-  assert_construction_state(this);
   this->frequency_ = frequency;
 }
 

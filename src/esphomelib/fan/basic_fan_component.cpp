@@ -42,6 +42,7 @@ void BasicFanComponent::set_state(FanState *state) {
   this->state_ = state;
 }
 void BasicFanComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up Basic Fan '%s'...", this->state_->get_name().c_str());
   this->state_->add_on_state_change_callback([this]() { this->next_update_ = true; });
 }
 void BasicFanComponent::loop() {

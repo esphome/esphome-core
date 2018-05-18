@@ -76,7 +76,7 @@ void DallasComponent::setup() {
       sensor->set_address(out[sensor->get_index()]);
       ESP_LOGCONFIG(TAG, "     -> Address: %s", sensor->get_address_name().c_str());
     } else {
-      ESP_LOGCONFIG(TAG, "     -> Address: %s", sensor->get_address_name().c_str());
+      ESP_LOGCONFIG(TAG, "     Address: %s", sensor->get_address_name().c_str());
     }
     ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
 

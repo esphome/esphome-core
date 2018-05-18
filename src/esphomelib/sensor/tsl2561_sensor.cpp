@@ -34,6 +34,7 @@ TSL2561Sensor::TSL2561Sensor(I2CComponent *parent, const std::string &name,
 
 void TSL2561Sensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up TSL2561...");
+  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t id;
   if (!this->tsl2561_read_byte(TSL2561_REGISTER_ID, &id) || (id & 0x0A) == 0) {
     ESP_LOGE(TAG, "Communication with TSL2561 on address 0x%02X failed!", this->address_);

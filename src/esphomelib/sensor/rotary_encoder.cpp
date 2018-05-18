@@ -89,7 +89,7 @@ RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a
   this->clear_filters();
 }
 void RotaryEncoderSensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder...");
+  ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder '%s'...", this->get_name().c_str());
   int interrupt_a = digitalPinToInterrupt(this->pin_a_->get_pin());
   ESP_LOGCONFIG(TAG, "    Pin A: %u (interrupt %d)", this->pin_a_->get_pin(), interrupt_a);
   this->pin_a_->setup();

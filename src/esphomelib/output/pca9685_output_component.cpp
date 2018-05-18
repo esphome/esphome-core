@@ -61,6 +61,8 @@ void PCA9685OutputComponent::setup() {
   if (pre_scaler > 255) pre_scaler = 255;
   if (pre_scaler < 3) pre_scaler = 3;
 
+  ESP_LOGV(TAG, "     -> Prescaler: %d", pre_scaler);
+
   uint8_t mode1;
   this->read_byte(PCA9685_REGISTER_MODE1, &mode1);
   mode1 = (mode1 & ~PCA9685_MODE1_RESTART) | PCA9685_MODE1_SLEEP;

@@ -29,6 +29,7 @@ BH1750Sensor::BH1750Sensor(I2CComponent *parent, const std::string &name,
 
 void BH1750Sensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BS1750...");
+  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   if (!this->write_bytes(BH1750_COMMAND_POWER_ON, nullptr, 0)) {
     ESP_LOGE(TAG, "Communication with BH1750 failed!");
     this->mark_failed();
@@ -85,7 +86,7 @@ void BH1750Sensor::read_data_() {
     return;
 
   float lx = float(raw_value) / 1.2f;
-  ESP_LOGD(TAG, "Got illuminance=%.1flx", lx);
+  ESP_LOGD(TAG, "'%s': Got illuminance=%.1flx", this->get_name().c_str(), lx);
   this->push_new_value(lx);
 }
 void BH1750Sensor::set_resolution(BH1750Resolution resolution) {

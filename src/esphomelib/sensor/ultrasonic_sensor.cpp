@@ -28,7 +28,9 @@ UltrasonicSensorComponent::UltrasonicSensorComponent(const std::string &name,
 }
 void UltrasonicSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Ultrasonic Sensor...");
+  ESP_LOGCONFIG(TAG, "    Echo Pin: GPIO%d", this->echo_pin_->get_pin());
   this->echo_pin_->setup();
+  ESP_LOGCONFIG(TAG, "    Trigger Pin: GPIO%d", this->trigger_pin_->get_pin());
   this->trigger_pin_->setup();
   this->trigger_pin_->digital_write(false);
   ESP_LOGCONFIG(TAG, "    Pulse time: %uµs", this->pulse_time_us_);

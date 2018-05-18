@@ -26,14 +26,16 @@ std::string MQTTFanComponent::component_type() const {
   return "fan";
 }
 void MQTTFanComponent::setup() {
-  ESP_LOGD(TAG, "Setting up MQTT fan...");
+  ESP_LOGCONFIG(TAG, "Setting up MQTT fan '%s'...", this->state_->get_name().c_str());
+  ESP_LOGCONFIG(TAG, "    Supports speed: %s", this->state_->get_traits().supports_speed() ? "YES" : "NO");
+  ESP_LOGCONFIG(TAG, "    Supports oscillation: %s", this->state_->get_traits().supports_oscillation() ? "YES" : "NO");
 
   this->subscribe(this->get_command_topic(), [this](const std::string &payload) {
     if (strcasecmp(payload.c_str(), "ON") == 0) {
-      ESP_LOGD(TAG, "Turning Fan ON.");
+      ESP_LOGD(TAG, "'%s' Turning Fan ON.", this->state_->get_name().c_str());
       this->state_->set_state(true);
     } else if (strcasecmp(payload.c_str(), "OFF") == 0) {
-      ESP_LOGD(TAG, "Turning Fan OFF.");
+      ESP_LOGD(TAG, "'%s' Turning Fan OFF.", this->state_->get_name().c_str());
       this->state_->set_state(false);
     }
   });
@@ -45,6 +47,7 @@ void MQTTFanComponent::setup() {
         ESP_LOGW(TAG, "Unknown Oscillation Payload %s", payload.c_str());
         return;
       }
+      ESP_LOGD(TAG, "'%s': Setting oscillating %s", this->state_->get_name().c_str(), val.value ? "ON" : "OFF");
       this->state_->set_oscillating(val.value);
     });
   }
@@ -88,8 +91,9 @@ const std::string MQTTFanComponent::get_speed_state_topic() const {
   return this->get_topic_for("speed/state");
 }
 void MQTTFanComponent::send_state() {
-  ESP_LOGD(TAG, "Sending state.");
-  this->send_message(this->get_state_topic(), this->state_->get_state() ? "ON" : "OFF");
+  const char *state_s = this->state_->get_state() ? "ON" : "OFF";
+  ESP_LOGD(TAG, "'%s' Sending state %s.", this->state_->get_name().c_str(), state_s);
+  this->send_message(this->get_state_topic(), state_s);
   if (this->state_->get_traits().supports_oscillation())
     this->send_message(this->get_oscillation_state_topic(),
                        this->state_->is_oscillating() ? "oscillate_on" : "oscillate_off");

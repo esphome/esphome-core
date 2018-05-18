@@ -13,11 +13,14 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
+static const char *TAG = "output.gpio";
+
 void GPIOBinaryOutputComponent::write_enabled(bool value) {
   this->pin_->digital_write(value);
 }
 
 void GPIOBinaryOutputComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up GPIO Binary Output...");
   this->pin_->setup();
 }
 

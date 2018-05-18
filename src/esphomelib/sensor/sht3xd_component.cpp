@@ -43,6 +43,7 @@ SHT3XDComponent::SHT3XDComponent(I2CComponent *parent,
 
 void SHT3XDComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SHT3xD...");
+  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   if (!this->write_command(SHT3XD_COMMAND_READ_SERIAL_NUMBER)) {
     ESP_LOGE(TAG, "Communication with SHT3xD failed!");
     this->mark_failed();

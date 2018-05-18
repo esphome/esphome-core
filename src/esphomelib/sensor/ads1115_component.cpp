@@ -70,7 +70,6 @@ void ADS1115Component::setup() {
     ESP_LOGCONFIG(TAG, "  Sensor %s", sensor->get_name().c_str());
     ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
     ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
-    ESP_LOGCONFIG(TAG, "    Update Interval: %u", sensor->update_interval());
 
     this->set_interval(sensor->get_name(), sensor->update_interval(), [this, sensor]{
       this->request_measurement_(sensor);
@@ -124,7 +123,7 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   }
 
   float v = millivolts / 1000.0f;
-  ESP_LOGD(TAG, "Got Voltage=%fV", v);
+  ESP_LOGD(TAG, "'%s': Got Voltage=%fV", sensor->get_name().c_str(), v);
   sensor->push_new_value(v);
 }
 

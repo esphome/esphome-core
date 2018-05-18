@@ -93,6 +93,7 @@ static const char* iir_filter_to_str(BME280IIRFilter filter) {
 
 void BME280Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BME280...");
+  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t chip_id;
   if (!this->read_byte(BME280_REGISTER_CHIPID, &chip_id) || chip_id != 0x60) {
     ESP_LOGE(TAG, "Communication with BME280 failed!");
