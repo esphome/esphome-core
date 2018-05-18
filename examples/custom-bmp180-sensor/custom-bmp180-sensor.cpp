@@ -11,7 +11,7 @@
 //   See  for more information
 // </WARNING>
 
-#include "esphomelib/application.h"
+#include <esphomelib.h>
 #include <Adafruit_BMP085.h>
 
 using namespace esphomelib;
