@@ -64,7 +64,7 @@ can easily be used with different back-end components/sensors. For example, an e
 RGB values are written to hardware and you can easily implement your own PWM output while reusing the entire
 front-end code.
 
-If esphomelib doesn't a sensor or device you'd really want to have support for, creating a custom component is very
+If esphomelib doesn't have a sensor or device you'd really like, creating a custom component is very
 easy: [Custom Sensor Component](https://github.com/OttoWinter/esphomelib/wiki/Custom-Sensor-Component).
 
 ## API documentation
@@ -176,7 +176,7 @@ component on pin 32:
 auto *red = App.make_ledc_output(32);
 ```
 
-Aditionnaly, you can use `make_atx()` to automatically switch on a power supply when a channel is switched high.
+Additionally, you can use `make_atx()` to automatically switch on a power supply when a channel is switched high.
 
 Next, use the `make_binary_light()`, `make_monochromatic_light()`, and `make_rgb_light()` methods with a friendly name 
 (which will be displayed in Home Assistant) and the channels, to create the light component.
@@ -199,7 +199,7 @@ Dallas ds18b20 sensors are almost equally easy. Just setup the sensor hub on a p
 then use that to get sensors with `get_sensor_by_address()` or `get_sensor_by_index()` and register them with `make_mqtt_sensor_for()`.
 
 Every sensor (or technically every `MQTTSensorComponent`) can have a smoothing filter and a value offset. By default, 
-all sensors create with the methods in the `Application` instance, automatically take the average of the last few 
+all sensors created with the methods in the `Application` instance automatically take the average of the last few 
 values and report that to the outside world - to disable this, use the `disable_filter()` method.
 
 #### Switch
@@ -377,8 +377,8 @@ mqtt->set_topic_prefix("home/livingroom/node1");
 
 #### 2. Customize the MQTT topics of a MQTTComponent
  
-Customizing the MQTT state/command topics of a single MQTTComponent is also possible. Simple call the 
-`set_custom_*_topic()` on your MQTTComponent like this:
+Customizing the MQTT state/command topics of a single `MQTTComponent` is also possible. Simply call 
+`set_custom_*_topic()` on your `MQTTComponent` like this:
 
 ```cpp
 auto dht = App.make_dht_sensor(12, "Livingroom Temperature", "Livingroom Humidity");
@@ -392,5 +392,5 @@ To push an OTA update to your device, simply add `upload_port = `*`IP_OF_YOUR_ES
 Then do the upload as you would do normally via serial. You might want to [set a static IP](#static-ips) for your ESP32.
 
 > Note: OTA is, by default, enabled without any authentication. If you're on a public WiFi network, it's highly
-> encouraged to set a paraphrase using the `set_auth_*()` methods on the object returned by `init_ota()`. Then also
+> encouraged to set a passphrase using the `set_auth_*()` methods on the object returned by `init_ota()`. Then also
 > include `upload_flags = -a `*`PASSPHRASE`* in your `platformio.ini`.
