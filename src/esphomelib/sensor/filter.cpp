@@ -31,14 +31,14 @@ size_t SlidingWindowMovingAverageFilter::get_window_size() const {
 void SlidingWindowMovingAverageFilter::set_window_size(size_t window_size) {
   this->value_average_.set_max_size(window_size);
 }
-Optional<float> SlidingWindowMovingAverageFilter::new_value(float value) {
+optional<float> SlidingWindowMovingAverageFilter::new_value(float value) {
   float average_value = this->value_average_.next_value(value);
 
   if (++this->send_at_ >= this->send_every_) {
     this->send_at_ = 0;
     return average_value;
   }
-  return Optional<float>();
+  return {};
 }
 uint32_t SlidingWindowMovingAverageFilter::expected_interval(uint32_t input) {
   return input * this->send_every_;
@@ -49,14 +49,14 @@ ExponentialMovingAverageFilter::ExponentialMovingAverageFilter(float alpha, size
       value_average_(ExponentialMovingAverage(alpha)),
       accuracy_average_(ExponentialMovingAverage(alpha)) {
 }
-Optional<float> ExponentialMovingAverageFilter::new_value(float value) {
+optional<float> ExponentialMovingAverageFilter::new_value(float value) {
   float average_value = this->value_average_.next_value(value);
 
   if (++this->send_at_ >= this->send_every_) {
     this->send_at_ = 0;
     return average_value;
   }
-  return Optional<float>();
+  return {};
 }
 size_t ExponentialMovingAverageFilter::get_send_every() const {
   return this->send_every_;
@@ -84,11 +84,11 @@ const lambda_filter_t &LambdaFilter::get_lambda_filter() const {
 void LambdaFilter::set_lambda_filter(const lambda_filter_t &lambda_filter) {
   this->lambda_filter_ = lambda_filter;
 }
-Optional<float> LambdaFilter::new_value(float value) {
+optional<float> LambdaFilter::new_value(float value) {
   return this->lambda_filter_(value);
 }
 
-Optional<float> OffsetFilter::new_value(float value) {
+optional<float> OffsetFilter::new_value(float value) {
   return value + this->offset_;
 }
 
@@ -98,7 +98,7 @@ OffsetFilter::OffsetFilter(float offset)
 MultiplyFilter::MultiplyFilter(float multiplier)
     : multiplier_(multiplier) { }
 
-Optional<float> MultiplyFilter::new_value(float value) {
+optional<float> MultiplyFilter::new_value(float value) {
   return value * this->multiplier_;
 }
 
@@ -106,15 +106,15 @@ FilterOutValueFilter::FilterOutValueFilter(float value_to_filter_out)
     : value_to_filter_out_(value_to_filter_out) {
 
 }
-Optional<float> FilterOutValueFilter::new_value(float value) {
+optional<float> FilterOutValueFilter::new_value(float value) {
   if (value == this->value_to_filter_out_)
-    return Optional<float>();
+    return {};
   return value;
 }
 
-Optional<float> FilterOutNANFilter::new_value(float value) {
+optional<float> FilterOutNANFilter::new_value(float value) {
   if (isnan(value))
-    return Optional<float>();
+    return {};
   return value;
 }
 
@@ -122,9 +122,9 @@ uint32_t Filter::expected_interval(uint32_t input) {
   return input;
 }
 void Filter::input(float value) {
-  Optional<float> out = this->new_value(value);
-  if (out.defined)
-    this->output_(out.value);
+  optional<float> out = this->new_value(value);
+  if (out.has_value())
+    this->output_(*out);
 }
 void Filter::initialize(std::function<void(float)> &&output) {
   this->output_ = std::move(output);
@@ -138,39 +138,39 @@ ThrottleFilter::ThrottleFilter(uint32_t min_time_between_inputs)
     : min_time_between_inputs_(min_time_between_inputs), Filter() {
 
 }
-Optional<float> ThrottleFilter::new_value(float value) {
+optional<float> ThrottleFilter::new_value(float value) {
   const uint32_t now = millis();
   if (this->last_input_ == 0 || now - this->last_input_ >= min_time_between_inputs_) {
     this->last_input_ = now;
     return value;
   }
   this->last_input_ = now;
-  return Optional<float>();
+  return {};
 }
 DeltaFilter::DeltaFilter(float min_delta)
     : min_delta_(min_delta), last_value_(NAN) {
 
 }
-Optional<float> DeltaFilter::new_value(float value) {
+optional<float> DeltaFilter::new_value(float value) {
   if (isnan(value))
-    return Optional<float>();
+    return {};
   if (isnan(this->last_value_)) {
     return this->last_value_ = value;
   }
   if (fabsf(value - this->last_value_) >= this->min_delta_) {
     return this->last_value_ = value;
   }
-  return Optional<float>();
+  return {};
 }
 OrFilter::OrFilter(std::list<Filter *> filters)
     : filters_(std::move(filters)) {
 
 }
-Optional<float> OrFilter::new_value(float value) {
+optional<float> OrFilter::new_value(float value) {
   for (Filter *filter : this->filters_)
     filter->input(value);
 
-  return Optional<float>();
+  return {};
 }
 OrFilter::~OrFilter() {
   delete this->next_;
@@ -197,20 +197,20 @@ uint32_t OrFilter::expected_interval(uint32_t input) {
   return min_interval;
 }
 
-Optional<float> UniqueFilter::new_value(float value) {
+optional<float> UniqueFilter::new_value(float value) {
   if (isnan(this->last_value_) || value != this->last_value_) {
     return this->last_value_ = value;
   }
 
-  return Optional<float>();
+  return {};
 }
 
-Optional<float> DebounceFilter::new_value(float value) {
+optional<float> DebounceFilter::new_value(float value) {
   this->set_timeout("debounce", this->time_period_, [this, value](){
     this->output_(value);
   });
 
-  return Optional<float>();
+  return {};
 }
 
 DebounceFilter::DebounceFilter(uint32_t time_period)
@@ -223,10 +223,10 @@ HeartbeatFilter::HeartbeatFilter(uint32_t time_period)
 
 }
 
-Optional<float> HeartbeatFilter::new_value(float value) {
+optional<float> HeartbeatFilter::new_value(float value) {
   this->last_input_ = value;
 
-  return Optional<float>();
+  return {};
 }
 uint32_t HeartbeatFilter::expected_interval(uint32_t input) {
   return this->time_period_;

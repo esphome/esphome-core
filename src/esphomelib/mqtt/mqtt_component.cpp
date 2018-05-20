@@ -44,24 +44,16 @@ const std::string MQTTComponent::get_command_topic() const {
 }
 
 void MQTTComponent::send_message(const std::string &topic, const std::string &payload,
-                                 const Optional<uint8_t> &qos, const Optional<bool> &retain) {
-  bool actual_retain = this->retain_;
-  if (retain)
-    actual_retain = retain.value;
-  uint8_t actual_qos = 0;
-  if (qos)
-    actual_qos = qos.value;
+                                 const optional<uint8_t> &qos, const optional<bool> &retain) {
+  bool actual_retain = retain.value_or(this->retain_);
+  uint8_t actual_qos = qos.value_or(0);
   global_mqtt_client->publish(topic, payload, actual_qos, actual_retain);
 }
 
 void MQTTComponent::send_json_message(const std::string &topic, const json_build_t &f,
-                                      const Optional<uint8_t> &qos, const Optional<bool> &retain) {
-  bool actual_retain = this->retain_;
-  if (retain)
-    actual_retain = retain.value;
-  uint8_t actual_qos = 0;
-  if (qos)
-    actual_qos = qos.value;
+                                      const optional<uint8_t> &qos, const optional<bool> &retain) {
+  bool actual_retain = retain.value_or(this->retain_);
+  uint8_t actual_qos = qos.value_or(0);
   global_mqtt_client->publish_json(topic, f, actual_qos, actual_retain);
 }
 

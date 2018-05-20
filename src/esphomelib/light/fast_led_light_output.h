@@ -346,7 +346,7 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
   CRGB *leds_{nullptr};
   int num_leds_{0};
   uint32_t last_refresh_{0};
-  Optional<uint32_t> max_refresh_rate_{};
+  optional<uint32_t> max_refresh_rate_{};
   bool prevent_writing_leds_{false};
   bool next_show_{true};
 #ifdef USE_OUTPUT

@@ -33,7 +33,7 @@ void setup() {
       // Take average of 30 last values; report average on every 20th value
       new sensor::SlidingWindowMovingAverageFilter(30, 20),
       // Convert to Fahrenheit
-      new sensor::LambdaFilter([](float celsius) -> Optional<float> {
+      new sensor::LambdaFilter([](float celsius) -> optional<float> {
         return celsius * 9.0/5.0 + 32.0;
       }),
   });

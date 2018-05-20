@@ -119,9 +119,9 @@ void LightColorValues::parse_json(const JsonObject &root) {
   ESP_LOGV(TAG, "Parsing light color values JSON.");
   if (root.containsKey("state")) {
     auto val = parse_on_off(root["state"]);
-    if (val.defined) {
-      this->set_state(val.value ? 1.0 : 0.0);
-      ESP_LOGV(TAG, "    state=%s", val.value ? "ON" : "OFF");
+    if (val.has_value()) {
+      this->set_state(*val ? 1.0 : 0.0);
+      ESP_LOGV(TAG, "    state=%s", *val ? "ON" : "OFF");
     }
   }
 

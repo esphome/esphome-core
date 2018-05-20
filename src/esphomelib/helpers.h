@@ -14,6 +14,7 @@
 
 #include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
+#include "esphomelib/optional.h"
 
 #ifndef JSON_BUFFER_SIZE
   #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
@@ -139,30 +140,7 @@ void enable_interrupts();
 /// Calculate a crc8 of data with the provided data length.
 uint8_t crc8(uint8_t *data, uint8_t len);
 
-/// Helper class to represent an optional value.
-template<typename T>
-class Optional {
- public:
-  /// Construct an optional value that is not defined.
-  explicit Optional() : defined(false) {}
-
-  /// Construct an optional that is defined using the value.
-  Optional(T value) : defined(true), value(value) {} // NOLINT
-
-  /// Shorthand to access the value inside the optional with the arrow syntax ->.
-  T *operator->();
-
-  /// Shorthand to access the value inside the optional with the arrow syntax -> for constant access.
-  const T *operator->() const;
-
-  /// Shorthand to check if the value inside is defined.
-  operator bool() const; // NOLINT
-
-  bool defined{false};
-  T value;
-};
-
-Optional<bool> parse_on_off(const char *str, const char *payload_on = "on", const char *payload_off = "off");
+optional<bool> parse_on_off(const char *str, const char *payload_on = "on", const char *payload_off = "off");
 
 /// Helper class that implements a sliding window moving average.
 template<typename T>
@@ -230,33 +208,51 @@ class CallbackManager<void(Ts...)> {
   std::vector<std::function<void(Ts...)>> callbacks_;
 };
 
+template<typename T, typename X>
+class TemplatableValue {
+ public:
+  TemplatableValue() : type_(EMPTY) {
+
+  }
+
+  TemplatableValue(T const &value) : type_(VALUE), value_(value) {
+
+  }
+
+  TemplatableValue(std::function<T(X)> f) : type_(LAMBDA), f_(f) {
+
+  }
+
+  bool has_value() {
+    return this->type_ != EMPTY;
+  }
+
+  T value(X x) {
+    if (this->type_ == LAMBDA) {
+      return this->f_(x);
+    } else {
+      // return value also when empty
+      return this->value_;
+    }
+  }
+
+ protected:
+  enum {
+    EMPTY,
+    VALUE,
+    LAMBDA,
+  } type_;
+
+  T value_;
+  std::function<T(X)> f_;
+};
+
 extern CallbackManager<void(const char *)> shutdown_hooks;
 extern CallbackManager<void(const char *)> safe_shutdown_hooks;
 
 // ================================================
 //                 Definitions
 // ================================================
-
-template<typename T>
-T *Optional<T>::operator->() {
-  if (this->defined)
-    return &(this->value);
-  else
-    return nullptr;
-}
-
-template<typename T>
-Optional<T>::operator bool() const {
-  return this->defined;
-}
-
-template<typename T>
-const T *Optional<T>::operator->() const {
-  if (this->defined)
-    return &(this->value);
-  else
-    return nullptr;
-}
 
 template<typename T>
 T clamp(T min, T max, T val) {

@@ -34,6 +34,9 @@ using namespace esphomelib::switch_;
 #ifdef USE_IO
 using namespace esphomelib::io;
 #endif
+#ifdef USE_COVER
+using namespace esphomelib::cover;
+#endif
 
 static const char *TAG = "application";
 
@@ -128,8 +131,8 @@ MQTTBinarySensorComponent *Application::register_binary_sensor(binary_sensor::Bi
     controller->register_binary_sensor(binary_sensor);
   MQTTBinarySensorComponent *ret = nullptr;
   if (this->mqtt_client_ != nullptr)
-    ret = new MQTTBinarySensorComponent(binary_sensor);
-  return this->register_component(ret);
+    ret = this->register_component(new MQTTBinarySensorComponent(binary_sensor));
+  return ret;
 }
 #endif
 
@@ -167,8 +170,8 @@ sensor::MQTTSensorComponent *Application::register_sensor(sensor::Sensor *sensor
     controller->register_sensor(sensor);
   MQTTSensorComponent *ret = nullptr;
   if (this->mqtt_client_ != nullptr)
-    ret = new MQTTSensorComponent(sensor);
-  return this->register_component(ret);
+    ret = this->register_component(new MQTTSensorComponent(sensor));
+  return ret;
 }
 #endif
 
@@ -211,8 +214,8 @@ MQTTJSONLightComponent *Application::register_light(LightState *state) {
     controller->register_light(state);
   MQTTJSONLightComponent *ret = nullptr;
   if (this->mqtt_client_ != nullptr)
-    ret = new MQTTJSONLightComponent(state);
-  return this->register_component(ret);
+    ret = this->register_component(new MQTTJSONLightComponent(state));
+  return ret;
 }
 #endif
 
@@ -273,8 +276,8 @@ MQTTSwitchComponent *Application::register_switch(switch_::Switch *switch_) {
     controller->register_switch(switch_);
   MQTTSwitchComponent *ret = nullptr;
   if (this->mqtt_client_ != nullptr)
-    ret = new MQTTSwitchComponent(switch_);
-  return this->register_component(ret);
+    ret = this->register_component(new MQTTSwitchComponent(switch_));
+  return ret;
 }
 #endif
 
@@ -432,7 +435,7 @@ Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const
 
 #ifdef USE_RESTART_SWITCH
 Application::MakeRestartSwitch Application::make_restart_switch(const std::string &friendly_name) {
-  auto *switch_ = new RestartSwitch(friendly_name); // not a component
+  auto *switch_ = this->register_component(new RestartSwitch(friendly_name)); // not a component
   return MakeRestartSwitch{
       .restart = switch_,
       .mqtt = this->register_switch(switch_),
@@ -442,7 +445,7 @@ Application::MakeRestartSwitch Application::make_restart_switch(const std::strin
 
 #ifdef USE_SHUTDOWN_SWITCH
 Application::MakeShutdownSwitch Application::make_shutdown_switch(const std::string &friendly_name) {
-  auto *switch_ = new ShutdownSwitch(friendly_name);
+  auto *switch_ = this->register_component(new ShutdownSwitch(friendly_name));
   return MakeShutdownSwitch{
       .shutdown = switch_,
       .mqtt = this->register_switch(switch_),
@@ -486,8 +489,8 @@ fan::MQTTFanComponent *Application::register_fan(fan::FanState *state) {
     controller->register_fan(state);
   MQTTFanComponent *ret = nullptr;
   if (this->mqtt_client_ != nullptr)
-    ret = new MQTTFanComponent(state);
-  return this->register_component(ret);
+    ret = this->register_component(new MQTTFanComponent(state));
+  return ret;
 }
 #endif
 
@@ -527,7 +530,7 @@ sensor::MPU6050Component *Application::make_mpu6050_sensor(uint8_t address, uint
 
 #ifdef USE_SIMPLE_SWITCH
 Application::MakeSimpleSwitch Application::make_simple_switch(const std::string &friendly_name, BinaryOutput *output) {
-  auto *s = new SimpleSwitch(friendly_name, output);
+  auto *s = this->register_component(new SimpleSwitch(friendly_name, output));
   return {
       .switch_ = s,
       .mqtt = this->register_switch(s)
@@ -672,6 +675,96 @@ Application::MakeRotaryEncoderSensor Application::make_rotary_encoder_sensor(con
   return MakeRotaryEncoderSensor{
       .rotary_encoder = encoder,
       .mqtt = this->register_sensor(encoder),
+  };
+}
+#endif
+
+
+mqtt::MQTTMessageTrigger *Application::make_mqtt_message_trigger(const std::string &topic, uint8_t qos) {
+  return global_mqtt_client->make_message_trigger(topic, qos);
+}
+
+StartupTrigger *Application::make_startup_trigger() {
+  return this->register_component(new StartupTrigger());
+}
+
+ShutdownTrigger *Application::make_shutdown_trigger() {
+  return new ShutdownTrigger();
+}
+
+#ifdef USE_TEMPLATE_SENSOR
+Application::MakeTemplateSensor Application::make_template_sensor(const std::string &name,
+                                                                  std::function<optional<float>()> &&f,
+                                                                  uint32_t update_interval) {
+  auto *template_ = this->register_component(new TemplateSensor(name, std::move(f), update_interval));
+
+  return MakeTemplateSensor{
+      .template_ = template_,
+      .mqtt = this->register_sensor(template_),
+  };
+}
+#endif
+
+#ifdef USE_MAX6675_SENSOR
+Application::MakeMAX6675Sensor Application::make_max6675_sensor(const std::string &name,
+                                                                const GPIOOutputPin &cs,
+                                                                const GPIOOutputPin &clock,
+                                                                const GPIOInputPin &miso,
+                                                                uint32_t update_interval) {
+  auto *sensor = this->register_component(
+      new MAX6675Sensor(name, cs.copy(), clock.copy(), miso.copy(), update_interval)
+  );
+
+  return MakeMAX6675Sensor {
+      .max6675 = sensor,
+      .mqtt = this->register_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_TEMPLATE_BINARY_SENSOR
+Application::MakeTemplateBinarySensor Application::make_template_binary_sensor(const std::string &name,
+                                                                               std::function<optional<bool>()> &&f) {
+  auto *template_ = this->register_component(new TemplateBinarySensor(name, std::move(f)));
+
+  return MakeTemplateBinarySensor{
+      .template_ = template_,
+      .mqtt = this->register_binary_sensor(template_),
+  };
+}
+#endif
+
+#ifdef USE_TEMPLATE_SWITCH
+Application::MakeTemplateSwitch Application::make_template_switch(const std::string &name,
+                                                                  std::function<optional<bool>()> &&f) {
+  auto *template_ = this->register_component(new TemplateSwitch(name, std::move(f)));
+
+  return MakeTemplateSwitch{
+      .template_ = template_,
+      .mqtt = this->register_switch(template_),
+  };
+}
+#endif
+
+#ifdef USE_COVER
+cover::MQTTCoverComponent *Application::register_cover(cover::Cover *cover) {
+  for (auto *controller : this->controllers_)
+    controller->register_cover(cover);
+  MQTTCoverComponent *ret = nullptr;
+  if (this->mqtt_client_ != nullptr)
+    ret = this->register_component(new MQTTCoverComponent(cover));
+  return ret;
+}
+#endif
+
+#ifdef USE_TEMPLATE_COVER
+Application::MakeTemplateCover Application::make_template_cover(const std::string &name,
+                                                                 std::function<optional<cover::CoverState>()> &&f) {
+  auto *template_ = this->register_component(new TemplateCover(name, std::move(f)));
+
+  return MakeTemplateCover{
+      .template_ = template_,
+      .mqtt = this->register_cover(template_),
   };
 }
 #endif

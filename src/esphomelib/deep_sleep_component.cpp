@@ -20,22 +20,22 @@ static const char *TAG = "deep_sleep";
 
 void DeepSleepComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Deep Sleep...");
-  if (this->sleep_duration_)
-    ESP_LOGCONFIG(TAG, "  Sleep Duration: %llu ms", this->sleep_duration_.value / 1000);
-  if (this->run_duration_)
-    ESP_LOGCONFIG(TAG, "  Run Duration: %u ms", this->run_duration_.value);
-  if (this->loop_cycles_)
-    ESP_LOGCONFIG(TAG, "  Loop Cycles: %u", this->loop_cycles_.value);
+  if (this->sleep_duration_.has_value())
+    ESP_LOGCONFIG(TAG, "  Sleep Duration: %llu ms", *this->sleep_duration_ / 1000);
+  if (this->run_duration_.has_value())
+    ESP_LOGCONFIG(TAG, "  Run Duration: %u ms", *this->run_duration_);
+  if (this->loop_cycles_.has_value())
+    ESP_LOGCONFIG(TAG, "  Loop Cycles: %u", *this->loop_cycles_);
 #ifdef ARDUINO_ARCH_ESP32
-  if (this->wakeup_pin_)
+  if (this->wakeup_pin_.has_value())
     ESP_LOGCONFIG(TAG, "  Wakeup Pin: %u %s", this->wakeup_pin_->get_pin(), this->wakeup_pin_->is_inverted() ? "LOW" : "HIGH");
 #endif
-  if (this->run_duration_)
-    this->set_timeout(this->run_duration_.value, [this](){ this->begin_sleep(); });
+  if (this->run_duration_.has_value())
+    this->set_timeout(*this->run_duration_, [this](){ this->begin_sleep(); });
 }
 void DeepSleepComponent::loop() {
-  if (this->loop_cycles_) {
-    if (++this->at_loop_cycle_ >= this->loop_cycles_.value)
+  if (this->loop_cycles_.has_value()) {
+    if (++this->at_loop_cycle_ >= *this->loop_cycles_)
       this->begin_sleep();
   }
 }
@@ -62,9 +62,9 @@ void DeepSleepComponent::begin_sleep() {
   run_safe_shutdown_hooks("deep-sleep");
 
 #ifdef ARDUINO_ARCH_ESP32
-  if (this->sleep_duration_)
-    esp_sleep_enable_timer_wakeup(this->sleep_duration_.value);
-  if (this->wakeup_pin_)
+  if (this->sleep_duration_.has_value())
+    esp_sleep_enable_timer_wakeup(*this->sleep_duration_);
+  if (this->wakeup_pin_.has_value())
     esp_sleep_enable_ext0_wakeup(gpio_num_t(this->wakeup_pin_->get_pin()),
                                  !this->wakeup_pin_->is_inverted());
   esp_deep_sleep_start();

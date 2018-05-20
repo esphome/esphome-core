@@ -14,6 +14,7 @@
 #include "esphomelib/light/light_state.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/switch_/switch.h"
+#include "esphomelib/cover/cover.h"
 #include "esphomelib/defines.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -40,39 +41,37 @@ class Controller {
 #ifdef USE_SWITCH
   virtual void register_switch(switch_::Switch *obj);
 #endif
+
+#ifdef USE_COVER
+ virtual void register_cover(cover::Cover *cover);
+#endif
 };
 
 /// A StoringController is a controller that automatically stores all components internally in vectors.
 class StoringController : public Controller {
  public:
 #ifdef USE_BINARY_SENSOR
-  void register_binary_sensor(binary_sensor::BinarySensor *obj) override {
-    this->binary_sensors_.push_back(obj);
-  }
+  void register_binary_sensor(binary_sensor::BinarySensor *obj) override;
 #endif
 
 #ifdef USE_FAN
-  void register_fan(fan::FanState *obj) override {
-    this->fans_.push_back(obj);
-  }
+  void register_fan(fan::FanState *obj) override;
 #endif
 
 #ifdef USE_LIGHT
-  void register_light(light::LightState *obj) override {
-    this->lights_.push_back(obj);
-  }
+  void register_light(light::LightState *obj) override;
 #endif
 
 #ifdef USE_SENSOR
-  void register_sensor(sensor::Sensor *obj) override {
-    this->sensors_.push_back(obj);
-  }
+  void register_sensor(sensor::Sensor *obj) override;
 #endif
 
 #ifdef USE_SWITCH
-  void register_switch(switch_::Switch *obj) override {
-    this->switches_.push_back(obj);
-  }
+  void register_switch(switch_::Switch *obj) override;
+#endif
+
+#ifdef USE_COVER
+  void register_cover(cover::Cover *cover) override;
 #endif
 
  protected:
@@ -94,6 +93,10 @@ class StoringController : public Controller {
 
 #ifdef USE_SWITCH
   std::vector<switch_::Switch *> switches_;
+#endif
+
+#ifdef USE_COVER
+  std::vector<cover::Cover *> covers_;
 #endif
 };
 

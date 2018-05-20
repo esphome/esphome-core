@@ -52,7 +52,7 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
  protected:
   Sensor *sensor_;
-  Optional<uint32_t> expire_after_; // Override the expire after advertised to Home Assistant
+  optional<uint32_t> expire_after_; // Override the expire after advertised to Home Assistant
 };
 
 } // namespace sensor

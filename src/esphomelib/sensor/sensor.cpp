@@ -16,7 +16,7 @@ namespace sensor {
 static const char *TAG = "sensor.sensor";
 
 void Sensor::push_new_value(float value) {
-  this->raw_value_ = value;
+  this->raw_value = value;
   this->raw_callback_.call(value);
 
   ESP_LOGV(TAG, "'%s': Received new value %f", this->name_.c_str(), value);
@@ -61,18 +61,18 @@ void Sensor::add_on_raw_value_callback(sensor_callback_t callback) {
   this->raw_callback_.add(std::move(callback));
 }
 std::string Sensor::get_icon() {
-  if (this->icon_)
-    return this->icon_.value;
+  if (this->icon_.has_value())
+    return *this->icon_;
   return this->icon();
 }
 std::string Sensor::get_unit_of_measurement() {
-  if (this->unit_of_measurement_)
-    return this->unit_of_measurement_.value;
+  if (this->unit_of_measurement_.has_value())
+    return *this->unit_of_measurement_;
   return this->unit_of_measurement();
 }
 int8_t Sensor::get_accuracy_decimals() {
-  if (this->accuracy_decimals_)
-    return this->accuracy_decimals_.value;
+  if (this->accuracy_decimals_.has_value())
+    return *this->accuracy_decimals_;
   return this->accuracy_decimals();
 }
 void Sensor::add_filter(Filter *filter) {
@@ -131,16 +131,25 @@ void Sensor::clear_filters() {
   this->filter_list_ = nullptr;
 }
 float Sensor::get_value() const {
-  return this->value_;
+  return this->value;
 }
 float Sensor::get_raw_value() const {
-  return this->raw_value_;
+  return this->raw_value;
 }
 std::string Sensor::unique_id() { return ""; }
 
 void Sensor::send_value_to_frontend(float value) {
-  this->value_ = value;
+  this->value = value;
   this->callback_.call(value);
+}
+SensorValueTrigger *Sensor::make_value_trigger() {
+  return new SensorValueTrigger(this);
+}
+RawSensorValueTrigger *Sensor::make_raw_value_trigger() {
+  return new RawSensorValueTrigger(this);
+}
+ValueRangeTrigger *Sensor::make_value_range_trigger() {
+  return new ValueRangeTrigger(this);
 }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
@@ -166,6 +175,37 @@ const char ICON_BRIGHTNESS_5[] = "mdi:brightness-5";
 const char UNIT_LX[] = "lx";
 const char UNIT_OHM[] = "Ω";
 const char ICON_GAS_CYLINDER[] = "mdi:gas-cylinder";
+
+SensorValueTrigger::SensorValueTrigger(Sensor *parent) {
+  parent->add_on_value_callback([this](float value) {
+    this->trigger(value);
+  });
+}
+
+RawSensorValueTrigger::RawSensorValueTrigger(Sensor *parent) {
+  parent->add_on_raw_value_callback([this](float value) {
+    this->trigger(value);
+  });
+}
+
+ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) {
+  parent->add_on_value_callback([this](float value) {
+    if (isnan(value))
+      return;
+
+    float local_min = this->min_.value(value);
+    float local_max = this->max_.value(value);
+
+    bool in_range = (isnan(local_min) && value <= local_max) || (isnan(local_max) && value >= local_min)
+                    || (!isnan(local_min) && !isnan(local_max) && local_min <= value && value <= local_max);
+
+    if (in_range != this->previous_in_range_) {
+      this->trigger(value);
+    }
+
+    this->previous_in_range_ = in_range;
+  });
+}
 
 } // namespace sensor
 

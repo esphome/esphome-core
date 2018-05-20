@@ -38,10 +38,10 @@ void FastLEDLightOutputComponent::setup() {
   assert(this->controller_ != nullptr && "You need to add LEDs to this controller!");
   this->controller_->init();
   this->controller_->setLeds(this->leds_, this->num_leds_);
-  if (!this->max_refresh_rate_.defined) {
+  if (!this->max_refresh_rate_.has_value()) {
     this->set_max_refresh_rate(this->controller_->getMaxRefreshRate());
   }
-  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", this->max_refresh_rate_.value);
+  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
 }
 void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_)
@@ -49,7 +49,7 @@ void FastLEDLightOutputComponent::loop() {
 
   uint32_t now = micros();
   // protect from refreshing too often
-  if (this->max_refresh_rate_.value != 0 && (now - this->last_refresh_) < this->max_refresh_rate_.value) {
+  if (*this->max_refresh_rate_ != 0 && (now - this->last_refresh_) < *this->max_refresh_rate_) {
     return;
   }
   this->last_refresh_ = now;
@@ -102,8 +102,7 @@ CLEDController *FastLEDLightOutputComponent::get_controller() const {
   return this->controller_;
 }
 void FastLEDLightOutputComponent::set_max_refresh_rate(uint32_t interval_us) {
-  this->max_refresh_rate_.value = interval_us;
-  this->max_refresh_rate_.defined = true;
+  this->max_refresh_rate_ = interval_us;
 }
 int FastLEDLightOutputComponent::get_num_leds() const {
   return this->num_leds_;

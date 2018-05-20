@@ -4,8 +4,6 @@
 
 #include "esphomelib/mqtt/mqtt_client_component.h"
 
-#include <utility>
-
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
 #include "esphomelib/application.h"
@@ -307,6 +305,13 @@ void MQTTClientComponent::disable_log_message() {
 bool MQTTClientComponent::is_log_message_enabled() const {
   return !this->log_message_.topic.empty();
 }
+MQTTMessageTrigger *MQTTClientComponent::make_message_trigger(const std::string &topic, uint8_t qos) {
+  return new MQTTMessageTrigger(topic, qos);
+}
+template<typename T>
+MQTTPublishAction<T> *MQTTClientComponent::make_publish_action() {
+  return new MQTTPublishAction<T>();
+}
 
 #if ASYNC_TCP_SSL_ENABLED
 void MQTTClientComponent::add_ssl_fingerprint(const std::array<uint8_t, SHA1_SIZE> &fingerprint) {
@@ -316,6 +321,12 @@ void MQTTClientComponent::add_ssl_fingerprint(const std::array<uint8_t, SHA1_SIZ
 #endif
 
 MQTTClientComponent *global_mqtt_client = nullptr;
+
+MQTTMessageTrigger::MQTTMessageTrigger(const std::string &topic, uint8_t qos) {
+  global_mqtt_client->subscribe(topic, [this](const std::string &payload) {
+    this->trigger(payload);
+  }, qos);
+}
 
 } // namespace mqtt
 

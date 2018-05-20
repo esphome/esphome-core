@@ -7,6 +7,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/automation.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
@@ -17,6 +18,11 @@ namespace binary_sensor {
 
 /// typedef for binary_sensor callbacks. First parameter is new value.
 using binary_callback_t = std::function<void(bool)>;
+
+class PressTrigger;
+class ReleaseTrigger;
+class ClickTrigger;
+class DoubleClickTrigger;
 
 /** Base class for all binary_sensor-type classes.
  *
@@ -58,10 +64,20 @@ class BinarySensor : public Nameable {
   /// Get the device class for this binary sensor, using the manual override if specified.
   std::string get_device_class();
 
+  PressTrigger *make_press_trigger();
+
+  ReleaseTrigger *make_release_trigger();
+
+  ClickTrigger *make_click_trigger(uint32_t min_length, uint32_t max_length);
+
+  DoubleClickTrigger *make_double_click_trigger(uint32_t min_length, uint32_t max_length);
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Return whether all states of this binary sensor should be inverted.
   bool is_inverted() const;
+
+  bool value{false};
 
  protected:
   // ========== OVERRIDE METHODS ==========
@@ -71,9 +87,39 @@ class BinarySensor : public Nameable {
 
   CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
-  bool value_{false};
   bool first_value_{true};
-  Optional<std::string> device_class_{}; ///< Stores the override of the device class
+  optional<std::string> device_class_{}; ///< Stores the override of the device class
+};
+
+class PressTrigger : public Trigger<NoArg> {
+ public:
+  explicit PressTrigger(BinarySensor *parent);
+};
+
+class ReleaseTrigger : public Trigger<NoArg> {
+ public:
+  explicit ReleaseTrigger(BinarySensor *parent);
+};
+
+class ClickTrigger : public Trigger<NoArg> {
+ public:
+  explicit ClickTrigger(BinarySensor *parent, uint32_t min_length, uint32_t max_length);
+
+ protected:
+  uint32_t start_time_{0}; /// The millis() time when the click started.
+  uint32_t min_length_; /// Minimum length of click. 0 means no minimum.
+  uint32_t max_length_; /// Maximum length of click. 0 means no maximum.
+};
+
+class DoubleClickTrigger : public Trigger<NoArg> {
+ public:
+  explicit DoubleClickTrigger(BinarySensor *parent, uint32_t min_length, uint32_t max_length);
+
+ protected:
+  uint32_t start_time_{0};
+  uint32_t end_time_{0};
+  uint32_t min_length_; /// Minimum length of click. 0 means no minimum.
+  uint32_t max_length_; /// Maximum length of click. 0 means no maximum.
 };
 
 } // namespace binary_sensor

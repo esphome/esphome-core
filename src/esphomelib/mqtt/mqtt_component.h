@@ -114,8 +114,8 @@ class MQTTComponent : public Component {
    */
   void send_message(const std::string &topic,
                     const std::string &payload,
-                    const Optional<uint8_t> &qos = Optional<uint8_t>(),
-                    const Optional<bool> &retain = Optional<bool>());
+                    const optional<uint8_t> &qos = {},
+                    const optional<bool> &retain = {});
 
   /** Construct and send a JSON MQTT message.
    *
@@ -125,8 +125,8 @@ class MQTTComponent : public Component {
    */
   void send_json_message(const std::string &topic,
                          const json_build_t &f,
-                         const Optional<uint8_t> &qos = Optional<uint8_t>(),
-                         const Optional<bool> &retain = Optional<bool>());
+                         const optional<uint8_t> &qos = {},
+                         const optional<bool> &retain = {});
 
   /** Subscribe to a MQTT topic.
    *

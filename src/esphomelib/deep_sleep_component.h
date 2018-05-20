@@ -46,13 +46,13 @@ class DeepSleepComponent : public Component {
   /// Helper to enter deep sleep mode
   void begin_sleep();
 
-  Optional<uint64_t> sleep_duration_{};
+  optional<uint64_t> sleep_duration_;
 #ifdef ARDUINO_ARCH_ESP32
-  Optional<GPIOInputPin> wakeup_pin_{};
+  optional<GPIOInputPin> wakeup_pin_;
 #endif
-  Optional<uint32_t> loop_cycles_{};
+  optional<uint32_t> loop_cycles_;
   uint32_t at_loop_cycle_{0};
-  Optional<uint32_t> run_duration_{};
+  optional<uint32_t> run_duration_;
 };
 
 ESPHOMELIB_NAMESPACE_END

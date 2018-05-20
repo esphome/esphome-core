@@ -10,6 +10,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/automation.h"
 #include "esphomelib/sensor/filter.h"
 #include "esphomelib/defines.h"
 
@@ -22,6 +23,9 @@ namespace sensor {
 using sensor_callback_t = std::function<void(float)>;
 
 class MQTTSensorComponent;
+class SensorValueTrigger;
+class RawSensorValueTrigger;
+class ValueRangeTrigger;
 
 /** Base-class for all sensors.
  *
@@ -59,7 +63,7 @@ class Sensor : public Nameable {
    * This may look like:
    *
    * sensor->add_filters({
-   *   LambdaFilter([&](float value) -> Optional<float> { return 42/value; }),
+   *   LambdaFilter([&](float value) -> optional<float> { return 42/value; }),
    *   OffsetFilter(1),
    *   SlidingWindowMovingAverageFilter(15, 15), // average over last 15 values
    * });
@@ -72,7 +76,7 @@ class Sensor : public Nameable {
   /** Add a lambda filter to the back of the filter chain.
    *
    * For example:
-   * sensor->add_lambda_filter([](float value) -> Optional<float> {
+   * sensor->add_lambda_filter([](float value) -> optional<float> {
    *   return value * 42;
    * });
    *
@@ -175,19 +179,24 @@ class Sensor : public Nameable {
    */
   virtual std::string unique_id();
 
+  SensorValueTrigger *make_value_trigger();
+  RawSensorValueTrigger *make_raw_value_trigger();
+  ValueRangeTrigger *make_value_range_trigger();
+
+  float value{NAN}; ///< Stores the last filtered value. Public because of lambdas.
+  float raw_value{NAN}; ///< Stores the last raw value. Public because of lambdas.
+
  protected:
   friend Filter;
   friend MQTTSensorComponent;
 
   void send_value_to_frontend(float value);
 
-  float value_{NAN}; ///< Stores the last filtered value.
-  float raw_value_{NAN}; ///< Stores the last raw value.
-  CallbackManager<void(float)> raw_callback_{}; ///< Storage for raw value callbacks.
-  CallbackManager<void(float)> callback_{}; ///< Storage for filtered value callbacks.
-  Optional<std::string> unit_of_measurement_{}; ///< Override the unit of measurement
-  Optional<std::string> icon_{}; // Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
-  Optional<int8_t> accuracy_decimals_{}; ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
+  CallbackManager<void(float)> raw_callback_; ///< Storage for raw value callbacks.
+  CallbackManager<void(float)> callback_; ///< Storage for filtered value callbacks.
+  optional<std::string> unit_of_measurement_; ///< Override the unit of measurement
+  optional<std::string> icon_; /// Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
+  optional<int8_t> accuracy_decimals_; ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
   Filter *filter_list_{nullptr}; ///< Store all active filters.
 };
 
@@ -240,6 +249,39 @@ class EmptyPollingParentSensor
 
  protected:
   ParentType *parent_;
+};
+
+class SensorValueTrigger : public Trigger<float> {
+ public:
+  explicit SensorValueTrigger(Sensor *parent);
+};
+
+class RawSensorValueTrigger : public Trigger<float> {
+ public:
+  explicit RawSensorValueTrigger(Sensor *parent);
+};
+
+class ValueRangeTrigger : public Trigger<float> {
+ public:
+  explicit ValueRangeTrigger(Sensor *parent);
+
+  void set_min(std::function<float(float)> &&min) {
+    this->min_ = std::move(min);
+  }
+  void set_min(float min) {
+    this->min_ = min;
+  }
+  void set_max(std::function<float(float)> &&max) {
+    this->max_ = std::move(max);
+  }
+  void set_max(float max) {
+    this->max_ = max;
+  }
+
+ protected:
+  bool previous_in_range_{false};
+  TemplatableValue<float, float> min_{NAN};
+  TemplatableValue<float, float> max_{NAN};
 };
 
 extern const char ICON_EMPTY[];

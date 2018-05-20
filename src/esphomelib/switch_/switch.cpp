@@ -14,11 +14,15 @@ namespace switch_ {
 std::string Switch::icon() {
   return "";
 }
-Switch::Switch(const std::string &name) : BinarySensor(name) {}
+Switch::Switch(const std::string &name) : BinarySensor(name) {
+  this->add_on_state_callback([this](bool state) {
+    global_preferences.put_bool(this->get_name(), "state", state != this->inverted_);
+  });
+}
 
 std::string Switch::get_icon() {
-  if (this->icon_.defined)
-    return this->icon_.value;
+  if (this->icon_.has_value())
+    return *this->icon_;
   return this->icon();
 }
 
@@ -41,12 +45,6 @@ void Switch::setup_() {
 
   bool initial_state = global_preferences.get_bool(this->get_name(), "state", false);
   this->write_state(initial_state);
-}
-void Switch::publish_state(bool state) {
-  BinarySensor::publish_state(state);
-
-  // store state when acknowledged
-  global_preferences.put_bool(this->get_name(), "state", state);
 }
 
 } // namespace switch_

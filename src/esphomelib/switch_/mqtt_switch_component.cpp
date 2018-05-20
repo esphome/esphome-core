@@ -24,8 +24,6 @@ MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
 }
 
 void MQTTSwitchComponent::setup() {
-  assert(this->switch_ != nullptr);
-
   ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->switch_->get_name().c_str());
   ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->switch_->get_icon().c_str());
 
@@ -37,6 +35,7 @@ void MQTTSwitchComponent::setup() {
   });
   this->switch_->add_on_state_callback([this](bool enabled){
     std::string state = enabled ? this->get_payload_on() : this->get_payload_off();
+    ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state.c_str());
     this->send_message(this->get_state_topic(), state);
   });
 }

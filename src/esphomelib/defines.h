@@ -68,6 +68,7 @@
   #define USE_BME280
   #define USE_BME680
   #define USE_SHT3XD
+  #define USE_TEMPLATE_SENSOR
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_ESP32_TOUCH_BINARY_SENSOR
   #endif
@@ -76,6 +77,11 @@
   #endif
   #define USE_FAST_LED_LIGHT
   #define USE_ROTARY_ENCODER_SENSOR
+  #define USE_MAX6675_SENSOR
+  #define USE_TEMPLATE_BINARY_SENSOR
+  #define USE_TEMPLATE_SWITCH
+  #define USE_COVER
+  #define USE_TEMPLATE_COVER
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -94,6 +100,11 @@
   #endif
 #endif
 #ifdef USE_ESP32_BLE_TRACKER
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+#endif
+#ifdef USE_TEMPLATE_BINARY_SENSOR
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
   #endif
@@ -168,15 +179,20 @@
 #endif
 #ifdef USE_MPU6050
   #ifndef USE_SENSOR
-    #define SENSOR
+    #define USE_SENSOR
   #endif
   #ifndef USE_I2C
     #define USE_I2C
   #endif
 #endif
+#ifdef USE_MAX6675_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
 #ifdef USE_TSL2561
   #ifndef USE_SENSOR
-    #define SENSOR
+    #define USE_SENSOR
   #endif
   #ifndef USE_I2C
     #define USE_I2C
@@ -184,7 +200,7 @@
 #endif
 #ifdef USE_BH1750
   #ifndef USE_SENSOR
-  #define SENSOR
+  #define USE_SENSOR
   #endif
   #ifndef USE_I2C
     #define USE_I2C
@@ -192,7 +208,7 @@
 #endif
 #ifdef USE_BME280
   #ifndef USE_SENSOR
-    #define SENSOR
+    #define USE_SENSOR
   #endif
   #ifndef USE_I2C
     #define USE_I2C
@@ -200,7 +216,7 @@
 #endif
 #ifdef USE_BME680
   #ifndef USE_SENSOR
-    #define SENSOR
+    #define USE_SENSOR
   #endif
   #ifndef USE_I2C
     #define USE_I2C
@@ -208,10 +224,15 @@
 #endif
 #ifdef USE_SHT3XD
   #ifndef USE_SENSOR
-    #define SENSOR
+    #define USE_SENSOR
   #endif
   #ifndef USE_I2C
     #define USE_I2C
+  #endif
+#endif
+#ifdef USE_TEMPLATE_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
   #endif
 #endif
 #ifdef USE_ULTRASONIC_SENSOR
@@ -235,6 +256,11 @@
   #endif
   #ifndef USE_GPIO_OUTPUT
     #define USE_GPIO_OUTPUT
+  #endif
+#endif
+#ifdef USE_TEMPLATE_SWITCH
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
   #endif
 #endif
 #ifdef USE_RESTART_SWITCH
@@ -294,6 +320,11 @@
   #endif
   #ifndef USE_IO
     #define USE_IO
+  #endif
+#endif
+#ifdef USE_TEMPLATE_COVER
+  #ifndef USE_COVER
+    #define USE_COVER
   #endif
 #endif
 

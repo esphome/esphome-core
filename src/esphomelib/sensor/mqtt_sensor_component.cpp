@@ -45,8 +45,8 @@ std::string MQTTSensorComponent::component_type() const {
 }
 
 uint32_t MQTTSensorComponent::get_expire_after() const {
-  if (this->expire_after_.defined) {
-    return this->expire_after_.value;
+  if (this->expire_after_.has_value()) {
+    return *this->expire_after_;
   } else {
     uint32_t interval = this->sensor_->update_interval();
     Filter *filter = this->sensor_->filter_list_;

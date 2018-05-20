@@ -8,6 +8,7 @@
 #include <vector>
 #include "esphomelib/defines.h"
 #include "esphomelib/component.h"
+#include "esphomelib/automation.h"
 #include "esphomelib/controller.h"
 #include "esphomelib/esp32_ble_tracker.h"
 #include "esphomelib/debug_component.h"
@@ -22,6 +23,10 @@
 #include "esphomelib/binary_sensor/esp32_touch_binary_sensor.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/status_binary_sensor.h"
+#include "esphomelib/binary_sensor/template_binary_sensor.h"
+#include "esphomelib/cover/cover.h"
+#include "esphomelib/cover/mqtt_cover_component.h"
+#include "esphomelib/cover/template_cover.h"
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/i2c_component.h"
@@ -44,12 +49,14 @@
 #include "esphomelib/sensor/dht12_component.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hdc1080_component.h"
+#include "esphomelib/sensor/max6675_sensor.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/mpu6050_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
 #include "esphomelib/sensor/rotary_encoder.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/sensor/sht3xd_component.h"
+#include "esphomelib/sensor/template_sensor.h"
 #include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/switch_/ir_transmitter_component.h"
@@ -58,6 +65,7 @@
 #include "esphomelib/switch_/shutdown_switch.h"
 #include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/switch.h"
+#include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/web_server.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -168,6 +176,30 @@ class Application {
 
 
 
+
+  /*           _    _ _______ ____  __  __       _______ _____ ____  _   _
+   *      /\  | |  | |__   __/ __ \|  \/  |   /\|__   __|_   _/ __ \| \ | |
+   *     /  \ | |  | |  | | | |  | | \  / |  /  \  | |    | || |  | |  \| |
+   *    / /\ \| |  | |  | | | |  | | |\/| | / /\ \ | |    | || |  | | . ` |
+   *   / ____ \ |__| |  | | | |__| | |  | |/ ____ \| |   _| || |__| | |\  |
+   *  /_/    \_\____/   |_|  \____/|_|  |_/_/    \_\_|  |_____\____/|_| \_|
+   */
+
+  template<typename T>
+  Automation<T> *make_automation(Trigger<T> *trigger);
+
+  mqtt::MQTTMessageTrigger *make_mqtt_message_trigger(const std::string &topic, uint8_t qos = 0);
+
+  StartupTrigger *make_startup_trigger();
+
+  ShutdownTrigger *make_shutdown_trigger();
+
+
+
+
+
+
+
   /*   ____ ___ _   _    _    ______   __  ____  _____ _   _ ____   ___  ____
    *  | __ |_ _| \ | |  / \  |  _ \ \ / / / ___|| ____| \ | / ___| / _ \|  _ \
    *  |  _ \| ||  \| | / _ \ | |_) \ V /  \___ \|  _| |  \| \___ \| | | | |_) |
@@ -225,6 +257,17 @@ class Application {
    */
   binary_sensor::ESP32TouchComponent *make_esp32_touch_component();
 #endif
+
+#ifdef USE_TEMPLATE_BINARY_SENSOR
+  struct MakeTemplateBinarySensor {
+    binary_sensor::TemplateBinarySensor *template_;
+    binary_sensor::MQTTBinarySensorComponent *mqtt;
+  };
+
+  MakeTemplateBinarySensor make_template_binary_sensor(const std::string &name, std::function<optional<bool>()> &&f);
+#endif
+
+
 
 
 
@@ -578,6 +621,28 @@ class Application {
                                                      const GPIOInputPin &pin_b);
 #endif
 
+#ifdef USE_TEMPLATE_SENSOR
+  struct MakeTemplateSensor {
+    sensor::TemplateSensor *template_;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeTemplateSensor make_template_sensor(const std::string &name, std::function<optional<float>()> &&f,
+                                          uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_MAX6675_SENSOR
+  struct MakeMAX6675Sensor {
+    sensor::MAX6675Sensor *max6675;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeMAX6675Sensor make_max6675_sensor(const std::string &name, const GPIOOutputPin &cs,
+                                        const GPIOOutputPin &clock,
+                                        const GPIOInputPin &miso,
+                                        uint32_t update_interval = 15000);
+#endif
+
 
 
 
@@ -794,6 +859,15 @@ class Application {
   MakeSimpleSwitch make_simple_switch(const std::string &friendly_name, output::BinaryOutput *output);
 #endif
 
+#ifdef USE_TEMPLATE_SWITCH
+  struct MakeTemplateSwitch {
+    switch_::TemplateSwitch *template_;
+    switch_::MQTTSwitchComponent *mqtt;
+  };
+
+  MakeTemplateSwitch make_template_switch(const std::string &name, std::function<optional<bool>()> &&f);
+#endif
+
 
 
 
@@ -822,6 +896,34 @@ class Application {
    */
   MakeFan make_fan(const std::string &friendly_name);
 #endif
+
+
+
+
+
+
+  /*    _____ ______      ________ _____
+   *   / ____/ __ \ \    / /  ____|  __ \
+   *  | |   | |  | \ \  / /| |__  | |__) |
+   *  | |   | |  | |\ \/ / |  __| |  _  /
+   *  | |___| |__| | \  /  | |____| | \ \
+   *   \_____\____/   \/   |______|_|  \_\
+   */
+#ifdef USE_COVER
+  cover::MQTTCoverComponent *register_cover(cover::Cover *cover);
+#endif
+
+#ifdef USE_TEMPLATE_COVER
+  struct MakeTemplateCover {
+    cover::TemplateCover *template_;
+    cover::MQTTCoverComponent *mqtt;
+  };
+
+  MakeTemplateCover make_template_cover(const std::string &name, std::function<optional<cover::CoverState>()> &&f);
+#endif
+
+
+
 
 
 
@@ -908,6 +1010,11 @@ C *Application::register_controller(C *c) {
   Controller *controller = c;
   this->controllers_.push_back(controller);
   return c;
+}
+
+template<typename T>
+Automation<T> *Application::make_automation(Trigger<T> *trigger) {
+  return new Automation<T>(trigger);
 }
 
 ESPHOMELIB_NAMESPACE_END

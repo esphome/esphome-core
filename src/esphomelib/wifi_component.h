@@ -93,13 +93,13 @@ class WiFiComponent : public Component {
   bool sta_on_;
   std::string sta_ssid_;
   std::string sta_password_;
-  Optional<ManualIP> sta_manual_ip_{};
+  optional<ManualIP> sta_manual_ip_;
 
   bool ap_on_;
   std::string ap_ssid_;
   std::string ap_password_;
   uint8_t ap_channel_;
-  Optional<ManualIP> ap_manual_ip_{};
+  optional<ManualIP> ap_manual_ip_;
 };
 
 extern WiFiComponent *global_wifi_component;

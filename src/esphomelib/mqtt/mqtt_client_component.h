@@ -14,6 +14,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/automation.h"
 #include "esphomelib/defines.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -56,6 +57,11 @@ struct Availability {
   std::string payload_available;
   std::string payload_not_available;
 };
+
+class MQTTMessageTrigger;
+
+template<typename T>
+class MQTTPublishAction;
 
 /** Internal struct for MQTT Home Assistant discovery
  *
@@ -190,6 +196,11 @@ class MQTTClientComponent : public Component {
 
   void on_message(const std::string &topic, const std::string &payload);
 
+  MQTTMessageTrigger *make_message_trigger(const std::string &topic, uint8_t qos = 0);
+
+  template<typename T>
+  MQTTPublishAction<T> *make_publish_action();
+
  protected:
   /// Reconnect to the MQTT broker if not already connected.
   void reconnect();
@@ -220,7 +231,80 @@ class MQTTClientComponent : public Component {
   CallbackManager<void()> on_connect_{};
 };
 
+class MQTTMessageTrigger : public Trigger<std::string> {
+ public:
+  explicit MQTTMessageTrigger(const std::string &topic, uint8_t qos = 0);
+};
+
+template<typename T>
+class MQTTPublishAction : public Action<T> {
+ public:
+  MQTTPublishAction();
+
+  void set_topic(std::function<std::string(T)> topic);
+  void set_topic(std::string topic);
+  void set_payload(std::function<std::string(T)> payload);
+  void set_payload(std::string payload);
+  void set_qos(std::function<uint8_t (T)> qos);
+  void set_qos(uint8_t  qos);
+  void set_retain(std::function<bool(T)> retain);
+  void set_retain(bool retain);
+
+  void play(T x) override;
+
+ protected:
+  TemplatableValue<std::string, T> topic_;
+  TemplatableValue<std::string, T> payload_;
+  TemplatableValue<uint8_t, T> qos_{0};
+  TemplatableValue<bool, T> retain_{false};
+};
+
 extern MQTTClientComponent *global_mqtt_client;
+
+// =============== TEMPLATE DEFINITIONS ===============
+
+template<typename T>
+void MQTTPublishAction<T>::play(T x) {
+  global_mqtt_client->publish(this->topic_.value(x), this->payload_.value(x),
+                              this->qos_.value(x), this->retain_.value(x));
+  this->play_next(x);
+}
+template<typename T>
+MQTTPublishAction<T>::MQTTPublishAction() {
+
+}
+template<typename T>
+void MQTTPublishAction<T>::set_topic(std::function<std::string(T)> topic) {
+  this->topic_ = std::move(topic);
+}
+template<typename T>
+void MQTTPublishAction<T>::set_topic(std::string topic) {
+  this->topic_ = topic;
+}
+template<typename T>
+void MQTTPublishAction<T>::set_payload(std::function<std::string(T)> payload) {
+  this->payload_ = std::move(payload);
+}
+template<typename T>
+void MQTTPublishAction<T>::set_payload(std::string payload) {
+  this->payload_ = payload;
+}
+template<typename T>
+void MQTTPublishAction<T>::set_qos(std::function<uint8_t(T)> qos) {
+  this->qos_ = std::move(qos);
+}
+template<typename T>
+void MQTTPublishAction<T>::set_qos(uint8_t qos) {
+  this->qos_ = qos;
+}
+template<typename T>
+void MQTTPublishAction<T>::set_retain(std::function<bool(T)> retain) {
+  this->retain_ = std::move(retain);
+}
+template<typename T>
+void MQTTPublishAction<T>::set_retain(bool retain) {
+  this->retain_ = retain;
+}
 
 } // namespace mqtt
 
