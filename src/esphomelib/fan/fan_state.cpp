@@ -21,10 +21,10 @@ void FanState::set_state(bool state) {
   this->state_ = state;
   this->state_callback_.call();
 }
-FanState::Speed esphomelib::fan::FanState::get_speed() const {
+FanSpeed fan::FanState::get_speed() const {
   return this->speed_;
 }
-void FanState::set_speed(FanState::Speed speed) {
+void FanState::set_speed(FanSpeed speed) {
   this->speed_ = speed;
   this->state_callback_.call();
 }
@@ -49,7 +49,7 @@ FanState::FanState(const std::string &name) : Nameable(name) {}
 void FanState::load_from_preferences() {
   this->set_state(global_preferences.get_bool(this->get_name(), "state", false));
   this->set_oscillating(global_preferences.get_bool(this->get_name(), "oscillating", false));
-  this->set_speed(static_cast<Speed>(global_preferences.get_int32(this->get_name(), "speed", SPEED_HIGH)));
+  this->set_speed(static_cast<FanSpeed>(global_preferences.get_int32(this->get_name(), "speed", FAN_SPEED_HIGH)));
 }
 void FanState::save_to_preferences() {
   global_preferences.put_bool(this->get_name(), "state", this->get_state());
@@ -59,16 +59,16 @@ void FanState::save_to_preferences() {
 bool FanState::set_speed(const char *speed) {
   if (strcasecmp(speed, "off") == 0) {
     ESP_LOGD(TAG, "Turning Fan Speed off.");
-    this->set_speed(FanState::SPEED_OFF);
+    this->set_speed(FAN_SPEED_OFF);
   } else if (strcasecmp(speed, "low") == 0) {
     ESP_LOGD(TAG, "Turning Fan Speed low.");
-    this->set_speed(FanState::SPEED_LOW);
+    this->set_speed(FAN_SPEED_LOW);
   } else if (strcasecmp(speed, "medium") == 0) {
     ESP_LOGD(TAG, "Turning Fan Speed medium.");
-    this->set_speed(FanState::SPEED_MEDIUM);
+    this->set_speed(FAN_SPEED_MEDIUM);
   } else if (strcasecmp(speed, "high") == 0) {
     ESP_LOGD(TAG, "Turning Fan Speed high.");
-    this->set_speed(FanState::SPEED_HIGH);
+    this->set_speed(FAN_SPEED_HIGH);
   } else
     return false;
   return true;

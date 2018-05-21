@@ -52,11 +52,11 @@ void BasicFanComponent::loop() {
     if (this->state_->get_traits().supports_speed()) {
       float speed = this->off_speed_;
       if (this->state_->get_state()) {
-        if (this->state_->get_speed() == FanState::SPEED_LOW)
+        if (this->state_->get_speed() == FAN_SPEED_LOW)
           speed = this->low_speed_;
-        else if (this->state_->get_speed() == FanState::SPEED_MEDIUM)
+        else if (this->state_->get_speed() == FAN_SPEED_MEDIUM)
           speed = this->medium_speed_;
-        else if (this->state_->get_speed() == FanState::SPEED_HIGH)
+        else if (this->state_->get_speed() == FAN_SPEED_HIGH)
           speed = this->high_speed_;
       }
       ESP_LOGD(TAG, "Setting speed: %.2f", speed);

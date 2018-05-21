@@ -100,19 +100,19 @@ void MQTTFanComponent::send_state() {
   if (this->state_->get_traits().supports_speed()) {
     const char *payload;
     switch (this->state_->get_speed()) {
-      case FanState::SPEED_OFF: {
+      case FAN_SPEED_OFF: {
         payload = "off";
         break;
       }
-      case FanState::SPEED_LOW: {
+      case FAN_SPEED_LOW: {
         payload = "low";
         break;
       }
-      case FanState::SPEED_MEDIUM: {
+      case FAN_SPEED_MEDIUM: {
         payload = "medium";
         break;
       }
-      case FanState::SPEED_HIGH: {
+      case FAN_SPEED_HIGH: {
         payload = "high";
         break;
       }

@@ -21,18 +21,19 @@ namespace switch_ {
 
 class TemplateSwitch : public Switch {
  public:
-  TemplateSwitch(const std::string &name, std::function<optional<bool>()> &&f);
+  explicit TemplateSwitch(const std::string &name, optional<std::function<optional<bool>()>> f = {});
 
   void add_turn_on_actions(const std::vector<Action<NoArg> *> &actions);
   void add_turn_off_actions(const std::vector<Action<NoArg> *> &actions);
-
+  void set_optimistic(bool optimistic);
   void loop() override;
 
  protected:
   void turn_on() override;
   void turn_off() override;
 
-  std::function<optional<bool>()> f_;
+  optional<std::function<optional<bool>()>> f_;
+  bool optimistic_{false};
   ActionList<NoArg> turn_on_action_;
   ActionList<NoArg> turn_off_action_;
 };

@@ -301,13 +301,13 @@ std::string WebServer::fan_json(fan::FanState *obj) {
     root["value"] = obj->get_state();
     if (obj->get_traits().supports_speed()) {
       switch (obj->get_speed()) {
-        case fan::FanState::SPEED_OFF:root["speed"] = "off";
+        case fan::FAN_SPEED_OFF: root["speed"] = "off";
           break;
-        case fan::FanState::SPEED_LOW:root["speed"] = "low";
+        case fan::FAN_SPEED_LOW: root["speed"] = "low";
           break;
-        case fan::FanState::SPEED_MEDIUM:root["speed"] = "medium";
+        case fan::FAN_SPEED_MEDIUM: root["speed"] = "medium";
           break;
-        case fan::FanState::SPEED_HIGH:root["speed"] = "high";
+        case fan::FAN_SPEED_HIGH: root["speed"] = "high";
           break;
       }
     }

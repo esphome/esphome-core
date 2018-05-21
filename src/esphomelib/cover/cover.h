@@ -11,6 +11,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/automation.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_COVER
@@ -25,6 +26,13 @@ enum CoverState {
   COVER_MAX
 };
 
+template<typename T>
+class OpenAction;
+template<typename T>
+class CloseAction;
+template<typename T>
+class StopAction;
+
 class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
@@ -37,10 +45,103 @@ class Cover : public Nameable {
 
   void publish_state(CoverState state);
 
+  template<typename T>
+  OpenAction<T> *make_open_action();
+
+  template<typename T>
+  CloseAction<T> *make_close_action();
+
+  template<typename T>
+  StopAction<T> *make_stop_action();
+
  protected:
   CoverState last_state_{COVER_MAX};
   CallbackManager<void(CoverState)> state_callback_{};
 };
+
+template<typename T>
+class OpenAction : public Action<T> {
+ public:
+  explicit OpenAction(Cover *cover);
+
+  void play(T x) override;
+
+ protected:
+  Cover *cover_;
+};
+
+template<typename T>
+class CloseAction : public Action<T> {
+ public:
+  explicit CloseAction(Cover *cover);
+
+  void play(T x) override;
+
+ protected:
+  Cover *cover_;
+};
+
+template<typename T>
+class StopAction : public Action<T> {
+ public:
+  explicit StopAction(Cover *cover);
+
+  void play(T x) override;
+
+ protected:
+  Cover *cover_;
+};
+
+// =============== TEMPLATE DEFINITIONS ===============
+
+template<typename T>
+OpenAction<T>::OpenAction(Cover *cover)
+    : cover_(cover) {
+
+}
+template<typename T>
+void OpenAction<T>::play(T x) {
+  this->cover_->open();
+  this->play_next(x);
+}
+
+template<typename T>
+CloseAction<T>::CloseAction(Cover *cover)
+    : cover_(cover) {
+
+}
+template<typename T>
+void CloseAction<T>::play(T x) {
+  this->cover_->close();
+  this->play_next(x);
+}
+
+template<typename T>
+StopAction<T>::StopAction(Cover *cover)
+    : cover_(cover) {
+
+}
+
+template<typename T>
+void StopAction<T>::play(T x) {
+  this->cover_->stop();
+  this->play_next(x);
+}
+
+template<typename T>
+OpenAction<T> *Cover::make_open_action() {
+  return new OpenAction<T>(this);
+}
+
+template<typename T>
+CloseAction<T> *Cover::make_close_action() {
+  return new CloseAction<T>(this);
+}
+template<typename T>
+StopAction<T> *Cover::make_stop_action() {
+  return new StopAction<T>(this);
+}
+
 
 } // namespace cover
 

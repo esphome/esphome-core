@@ -865,7 +865,7 @@ class Application {
     switch_::MQTTSwitchComponent *mqtt;
   };
 
-  MakeTemplateSwitch make_template_switch(const std::string &name, std::function<optional<bool>()> &&f);
+  MakeTemplateSwitch make_template_switch(const std::string &name, optional<std::function<optional<bool>()>> f = {});
 #endif
 
 
@@ -919,7 +919,8 @@ class Application {
     cover::MQTTCoverComponent *mqtt;
   };
 
-  MakeTemplateCover make_template_cover(const std::string &name, std::function<optional<cover::CoverState>()> &&f);
+  MakeTemplateCover make_template_cover(const std::string &name,
+                                        optional<std::function<optional<cover::CoverState>()>> f = {});
 #endif
 
 

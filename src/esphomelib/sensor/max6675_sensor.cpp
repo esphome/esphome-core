@@ -18,11 +18,6 @@ namespace sensor {
 
 static const char *TAG = "sensor.max6675";
 
-MAX6675Sensor::MAX6675Sensor(const std::string &name, uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval) {
-
-}
-
 MAX6675Sensor::MAX6675Sensor(const std::string &name,
                              GPIOPin *cs,
                              GPIOPin *clock,
