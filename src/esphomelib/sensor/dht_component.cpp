@@ -45,7 +45,7 @@ void DHTComponent::setup() {
 
 void DHTComponent::update() {
   float temperature, humidity;
-  this->read_sensor_safe_(&temperature, &humidity);
+  uint8_t error = this->read_sensor_safe_(&temperature, &humidity);
 
   if (!isnan(temperature) && !isnan(humidity)) {
     ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
@@ -53,7 +53,14 @@ void DHTComponent::update() {
     this->temperature_sensor_->push_new_value(temperature);
     this->humidity_sensor_->push_new_value(humidity);
   } else {
-    ESP_LOGW(TAG, "Invalid readings!");
+    const char *error_s;
+    switch (error) {
+      case DHT_ERROR_TIMEOUT: error_s = "TIMEOUT"; break;
+      case DHT_ERROR_CHECKSUM: error_s = "CHECKSUM"; break;
+      default: error_s = "UNKNOWN"; break;
+    }
+    ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin number) and "
+                  "consider manually specifying the DHT model using the model option. Error code: %s", error_s);
   }
 }
 

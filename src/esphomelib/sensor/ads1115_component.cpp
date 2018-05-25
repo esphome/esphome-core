@@ -32,7 +32,8 @@ void ADS1115Component::setup() {
   // copied from initialize()
   uint16_t config;
   this->read_byte_16(ADS1115_REGISTER_CONFIG, &config);
-  config &= 0b1000000000000000;
+  // Clear single-shot bit
+  config |= 0b0000000000000000;
   // Setup multiplexer
   //        0bx000xxxxxxxxxxxx
   config |= ADS1115_MULTIPLEXER_P0_N1 << 12;
@@ -115,10 +116,7 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
     case ADS1115_GAIN_2P048: millivolts = signed_conversion * 0.062500f; break;
     case ADS1115_GAIN_1P024: millivolts = signed_conversion * 0.031250f; break;
     case ADS1115_GAIN_0P512: millivolts = signed_conversion * 0.015625f; break;
-    case ADS1115_GAIN_0P256:
-    case ADS1115_GAIN_0P256B:
-    case ADS1115_GAIN_0P256C:
-      millivolts = signed_conversion * 0.007813f; break;
+    case ADS1115_GAIN_0P256: millivolts = signed_conversion * 0.007813f; break;
     default: millivolts = NAN;
   }
 
