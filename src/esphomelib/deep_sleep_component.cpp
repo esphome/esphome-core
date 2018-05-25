@@ -71,7 +71,7 @@ void DeepSleepComponent::begin_sleep() {
 #endif
 
 #ifdef ARDUINO_ARCH_ESP8266
-  ESP.deepSleep(this->sleep_duration_);
+  ESP.deepSleep(*this->sleep_duration_);
 #endif
 }
 
