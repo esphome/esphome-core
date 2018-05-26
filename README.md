@@ -12,7 +12,7 @@ For example, the software for a device with an RGB light using the internal PWM 
 [DHT22](https://www.adafruit.com/product/385) temperature sensor can be as simple as this:
 
 ```cpp
-#include "esphomelib/application.h"
+#include "esphomelib.h"
 
 using namespace esphomelib;
 
@@ -75,8 +75,7 @@ You can find a documentation for the API of this project at [esphomelib.com](htt
 
 ### Setting Up Development Environment
 
->  Note: Developing in the Arduino IDE is currently not possible, but support for this is being looked into. However, 
-> platformio will remain the preferred method.
+#### PlatformIO
 
 esphomelib is made for use with [platformio](http://platformio.org/), an advanced ecosystem for microcontroller
 development. To get started with coding esphomelib applications, you first have to 
@@ -104,6 +103,25 @@ board = nodemcuv2
 
 Finally, create a new source file in the `src/` folder (for example `main.cpp`) and start coding with esphomelib.
 
+#### Arduino IDE
+
+
+##### Installing the esphomelib library
+
+1. Download the latest release from https://github.com/OttoWinter/esphomelib/releases
+2. (In the Arduino IDE) **Sketch > Include Library > Add .ZIP Library... >** select the downloaded file **> Open**
+
+##### Installing library dependencies
+
+Repeat the above steps with the following libraries:
+- https://github.com/marvinroger/async-mqtt-client/releases
+- https://github.com/OttoWinter/ArduinoJson/releases
+- https://github.com/FastLED/FastLED/releases
+- https://github.com/me-no-dev/ESPAsyncWebServer/archive/master.zip
+- https://github.com/me-no-dev/AsyncTCP/archive/master.zip
+
+After installing esphomelib, you will find a variety of example sketches under **File > Examples > esphomelib**.
+
 ### Bare Bones
 
 Before adding all the desired components to your code, there are a few things you need to set up first.
@@ -111,7 +129,7 @@ Before adding all the desired components to your code, there are a few things yo
 Begin with including the library and setting the C++ namespace.
 
 ```cpp
-#include "esphomelib/application.h"
+#include "esphomelib.h"
 
 using namespace esphomelib;
 ```

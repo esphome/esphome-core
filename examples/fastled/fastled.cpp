@@ -6,8 +6,8 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/application.h"
-#include "esphomelib/light/light_effect.h"
+#include <esphomelib.h>
+#include <esphomelib/light/light_effect.h>
 
 using namespace esphomelib;
 

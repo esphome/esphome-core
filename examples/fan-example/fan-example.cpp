@@ -2,7 +2,7 @@
 // Created by Otto Winter on 24.01.18.
 //
 
-#include <esphomelib/application.h>
+#include <esphomelib.h>
 
 using namespace esphomelib;
 

@@ -6,7 +6,7 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/application.h"
+#include <esphomelib.h>
 
 using namespace esphomelib;
 
