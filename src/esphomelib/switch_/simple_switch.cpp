@@ -12,19 +12,17 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
+static const char *TAG = "switch.simple";
+
 SimpleSwitch::SimpleSwitch(const std::string &name, output::BinaryOutput *output)
     : Switch(name), output_(output) { }
 
 void SimpleSwitch::turn_on() {
-  assert(this->output_ != nullptr);
   this->output_->enable();
-
   this->publish_state(true);
 }
 void SimpleSwitch::turn_off() {
-  assert(this->output_ != nullptr);
   this->output_->disable();
-
   this->publish_state(false);
 }
 

@@ -33,6 +33,9 @@
       "version": "https://github.com/FastLED/FastLED.git#d41619400bbe77fe14dd1ccdca7521b152f460ef"
     }
   ],
+  "build": {
+    "flags": "-Wno-reorder"
+  },
   "license": "GPL-3.0",
   "frameworks": "arduino",
   "platforms": [

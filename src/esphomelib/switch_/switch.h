@@ -35,6 +35,8 @@ class Switch : public binary_sensor::BinarySensor, public Component {
   float get_setup_priority() const override;
   void setup_() override;
 
+  void publish_state(bool state) override;
+
   /// This method is called by the front-end components.
   void write_state(bool state);
 

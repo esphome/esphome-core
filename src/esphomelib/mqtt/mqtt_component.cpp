@@ -60,7 +60,7 @@ void MQTTComponent::send_json_message(const std::string &topic, const json_build
 void MQTTComponent::send_discovery_() {
   const MQTTDiscoveryInfo &discovery_info = global_mqtt_client->get_discovery_info();
 
-  ESP_LOGV(TAG, "Sending discovery...");
+  ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
 
   this->send_json_message(this->get_discovery_topic(discovery_info), [&](JsonBuffer &buffer, JsonObject &root) {
     SendDiscoveryConfig config;

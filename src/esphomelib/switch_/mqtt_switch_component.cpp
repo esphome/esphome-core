@@ -34,21 +34,21 @@ void MQTTSwitchComponent::setup() {
       this->turn_off();
   });
   this->switch_->add_on_state_callback([this](bool enabled){
-    std::string state = enabled ? this->get_payload_on() : this->get_payload_off();
-    ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state.c_str());
-    this->send_message(this->get_state_topic(), state);
+    this->publish_state(enabled);
   });
+
+  this->publish_state(this->switch_->value);
 }
 
 std::string MQTTSwitchComponent::component_type() const {
   return "switch";
 }
 void MQTTSwitchComponent::turn_on() {
-  ESP_LOGD(TAG, "Turning Switch on.");
+  ESP_LOGD(TAG, "'%s' Turning ON.", this->friendly_name().c_str());
   this->switch_->write_state(true);
 }
 void MQTTSwitchComponent::turn_off() {
-  ESP_LOGD(TAG, "Turning Switch off.");
+  ESP_LOGD(TAG, "'%s' Turning OFF.", this->friendly_name().c_str());
   this->switch_->write_state(false);
 }
 void MQTTSwitchComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
