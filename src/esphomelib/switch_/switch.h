@@ -61,6 +61,13 @@ class Switch : public binary_sensor::BinarySensor, public Component {
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
 
+  /** Return whether this switch is optimistic - i.e. if both the ON/OFF actions should be displayed in Home Assistant
+   * because the real state is unknown.
+   *
+   * Defaults to false.
+   */
+  virtual bool optimistic();
+
  protected:
   /// Turn this switch on. When creating a switch, you should implement this (inversion will already be applied).
   virtual void turn_on() = 0;

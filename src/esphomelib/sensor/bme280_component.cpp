@@ -173,7 +173,7 @@ void BME280Component::update() {
     float pressure = this->read_pressure_(t_fine);
     float humidity = this->read_humidity_(t_fine);
 
-    ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%",
+    ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%%",
              temperature, pressure, humidity);
     this->temperature_sensor_->push_new_value(temperature);
     this->pressure_sensor_->push_new_value(pressure);

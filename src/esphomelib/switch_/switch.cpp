@@ -49,6 +49,9 @@ void Switch::publish_state(bool state) {
   global_preferences.put_bool(this->get_name(), "state", state);
   this->state_callback_.call(state);
 }
+bool Switch::optimistic() {
+  return false;
+}
 
 } // namespace switch_
 

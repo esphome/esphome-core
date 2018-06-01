@@ -199,12 +199,24 @@ ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) {
     bool in_range = (isnan(local_min) && value <= local_max) || (isnan(local_max) && value >= local_min)
                     || (!isnan(local_min) && !isnan(local_max) && local_min <= value && value <= local_max);
 
-    if (in_range != this->previous_in_range_) {
+    if (in_range != this->previous_in_range_ && in_range) {
       this->trigger(value);
     }
 
     this->previous_in_range_ = in_range;
   });
+}
+void ValueRangeTrigger::set_min(std::function<float(float)> &&min) {
+  this->min_ = std::move(min);
+}
+void ValueRangeTrigger::set_min(float min) {
+  this->min_ = min;
+}
+void ValueRangeTrigger::set_max(std::function<float(float)> &&max) {
+  this->max_ = std::move(max);
+}
+void ValueRangeTrigger::set_max(float max) {
+  this->max_ = max;
 }
 
 } // namespace sensor

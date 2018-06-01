@@ -20,6 +20,10 @@ static const char *TAG = "cover.mqtt";
 MQTTCoverComponent::MQTTCoverComponent(Cover *cover) : cover_(cover) {}
 void MQTTCoverComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT cover '%s'...", this->friendly_name().c_str());
+  if (this->cover_->optimistic()) {
+    ESP_LOGCONFIG(TAG, "    Optimistic: YES");
+  }
+
   this->cover_->add_on_publish_state_callback([this](CoverState state) {
     const char *state_s;
     switch (state) {
@@ -50,7 +54,8 @@ void MQTTCoverComponent::setup() {
 }
 
 void MQTTCoverComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
-  // Nothing to do here, yay!
+  if (this->cover_->optimistic())
+    root["optimistic"] = true;
 }
 std::string MQTTCoverComponent::component_type() const {
   return "cover";

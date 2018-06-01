@@ -54,7 +54,15 @@ class Cover : public Nameable {
   template<typename T>
   StopAction<T> *make_stop_action();
 
+  /** Return whether this cover is optimistic - i.e. if both the OPEN/CLOSE actions should be displayed in
+   * Home Assistant because the real state is unknown.
+   *
+   * Defaults to false.
+   */
+  virtual bool optimistic();
+
  protected:
+
   CoverState last_state_{COVER_MAX};
   CallbackManager<void(CoverState)> state_callback_{};
 };

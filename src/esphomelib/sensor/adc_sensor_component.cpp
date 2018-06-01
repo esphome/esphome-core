@@ -49,8 +49,8 @@ void ADCSensorComponent::set_pin(const GPIOInputPin &pin) {
 }
 void ADCSensorComponent::update() {
   uint16_t value = analogRead(this->pin_.get_pin());
-  float value_v = value / 4095.0f;
 #ifdef ARDUINO_ARCH_ESP32
+  float value_v = value / 4095.0f;
   switch (this->attenuation_) {
     case ADC_0db:
       value_v *= 1.1;
@@ -65,6 +65,8 @@ void ADCSensorComponent::update() {
       value_v *= 3.9;
       break;
   }
+#else
+  float value_v = value / 1023.0f;
 #endif
   this->push_new_value(value_v);
 }

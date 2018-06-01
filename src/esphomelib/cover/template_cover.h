@@ -21,8 +21,9 @@ namespace cover {
 
 class TemplateCover : public Cover, public Component {
  public:
-  explicit TemplateCover(const std::string &name, optional<std::function<optional<CoverState>()>> f = {});
+  explicit TemplateCover(const std::string &name);
 
+  void set_state_lambda(std::function<optional<CoverState>()> &&f);
   void add_open_actions(const std::vector<Action<NoArg> *> &actions);
   void add_close_actions(const std::vector<Action<NoArg> *> &actions);
   void add_stop_actions(const std::vector<Action<NoArg> *> &actions);
@@ -35,6 +36,8 @@ class TemplateCover : public Cover, public Component {
   void stop() override;
 
  protected:
+  bool optimistic() override;
+
   optional<std::function<optional<CoverState>()>> f_;
   bool optimistic_{false};
   ActionList<NoArg> open_action_;

@@ -265,18 +265,10 @@ class ValueRangeTrigger : public Trigger<float> {
  public:
   explicit ValueRangeTrigger(Sensor *parent);
 
-  void set_min(std::function<float(float)> &&min) {
-    this->min_ = std::move(min);
-  }
-  void set_min(float min) {
-    this->min_ = min;
-  }
-  void set_max(std::function<float(float)> &&max) {
-    this->max_ = std::move(max);
-  }
-  void set_max(float max) {
-    this->max_ = max;
-  }
+  void set_min(std::function<float(float)> &&min);
+  void set_min(float min);
+  void set_max(std::function<float(float)> &&max);
+  void set_max(float max);
 
  protected:
   bool previous_in_range_{false};

@@ -735,9 +735,8 @@ Application::MakeTemplateBinarySensor Application::make_template_binary_sensor(c
 #endif
 
 #ifdef USE_TEMPLATE_SWITCH
-Application::MakeTemplateSwitch Application::make_template_switch(const std::string &name,
-                                                                  optional<std::function<optional<bool>()>> f) {
-  auto *template_ = this->register_component(new TemplateSwitch(name, std::move(f)));
+Application::MakeTemplateSwitch Application::make_template_switch(const std::string &name) {
+  auto *template_ = this->register_component(new TemplateSwitch(name));
 
   return MakeTemplateSwitch{
       .template_ = template_,
@@ -758,9 +757,8 @@ cover::MQTTCoverComponent *Application::register_cover(cover::Cover *cover) {
 #endif
 
 #ifdef USE_TEMPLATE_COVER
-Application::MakeTemplateCover Application::make_template_cover(const std::string &name,
-                                                                optional<std::function<optional<cover::CoverState>()>> f) {
-  auto *template_ = this->register_component(new TemplateCover(name, std::move(f)));
+Application::MakeTemplateCover Application::make_template_cover(const std::string &name) {
+  auto *template_ = this->register_component(new TemplateCover(name));
 
   return MakeTemplateCover{
       .template_ = template_,

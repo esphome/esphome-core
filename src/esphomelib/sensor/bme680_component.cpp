@@ -252,7 +252,7 @@ void BME680Component::read_data_() {
   float humidity = this->calc_humidity_(raw_humidity);
   float gas_resistance = this->calc_gas_resistance_(raw_gas, gas_range);
 
-  ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f% gas_resistance=%.1fΩ",
+  ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%% gas_resistance=%.1fΩ",
            temperature, pressure, humidity, gas_resistance);
   this->temperature_sensor_->push_new_value(temperature);
   this->pressure_sensor_->push_new_value(pressure);

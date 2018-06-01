@@ -14,8 +14,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-TemplateSwitch::TemplateSwitch(const std::string &name, optional<std::function<optional<bool>()>> f)
-    : Switch(name), f_(std::move(f)) {
+TemplateSwitch::TemplateSwitch(const std::string &name)
+    : Switch(name) {
 
 }
 void TemplateSwitch::loop() {
@@ -43,6 +43,12 @@ void TemplateSwitch::add_turn_off_actions(const std::vector<Action<NoArg> *> &ac
 }
 void TemplateSwitch::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
+}
+bool TemplateSwitch::optimistic() {
+  return this->optimistic_;
+}
+void TemplateSwitch::set_state_lambda(std::function<optional<bool>()> &&f) {
+  this->f_ = f;
 }
 
 } // namespace switch_

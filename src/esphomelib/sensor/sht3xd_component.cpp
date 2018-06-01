@@ -102,7 +102,7 @@ void SHT3XDComponent::update() {
   float temperature = 175.0f * float(raw_data[0]) / 65535.0f - 45.0f;
   float humidity = 100.0f * float(raw_data[1]) / 65535.0f;
 
-  ESP_LOGD(TAG, "Got temperature=%.2°C humidity=%.2%");
+  ESP_LOGD(TAG, "Got temperature=%.2°C humidity=%.2%%");
   this->temperature_sensor_->push_new_value(temperature);
   this->humidity_sensor_->push_new_value(humidity);
 }

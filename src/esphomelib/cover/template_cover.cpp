@@ -14,8 +14,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace cover {
 
-TemplateCover::TemplateCover(const std::string &name, optional<std::function<optional<CoverState>()>> f)
-    : Cover(name), f_(std::move(f)) {
+TemplateCover::TemplateCover(const std::string &name)
+    : Cover(name) {
 
 }
 void TemplateCover::open() {
@@ -49,6 +49,12 @@ void TemplateCover::loop() {
 }
 void TemplateCover::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
+}
+bool TemplateCover::optimistic() {
+  return this->optimistic_;
+}
+void TemplateCover::set_state_lambda(std::function<optional<CoverState>()> &&f) {
+  this->f_ = f;
 }
 
 } // namespace cover

@@ -24,6 +24,9 @@ void Cover::publish_state(CoverState state) {
   this->last_state_ = state;
   this->state_callback_.call(state);
 }
+bool Cover::optimistic() {
+  return false;
+}
 
 } // namespace cover
 

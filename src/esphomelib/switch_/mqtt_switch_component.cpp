@@ -26,6 +26,9 @@ MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
 void MQTTSwitchComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->switch_->get_name().c_str());
   ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->switch_->get_icon().c_str());
+  if (this->switch_->optimistic()) {
+    ESP_LOGCONFIG(TAG, "    Optimistic: YES");
+  }
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
     if (strcasecmp(payload.c_str(), this->get_payload_on().c_str()) == 0)
@@ -58,6 +61,8 @@ void MQTTSwitchComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, m
     root["payload_on"] = this->get_payload_on();
   if (this->get_payload_off() != "OFF")
     root["payload_off"] = this->get_payload_off();
+  if (this->switch_->optimistic())
+    root["optimistic"] = true;
 }
 
 } // namespace switch_
