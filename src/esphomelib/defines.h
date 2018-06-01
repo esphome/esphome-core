@@ -9,7 +9,7 @@
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
-#define ESPHOMELIB_VERSION "1.5.3"
+#define ESPHOMELIB_VERSION "1.6.0"
 
 #ifndef DOXYGEN
   #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {
