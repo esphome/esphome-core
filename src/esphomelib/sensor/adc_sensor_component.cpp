@@ -48,9 +48,8 @@ void ADCSensorComponent::set_pin(const GPIOInputPin &pin) {
   this->pin_ = pin;
 }
 void ADCSensorComponent::update() {
-  uint16_t value = analogRead(this->pin_.get_pin());
 #ifdef ARDUINO_ARCH_ESP32
-  float value_v = value / 4095.0f;
+  float value_v = analogRead(this->pin_.get_pin()) / 4095.0f;
   switch (this->attenuation_) {
     case ADC_0db:
       value_v *= 1.1;
@@ -65,9 +64,18 @@ void ADCSensorComponent::update() {
       value_v *= 3.9;
       break;
   }
-#else
-  float value_v = value / 1023.0f;
 #endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+  #ifdef USE_ADC_SENSOR_VCC
+    float value_v = ESP.getVcc() / 1024.0f;
+  #else
+    float value_v = analogRead(this->pin_.get_pin()) / 1024.0f;
+  #endif
+#endif
+
+  ESP_LOGD(TAG, "'%s': Got voltage=%.2fV", this->get_name().c_str(), value_v);
+
   this->push_new_value(value_v);
 }
 std::string ADCSensorComponent::unit_of_measurement() {
