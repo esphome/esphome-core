@@ -82,6 +82,9 @@
   #define USE_TEMPLATE_SWITCH
   #define USE_COVER
   #define USE_TEMPLATE_COVER
+  #ifdef ARDUINO_ARCH_ESP32
+    #define USE_ESP32_HALL_SENSOR
+  #endif
 #endif
 
 #ifdef USE_GPIO_BINARY_SENSOR
@@ -183,6 +186,11 @@
   #endif
   #ifndef USE_I2C
     #define USE_I2C
+  #endif
+#endif
+#ifdef USE_ESP32_HALL_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
   #endif
 #endif
 #ifdef USE_MAX6675_SENSOR

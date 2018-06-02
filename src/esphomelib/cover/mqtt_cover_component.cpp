@@ -48,7 +48,7 @@ void MQTTCoverComponent::setup() {
       ESP_LOGD(TAG, "'%s': Stopping cover...", this->friendly_name().c_str());
       this->cover_->stop();
     } else {
-      ESP_LOGW(TAG, "'%s': Received unknown payload '%'s...", this->friendly_name().c_str(), payload.c_str());
+      ESP_LOGW(TAG, "'%s': Received unknown payload '%s'...", this->friendly_name().c_str(), payload.c_str());
     }
   });
 }

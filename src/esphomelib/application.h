@@ -47,6 +47,7 @@
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/sensor/dht12_component.h"
+#include "esphomelib/sensor/esp32_hall_sensor.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/max6675_sensor.h"
@@ -641,6 +642,15 @@ class Application {
                                         const GPIOOutputPin &clock,
                                         const GPIOInputPin &miso,
                                         uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_ESP32_HALL_SENSOR
+  struct MakeESP32HallSensor {
+    sensor::ESP32HallSensor *hall;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeESP32HallSensor make_esp32_hall_sensor(const std::string &name, uint32_t update_interval = 15000);
 #endif
 
 

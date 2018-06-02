@@ -767,6 +767,18 @@ Application::MakeTemplateCover Application::make_template_cover(const std::strin
 }
 #endif
 
+#ifdef USE_ESP32_HALL_SENSOR
+Application::MakeESP32HallSensor Application::make_esp32_hall_sensor(const std::string &name,
+                                                                     uint32_t update_interval) {
+  auto *hall = this->register_component(new ESP32HallSensor(name, update_interval));
+
+  return MakeESP32HallSensor{
+      .hall = hall,
+      .mqtt = this->register_sensor(hall),
+  };
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
