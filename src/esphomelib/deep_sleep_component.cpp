@@ -74,6 +74,9 @@ void DeepSleepComponent::begin_sleep() {
   ESP.deepSleep(*this->sleep_duration_);
 #endif
 }
+float DeepSleepComponent::get_setup_priority() const {
+  return -100.0f;
+}
 
 ESPHOMELIB_NAMESPACE_END
 
