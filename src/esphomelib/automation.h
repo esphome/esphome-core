@@ -108,7 +108,7 @@ class Action {
  protected:
   friend ActionList<T>;
 
-  Action<T> *next_;
+  Action<T> *next_ = nullptr;
 };
 
 template<typename T>
