@@ -18,8 +18,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 using NoArg = bool;
 
-extern const char *AUTOMATION_TAG;
-
 template<typename T>
 class Condition {
  public:

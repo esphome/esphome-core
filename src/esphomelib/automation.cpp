@@ -10,7 +10,7 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
-const char *AUTOMATION_TAG = "automation";
+static const char *TAG = "automation";
 
 void Trigger<NoArg>::add_on_trigger_callback(std::function<void(NoArg)> &&f) {
   this->on_trigger_.add(std::move(f));
