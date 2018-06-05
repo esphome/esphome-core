@@ -99,6 +99,8 @@ lib_deps = esphomelib
 ; ...
 platform = espressif8266
 board = nodemcuv2
+framework = arduino
+lib_deps = esphomelib
 ```
 
 Finally, create a new source file in the `src/` folder (for example `main.cpp`) and start coding with esphomelib.
