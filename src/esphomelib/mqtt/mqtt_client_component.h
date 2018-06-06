@@ -306,6 +306,11 @@ void MQTTPublishAction<T>::set_retain(bool retain) {
   this->retain_ = retain;
 }
 
+template<typename T>
+MQTTPublishAction<T> *MQTTClientComponent::make_publish_action() {
+  return new MQTTPublishAction<T>();
+}
+
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
