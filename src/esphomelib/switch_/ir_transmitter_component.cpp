@@ -12,7 +12,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
 
-#ifdef USE_IR_TRANSMITTER
+// #ifdef USE_IR_TRANSMITTER
 
 #ifdef ARDUINO_ARCH_ESP32
 #include <esp32-hal.h>
@@ -261,8 +261,7 @@ IRTransmitterComponent::IRTransmitterComponent(GPIOPin *pin,
     : carrier_duty_percent_(carrier_duty_percent),
       pin_(pin) {
 #ifdef ARDUINO_ARCH_ESP32
-  this->set_channel(next_rmt_channel);
-  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
+  this->set_channel(select_next_rmt_channel());
 #endif
 }
 
@@ -378,4 +377,4 @@ std::string IRTransmitterComponent::DataTransmitter::icon() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_IR_TRANSMITTER
+// #endif //USE_IR_TRANSMITTER

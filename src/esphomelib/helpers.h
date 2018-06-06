@@ -20,6 +20,10 @@
   #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
 #endif
 
+#ifdef ARDUINO_ARCH_ESP32
+  #include <driver/rmt.h>
+#endif
+
 ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Callback function typedef for parsing JsonObjects.
@@ -250,6 +254,14 @@ class TemplatableValue {
 extern CallbackManager<void(const char *)> shutdown_hooks;
 extern CallbackManager<void(const char *)> safe_shutdown_hooks;
 
+#ifdef ARDUINO_ARCH_ESP32
+  extern rmt_channel_t next_rmt_channel;
+
+  rmt_channel_t select_next_rmt_channel();
+#endif
+
+void delay_microseconds_accurate(uint32_t usec);
+
 // ================================================
 //                 Definitions
 // ================================================
@@ -270,6 +282,49 @@ T lerp(T start, T end, T completion) {
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique(Args &&...args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+
+template<typename T>
+SlidingWindowMovingAverage<T>::SlidingWindowMovingAverage(size_t max_size) : max_size_(max_size), sum_(0) {
+
+}
+
+template<typename T>
+T SlidingWindowMovingAverage<T>::next_value(T value) {
+  if (isnan(value)) {
+    // protect from NAN values
+    return this->calculate_average();
+  }
+  if (this->queue_.size() == this->max_size_) {
+    this->sum_ -= this->queue_.front();
+    this->queue_.pop();
+  }
+  this->queue_.push(value);
+  this->sum_ += value;
+
+  return this->calculate_average();
+}
+template<typename T>
+T SlidingWindowMovingAverage<T>::calculate_average() {
+  if (this->queue_.size() == 0)
+    return 0;
+  else
+    return this->sum_ / this->queue_.size();
+}
+
+template<typename T>
+size_t SlidingWindowMovingAverage<T>::get_max_size() const {
+  return this->max_size_;
+}
+
+template<typename T>
+void SlidingWindowMovingAverage<T>::set_max_size(size_t max_size) {
+  this->max_size_ = max_size;
+
+  while (this->queue_.size() > max_size) {
+    this->sum_ -= this->queue_.front();
+    this->queue_.pop();
+  }
 }
 
 template<typename... Ts>

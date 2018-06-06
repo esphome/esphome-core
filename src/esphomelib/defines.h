@@ -53,7 +53,8 @@
   #define USE_LIGHT
   #define USE_SWITCH
   #define USE_SIMPLE_SWITCH
-  #define USE_IR_TRANSMITTER
+  #define USE_REMOTE_RECEIVER
+  #define USE_REMOTE_TRANSMITTER
   #define USE_GPIO_SWITCH
   #define USE_RESTART_SWITCH
   #define USE_SHUTDOWN_SWITCH
@@ -88,6 +89,22 @@
   #endif
 #endif
 
+#ifdef USE_REMOTE_RECEIVER
+  #ifndef USE_REMOTE
+    #define USE_REMOTE
+  #endif
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+#endif
+#ifdef USE_REMOTE_TRANSMITTER
+  #ifndef USE_REMOTE
+    #define USE_REMOTE
+  #endif
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+#endif
 #ifdef USE_GPIO_BINARY_SENSOR
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
@@ -341,6 +358,5 @@
     #define USE_COVER
   #endif
 #endif
-
 
 #endif //ESPHOMELIB_DEFINES_H

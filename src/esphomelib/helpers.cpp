@@ -15,6 +15,7 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/espmath.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -266,5 +267,26 @@ uint8_t crc8(uint8_t *data, uint8_t len) {
   }
   return crc;
 }
+void delay_microseconds_accurate(uint32_t usec) {
+  if (usec == 0)
+    return;
+
+  if (usec <= 16383UL) {
+    delayMicroseconds(usec);
+  } else {
+    delay(usec / 1000UL);
+    delayMicroseconds(usec % 1000UL);
+  }
+}
+
+#ifdef ARDUINO_ARCH_ESP32
+rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
+
+rmt_channel_t select_next_rmt_channel() {
+  rmt_channel_t value = next_rmt_channel;
+  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
+  return value;
+}
+#endif
 
 ESPHOMELIB_NAMESPACE_END

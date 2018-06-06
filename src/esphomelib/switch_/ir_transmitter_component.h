@@ -10,10 +10,10 @@
 #include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
-#ifdef USE_IR_TRANSMITTER
+//#ifdef USE_IR_TRANSMITTER
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <driver/rmt.h>
+  #include <driver/rmt.h>
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -113,7 +113,7 @@ struct SendData {
 /// APB base clock speed.
 const uint32_t BASE_CLOCK_HZ = 80000000;
 /// Default clock divider we use for RMT.
-const uint8_t DEFAULT_CLOCK_DIVIDER = 10;
+const uint8_t DEFAULT_CLOCK_DIVIDER = 80;
 /// Default carrier frequency we setup RMT with.
 const uint32_t DEFAULT_CARRIER_FREQUENCY_HZ = 38000;
 
@@ -188,7 +188,7 @@ class IRTransmitterComponent : public Component {
   /// Configure the RMT peripheral using the internal information.
   void configure_rmt();
 
-  rmt_channel_t channel_;
+  rmt_channel_t channel_{RMT_CHANNEL_0};
   uint8_t clock_divider_{DEFAULT_CLOCK_DIVIDER};
   uint32_t last_carrier_frequency_{DEFAULT_CARRIER_FREQUENCY_HZ};
 #endif
@@ -207,14 +207,10 @@ class IRTransmitterComponent : public Component {
   uint8_t carrier_duty_percent_;
 };
 
-#ifdef ARDUINO_ARCH_ESP32
-extern rmt_channel_t next_rmt_channel;
-#endif
-
 } // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_IR_TRANSMITTER
+//#endif //USE_IR_TRANSMITTER
 
 #endif //ESPHOMELIB_SWITCH_IR_TRANSMITTER_COMPONENT_H
