@@ -180,7 +180,6 @@ const std::string &DallasTemperatureSensor::get_address_name() {
 bool DallasTemperatureSensor::read_scratch_pad_() {
   ESPOneWire *wire = this->parent_->get_one_wire();
   if (!wire->reset()) {
-    ESP_LOGE(TAG, "Reading scratchpad failed: reset");
     return false;
   }
 
@@ -193,13 +192,14 @@ bool DallasTemperatureSensor::read_scratch_pad_() {
   return true;
 }
 void DallasTemperatureSensor::setup_sensor_() {
-
   disable_interrupts();
   bool r = this->read_scratch_pad_();
   enable_interrupts();
 
-  if (!r)
+  if (!r) {
+    ESP_LOGE(TAG, "Reading scratchpad failed: reset");
     return;
+  }
   if (!this->check_scratch_pad_())
     return;
 
