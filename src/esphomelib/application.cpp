@@ -367,6 +367,18 @@ Application::MakeUltrasonicSensor Application::make_ultrasonic_sensor(const std:
 }
 #endif
 
+#ifdef USE_WIFI_SIGNAL_SENSOR
+Application::MakeWiFiSignalSensor Application::make_wifi_signal_sensor(const std::string &name,
+                                                                       uint32_t update_interval) {
+  auto *wifi = this->register_component(new WiFiSignalSensor(name, update_interval));
+
+  return MakeWiFiSignalSensor{
+      .wifi = wifi,
+      .mqtt = this->register_sensor(wifi),
+  };
+}
+#endif
+
 #ifdef USE_ADS1115_SENSOR
 ADS1115Component *Application::make_ads1115_component(uint8_t address) {
   return this->register_component(new ADS1115Component(this->i2c_, address));

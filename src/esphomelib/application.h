@@ -60,6 +60,7 @@
 #include "esphomelib/sensor/template_sensor.h"
 #include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
+#include "esphomelib/sensor/wifi_signal_sensor.h"
 #include "esphomelib/switch_/ir_transmitter_component.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
@@ -464,6 +465,15 @@ class Application {
   MakeUltrasonicSensor make_ultrasonic_sensor(const std::string &friendly_name,
                                               const GPIOOutputPin &trigger_pin, const GPIOInputPin &echo_pin,
                                               uint32_t update_interval = 5000);
+#endif
+
+#ifdef USE_WIFI_SIGNAL_SENSOR
+  struct MakeWiFiSignalSensor {
+    sensor::WiFiSignalSensor *wifi;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeWiFiSignalSensor make_wifi_signal_sensor(const std::string &name, uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_MPU6050
