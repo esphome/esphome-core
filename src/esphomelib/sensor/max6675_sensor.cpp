@@ -89,7 +89,7 @@ void MAX6675Sensor::read_data_() {
   }
 
   float temperature = float(val >> 3) / 4.0f;
-  ESP_LOGD(TAG, "'%s': Got temperature=%.1°C", temperature);
+  ESP_LOGD(TAG, "'%s': Got temperature=%.1f°C", this->name_.c_str(), temperature);
   this->push_new_value(temperature);
 }
 
