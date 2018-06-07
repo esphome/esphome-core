@@ -40,6 +40,7 @@
   #define USE_HTU21D_SENSOR
   #define USE_HDC1080_SENSOR
   #define USE_ULTRASONIC_SENSOR
+  #define USE_WIFI_SIGNAL_SENSOR
   #define USE_OUTPUT
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_LEDC_OUTPUT
@@ -244,6 +245,11 @@
   #endif
 #endif
 #ifdef USE_ULTRASONIC_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_WIFI_SIGNAL_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif
