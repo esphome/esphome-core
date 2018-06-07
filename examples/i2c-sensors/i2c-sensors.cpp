@@ -67,9 +67,7 @@ void setup() {
   // set heater to 200°C for 100ms, default is off
   bme680.bme680->set_heater(200, 100);
 
-  auto sht3xd = App.make_sht3xd_sensor("SHT31D Temperature", "SHT31D Humidity");
-  // default accuracy is high
-  sht3xd.sht3xd->set_accuracy(sensor::SHT3XD_ACCURACY_LOW);
+  App.make_sht3xd_sensor("SHT31D Temperature", "SHT31D Humidity");
 
   App.make_dht12_sensor("DHT12 Temperature", "DHT12 Humidity");
 
