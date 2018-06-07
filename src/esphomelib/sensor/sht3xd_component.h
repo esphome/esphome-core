@@ -19,13 +19,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-/// Enum listing all possible accuracy levels for the SHT3xD.
-enum SHT3XDAccuracy {
-  SHT3XD_ACCURACY_LOW = 0,
-  SHT3XD_ACCURACY_MEDIUM,
-  SHT3XD_ACCURACY_HIGH,
-};
-
 class SHT3XDTemperatureSensor;
 class SHT3XDHumiditySensor;
 
@@ -35,9 +28,6 @@ class SHT3XDComponent : public PollingComponent, public I2CDevice {
   SHT3XDComponent(I2CComponent *parent,
                   const std::string &temperature_name, const std::string &humidity_name,
                   uint8_t address = 0x44, uint32_t update_interval = 15000);
-
-  /// Set the accuracy of the sensor, defaults to `sensor::SHT3XD_ACCURACY_HIGH`.
-  void set_accuracy(SHT3XDAccuracy accuracy);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -54,7 +44,6 @@ class SHT3XDComponent : public PollingComponent, public I2CDevice {
 
   SHT3XDTemperatureSensor *temperature_sensor_;
   SHT3XDHumiditySensor *humidity_sensor_;
-  SHT3XDAccuracy accuracy_{SHT3XD_ACCURACY_HIGH};
 };
 
 /// Helper class exposing an SHT3xD temperature sensor with a unique id.

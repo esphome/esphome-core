@@ -28,8 +28,6 @@ static const uint16_t SHT3XD_COMMAND_HEATER_ENABLE = 0x306D;
 static const uint16_t SHT3XD_COMMAND_HEATER_DISABLE = 0x3066;
 static const uint16_t SHT3XD_COMMAND_SOFT_RESET = 0x30A2;
 static const uint16_t SHT3XD_COMMAND_POLLING_H = 0x2400;
-static const uint16_t SHT3XD_COMMAND_POLLING_M = 0x240B;
-static const uint16_t SHT3XD_COMMAND_POLLING_L = 0x2416;
 static const uint16_t SHT3XD_COMMAND_FETCH_DATA = 0xE000;
 
 SHT3XDComponent::SHT3XDComponent(I2CComponent *parent,
@@ -49,16 +47,6 @@ void SHT3XDComponent::setup() {
     this->mark_failed();
     return;
   }
-  if_config {
-    const char *accuracy_s;
-    switch (this->accuracy_) {
-      case SHT3XD_ACCURACY_HIGH: accuracy_s = "HIGH"; break;
-      case SHT3XD_ACCURACY_MEDIUM: accuracy_s = "MEDIUM"; break;
-      case SHT3XD_ACCURACY_LOW: accuracy_s = "LOW"; break;
-      default: accuracy_s = "UNKNOWN"; break;
-    }
-    ESP_LOGCONFIG(TAG, "    Accuracy: %s", accuracy_s);
-  }
 
   uint16_t raw_serial_number[2];
   this->read_data(raw_serial_number, 2);
@@ -72,45 +60,51 @@ float SHT3XDComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 void SHT3XDComponent::update() {
-  uint16_t command;
-  uint32_t conversion;
-  switch (this->accuracy_) {
-    case SHT3XD_ACCURACY_HIGH:
-      command = SHT3XD_COMMAND_POLLING_H;
-      conversion = 4;
-      break;
-    case SHT3XD_ACCURACY_MEDIUM:
-      command = SHT3XD_COMMAND_POLLING_M;
-      conversion = 6;
-      break;
-    case SHT3XD_ACCURACY_LOW:
-      command = SHT3XD_COMMAND_POLLING_L;
-      conversion = 15;
-      break;
-    default: assert(false);
-  }
-
-  if (!this->write_command(command))
+  if (!this->write_command(SHT3XD_COMMAND_POLLING_H))
     return;
 
-  delay(conversion);
+  this->set_timeout(50, [this](){
+    uint16_t raw_data[2];
+    if (!this->read_data(raw_data, 2))
+      return;
 
-  uint16_t raw_data[2];
-  if (!this->read_data(raw_data, 2))
-    return;
+    float temperature = 175.0f * float(raw_data[0]) / 65535.0f - 45.0f;
+    float humidity = 100.0f * float(raw_data[1]) / 65535.0f;
 
-  float temperature = 175.0f * float(raw_data[0]) / 65535.0f - 45.0f;
-  float humidity = 100.0f * float(raw_data[1]) / 65535.0f;
-
-  ESP_LOGD(TAG, "Got temperature=%.2°C humidity=%.2%%");
-  this->temperature_sensor_->push_new_value(temperature);
-  this->humidity_sensor_->push_new_value(humidity);
+    ESP_LOGD(TAG, "Got temperature=%.2f°C humidity=%.2f%%", temperature, humidity);
+    this->temperature_sensor_->push_new_value(temperature);
+    this->humidity_sensor_->push_new_value(humidity);
+  });
 }
 
 bool SHT3XDComponent::write_command(uint16_t command) {
   // Warning ugly, trick the I2Ccomponent base by setting register to the first 8 bit.
   return this->write_byte(command >> 8, command & 0xFF);
 }
+
+uint8_t sht_crc(uint8_t data1, uint8_t data2) {
+  uint8_t bit;
+  uint8_t crc = 0xFF;
+
+  crc ^= data1;
+  for (bit = 8; bit > 0; --bit) {
+    if (crc & 0x80)
+      crc = (crc << 1) ^ 0x131;
+    else
+      crc = (crc << 1);
+  }
+
+  crc ^= data2;
+  for (bit = 8; bit > 0; --bit) {
+    if (crc & 0x80)
+      crc = (crc << 1) ^ 0x131;
+    else
+      crc = (crc << 1);
+  }
+
+  return crc;
+}
+
 bool SHT3XDComponent::read_data(uint16_t *data, uint8_t len) {
   const uint8_t num_bytes = len * 3;
   auto *buf = new uint8_t[num_bytes];
@@ -122,9 +116,9 @@ bool SHT3XDComponent::read_data(uint16_t *data, uint8_t len) {
 
   for (uint8_t i = 0; i < len; i++) {
     const uint8_t j = 3 * i;
-    uint8_t crc = crc8(buf + j, 2);
+    uint8_t crc = sht_crc(buf[j], buf[j + 1]);
     if (crc != buf[j + 2]) {
-      ESP_LOGE(TAG, "CRC8 Checksum invalid!");
+      ESP_LOGE(TAG, "CRC8 Checksum invalid! 0x%02X != 0x%02X", buf[j + 2], crc);
       delete[](buf);
       return false;
     }
@@ -133,9 +127,6 @@ bool SHT3XDComponent::read_data(uint16_t *data, uint8_t len) {
 
   delete[](buf);
   return true;
-}
-void SHT3XDComponent::set_accuracy(SHT3XDAccuracy accuracy) {
-  this->accuracy_ = accuracy;
 }
 SHT3XDTemperatureSensor *SHT3XDComponent::get_temperature_sensor() const {
   return this->temperature_sensor_;
