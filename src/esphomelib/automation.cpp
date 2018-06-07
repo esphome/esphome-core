@@ -24,7 +24,11 @@ void StartupTrigger::setup() {
 }
 float StartupTrigger::get_setup_priority() const {
   // Run after everything is set up
-  return setup_priority::LATE;
+  return this->setup_priority_;
+}
+StartupTrigger::StartupTrigger(float setup_priority)
+    : setup_priority_(setup_priority) {
+
 }
 
 ShutdownTrigger::ShutdownTrigger() {
@@ -33,9 +37,8 @@ ShutdownTrigger::ShutdownTrigger() {
   });
 }
 
-RangeCondition::RangeCondition() {
+RangeCondition::RangeCondition() = default;
 
-}
 bool RangeCondition::check(float x) {
   float min = this->min_.value(x);
   float max = this->max_.value(x);

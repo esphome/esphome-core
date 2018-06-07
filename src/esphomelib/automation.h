@@ -86,8 +86,12 @@ class Trigger<NoArg> {
 
 class StartupTrigger : public Trigger<NoArg>, public Component {
  public:
+  explicit StartupTrigger(float setup_priority = setup_priority::LATE);
   void setup() override;
   float get_setup_priority() const override;
+
+ protected:
+  float setup_priority_;
 };
 
 class ShutdownTrigger : public Trigger<const char *> {
