@@ -19,9 +19,9 @@ void Cover::add_on_publish_state_callback(std::function<void(CoverState)> &&f) {
   this->state_callback_.add(std::move(f));
 }
 void Cover::publish_state(CoverState state) {
-  if (this->last_state_ == state)
+  if (this->state == state)
     return;
-  this->last_state_ = state;
+  this->state = state;
   this->state_callback_.call(state);
 }
 bool Cover::optimistic() {

@@ -61,9 +61,9 @@ class Cover : public Nameable {
    */
   virtual bool optimistic();
 
- protected:
+  CoverState state{COVER_MAX};
 
-  CoverState last_state_{COVER_MAX};
+ protected:
   CallbackManager<void(CoverState)> state_callback_{};
 };
 
