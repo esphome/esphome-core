@@ -218,7 +218,7 @@ void MQTTClientComponent::set_discovery_info(std::string &&prefix, bool retain) 
 }
 
 void MQTTClientComponent::disable_last_will() {
-  this->birth_message_.topic = "";
+  this->last_will_.topic = "";
 }
 
 void MQTTClientComponent::disable_discovery() {
