@@ -114,6 +114,7 @@ float ExponentialMovingAverage::next_value(float value) {
   } else {
     this->accumulator_ = (this->alpha_ * value) + (1.0f - this->alpha_) * this->accumulator_;
   }
+  this->first_value_ = false;
   return this->calculate_average();
 }
 
