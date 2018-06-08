@@ -34,10 +34,7 @@ namespace output {
  */
 class ESP8266PWMOutput : public FloatOutput, public Component {
  public:
-  /** Construct the Software PWM output.
-   *
-   * @param pin The pin to be used (inversion of the pin will be ignored, use the direct set_inverted()) method instead.
-   */
+  /// Construct the Software PWM output.
   explicit ESP8266PWMOutput(const GPIOOutputPin &pin);
 
   /// Get the output pin used by this component.
