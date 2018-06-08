@@ -285,6 +285,7 @@ mqtt:
 * Fans
 * Dallas DS18b20 temperature sensors
 * DHT11/DHT22 temperature/humidity sensors (with "DHT" library)
+* DHT12 over the I²C bus
 * Lights
     - Binary/Brightness-only/RGB/RGBW
     - Transitions/Flashes
@@ -294,9 +295,12 @@ mqtt:
 * ESP8266 Software PWM
 * PCA9685 PWM output (with "PCA9685" library)
 * Power supply Mode - Automatically switch a power supply on/off when it's needed.
-* ADS1115 i2c ADC sensor (experimental)
-* BMP085/BMP180/BMP280 temperature+pressure i2c sensor
-* HTU21D temperature+humidity i2c sensor (experimental)
+* ADS1115 I²C ADC sensor (experimental)
+* BMP085 temperature and pressure I²C sensor
+* BMP180/BME280 temperature, pressure and humidity I²C sensor
+* BME680 temperature, pressure, humidity and gas I²C sensor
+* HTU21D, HDC1080 and HDC1080 temperature and humidity I²C sensor
+* BH1750 brightness I²C sensor 
 
 ## Planned features
 
