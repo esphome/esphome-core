@@ -84,7 +84,7 @@ void DebugComponent::setup() {
   ESP_LOGD(TAG, "ESP-IDF Version: %s", esp_get_idf_version());
 
   std::string mac = uint64_to_string(ESP.getEfuseMac());
-  ESP_LOGD(TAG, "EFuse MAC: 0x%08X%08X", mac.c_str());
+  ESP_LOGD(TAG, "EFuse MAC: %s", mac.c_str());
 
   const char *reset_reason;
   switch (rtc_get_reset_reason(0)) {

@@ -60,7 +60,7 @@ void HDC1080Component::update() {
   float humidity = raw_humidity * 0.001525879f; // raw * 2^-16 * 100
   this->humidity_->push_new_value(humidity);
 
-  ESP_LOGD(TAG, "Got temperature=%.1°C humidity=%.1f%%", temp, humidity);
+  ESP_LOGD(TAG, "Got temperature=%.1f°C humidity=%.1f%%", temp, humidity);
 }
 HDC1080TemperatureSensor *HDC1080Component::get_temperature_sensor() const {
   return this->temperature_;

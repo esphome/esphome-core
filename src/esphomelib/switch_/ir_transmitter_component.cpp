@@ -200,7 +200,7 @@ void IRTransmitterComponent::configure_rmt() {
   c.tx_config.carrier_freq_hz = this->last_carrier_frequency_;
   ESP_LOGCONFIG(TAG, "    Carrier Frequency: %u", this->last_carrier_frequency_);
   c.tx_config.carrier_duty_percent = this->carrier_duty_percent_;
-  ESP_LOGCONFIG(TAG, "    Carrier Duty: %u%", this->carrier_duty_percent_);
+  ESP_LOGCONFIG(TAG, "    Carrier Duty: %u%%", this->carrier_duty_percent_);
   c.tx_config.carrier_en = true;
   c.tx_config.idle_output_en = true;
   if (!this->pin_->is_inverted()) {
