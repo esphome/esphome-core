@@ -80,7 +80,7 @@ class SlidingWindowMovingAverageFilter : public Filter {
   uint32_t expected_interval(uint32_t input) override;
 
  protected:
-  SlidingWindowMovingAverage<float> value_average_;
+  SlidingWindowMovingAverage value_average_;
   size_t send_every_;
   size_t send_at_;
 };

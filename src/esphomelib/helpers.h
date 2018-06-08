@@ -143,7 +143,6 @@ uint8_t crc8(uint8_t *data, uint8_t len);
 optional<bool> parse_on_off(const char *str, const char *payload_on = "on", const char *payload_off = "off");
 
 /// Helper class that implements a sliding window moving average.
-template<typename T>
 class SlidingWindowMovingAverage {
  public:
   /** Create the SlidingWindowMovingAverage.
@@ -157,18 +156,18 @@ class SlidingWindowMovingAverage {
    * @param value The value.
    * @return The new average.
    */
-  T next_value(T value);
+  float next_value(float value);
 
   /// Return the average across the sliding window.
-  T calculate_average();
+  float calculate_average();
 
   size_t get_max_size() const;
   void set_max_size(size_t max_size);
 
  protected:
-  std::queue<T> queue_;
+  std::queue<float> queue_;
   size_t max_size_;
-  T sum_;
+  float sum_;
 };
 
 /// Helper class that implements an exponential moving average.
@@ -184,6 +183,7 @@ class ExponentialMovingAverage {
   float get_alpha() const;
 
  protected:
+  bool first_value_{true};
   float alpha_;
   float accumulator_;
 };
@@ -270,45 +270,6 @@ T lerp(T start, T end, T completion) {
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique(Args &&...args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-template<typename T>
-SlidingWindowMovingAverage<T>::SlidingWindowMovingAverage(size_t max_size) : max_size_(max_size), sum_(0) {
-
-}
-
-template<typename T>
-T SlidingWindowMovingAverage<T>::next_value(T value) {
-  if (this->queue_.size() == this->max_size_) {
-    this->sum_ -= this->queue_.front();
-    this->queue_.pop();
-  }
-  this->queue_.push(value);
-  this->sum_ += value;
-
-  return this->calculate_average();
-}
-template<typename T>
-T SlidingWindowMovingAverage<T>::calculate_average() {
-  if (this->queue_.size() == 0)
-    return 0;
-  else
-    return this->sum_ / this->queue_.size();
-}
-
-template<typename T>
-size_t SlidingWindowMovingAverage<T>::get_max_size() const {
-  return this->max_size_;
-}
-
-template<typename T>
-void SlidingWindowMovingAverage<T>::set_max_size(size_t max_size) {
-  this->max_size_ = max_size;
-
-  while (this->queue_.size() > max_size) {
-    this->sum_ -= this->queue_.front();
-    this->queue_.pop();
-  }
 }
 
 template<typename... Ts>

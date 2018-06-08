@@ -11,9 +11,9 @@
   #include <Esp.h>
 #endif
 
+#include "esphomelib/espmath.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
-#include "esphomelib/espmath.h"
 #include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -105,8 +105,53 @@ float ExponentialMovingAverage::calculate_average() {
 }
 
 float ExponentialMovingAverage::next_value(float value) {
-  this->accumulator_ = (this->alpha_ * value) + (1.0f - this->alpha_) * this->accumulator_;
+  if (std::isnan(value)) {
+    return this->calculate_average();
+  }
+
+  if (this->first_value_) {
+    this->accumulator_ = value;
+  } else {
+    this->accumulator_ = (this->alpha_ * value) + (1.0f - this->alpha_) * this->accumulator_;
+  }
   return this->calculate_average();
+}
+
+SlidingWindowMovingAverage::SlidingWindowMovingAverage(size_t max_size) : max_size_(max_size), sum_(0) {
+
+}
+
+float SlidingWindowMovingAverage::next_value(float value) {
+  if (std::isnan(value))
+    return this->calculate_average();
+  if (this->queue_.size() == this->max_size_) {
+    this->sum_ -= this->queue_.front();
+    this->queue_.pop();
+  }
+  this->queue_.push(value);
+  this->sum_ += value;
+
+  return this->calculate_average();
+}
+
+float SlidingWindowMovingAverage::calculate_average() {
+  if (this->queue_.size() == 0)
+    return 0;
+  else
+    return this->sum_ / this->queue_.size();
+}
+
+size_t SlidingWindowMovingAverage::get_max_size() const {
+  return this->max_size_;
+}
+
+void SlidingWindowMovingAverage::set_max_size(size_t max_size) {
+  this->max_size_ = max_size;
+
+  while (this->queue_.size() > max_size) {
+    this->sum_ -= this->queue_.front();
+    this->queue_.pop();
+  }
 }
 
 std::string value_accuracy_to_string(float value, int8_t accuracy_decimals) {
