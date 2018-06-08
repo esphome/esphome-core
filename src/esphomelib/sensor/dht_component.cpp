@@ -33,6 +33,9 @@ DHTComponent::DHTComponent(const std::string &temperature_name, const std::strin
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
 
+  this->pin_->setup();
+  this->pin_->digital_write(true);
+
   if (this->model_ == DHT_MODEL_AUTO_DETECT) {
     this->model_ = DHT_MODEL_DHT22;
     float temp1, temp2;
@@ -88,7 +91,7 @@ uint8_t DHTComponent::read_sensor_(float *temperature, float *humidity) {
   else
     delayMicroseconds(800);
 
-  this->pin_->pin_mode(INPUT);
+  this->pin_->pin_mode(INPUT_PULLUP);
   this->pin_->digital_write(true);
 
   uint16_t raw_humidity = 0;
