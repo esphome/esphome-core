@@ -41,6 +41,9 @@ using namespace esphomelib::cover;
 #ifdef USE_REMOTE
 using namespace esphomelib::remote;
 #endif
+#ifdef USE_TIME
+using namespace esphomelib::time;
+#endif
 
 static const char *TAG = "application";
 
@@ -857,6 +860,21 @@ ESP32BLEBeacon *Application::make_esp32_ble_beacon(const std::array<uint8_t, 16>
 #ifdef USE_STATUS_LED
 StatusLEDComponent *Application::make_status_led(const GPIOOutputPin &pin) {
   return App.register_component(new StatusLEDComponent(pin.copy()));
+}
+#endif
+
+#ifdef USE_RTC_COMPONENT
+RTCComponent *Application::make_rtc_component(const std::string &tz) {
+  return this->register_component(new RTCComponent(tz));
+}
+#endif
+
+#ifdef USE_SNTP_COMPONENT
+SNTPComponent *Application::make_sntp_component(const std::string &server_1,
+		                                const std::string &server_2,
+						const std::string &server_3,
+						const std::string &tz) {
+  return this->register_component(new SNTPComponent(server_1, server_2, server_3, tz));
 }
 #endif
 
