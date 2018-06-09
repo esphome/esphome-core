@@ -32,6 +32,11 @@ DHTComponent::DHTComponent(const std::string &temperature_name, const std::strin
 
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
+}
+
+void DHTComponent::update() {
+  float temperature, humidity;
+  uint8_t error = this->read_sensor_safe_(&temperature, &humidity);
 
   this->pin_->setup();
   this->pin_->digital_write(true);
@@ -39,16 +44,15 @@ void DHTComponent::setup() {
   if (this->model_ == DHT_MODEL_AUTO_DETECT) {
     this->model_ = DHT_MODEL_DHT22;
     float temp1, temp2;
-    if (this->read_sensor_safe_(&temp1, &temp2) == DHT_ERROR_TIMEOUT)
+    if (this->read_sensor_safe_(&temp1, &temp2) == DHT_ERROR_TIMEOUT) {
       this->model_ = DHT_MODEL_DHT11;
+      ESP_LOGCONFIG(TAG, "Auto-detected model DHT11. Override with the 'model:' configuration option");
+    } else {
+      ESP_LOGCONFIG(TAG, "Auto-detected model DHT22. Override with the 'model:' configuration option");
+    }
+
+    return;
   }
-
-  ESP_LOGCONFIG(TAG, "    Model: %u", this->model_);
-}
-
-void DHTComponent::update() {
-  float temperature, humidity;
-  uint8_t error = this->read_sensor_safe_(&temperature, &humidity);
 
   if (!isnan(temperature) && !isnan(humidity)) {
     ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
