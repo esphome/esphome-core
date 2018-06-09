@@ -66,9 +66,6 @@ void I2CComponent::loop() {
 float I2CComponent::get_setup_priority() const {
   return setup_priority::HARDWARE + 10.0f;
 }
-void I2CComponent::set_receive_timeout(uint32_t receive_timeout) {
-  this->receive_timeout_ = receive_timeout;
-}
 
 
 
@@ -99,9 +96,14 @@ bool I2CComponent::end_transmission_(uint8_t address) {
 
   return status == 0;
 }
-void I2CComponent::request_from_(uint8_t address, uint8_t len) {
+bool I2CComponent::request_from_(uint8_t address, uint8_t len) {
   ESP_LOGVV(TAG, "Requesting %u bytes from 0x%02X:", len, address);
-  this->wire_->requestFrom(address, len);
+  uint8_t ret = this->wire_->requestFrom(address, len);
+  if (ret != len) {
+    ESP_LOGW(TAG, "Requesting %u bytes from 0x%02X failed!", len, address);
+    return false;
+  }
+  return true;
 }
 void I2CComponent::write_(uint8_t address, const uint8_t *data, uint8_t len) {
   for (size_t i = 0; i < len; i++) {
@@ -118,39 +120,26 @@ void I2CComponent::write_16_(uint8_t address, const uint16_t *data, uint8_t len)
     this->wire_->write(data[i]);
   }
 }
-bool I2CComponent::read_(uint8_t address, uint8_t *data) {
-  uint32_t start = millis();
-  while (this->wire_->available() == 0) {
-    if (millis() - start > this->receive_timeout_) {
-      ESP_LOGE(TAG, "Receive timeout for address 0x%02X", address);
-      return false;
-    }
-    yield();
-  }
-
-  *data = this->wire_->read();
-  ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
-            BYTE_TO_BINARY(*data), *data);
-  return true;
-}
-
 
 bool I2CComponent::receive_(uint8_t address, uint8_t *data, uint8_t len) {
-  this->request_from_(address, len);
+  if (!this->request_from_(address, len))
+    return false;
   for (uint8_t i = 0; i < len; i++) {
-    if (!this->read_(address, data + i))
-      return false;
+    data[i] = this->wire_->read();
+    ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
+              BYTE_TO_BINARY(data[i]), data[i]);
   }
   return true;
 }
 bool I2CComponent::receive_16_(uint8_t address, uint16_t *data, uint8_t len) {
-  this->request_from_(address, len * 2);
+  if (!this->request_from_(address, len * 2))
+    return false;
   auto *data_8 = reinterpret_cast<uint8_t *>(data);
   for (uint8_t i = 0; i < len; i++) {
-    if (!this->read_(address, data_8 + i * 2 + 1))
-      return false;
-    if (!this->read_(address, data_8 + i * 2))
-      return false;
+    data_8[i * 2 + 1] = this->wire_->read();
+    data_8[i + 2] = this->wire_->read();
+    ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN " (0x%04X)",
+              BYTE_TO_BINARY(data[i * 2 + 1]), BYTE_TO_BINARY(data[i * 2]), data[i]);
   }
   return true;
 }

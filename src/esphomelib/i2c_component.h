@@ -23,7 +23,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
  * It handles setting up the bus (with pins, clock frequency) and provides nice helper functions to
  * make reading from the i2c bus easier (see read_bytes, write_bytes) and safe (with read timeouts).
  *
- * For the user, it has a few setters (see set_sda_pin, set_scl_pin, set_frequency, set_receive_timeout)
+ * For the user, it has a few setters (see set_sda_pin, set_scl_pin, set_frequency)
  * to setup some parameters for the bus. Additionally, the i2c component has a scan feature that will
  * scan the entire 7-bit i2c address range for devices that respond to transmissions to make finding
  * the address of an i2c device easier.
@@ -44,8 +44,6 @@ class I2CComponent : public Component {
   void set_frequency(uint32_t frequency);
   /// Set if a scan of the entire i2c address range should be done on startup.
   void set_scan(bool scan);
-  /// Set the timeout in ms for receiveing data, defaults to 100ms.
-  void set_receive_timeout(uint32_t receive_timeout);
 
   /** Read len amount of bytes from a register into data. Optionally with a conversion time after
    * writing the register value to the bus.
@@ -110,14 +108,13 @@ class I2CComponent : public Component {
   /// End a write transmission to an address, return true if successful.
   bool end_transmission_(uint8_t address);
 
-  /// Request data from an address with a number of (8-bit) bytes.
-  void request_from_(uint8_t address, uint8_t len);
-
-  /** Read a single byte from the bus into data. Return true if no timeout happened.
+  /** Request data from an address with a number of (8-bit) bytes.
    *
-   * Note: request_from_ must be called before this.
+   * @param address The address to request the bytes from.
+   * @param len The number of bytes to receive, must not be 0.
+   * @return True if all requested bytes were read, false otherwise.
    */
-  bool read_(uint8_t address, uint8_t *data);
+  bool request_from_(uint8_t address, uint8_t len);
 
   /// Write len amount of bytes from data to address. begin_transmission_ must be called before this.
   void write_(uint8_t address, const uint8_t *data, uint8_t len);
@@ -143,7 +140,6 @@ class I2CComponent : public Component {
   uint8_t sda_pin_;
   uint8_t scl_pin_;
   bool scan_;
-  uint32_t receive_timeout_{100};
   uint32_t frequency_{1000};
 };
 
