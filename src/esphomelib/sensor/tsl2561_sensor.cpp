@@ -122,7 +122,7 @@ float TSL2561Sensor::calculate_lx_(uint16_t ch0, uint16_t ch1) {
 }
 void TSL2561Sensor::read_data_() {
   uint16_t data1, data0;
-  if (!this->read_byte_16(TSL2561_WORD_BIT | TSL2561_REGISTER_DATA_1, &data1))
+  if (!this->tsl2561_read_uint(TSL2561_WORD_BIT | TSL2561_REGISTER_DATA_1, &data1))
     return;
   if (!this->tsl2561_read_uint(TSL2561_WORD_BIT | TSL2561_REGISTER_DATA_0, &data0))
     return;
