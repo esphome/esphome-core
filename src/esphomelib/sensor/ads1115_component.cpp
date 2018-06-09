@@ -29,10 +29,9 @@ void ADS1115Component::setup() {
     this->mark_failed();
     return;
   }
-  // copied from initialize()
-  uint16_t config;
-  this->read_byte_16(ADS1115_REGISTER_CONFIG, &config);
+  uint16_t config = 0;
   // Clear single-shot bit
+  //        0b0xxxxxxxxxxxxxxx
   config |= 0b0000000000000000;
   // Setup multiplexer
   //        0bx000xxxxxxxxxxxx
@@ -84,11 +83,18 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   uint16_t config;
   if (!this->read_byte_16(ADS1115_REGISTER_CONFIG, &config))
     return;
-  config &= 0b0111000000111111;
+  // Multiplexer
+  //        0bxBBBxxxxxxxxxxxx
+  config &= 0b1000111111111111;
   config |= (sensor->get_multiplexer() & 0b111) << 12;
+
+  // Gain
+  //        0bxxxxBBBxxxxxxxxx
+  config &= 0b1111000111111111;
   config |= (sensor->get_gain() & 0b111) << 9;
   // Start conversion
   config |= 0b1000000000000000;
+
   if (!this->write_byte_16(ADS1115_REGISTER_CONFIG, config))
     return;
 
