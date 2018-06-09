@@ -37,7 +37,9 @@ void MQTTSwitchComponent::setup() {
       this->turn_off();
   });
   this->switch_->add_on_state_callback([this](bool enabled){
-    this->publish_state(enabled);
+    this->defer([this, enabled]() {
+      this->publish_state(enabled);
+    });
   });
 
   this->publish_state(this->switch_->value);
