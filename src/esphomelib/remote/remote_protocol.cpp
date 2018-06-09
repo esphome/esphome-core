@@ -11,12 +11,12 @@
 #include "esphomelib/espmath.h"
 #include "esphomelib/helpers.h"
 
+#ifdef USE_REMOTE
+
 #ifdef ARDUINO_ARCH_ESP32
   #include <driver/rmt.h>
   #include <soc/rmt_struct.h>
 #endif
-
-#ifdef USE_REMOTE
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -248,15 +248,55 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
   return data;
 }
 #endif
+
 #ifdef ARDUINO_ARCH_ESP8266
 
-void gpio_intr() {
+inline size_t decrement(size_t i, size_t size) {
+  // unsigned integer underflow is defined behavior
+  if (i - 1 > size) return size - 1;
+  else return i - 1;
+}
 
+inline size_t increment(size_t i, size_t size) {
+  if (i + 1 >= size) return 0;
+  else return i + 1;
+}
+
+void RemoteReceiverComponent::gpio_intr() {
+  const uint32_t now = micros();
+  RemoteReceiverComponent *receiver = RemoteReceiverComponent::receiver_;
+  uint32_t &write_at = RemoteReceiverComponent::buffer_write_at_;
+  const uint32_t last_change = receiver->buffer_[decrement(write_at, receiver->buffer_size_)];
+  if (now - last_change <= receiver->filter_us_) {
+    return;
+  }
+  receiver->buffer_[write_at++] = now;
 }
 
 void RemoteReceiverComponent::setup() {
+  RemoteReceiverComponent::receiver_ = this;
   this->pin_->setup();
+  if (this->buffer_size_ % 2 != 0) {
+    // Make sure divisible by two. This way, we know that every 0bxxx0 index is a space and every 0bxxx1 index is a mark
+    this->buffer_size_++;
+  }
+  this->buffer_ = new uint32_t[this->buffer_size_];
+  this->buffer_[0] = 0;
+  this->buffer_[1] = 0;
+  this->buffer_write_at_ = 2;
+  this->buffer_read_at_ = 2;
+  if (this->pin_->digital_read()) {
+    // Already high, increment buffer index
+    RemoteReceiverComponent::buffer_write_at_++;
+  }
   attachInterrupt(this->pin_->get_pin(), gpio_intr, CHANGE);
+}
+
+void RemoteReceiverComponent::loop() {
+  const uint32_t now = micros();
+  if (this->buffer_write_at_ != this->buffer_read_at_ && now - this->buffer_[this->buffer_write_at_] > this->idle_us_) {
+    
+  }
 }
 
 #endif
@@ -404,7 +444,6 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
 #endif //ARDUINO_ARCH_ESP32
 
 #ifdef ARDUINO_ARCH_ESP8266
-
 void RemoteTransmitterComponent::setup() {
   this->pin_->setup();
 }

@@ -53,6 +53,7 @@
   #define USE_LIGHT
   #define USE_SWITCH
   #define USE_SIMPLE_SWITCH
+  #define USE_REMOTE
   #define USE_REMOTE_RECEIVER
   #define USE_REMOTE_TRANSMITTER
   #define USE_GPIO_SWITCH
@@ -274,11 +275,6 @@
 #ifdef USE_ROTARY_ENCODER_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_IR_TRANSMITTER
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
   #endif
 #endif
 #ifdef USE_GPIO_SWITCH

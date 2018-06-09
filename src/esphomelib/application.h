@@ -61,7 +61,6 @@
 #include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/wifi_signal_sensor.h"
-#include "esphomelib/switch_/ir_transmitter_component.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
@@ -820,17 +819,6 @@ class Application {
 #ifdef USE_SWITCH
   /// Register a Switch internally, creating a MQTT Switch if the MQTT client is set up
   switch_::MQTTSwitchComponent *register_switch(switch_::Switch *switch_);
-#endif
-
-#ifdef USE_IR_TRANSMITTER
-  /** Create an IR transmitter.
-   *
-   * @param pin The pin the IR led is connected to.
-   * @param carrier_duty_percent The duty cycle of the IR output. Decrease this if your LED gets hot.
-   * @return The IRTransmitterComponent. Use this for advanced settings.
-   */
-  switch_::IRTransmitterComponent *make_ir_transmitter(const GPIOOutputPin &pin,
-                                                       uint8_t carrier_duty_percent = 50);
 #endif
 
 #ifdef USE_GPIO_SWITCH

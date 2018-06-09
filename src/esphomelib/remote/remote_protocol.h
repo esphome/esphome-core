@@ -16,7 +16,6 @@
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/defines.h"
-#include "../../../../../../.platformio/packages/framework-arduinoespressif32@1.4.0/tools/sdk/include/freertos/freertos/ringbuf.h"
 
 #ifdef USE_REMOTE
 
@@ -201,6 +200,14 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
 
 #ifdef ARDUINO_ARCH_ESP32
   RingbufHandle_t ringbuf_;
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  uint32_t *buffer_{nullptr};
+
+  static RemoteReceiverComponent *receiver_;
+  static size_t buffer_write_at_{0};
+  size_t buffer_read_at_{0};
+  static void gpio_intr();
 #endif
 
   uint32_t buffer_size_{10000};
