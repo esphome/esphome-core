@@ -38,6 +38,7 @@
 #include "esphomelib/output/gpio_binary_output_component.h"
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
+#include "esphomelib/remote/remote_protocol.h"
 #include "esphomelib/sensor/adc_sensor_component.h"
 #include "esphomelib/sensor/ads1115_component.h"
 #include "esphomelib/sensor/bh1750_sensor.h"
@@ -268,6 +269,9 @@ class Application {
   MakeTemplateBinarySensor make_template_binary_sensor(const std::string &name, std::function<optional<bool>()> &&f);
 #endif
 
+#ifdef USE_REMOTE_RECEIVER
+  remote::RemoteReceiverComponent *make_remote_receiver_component(const GPIOInputPin &output);
+#endif
 
 
 
@@ -393,7 +397,7 @@ class Application {
    */
   MakeBMP085Sensor make_bmp085_sensor(const std::string &temperature_friendly_name,
                                       const std::string &pressure_friendly_name,
-                                      uint32_t update_interval = 30000);
+                                      uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_HTU21D_SENSOR
@@ -874,6 +878,10 @@ class Application {
   };
 
   MakeTemplateSwitch make_template_switch(const std::string &name);
+#endif
+
+#ifdef USE_REMOTE_TRANSMITTER
+  remote::RemoteTransmitterComponent *make_remote_transmitter_component(const GPIOOutputPin &output);
 #endif
 
 

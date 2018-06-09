@@ -194,6 +194,11 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   void add_decoder(RemoteReceiveDecoder *decoder);
   void add_dumper(RemoteReceiveDumper *dumper);
 
+  void set_buffer_size(uint32_t buffer_size);
+  void set_tolerance(uint8_t tolerance);
+  void set_filter_us(uint8_t filter_us);
+  void set_idle_us(uint32_t idle_us);
+
  protected:
   friend RemoteReceiveData;
 
@@ -206,12 +211,19 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   RingbufHandle_t ringbuf_;
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
+  volatile uint32_t remote_buffer_write_at_;
   volatile uint32_t *buffer_{nullptr};
   uint32_t buffer_read_at_{0};
-  static void gpio_intr();
+  void gpio_intr();
 #endif
 
+#ifdef ARDUINO_ARCH_ESP32
+  uint32_t buffer_size_{10000};
+#endif
+  // On ESP8266, we can
+#ifdef ARDUINO_ARCH_ESP8266
   uint32_t buffer_size_{1000};
+#endif
   uint8_t tolerance_{25};
   std::vector<RemoteReceiveDecoder *> decoders_{};
   std::vector<RemoteReceiveDumper *> dumpers_{};
@@ -219,16 +231,18 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   uint32_t idle_us_{10000};
 };
 
-#ifdef ARDUINO_ARCH_ESP8266
-extern RemoteReceiverComponent *global_remote_receiver;
-extern volatile uint32_t remote_buffer_write_at_;
-#endif
-
 #endif //USE_REMOTE_RECEIVER
 
 } // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
+
+// Include protocols
+#include "esphomelib/remote/lg.h"
+#include "esphomelib/remote/nec.h"
+#include "esphomelib/remote/panasonic.h"
+#include "esphomelib/remote/raw.h"
+#include "esphomelib/remote/sony.h"
 
 #endif //USE_REMOTE
 

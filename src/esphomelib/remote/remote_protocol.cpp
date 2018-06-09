@@ -17,6 +17,9 @@
   #include <driver/rmt.h>
   #include <soc/rmt_struct.h>
 #endif
+#ifdef ARDUINO_ARCH_ESP8266
+  #include "FunctionalInterrupt.h"
+#endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -250,9 +253,6 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
 #endif
 
 #ifdef ARDUINO_ARCH_ESP8266
-RemoteReceiverComponent *global_remote_receiver = nullptr;
-volatile uint32_t remote_buffer_write_at_ = 0;
-
 inline uint32_t decrement(uint32_t i, uint32_t size) {
   // unsigned integer underflow is defined behavior
   if (i - 1 > size) return size - 1;
@@ -266,21 +266,19 @@ inline uint32_t increment(uint32_t i, uint32_t size) {
 
 void RemoteReceiverComponent::gpio_intr() {
   const uint32_t now = micros();
-  RemoteReceiverComponent *receiver = global_remote_receiver;
   // protect from disabled interrupts making our math invalid
-  if (int(receiver->pin_->digital_read()) != remote_buffer_write_at_ % 2) {
+  if (int(this->pin_->digital_read()) != remote_buffer_write_at_ % 2) {
     return;
   }
-  const uint32_t last_change = receiver->buffer_[decrement(remote_buffer_write_at_, receiver->buffer_size_)];
-  if (now - last_change <= receiver->filter_us_) {
+  const uint32_t last_change = this->buffer_[decrement(remote_buffer_write_at_, this->buffer_size_)];
+  if (now - last_change <= this->filter_us_) {
     return;
   }
-  receiver->buffer_[remote_buffer_write_at_++] = now;
+  this->buffer_[remote_buffer_write_at_++] = now;
 }
 
 void RemoteReceiverComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Remote Receiver...");
-  global_remote_receiver = this;
   this->pin_->setup();
   if (this->buffer_size_ % 2 != 0) {
     // Make sure divisible by two. This way, we know that every 0bxxx0 index is a space and every 0bxxx1 index is a mark
@@ -296,7 +294,8 @@ void RemoteReceiverComponent::setup() {
     // Already high, increment buffer index
     remote_buffer_write_at_++;
   }
-  attachInterrupt(this->pin_->get_pin(), gpio_intr, CHANGE);
+  auto intr = std::bind(&RemoteReceiverComponent::gpio_intr, this);
+  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
 }
 
 void RemoteReceiverComponent::loop() {
@@ -346,6 +345,18 @@ void RemoteReceiverComponent::add_decoder(RemoteReceiveDecoder *decoder) {
 }
 void RemoteReceiverComponent::add_dumper(RemoteReceiveDumper *dumper) {
   this->dumpers_.push_back(dumper);
+}
+void RemoteReceiverComponent::set_buffer_size(uint32_t buffer_size) {
+  this->buffer_size_ = buffer_size;
+}
+void RemoteReceiverComponent::set_tolerance(uint8_t tolerance) {
+  this->tolerance_ = tolerance;
+}
+void RemoteReceiverComponent::set_filter_us(uint8_t filter_us) {
+  this->filter_us_ = filter_us;
+}
+void RemoteReceiverComponent::set_idle_us(uint32_t idle_us) {
+  this->idle_us_ = idle_us;
 }
 
 RemoteReceiveDecoder::RemoteReceiveDecoder(const std::string &name)

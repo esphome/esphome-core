@@ -38,6 +38,9 @@ using namespace esphomelib::io;
 #ifdef USE_COVER
 using namespace esphomelib::cover;
 #endif
+#ifdef USE_REMOTE
+using namespace esphomelib::remote;
+#endif
 
 static const char *TAG = "application";
 
@@ -790,6 +793,18 @@ Application::MakeTemplateCover Application::make_template_cover(const std::strin
       .template_ = template_,
       .mqtt = this->register_cover(template_),
   };
+}
+#endif
+
+#ifdef USE_REMOTE_TRANSMITTER
+remote::RemoteTransmitterComponent *Application::make_remote_transmitter_component(const GPIOOutputPin &output) {
+  return new remote::RemoteTransmitterComponent(output.copy());
+}
+#endif
+
+#ifdef USE_REMOTE_RECEIVER
+remote::RemoteReceiverComponent *Application::make_remote_receiver_component(const GPIOInputPin &output) {
+  return new remote::RemoteReceiverComponent(output.copy());
 }
 #endif
 
