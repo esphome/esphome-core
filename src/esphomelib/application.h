@@ -48,6 +48,7 @@
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/sensor/dht12_component.h"
+#include "esphomelib/sensor/duty_cycle_sensor.h"
 #include "esphomelib/sensor/esp32_hall_sensor.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hdc1080_component.h"
@@ -340,7 +341,7 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   MakePulseCounterSensor make_pulse_counter_sensor(const std::string &friendly_name,
-                                                   uint8_t pin,
+                                                   const GPIOInputPin &pin,
                                                    uint32_t update_interval = 15000);
 #endif
 
@@ -664,6 +665,16 @@ class Application {
   };
 
   MakeESP32HallSensor make_esp32_hall_sensor(const std::string &name, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_DUTY_CYCLE_SENSOR
+  struct MakeDutyCycleSensor {
+    sensor::DutyCycleSensor *duty;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeDutyCycleSensor make_duty_cycle_sensor(const std::string &name, const GPIOInputPin &pin,
+                                             uint32_t update_interval = 15000);
 #endif
 
 

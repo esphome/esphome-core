@@ -59,13 +59,15 @@ void DutyCycleSensor::update() {
   const float total_time = this->get_update_interval() * 1000.0f;
 
   const float value = (on_time / total_time) * 100.0f;
+  ESP_LOGD(TAG, "'%s' Got duty cycle=%.1f%%", this->get_name().c_str(), value);
+  this->push_new_value(value);
 
   this->on_time_ = 0;
   this->last_interrupt_ = now;
 }
 
 std::string DutyCycleSensor::unit_of_measurement() {
-  return Sensor::unit_of_measurement();
+  return "%";
 }
 std::string DutyCycleSensor::icon() {
   return "mdi:percent";

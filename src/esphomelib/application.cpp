@@ -344,9 +344,9 @@ output::GPIOBinaryOutputComponent *Application::make_gpio_output(const GPIOOutpu
 
 #ifdef USE_PULSE_COUNTER_SENSOR
 Application::MakePulseCounterSensor Application::make_pulse_counter_sensor(const std::string &friendly_name,
-                                                                           uint8_t pin,
+                                                                           const GPIOInputPin &pin,
                                                                            uint32_t update_interval) {
-  auto *pcnt = this->register_component(new PulseCounterSensorComponent(friendly_name, pin, update_interval));
+  auto *pcnt = this->register_component(new PulseCounterSensorComponent(friendly_name, pin.copy(), update_interval));
   auto *mqtt = this->register_sensor(pcnt);
   return MakePulseCounterSensor{
       .pcnt = pcnt,
@@ -805,6 +805,19 @@ remote::RemoteTransmitterComponent *Application::make_remote_transmitter_compone
 #ifdef USE_REMOTE_RECEIVER
 remote::RemoteReceiverComponent *Application::make_remote_receiver_component(const GPIOInputPin &output) {
   return new remote::RemoteReceiverComponent(output.copy());
+}
+#endif
+
+#ifdef USE_DUTY_CYCLE_SENSOR
+Application::MakeDutyCycleSensor Application::make_duty_cycle_sensor(const std::string &name,
+                                                                     const GPIOInputPin &pin,
+                                                                     uint32_t update_interval) {
+  auto *duty = App.register_component(new DutyCycleSensor(name, pin.copy(), update_interval));
+
+  return MakeDutyCycleSensor{
+      .duty = duty,
+      .mqtt = App.register_sensor(duty),
+  };
 }
 #endif
 
