@@ -193,7 +193,7 @@ bool I2CComponent::write_byte(uint8_t address, uint8_t register_, uint8_t data) 
   return this->write_bytes(address, register_, &data, 1);
 }
 bool I2CComponent::write_byte_16(uint8_t address, uint8_t register_, uint16_t data) {
-  return this->write_bytes_16(address, register_, &data, 0);
+  return this->write_bytes_16(address, register_, &data, 1);
 }
 
 I2CDevice::I2CDevice(I2CComponent *parent, uint8_t address) : address_(address), parent_(parent) {
