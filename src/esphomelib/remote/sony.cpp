@@ -23,11 +23,10 @@ static const uint32_t BIT_ONE_HIGH_US = 1200;
 static const uint32_t BIT_ZERO_HIGH_US = 600;
 static const uint32_t BIT_LOW_US = 600;
 
-SonyTransmitter::SonyTransmitter(RemoteTransmitterComponent *parent,
-                                 const std::string &name,
+SonyTransmitter::SonyTransmitter(const std::string &name,
                                  uint32_t data,
                                  uint8_t nbits)
-    : RemoteTransmitter(parent, name), data_(data), nbits_(nbits) {
+    : RemoteTransmitter(name), data_(data), nbits_(nbits) {
 
 }
 RemoteTransmitData SonyTransmitter::get_data() {
@@ -47,20 +46,18 @@ RemoteTransmitData SonyTransmitter::get_data() {
 }
 
 bool decode_sony(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits) {
-  ESP_LOGD(TAG, "Header...");
   if (!data.expect_item(HEADER_HIGH_US, HEADER_LOW_US))
     return false;
 
   *data_ = 0;
   for (*nbits = 0; *nbits < 20; (*nbits)++) {
-    ESP_LOGD(TAG, "Bit %u...", *nbits);
     uint32_t bit;
     if (data.expect_mark(BIT_ONE_HIGH_US)) {
       bit = 1;
     } else if (data.expect_mark(BIT_ZERO_HIGH_US)) {
       bit = 0;
     } else {
-      return *nbits == 12 || *nbits == 15 || *nbits == 20;
+      return *nbits == 12 || *nbits == 15;
     }
 
     *data_ = (*data_ << 1) | bit;

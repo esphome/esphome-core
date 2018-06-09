@@ -23,8 +23,8 @@ static const uint32_t BIT_HIGH_US = 600;
 static const uint32_t BIT_ONE_LOW_US = 1600;
 static const uint32_t BIT_ZERO_LOW_US = 550;
 
-LGTransmitter::LGTransmitter(RemoteTransmitterComponent *parent, const std::string &name, uint32_t data, uint8_t nbits)
-    : RemoteTransmitter(parent, name), data_(data), nbits_(nbits) {}
+LGTransmitter::LGTransmitter(const std::string &name, uint32_t data, uint8_t nbits)
+    : RemoteTransmitter(name), data_(data), nbits_(nbits) {}
 
 RemoteTransmitData LGTransmitter::get_data() {
   RemoteTransmitData data{};

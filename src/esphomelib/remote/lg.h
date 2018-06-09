@@ -20,7 +20,7 @@ namespace remote {
 
 class LGTransmitter : public RemoteTransmitter {
  public:
-  LGTransmitter(RemoteTransmitterComponent *parent, const std::string &name, uint32_t data, uint8_t nbits);
+  LGTransmitter(const std::string &name, uint32_t data, uint8_t nbits);
 
   RemoteTransmitData get_data() override;
 

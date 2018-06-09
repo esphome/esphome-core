@@ -20,7 +20,7 @@ namespace remote {
 
 class SonyTransmitter : public RemoteTransmitter {
  public:
-  SonyTransmitter(RemoteTransmitterComponent *parent, const std::string &name, uint32_t data, uint8_t nbits);
+  SonyTransmitter(const std::string &name, uint32_t data, uint8_t nbits);
 
   RemoteTransmitData get_data() override;
 

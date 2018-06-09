@@ -43,13 +43,13 @@ RemoteTransmitData PanasonicTransmitter::get_data() {
     else
       data.item(BIT_HIGH_US, BIT_ZERO_LOW_US);
   }
+  data.mark(BIT_HIGH_US);
   return data;
 }
-PanasonicTransmitter::PanasonicTransmitter(RemoteTransmitterComponent *parent,
-                                           const std::string &name,
+PanasonicTransmitter::PanasonicTransmitter(const std::string &name,
                                            uint16_t address,
                                            uint32_t data)
-    : RemoteTransmitter(parent, name), address_(address), data_(data) {
+    : RemoteTransmitter(name), address_(address), data_(data) {
 
 }
 

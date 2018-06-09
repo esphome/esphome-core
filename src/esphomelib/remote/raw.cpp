@@ -74,11 +74,10 @@ RemoteTransmitData RawTransmitter::get_data() {
   data.set_carrier_frequency(this->carrier_frequency_);
   return data;
 }
-RawTransmitter::RawTransmitter(RemoteTransmitterComponent *parent,
-                               const std::string &name,
+RawTransmitter::RawTransmitter(const std::string &name,
                                std::vector<int32_t> data,
                                uint32_t carrier_frequency)
-    : RemoteTransmitter(parent, name), data_(std::move(data)), carrier_frequency_(carrier_frequency) {
+    : RemoteTransmitter(name), data_(std::move(data)), carrier_frequency_(carrier_frequency) {
 
 }
 

@@ -43,14 +43,13 @@ RemoteTransmitData NECTransmitter::get_data() {
       data.item(BIT_HIGH_US, BIT_ZERO_LOW_US);
   }
 
-  data.item(BIT_HIGH_US, 0);
+  data.mark(BIT_HIGH_US);
   return data;
 }
-NECTransmitter::NECTransmitter(RemoteTransmitterComponent *parent,
-                               const std::string &name,
+NECTransmitter::NECTransmitter(const std::string &name,
                                uint16_t address,
                                uint16_t command)
-    : RemoteTransmitter(parent, name),  address_(address), command_(command) {
+    : RemoteTransmitter(name),  address_(address), command_(command) {
 
 }
 

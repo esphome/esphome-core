@@ -20,7 +20,7 @@ namespace remote {
 
 class NECTransmitter : public RemoteTransmitter {
  public:
-  NECTransmitter(RemoteTransmitterComponent *parent, const std::string &name, uint16_t address, uint16_t command);
+  NECTransmitter(const std::string &name, uint16_t address, uint16_t command);
 
   RemoteTransmitData get_data() override;
 

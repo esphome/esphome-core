@@ -39,16 +39,16 @@ bool RemoteReceiveData::peek_mark(uint32_t length, uint32_t offset) {
   if (this->index_ + offset >= this->size())
     return false;
   int32_t value = data_[this->index_ + offset];
-  const uint32_t lo = this->lower_bound_(length);
-  const uint32_t hi = this->upper_bound_(length);
+  const int32_t lo = this->lower_bound_(length);
+  const int32_t hi = this->upper_bound_(length);
   return value >= 0 && lo <= value && value <= hi;
 }
 bool RemoteReceiveData::peek_space(uint32_t length, uint32_t offset) {
   if (this->index_ + offset >= this->size())
     return false;
   int32_t value = data_[this->index_ + offset];
-  const uint32_t lo = this->lower_bound_(length);
-  const uint32_t hi = this->upper_bound_(length);
+  const int32_t lo = this->lower_bound_(length);
+  const int32_t hi = this->upper_bound_(length);
   return value <= 0 && lo <= -value && -value <= hi;
 }
 bool RemoteReceiveData::peek_item(uint32_t mark, uint32_t space, uint32_t offset) {
@@ -88,7 +88,7 @@ bool RemoteReceiveData::peek_space_at_least(uint32_t length, uint32_t offset) {
   if (this->index_ + offset >= this->size())
     return false;
   int32_t value = data_[this->index_ + offset];
-  const uint32_t lo = this->lower_bound_(length);
+  const int32_t lo = this->lower_bound_(length);
   return value <= 0 && lo <= -value;
 }
 void RemoteTransmitData::mark(uint32_t length) {
@@ -250,52 +250,92 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
 #endif
 
 #ifdef ARDUINO_ARCH_ESP8266
+RemoteReceiverComponent *global_remote_receiver = nullptr;
+volatile uint32_t remote_buffer_write_at_ = 0;
 
-inline size_t decrement(size_t i, size_t size) {
+inline uint32_t decrement(uint32_t i, uint32_t size) {
   // unsigned integer underflow is defined behavior
   if (i - 1 > size) return size - 1;
   else return i - 1;
 }
 
-inline size_t increment(size_t i, size_t size) {
+inline uint32_t increment(uint32_t i, uint32_t size) {
   if (i + 1 >= size) return 0;
   else return i + 1;
 }
 
 void RemoteReceiverComponent::gpio_intr() {
   const uint32_t now = micros();
-  RemoteReceiverComponent *receiver = RemoteReceiverComponent::receiver_;
-  uint32_t &write_at = RemoteReceiverComponent::buffer_write_at_;
-  const uint32_t last_change = receiver->buffer_[decrement(write_at, receiver->buffer_size_)];
+  RemoteReceiverComponent *receiver = global_remote_receiver;
+  // protect from disabled interrupts making our math invalid
+  if (int(receiver->pin_->digital_read()) != remote_buffer_write_at_ % 2) {
+    return;
+  }
+  const uint32_t last_change = receiver->buffer_[decrement(remote_buffer_write_at_, receiver->buffer_size_)];
   if (now - last_change <= receiver->filter_us_) {
     return;
   }
-  receiver->buffer_[write_at++] = now;
+  receiver->buffer_[remote_buffer_write_at_++] = now;
 }
 
 void RemoteReceiverComponent::setup() {
-  RemoteReceiverComponent::receiver_ = this;
+  ESP_LOGCONFIG(TAG, "Setting up Remote Receiver...");
+  global_remote_receiver = this;
   this->pin_->setup();
   if (this->buffer_size_ % 2 != 0) {
     // Make sure divisible by two. This way, we know that every 0bxxx0 index is a space and every 0bxxx1 index is a mark
     this->buffer_size_++;
   }
   this->buffer_ = new uint32_t[this->buffer_size_];
+  // First index is a space.
   this->buffer_[0] = 0;
   this->buffer_[1] = 0;
-  this->buffer_write_at_ = 2;
+  remote_buffer_write_at_ = 2;
   this->buffer_read_at_ = 2;
   if (this->pin_->digital_read()) {
     // Already high, increment buffer index
-    RemoteReceiverComponent::buffer_write_at_++;
+    remote_buffer_write_at_++;
   }
   attachInterrupt(this->pin_->get_pin(), gpio_intr, CHANGE);
 }
 
 void RemoteReceiverComponent::loop() {
+  if (this->buffer_read_at_ == remote_buffer_write_at_)
+    return;
   const uint32_t now = micros();
-  if (this->buffer_write_at_ != this->buffer_read_at_ && now - this->buffer_[this->buffer_write_at_] > this->idle_us_) {
-    
+  // copy write at to stack, otherwise we might run into infinite loops
+  const uint32_t write_at = remote_buffer_write_at_;
+  if (now - this->buffer_[write_at] < this->idle_us_)
+    // Not finished yet.
+    return;
+
+  std::vector<int32_t> v;
+  // Skip first value, it's from the previous idle level
+  this->buffer_read_at_ = increment(this->buffer_read_at_, this->buffer_size_);
+  for (; this->buffer_read_at_ != write_at; ) {
+    int32_t multiplier = this->buffer_read_at_ % 2 == 0 ? -1 : 1;
+    uint32_t prev = decrement(this->buffer_read_at_, this->buffer_size_);
+
+    int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
+    v.push_back(multiplier * delta);
+    this->buffer_read_at_ = increment(this->buffer_read_at_, this->buffer_size_);
+  }
+  int32_t end_value = now - this->buffer_[write_at];
+  if (write_at % 2 == 0)
+    v.push_back(-end_value);
+  else
+    v.push_back(end_value);
+
+  RemoteReceiveData data(this, v);
+  bool found_decoder = false;
+  for (auto *decoder : this->decoders_) {
+    if (decoder->process_(data))
+      found_decoder = true;
+  }
+
+  if (!found_decoder) {
+    for (auto *dumper : this->dumpers_)
+      dumper->process_(data);
   }
 }
 
@@ -329,8 +369,8 @@ void RemoteReceiveDumper::process_(RemoteReceiveData &data) {
   this->dump(data);
 }
 
-RemoteTransmitter::RemoteTransmitter(RemoteTransmitterComponent *parent, const std::string &name)
-    : Switch(name), parent_(parent) {
+RemoteTransmitter::RemoteTransmitter(const std::string &name)
+    : Switch(name) {
 
 }
 
@@ -342,6 +382,9 @@ void RemoteTransmitter::turn_on() {
 void RemoteTransmitter::turn_off() {
   // Turning off does nothing
   this->publish_state(false);
+}
+void RemoteTransmitter::set_parent(RemoteTransmitterComponent *parent) {
+  this->parent_ = parent;
 }
 
 RemoteTransmitterComponent::RemoteTransmitterComponent(GPIOPin *pin)
@@ -446,6 +489,7 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
 #ifdef ARDUINO_ARCH_ESP8266
 void RemoteTransmitterComponent::setup() {
   this->pin_->setup();
+  this->pin_->digital_write(false);
 }
 void RemoteTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequency,
                                                         uint32_t *on_time_period,
@@ -455,7 +499,7 @@ void RemoteTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequen
     *off_time_period = 0;
     return;
   }
-    carrier_frequency = 1;
+  carrier_frequency = 1;
   uint32_t period = (1000000UL + carrier_frequency / 2) / carrier_frequency; // round(1000000/freq)
   period = std::max(uint32_t(1), period);
   *on_time_period = (period * this->carrier_duty_percent_) / 100;
@@ -466,8 +510,9 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
   for (uint32_t i = 0; i < send_times; i++) {
     uint32_t on_time, off_time;
     this->calculate_on_off_time_(data.get_carrier_frequency(), &on_time, &off_time);
+    ESP_LOGD(TAG, "Sending...");
 
-    enable_interrupts();
+    disable_interrupts();
     for (int32_t item : data.get_data()) {
       if (item > 0) {
         const auto length = uint32_t(item);
@@ -478,7 +523,7 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
       }
       ESP.wdtFeed();
     }
-    disable_interrupts();
+    enable_interrupts();
 
     if (i + 1 < send_times) {
       uint32_t wait_ms = send_wait / 1000UL;
@@ -489,7 +534,7 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
   }
 }
 void RemoteTransmitterComponent::mark_(uint32_t on_time, uint32_t off_time, uint32_t usec) {
-  if (this->carrier_duty_percent_ == 100 || (on_time == 0 && off_time == 0) {
+  if (this->carrier_duty_percent_ == 100 || (on_time == 0 && off_time == 0)) {
     this->pin_->digital_write(true);
     delay_microseconds_accurate(usec);
     this->pin_->digital_write(false);
@@ -516,6 +561,14 @@ void RemoteTransmitterComponent::mark_(uint32_t on_time, uint32_t off_time, uint
 void RemoteTransmitterComponent::space_(uint32_t usec) {
   this->pin_->digital_write(false);
   delay_microseconds_accurate(usec);
+}
+RemoteTransmitter *RemoteTransmitterComponent::add_transmitter(RemoteTransmitter *transmitter) {
+  transmitter->set_parent(this);
+  this->transmitters_.push_back(transmitter);
+  return transmitter;
+}
+void RemoteTransmitterComponent::set_carrier_duty_percent(uint8_t carrier_duty_percent) {
+  this->carrier_duty_percent_ = carrier_duty_percent;
 }
 #endif //ARDUINO_ARCH_ESP8266
 

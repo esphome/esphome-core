@@ -77,9 +77,11 @@ class RemoteTransmitterComponent;
 
 class RemoteTransmitter : public switch_::Switch {
  public:
-  RemoteTransmitter(RemoteTransmitterComponent *parent, const std::string &name);
+  explicit RemoteTransmitter(const std::string &name);
 
   virtual RemoteTransmitData get_data() = 0;
+
+  void set_parent(RemoteTransmitterComponent *parent);
 
  protected:
   void turn_on() override;
@@ -94,11 +96,15 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
  public:
   explicit RemoteTransmitterComponent(GPIOPin *pin);
 
+  RemoteTransmitter *add_transmitter(RemoteTransmitter *transmitter);
+
   void send(const RemoteTransmitData &data, uint32_t send_times, uint32_t send_wait);
 
   void setup() override;
 
   float get_setup_priority() const override;
+
+  void set_carrier_duty_percent(uint8_t carrier_duty_percent);
 
  protected:
   void calculate_on_off_time_(uint32_t carrier_frequency,
@@ -111,12 +117,10 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
 
 #ifdef ARDUINO_ARCH_ESP32
   void configure_rmt();
-#endif
-
-#ifdef ARDUINO_ARCH_ESP32
   uint32_t current_carrier_frequency_;
 #endif
   uint8_t carrier_duty_percent_{50};
+  std::vector<RemoteTransmitter *> transmitters_{};
 };
 
 #endif //USE_REMOTE_TRANSMITTER
@@ -202,21 +206,24 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   RingbufHandle_t ringbuf_;
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  uint32_t *buffer_{nullptr};
-
-  static RemoteReceiverComponent *receiver_;
-  static size_t buffer_write_at_{0};
-  size_t buffer_read_at_{0};
+  volatile uint32_t *buffer_{nullptr};
+  uint32_t buffer_read_at_{0};
   static void gpio_intr();
 #endif
 
-  uint32_t buffer_size_{10000};
+  uint32_t buffer_size_{1000};
   uint8_t tolerance_{25};
   std::vector<RemoteReceiveDecoder *> decoders_{};
   std::vector<RemoteReceiveDumper *> dumpers_{};
   uint8_t filter_us_{10};
   uint32_t idle_us_{10000};
 };
+
+#ifdef ARDUINO_ARCH_ESP8266
+extern RemoteReceiverComponent *global_remote_receiver;
+extern volatile uint32_t remote_buffer_write_at_;
+#endif
+
 #endif //USE_REMOTE_RECEIVER
 
 } // namespace remote

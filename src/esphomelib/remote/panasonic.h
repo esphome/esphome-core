@@ -20,7 +20,7 @@ namespace remote {
 
 class PanasonicTransmitter : public RemoteTransmitter {
  public:
-  PanasonicTransmitter(RemoteTransmitterComponent *parent, const std::string &name, uint16_t address, uint32_t data);
+  PanasonicTransmitter(const std::string &name, uint16_t address, uint32_t data);
 
   RemoteTransmitData get_data() override;
 
