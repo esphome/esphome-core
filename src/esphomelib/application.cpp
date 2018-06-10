@@ -65,7 +65,7 @@ void Application::setup() {
         this->components_[j]->loop_();
       }
       yield();
-    } while (this->components_[i]->can_proceed());
+    } while (!this->components_[i]->can_proceed());
   }
 
   this->application_state_ = Component::SETUP;
