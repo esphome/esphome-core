@@ -15,11 +15,19 @@
 
 #ifdef USE_PULSE_COUNTER_SENSOR
 
-#include <driver/pcnt.h>
+#ifdef ARDUINO_ARCH_ESP32
+  #include <driver/pcnt.h>
+#endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
+
+enum PulseCounterCountMode {
+  PULSE_COUNTER_DISABLE = 0,
+  PULSE_COUNTER_INCREMENT,
+  PULSE_COUNTER_DECREMENT,
+};
 
 /** Pulse Counter - This is the sensor component for the ESP32 integrated pulse counter peripheral.
  *
@@ -42,45 +50,12 @@ class PulseCounterSensorComponent : public PollingSensorComponent {
    * @param pin The pin.
    * @param update_interval The update interval in ms.
    */
-  explicit PulseCounterSensorComponent(const std::string &name, uint8_t pin, uint32_t update_interval = 30000);
+  explicit PulseCounterSensorComponent(const std::string &name, GPIOPin *pin, uint32_t update_interval = 15000);
 
-  /// Manually set the pin for the pulse counter unit.
-  void set_pin(uint8_t pin);
+  /// Set the PulseCounterCountMode for the rising and falling edges. can be disable, increment and decrement.
+  void set_edge_mode(PulseCounterCountMode rising_edge_mode, PulseCounterCountMode falling_edge_mode);
 
-  /// Manually set the pull mode of this pin, default to floating.
-  void set_pull_mode(gpio_pull_mode_t pull_mode);
-
-  /// Set the pcnt_count_mode_t for the rising and falling edges. can be disable, increment and decrement.
-  void set_edge_mode(pcnt_count_mode_t rising_edge_mode, pcnt_count_mode_t falling_edge_mode);
-
-  /** Set a filter for this Pulse Counter unit.
-   *
-   * See http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html#filtering-pulses
-   *
-   * Filter is given in APB clock cycles, so a value of one would filter out any pulses
-   * shorter than 12.5 ns. This value can have 10-bit at maximum, so the maximum possible
-   * value is 1023, or about 12ms.
-   *
-   * @param filter The filter length in APB clock cycles.
-   */
-  void set_filter(uint16_t filter);
-
-  // ========== INTERNAL METHODS ==========
-  // (In most use cases you won't need these)
-  /// Manually set the pulse counter unit to be used. This is automatically set by the constructor.
-  void set_pcnt_unit(pcnt_unit_t pcnt_unit);
-
-  /// Return the value from set_filter().
-  uint16_t get_filter() const;
-
-  /// Return the pull mode from set_pull_mode():
-  gpio_pull_mode_t get_pull_mode() const;
-
-  /// Get the pulse counter unit of this component. Automatically set by constructor.
-  pcnt_unit_t get_pcnt_unit() const;
-
-  pcnt_count_mode_t get_rising_edge_mode() const;
-  pcnt_count_mode_t get_falling_edge_mode() const;
+  void set_filter_us(uint32_t filter_us);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -91,19 +66,27 @@ class PulseCounterSensorComponent : public PollingSensorComponent {
   void setup() override;
   void update() override;
   float get_setup_priority() const override;
-  uint8_t get_pin() const;
 
  protected:
-  uint8_t pin_;
-  gpio_pull_mode_t pull_mode_{GPIO_FLOATING};
+#ifdef ARDUINO_ARCH_ESP8266
+  void gpio_intr();
+  volatile int16_t counter_{0};
+  volatile uint32_t last_pulse_{0};
+#endif
+
+  GPIOPin *pin_;
+#ifdef ARDUINO_ARCH_ESP32
   pcnt_unit_t pcnt_unit_;
-  pcnt_count_mode_t rising_edge_mode_{PCNT_COUNT_INC};
-  pcnt_count_mode_t falling_edge_mode_{PCNT_COUNT_DIS};
-  uint16_t filter_{1023};
+#endif
+  PulseCounterCountMode rising_edge_mode_{PULSE_COUNTER_INCREMENT};
+  PulseCounterCountMode falling_edge_mode_{PULSE_COUNTER_DECREMENT};
+  uint32_t filter_us_{13};
   int16_t last_value_{0};
 };
 
+#ifdef ARDUINO_ARCH_ESP32
 extern pcnt_unit_t next_pcnt_unit;
+#endif
 
 } // namespace sensor
 

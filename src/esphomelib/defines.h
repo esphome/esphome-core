@@ -31,9 +31,7 @@
   #define USE_DHT_SENSOR
   #define USE_DHT12_SENSOR
   #define USE_DALLAS_SENSOR
-  #ifdef ARDUINO_ARCH_ESP32
-    #define USE_PULSE_COUNTER_SENSOR
-  #endif
+  #define USE_PULSE_COUNTER_SENSOR
   #define USE_ADC_SENSOR
   #define USE_ADS1115_SENSOR
   #define USE_BMP085_SENSOR
@@ -53,7 +51,9 @@
   #define USE_LIGHT
   #define USE_SWITCH
   #define USE_SIMPLE_SWITCH
-  #define USE_IR_TRANSMITTER
+  #define USE_REMOTE
+  #define USE_REMOTE_RECEIVER
+  #define USE_REMOTE_TRANSMITTER
   #define USE_GPIO_SWITCH
   #define USE_RESTART_SWITCH
   #define USE_SHUTDOWN_SWITCH
@@ -86,8 +86,25 @@
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_ESP32_HALL_SENSOR
   #endif
+  #define USE_DUTY_CYCLE_SENSOR
 #endif
 
+#ifdef USE_REMOTE_RECEIVER
+  #ifndef USE_REMOTE
+    #define USE_REMOTE
+  #endif
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+#endif
+#ifdef USE_REMOTE_TRANSMITTER
+  #ifndef USE_REMOTE
+    #define USE_REMOTE
+  #endif
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+#endif
 #ifdef USE_GPIO_BINARY_SENSOR
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
@@ -132,6 +149,11 @@
   #endif
 #endif
 #ifdef USE_PULSE_COUNTER_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_DUTY_CYCLE_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif
@@ -259,11 +281,6 @@
     #define USE_SENSOR
   #endif
 #endif
-#ifdef USE_IR_TRANSMITTER
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
 #ifdef USE_GPIO_SWITCH
   #ifndef USE_SIMPLE_SWITCH
     #define USE_SIMPLE_SWITCH
@@ -341,6 +358,5 @@
     #define USE_COVER
   #endif
 #endif
-
 
 #endif //ESPHOMELIB_DEFINES_H
