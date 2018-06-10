@@ -14,7 +14,7 @@ namespace switch_ {
 std::string Switch::icon() {
   return "";
 }
-Switch::Switch(const std::string &name) : BinarySensor(name) {
+Switch::Switch(const std::string &name) : Nameable(name) {
 
 }
 
@@ -45,12 +45,19 @@ void Switch::setup_() {
   this->write_state(initial_state);
 }
 void Switch::publish_state(bool state) {
-  this->value = state;
-  global_preferences.put_bool(this->get_name(), "state", state);
-  this->state_callback_.call(state);
+  this->value = state != this->inverted_;
+  global_preferences.put_bool(this->get_name(), "state", this->value);
+  this->state_callback_.call(this->value);
 }
 bool Switch::optimistic() {
   return false;
+}
+
+void Switch::add_on_state_callback(std::function<void(bool)> &&callback) {
+  this->state_callback_.add(std::move(callback));
+}
+void Switch::set_inverted(bool inverted) {
+  this->inverted_ = inverted;
 }
 
 } // namespace switch_

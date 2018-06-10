@@ -23,8 +23,6 @@ void MQTTComponent::set_retain(bool retain) {
 }
 
 std::string MQTTComponent::get_discovery_topic(const MQTTDiscoveryInfo &discovery_info) const {
-  if (!this->is_discovery_enabled())
-    return "";
   std::string sanitized_name = sanitize_string_whitelist(App.get_name(), HOSTNAME_CHARACTER_WHITELIST);
   return discovery_info.prefix + "/" + this->component_type() + "/" + sanitized_name + "/" +
       this->get_default_object_id() + "/config";
@@ -157,22 +155,32 @@ void MQTTComponent::setup_() {
   // Call component internal setup.
   this->setup_internal();
 
+  if (this->is_internal())
+    return;
+
   this->setup();
 
+  if (this->is_discovery_enabled())
+    this->send_discovery_();
+
   global_mqtt_client->add_on_connect_callback([this]() {
-    this->next_send_discovery_ = true;
+    this->resend_state_ = true;
   });
 }
 void MQTTComponent::loop_() {
   this->loop_internal();
 
+  if (this->is_internal())
+    return;
+
   this->loop();
 
-  if (this->next_send_discovery_) {
+  if (this->resend_state_) {
     if (this->is_discovery_enabled())
       this->send_discovery_();
+    this->send_initial_state();
 
-    this->next_send_discovery_ = false;
+    this->resend_state_ = false;
   }
 }
 

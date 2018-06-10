@@ -256,10 +256,13 @@ class Nameable {
   const std::string &get_name() const;
   void set_name(const std::string &name);
   /// Get the sanitized name of this nameable as an ID. Caching it internally.
-  const std::string &get_name_id();
+  std::string get_name_id();
+
+  bool is_internal() const;
+  void set_internal(bool internal);
  protected:
   std::string name_;
-  std::string name_id_;
+  bool internal_{false};
 };
 
 ESPHOMELIB_NAMESPACE_END

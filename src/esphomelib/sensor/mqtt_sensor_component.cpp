@@ -18,7 +18,7 @@ static const char *TAG = "sensor.mqtt";
 
 MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
     : MQTTComponent(), sensor_(sensor) {
-  assert(sensor != nullptr);
+
 }
 
 void MQTTSensorComponent::setup() {
@@ -34,10 +34,7 @@ void MQTTSensorComponent::setup() {
   }
 
   this->sensor_->add_on_value_callback([this](float value) {
-    int8_t accuracy = this->sensor_->get_accuracy_decimals();
-    ESP_LOGD(TAG, "'%s': Pushing out value %f with %d decimals of accuracy",
-             this->sensor_->get_name().c_str(), value, accuracy);
-    this->send_message(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
+    this->publish_state(value);
   });
 }
 
@@ -81,6 +78,18 @@ void MQTTSensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, m
     root["unique_id"] = this->sensor_->unique_id();
 
   config.command_topic = false;
+}
+void MQTTSensorComponent::send_initial_state() {
+  this->publish_state(this->sensor_->value);
+}
+bool MQTTSensorComponent::is_internal() {
+  return this->sensor_->is_internal();
+}
+void MQTTSensorComponent::publish_state(float value) {
+  int8_t accuracy = this->sensor_->get_accuracy_decimals();
+  ESP_LOGD(TAG, "'%s': Pushing out value %f with %d decimals of accuracy",
+           this->sensor_->get_name().c_str(), value, accuracy);
+  this->send_message(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
 }
 
 } // namespace sensor

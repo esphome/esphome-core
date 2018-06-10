@@ -27,11 +27,11 @@ void MQTTJSONLightComponent::setup() {
 
   this->state_->add_new_remote_values_callback([this]() {
     this->defer("send", [this]() {
-      this->send_light_values();
+      this->publish_state();
     });
   });
 
-  this->send_light_values();
+  this->publish_state();
 }
 
 MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
@@ -39,7 +39,7 @@ MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
   assert(state != nullptr);
 }
 
-void MQTTJSONLightComponent::send_light_values() {
+void MQTTJSONLightComponent::publish_state() {
   LightColorValues remote_values = this->state_->get_remote_values();
   remote_values.save_to_preferences(this->state_->get_name());
   this->send_json_message(this->get_state_topic(), [&](JsonBuffer &buffer, JsonObject &root) {
@@ -70,6 +70,12 @@ void MQTTJSONLightComponent::send_discovery(JsonBuffer &buffer, JsonObject &root
     }
   }
   config.platform = "mqtt_json";
+}
+void MQTTJSONLightComponent::send_initial_state() {
+  this->publish_state();
+}
+bool MQTTJSONLightComponent::is_internal() {
+  return this->state_->is_internal();
 }
 
 } // namespace light

@@ -397,6 +397,10 @@ void RemoteTransmitter::turn_off() {
 void RemoteTransmitter::set_parent(RemoteTransmitterComponent *parent) {
   this->parent_ = parent;
 }
+void RemoteTransmitter::set_repeat(uint32_t send_times, uint32_t send_wait) {
+  this->send_times_ = send_times;
+  this->send_wait_ = send_wait;
+}
 
 RemoteTransmitterComponent::RemoteTransmitterComponent(GPIOPin *pin)
     : RemoteControlComponentBase(pin) {

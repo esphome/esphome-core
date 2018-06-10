@@ -20,7 +20,7 @@ namespace remote {
 
 class RawTransmitter : public RemoteTransmitter {
  public:
-  RawTransmitter(const std::string &name, const std::vector<int32_t> data,
+  RawTransmitter(const std::string &name, std::vector<int32_t> data,
                  uint32_t carrier_frequency);
   RemoteTransmitData get_data() override;
 

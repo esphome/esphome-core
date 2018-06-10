@@ -28,16 +28,34 @@ class TurnOnAction;
  * A switch is basically just a combination of a binary sensor (for reporting switch values)
  * and a write_state method that writes a state to the hardware.
  */
-class Switch : public binary_sensor::BinarySensor, public Component {
+class Switch : public Component, public Nameable {
  public:
   explicit Switch(const std::string &name);
 
   float get_setup_priority() const override;
   void setup_() override;
 
-  void publish_state(bool state) override;
+  /** Publish a state to the front-end from the back-end.
+   *
+   * The input value is inverted if applicable. Then the internal value member is set and
+   * finally the callbacks are called.
+   *
+   * @param state
+   */
+  void publish_state(bool state);
 
-  /// This method is called by the front-end components.
+  void set_inverted(bool inverted);
+
+  /** This method is called by the front-end components to set the state.
+   *
+   * The internal logic will then invert it if applicable and call the
+   * turn_on or turn_off abstract method.
+   *
+   * Note that this will not trigger sending the state. The overriden
+   * turn_on and turn_off methods should do this manually.
+   *
+   * @param state The binary state to write.
+   */
   void write_state(bool state);
 
   /** Override this to set the Home Assistant icon for this switch.
@@ -68,6 +86,18 @@ class Switch : public binary_sensor::BinarySensor, public Component {
    */
   virtual bool optimistic();
 
+  /** Set callback for state changes.
+   *
+   * @param callback The void(bool) callback.
+   */
+  virtual void add_on_state_callback(std::function<void(bool)> &&callback);
+
+  /** The current published state of the switch.
+   *
+   * Inversion is already applied on this value.
+   */
+  bool value{false};
+
  protected:
   /// Turn this switch on. When creating a switch, you should implement this (inversion will already be applied).
   virtual void turn_on() = 0;
@@ -75,6 +105,10 @@ class Switch : public binary_sensor::BinarySensor, public Component {
   virtual void turn_off() = 0;
 
   optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
+
+  CallbackManager<void(bool)> state_callback_{};
+  bool inverted_{false};
+  bool first_value_{true};
 };
 
 template<typename T>
@@ -135,7 +169,7 @@ ToggleAction<T>::ToggleAction(Switch *a_switch) : switch_(a_switch) {}
 
 template<typename T>
 void ToggleAction<T>::play(T x) {
-  this->switch_->write_state(!this->switch_->get_value());
+  this->switch_->write_state(!this->switch_->value);
   this->play_next(x);
 }
 

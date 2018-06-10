@@ -38,7 +38,7 @@ RemoteTransmitData PanasonicTransmitter::get_data() {
   }
 
   for (mask = 1UL << 31; mask != 0; mask >>= 1) {
-    if (this->data_ & mask)
+    if (this->command_ & mask)
       data.item(BIT_HIGH_US, BIT_ONE_LOW_US);
     else
       data.item(BIT_HIGH_US, BIT_ZERO_LOW_US);
@@ -48,12 +48,12 @@ RemoteTransmitData PanasonicTransmitter::get_data() {
 }
 PanasonicTransmitter::PanasonicTransmitter(const std::string &name,
                                            uint16_t address,
-                                           uint32_t data)
-    : RemoteTransmitter(name), address_(address), data_(data) {
+                                           uint32_t command)
+    : RemoteTransmitter(name), address_(address), command_(command) {
 
 }
 
-bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *data_) {
+bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *command) {
   if (!data.expect_item(HEADER_HIGH_US, HEADER_LOW_US))
     return false;
 
@@ -70,12 +70,12 @@ bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *data
 
   }
 
-  *data_ = 0;
+  *command = 0;
   for (mask = 1UL << 31; mask != 0; mask >>= 1) {
     if (data.expect_item(BIT_HIGH_US, BIT_ONE_LOW_US)) {
-      *data_ |= mask;
+      *command |= mask;
     } else if (data.expect_item(BIT_HIGH_US, BIT_ZERO_LOW_US)) {
-      *data_ &= ~mask;
+      *command &= ~mask;
     } else {
       return false;
     }
@@ -86,24 +86,24 @@ bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *data
 
 bool PanasonicDecoder::matches(RemoteReceiveData &data) {
   uint16_t address;
-  uint32_t data_;
-  if (!decode_panasonic(data, &address, &data_))
+  uint32_t command;
+  if (!decode_panasonic(data, &address, &command))
     return false;
 
-  return this->address_ == address && this->data_ == data_;
+  return this->address_ == address && this->command_ == command;
 }
-PanasonicDecoder::PanasonicDecoder(const std::string &name, uint16_t address, uint32_t data)
-    : RemoteReceiveDecoder(name), address_(address), data_(data) {
+PanasonicDecoder::PanasonicDecoder(const std::string &name, uint16_t address, uint32_t command)
+    : RemoteReceiveDecoder(name), address_(address), command_(command) {
 
 }
 
 void PanasonicDumper::dump(RemoteReceiveData &data) {
   uint16_t address;
-  uint32_t data_;
-  if (!decode_panasonic(data, &address, &data_))
+  uint32_t command;
+  if (!decode_panasonic(data, &address, &command))
     return;
 
-  ESP_LOGD(TAG, "Received Panasonic: address=0x%04X, data=0x%08X", address, data_);
+  ESP_LOGD(TAG, "Received Panasonic: address=0x%04X, command=0x%08X", address, command);
 }
 
 } // namespace remote

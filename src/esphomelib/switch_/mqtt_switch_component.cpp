@@ -19,8 +19,8 @@ static const char *TAG = "switch.mqtt";
 using esphomelib::binary_sensor::binary_callback_t;
 
 MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
-    : MQTTBinarySensorComponent(switch_), switch_(switch_) {
-  assert(this->switch_ != nullptr);
+    : MQTTComponent(), switch_(switch_) {
+
 }
 
 void MQTTSwitchComponent::setup() {
@@ -31,9 +31,9 @@ void MQTTSwitchComponent::setup() {
   }
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
-    if (strcasecmp(payload.c_str(), this->get_payload_on().c_str()) == 0)
+    if (strcasecmp(payload.c_str(), "ON") == 0)
       this->turn_on();
-    else if (strcasecmp(payload.c_str(), this->get_payload_off().c_str()) == 0)
+    else if (strcasecmp(payload.c_str(), "OFF") == 0)
       this->turn_off();
   });
   this->switch_->add_on_state_callback([this](bool enabled){
@@ -42,7 +42,7 @@ void MQTTSwitchComponent::setup() {
     });
   });
 
-  this->publish_state(this->switch_->value);
+  this->send_initial_state();
 }
 
 std::string MQTTSwitchComponent::component_type() const {
@@ -59,12 +59,22 @@ void MQTTSwitchComponent::turn_off() {
 void MQTTSwitchComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->switch_->get_icon().empty())
     root["icon"] = this->switch_->get_icon();
-  if (this->get_payload_on() != "ON")
-    root["payload_on"] = this->get_payload_on();
-  if (this->get_payload_off() != "OFF")
-    root["payload_off"] = this->get_payload_off();
   if (this->switch_->optimistic())
     root["optimistic"] = true;
+}
+void MQTTSwitchComponent::send_initial_state() {
+  this->publish_state(this->switch_->value);
+}
+bool MQTTSwitchComponent::is_internal() {
+  return this->switch_->is_internal();
+}
+std::string MQTTSwitchComponent::friendly_name() const {
+  return this->switch_->get_name();
+}
+void MQTTSwitchComponent::publish_state(bool state) {
+  const char *state_s = state ? "ON" : "OFF";
+  ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s);
+  this->send_message(this->get_state_topic(), state_s);
 }
 
 } // namespace switch_

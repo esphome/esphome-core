@@ -197,11 +197,15 @@ void Nameable::set_name(const std::string &name) {
 }
 Nameable::Nameable(const std::string &name)
     : name_(name) {}
-const std::string &Nameable::get_name_id() {
-  if (!this->name_id_.empty())
-    return this->name_id_;
-  this->name_id_ = sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
-  return this->name_id_;
+
+std::string Nameable::get_name_id() {
+  return sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+}
+bool Nameable::is_internal() const {
+  return this->internal_;
+}
+void Nameable::set_internal(bool internal) {
+  this->internal_ = internal;
 }
 
 bool Component::TimeFunction::should_run(uint32_t now) const {

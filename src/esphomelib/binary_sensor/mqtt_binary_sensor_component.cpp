@@ -25,11 +25,10 @@ void MQTTBinarySensorComponent::setup() {
   if (!this->binary_sensor_->get_device_class().empty()) {
     ESP_LOGCONFIG(TAG, "    Device Class: '%s'", this->binary_sensor_->get_device_class().c_str());
   }
+
   this->binary_sensor_->add_on_state_callback([this](bool value) {
     this->publish_state(value);
   });
-
-  this->publish_state(this->binary_sensor_->value);
 }
 
 MQTTBinarySensorComponent::MQTTBinarySensorComponent(BinarySensor *binary_sensor)
@@ -61,6 +60,12 @@ void MQTTBinarySensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &r
   config.command_topic = false;
 }
 
+void MQTTBinarySensorComponent::send_initial_state() {
+  this->publish_state(this->binary_sensor_->value);
+}
+bool MQTTBinarySensorComponent::is_internal() {
+  return this->binary_sensor_->is_internal();
+}
 void MQTTBinarySensorComponent::publish_state(bool state) {
   std::string state_s = state ? this->get_payload_on() : this->get_payload_off();
   ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s.c_str());

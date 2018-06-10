@@ -88,17 +88,17 @@ void WebServer::setup() {
 
 #ifdef USE_SENSOR
     for (auto *obj : this->sensors_)
-      client->send(this->sensor_json(obj, obj->get_value()).c_str(), "state");
+      client->send(this->sensor_json(obj, obj->value).c_str(), "state");
 #endif
 
 #ifdef USE_SWITCH
     for (auto *obj : this->switches_)
-      client->send(this->switch_json(obj, obj->get_value()).c_str(), "state");
+      client->send(this->switch_json(obj, obj->value).c_str(), "state");
 #endif
 
 #ifdef USE_BINARY_SENSOR
     for (auto *obj : this->binary_sensors_)
-      client->send(this->binary_sensor_json(obj, obj->get_value()).c_str(), "state");
+      client->send(this->binary_sensor_json(obj, obj->value).c_str(), "state");
 #endif
 
 #ifdef USE_FAN
@@ -196,7 +196,7 @@ void WebServer::register_sensor(sensor::Sensor *obj) {
 void WebServer::handle_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
   for (sensor::Sensor *obj : this->sensors_) {
     if (obj->get_name_id() == match.id) {
-      std::string data = this->sensor_json(obj, obj->get_value());
+      std::string data = this->sensor_json(obj, obj->value);
       request->send(200, "text/json", data.c_str());
       return;
     }
@@ -237,10 +237,10 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
       continue;
 
     if (request->method() == HTTP_GET) {
-      std::string data = this->switch_json(obj, obj->get_value());
+      std::string data = this->switch_json(obj, obj->value);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      obj->write_state(!obj->get_value());
+      obj->write_state(!obj->value);
       request->send(200);
     } else if (match.method == "turn_on") {
       obj->write_state(true);
@@ -276,7 +276,7 @@ std::string WebServer::binary_sensor_json(binary_sensor::BinarySensor *obj, bool
 void WebServer::handle_binary_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
   for (binary_sensor::BinarySensor *obj : this->binary_sensors_) {
     if (obj->get_name_id() == match.id) {
-      std::string data = this->binary_sensor_json(obj, obj->get_value());
+      std::string data = this->binary_sensor_json(obj, obj->value);
       request->send(200, "text/json", data.c_str());
       return;
     }

@@ -60,7 +60,7 @@ void MQTTFanComponent::setup() {
 
   this->state_->add_on_state_change_callback([this]() {
     this->defer("send", [this]() {
-      this->send_state();
+      this->publish_state();
     });
   });
 
@@ -90,7 +90,26 @@ const std::string MQTTFanComponent::get_speed_command_topic() const {
 const std::string MQTTFanComponent::get_speed_state_topic() const {
   return this->get_topic_for("speed/state");
 }
-void MQTTFanComponent::send_state() {
+void MQTTFanComponent::send_initial_state() {
+  this->publish_state();
+}
+std::string MQTTFanComponent::friendly_name() const {
+  return this->state_->get_name();
+}
+void MQTTFanComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+  if (this->state_->get_traits().supports_oscillation()) {
+    root["oscillation_command_topic"] = this->get_oscillation_command_topic();
+    root["oscillation_state_topic"] = this->get_oscillation_state_topic();
+  }
+  if (this->state_->get_traits().supports_speed()) {
+    root["speed_command_topic"] = this->get_speed_command_topic();
+    root["speed_state_topic"] = this->get_speed_state_topic();
+  }
+}
+bool MQTTFanComponent::is_internal() {
+  return this->state_->is_internal();
+}
+void MQTTFanComponent::publish_state() {
   const char *state_s = this->state_->get_state() ? "ON" : "OFF";
   ESP_LOGD(TAG, "'%s' Sending state %s.", this->state_->get_name().c_str(), state_s);
   this->send_message(this->get_state_topic(), state_s);
@@ -122,19 +141,6 @@ void MQTTFanComponent::send_state() {
     this->send_message(this->get_speed_state_topic(), payload);
   }
   this->state_->save_to_preferences();
-}
-std::string MQTTFanComponent::friendly_name() const {
-  return this->state_->get_name();
-}
-void MQTTFanComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
-  if (this->state_->get_traits().supports_oscillation()) {
-    root["oscillation_command_topic"] = this->get_oscillation_command_topic();
-    root["oscillation_state_topic"] = this->get_oscillation_state_topic();
-  }
-  if (this->state_->get_traits().supports_speed()) {
-    root["speed_command_topic"] = this->get_speed_command_topic();
-    root["speed_state_topic"] = this->get_speed_state_topic();
-  }
 }
 
 } // namespace fan

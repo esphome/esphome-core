@@ -20,7 +20,7 @@ namespace switch_ {
  *
  * Overrides MQTTBinarySensorComponent with a callback that can write values to hardware.
  */
-class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
+class MQTTSwitchComponent : public mqtt::MQTTComponent {
  public:
   explicit MQTTSwitchComponent(switch_::Switch *switch_);
 
@@ -30,7 +30,14 @@ class MQTTSwitchComponent : public binary_sensor::MQTTBinarySensorComponent {
 
   void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
+  void send_initial_state() override;
+  bool is_internal() override;
+
+  void publish_state(bool state);
+
  protected:
+  std::string friendly_name() const override;
+
   /// "switch" component type.
   std::string component_type() const override;
 

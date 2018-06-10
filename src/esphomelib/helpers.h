@@ -284,49 +284,6 @@ std::unique_ptr<T> make_unique(Args &&...args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
-template<typename T>
-SlidingWindowMovingAverage<T>::SlidingWindowMovingAverage(size_t max_size) : max_size_(max_size), sum_(0) {
-
-}
-
-template<typename T>
-T SlidingWindowMovingAverage<T>::next_value(T value) {
-  if (isnan(value)) {
-    // protect from NAN values
-    return this->calculate_average();
-  }
-  if (this->queue_.size() == this->max_size_) {
-    this->sum_ -= this->queue_.front();
-    this->queue_.pop();
-  }
-  this->queue_.push(value);
-  this->sum_ += value;
-
-  return this->calculate_average();
-}
-template<typename T>
-T SlidingWindowMovingAverage<T>::calculate_average() {
-  if (this->queue_.size() == 0)
-    return 0;
-  else
-    return this->sum_ / this->queue_.size();
-}
-
-template<typename T>
-size_t SlidingWindowMovingAverage<T>::get_max_size() const {
-  return this->max_size_;
-}
-
-template<typename T>
-void SlidingWindowMovingAverage<T>::set_max_size(size_t max_size) {
-  this->max_size_ = max_size;
-
-  while (this->queue_.size() > max_size) {
-    this->sum_ -= this->queue_.front();
-    this->queue_.pop();
-  }
-}
-
 template<typename... Ts>
 void CallbackManager<void(Ts...)>::add(std::function<void(Ts...)> &&callback) {
   this->callbacks_.push_back(std::move(callback));

@@ -81,7 +81,7 @@ class BinarySensor : public Nameable {
 
  protected:
   // ========== OVERRIDE METHODS ==========
-  // (You'll only need this when creating your own custom sensor)
+  // (You'll only need this when creating your own custom binary sensor)
   /// Get the default device class for this sensor, or empty string for no default.
   virtual std::string device_class();
 

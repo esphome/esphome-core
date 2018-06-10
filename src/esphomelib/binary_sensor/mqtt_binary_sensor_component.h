@@ -46,13 +46,15 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   /// Set the custom payload this binary sensor uses for an OFF value.
   void set_payload_off(std::string payload_off);
 
+  void send_initial_state() override;
+  void publish_state(bool state);
+  bool is_internal() override;
+
  protected:
   /// Return the friendly name of this binary sensor.
   std::string friendly_name() const override;
   /// "binary_sensor" component type.
   std::string component_type() const override;
-
-  void publish_state(bool state);
 
   BinarySensor *binary_sensor_;
   std::string payload_on_{"ON"};

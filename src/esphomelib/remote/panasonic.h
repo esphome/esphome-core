@@ -20,26 +20,26 @@ namespace remote {
 
 class PanasonicTransmitter : public RemoteTransmitter {
  public:
-  PanasonicTransmitter(const std::string &name, uint16_t address, uint32_t data);
+  PanasonicTransmitter(const std::string &name, uint16_t address, uint32_t command);
 
   RemoteTransmitData get_data() override;
 
  protected:
   uint16_t address_;
-  uint32_t data_;
+  uint32_t command_;
 };
 
-bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *data_);
+bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *command);
 
 class PanasonicDecoder : public RemoteReceiveDecoder {
  public:
-  PanasonicDecoder(const std::string &name, uint16_t address, uint32_t data);
+  PanasonicDecoder(const std::string &name, uint16_t address, uint32_t command);
 
   bool matches(RemoteReceiveData &data) override;
 
  protected:
   uint16_t address_;
-  uint32_t data_;
+  uint32_t command_;
 };
 
 class PanasonicDumper : public RemoteReceiveDumper {

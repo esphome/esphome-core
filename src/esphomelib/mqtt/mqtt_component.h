@@ -51,6 +51,10 @@ class MQTTComponent : public Component {
   /// Send discovery info the Home Assistant, override this.
   virtual void send_discovery(JsonBuffer &buffer, JsonObject &root, SendDiscoveryConfig &config) = 0;
 
+  virtual void send_initial_state() = 0;
+
+  virtual bool is_internal() = 0;
+
   /// Set whether state message should be retained.
   void set_retain(bool retain);
   bool get_retain() const;
@@ -79,7 +83,6 @@ class MQTTComponent : public Component {
   void disable_availability();
   
  protected:
-
   /// Helper method to get the discovery topic for this component.
   virtual std::string get_discovery_topic(const MQTTDiscoveryInfo &discovery_info) const;
 
@@ -156,7 +159,7 @@ class MQTTComponent : public Component {
   bool retain_{true};
   bool discovery_enabled_{true};
   Availability *availability_{nullptr};
-  bool next_send_discovery_{true};
+  bool resend_state_{false};
 };
 
 } // namespace mqtt

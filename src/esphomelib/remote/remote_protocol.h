@@ -83,13 +83,15 @@ class RemoteTransmitter : public switch_::Switch {
 
   void set_parent(RemoteTransmitterComponent *parent);
 
+  void set_repeat(uint32_t send_times, uint32_t send_wait);
+
  protected:
   void turn_on() override;
   void turn_off() override;
 
   RemoteTransmitterComponent *parent_;
   uint32_t send_times_{1}; ///< How many times to send the data
-  uint32_t send_wait_{0}; ///< How many milliseconds to wait between repeats.
+  uint32_t send_wait_{0}; ///< How many microseconds to wait between repeats.
 };
 
 class RemoteTransmitterComponent : public RemoteControlComponentBase, public Component {

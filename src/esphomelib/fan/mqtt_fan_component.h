@@ -35,7 +35,8 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   /// Setup the fan subscriptions and discovery.
   void setup() override;
   /// Send the full current state to MQTT.
-  void send_state();
+  void send_initial_state() override;
+  void publish_state();
   /// 'fan' component type for discovery.
   std::string component_type() const override;
 
@@ -45,6 +46,8 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   const std::string get_speed_state_topic() const;
 
   FanState *get_state() const;
+
+  bool is_internal() override;
 
  protected:
   std::string friendly_name() const override;
