@@ -109,6 +109,8 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   void set_carrier_duty_percent(uint8_t carrier_duty_percent);
 
  protected:
+
+#ifdef ARDUINO_ARCH_ESP8266
   void calculate_on_off_time_(uint32_t carrier_frequency,
                               uint32_t *on_time_period,
                               uint32_t *off_time_period);
@@ -116,6 +118,7 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   void mark_(uint32_t on_time, uint32_t off_time, uint32_t usec);
 
   void space_(uint32_t usec);
+#endif
 
 #ifdef ARDUINO_ARCH_ESP32
   void configure_rmt();

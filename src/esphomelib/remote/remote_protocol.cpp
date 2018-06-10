@@ -577,6 +577,8 @@ void RemoteTransmitterComponent::space_(uint32_t usec) {
   this->pin_->digital_write(false);
   delay_microseconds_accurate(usec);
 }
+#endif //ARDUINO_ARCH_ESP8266
+
 RemoteTransmitter *RemoteTransmitterComponent::add_transmitter(RemoteTransmitter *transmitter) {
   transmitter->set_parent(this);
   this->transmitters_.push_back(transmitter);
@@ -585,7 +587,6 @@ RemoteTransmitter *RemoteTransmitterComponent::add_transmitter(RemoteTransmitter
 void RemoteTransmitterComponent::set_carrier_duty_percent(uint8_t carrier_duty_percent) {
   this->carrier_duty_percent_ = carrier_duty_percent;
 }
-#endif //ARDUINO_ARCH_ESP8266
 
 } // namespace remote
 
