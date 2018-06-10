@@ -39,6 +39,9 @@ int8_t WiFiSignalSensor::accuracy_decimals() {
 std::string WiFiSignalSensor::unique_id() {
   return get_mac_address() + "-wifisignal";
 }
+float WiFiSignalSensor::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
 
 } // namespace sensor
 

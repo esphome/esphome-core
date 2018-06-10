@@ -50,6 +50,8 @@ class RotaryEncoderSensor : public Sensor, public Component {
   std::string icon() override;
   int8_t accuracy_decimals() override;
 
+  float get_setup_priority() const override;
+
  protected:
   /// The ISR that handles pushing all interrupts to process_state_machine_ of all rotary encoders.
   static void encoder_isr_();

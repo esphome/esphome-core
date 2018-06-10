@@ -49,6 +49,8 @@ class BasicFanComponent : public Component {
   void setup() override;
   void loop() override;
 
+  float get_setup_priority() const override;
+
  protected:
   FanState *state_{nullptr};
   output::BinaryOutput *binary_output_{nullptr};

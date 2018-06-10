@@ -56,6 +56,9 @@ bool TemplateCover::optimistic() {
 void TemplateCover::set_state_lambda(std::function<optional<CoverState>()> &&f) {
   this->f_ = f;
 }
+float TemplateCover::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace cover
 

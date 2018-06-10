@@ -77,6 +77,9 @@ void BasicFanComponent::loop() {
     }
   }
 }
+float BasicFanComponent::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace fan
 

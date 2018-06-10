@@ -112,6 +112,9 @@ PCF8574GPIOOutputPin PCF8574Component::make_output_pin(uint8_t pin, bool inverte
   else { assert(pin < 8); }
   return {this, pin, PCF8574_OUTPUT, inverted};
 }
+float PCF8574Component::get_setup_priority() const {
+  return setup_priority::HARDWARE + 5.0f;
+}
 
 void PCF8574GPIOInputPin::setup() {
   this->pin_mode(this->mode_);

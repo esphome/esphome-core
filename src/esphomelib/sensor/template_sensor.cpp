@@ -24,6 +24,9 @@ void TemplateSensor::update() {
     this->push_new_value(*val);
   }
 }
+float TemplateSensor::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace sensor
 

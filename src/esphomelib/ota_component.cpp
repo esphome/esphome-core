@@ -4,8 +4,9 @@
 
 #include "esphomelib/ota_component.h"
 #include "esphomelib/log.h"
-#include "esphomelib/application.h"
 #include "esphomelib/esppreferences.h"
+#include "esphomelib/helpers.h"
+#include "esphomelib/wifi_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_OTA
@@ -139,7 +140,7 @@ void OTAComponent::set_auth_password_hash(const std::string &hash) {
   this->password_ = hash;
 }
 float OTAComponent::get_setup_priority() const {
-  return setup_priority::MQTT_CLIENT - 1.0f;
+  return setup_priority::MQTT_CLIENT + 1.0f;
 }
 uint16_t OTAComponent::get_port() const {
   return this->port_;
@@ -166,16 +167,21 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     this->clean_rtc();
 
     ESP_LOGE(TAG, "Boot loop detected. Proceeding to safe mode.");
-    assert(App.get_wifi() != nullptr);
+    assert(global_wifi_component != nullptr);
 
-    App.get_wifi()->setup_();
+    global_wifi_component->setup_();
+    while (!global_wifi_component->can_proceed()) {
+      yield();
+      global_wifi_component->loop_();
+    }
     this->setup_();
 
     ESP_LOGI(TAG, "Waiting for OTA attempt.");
     uint32_t begin = millis();
     while ((millis() - begin) < enable_time) {
       this->loop_();
-      App.get_wifi()->loop_();
+      global_wifi_component->loop_();
+      yield();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");
     reboot("ota-safe-mode");

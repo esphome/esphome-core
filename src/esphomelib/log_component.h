@@ -60,6 +60,8 @@ class LogComponent : public Component {
   /// Register a callback that will be called for every log message sent
   void add_on_log_callback(std::function<void(int, const char *)> &&callback);
 
+  float get_setup_priority() const override;
+
  protected:
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;

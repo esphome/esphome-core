@@ -46,6 +46,8 @@ class BMP085Component : public PollingComponent, public I2CDevice {
   /// Setup the sensor and test for a connection.
   void setup() override;
 
+  float get_setup_priority() const override;
+
  protected:
   struct CalibrationData {
     int16_t ac1, ac2, ac3, ac4, ac5, ac6;

@@ -76,6 +76,9 @@ void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) {
 void LogComponent::add_on_log_callback(std::function<void(int, const char *)> &&callback) {
   this->log_callback_.add(std::move(callback));
 }
+float LogComponent::get_setup_priority() const {
+  return setup_priority::HARDWARE - 1.0f;
+}
 
 LogComponent *global_log_component = nullptr;
 

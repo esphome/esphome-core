@@ -22,11 +22,11 @@ MQTTClientComponent::MQTTClientComponent(const MQTTCredentials &credentials)
 
 void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT...");
-
   ESP_LOGCONFIG(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
   ESP_LOGCONFIG(TAG, "    Username: '%s'", this->credentials_.username.c_str());
   ESP_LOGCONFIG(TAG, "    Password: '%s'", this->credentials_.password.c_str());
-  this->credentials_.client_id = truncate_string(this->credentials_.client_id, 23);
+  if (this->credentials_.client_id.empty())
+    this->credentials_.client_id = generate_hostname(App.get_name());
   ESP_LOGCONFIG(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
   if (!this->discovery_info_.prefix.empty()) {
     ESP_LOGCONFIG(TAG, "    Discovery prefix: '%s'", this->discovery_info_.prefix.c_str());
@@ -72,7 +72,7 @@ void MQTTClientComponent::setup() {
   });
   if (this->is_log_message_enabled())
     global_log_component->add_on_log_callback([this](int level, const char *message) {
-      if (this->is_connected()) {
+      if (this->mqtt_client_.connected() && this->state_ == MQTT_CLIENT_CONNECTED) {
         this->publish(this->log_message_.topic, message, this->log_message_.qos, this->log_message_.retain);
       }
     });
@@ -80,14 +80,86 @@ void MQTTClientComponent::setup() {
     this->mqtt_client_.disconnect(true);
   });
 
-  this->reconnect();
+  this->start_connect();
 }
-void MQTTClientComponent::set_keep_alive(uint16_t keep_alive_s) {
-  this->mqtt_client_.setKeepAlive(keep_alive_s);
+bool MQTTClientComponent::can_proceed() {
+  return this->state_ == MQTT_CLIENT_CONNECTED;
+}
+
+void MQTTClientComponent::start_connect() {
+  if (!global_wifi_component->can_proceed())
+    return;
+
+  ESP_LOGI(TAG, "Connecting to MQTT...");
+  // Force disconnect first
+  this->mqtt_client_.disconnect(true);
+
+  this->mqtt_client_.setClientId(this->credentials_.client_id.c_str());
+  const char *username = nullptr;
+  if (!this->credentials_.username.empty())
+    username = this->credentials_.username.c_str();
+  const char *password = nullptr;
+  if (!this->credentials_.password.empty())
+    password = this->credentials_.password.c_str();
+  this->mqtt_client_.setCredentials(username, password);
+
+  this->mqtt_client_.setCredentials(this->credentials_.username.c_str(), this->credentials_.password.c_str());
+  this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
+  if (!this->last_will_.topic.empty()) {
+    this->mqtt_client_.setWill(this->last_will_.topic.c_str(), this->last_will_.qos, this->last_will_.retain,
+                               this->last_will_.payload.c_str(), this->last_will_.payload.length());
+  }
+
+  this->mqtt_client_.connect();
+  this->state_ = MQTT_CLIENT_CONNECTING;
+  this->connect_begin_ = millis();
+}
+
+void MQTTClientComponent::check_connected() {
+  assert(this->state_ == MQTT_CLIENT_CONNECTING);
+  if (!this->mqtt_client_.connected()) {
+    if (millis() - this->connect_begin_ > this->reboot_timeout_) {
+      ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
+      reboot("mqtt");
+      return;
+    }
+    if (millis() - this->connect_begin_ > 15000) {
+      this->state_ = MQTT_CLIENT_DISCONNECTED;
+      this->start_connect();
+    }
+    return;
+  }
+
+  this->state_ = MQTT_CLIENT_CONNECTED;
+  ESP_LOGI(TAG, "MQTT Connected!");
+  if (!this->birth_message_.topic.empty())
+    this->publish(this->birth_message_);
+
+  for (MQTTSubscription &subscription : this->subscriptions_)
+    this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);
+
+  this->on_connect_.call();
 }
 
 void MQTTClientComponent::loop() {
-  this->reconnect();
+  switch (this->state_) {
+    case MQTT_CLIENT_DISCONNECTED:
+      this->start_connect();
+      break;
+    case MQTT_CLIENT_CONNECTING:
+      this->check_connected();
+      break;
+    case MQTT_CLIENT_CONNECTED:
+      if (!this->mqtt_client_.connected()) {
+        this->state_ = MQTT_CLIENT_DISCONNECTED;
+        this->start_connect();
+      }
+      break;
+  }
+}
+
+void MQTTClientComponent::set_keep_alive(uint16_t keep_alive_s) {
+  this->mqtt_client_.setKeepAlive(keep_alive_s);
 }
 
 void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
@@ -99,7 +171,7 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
   };
   this->subscriptions_.push_back(subscription);
 
-  if (this->is_connected())
+  if (this->mqtt_client_.connected())
     this->mqtt_client_.subscribe(topic.c_str(), qos);
 }
 
@@ -114,75 +186,8 @@ void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t 
   };
   this->subscriptions_.push_back(subscription);
 
-  if (this->is_connected())
+  if (this->mqtt_client_.connected())
     this->mqtt_client_.subscribe(topic.c_str(), qos);
-}
-
-bool MQTTClientComponent::is_connected() {
-  return this->mqtt_client_.connected();
-}
-
-void MQTTClientComponent::reconnect() {
-  if (this->is_connected())
-    return;
-
-  ESP_LOGI(TAG, "Reconnecting to MQTT...");
-  uint32_t start = millis();
-  do {
-    // Force disconnect first
-    this->mqtt_client_.disconnect(true);
-    global_wifi_component->loop();
-
-    ESP_LOGD(TAG, "    Attempting MQTT connection...");
-    if (millis() - start > 30000) {
-      ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-      reboot("mqtt");
-    }
-
-    std::string id;
-    if (this->credentials_.client_id.empty())
-      id = generate_hostname(App.get_name());
-    else
-      id = this->credentials_.client_id;
-    this->mqtt_client_.setClientId(id.c_str());
-
-    const char *username = nullptr;
-    if (!this->credentials_.username.empty())
-      username = this->credentials_.username.c_str();
-    const char *password = nullptr;
-    if (!this->credentials_.password.empty())
-      password = this->credentials_.password.c_str();
-    this->mqtt_client_.setCredentials(username, password);
-
-    this->mqtt_client_.setCredentials(this->credentials_.username.c_str(), this->credentials_.password.c_str());
-    this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
-    if (!this->last_will_.topic.empty()) {
-      this->mqtt_client_.setWill(this->last_will_.topic.c_str(), this->last_will_.qos, this->last_will_.retain,
-                                 this->last_will_.payload.c_str(), this->last_will_.payload.length());
-    }
-
-    this->mqtt_client_.connect();
-    uint32_t start_time = millis();
-    do {
-      ESP_LOGD(TAG, ".");
-      delay(250);
-    } while (!this->mqtt_client_.connected() && millis() - start_time < 10000);
-
-    if (this->mqtt_client_.connected()) {
-      ESP_LOGI(TAG, "    MQTT Connected!");
-      break;
-    } else {
-      ESP_LOGW(TAG, "    MQTT connection failed");
-    }
-  } while (!this->is_connected());
-
-  if (!this->birth_message_.topic.empty())
-    this->publish(this->birth_message_);
-
-  for (MQTTSubscription &subscription : this->subscriptions_)
-    this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);
-
-  this->on_connect_.call();
 }
 
 void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain) {
@@ -191,7 +196,7 @@ void MQTTClientComponent::publish(const std::string &topic, const std::string &p
     ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload.c_str(), retain);
   }
 
-  this->reconnect();
+  this->loop();
   uint16_t ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload.data(), payload.length());
   if (ret == 0 && !logging_topic)
     ESP_LOGW(TAG, "Publish failed!");

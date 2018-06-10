@@ -24,6 +24,9 @@ void TemplateBinarySensor::loop() {
     this->publish_state(*s);
   }
 }
+float TemplateBinarySensor::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace binary_sensor
 

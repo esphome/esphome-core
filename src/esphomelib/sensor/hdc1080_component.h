@@ -46,6 +46,8 @@ class HDC1080Component : public PollingComponent, public I2CDevice {
   /// Get the internal humidity sensor.
   HDC1080HumiditySensor *get_humidity_sensor() const;
 
+  float get_setup_priority() const override;
+
  protected:
   HDC1080TemperatureSensor *temperature_;
   HDC1080HumiditySensor *humidity_;

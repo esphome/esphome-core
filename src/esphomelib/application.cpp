@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "esphomelib/log.h"
+#include "esphomelib/espmath.h"
 #include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -41,22 +42,29 @@ using namespace esphomelib::cover;
 static const char *TAG = "application";
 
 void Application::setup() {
-  ESP_LOGI(TAG, "Application::setup()");
+  ESP_LOGI(TAG, "Running through setup()...");
   assert(this->application_state_ == Component::CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
     return a->get_setup_priority() > b->get_setup_priority();
   });
-  ESP_LOGV(TAG, "Calling setup");
-  for (Component *component : this->components_) {
-    if (!component->is_failed())
-      component->setup_();
+
+  for (uint32_t i = 0; i < this->components_.size(); i++) {
+    this->components_[i]->setup_();
+    if (this->components_[i]->can_proceed())
+      continue;
+    std::stable_sort(this->components_.begin(), this->components_.begin() + i + 1, [](Component *a, Component *b) {
+      return a->get_loop_priority() > b->get_loop_priority();
+    });
+
+    do {
+      for (uint32_t j = 0; j <= i; j++) {
+        this->components_[j]->loop_();
+      }
+      yield();
+    } while (this->components_[i]->can_proceed());
   }
 
-  ESP_LOGV(TAG, "Sorting components by loop priority...");
-  std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
-    return a->get_loop_priority() > b->get_loop_priority();
-  });
   this->application_state_ = Component::SETUP;
 }
 
@@ -81,7 +89,13 @@ void Application::loop() {
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
   WiFiComponent *wifi = this->init_wifi();
-  wifi->set_sta(ssid, password);
+  wifi->add_sta(WiFiAp{
+      .ssid = ssid,
+      .password = password,
+      .bssid = 0,
+      .channel = -1,
+      .manual_ip = {},
+  });
   return wifi;
 }
 

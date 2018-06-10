@@ -68,6 +68,9 @@ HTU21DTemperatureSensor *HTU21DComponent::get_temperature_sensor() const {
 HTU21DHumiditySensor *HTU21DComponent::get_humidity_sensor() const {
   return this->humidity_;
 }
+float HTU21DComponent::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
 
 } // namespace sensor
 

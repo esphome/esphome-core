@@ -28,6 +28,7 @@ class WiFiSignalSensor : public PollingSensorComponent {
   std::string icon() override;
   int8_t accuracy_decimals() override;
   std::string unique_id() override;
+  float get_setup_priority() const override;
 };
 
 } // namespace sensor

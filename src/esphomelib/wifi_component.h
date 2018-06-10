@@ -22,6 +22,86 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+enum WiFiComponentState {
+  /** Nothing has been initialized yet. Internal AP, if configured, is disabled at this point.
+   *
+   * State can transition to:
+   *   - WIFI_COMPONENT_STATE_AP (when AP-only mode)
+   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when in STA-only mode)
+   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when in AP+STA mode)
+   */
+  WIFI_COMPONENT_STATE_OFF = 0,
+  /** WiFi is in STA-only mode and scanning.
+   *
+   * State can transition here from:
+   *   - WIFI_COMPONENT_STATE_OFF (on boot)
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTED (when connection is lost)
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting fails)
+   *
+   * State can transition to:
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when a suitable AP is found)
+   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when no AP from the list matches)
+   */
+  WIFI_COMPONENT_STATE_STA_SCANNING,
+  /** WiFi is in STA-only mode and currently connecting to an AP.
+   *
+   * State can transition here from:
+   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when scan complete and attempting connection)
+   *
+   * State can transition to:
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTED (when connecting was successful)
+   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when connecting fails)
+   */
+  WIFI_COMPONENT_STATE_STA_CONNECTING,
+  // Any state below here is a valid state for continuing
+  /** WiFi is in AP-only mode and internal AP is already enabled.
+   *
+   * State can transition here from:
+   *   - WIFI_COMPONENT_STATE_OFF (on boot)
+   */
+  WIFI_COMPONENT_STATE_AP,
+  /** WiFi is in STA-only mode and successfully connected.
+   *
+   * State can transition here from:
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting was successful)
+   *
+   * State can transition to:
+   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when connection is lost)
+   */
+  WIFI_COMPONENT_STATE_STA_CONNECTED,
+  /** WiFi is in AP+STA mode and currently performing a scan. Internal AP is enabled at this point.
+   *
+   * State can transition here from:
+   *   - WIFI_COMPONENT_STATE_OFF (on boot, AP is enabled)
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTED (when STA connection lost, AP is enabled again)
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when connecting fails)
+   *
+   * State can transition to:
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when a suitable AP is found)
+   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when no AP from the list matches)
+   */
+  WIFI_COMPONENT_STATE_AP_STA_SCANNING,
+  /** WiFi is in AP+sta mode and currently connecting to an AP. Internal AP is enabled at this point.
+   *
+   * State can transition here from:
+   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when scan complete and attempting connection)
+   *
+   * State can transition to:
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTED (when connecting was successful)
+   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when connecting fails)
+   */
+  WIFI_COMPONENT_STATE_AP_STA_CONNECTING,
+  /** WiFi is in AP+STA mode and successfully connected. Internal AP is disabled at this point.
+   *
+   * State can transition here from:
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when connecting was successful)
+   *
+   * State can transition to:
+   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when connection is lost, internal AP is enabled again)
+   */
+  WIFI_COMPONENT_STATE_AP_STA_CONNECTED,
+};
+
 /// Struct for setting static IPs in WiFiComponent.
 struct ManualIP {
   IPAddress static_ip;
@@ -31,6 +111,16 @@ struct ManualIP {
   IPAddress dns2; ///< The second DNS server. 0.0.0.0 for default.
 };
 
+struct WiFiAp {
+  std::string ssid;
+  std::string password;
+  uint64_t bssid;
+  int8_t channel;
+  optional<ManualIP> manual_ip;
+
+  bool matches(const char *ssid, uint64_t bssid, uint8_t auth_mode, int32_t channel) const;
+};
+
 /// This component is responsible for managing the ESP WiFi interface.
 class WiFiComponent : public Component {
  public:
@@ -38,10 +128,7 @@ class WiFiComponent : public Component {
   WiFiComponent();
 
   /// Setup the STA (client) mode. The parameters define which station to connect to.
-  void set_sta(const std::string &ssid, const std::string &password);
-
-  /// Manually set a static IP for this WiFi interface.
-  void set_sta_manual_ip(ManualIP manual_ip);
+  void add_sta(const WiFiAp &ap);
 
   /** Setup an Access Point that should be created if no connection to a station can be made.
    *
@@ -50,14 +137,21 @@ class WiFiComponent : public Component {
    * If both STA and AP are defined, then both will be enabled at startup, but if a connection to a station
    * can be made, the AP will be turned off again.
    */
-  void set_ap(const std::string &ssid, const std::string &password = "", uint8_t channel = 1);
-
-  /// Manually set the manual IP for the AP.
-  void set_ap_manual_ip(ManualIP manual_ip);
+  void set_ap(const WiFiAp &ap);
 
   /// Set the advertised hostname, defaults to the App name.
   void set_hostname(std::string &&hostname);
   const std::string &get_hostname();
+
+  void start_scan();
+
+  void check_scan_finished();
+
+  void check_connecting_finished();
+
+  void retry_connect();
+
+  bool can_proceed() override;
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -74,8 +168,6 @@ class WiFiComponent : public Component {
   bool has_ap() const;
 
  protected:
-  void setup_sta_config(bool show_config = true);
-
   void setup_ap_config();
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -83,23 +175,16 @@ class WiFiComponent : public Component {
   static void on_wifi_event(WiFiEvent_t event);
 #endif
 
-  /// Waits for the WiFi class to return a connected state.
-  void wait_for_sta();
-
-  void sta_connected();
-
   std::string hostname_;
 
-  bool sta_on_;
-  std::string sta_ssid_;
-  std::string sta_password_;
-  optional<ManualIP> sta_manual_ip_;
+  std::vector<WiFiAp> sta_;
 
-  bool ap_on_;
-  std::string ap_ssid_;
-  std::string ap_password_;
-  uint8_t ap_channel_;
-  optional<ManualIP> ap_manual_ip_;
+  WiFiAp ap_;
+  WiFiComponentState state_{WIFI_COMPONENT_STATE_OFF};
+  uint32_t action_started_;
+  uint8_t num_retried_{0};
+  uint32_t last_connected_{0};
+  uint32_t reboot_timeout_{60000};
 };
 
 extern WiFiComponent *global_wifi_component;

@@ -68,6 +68,9 @@ HDC1080TemperatureSensor *HDC1080Component::get_temperature_sensor() const {
 HDC1080HumiditySensor *HDC1080Component::get_humidity_sensor() const {
   return this->humidity_;
 }
+float HDC1080Component::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
 
 } // namespace sensor
 

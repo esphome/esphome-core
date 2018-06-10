@@ -163,6 +163,9 @@ void Component::set_interval(uint32_t interval, Component::time_func_t &&f) {
 bool Component::is_failed() {
   return this->component_state_ == FAILED;
 }
+bool Component::can_proceed() {
+  return true;
+}
 
 PollingComponent::PollingComponent(uint32_t update_interval)
     : Component(), update_interval_(update_interval) {}

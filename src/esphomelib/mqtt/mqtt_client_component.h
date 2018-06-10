@@ -72,6 +72,12 @@ struct MQTTDiscoveryInfo {
   bool retain; ///< Whether to retain discovery messages.
 };
 
+enum MQTTClientState {
+  MQTT_CLIENT_DISCONNECTED = 0,
+  MQTT_CLIENT_CONNECTING,
+  MQTT_CLIENT_CONNECTED,
+};
+
 class MQTTClientComponent : public Component {
  public:
   explicit MQTTClientComponent(const MQTTCredentials &credentials);
@@ -181,9 +187,6 @@ class MQTTClientComponent : public Component {
    */
   void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain);
 
-  /// Return whether this client is currently connected to the MQTT server.
-  bool is_connected();
-
   /// Add a callback that will be called every time the MQTT client reconnects.
   void add_on_connect_callback(std::function<void()> &&callback);
 
@@ -201,9 +204,13 @@ class MQTTClientComponent : public Component {
   template<typename T>
   MQTTPublishAction<T> *make_publish_action();
 
+  bool can_proceed() override;
+
+  void check_connected();
+
  protected:
   /// Reconnect to the MQTT broker if not already connected.
-  void reconnect();
+  void start_connect();
 
   /// Re-calculate the availability property.
   void recalculate_availability();
@@ -229,6 +236,9 @@ class MQTTClientComponent : public Component {
   std::vector<MQTTSubscription> subscriptions_;
   AsyncMqttClient mqtt_client_;
   CallbackManager<void()> on_connect_{};
+  MQTTClientState state_{MQTT_CLIENT_DISCONNECTED};
+  uint32_t reboot_timeout_{60000};
+  uint32_t connect_begin_;
 };
 
 class MQTTMessageTrigger : public Trigger<std::string> {
@@ -270,9 +280,8 @@ void MQTTPublishAction<T>::play(T x) {
   this->play_next(x);
 }
 template<typename T>
-MQTTPublishAction<T>::MQTTPublishAction() {
+MQTTPublishAction<T>::MQTTPublishAction() = default;
 
-}
 template<typename T>
 void MQTTPublishAction<T>::set_topic(std::function<std::string(T)> topic) {
   this->topic_ = std::move(topic);

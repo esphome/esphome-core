@@ -47,6 +47,8 @@ class HTU21DComponent : public PollingComponent, public I2CDevice {
   /// Update the sensor values (temperature+humidity).
   void update() override;
 
+  float get_setup_priority() const override;
+
  protected:
   HTU21DTemperatureSensor *temperature_{nullptr};
   HTU21DHumiditySensor *humidity_{nullptr};

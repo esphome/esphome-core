@@ -108,6 +108,8 @@ class Component {
 
   bool is_failed();
 
+  virtual bool can_proceed();
+
  protected:
   void loop_internal();
   void setup_internal();

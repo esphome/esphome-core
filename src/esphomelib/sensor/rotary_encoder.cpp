@@ -164,6 +164,10 @@ void RotaryEncoderSensor::set_reset_pin(const GPIOInputPin &pin_i) {
 
 std::vector<RotaryEncoderSensor *> global_rotary_encoders_;
 
+float RotaryEncoderSensor::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
+
 } // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END

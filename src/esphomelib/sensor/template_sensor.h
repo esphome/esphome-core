@@ -26,6 +26,8 @@ class TemplateSensor : public PollingSensorComponent {
 
   void update() override;
 
+  float get_setup_priority() const override;
+
  protected:
   std::function<optional<float>()> f_;
 };

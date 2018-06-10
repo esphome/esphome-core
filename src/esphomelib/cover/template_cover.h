@@ -35,6 +35,8 @@ class TemplateCover : public Cover, public Component {
   void close() override;
   void stop() override;
 
+  float get_setup_priority() const override;
+
  protected:
   bool optimistic() override;
 

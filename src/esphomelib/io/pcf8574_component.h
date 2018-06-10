@@ -70,6 +70,8 @@ class PCF8574Component : public Component, public I2CDevice {
   /// Helper function to set the pin mode of a pin. Doesn't do any I/O.
   void pin_mode_(uint8_t pin, uint8_t mode);
 
+  float get_setup_priority() const override;
+
  protected:
   bool read_gpio_();
 

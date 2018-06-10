@@ -25,6 +25,8 @@ class TemplateBinarySensor : public Component, public BinarySensor {
 
   void loop() override;
 
+  float get_setup_priority() const override;
+
  protected:
   std::function<optional<bool>()> &&f_;
 };
