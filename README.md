@@ -116,7 +116,7 @@ Finally, create a new source file in the `src/` folder (for example `main.cpp`) 
 ##### Installing library dependencies
 
 Repeat the above steps with the following libraries:
-- https://github.com/marvinroger/async-mqtt-client/releases
+- https://github.com/marvinroger/async-mqtt-client/archive/master.zip
 - https://github.com/OttoWinter/ArduinoJson/releases
 - https://github.com/FastLED/FastLED/releases
 - https://github.com/me-no-dev/ESPAsyncWebServer/archive/master.zip
