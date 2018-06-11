@@ -45,7 +45,7 @@ class RemoteControlComponentBase {
   GPIOPin *pin_;
 #ifdef ARDUINO_ARCH_ESP32
   rmt_channel_t channel_{RMT_CHANNEL_0};
-  uint8_t clock_divider_{10};
+  uint8_t clock_divider_{80};
 #endif
 };
 

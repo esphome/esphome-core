@@ -190,7 +190,7 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
   int32_t multiplier = this->pin_->is_inverted() ? -1 : 1;
 
   for (size_t i = 0; i < len; i++) {
-    if (item[i].level0 == prev_level) {
+    if (bool(item[i].level0) == prev_level) {
       prev_length += item[i].duration0;
     } else {
       if (prev_length > 0) {
@@ -200,11 +200,11 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
           data.push_back(-int32_t(this->to_microseconds(prev_length)) * multiplier);
         }
       }
-      prev_level = item[i].level0;
+      prev_level = bool(item[i].level0);
       prev_length = item[i].duration0;
     }
 
-    if (item[i].level1 == prev_level) {
+    if (bool(item[i].level1) == prev_level) {
       prev_length += item[i].duration1;
     } else {
       if (prev_length > 0) {
@@ -214,7 +214,7 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
           data.push_back(-int32_t(this->to_microseconds(prev_length)) * multiplier);
         }
       }
-      prev_level = item[i].level1;
+      prev_level = bool(item[i].level1);
       prev_length = item[i].duration1;
     }
   }
@@ -434,7 +434,7 @@ void RemoteTransmitterComponent::configure_rmt() {
   c.mem_block_num = 1;
   c.tx_config.loop_en = false;
 
-  if (this->current_carrier_frequency_ == 0) {
+  if (this->current_carrier_frequency_ == 0 || this->current_carrier_frequency_ == 100) {
     c.tx_config.carrier_en = false;
   } else {
     c.tx_config.carrier_en = true;
@@ -499,23 +499,11 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
     rmt_data.push_back(rmt_item);
   }
 
-  for (rmt_item32_t item : rmt_data) {
-    if (item.level0) {
-      ESP_LOGD(TAG, "ON %uus (%u)", this->to_microseconds(item.duration0), item.duration0);
-    } else {
-      ESP_LOGD(TAG, "OFF %uus (%u)", this->to_microseconds(item.duration0), item.duration0);
-    }
-    if (item.level1) {
-      ESP_LOGD(TAG, "ON %uus (%u)", this->to_microseconds(item.duration1), item.duration1);
-    } else {
-      ESP_LOGD(TAG, "OFF %uus (%u)", this->to_microseconds(item.duration1), item.duration1);
-    }
-  }
-
   for (uint16_t i = 0; i < send_times; i++) {
     rmt_write_items(this->channel_, rmt_data.data(), rmt_data.size(), true);
-    if (i + 1 < send_times)
+    if (i + 1 < send_times) {
       delay_microseconds_accurate(send_wait);
+    }
   }
 }
 #endif //ARDUINO_ARCH_ESP32
