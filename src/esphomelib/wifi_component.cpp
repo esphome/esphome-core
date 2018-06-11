@@ -49,20 +49,12 @@ void WiFiComponent::setup() {
     if (!WiFi.enableSTA(true)) {
       ESP_LOGE(TAG, "WiFi.enableSTA(true) failed!");
     }
-#ifdef ARDUINO_ARCH_ESP32
-    int32_t ret = esp_wifi_start();
-    if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "esp_wifi_start failed: %d", ret);
-    }
-#endif
-    if (!WiFi.setAutoConnect(false)) {
-      ESP_LOGE(TAG, "WiFi.setAutoConnect(false) failed!");
-    }
+    WiFi.setAutoConnect(false);
     if (!WiFi.setAutoReconnect(false)) {
       ESP_LOGE(TAG, "WiFi.setAutoReconnect(false) failed!");
     }
     delay(10);
-    this->start_scan();
+    this->start_connecting();
   }
 }
 
@@ -71,12 +63,6 @@ void WiFiComponent::loop() {
 
   if (this->has_sta()) {
     switch (this->state_) {
-      case WIFI_COMPONENT_STATE_STA_SCANNING:
-      case WIFI_COMPONENT_STATE_AP_STA_SCANNING: {
-        this->check_scan_finished();
-        break;
-      }
-
       case WIFI_COMPONENT_STATE_STA_CONNECTING:
       case WIFI_COMPONENT_STATE_AP_STA_CONNECTING: {
         this->check_connecting_finished();
@@ -159,7 +145,7 @@ bool WiFiComponent::has_ap() const {
   return !this->ap_.ssid.empty();
 }
 bool WiFiComponent::has_sta() const {
-  return !this->sta_.empty();
+  return !this->sta_.ssid.empty();
 }
 void WiFiComponent::setup_ap_config() {
   ESP_LOGCONFIG(TAG, "Setting up AP...");
@@ -220,166 +206,19 @@ float WiFiComponent::get_loop_priority() const {
 void WiFiComponent::set_ap(const WiFiAp &ap) {
   this->ap_ = ap;
 }
-void WiFiComponent::add_sta(const WiFiAp &ap) {
-  this->sta_.push_back(ap);
-}
-void WiFiComponent::start_scan() {
-  ESP_LOGI(TAG, "Starting WiFi scan...");
-  if (WiFi.scanNetworks(true, true) != WIFI_SCAN_RUNNING) {
-    ESP_LOGE(TAG, "WiFi.scanNetworks() failed!");
-  }
-
-  if (this->has_ap()) {
-    this->state_ = WIFI_COMPONENT_STATE_AP_STA_SCANNING;
-  } else {
-    this->state_ = WIFI_COMPONENT_STATE_STA_SCANNING;
-  }
-  this->action_started_ = millis();
+void WiFiComponent::set_sta(const WiFiAp &ap) {
+  this->sta_ = ap;
 }
 
-#ifdef ARDUINO_ARCH_ESP32
-const char *get_auth_mode_string(uint8_t auth_mode) {
-  switch (auth_mode) {
-    case WIFI_AUTH_OPEN: return "OPEN";
-    case WIFI_AUTH_WEP: return "WEP";
-    case WIFI_AUTH_WPA_PSK: return "WPA+PSK";
-    case WIFI_AUTH_WPA2_PSK: return "WPA2+PSK";
-    case WIFI_AUTH_WPA_WPA2_PSK: return "WPA/WPA2+PSK";
-    case WIFI_AUTH_WPA2_ENTERPRISE: return "WPA2 Enterprise";
-    default: return "UNKNOWN";
-  }
-}
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-const char *get_auth_mode_string(uint8_t auth_mode) {
-  switch (auth_mode) {
-    case ENC_TYPE_NONE: return "OPEN";
-    case ENC_TYPE_WEP: return "WEP";
-    case ENC_TYPE_TKIP: return "WPA+PSK";
-    case ENC_TYPE_CCMP: return "WPA2+PSK";
-    case ENC_TYPE_AUTO: return "WPA/WPA2+PSK";
-    default: return "UNKNOWN";
-  }
-}
-#endif
-
-uint64_t bssid_ptr_to_uint64(const uint8_t *bssid) {
-  return
-      uint64_t(bssid[0]) << 40 |
-      uint64_t(bssid[1]) << 32 |
-      uint64_t(bssid[2]) << 24 |
-      uint64_t(bssid[3]) << 16 |
-      uint64_t(bssid[4]) << 8 |
-      uint64_t(bssid[5]) << 0;
-}
-
-void uint64_to_bssid_ptr(uint64_t bssid, uint8_t *out) {
-  out[0] = bssid >> 40;
-  out[1] = bssid >> 32;
-  out[2] = bssid >> 24;
-  out[3] = bssid >> 16;
-  out[4] = bssid >> 8;
-  out[5] = bssid >> 0;
-}
-
-void WiFiComponent::check_scan_finished() {
-  assert(this->state_ == WIFI_COMPONENT_STATE_STA_SCANNING || this->state_ == WIFI_COMPONENT_STATE_AP_STA_SCANNING);
+void WiFiComponent::start_connecting() {
   assert(this->has_sta());
 
-  int8_t state = WiFi.scanComplete();
-  if (state == WIFI_SCAN_RUNNING) {
-    // scan not finished
-    return;
-  }
-  if (state == WIFI_SCAN_FAILED) {
-    ESP_LOGW(TAG, "WiFi Scan failed!");
-    // re-try scan
-    this->retry_connect();
-    return;
-  }
-  if (state == 0) {
-    // No networks found, re-try
-    ESP_LOGW(TAG, "WiFi Scan finished, but no networks found!");
-    this->retry_connect();
-    return;
-  }
-  if (millis() - this->action_started_ > 30000) {
-    ESP_LOGW(TAG, "Timeout while scanning for WiFi.");
-    this->retry_connect();
-    return;
-  }
-
-  ESP_LOGI(TAG, "WiFi scan finished, found %d networks:", state);
-  yield();
-
-  std::string best_ssid;
-  std::string best_password;
-  int32_t best_rssi = INT32_MIN;
-  int32_t best_channel = 0;
-  uint64_t best_bssid = 0;
-  optional<ManualIP> best_manual_ip;
-  bool found = false;
-
-  for (int i = 0; i < state; i++) {
-    String ssid;
-    uint8_t auth_mode;
-    int32_t rssi;
-    uint8_t *bssid_ptr;
-    int32_t channel;
-#ifdef ARDUINO_ARCH_ESP32
-    WiFi.getNetworkInfo(i, ssid, auth_mode, rssi, bssid_ptr, channel);
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-    bool hidden;
-    WiFi.getNetworkInfo(i, ssid, auth_mode, rssi, bssid_ptr, channel, hidden);
-#endif
-    uint64_t bssid = bssid_ptr_to_uint64(bssid_ptr);
-
-    bool matches = false;
-    for (const WiFiAp &ap : this->sta_) {
-      if (ap.matches(ssid.c_str(), bssid, auth_mode, channel)) {
-        matches = true;
-        if (rssi > best_rssi) {
-          best_ssid = ssid.c_str();
-          best_password = ap.password;
-          best_rssi = rssi;
-          best_bssid = bssid;
-          best_channel = channel;
-          best_manual_ip = ap.manual_ip;
-          found = true;
-        }
-      }
-    }
-
-    if (matches) {
-      ESP_LOGI(TAG, " => '%s'", ssid.c_str());
-    } else {
-      ESP_LOGI(TAG, " -  '%s'", ssid.c_str());
-    }
-    ESP_LOGD(TAG, "    Authentication Mode: %s", get_auth_mode_string(auth_mode));
-    ESP_LOGD(TAG, "    RSSI: %d", rssi);
-    ESP_LOGD(TAG, "    Channel: %d", channel);
-    ESP_LOGD(TAG, "    BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
-             bssid_ptr[0], bssid_ptr[1], bssid_ptr[2], bssid_ptr[3], bssid_ptr[4], bssid_ptr[5]);
-  }
-
-  WiFi.scanDelete();
-
-  if (!found) {
-    ESP_LOGW(TAG, "WiFi scan found no configured network!");
-    this->retry_connect();
-    return;
-  }
-  uint8_t bssid[6];
-  uint64_to_bssid_ptr(best_bssid, bssid);
-
-  ESP_LOGI(TAG, "Connecting to '%s' with BSSID=%02X:%02X:%02X:%02X:%02X:%02X...",
-           best_ssid.c_str(), bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+  ESP_LOGI(TAG, "WiFi Connecting to '%s'...", this->sta_.ssid.c_str());
 
   bool ret;
-  if (best_manual_ip.has_value()) {
-    ret = WiFi.config(best_manual_ip->static_ip, best_manual_ip->gateway, best_manual_ip->subnet,
-                      best_manual_ip->dns1, best_manual_ip->dns2);
+  if (this->sta_.manual_ip.has_value()) {
+    ret = WiFi.config(this->sta_.manual_ip->static_ip, this->sta_.manual_ip->gateway, this->sta_.manual_ip->subnet,
+                      this->sta_.manual_ip->dns1, this->sta_.manual_ip->dns2);
   } else {
     ret = WiFi.config(0u, 0u, 0u, 0u, 0u);
   }
@@ -400,12 +239,12 @@ void WiFiComponent::check_scan_finished() {
       ESP_LOGE(TAG, "WiFi.hostname() failed!");
   }
 
-  const char *passphrase = best_password.c_str();
-  if (best_password.empty()) {
+  const char *passphrase = this->sta_.password.c_str();
+  if (this->sta_.password.empty()) {
     passphrase = nullptr;
   }
 
-  WiFi.begin(best_ssid.c_str(), passphrase, best_channel, bssid);
+  WiFi.begin(this->sta_.ssid.c_str(), passphrase);
 
   if (this->has_ap()) {
     this->state_ = WIFI_COMPONENT_STATE_AP_STA_CONNECTING;
@@ -421,7 +260,7 @@ void WiFiComponent::check_connecting_finished() {
 
   wl_status_t status = WiFi.status();
   if (status == WL_CONNECTED) {
-    ESP_LOGI(TAG, "WiFi connected.");
+    ESP_LOGI(TAG, "WiFi connected!");
     uint8_t *bssid = WiFi.BSSID();
     ESP_LOGCONFIG(TAG, "    SSID: %s", WiFi.SSID().c_str());
     ESP_LOGCONFIG(TAG, "    BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
@@ -493,32 +332,17 @@ void WiFiComponent::retry_connect() {
         break;
     }
   }
-  this->start_scan();
+  this->start_connecting();
 }
 
 bool WiFiComponent::can_proceed() {
-  if (this->has_ap())
+  if (this->has_ap()) {
     return true;
-
-  return this->state_ == WIFI_COMPONENT_STATE_STA_CONNECTED;
+  }
+  return this->state_ == WIFI_COMPONENT_STATE_STA_CONNECTED && WiFi.status() == WL_CONNECTED;
 }
-
-bool WiFiAp::matches(const char *ssid, uint64_t bssid, uint8_t auth_mode, int32_t channel) const {
-  if (!this->ssid.empty() && this->ssid != ssid) {
-    return false;
-  }
-  if (this->bssid != 0 && bssid != this->bssid) {
-    return false;
-  }
-  if (this->channel != -1 && this->channel != channel) {
-    return false;
-  }
-#ifdef ARDUINO_ARCH_ESP32
-  return this->password.empty() == (auth_mode == WIFI_AUTH_OPEN);
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-  return this->password.empty() == (auth_mode == ENC_TYPE_NONE);
-#endif
+void WiFiComponent::set_reboot_timeout(uint32_t reboot_timeout) {
+  this->reboot_timeout_ = reboot_timeout;
 }
 
 WiFiComponent *global_wifi_component;

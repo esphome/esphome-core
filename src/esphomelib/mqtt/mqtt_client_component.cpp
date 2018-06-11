@@ -83,11 +83,11 @@ void MQTTClientComponent::setup() {
   this->start_connect();
 }
 bool MQTTClientComponent::can_proceed() {
-  return this->state_ == MQTT_CLIENT_CONNECTED;
+  return this->state_ == MQTT_CLIENT_CONNECTED && this->mqtt_client_.connected();
 }
 
 void MQTTClientComponent::start_connect() {
-  if (!global_wifi_component->can_proceed())
+  if (WiFi.status() != WL_CONNECTED)
     return;
 
   ESP_LOGI(TAG, "Connecting to MQTT...");
@@ -319,6 +319,9 @@ bool MQTTClientComponent::is_log_message_enabled() const {
 }
 MQTTMessageTrigger *MQTTClientComponent::make_message_trigger(const std::string &topic, uint8_t qos) {
   return new MQTTMessageTrigger(topic, qos);
+}
+void MQTTClientComponent::set_reboot_timeout(uint32_t reboot_timeout) {
+  this->reboot_timeout_ = reboot_timeout;
 }
 
 #if ASYNC_TCP_SSL_ENABLED

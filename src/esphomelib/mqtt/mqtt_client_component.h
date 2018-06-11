@@ -208,6 +208,8 @@ class MQTTClientComponent : public Component {
 
   void check_connected();
 
+  void set_reboot_timeout(uint32_t reboot_timeout);
+
  protected:
   /// Reconnect to the MQTT broker if not already connected.
   void start_connect();

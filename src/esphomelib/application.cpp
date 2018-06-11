@@ -49,23 +49,29 @@ void Application::setup() {
   assert(this->application_state_ == Component::CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
-    return a->get_setup_priority() > b->get_setup_priority();
+    return a->get_setup_priority() >= b->get_setup_priority();
   });
 
   for (uint32_t i = 0; i < this->components_.size(); i++) {
-    this->components_[i]->setup_();
-    if (this->components_[i]->can_proceed())
+    Component *component = this->components_[i];
+    if (component->is_failed())
       continue;
+
+    component->setup_();
+    if (component->can_proceed())
+      continue;
+
     std::stable_sort(this->components_.begin(), this->components_.begin() + i + 1, [](Component *a, Component *b) {
-      return a->get_loop_priority() > b->get_loop_priority();
+      return a->get_loop_priority() >= b->get_loop_priority();
     });
 
     do {
       for (uint32_t j = 0; j <= i; j++) {
-        this->components_[j]->loop_();
+        if (!this->components_[j]->is_failed())
+          this->components_[j]->loop_();
       }
       yield();
-    } while (!this->components_[i]->can_proceed());
+    } while (!component->can_proceed());
   }
 
   this->application_state_ = Component::SETUP;
@@ -92,10 +98,9 @@ void Application::loop() {
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
   WiFiComponent *wifi = this->init_wifi();
-  wifi->add_sta(WiFiAp{
+  wifi->set_sta(WiFiAp{
       .ssid = ssid,
       .password = password,
-      .bssid = 0,
       .channel = -1,
       .manual_ip = {},
   });

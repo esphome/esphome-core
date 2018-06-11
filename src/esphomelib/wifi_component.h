@@ -27,30 +27,18 @@ enum WiFiComponentState {
    *
    * State can transition to:
    *   - WIFI_COMPONENT_STATE_AP (when AP-only mode)
-   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when in STA-only mode)
-   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when in AP+STA mode)
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when in STA-only mode)
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when in AP+STA mode)
    */
   WIFI_COMPONENT_STATE_OFF = 0,
-  /** WiFi is in STA-only mode and scanning.
-   *
-   * State can transition here from:
-   *   - WIFI_COMPONENT_STATE_OFF (on boot)
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTED (when connection is lost)
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting fails)
-   *
-   * State can transition to:
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when a suitable AP is found)
-   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when no AP from the list matches)
-   */
-  WIFI_COMPONENT_STATE_STA_SCANNING,
   /** WiFi is in STA-only mode and currently connecting to an AP.
    *
    * State can transition here from:
-   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when scan complete and attempting connection)
+   *   - WIFI_COMPONENT_STATE_OFF (when scan complete and attempting connection)
    *
    * State can transition to:
    *   - WIFI_COMPONENT_STATE_STA_CONNECTED (when connecting was successful)
-   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when connecting fails)
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting fails)
    */
   WIFI_COMPONENT_STATE_STA_CONNECTING,
   // Any state below here is a valid state for continuing
@@ -66,21 +54,9 @@ enum WiFiComponentState {
    *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting was successful)
    *
    * State can transition to:
-   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when connection is lost)
+   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connection is lost)
    */
   WIFI_COMPONENT_STATE_STA_CONNECTED,
-  /** WiFi is in AP+STA mode and currently performing a scan. Internal AP is enabled at this point.
-   *
-   * State can transition here from:
-   *   - WIFI_COMPONENT_STATE_OFF (on boot, AP is enabled)
-   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTED (when STA connection lost, AP is enabled again)
-   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when connecting fails)
-   *
-   * State can transition to:
-   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when a suitable AP is found)
-   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when no AP from the list matches)
-   */
-  WIFI_COMPONENT_STATE_AP_STA_SCANNING,
   /** WiFi is in AP+sta mode and currently connecting to an AP. Internal AP is enabled at this point.
    *
    * State can transition here from:
@@ -88,7 +64,7 @@ enum WiFiComponentState {
    *
    * State can transition to:
    *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTED (when connecting was successful)
-   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when connecting fails)
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when connecting fails)
    */
   WIFI_COMPONENT_STATE_AP_STA_CONNECTING,
   /** WiFi is in AP+STA mode and successfully connected. Internal AP is disabled at this point.
@@ -97,7 +73,7 @@ enum WiFiComponentState {
    *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when connecting was successful)
    *
    * State can transition to:
-   *   - WIFI_COMPONENT_STATE_AP_STA_SCANNING (when connection is lost, internal AP is enabled again)
+   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when connection is lost, internal AP is enabled again)
    */
   WIFI_COMPONENT_STATE_AP_STA_CONNECTED,
 };
@@ -114,11 +90,8 @@ struct ManualIP {
 struct WiFiAp {
   std::string ssid;
   std::string password;
-  uint64_t bssid;
-  int8_t channel;
+  int8_t channel; ///< only for AP-mode
   optional<ManualIP> manual_ip;
-
-  bool matches(const char *ssid, uint64_t bssid, uint8_t auth_mode, int32_t channel) const;
 };
 
 /// This component is responsible for managing the ESP WiFi interface.
@@ -128,7 +101,7 @@ class WiFiComponent : public Component {
   WiFiComponent();
 
   /// Setup the STA (client) mode. The parameters define which station to connect to.
-  void add_sta(const WiFiAp &ap);
+  void set_sta(const WiFiAp &ap);
 
   /** Setup an Access Point that should be created if no connection to a station can be made.
    *
@@ -143,15 +116,15 @@ class WiFiComponent : public Component {
   void set_hostname(std::string &&hostname);
   const std::string &get_hostname();
 
-  void start_scan();
-
-  void check_scan_finished();
+  void start_connecting();
 
   void check_connecting_finished();
 
   void retry_connect();
 
   bool can_proceed() override;
+
+  void set_reboot_timeout(uint32_t reboot_timeout);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -177,7 +150,7 @@ class WiFiComponent : public Component {
 
   std::string hostname_;
 
-  std::vector<WiFiAp> sta_;
+  WiFiAp sta_;
 
   WiFiAp ap_;
   WiFiComponentState state_{WIFI_COMPONENT_STATE_OFF};
