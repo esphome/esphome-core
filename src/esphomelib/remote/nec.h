@@ -18,6 +18,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_TRANSMITTER
 class NECTransmitter : public RemoteTransmitter {
  public:
   NECTransmitter(const std::string &name, uint16_t address, uint16_t command);
@@ -28,7 +29,9 @@ class NECTransmitter : public RemoteTransmitter {
   uint16_t address_;
   uint16_t command_;
 };
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_nec(RemoteReceiveData &data, uint16_t *address, uint16_t *command);
 
 class NECDecoder : public RemoteReceiveDecoder {
@@ -46,6 +49,7 @@ class NECDumper : public RemoteReceiveDumper {
  public:
   void dump(RemoteReceiveData &data) override;
 };
+#endif
 
 } // namespace remote
 

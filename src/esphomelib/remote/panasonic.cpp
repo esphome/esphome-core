@@ -23,6 +23,7 @@ static const uint32_t BIT_HIGH_US = 502;
 static const uint32_t BIT_ZERO_LOW_US = 400;
 static const uint32_t BIT_ONE_LOW_US = 1244;
 
+#ifdef USE_REMOTE_TRANSMITTER
 RemoteTransmitData PanasonicTransmitter::get_data() {
   RemoteTransmitData data{};
   data.reserve(100);
@@ -52,7 +53,9 @@ PanasonicTransmitter::PanasonicTransmitter(const std::string &name,
     : RemoteTransmitter(name), address_(address), command_(command) {
 
 }
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *command) {
   if (!data.expect_item(HEADER_HIGH_US, HEADER_LOW_US))
     return false;
@@ -105,6 +108,7 @@ void PanasonicDumper::dump(RemoteReceiveData &data) {
 
   ESP_LOGD(TAG, "Received Panasonic: address=0x%04X, command=0x%08X", address, command);
 }
+#endif
 
 } // namespace remote
 

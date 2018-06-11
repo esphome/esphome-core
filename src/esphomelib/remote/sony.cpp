@@ -23,6 +23,7 @@ static const uint32_t BIT_ONE_HIGH_US = 1200;
 static const uint32_t BIT_ZERO_HIGH_US = 600;
 static const uint32_t BIT_LOW_US = 600;
 
+#ifdef USE_REMOTE_TRANSMITTER
 SonyTransmitter::SonyTransmitter(const std::string &name,
                                  uint32_t data,
                                  uint8_t nbits)
@@ -44,7 +45,9 @@ RemoteTransmitData SonyTransmitter::get_data() {
   }
   return data;
 }
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_sony(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits) {
   if (!data.expect_item(HEADER_HIGH_US, HEADER_LOW_US))
     return false;
@@ -93,6 +96,7 @@ void SonyDumper::dump(RemoteReceiveData &data) {
 
   ESP_LOGD(TAG, "Received Sony: data=0x%08X, nbits=%d", data_, nbits);
 }
+#endif
 
 } // namespace remote
 

@@ -18,6 +18,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_TRANSMITTER
 class PanasonicTransmitter : public RemoteTransmitter {
  public:
   PanasonicTransmitter(const std::string &name, uint16_t address, uint32_t command);
@@ -28,7 +29,9 @@ class PanasonicTransmitter : public RemoteTransmitter {
   uint16_t address_;
   uint32_t command_;
 };
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *command);
 
 class PanasonicDecoder : public RemoteReceiveDecoder {
@@ -46,6 +49,7 @@ class PanasonicDumper : public RemoteReceiveDumper {
  public:
   void dump(RemoteReceiveData &data) override;
 };
+#endif
 
 } // namespace remote
 

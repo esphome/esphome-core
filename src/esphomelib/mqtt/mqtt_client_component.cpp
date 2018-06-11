@@ -152,6 +152,7 @@ void MQTTClientComponent::loop() {
     case MQTT_CLIENT_CONNECTED:
       if (!this->mqtt_client_.connected()) {
         this->state_ = MQTT_CLIENT_DISCONNECTED;
+        ESP_LOGW(TAG, "Lost MQTT Client connection!");
         this->start_connect();
       }
       break;
@@ -198,9 +199,15 @@ void MQTTClientComponent::publish(const std::string &topic, const std::string &p
 
   this->loop();
   uint16_t ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload.data(), payload.length());
-  if (ret == 0 && !logging_topic)
-    ESP_LOGW(TAG, "Publish failed!");
   yield();
+  if (ret == 0 && !logging_topic) {
+    yield();
+    ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload.data(), payload.length());
+    if (ret == 0) {
+      ESP_LOGW(TAG, "Publish failed!");
+    }
+    yield();
+  }
 }
 
 void MQTTClientComponent::publish(const MQTTMessage &message) {

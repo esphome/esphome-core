@@ -18,6 +18,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_TRANSMITTER
 class LGTransmitter : public RemoteTransmitter {
  public:
   LGTransmitter(const std::string &name, uint32_t data, uint8_t nbits);
@@ -28,7 +29,9 @@ class LGTransmitter : public RemoteTransmitter {
   uint32_t data_;
   uint8_t nbits_;
 };
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_lg(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits);
 
 class LGDecoder : public RemoteReceiveDecoder {
@@ -47,6 +50,7 @@ class LGDumper : public RemoteReceiveDumper {
  public:
   void dump(RemoteReceiveData &data) override;
 };
+#endif
 
 } // namespace remote
 

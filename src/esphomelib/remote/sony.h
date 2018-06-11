@@ -18,6 +18,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_TRANSMITTER
 class SonyTransmitter : public RemoteTransmitter {
  public:
   SonyTransmitter(const std::string &name, uint32_t data, uint8_t nbits);
@@ -28,7 +29,9 @@ class SonyTransmitter : public RemoteTransmitter {
   uint32_t data_;
   uint8_t nbits_;
 };
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_sony(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits);
 
 class SonyDecoder : public RemoteReceiveDecoder {
@@ -47,6 +50,7 @@ class SonyDumper : public RemoteReceiveDumper {
  public:
   void dump(RemoteReceiveData &data) override;
 };
+#endif
 
 } // namespace remote
 

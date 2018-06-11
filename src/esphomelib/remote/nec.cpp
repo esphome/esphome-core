@@ -23,6 +23,7 @@ static const uint32_t BIT_HIGH_US = 560;
 static const uint32_t BIT_ONE_LOW_US = 1690;
 static const uint32_t BIT_ZERO_LOW_US = 560;
 
+#ifdef USE_REMOTE_TRANSMITTER
 RemoteTransmitData NECTransmitter::get_data() {
   RemoteTransmitData data{};
   data.reserve(68);
@@ -52,7 +53,9 @@ NECTransmitter::NECTransmitter(const std::string &name,
     : RemoteTransmitter(name),  address_(address), command_(command) {
 
 }
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_nec(RemoteReceiveData &data, uint16_t *address, uint16_t *command) {
   if (!data.expect_item(HEADER_HIGH_US, HEADER_LOW_US))
     return false;
@@ -103,6 +106,7 @@ void NECDumper::dump(RemoteReceiveData &data) {
 
   ESP_LOGD(TAG, "Received NEC: address=0x%04X, command=0x%04X", address, command);
 }
+#endif
 
 } // namespace remote
 

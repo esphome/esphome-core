@@ -23,6 +23,7 @@ static const uint32_t BIT_HIGH_US = 600;
 static const uint32_t BIT_ONE_LOW_US = 1600;
 static const uint32_t BIT_ZERO_LOW_US = 550;
 
+#ifdef USE_REMOTE_TRANSMITTER
 LGTransmitter::LGTransmitter(const std::string &name, uint32_t data, uint8_t nbits)
     : RemoteTransmitter(name), data_(data), nbits_(nbits) {}
 
@@ -44,7 +45,9 @@ RemoteTransmitData LGTransmitter::get_data() {
 
   return data;
 }
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 bool decode_lg(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits) {
   if (!data.expect_item(HEADER_HIGH_US, HEADER_LOW_US))
     return false;
@@ -82,6 +85,7 @@ void LGDumper::dump(RemoteReceiveData &data) {
 
   ESP_LOGD(TAG, "Received LG: data=0x%08X, nbits=%d", data_, nbits);
 }
+#endif
 
 } // namespace remote
 

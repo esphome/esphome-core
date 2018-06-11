@@ -18,6 +18,22 @@ namespace remote {
 
 static const char *TAG = "remote.raw";
 
+#ifdef USE_REMOTE_TRANSMITTER
+RemoteTransmitData RawTransmitter::get_data() {
+  RemoteTransmitData data;
+  data.set_data(this->data_);
+  data.set_carrier_frequency(this->carrier_frequency_);
+  return data;
+}
+RawTransmitter::RawTransmitter(const std::string &name,
+                               std::vector<int32_t> data,
+                               uint32_t carrier_frequency)
+    : RemoteTransmitter(name), data_(std::move(data)), carrier_frequency_(carrier_frequency) {
+
+}
+#endif
+
+#ifdef USE_REMOTE_RECEIVER
 void remote::RawDumper::dump(RemoteReceiveData &data) {
   char buffer[256];
   uint32_t buffer_offset = 0;
@@ -53,7 +69,6 @@ void remote::RawDumper::dump(RemoteReceiveData &data) {
     ESP_LOGD(TAG, "%s", buffer);
   }
 }
-
 bool RawDecoder::matches(RemoteReceiveData &data) {
   for (int32_t val : this->data_) {
     if (val < 0) {
@@ -65,21 +80,10 @@ bool RawDecoder::matches(RemoteReceiveData &data) {
     }
   }
 }
+
 RawDecoder::RawDecoder(const std::string &name, std::vector<int32_t> data)
     : RemoteReceiveDecoder(name), data_(std::move(data)) {}
-
-RemoteTransmitData RawTransmitter::get_data() {
-  RemoteTransmitData data;
-  data.set_data(this->data_);
-  data.set_carrier_frequency(this->carrier_frequency_);
-  return data;
-}
-RawTransmitter::RawTransmitter(const std::string &name,
-                               std::vector<int32_t> data,
-                               uint32_t carrier_frequency)
-    : RemoteTransmitter(name), data_(std::move(data)), carrier_frequency_(carrier_frequency) {
-
-}
+#endif
 
 } // namespace remote
 

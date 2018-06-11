@@ -27,6 +27,31 @@ namespace remote {
 
 static const char *TAG = "remote.base";
 
+RemoteControlComponentBase::RemoteControlComponentBase(GPIOPin *pin)
+    : pin_(pin) {
+#ifdef ARDUINO_ARCH_ESP32
+  this->channel_ = select_next_rmt_channel();
+#endif
+}
+#ifdef ARDUINO_ARCH_ESP32
+uint32_t RemoteControlComponentBase::from_microseconds(uint32_t us) {
+  const uint32_t ticks_per_ten_us = 80000000u / this->clock_divider_ / 100000u;
+  return us * ticks_per_ten_us / 10;
+}
+uint32_t RemoteControlComponentBase::to_microseconds(uint32_t ticks) {
+  const uint32_t ticks_per_ten_us = 80000000u / this->clock_divider_ / 100000u;
+  return (ticks * 10) / ticks_per_ten_us;
+}
+void RemoteControlComponentBase::set_channel(rmt_channel_t channel) {
+  this->channel_ = channel;
+}
+void RemoteControlComponentBase::set_clock_divider(uint8_t clock_divider) {
+  this->clock_divider_ = clock_divider;
+}
+#endif
+
+
+#ifdef USE_REMOTE_RECEIVER
 RemoteReceiveData::RemoteReceiveData(RemoteReceiverComponent *parent, const std::vector<int32_t> &data)
     : parent_(parent), data_(data) {}
 uint32_t RemoteReceiveData::lower_bound_(uint32_t length) {
@@ -94,54 +119,6 @@ bool RemoteReceiveData::peek_space_at_least(uint32_t length, uint32_t offset) {
   const int32_t lo = this->lower_bound_(length);
   return value <= 0 && lo <= -value;
 }
-void RemoteTransmitData::mark(uint32_t length) {
-  this->data_.push_back(length);
-}
-void RemoteTransmitData::space(uint32_t length) {
-  this->data_.push_back(-length);
-}
-void RemoteTransmitData::item(uint32_t mark, uint32_t space) {
-  this->mark(mark);
-  this->space(space);
-}
-void RemoteTransmitData::reserve(uint32_t len) {
-  this->data_.reserve(len);
-}
-void RemoteTransmitData::set_data(std::vector<int32_t> data) {
-  this->data_ = std::move(data);
-}
-void RemoteTransmitData::set_carrier_frequency(uint32_t carrier_frequency) {
-  this->carrier_frequency_ = carrier_frequency;
-}
-uint32_t RemoteTransmitData::get_carrier_frequency() const {
-  return this->carrier_frequency_;
-}
-const std::vector<int32_t> &RemoteTransmitData::get_data() const {
-  return this->data_;
-}
-RemoteControlComponentBase::RemoteControlComponentBase(GPIOPin *pin)
-    : pin_(pin) {
-#ifdef ARDUINO_ARCH_ESP32
-  this->channel_ = select_next_rmt_channel();
-#endif
-}
-#ifdef ARDUINO_ARCH_ESP32
-uint32_t RemoteControlComponentBase::from_microseconds(uint32_t us) {
-  const uint32_t ticks_per_ten_us = 80000000u / this->clock_divider_ / 100000u;
-  return us * ticks_per_ten_us / 10;
-}
-uint32_t RemoteControlComponentBase::to_microseconds(uint32_t ticks) {
-  const uint32_t ticks_per_ten_us = 80000000u / this->clock_divider_ / 100000u;
-  return (ticks * 10) / ticks_per_ten_us;
-}
-void RemoteControlComponentBase::set_channel(rmt_channel_t channel) {
-  this->channel_ = channel;
-}
-void RemoteControlComponentBase::set_clock_divider(uint8_t clock_divider) {
-  this->clock_divider_ = clock_divider;
-}
-#endif
-
 RemoteReceiverComponent::RemoteReceiverComponent(GPIOPin *pin)
     : RemoteControlComponentBase(pin) {
 
@@ -379,6 +356,34 @@ void RemoteReceiveDumper::process_(RemoteReceiveData &data) {
   data.reset_index();
   this->dump(data);
 }
+#endif //USE_REMOTE_RECEIVER
+
+#ifdef USE_REMOTE_TRANSMITTER
+void RemoteTransmitData::mark(uint32_t length) {
+  this->data_.push_back(length);
+}
+void RemoteTransmitData::space(uint32_t length) {
+  this->data_.push_back(-length);
+}
+void RemoteTransmitData::item(uint32_t mark, uint32_t space) {
+  this->mark(mark);
+  this->space(space);
+}
+void RemoteTransmitData::reserve(uint32_t len) {
+  this->data_.reserve(len);
+}
+void RemoteTransmitData::set_data(std::vector<int32_t> data) {
+  this->data_ = std::move(data);
+}
+void RemoteTransmitData::set_carrier_frequency(uint32_t carrier_frequency) {
+  this->carrier_frequency_ = carrier_frequency;
+}
+uint32_t RemoteTransmitData::get_carrier_frequency() const {
+  return this->carrier_frequency_;
+}
+const std::vector<int32_t> &RemoteTransmitData::get_data() const {
+  return this->data_;
+}
 
 RemoteTransmitter::RemoteTransmitter(const std::string &name)
     : Switch(name) {
@@ -470,6 +475,7 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
     bool level = val >= 0;
     if (!level)
       val = -val;
+    val = this->from_microseconds(val);
 
     do {
       int32_t item = std::min(val, 32767);
@@ -493,10 +499,23 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
     rmt_data.push_back(rmt_item);
   }
 
+  for (rmt_item32_t item : rmt_data) {
+    if (item.level0) {
+      ESP_LOGD(TAG, "ON %uus (%u)", this->to_microseconds(item.duration0), item.duration0);
+    } else {
+      ESP_LOGD(TAG, "OFF %uus (%u)", this->to_microseconds(item.duration0), item.duration0);
+    }
+    if (item.level1) {
+      ESP_LOGD(TAG, "ON %uus (%u)", this->to_microseconds(item.duration1), item.duration1);
+    } else {
+      ESP_LOGD(TAG, "OFF %uus (%u)", this->to_microseconds(item.duration1), item.duration1);
+    }
+  }
+
   for (uint16_t i = 0; i < send_times; i++) {
     rmt_write_items(this->channel_, rmt_data.data(), rmt_data.size(), true);
     if (i + 1 < send_times)
-      delayMicroseconds(send_wait);
+      delay_microseconds_accurate(send_wait);
   }
 }
 #endif //ARDUINO_ARCH_ESP32
@@ -587,6 +606,7 @@ RemoteTransmitter *RemoteTransmitterComponent::add_transmitter(RemoteTransmitter
 void RemoteTransmitterComponent::set_carrier_duty_percent(uint8_t carrier_duty_percent) {
   this->carrier_duty_percent_ = carrier_duty_percent;
 }
+#endif //USE_REMOTE_TRANSMITTER
 
 } // namespace remote
 

@@ -18,6 +18,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_TRANSMITTER
 class RawTransmitter : public RemoteTransmitter {
  public:
   RawTransmitter(const std::string &name, std::vector<int32_t> data,
@@ -28,7 +29,9 @@ class RawTransmitter : public RemoteTransmitter {
   std::vector<int32_t> data_;
   uint32_t carrier_frequency_{0};
 };
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
 class RawDecoder : public RemoteReceiveDecoder {
  public:
   RawDecoder(const std::string &name, std::vector<int32_t> data);
@@ -43,6 +46,7 @@ class RawDumper : public RemoteReceiveDumper {
  public:
   void dump(RemoteReceiveData &data) override;
 };
+#endif
 
 } // namespace remote
 

@@ -798,13 +798,13 @@ Application::MakeTemplateCover Application::make_template_cover(const std::strin
 
 #ifdef USE_REMOTE_TRANSMITTER
 remote::RemoteTransmitterComponent *Application::make_remote_transmitter_component(const GPIOOutputPin &output) {
-  return new remote::RemoteTransmitterComponent(output.copy());
+  return App.register_component(new remote::RemoteTransmitterComponent(output.copy()));
 }
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
 remote::RemoteReceiverComponent *Application::make_remote_receiver_component(const GPIOInputPin &output) {
-  return new remote::RemoteReceiverComponent(output.copy());
+  return App.register_component(new remote::RemoteReceiverComponent(output.copy()));
 }
 #endif
 

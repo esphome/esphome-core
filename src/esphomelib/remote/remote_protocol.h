@@ -45,7 +45,7 @@ class RemoteControlComponentBase {
   GPIOPin *pin_;
 #ifdef ARDUINO_ARCH_ESP32
   rmt_channel_t channel_{RMT_CHANNEL_0};
-  uint8_t clock_divider_{80};
+  uint8_t clock_divider_{10};
 #endif
 };
 
@@ -122,7 +122,7 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
 
 #ifdef ARDUINO_ARCH_ESP32
   void configure_rmt();
-  uint32_t current_carrier_frequency_;
+  uint32_t current_carrier_frequency_{35000};
 #endif
   uint8_t carrier_duty_percent_{50};
   std::vector<RemoteTransmitter *> transmitters_{};
@@ -241,13 +241,6 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
 } // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
-
-// Include protocols
-#include "esphomelib/remote/lg.h"
-#include "esphomelib/remote/nec.h"
-#include "esphomelib/remote/panasonic.h"
-#include "esphomelib/remote/raw.h"
-#include "esphomelib/remote/sony.h"
 
 #endif //USE_REMOTE
 
