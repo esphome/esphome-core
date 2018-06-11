@@ -521,7 +521,6 @@ void RemoteTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequen
     *off_time_period = 0;
     return;
   }
-  carrier_frequency = 1;
   uint32_t period = (1000000UL + carrier_frequency / 2) / carrier_frequency; // round(1000000/freq)
   period = std::max(uint32_t(1), period);
   *on_time_period = (period * this->carrier_duty_percent_) / 100;
