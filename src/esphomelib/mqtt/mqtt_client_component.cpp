@@ -80,6 +80,7 @@ void MQTTClientComponent::setup() {
     this->mqtt_client_.disconnect(true);
   });
 
+  this->last_connected_ = millis();
   this->start_connect();
 }
 bool MQTTClientComponent::can_proceed() {
@@ -119,11 +120,6 @@ void MQTTClientComponent::start_connect() {
 void MQTTClientComponent::check_connected() {
   assert(this->state_ == MQTT_CLIENT_CONNECTING);
   if (!this->mqtt_client_.connected()) {
-    if (millis() - this->connect_begin_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
-      ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-      reboot("mqtt");
-      return;
-    }
     if (millis() - this->connect_begin_ > 15000) {
       this->state_ = MQTT_CLIENT_DISCONNECTED;
       this->start_connect();
@@ -144,6 +140,12 @@ void MQTTClientComponent::check_connected() {
 }
 
 void MQTTClientComponent::loop() {
+  if (millis() - this->last_connected_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
+    ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
+    reboot("mqtt");
+    return;
+  }
+
   switch (this->state_) {
     case MQTT_CLIENT_DISCONNECTED:
       this->start_connect();
@@ -156,6 +158,8 @@ void MQTTClientComponent::loop() {
         this->state_ = MQTT_CLIENT_DISCONNECTED;
         ESP_LOGW(TAG, "Lost MQTT Client connection!");
         this->start_connect();
+      } else {
+        this->last_connected_ = millis();
       }
       break;
   }

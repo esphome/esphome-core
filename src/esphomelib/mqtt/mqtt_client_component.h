@@ -241,6 +241,7 @@ class MQTTClientComponent : public Component {
   MQTTClientState state_{MQTT_CLIENT_DISCONNECTED};
   uint32_t reboot_timeout_{60000};
   uint32_t connect_begin_;
+  uint32_t last_connected_{0};
 };
 
 class MQTTMessageTrigger : public Trigger<std::string> {
