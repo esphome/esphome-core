@@ -29,6 +29,13 @@ enum PulseCounterCountMode {
   PULSE_COUNTER_DECREMENT,
 };
 
+#ifdef ARDUINO_ARCH_ESP32
+using pulse_counter_t = int16_t;
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+using pulse_counter_t = int32_t;
+#endif
+
 /** Pulse Counter - This is the sensor component for the ESP32 integrated pulse counter peripheral.
  *
  * It offers 8 pulse counter units that can be setup in several ways to count pulses on a pin.
@@ -79,9 +86,9 @@ class PulseCounterSensorComponent : public PollingSensorComponent {
   pcnt_unit_t pcnt_unit_;
 #endif
   PulseCounterCountMode rising_edge_mode_{PULSE_COUNTER_INCREMENT};
-  PulseCounterCountMode falling_edge_mode_{PULSE_COUNTER_DECREMENT};
+  PulseCounterCountMode falling_edge_mode_{PULSE_COUNTER_DISABLE};
   uint32_t filter_us_{13};
-  int16_t last_value_{0};
+  pulse_counter_t last_value_{0};
 };
 
 #ifdef ARDUINO_ARCH_ESP32

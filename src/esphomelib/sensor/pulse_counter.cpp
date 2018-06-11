@@ -86,9 +86,9 @@ void PulseCounterSensorComponent::setup() {
   pcnt_counter_resume(this->pcnt_unit_);
 }
 void PulseCounterSensorComponent::update() {
-  int16_t counter;
+  pulse_counter_t counter;
   pcnt_get_counter_value(this->pcnt_unit_, &counter);
-  int16_t delta = counter - this->last_value_;
+  pulse_counter_t delta = counter - this->last_value_;
   this->last_value_ = counter;
   float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
 
@@ -110,8 +110,8 @@ void PulseCounterSensorComponent::setup() {
 }
 
 void PulseCounterSensorComponent::update() {
-  const int16_t counter = this->counter_;
-  int16_t delta = counter - this->last_value_;
+  const pulse_counter_t counter = this->counter_;
+  pulse_counter_t delta = counter - this->last_value_;
   this->last_value_ = counter;
   float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
 

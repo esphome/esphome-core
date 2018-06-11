@@ -19,24 +19,40 @@ static const char *TAG = "sensor.duty_cycle";
 
 DutyCycleSensor::DutyCycleSensor(const std::string &name, GPIOPin *pin, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), pin_(pin) {
-
+  this->pin_number_ = pin->get_pin();
+  this->pin_inverted_ = pin->is_inverted();
 }
 
-std::vector<DutyCycleSensor *> duty_cycle_sensors; // NOLINT
+DutyCycleSensor *duty_cycle_sensors = nullptr;
 
-void gpio_intr() {
-  for (auto *sensor : duty_cycle_sensors)
+void ICACHE_RAM_ATTR DutyCycleSensor::gpio_intr() {
+  DutyCycleSensor *sensor = duty_cycle_sensors;
+  while (sensor != nullptr) {
     sensor->on_interrupt();
+    sensor = sensor->next_;
+  }
 }
 void DutyCycleSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Duty Cycle Sensor '%s'...", this->get_name().c_str());
   this->pin_->setup();
   this->last_level_ = this->pin_->digital_read();
-  duty_cycle_sensors.push_back(this);
+
+  disable_interrupts();
+  if (duty_cycle_sensors == nullptr) {
+    duty_cycle_sensors = this;
+  } else {
+    DutyCycleSensor *last_sensor = duty_cycle_sensors;
+    while (last_sensor->next_ != nullptr) {
+      last_sensor = last_sensor->next_;
+    }
+    last_sensor->next_ = this;
+  }
+  enable_interrupts();
+
   attachInterrupt(this->pin_->get_pin(), gpio_intr, CHANGE);
 }
-void DutyCycleSensor::on_interrupt() {
-  const bool new_level = this->pin_->digital_read();
+void ICACHE_RAM_ATTR DutyCycleSensor::on_interrupt() {
+  const bool new_level = digitalRead(this->pin_number_) != int(this->pin_inverted_);
   if (new_level == this->last_level_)
     return;
   this->last_level_ = new_level;
@@ -75,7 +91,6 @@ std::string DutyCycleSensor::icon() {
 int8_t DutyCycleSensor::accuracy_decimals() {
   return 1;
 }
-
 
 } // namespace sensor
 

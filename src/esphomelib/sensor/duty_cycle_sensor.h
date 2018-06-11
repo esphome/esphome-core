@@ -11,7 +11,6 @@
 
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
-#include <vector>
 
 #ifdef USE_DUTY_CYCLE_SENSOR
 
@@ -29,16 +28,22 @@ class DutyCycleSensor : public PollingSensorComponent {
   std::string icon() override;
   int8_t accuracy_decimals() override;
 
-  void on_interrupt();
+  void ICACHE_RAM_ATTR on_interrupt() ;
+
+  static void ICACHE_RAM_ATTR gpio_intr();
 
  protected:
   GPIOPin *pin_;
   volatile uint32_t last_interrupt_{0};
   volatile uint32_t on_time_{0};
   volatile bool last_level_{false};
+  DutyCycleSensor *next_;
+  // Store the pin number locally, due to IRAM_ATTR
+  uint8_t pin_number_;
+  bool pin_inverted_;
 };
 
-extern std::vector<DutyCycleSensor *> duty_cycle_sensors;
+extern DutyCycleSensor *duty_cycle_sensors;
 
 } // namespace sensor
 
