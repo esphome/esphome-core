@@ -10,6 +10,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/controller.h"
+#include "esphomelib/esp32_ble_beacon.h"
 #include "esphomelib/esp32_ble_tracker.h"
 #include "esphomelib/debug_component.h"
 #include "esphomelib/deep_sleep_component.h"
@@ -178,6 +179,10 @@ class Application {
    * @return An ESP32BLETracker instance, use this to create individual trackers as binary sensors.
    */
   ESP32BLETracker *make_esp32_ble_tracker();
+#endif
+
+#ifdef USE_ESP32_BLE_BEACON
+  ESP32BLEBeacon *make_esp32_ble_beacon();
 #endif
 
 

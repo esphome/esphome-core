@@ -75,6 +75,7 @@
   #endif
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_ESP32_BLE_TRACKER
+    #define USE_ESP32_BLE_BEACON
   #endif
   #define USE_FAST_LED_LIGHT
   #define USE_ROTARY_ENCODER_SENSOR

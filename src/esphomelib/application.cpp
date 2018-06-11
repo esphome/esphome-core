@@ -838,6 +838,12 @@ Application::MakeESP32HallSensor Application::make_esp32_hall_sensor(const std::
 }
 #endif
 
+#ifdef USE_ESP32_BLE_BEACON
+ESP32BLEBeacon *Application::make_esp32_ble_beacon() {
+  return App.register_component(new ESP32BLEBeacon());
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
