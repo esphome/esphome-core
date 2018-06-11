@@ -127,6 +127,7 @@ class LambdaFilter : public Filter {
 
   const lambda_filter_t &get_lambda_filter() const;
   void set_lambda_filter(const lambda_filter_t &lambda_filter);
+
  protected:
   lambda_filter_t lambda_filter_;
 };

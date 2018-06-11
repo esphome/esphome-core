@@ -18,7 +18,7 @@ bool ESPOneWire::reset() {
   uint8_t retries = 125;
 
   // Wait for communication to clear
-  this->pin_->pin_mode(INPUT);
+  this->pin_->pin_mode(INPUT_PULLUP);
   do {
     if (--retries == 0)
       return false;
@@ -31,7 +31,7 @@ bool ESPOneWire::reset() {
   delayMicroseconds(480);
 
   // Switch into RX mode, letting the pin float
-  this->pin_->pin_mode(INPUT);
+  this->pin_->pin_mode(INPUT_PULLUP);
   // after 15µs-60µs wait time, slave pulls low for 60µs-240µs
   // let's have 70µs just in case
   delayMicroseconds(70);
@@ -69,7 +69,7 @@ bool ESPOneWire::read_bit() {
   delayMicroseconds(3);
 
   // release bus, we have to sample within 15µs of pulling low
-  this->pin_->pin_mode(INPUT);
+  this->pin_->pin_mode(INPUT_PULLUP);
   delayMicroseconds(10);
 
   bool r = this->pin_->digital_read();

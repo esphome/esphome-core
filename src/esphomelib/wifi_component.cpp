@@ -82,7 +82,7 @@ void WiFiComponent::loop() {
       default: break;
     }
 
-    if (!this->has_ap()) {
+    if (!this->has_ap() && this->reboot_timeout_ != 0) {
       if (now - this->last_connected_ > this->reboot_timeout_) {
         ESP_LOGE(TAG, "Can't connect to WiFi, rebooting...");
         reboot("wifi");
@@ -339,10 +339,13 @@ bool WiFiComponent::can_proceed() {
   if (this->has_ap()) {
     return true;
   }
-  return this->state_ == WIFI_COMPONENT_STATE_STA_CONNECTED && WiFi.status() == WL_CONNECTED;
+  return this->is_connected();
 }
 void WiFiComponent::set_reboot_timeout(uint32_t reboot_timeout) {
   this->reboot_timeout_ = reboot_timeout;
+}
+bool WiFiComponent::is_connected() {
+  return this->state_ == WIFI_COMPONENT_STATE_STA_CONNECTED && WiFi.status() == WL_CONNECTED;
 }
 
 WiFiComponent *global_wifi_component;

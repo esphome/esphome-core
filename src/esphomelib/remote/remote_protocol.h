@@ -122,7 +122,8 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
 
 #ifdef ARDUINO_ARCH_ESP32
   void configure_rmt();
-  uint32_t current_carrier_frequency_{35000};
+  uint32_t current_carrier_frequency_{UINT32_MAX};
+  bool initialized_{false};
 #endif
   uint8_t carrier_duty_percent_{50};
   std::vector<RemoteTransmitter *> transmitters_{};

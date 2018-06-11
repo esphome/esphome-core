@@ -126,6 +126,8 @@ class WiFiComponent : public Component {
 
   void set_reboot_timeout(uint32_t reboot_timeout);
 
+  bool is_connected();
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Setup WiFi interface.

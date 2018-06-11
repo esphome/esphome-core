@@ -416,8 +416,7 @@ float RemoteTransmitterComponent::get_setup_priority() const {
 }
 #ifdef ARDUINO_ARCH_ESP32
 void RemoteTransmitterComponent::setup() {
-  this->configure_rmt();
-  rmt_driver_install(this->channel_, 0, 0);
+
 }
 
 void RemoteTransmitterComponent::configure_rmt() {
@@ -434,7 +433,7 @@ void RemoteTransmitterComponent::configure_rmt() {
   c.mem_block_num = 1;
   c.tx_config.loop_en = false;
 
-  if (this->current_carrier_frequency_ == 0 || this->current_carrier_frequency_ == 100) {
+  if (this->current_carrier_frequency_ == 0 || this->carrier_duty_percent_ == 100) {
     c.tx_config.carrier_en = false;
   } else {
     c.tx_config.carrier_en = true;
@@ -458,6 +457,11 @@ void RemoteTransmitterComponent::configure_rmt() {
   }
 
   rmt_config(&c);
+
+  if (!this->initialized_) {
+    rmt_driver_install(this->channel_, 0, 0);
+    this->initialized_ = true;
+  }
 }
 
 void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t send_times, uint32_t send_wait) {

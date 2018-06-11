@@ -18,23 +18,24 @@ void BinarySensor::add_on_state_callback(binary_callback_t &&callback) {
 }
 
 void BinarySensor::publish_state(bool state) {
-  bool actual = state != this->inverted_;
-  if (!this->first_value_ && actual == this->value)
-    return;
-  this->first_value_ = false;
-  this->value = actual;
-  this->state_callback_.call(actual);
+  if (this->filter_list_ == nullptr) {
+    this->send_value_(state);
+  } else {
+    this->filter_list_->input(state);
+  }
+
 }
-bool BinarySensor::is_inverted() const {
-  return this->inverted_;
-}
-void BinarySensor::set_inverted(bool inverted) {
-  this->inverted_ = inverted;
+void BinarySensor::send_value_(bool value) {
+  this->value = value;
+  this->state_callback_.call(value);
 }
 std::string BinarySensor::device_class() {
   return "";
 }
-BinarySensor::BinarySensor(const std::string &name) : Nameable(name) {}
+BinarySensor::BinarySensor(const std::string &name) : Nameable(name) {
+  this->add_filter(new UniqueFilter());
+}
+
 bool BinarySensor::get_value() const {
   return this->value;
 }
@@ -57,6 +58,22 @@ ClickTrigger *BinarySensor::make_click_trigger(uint32_t min_length, uint32_t max
 }
 DoubleClickTrigger *BinarySensor::make_double_click_trigger(uint32_t min_length, uint32_t max_length) {
   return new DoubleClickTrigger(this, min_length, max_length);
+}
+void BinarySensor::add_filter(Filter *filter) {
+  filter->parent_ = this;
+  if (this->filter_list_ == nullptr) {
+    this->filter_list_ = filter;
+  } else {
+    Filter *last_filter = this->filter_list_;
+    while (last_filter->next_ != nullptr)
+      last_filter = last_filter->next_;
+    last_filter->next_ = filter;
+  }
+}
+void BinarySensor::add_filters(std::vector<Filter *> filters) {
+  for (Filter *filter : filters) {
+    this->add_filter(filter);
+  }
 }
 
 PressTrigger::PressTrigger(BinarySensor *parent) {

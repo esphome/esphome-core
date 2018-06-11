@@ -87,7 +87,7 @@ bool MQTTClientComponent::can_proceed() {
 }
 
 void MQTTClientComponent::start_connect() {
-  if (WiFi.status() != WL_CONNECTED)
+  if (!global_wifi_component->is_connected())
     return;
 
   ESP_LOGI(TAG, "Connecting to MQTT...");
@@ -118,7 +118,7 @@ void MQTTClientComponent::start_connect() {
 void MQTTClientComponent::check_connected() {
   assert(this->state_ == MQTT_CLIENT_CONNECTING);
   if (!this->mqtt_client_.connected()) {
-    if (millis() - this->connect_begin_ > this->reboot_timeout_) {
+    if (millis() - this->connect_begin_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
       ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
       reboot("mqtt");
       return;

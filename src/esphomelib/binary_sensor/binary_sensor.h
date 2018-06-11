@@ -8,6 +8,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/automation.h"
+#include "esphomelib/binary_sensor/filter.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
@@ -23,6 +24,7 @@ class PressTrigger;
 class ReleaseTrigger;
 class ClickTrigger;
 class DoubleClickTrigger;
+class Filter;
 
 /** Base class for all binary_sensor-type classes.
  *
@@ -43,9 +45,6 @@ class BinarySensor : public Nameable {
    * @param callback The void(bool) callback.
    */
   virtual void add_on_state_callback(binary_callback_t &&callback);
-
-  /// Set the inverted state of this binary sensor. If true, each published value will be inverted.
-  void set_inverted(bool inverted);
 
   /** Publish a new state.
    *
@@ -72,10 +71,13 @@ class BinarySensor : public Nameable {
 
   DoubleClickTrigger *make_double_click_trigger(uint32_t min_length, uint32_t max_length);
 
+  void add_filter(Filter *filter);
+
+  void add_filters(std::vector<Filter *> filters);
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  /// Return whether all states of this binary sensor should be inverted.
-  bool is_inverted() const;
+  void send_value_(bool value);
 
   bool value{false};
 
@@ -86,9 +88,8 @@ class BinarySensor : public Nameable {
   virtual std::string device_class();
 
   CallbackManager<void(bool)> state_callback_{};
-  bool inverted_{false};
-  bool first_value_{true};
   optional<std::string> device_class_{}; ///< Stores the override of the device class
+  Filter *filter_list_{nullptr};
 };
 
 class PressTrigger : public Trigger<NoArg> {
