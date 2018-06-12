@@ -50,6 +50,9 @@ bool TemplateSwitch::optimistic() {
 void TemplateSwitch::set_state_lambda(std::function<optional<bool>()> &&f) {
   this->f_ = f;
 }
+float TemplateSwitch::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace switch_
 

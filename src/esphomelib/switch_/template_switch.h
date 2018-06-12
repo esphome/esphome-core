@@ -29,6 +29,8 @@ class TemplateSwitch : public Switch {
   void set_optimistic(bool optimistic);
   void loop() override;
 
+  float get_setup_priority() const override;
+
  protected:
   bool optimistic() override;
 
