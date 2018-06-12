@@ -82,12 +82,15 @@ float BH1750Sensor::get_setup_priority() const {
 }
 void BH1750Sensor::read_data_() {
   uint16_t raw_value;
-  if (!this->parent_->receive_16_(this->address_, &raw_value, 1))
+  if (!this->parent_->receive_16_(this->address_, &raw_value, 1)) {
+    this->status_set_warning();
     return;
+  }
 
   float lx = float(raw_value) / 1.2f;
   ESP_LOGD(TAG, "'%s': Got illuminance=%.1flx", this->get_name().c_str(), lx);
   this->push_new_value(lx);
+  this->status_clear_warning();
 }
 void BH1750Sensor::set_resolution(BH1750Resolution resolution) {
   this->resolution_ = resolution;

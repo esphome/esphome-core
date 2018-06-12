@@ -28,6 +28,7 @@ void DebugComponent::setup() {
     // Skip
   } else {
     ESP_LOGE(TAG, "Debug Component requires debug log level!");
+    this->status_set_error();
     return;
   }
   ESP_LOGD(TAG, "esphomelib version %s", ESPHOMELIB_VERSION);
@@ -142,6 +143,7 @@ void DebugComponent::loop() {
   if (new_free_heap < this->free_heap_ / 2) {
     this->free_heap_ = new_free_heap;
     ESP_LOGD(TAG, "Free Heap Size: %u bytes", this->free_heap_);
+    this->status_momentary_warning("heap", 1000);
   }
 }
 float DebugComponent::get_setup_priority() const {

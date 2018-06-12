@@ -69,6 +69,7 @@ esp_err_t esp_ble_config_ibeacon_data(esp_ble_ibeacon_vendor_t *vendor_config, e
 }
 
 void ESP32BLEBeacon::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up ESP32 BLE beacon...");
   xTaskCreatePinnedToCore(
       ESP32BLEBeacon::ble_core_task,
       "ble_task", // name
@@ -128,6 +129,10 @@ void ESP32BLEBeacon::ble_core_task(void *params) {
     return;
   }
   esp_ble_gap_config_adv_data_raw((uint8_t *) &ibeacon_adv_data, sizeof(ibeacon_adv_data));
+
+  while (true) {
+    delay(1000);
+  }
 }
 
 void ESP32BLEBeacon::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {

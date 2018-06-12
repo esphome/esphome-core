@@ -31,10 +31,13 @@ void MQTTSwitchComponent::setup() {
   }
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
-    if (strcasecmp(payload.c_str(), "ON") == 0)
-      this->turn_on();
-    else if (strcasecmp(payload.c_str(), "OFF") == 0)
-      this->turn_off();
+    auto val = parse_on_off(payload.c_str());
+    if (!val.has_value()) {
+      ESP_LOGW(TAG, "'%s': Received unknown status payload: %s", this->friendly_name().c_str(), payload.c_str());
+      this->status_momentary_warning("state", 5000);
+    }
+    ESP_LOGD(TAG, "'%s' Turning %s.", this->friendly_name().c_str(), payload.c_str());
+    this->switch_->write_state(*val);
   });
   this->switch_->add_on_state_callback([this](bool enabled){
     this->defer([this, enabled]() {
@@ -47,14 +50,6 @@ void MQTTSwitchComponent::setup() {
 
 std::string MQTTSwitchComponent::component_type() const {
   return "switch";
-}
-void MQTTSwitchComponent::turn_on() {
-  ESP_LOGD(TAG, "'%s' Turning ON.", this->friendly_name().c_str());
-  this->switch_->write_state(true);
-}
-void MQTTSwitchComponent::turn_off() {
-  ESP_LOGD(TAG, "'%s' Turning OFF.", this->friendly_name().c_str());
-  this->switch_->write_state(false);
 }
 void MQTTSwitchComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->switch_->get_icon().empty())

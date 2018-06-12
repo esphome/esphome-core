@@ -90,6 +90,7 @@ void MQTTClientComponent::start_connect() {
   if (!global_wifi_component->is_connected())
     return;
 
+  this->status_set_warning();
   ESP_LOGI(TAG, "Connecting to MQTT...");
   // Force disconnect first
   this->mqtt_client_.disconnect(true);
@@ -131,6 +132,7 @@ void MQTTClientComponent::check_connected() {
   }
 
   this->state_ = MQTT_CLIENT_CONNECTED;
+  this->status_clear_warning();
   ESP_LOGI(TAG, "MQTT Connected!");
   if (!this->birth_message_.topic.empty())
     this->publish(this->birth_message_);
@@ -205,6 +207,7 @@ void MQTTClientComponent::publish(const std::string &topic, const std::string &p
     ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload.data(), payload.length());
     if (ret == 0) {
       ESP_LOGW(TAG, "Publish failed!");
+      this->status_momentary_warning("publish", 5000);
     }
     yield();
   }

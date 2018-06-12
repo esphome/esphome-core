@@ -7,6 +7,7 @@
 #include "esphomelib/esppreferences.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/wifi_component.h"
+#include "esphomelib/status_led.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_OTA
@@ -48,9 +49,11 @@ void OTAComponent::setup() {
     ESP_LOGI(TAG, "OTA starting...");
     this->ota_triggered_ = true;
     this->at_ota_progress_message_ = 0;
+    this->status_set_warning();
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
+    this->status_clear_warning();
     delay(100);
     run_safe_shutdown_hooks("ota");
   });
@@ -86,6 +89,8 @@ void OTAComponent::setup() {
       default:ESP_LOGE(TAG, "  Unknown Error");
     }
     this->ota_triggered_ = false;
+    this->status_clear_warning();
+    this->status_momentary_error("onerror", 5000);
   });
   ArduinoOTA.begin();
 
@@ -112,6 +117,11 @@ void OTAComponent::setup() {
 void OTAComponent::loop() {
   do {
     ArduinoOTA.handle();
+#ifdef USE_STATUS_LED
+    if (global_status_led != nullptr) {
+      global_status_led->loop_();
+    }
+#endif
     yield();
   } while (this->ota_triggered_);
 
@@ -169,10 +179,21 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     ESP_LOGE(TAG, "Boot loop detected. Proceeding to safe mode.");
     assert(global_wifi_component != nullptr);
 
+#ifdef USE_STATUS_LED
+    if (global_status_led != nullptr) {
+      global_status_led->setup_();
+    }
+#endif
+    global_state = STATUS_LED_ERROR;
     global_wifi_component->setup_();
     while (!global_wifi_component->can_proceed()) {
       yield();
       global_wifi_component->loop_();
+#ifdef USE_STATUS_LED
+      if (global_status_led != nullptr) {
+        global_status_led->loop_();
+      }
+#endif
     }
     this->setup_();
 

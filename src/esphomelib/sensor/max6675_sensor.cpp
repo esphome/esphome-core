@@ -85,12 +85,14 @@ void MAX6675Sensor::read_data_() {
   if ((val & 0x04) != 0) {
     // Thermocouple open
     ESP_LOGW(TAG, "Got invalid value from MAX6675Sensor (0x%04X)", val);
+    this->status_set_warning();
     return;
   }
 
   float temperature = float(val >> 3) / 4.0f;
   ESP_LOGD(TAG, "'%s': Got temperature=%.1f°C", this->name_.c_str(), temperature);
   this->push_new_value(temperature);
+  this->status_clear_warning();
 }
 
 } // namespace sensor

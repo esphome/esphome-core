@@ -41,11 +41,6 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
   /// "switch" component type.
   std::string component_type() const override;
 
-  /// Helper method to turn the switch on.
-  void turn_on();
-  /// Helper method to turn the switch off.
-  void turn_off();
-
   Switch *switch_;
 };
 

@@ -49,7 +49,10 @@ void SHT3XDComponent::setup() {
   }
 
   uint16_t raw_serial_number[2];
-  this->read_data(raw_serial_number, 2);
+  if (!this->read_data(raw_serial_number, 2)) {
+    this->mark_failed();
+    return;
+  }
   uint32_t serial_number = (uint32_t(raw_serial_number[0]) << 16) | uint32_t(raw_serial_number[1]);
   std::string base = uint32_to_string(serial_number);
   ESP_LOGCONFIG(TAG, "    Serial Number: 0x%08X", serial_number);
@@ -65,8 +68,10 @@ void SHT3XDComponent::update() {
 
   this->set_timeout(50, [this](){
     uint16_t raw_data[2];
-    if (!this->read_data(raw_data, 2))
+    if (!this->read_data(raw_data, 2)) {
+      this->status_set_warning();
       return;
+    }
 
     float temperature = 175.0f * float(raw_data[0]) / 65535.0f - 45.0f;
     float humidity = 100.0f * float(raw_data[1]) / 65535.0f;
@@ -74,6 +79,7 @@ void SHT3XDComponent::update() {
     ESP_LOGD(TAG, "Got temperature=%.2f°C humidity=%.2f%%", temperature, humidity);
     this->temperature_sensor_->push_new_value(temperature);
     this->humidity_sensor_->push_new_value(humidity);
+    this->status_clear_warning();
   });
 }
 

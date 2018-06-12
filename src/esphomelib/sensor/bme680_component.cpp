@@ -86,9 +86,15 @@ void BME680Component::setup() {
 
   // Read calibration
   uint8_t cal1[25];
-  this->read_bytes(BME680_REGISTER_COEFF1, cal1, 25);
+  if (!this->read_bytes(BME680_REGISTER_COEFF1, cal1, 25)) {
+    this->mark_failed();
+    return;
+  }
   uint8_t cal2[16];
-  this->read_bytes(BME680_REGISTER_COEFF2, cal2, 16);
+  if (!this->read_bytes(BME680_REGISTER_COEFF2, cal2, 16)) {
+    this->mark_failed();
+    return;
+  }
 
   this->calibration_.t1 = cal2[9] << 8 | cal2[8];
   this->calibration_.t2 = cal1[2] << 8 | cal1[1];
@@ -117,9 +123,18 @@ void BME680Component::setup() {
   this->calibration_.gh2 = cal2[12] << 8 | cal2[13];
   this->calibration_.gh3 = cal2[15];
 
-  this->read_byte(0x02, &this->calibration_.res_heat_range);
-  this->read_byte(0x00, &this->calibration_.res_heat_val);
-  this->read_byte(0x04, &this->calibration_.range_sw_err);
+  if (!this->read_byte(0x02, &this->calibration_.res_heat_range)) {
+    this->mark_failed();
+    return;
+  }
+  if (!this->read_byte(0x00, &this->calibration_.res_heat_val)) {
+    this->mark_failed();
+    return;
+  }
+  if (!this->read_byte(0x04, &this->calibration_.range_sw_err)) {
+    this->mark_failed();
+    return;
+  }
 
   this->calibration_.ambient_temperature = 25; // prime ambient temperature
 
@@ -136,44 +151,74 @@ void BME680Component::setup() {
 
   // Config register
   uint8_t config_register;
-  this->read_byte(BME680_REGISTER_CONFIG, &config_register);
+  if (!this->read_byte(BME680_REGISTER_CONFIG, &config_register)) {
+    this->mark_failed();
+    return;
+  }
   config_register &= ~0b00011100;
   config_register |= (this->iir_filter_ & 0b111) << 2;
-  this->write_byte(BME680_REGISTER_CONFIG, config_register);
+  if (!this->write_byte(BME680_REGISTER_CONFIG, config_register)) {
+    this->mark_failed();
+    return;
+  }
 
   // Humidity control register
   uint8_t hum_control;
-  this->read_byte(BME680_REGISTER_CONTROL_HUMIDITY, &hum_control);
+  if (!this->read_byte(BME680_REGISTER_CONTROL_HUMIDITY, &hum_control)) {
+    this->mark_failed();
+    return;
+  }
   hum_control &= ~0b00000111;
   hum_control |= this->humidity_oversampling_ & 0b111;
-  this->write_byte(BME680_REGISTER_CONTROL_HUMIDITY, hum_control);
+  if (!this->write_byte(BME680_REGISTER_CONTROL_HUMIDITY, hum_control)) {
+    this->mark_failed();
+    return;
+  }
 
   // Gas 1 control register
   uint8_t gas1_control;
-  this->read_byte(BME680_REGISTER_CONTROL_GAS1, &gas1_control);
+  if (!this->read_byte(BME680_REGISTER_CONTROL_GAS1, &gas1_control)) {
+    this->mark_failed();
+    return;
+  }
   gas1_control &= ~0b00011111;
   gas1_control |= 1 << 4;
   gas1_control |= 0; // profile 0
-  this->write_byte(BME680_REGISTER_CONTROL_GAS1, gas1_control);
+  if (!this->write_byte(BME680_REGISTER_CONTROL_GAS1, gas1_control)) {
+    this->mark_failed();
+    return;
+  }
 
   const bool heat_off = this->heater_temperature_ == 0 || this->heater_duration_ == 0;
 
   // Gas 0 control register
   uint8_t gas0_control;
-  this->read_byte(BME680_REGISTER_CONTROL_GAS0, &gas0_control);
+  if (!this->read_byte(BME680_REGISTER_CONTROL_GAS0, &gas0_control)) {
+    this->mark_failed();
+    return;
+  }
   gas0_control &= ~0b00001000;
   gas0_control |= heat_off ? 0b100 : 0b000;
-  this->write_byte(BME680_REGISTER_CONTROL_GAS0, gas0_control);
+  if (!this->write_byte(BME680_REGISTER_CONTROL_GAS0, gas0_control)) {
+    this->mark_failed();
+    return;
+  }
 
   if (!heat_off) {
     // Gas Heater Temperature
     uint8_t temperature = this->calc_heater_resistance_(this->heater_temperature_);
-    this->write_byte(BME680_REGISTER_HEATER_HEAT0, temperature);
+    if (!this->write_byte(BME680_REGISTER_HEATER_HEAT0, temperature)) {
+      this->mark_failed();
+      return;
+    }
 
     // Gas Heater Duration
     uint8_t duration = this->calc_heater_duration_(this->heater_duration_);
 
-    this->write_byte(BME680_REGISTER_HEATER_WAIT0, duration);
+    if (!this->write_byte(BME680_REGISTER_HEATER_WAIT0, duration)) {
+      this->mark_failed();
+      return;
+    }
   }
 }
 
@@ -186,7 +231,10 @@ void BME680Component::update() {
   meas_control |= (this->temperature_oversampling_ & 0b111) << 5;
   meas_control |= (this->pressure_oversampling_ & 0b111) << 5;
   meas_control |= 0b01; // forced mode
-  this->write_byte(BME680_REGISTER_CONTROL_MEAS, meas_control);
+  if (!this->write_byte(BME680_REGISTER_CONTROL_MEAS, meas_control)) {
+    this->status_set_warning();
+    return;
+  }
 
   this->set_timeout("data", this->calc_meas_duration_(), [this]() {
     this->read_data_();
@@ -239,7 +287,10 @@ uint8_t BME680Component::calc_heater_duration_(uint16_t duration) {
 }
 void BME680Component::read_data_() {
   uint8_t data[15];
-  this->read_bytes(BME680_REGISTER_FIELD0, data, 15);
+  if (!this->read_bytes(BME680_REGISTER_FIELD0, data, 15)) {
+    this->status_set_warning();
+    return;
+  }
 
   uint32_t raw_temperature = (uint32_t(data[5]) << 12) | (uint32_t(data[6]) << 4) | (uint32_t(data[7]) >> 4);
   uint32_t raw_pressure = (uint32_t(data[2]) << 12) | (uint32_t(data[3]) << 4) | (uint32_t(data[4]) >> 4);
@@ -258,6 +309,7 @@ void BME680Component::read_data_() {
   this->pressure_sensor_->push_new_value(pressure);
   this->humidity_sensor_->push_new_value(humidity);
   this->gas_resistance_sensor_->push_new_value(gas_resistance);
+  this->status_clear_warning();
 }
 
 float BME680Component::calc_temperature_(uint32_t raw_temperature) {

@@ -46,7 +46,7 @@ static const char *TAG = "application";
 
 void Application::setup() {
   ESP_LOGI(TAG, "Running through setup()...");
-  assert(this->application_state_ == Component::CONSTRUCTION && "setup() called twice.");
+  assert(this->application_state_ == COMPONENT_STATE_CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
     return a->get_setup_priority() >= b->get_setup_priority();
@@ -66,30 +66,40 @@ void Application::setup() {
     });
 
     do {
+      uint32_t new_global_state = STATUS_LED_WARNING;
       for (uint32_t j = 0; j <= i; j++) {
-        if (!this->components_[j]->is_failed())
+        if (!this->components_[j]->is_failed()) {
           this->components_[j]->loop_();
+          new_global_state |= this->components_[j]->get_component_state();
+          global_state |= new_global_state;
+        }
       }
+      global_state = new_global_state;
       yield();
     } while (!component->can_proceed());
   }
 
-  this->application_state_ = Component::SETUP;
+  this->application_state_ = COMPONENT_STATE_SETUP;
 }
 
 void Application::loop() {
-  assert(this->application_state_ >= Component::SETUP && "Did you forget to call setup()?");
+  assert(this->application_state_ >= COMPONENT_STATE_SETUP && "Did you forget to call setup()?");
 
-  bool first_loop = this->application_state_ == Component::SETUP;
+  bool first_loop = this->application_state_ == COMPONENT_STATE_SETUP;
   if (first_loop) {
     ESP_LOGI(TAG, "Running through first loop()");
-    this->application_state_ = Component::LOOP;
+    this->application_state_ = COMPONENT_STATE_LOOP;
   }
 
+  uint32_t new_global_state = 0;
   for (Component *component : this->components_) {
-    if (!component->is_failed())
+    if (!component->is_failed()) {
       component->loop_();
+      new_global_state |= component->get_component_state();
+      global_state |= new_global_state;
+    }
   }
+  global_state = new_global_state;
   yield();
 
   if (first_loop)
@@ -286,9 +296,9 @@ MQTTClientComponent *Application::get_mqtt_client() const {
 }
 
 #ifdef USE_IR_TRANSMITTER
-IRTransmitterComponent *Application::make_ir_transmitter(const GPIOOutputPin &pin,
+IRTransmitterComponent *Application::make_ir_transmitter(const GPIOOutputPin &pin_,
                                                          uint8_t carrier_duty_percent) {
-  return this->register_component(new IRTransmitterComponent(pin.copy(), carrier_duty_percent));
+  return this->register_component(new IRTransmitterComponent(pin_.copy(), carrier_duty_percent));
 }
 #endif
 
@@ -488,8 +498,8 @@ Application::MakeShutdownSwitch Application::make_shutdown_switch(const std::str
 #endif
 
 #ifdef USE_ESP8266_PWM_OUTPUT
-ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {
-  return this->register_component(new ESP8266PWMOutput(pin));
+ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin_) {
+  return this->register_component(new ESP8266PWMOutput(pin_));
 }
 #endif
 
@@ -841,6 +851,12 @@ Application::MakeESP32HallSensor Application::make_esp32_hall_sensor(const std::
 #ifdef USE_ESP32_BLE_BEACON
 ESP32BLEBeacon *Application::make_esp32_ble_beacon() {
   return App.register_component(new ESP32BLEBeacon());
+}
+#endif
+
+#ifdef USE_STATUS_LED
+StatusLEDComponent *Application::make_status_led(const GPIOOutputPin &pin) {
+  return App.register_component(new StatusLEDComponent(pin.copy()));
 }
 #endif
 

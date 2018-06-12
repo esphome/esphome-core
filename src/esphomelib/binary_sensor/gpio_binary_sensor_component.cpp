@@ -25,7 +25,7 @@ void GPIOBinarySensorComponent::loop() {
 }
 
 float GPIOBinarySensorComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
+  return setup_priority::HARDWARE;
 }
 
 GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GPIOPin *pin)

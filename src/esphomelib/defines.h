@@ -88,6 +88,7 @@
     #define USE_ESP32_HALL_SENSOR
   #endif
   #define USE_DUTY_CYCLE_SENSOR
+  #define USE_STATUS_LED
 #endif
 
 #ifdef USE_REMOTE_RECEIVER

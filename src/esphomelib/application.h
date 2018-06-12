@@ -75,6 +75,7 @@
 #include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/switch_/template_switch.h"
+#include "esphomelib/status_led.h"
 #include "esphomelib/web_server.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -183,6 +184,10 @@ class Application {
 
 #ifdef USE_ESP32_BLE_BEACON
   ESP32BLEBeacon *make_esp32_ble_beacon();
+#endif
+
+#ifdef USE_STATUS_LED
+  StatusLEDComponent *make_status_led(const GPIOOutputPin &pin);
 #endif
 
 
@@ -752,7 +757,7 @@ class Application {
    * @param pin The pin for this PWM output, supported pins are 0-16.
    * @return The PWM output channel, use this for advanced settings and using it with lights.
    */
-  output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin);
+  output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin_);
 #endif
 
 
@@ -1023,7 +1028,7 @@ class Application {
   WiFiComponent *wifi_{nullptr};
 
   std::string name_;
-  Component::ComponentState application_state_{Component::CONSTRUCTION};
+  uint32_t application_state_{COMPONENT_STATE_CONSTRUCTION};
 #ifdef USE_I2C
   I2CComponent *i2c_{nullptr};
 #endif

@@ -71,6 +71,7 @@ void DallasComponent::setup() {
       ESP_LOGCONFIG(TAG, "    Index %u", sensor->get_index());
       if (sensor->get_index() >= out.size()) {
         ESP_LOGE(TAG, "Couldn't find sensor by index - not connected. Proceeding without it.");
+        this->status_set_error();
         continue;
       }
       sensor->set_address(out[sensor->get_index()]);
@@ -80,7 +81,9 @@ void DallasComponent::setup() {
     }
     ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
 
-    sensor->setup_sensor_();
+    if (!sensor->setup_sensor_()) {
+      this->status_set_error();
+    }
   }
 }
 
@@ -100,6 +103,8 @@ DallasTemperatureSensor *DallasComponent::get_sensor_by_index(const std::string 
   return s;
 }
 void DallasComponent::update() {
+  this->status_clear_warning();
+
   disable_interrupts();
   bool result;
   if (!this->one_wire_->reset()) {
@@ -113,19 +118,24 @@ void DallasComponent::update() {
 
   if (!result) {
     ESP_LOGE(TAG, "Requesting conversion failed");
+    this->status_set_warning();
     return;
   }
 
   for (auto *sensor : this->sensors_) {
-    this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion_(), [sensor] {
+    this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion_(), [this, sensor] {
       disable_interrupts();
       bool res = sensor->read_scratch_pad_();
       enable_interrupts();
 
-      if (!res)
+      if (!res) {
+        this->status_set_warning();
         return;
-      if (!sensor->check_scratch_pad_())
+      }
+      if (!sensor->check_scratch_pad_()) {
+        this->status_set_warning();
         return;
+      }
 
       float tempc = sensor->get_temp_c();
       ESP_LOGD(TAG, "'%s': Got Temperature=%.1f°C", sensor->get_name().c_str(), tempc);
@@ -191,25 +201,25 @@ bool DallasTemperatureSensor::read_scratch_pad_() {
   }
   return true;
 }
-void DallasTemperatureSensor::setup_sensor_() {
+bool DallasTemperatureSensor::setup_sensor_() {
   disable_interrupts();
   bool r = this->read_scratch_pad_();
   enable_interrupts();
 
   if (!r) {
     ESP_LOGE(TAG, "Reading scratchpad failed: reset");
-    return;
+    return false;
   }
   if (!this->check_scratch_pad_())
-    return;
+    return false;
 
   if (this->scratch_pad_[4] == this->resolution_)
-    return;
+    return false;
 
   if (this->get_address8()[0] == DALLAS_MODEL_DS18S20) {
     // DS18S20 doesn't support resolution.
     ESP_LOGW(TAG, "DS18S20 doesn't support setting resolution.");
-    return;
+    return false;
   }
 
   switch (this->resolution_) {
@@ -242,6 +252,7 @@ void DallasTemperatureSensor::setup_sensor_() {
 
   delay(20);  // allow it to finish operation
   wire->reset();
+  return true;
 }
 bool DallasTemperatureSensor::check_scratch_pad_() {
   if_very_verbose {

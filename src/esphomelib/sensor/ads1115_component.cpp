@@ -65,7 +65,10 @@ void ADS1115Component::setup() {
   //        0bxxxxxxxxxxxxxx11
   config |= 0b0000000000000011;
 
-  this->write_byte_16(ADS1115_REGISTER_CONFIG, config);
+  if (!this->write_byte_16(ADS1115_REGISTER_CONFIG, config)) {
+    this->mark_failed();
+    return;
+  }
   for (auto *sensor : this->sensors_) {
     ESP_LOGCONFIG(TAG, "  Sensor %s", sensor->get_name().c_str());
     ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
@@ -81,8 +84,10 @@ float ADS1115Component::get_setup_priority() const {
 }
 void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   uint16_t config;
-  if (!this->read_byte_16(ADS1115_REGISTER_CONFIG, &config))
+  if (!this->read_byte_16(ADS1115_REGISTER_CONFIG, &config)) {
+    this->status_set_warning();
     return;
+  }
   // Multiplexer
   //        0bxBBBxxxxxxxxxxxx
   config &= 0b1000111111111111;
@@ -95,8 +100,10 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   // Start conversion
   config |= 0b1000000000000000;
 
-  if (!this->write_byte_16(ADS1115_REGISTER_CONFIG, config))
+  if (!this->write_byte_16(ADS1115_REGISTER_CONFIG, config)) {
+    this->status_set_warning();
     return;
+  }
 
   // about 1.6 ms with 860 samples per second
   delay(2);
@@ -105,14 +112,17 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   while (this->read_byte_16(ADS1115_REGISTER_CONFIG, &config) && (config >> 15) == 0) {
     if (millis() - start > 100) {
       ESP_LOGW(TAG, "Reading ADS1115 timed out");
+      this->status_set_warning();
       return;
     }
     yield();
   }
 
   uint16_t raw_conversion;
-  if (!this->read_byte_16(ADS1115_REGISTER_CONVERSION, &raw_conversion))
+  if (!this->read_byte_16(ADS1115_REGISTER_CONVERSION, &raw_conversion)) {
+    this->status_set_warning();
     return;
+  }
   auto signed_conversion = static_cast<int16_t>(raw_conversion);
 
   float millivolts;
@@ -129,6 +139,7 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
   float v = millivolts / 1000.0f;
   ESP_LOGD(TAG, "'%s': Got Voltage=%fV", sensor->get_name().c_str(), v);
   sensor->push_new_value(v);
+  this->status_clear_warning();
 }
 
 ADS1115Sensor *ADS1115Component::get_sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,

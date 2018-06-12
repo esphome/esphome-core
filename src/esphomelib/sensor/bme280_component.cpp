@@ -129,17 +129,29 @@ void BME280Component::setup() {
   ESP_LOGCONFIG(TAG, "    IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
 
   uint8_t humid_register = 0;
-  this->read_byte(BME280_REGISTER_CONTROLHUMID, &humid_register);
+  if (!this->read_byte(BME280_REGISTER_CONTROLHUMID, &humid_register)) {
+    this->mark_failed();
+    return;
+  }
   humid_register &= ~0b00000111;
   humid_register |= this->humidity_oversampling_ & 0b111;
-  this->write_byte(BME280_REGISTER_CONTROLHUMID, humid_register);
+  if (!this->write_byte(BME280_REGISTER_CONTROLHUMID, humid_register)) {
+    this->mark_failed();
+    return;
+  }
 
   uint8_t config_register = 0;
-  this->read_byte(BME280_REGISTER_CONFIG, &config_register);
+  if (!this->read_byte(BME280_REGISTER_CONFIG, &config_register)) {
+    this->mark_failed();
+    return;
+  }
   config_register &= ~0b11111100;
   config_register |= 0b000 << 5; // 0.5 ms standby time
   config_register |= (this->iir_filter_ & 0b111) << 2;
-  this->write_byte(BME280_REGISTER_CONFIG, config_register);
+  if (!this->write_byte(BME280_REGISTER_CONFIG, config_register)) {
+    this->mark_failed();
+    return;
+  }
 }
 float BME280Component::get_setup_priority() const {
   return Component::get_setup_priority();
@@ -156,7 +168,10 @@ void BME280Component::update() {
   meas_register |= (this->temperature_oversampling_ & 0b111) << 5;
   meas_register |= (this->pressure_oversampling_ & 0b111) << 2;
   meas_register |= 0b01; // Forced mode
-  this->write_byte(BME280_REGISTER_CONTROL, meas_register);
+  if (!this->write_byte(BME280_REGISTER_CONTROL, meas_register)) {
+    this->status_set_warning();
+    return;
+  }
 
   float meas_time = 1;
   meas_time += 2.3f * oversampling_to_time(this->temperature_oversampling_);
@@ -168,6 +183,7 @@ void BME280Component::update() {
     float temperature = this->read_temperature_(&t_fine);
     if (isnan(temperature)) {
       ESP_LOGW(TAG, "Invalid temperature, cannot read pressure & humidity values.");
+      this->status_set_warning();
       return;
     }
     float pressure = this->read_pressure_(t_fine);
@@ -178,6 +194,7 @@ void BME280Component::update() {
     this->temperature_sensor_->push_new_value(temperature);
     this->pressure_sensor_->push_new_value(pressure);
     this->humidity_sensor_->push_new_value(humidity);
+    this->status_clear_warning();
   });
 }
 float BME280Component::read_temperature_(int32_t *t_fine) {

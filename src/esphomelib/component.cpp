@@ -13,6 +13,29 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "component";
 
+namespace setup_priority {
+
+const float HARDWARE = 100.0f;
+const float WIFI = 10.0f;
+const float MQTT_CLIENT = 7.5f;
+const float HARDWARE_LATE = 0.0f;
+const float MQTT_COMPONENT = -5.0f;
+const float LATE = -10.0f;
+
+} // namespace setup_priority
+
+const uint32_t COMPONENT_STATE_MASK = 0xFF;
+const uint32_t COMPONENT_STATE_CONSTRUCTION = 0x00;
+const uint32_t COMPONENT_STATE_SETUP = 0x01;
+const uint32_t COMPONENT_STATE_LOOP = 0x02;
+const uint32_t COMPONENT_STATE_FAILED = 0x03;
+const uint32_t STATUS_LED_MASK = 0xFF00;
+const uint32_t STATUS_LED_OK = 0x0000;
+const uint32_t STATUS_LED_WARNING = 0x0100;
+const uint32_t STATUS_LED_ERROR = 0x0200;
+
+uint32_t global_state = 0;
+
 float Component::get_loop_priority() const {
   return 0.0f;
 }
@@ -90,12 +113,14 @@ void Component::setup_() {
   this->setup_internal();
   this->setup();
 }
-Component::ComponentState Component::get_component_state() const {
+uint32_t Component::get_component_state() const {
   return this->component_state_;
 }
 void Component::loop_internal() {
-  assert_setup(this);
-  this->component_state_ = LOOP;
+  assert((this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_SETUP ||
+         (this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_LOOP);
+  this->component_state_ &= ~COMPONENT_STATE_MASK;
+  this->component_state_ |= COMPONENT_STATE_LOOP;
 
   for (unsigned int i = 0; i < this->time_functions_.size(); i++) { // NOLINT
     const uint32_t now = millis();
@@ -129,12 +154,15 @@ void Component::loop_internal() {
   );
 }
 void Component::setup_internal() {
-  assert_construction_state(this);
-  this->component_state_ = SETUP;
+  assert((this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_CONSTRUCTION);
+  this->component_state_ &= ~COMPONENT_STATE_MASK;
+  this->component_state_ |= COMPONENT_STATE_SETUP;
 }
 void Component::mark_failed() {
   ESP_LOGE(TAG, "Component was marked as failed.");
-  this->component_state_ = FAILED;
+  this->component_state_ &= ~COMPONENT_STATE_MASK;
+  this->component_state_ |= COMPONENT_STATE_FAILED;
+  this->status_set_error();
 }
 void Component::defer(Component::time_func_t &&f) {
   this->defer("", std::move(f));
@@ -161,10 +189,40 @@ void Component::set_interval(uint32_t interval, Component::time_func_t &&f) {
   this->set_interval("", interval, std::move(f));
 }
 bool Component::is_failed() {
-  return this->component_state_ == FAILED;
+  return (this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_FAILED;
 }
 bool Component::can_proceed() {
   return true;
+}
+bool Component::status_has_warning() {
+  return this->component_state_ &  STATUS_LED_WARNING;
+}
+bool Component::status_has_error() {
+  return this->component_state_ & STATUS_LED_ERROR;
+}
+void Component::status_set_warning() {
+  this->component_state_ |= STATUS_LED_WARNING;
+}
+void Component::status_set_error() {
+  this->component_state_ |= STATUS_LED_ERROR;
+}
+void Component::status_clear_warning() {
+  this->component_state_ &= ~STATUS_LED_WARNING;
+}
+void Component::status_clear_error() {
+  this->component_state_ &= ~STATUS_LED_ERROR;
+}
+void Component::status_momentary_warning(const std::string &name, uint32_t length) {
+  this->status_set_warning();
+  this->set_timeout(name, length, [this]() {
+    this->status_clear_warning();
+  });
+}
+void Component::status_momentary_error(const std::string &name, uint32_t length) {
+  this->status_set_error();
+  this->set_timeout(name, length, [this]() {
+    this->status_clear_error();
+  });
 }
 
 PollingComponent::PollingComponent(uint32_t update_interval)

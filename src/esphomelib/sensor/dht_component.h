@@ -63,8 +63,7 @@ class DHTComponent : public PollingComponent {
   float get_setup_priority() const override;
 
  protected:
-  uint8_t read_sensor_(float *temperature, float *humidity);
-  uint8_t read_sensor_safe_(float *temperature, float *humidity);
+  bool read_sensor_(float *temperature, float *humidity, bool report_errors);
 
   GPIOPin *pin_;
   DHTModel model_{DHT_MODEL_AUTO_DETECT};

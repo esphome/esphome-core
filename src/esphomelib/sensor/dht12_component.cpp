@@ -33,8 +33,10 @@ DHT12Component::DHT12Component(I2CComponent *parent,
 
 void DHT12Component::update() {
   uint8_t data[5];
-  if (!this->read_data_(data))
+  if (!this->read_data_(data)) {
+    this->status_set_warning();
     return;
+  }
   const uint16_t raw_temperature = uint16_t(data[2]) * 10 + (data[3] & 0x7F);
   float temperature = raw_temperature / 10.0f;
   if ((data[3] & 0x80) != 0) {
@@ -48,6 +50,7 @@ void DHT12Component::update() {
   ESP_LOGD(TAG, "Got temperature=%.2f°C humidity=%.2f%%", temperature, humidity);
   this->temperature_sensor_->push_new_value(temperature);
   this->humidity_sensor_->push_new_value(humidity);
+  this->status_clear_warning();
 }
 void DHT12Component::setup() {
   ESP_LOGD(TAG, "Setting up DHT12...");

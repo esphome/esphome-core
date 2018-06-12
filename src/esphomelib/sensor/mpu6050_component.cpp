@@ -52,7 +52,10 @@ void MPU6050Component::setup() {
   ESP_LOGV(TAG, "    Setting up Power Management...");
   // Setup power management
   uint8_t power_management;
-  this->read_byte(MPU6050_REGISTER_POWER_MANAGEMENT_1, &power_management);
+  if (!this->read_byte(MPU6050_REGISTER_POWER_MANAGEMENT_1, &power_management)) {
+    this->mark_failed();
+    return;
+  }
   ESP_LOGV(TAG, "    Input power_management: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(power_management));
   // Set clock source - X-Gyro
   power_management &= 0b11111000;
@@ -62,34 +65,51 @@ void MPU6050Component::setup() {
   // Enable temperature
   power_management &= ~(1 << MPU6050_BIT_TEMPERATURE_DISABLED);
   ESP_LOGV(TAG, "    Output power_management: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(power_management));
-  this->write_byte(MPU6050_REGISTER_POWER_MANAGEMENT_1, power_management);
+  if (!this->write_byte(MPU6050_REGISTER_POWER_MANAGEMENT_1, power_management)) {
+    this->mark_failed();
+    return;
+  }
 
   ESP_LOGV(TAG, "    Setting up Gyro Config...");
   // Set scale - 2000DPS
   uint8_t gyro_config;
-  this->read_byte(MPU6050_REGISTER_GYRO_CONFIG, &gyro_config);
+  if (!this->read_byte(MPU6050_REGISTER_GYRO_CONFIG, &gyro_config)) {
+    this->mark_failed();
+    return;
+  }
   ESP_LOGV(TAG, "    Input gyro_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(gyro_config));
   gyro_config &= 0b11100111;
   gyro_config |= MPU6050_SCALE_2000_DPS << 3;
   ESP_LOGV(TAG, "    Output gyro_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(gyro_config));
-  this->write_byte(MPU6050_REGISTER_GYRO_CONFIG, gyro_config);
+  if (!this->write_byte(MPU6050_REGISTER_GYRO_CONFIG, gyro_config)) {
+    this->mark_failed();
+    return;
+  }
 
   ESP_LOGV(TAG, "    Setting up Accel Config...");
   // Set range - 2G
   uint8_t accel_config;
-  this->read_byte(MPU6050_REGISTER_ACCEL_CONFIG, &accel_config);
+  if (!this->read_byte(MPU6050_REGISTER_ACCEL_CONFIG, &accel_config)) {
+    this->mark_failed();
+    return;
+  }
   ESP_LOGV(TAG, "    Input accel_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(accel_config));
   accel_config &= 0b11100111;
   accel_config |= (MPU6050_RANGE_2G << 3);
   ESP_LOGV(TAG, "    Output accel_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(accel_config));
-  this->write_byte(MPU6050_REGISTER_GYRO_CONFIG, gyro_config);
+  if (!this->write_byte(MPU6050_REGISTER_GYRO_CONFIG, gyro_config)) {
+    this->mark_failed();
+    return;
+  }
 }
 
 void MPU6050Component::update() {
   ESP_LOGV(TAG, "    Updating MPU6050...");
   uint16_t data[7];
-  if (!this->read_bytes_16(MPU6050_REGISTER_ACCEL_XOUT_H, data, 7))
+  if (!this->read_bytes_16(MPU6050_REGISTER_ACCEL_XOUT_H, data, 7)) {
+    this->status_set_warning();
     return;
+  }
 
   float accel_x = data[0] * MPU6050_RANGE_PER_DIGIT_2G * GRAVITY_EARTH;
   float accel_y = data[1] * MPU6050_RANGE_PER_DIGIT_2G * GRAVITY_EARTH;
@@ -121,6 +141,8 @@ void MPU6050Component::update() {
     this->gyro_y_sensor_->push_new_value(gyro_y);
   if (this->gyro_z_sensor_ != nullptr)
     this->gyro_z_sensor_->push_new_value(gyro_z);
+
+  this->status_clear_warning();
 }
 MPU6050AccelSensor *MPU6050Component::make_accel_x_sensor(const std::string &name) {
   return this->accel_x_sensor_ = new MPU6050AccelSensor(name, this);

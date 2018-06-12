@@ -18,8 +18,8 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
-const uint8_t ONE_WIRE_ROM_SELECT = 0x55;
-const int ONE_WIRE_ROM_SEARCH = 0xF0;
+extern const uint8_t ONE_WIRE_ROM_SELECT;
+extern const int ONE_WIRE_ROM_SEARCH;
 
 /** This is esphomelib's own (minimal) implementation of 1-Wire that improves timing for ESP boards
  *

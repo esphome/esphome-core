@@ -97,7 +97,7 @@ class DallasTemperatureSensor : public EmptyPollingParentSensor<1, ICON_EMPTY, U
   /// Get the number of milliseconds we have to wait for the conversion phase.
   uint16_t millis_to_wait_for_conversion_() const;
 
-  void setup_sensor_();
+  bool setup_sensor_();
   bool read_scratch_pad_();
 
   bool check_scratch_pad_();

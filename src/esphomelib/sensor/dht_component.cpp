@@ -19,9 +19,6 @@ namespace sensor {
 
 static const char *TAG = "sensor.dht";
 
-static const uint8_t DHT_ERROR_TIMEOUT = 1;
-static const uint8_t DHT_ERROR_CHECKSUM = 2;
-
 DHTComponent::DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
                            GPIOPin *pin, uint32_t update_interval)
     : PollingComponent(update_interval), pin_(pin),
@@ -32,42 +29,35 @@ DHTComponent::DHTComponent(const std::string &temperature_name, const std::strin
 
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
+  this->pin_->setup();
+  this->pin_->digital_write(true);
 }
 
 void DHTComponent::update() {
   float temperature, humidity;
-  uint8_t error = this->read_sensor_safe_(&temperature, &humidity);
-
-  this->pin_->setup();
-  this->pin_->digital_write(true);
-
   if (this->model_ == DHT_MODEL_AUTO_DETECT) {
     this->model_ = DHT_MODEL_DHT22;
-    float temp1, temp2;
-    if (this->read_sensor_safe_(&temp1, &temp2) == DHT_ERROR_TIMEOUT) {
+    bool error = this->read_sensor_(&temperature, &humidity, false);
+    if (error) {
       this->model_ = DHT_MODEL_DHT11;
       ESP_LOGCONFIG(TAG, "Auto-detected model DHT11. Override with the 'model:' configuration option");
     } else {
       ESP_LOGCONFIG(TAG, "Auto-detected model DHT22. Override with the 'model:' configuration option");
     }
-
     return;
   }
 
-  if (!isnan(temperature) && !isnan(humidity)) {
+  bool error = this->read_sensor_(&temperature, &humidity, true);
+  if (error) {
     ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
     this->temperature_sensor_->push_new_value(temperature);
     this->humidity_sensor_->push_new_value(humidity);
+    this->status_clear_warning();
   } else {
-    const char *error_s;
-    switch (error) {
-      case DHT_ERROR_TIMEOUT: error_s = "TIMEOUT"; break;
-      case DHT_ERROR_CHECKSUM: error_s = "CHECKSUM"; break;
-      default: error_s = "UNKNOWN"; break;
-    }
-    ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin number) and "
-                  "consider manually specifying the DHT model using the model option. Error code: %s", error_s);
+    ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin_ number) and "
+                  "consider manually specifying the DHT model using the model option. Error code: %d", error);
+    this->status_set_warning();
   }
 }
 
@@ -83,63 +73,92 @@ DHTTemperatureSensor *DHTComponent::get_temperature_sensor() const {
 DHTHumiditySensor *DHTComponent::get_humidity_sensor() const {
   return this->humidity_sensor_;
 }
-uint8_t DHTComponent::read_sensor_(float *temperature, float *humidity) {
+bool DHTComponent::read_sensor_(float *temperature, float *humidity, bool report_errors) {
   *humidity = NAN;
   *temperature = NAN;
 
-  this->pin_->digital_write(false);
+  disable_interrupts();
   this->pin_->pin_mode(OUTPUT);
+  this->pin_->digital_write(false);
 
   if (this->model_ == DHT_MODEL_DHT11)
-    delay(18);
+    delayMicroseconds(18000);
   else
     delayMicroseconds(800);
 
   this->pin_->pin_mode(INPUT_PULLUP);
-  this->pin_->digital_write(true);
+  delayMicroseconds(40);
 
-  uint16_t raw_humidity = 0;
-  uint16_t raw_temperature = 0;
-  uint16_t data = 0;
+  uint8_t data[5] = {0, 0, 0, 0, 0};
+  uint8_t bit = 7;
+  uint8_t byte = 0;
 
-  for (int8_t i = -3; i < 80; i++) {
-    uint8_t age;
+  for (int8_t i = -1; i < 40; i++) {
     uint32_t start_time = micros();
 
-    do {
-      age = micros() - start_time;
-      if (age > 90)
-        return DHT_ERROR_TIMEOUT;
-    } while (this->pin_->digital_read() == ((i & 1) == 1));
-
-    if (i >= 0 && (i & 1) == 1) {
-      data <<= 1;
-
-      if (age > 30)
-        data |= 1;
+    // Wait for rising edge
+    while (!this->pin_->digital_read()) {
+      if (micros() - start_time > 90) {
+        enable_interrupts();
+        if (report_errors) {
+          ESP_LOGW(TAG, "Rising edge for bit %d failed!", i);
+        }
+        return false;
+      }
     }
 
-    switch (i) {
-      case 31:
-        raw_humidity = data;
-        break;
-      case 63:
-        raw_temperature = data;
-        data = 0;
-        break;
-      default:break;
+    start_time = micros();
+    uint32_t end_time = start_time;
+
+    // Wait for falling edge
+    while (this->pin_->digital_read()) {
+      if ((end_time = micros()) - start_time > 90) {
+        enable_interrupts();
+        if (report_errors) {
+          ESP_LOGW(TAG, "Falling edge for bit %d failed!", i);
+        }
+        return false;
+      }
     }
+
+    if (i < 0)
+      continue;
+
+    if (end_time - start_time >= 40) {
+      data[byte] |= 1 << bit;
+    }
+    if (bit == 0) {
+      bit = 7;
+      byte++;
+    }
+    else bit--;
+  }
+  enable_interrupts();
+
+  ESP_LOGVV(TAG, "Data: Hum=0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN ", Temp=0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN ", Checksum=0b" BYTE_TO_BINARY_PATTERN,
+            BYTE_TO_BINARY(data[0]), BYTE_TO_BINARY(data[1]),
+            BYTE_TO_BINARY(data[2]), BYTE_TO_BINARY(data[3]),
+            BYTE_TO_BINARY(data[4]));
+
+  uint8_t checksum;
+  if (this->model_ == DHT_MODEL_DHT11)
+    checksum = data[0] + data[2];
+  else
+    checksum = data[0] + data[1] + data[2] + data[3];
+
+  if (checksum != data[4]) {
+    if (report_errors) {
+      ESP_LOGE(TAG, "Checksum invalid: %u!=%u", checksum, data[4]);
+    }
+    return false;
   }
 
-  uint8_t checksum = (raw_humidity & 0xFF) + (raw_humidity >> 8)
-      + (raw_temperature & 0xFF) + (raw_temperature >> 8);
-  if (checksum != data)
-    return DHT_ERROR_CHECKSUM;
-
   if (this->model_ == DHT_MODEL_DHT11) {
-    *humidity = raw_humidity >> 8;
-    *temperature = raw_temperature >> 8;
+    *humidity = data[0];
+    *temperature = data[2];
   } else {
+    uint16_t raw_humidity = (uint16_t(data[0] & 0xFF) << 8) | (data[1] & 0xFF);
+    uint16_t raw_temperature = (uint16_t(data[2] & 0xFF) << 8) | (data[3] & 0xFF);
     *humidity = raw_humidity * 0.1f;
 
     if ((raw_temperature & 0x8000) != 0)
@@ -153,13 +172,7 @@ uint8_t DHTComponent::read_sensor_(float *temperature, float *humidity) {
     *humidity = NAN;
   }
 
-  return 0;
-}
-uint8_t DHTComponent::read_sensor_safe_(float *temperature, float *humidity) {
-  disable_interrupts();
-  uint8_t ret = this->read_sensor_(temperature, humidity);
-  enable_interrupts();
-  return ret;
+  return true;
 }
 
 } // namespace sensor

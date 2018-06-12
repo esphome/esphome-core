@@ -68,12 +68,15 @@ BMP085Component::BMP085Component(I2CComponent *parent,
 
 void BMP085Component::read_temperature_() {
   uint8_t buffer[2];
-  if (!this->read_bytes(BMP085_REGISTER_DATA_MSB, buffer, 2))
+  if (!this->read_bytes(BMP085_REGISTER_DATA_MSB, buffer, 2)) {
+    this->status_set_warning();
     return;
+  }
 
   int32_t ut = ((buffer[0] & 0xFF) << 8) | (buffer[1] & 0xFF);
   if (ut == 0) {
-    ESP_LOGW(TAG, "Invalid temperature");
+    ESP_LOGW(TAG, "Invalid temperature!");
+    this->status_set_warning();
     return;
   }
 
@@ -83,21 +86,27 @@ void BMP085Component::read_temperature_() {
   float temperature = (this->calibration_.b5 >> 4) / 10.0f;
   ESP_LOGD(TAG, "Got Temperature=%.1f°C", temperature);
   this->temperature_->push_new_value(temperature);
+  this->status_clear_warning();
 
-  if (!this->set_mode_(BMP085_CONTROL_MODE_PRESSURE_3))
+  if (!this->set_mode_(BMP085_CONTROL_MODE_PRESSURE_3)) {
+    this->status_set_warning();
     return;
+  }
 
   this->set_timeout("pressure", 26, [this]() { this->read_pressure_(); });
 }
 void BMP085Component::read_pressure_() {
   uint8_t buffer[3];
-  if (!this->read_bytes(BMP085_REGISTER_DATA_MSB, buffer, 3))
+  if (!this->read_bytes(BMP085_REGISTER_DATA_MSB, buffer, 3)) {
+    this->status_set_warning();
     return;
+  }
 
   uint32_t value = (uint32_t(buffer[0]) << 16) | (uint32_t(buffer[1]) << 8) | uint32_t(buffer[0]);
   value = value >> 5;
   if (value == 0) {
-    ESP_LOGW(TAG, "Invalid pressure");
+    this->status_set_warning();
+    ESP_LOGW(TAG, "Invalid pressure!");
     return;
   }
 
@@ -124,6 +133,7 @@ void BMP085Component::read_pressure_() {
   ESP_LOGD(TAG, "Got Pressure=%.1fhPa", pressure);
 
   this->pressure_->push_new_value(pressure);
+  this->status_clear_warning();
 }
 BMP085TemperatureSensor *BMP085Component::get_temperature_sensor() const {
   return this->temperature_;

@@ -69,8 +69,9 @@ bool FanState::set_speed(const char *speed) {
   } else if (strcasecmp(speed, "high") == 0) {
     ESP_LOGD(TAG, "Turning Fan Speed high.");
     this->set_speed(FAN_SPEED_HIGH);
-  } else
+  } else {
     return false;
+  }
   return true;
 }
 

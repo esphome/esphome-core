@@ -130,14 +130,6 @@ float RemoteReceiverComponent::get_setup_priority() const {
 
 #ifdef ARDUINO_ARCH_ESP32
 void RemoteReceiverComponent::setup() {
-  this->configure_rmt_();
-  rmt_driver_install(this->channel_, this->buffer_size_, 0);
-  rmt_get_ringbuf_handle(this->channel_, &this->ringbuf_);
-  rmt_rx_start(this->channel_, true);
-}
-
-
-void RemoteReceiverComponent::configure_rmt_() {
   rmt_config_t rmt{};
   ESP_LOGCONFIG(TAG, "Configuring ESP32 RMT peripheral...");
   ESP_LOGCONFIG(TAG, "    Channel: %u", this->channel_);
@@ -158,8 +150,33 @@ void RemoteReceiverComponent::configure_rmt_() {
   ESP_LOGCONFIG(TAG, "    Idle threshold: %u us (%u ticks)", this->idle_us_, this->from_microseconds(this->idle_us_));
   rmt.rx_config.idle_threshold = this->from_microseconds(this->idle_us_);
 
-  rmt_config(&rmt);
+  esp_err_t error = rmt_config(&rmt);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Configuring RMT remote failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
+
+  error = rmt_driver_install(this->channel_, this->buffer_size_, 0);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Installing RMT driver failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
+  error = rmt_get_ringbuf_handle(this->channel_, &this->ringbuf_);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Getting RMT ringbuf handle failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
+  error = rmt_rx_start(this->channel_, true);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Starting RMT for receiving failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
 }
+
 void RemoteReceiverComponent::loop() {
   size_t len = 0;
   auto *item = (rmt_item32_t *) xRingbufferReceive(this->ringbuf_, &len, 0);
@@ -456,15 +473,28 @@ void RemoteTransmitterComponent::configure_rmt() {
     ESP_LOGV(TAG, "    Idle level: HIGH");
   }
 
-  rmt_config(&c);
+  esp_err_t error = rmt_config(&c);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Configuring RMT driver failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
 
   if (!this->initialized_) {
-    rmt_driver_install(this->channel_, 0, 0);
+    error = rmt_driver_install(this->channel_, 0, 0);
+    if (error != ESP_OK) {
+      ESP_LOGE(TAG, "Error while installing RMT driver: %s", esp_err_to_name(error));
+      this->mark_failed();
+      return;
+    }
     this->initialized_ = true;
   }
 }
 
 void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t send_times, uint32_t send_wait) {
+  if (this->is_failed())
+    return;
+
   if (this->current_carrier_frequency_ != data.get_carrier_frequency()) {
     this->current_carrier_frequency_ = data.get_carrier_frequency();
     this->configure_rmt();
@@ -504,7 +534,13 @@ void RemoteTransmitterComponent::send(const RemoteTransmitData &data, uint32_t s
   }
 
   for (uint16_t i = 0; i < send_times; i++) {
-    rmt_write_items(this->channel_, rmt_data.data(), rmt_data.size(), true);
+    esp_err_t error = rmt_write_items(this->channel_, rmt_data.data(), rmt_data.size(), true);
+    if (error != ESP_OK) {
+      ESP_LOGW(TAG, "rmt_write_items failed: %s", esp_err_to_name(error));
+      this->status_set_warning();
+    } else {
+      this->status_clear_warning();
+    }
     if (i + 1 < send_times) {
       delay_microseconds_accurate(send_wait);
     }

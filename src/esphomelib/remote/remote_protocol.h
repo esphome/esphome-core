@@ -209,7 +209,6 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   friend RemoteReceiveData;
 
 #ifdef ARDUINO_ARCH_ESP32
-  void configure_rmt_();
   std::vector<int32_t> decode_rmt_(rmt_item32_t *item, size_t len);
 #endif
 

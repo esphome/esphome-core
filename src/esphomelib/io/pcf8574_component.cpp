@@ -74,15 +74,20 @@ bool PCF8574Component::read_gpio_() {
     return false;
 
   if (this->pcf8575_) {
-    if (!this->parent_->receive_16_(this->address_, &this->input_mask_, 1))
+    if (!this->parent_->receive_16_(this->address_, &this->input_mask_, 1)) {
+      this->status_set_warning();
       return false;
+    }
   } else {
     uint8_t data;
-    if (!this->parent_->receive_(this->address_, &data, 1))
+    if (!this->parent_->receive_(this->address_, &data, 1)) {
+      this->status_set_warning();
       return false;
+    }
     this->input_mask_ = data;
   }
 
+  this->status_clear_warning();
   return true;
 }
 bool PCF8574Component::write_gpio_() {
@@ -99,7 +104,12 @@ bool PCF8574Component::write_gpio_() {
     data = (value >> 8) & 0xFF;
     this->parent_->write_(this->address_, &data, 1);
   }
-  return this->parent_->end_transmission_(this->address_);
+  if (!this->parent_->end_transmission_(this->address_)) {
+    this->status_set_warning();
+    return false;
+  }
+  this->status_clear_warning();
+  return true;
 }
 PCF8574GPIOInputPin PCF8574Component::make_input_pin(uint8_t pin, uint8_t mode, bool inverted) {
   assert(mode <= PCF8574_OUTPUT);

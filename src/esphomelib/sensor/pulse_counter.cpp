@@ -72,22 +72,57 @@ void PulseCounterSensorComponent::setup() {
       .unit = this->pcnt_unit_,
       .channel = PCNT_CHANNEL_0,
   };
-  pcnt_unit_config(&pcnt_config);
+  esp_err_t error = pcnt_unit_config(&pcnt_config);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Configuring Pulse Counter failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
 
   if (this->filter_us_ != 0) {
     uint16_t filter_val = std::min(this->filter_us_ * 80u, 1023u);
     ESP_LOGCONFIG(TAG, "    Filter Value: %uus (val=%u)", this->filter_us_, filter_val);
-    pcnt_set_filter_value(this->pcnt_unit_, filter_val);
-    pcnt_filter_enable(this->pcnt_unit_);
+    error = pcnt_set_filter_value(this->pcnt_unit_, filter_val);
+    if (error != ESP_OK) {
+      ESP_LOGE(TAG, "Setting filter value failed: %s", esp_err_to_name(error));
+      this->mark_failed();
+      return;
+    }
+    error = pcnt_filter_enable(this->pcnt_unit_);
+    if (error != ESP_OK) {
+      ESP_LOGE(TAG, "Enabling filter failed: %s", esp_err_to_name(error));
+      this->mark_failed();
+      return;
+    }
   }
 
-  pcnt_counter_pause(this->pcnt_unit_);
-  pcnt_counter_clear(this->pcnt_unit_);
-  pcnt_counter_resume(this->pcnt_unit_);
+  error = pcnt_counter_pause(this->pcnt_unit_);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Pausing pulse counter failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
+  error = pcnt_counter_clear(this->pcnt_unit_);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Clearing pulse counter failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
+  error = pcnt_counter_resume(this->pcnt_unit_);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Resuming pulse counter failed: %s", esp_err_to_name(error));
+    this->mark_failed();
+    return;
+  }
 }
 void PulseCounterSensorComponent::update() {
   pulse_counter_t counter;
-  pcnt_get_counter_value(this->pcnt_unit_, &counter);
+  esp_err_t error = pcnt_get_counter_value(this->pcnt_unit_, &counter);
+  if (error != ESP_OK) {
+    ESP_LOGE(TAG, "Getting pulse counter value failed: %s", esp_err_to_name(error));
+    this->status_set_warning();
+    return;
+  }
   pulse_counter_t delta = counter - this->last_value_;
   this->last_value_ = counter;
   float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
@@ -95,6 +130,7 @@ void PulseCounterSensorComponent::update() {
   ESP_LOGD(TAG, "'%s': Retrieved counter (raw=%d): %0.2f pulses/min",
            this->get_name().c_str(), counter, value);
   this->push_new_value(value);
+  this->status_clear_warning();
 }
 #endif
 

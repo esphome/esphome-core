@@ -49,18 +49,23 @@ void HDC1080Component::setup() {
 }
 void HDC1080Component::update() {
   uint16_t raw_temp;
-  if (!this->read_byte_16(HDC1080_CMD_TEMPERATURE, &raw_temp, 9))
+  if (!this->read_byte_16(HDC1080_CMD_TEMPERATURE, &raw_temp, 9)) {
+    this->status_set_warning();
     return;
+  }
   float temp = raw_temp * 0.0025177f - 40.0f; // raw * 2^-16 * 165 - 40
   this->temperature_->push_new_value(temp);
 
   uint16_t raw_humidity;
-  if (!this->read_byte_16(HDC1080_CMD_HUMIDITY, &raw_humidity, 9))
+  if (!this->read_byte_16(HDC1080_CMD_HUMIDITY, &raw_humidity, 9)) {
+    this->status_set_warning();
     return;
+  }
   float humidity = raw_humidity * 0.001525879f; // raw * 2^-16 * 100
   this->humidity_->push_new_value(humidity);
 
   ESP_LOGD(TAG, "Got temperature=%.1f°C humidity=%.1f%%", temp, humidity);
+  this->status_clear_warning();
 }
 HDC1080TemperatureSensor *HDC1080Component::get_temperature_sensor() const {
   return this->temperature_;

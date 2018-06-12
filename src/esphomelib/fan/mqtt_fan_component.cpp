@@ -31,13 +31,14 @@ void MQTTFanComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Supports oscillation: %s", this->state_->get_traits().supports_oscillation() ? "YES" : "NO");
 
   this->subscribe(this->get_command_topic(), [this](const std::string &payload) {
-    if (strcasecmp(payload.c_str(), "ON") == 0) {
-      ESP_LOGD(TAG, "'%s' Turning Fan ON.", this->state_->get_name().c_str());
-      this->state_->set_state(true);
-    } else if (strcasecmp(payload.c_str(), "OFF") == 0) {
-      ESP_LOGD(TAG, "'%s' Turning Fan OFF.", this->state_->get_name().c_str());
-      this->state_->set_state(false);
+    auto val = parse_on_off(payload.c_str(), "ON", "OFF");
+    if (!val.has_value()) {
+      ESP_LOGW(TAG, "Unknown state Payload %s", payload.c_str());
+      this->status_momentary_warning("state", 5000);
+      return;
     }
+    ESP_LOGD(TAG, "'%s' Turning Fan %s.", this->friendly_name().c_str(), payload.c_str());
+    this->state_->set_state(*val);
   });
 
   if (this->state_->get_traits().supports_oscillation()) {
@@ -45,16 +46,21 @@ void MQTTFanComponent::setup() {
       auto val = parse_on_off(payload.c_str(), "oscillate_on", "oscillate_off");
       if (!val.has_value()) {
         ESP_LOGW(TAG, "Unknown Oscillation Payload %s", payload.c_str());
+        this->status_momentary_warning("oscillation", 5000);
         return;
       }
-      ESP_LOGD(TAG, "'%s': Setting oscillating %s", this->state_->get_name().c_str(), *val ? "ON" : "OFF");
+      ESP_LOGD(TAG, "'%s': Setting oscillating %s", this->friendly_name().c_str(), payload.c_str());
       this->state_->set_oscillating(*val);
     });
   }
 
   if (this->state_->get_traits().supports_speed()) {
     this->subscribe(this->get_speed_command_topic(), [this](const std::string &payload) {
-      this->state_->set_speed(payload.c_str());
+      if (!this->state_->set_speed(payload.c_str())) {
+        ESP_LOGW(TAG, "Unknown Speed Payload %s", payload.c_str());
+        this->status_momentary_warning("speed", 5000);
+        return;
+      }
     });
   }
 

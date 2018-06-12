@@ -50,10 +50,19 @@ void PCA9685OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Mode: 0x%02X", this->mode_);
 
   ESP_LOGV(TAG, "    Resetting devices...");
-  this->write_bytes(PCA9685_REGISTER_SOFTWARE_RESET, nullptr, 0);
+  if (!this->write_bytes(PCA9685_REGISTER_SOFTWARE_RESET, nullptr, 0)) {
+    this->mark_failed();
+    return;
+  }
 
-  this->write_byte(PCA9685_REGISTER_MODE1, PCA9685_MODE1_RESTART | PCA9685_MODE1_AUTOINC);
-  this->write_byte(PCA9685_REGISTER_MODE2, this->mode_);
+  if (!this->write_byte(PCA9685_REGISTER_MODE1, PCA9685_MODE1_RESTART | PCA9685_MODE1_AUTOINC)) {
+    this->mark_failed();
+    return;
+  }
+  if (!this->write_byte(PCA9685_REGISTER_MODE2, this->mode_)) {
+    this->mark_failed();
+    return;
+  }
 
   ESP_LOGCONFIG(TAG, "    Frequency: %.0f", this->frequency_);
 
@@ -64,13 +73,25 @@ void PCA9685OutputComponent::setup() {
   ESP_LOGV(TAG, "     -> Prescaler: %d", pre_scaler);
 
   uint8_t mode1;
-  this->read_byte(PCA9685_REGISTER_MODE1, &mode1);
+  if (!this->read_byte(PCA9685_REGISTER_MODE1, &mode1)) {
+    this->mark_failed();
+    return;
+  }
   mode1 = (mode1 & ~PCA9685_MODE1_RESTART) | PCA9685_MODE1_SLEEP;
-  this->write_byte(PCA9685_REGISTER_MODE1, mode1);
-  this->write_byte(PCA9685_REGISTER_PRE_SCALE, pre_scaler);
+  if (!this->write_byte(PCA9685_REGISTER_MODE1, mode1)) {
+    this->mark_failed();
+    return;
+  }
+  if (!this->write_byte(PCA9685_REGISTER_PRE_SCALE, pre_scaler)) {
+    this->mark_failed();
+    return;
+  }
 
   mode1 = (mode1 & ~PCA9685_MODE1_SLEEP) | PCA9685_MODE1_RESTART;
-  this->write_byte(PCA9685_REGISTER_MODE1, mode1);
+  if (!this->write_byte(PCA9685_REGISTER_MODE1, mode1)) {
+    this->mark_failed();
+    return;
+  }
   delayMicroseconds(500);
 
   this->loop();
@@ -105,7 +126,11 @@ void PCA9685OutputComponent::loop() {
     data[len++] = phase_end & 0xFF;
     data[len++] = (phase_end >> 8) & 0xFF;
   }
-  this->write_bytes(PCA9685_REGISTER_LED0 + 4 * this->min_channel_, data, len);
+  if (!this->write_bytes(PCA9685_REGISTER_LED0 + 4 * this->min_channel_, data, len)) {
+    this->status_set_warning();
+  } else {
+    this->status_clear_warning();
+  }
 
   this->update_ = false;
 }

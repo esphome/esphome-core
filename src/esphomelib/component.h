@@ -10,22 +10,31 @@
 #include <vector>
 #include "esphomelib/defines.h"
 
-#define assert_setup(t) assert((t)->get_component_state() == esphomelib::Component::SETUP || (t)->get_component_state() == esphomelib::Component::LOOP)
-#define assert_construction_state(t) assert((t)->get_component_state() == esphomelib::Component::CONSTRUCTION)
-
 ESPHOMELIB_NAMESPACE_BEGIN
 
 /// default setup priorities for components of different types.
 namespace setup_priority {
 
-const float HARDWARE = 100.0f; ///< for hardware initialization, but only where it's really necessary (like outputs)
-const float WIFI = 10.0f; ///< for WiFi initialization
-const float MQTT_CLIENT = 7.5f; ///< for the MQTT client initialization
-const float HARDWARE_LATE = 0.0f;
-const float MQTT_COMPONENT = -5.0f; ///< for MQTT component initialization
-const float LATE = -10.0f;
+extern const float HARDWARE; ///< for hardware initialization, but only where it's really necessary (like outputs)
+extern const float WIFI; ///< for WiFi initialization
+extern const float MQTT_CLIENT; ///< for the MQTT client initialization
+extern const float HARDWARE_LATE;
+extern const float MQTT_COMPONENT; ///< for MQTT component initialization
+extern const float LATE;
 
 } // namespace setup_priority
+
+extern const uint32_t COMPONENT_STATE_MASK;
+extern const uint32_t COMPONENT_STATE_CONSTRUCTION;
+extern const uint32_t COMPONENT_STATE_SETUP;
+extern const uint32_t COMPONENT_STATE_LOOP;
+extern const uint32_t COMPONENT_STATE_FAILED;
+extern const uint32_t STATUS_LED_MASK;
+extern const uint32_t STATUS_LED_OK;
+extern const uint32_t STATUS_LED_WARNING;
+extern const uint32_t STATUS_LED_ERROR;
+
+extern uint32_t global_state;
 
 /** The base class for all esphomelib components.
  *
@@ -46,13 +55,6 @@ const float LATE = -10.0f;
  */
 class Component {
  public:
-  enum ComponentState {
-    CONSTRUCTION = 0,
-    SETUP = 1,
-    LOOP = 2,
-    FAILED = 3,
-  };
-
   /** Where the component's initialization should happen.
    *
    * Analogous to Arduino's setup(). This method is guaranteed to only be called once.
@@ -96,7 +98,7 @@ class Component {
   virtual void loop_();
   virtual void setup_();
 
-  ComponentState get_component_state() const;
+  uint32_t get_component_state() const;
 
   /** Mark this component as failed. Any future timeouts/intervals/setup/loop will no longer be called.
    *
@@ -109,6 +111,22 @@ class Component {
   bool is_failed();
 
   virtual bool can_proceed();
+
+  bool status_has_warning();
+
+  bool status_has_error();
+
+  void status_set_warning();
+
+  void status_set_error();
+
+  void status_clear_warning();
+
+  void status_clear_error();
+
+  void status_momentary_warning(const std::string &name, uint32_t length = 5000);
+
+  void status_momentary_error(const std::string &name, uint32_t length = 5000);
 
  protected:
   void loop_internal();
@@ -210,7 +228,7 @@ class Component {
    */
   std::vector<TimeFunction> time_functions_;
 
-  ComponentState component_state_{CONSTRUCTION}; ///< State of this component.
+  uint32_t component_state_{0x0000}; ///< State of this component.
 };
 
 /** This class simplifies creating components that periodically check a state.

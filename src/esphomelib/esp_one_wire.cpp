@@ -12,6 +12,9 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+const uint8_t ONE_WIRE_ROM_SELECT = 0x55;
+const int ONE_WIRE_ROM_SEARCH = 0xF0;
+
 ESPOneWire::ESPOneWire(GPIOPin *pin) : pin_(pin) {}
 
 bool ESPOneWire::reset() {

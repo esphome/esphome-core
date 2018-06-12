@@ -79,6 +79,7 @@ bool RawDecoder::matches(RemoteReceiveData &data) {
         return false;
     }
   }
+  return true;
 }
 
 RawDecoder::RawDecoder(const std::string &name, std::vector<int32_t> data)
