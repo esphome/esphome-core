@@ -65,10 +65,10 @@ bool decode_lg(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits) {
   return true;
 }
 
-LGDecoder::LGDecoder(const std::string &name, uint32_t data, uint8_t nbits)
-    : RemoteReceiveDecoder(name), data_(data), nbits_(nbits) {}
+LGReceiver::LGReceiver(const std::string &name, uint32_t data, uint8_t nbits)
+    : RemoteReceiver(name), data_(data), nbits_(nbits) {}
 
-bool LGDecoder::matches(RemoteReceiveData &data) {
+bool LGReceiver::matches(RemoteReceiveData &data) {
   uint32_t data_;
   uint8_t nbits;
   if (!decode_lg(data, &data_, &nbits))

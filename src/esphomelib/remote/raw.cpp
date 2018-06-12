@@ -69,7 +69,7 @@ void remote::RawDumper::dump(RemoteReceiveData &data) {
     ESP_LOGD(TAG, "%s", buffer);
   }
 }
-bool RawDecoder::matches(RemoteReceiveData &data) {
+bool RawReceiver::matches(RemoteReceiveData &data) {
   for (int32_t val : this->data_) {
     if (val < 0) {
       if (!data.expect_space(-val))
@@ -82,8 +82,8 @@ bool RawDecoder::matches(RemoteReceiveData &data) {
   return true;
 }
 
-RawDecoder::RawDecoder(const std::string &name, std::vector<int32_t> data)
-    : RemoteReceiveDecoder(name), data_(std::move(data)) {}
+RawReceiver::RawReceiver(const std::string &name, std::vector<int32_t> data)
+    : RemoteReceiver(name), data_(std::move(data)) {}
 #endif
 
 } // namespace remote

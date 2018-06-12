@@ -172,9 +172,9 @@ class RemoteReceiveData {
   std::vector<int32_t> data_;
 };
 
-class RemoteReceiveDecoder : public binary_sensor::BinarySensor {
+class RemoteReceiver : public binary_sensor::BinarySensor {
  public:
-  explicit RemoteReceiveDecoder(const std::string &name);
+  explicit RemoteReceiver(const std::string &name);
 
   bool process_(RemoteReceiveData &data);
 
@@ -197,7 +197,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   void loop() override;
   float get_setup_priority() const override;
 
-  void add_decoder(RemoteReceiveDecoder *decoder);
+  void add_decoder(RemoteReceiver *decoder);
   void add_dumper(RemoteReceiveDumper *dumper);
 
   void set_buffer_size(uint32_t buffer_size);
@@ -230,7 +230,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   uint32_t buffer_size_{1000};
 #endif
   uint8_t tolerance_{25};
-  std::vector<RemoteReceiveDecoder *> decoders_{};
+  std::vector<RemoteReceiver *> decoders_{};
   std::vector<RemoteReceiveDumper *> dumpers_{};
   uint8_t filter_us_{10};
   uint32_t idle_us_{10000};

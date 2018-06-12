@@ -34,9 +34,9 @@ class SonyTransmitter : public RemoteTransmitter {
 #ifdef USE_REMOTE_RECEIVER
 bool decode_sony(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits);
 
-class SonyDecoder : public RemoteReceiveDecoder {
+class SonyReceiver : public RemoteReceiver {
  public:
-  SonyDecoder(const std::string &name, uint32_t data, uint8_t nbits);
+  SonyReceiver(const std::string &name, uint32_t data, uint8_t nbits);
 
  protected:
   bool matches(RemoteReceiveData &data) override;

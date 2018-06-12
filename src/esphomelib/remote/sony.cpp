@@ -76,10 +76,10 @@ bool decode_sony(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits) {
   return true;
 }
 
-SonyDecoder::SonyDecoder(const std::string &name, uint32_t data, uint8_t nbits)
-    : RemoteReceiveDecoder(name), data_(data), nbits_(nbits) {}
+SonyReceiver::SonyReceiver(const std::string &name, uint32_t data, uint8_t nbits)
+    : RemoteReceiver(name), data_(data), nbits_(nbits) {}
 
-bool SonyDecoder::matches(RemoteReceiveData &data) {
+bool SonyReceiver::matches(RemoteReceiveData &data) {
   uint32_t data_;
   uint8_t nbits;
   if (!decode_sony(data, &data_, &nbits))

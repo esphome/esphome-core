@@ -334,7 +334,7 @@ void RemoteReceiverComponent::loop() {
 
 #endif
 
-void RemoteReceiverComponent::add_decoder(RemoteReceiveDecoder *decoder) {
+void RemoteReceiverComponent::add_decoder(RemoteReceiver *decoder) {
   this->decoders_.push_back(decoder);
 }
 void RemoteReceiverComponent::add_dumper(RemoteReceiveDumper *dumper) {
@@ -353,12 +353,12 @@ void RemoteReceiverComponent::set_idle_us(uint32_t idle_us) {
   this->idle_us_ = idle_us;
 }
 
-RemoteReceiveDecoder::RemoteReceiveDecoder(const std::string &name)
+RemoteReceiver::RemoteReceiver(const std::string &name)
     : BinarySensor(name) {
 
 }
 
-bool RemoteReceiveDecoder::process_(RemoteReceiveData &data) {
+bool RemoteReceiver::process_(RemoteReceiveData &data) {
   data.reset_index();
   if (this->matches(data)) {
     this->publish_state(true);

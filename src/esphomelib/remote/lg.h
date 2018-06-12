@@ -34,9 +34,9 @@ class LGTransmitter : public RemoteTransmitter {
 #ifdef USE_REMOTE_RECEIVER
 bool decode_lg(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits);
 
-class LGDecoder : public RemoteReceiveDecoder {
+class LGReceiver : public RemoteReceiver {
  public:
-  LGDecoder(const std::string &name, uint32_t data, uint8_t nbits);
+  LGReceiver(const std::string &name, uint32_t data, uint8_t nbits);
 
  protected:
   bool matches(RemoteReceiveData &data) override;

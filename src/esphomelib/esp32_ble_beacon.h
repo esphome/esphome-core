@@ -41,13 +41,24 @@ typedef struct {
 
 class ESP32BLEBeacon : public Component {
  public:
+  explicit ESP32BLEBeacon(const std::array<uint8_t, 16> &uuid);
+
   void setup() override;
   float get_setup_priority() const override;
+
+  void set_major(uint16_t major);
+  void set_minor(uint16_t minor);
 
  protected:
   static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
   static void ble_core_task(void *params);
+
+  std::array<uint8_t, 16> uuid;
+  uint16_t major{10167};
+  uint16_t minor{61958};
 };
+
+extern ESP32BLEBeacon *global_esp32_ble_beacon;
 
 ESPHOMELIB_NAMESPACE_END
 

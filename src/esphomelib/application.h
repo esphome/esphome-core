@@ -183,7 +183,7 @@ class Application {
 #endif
 
 #ifdef USE_ESP32_BLE_BEACON
-  ESP32BLEBeacon *make_esp32_ble_beacon();
+  ESP32BLEBeacon *make_esp32_ble_beacon(const std::array<uint8_t, 16> &uuid);
 #endif
 
 #ifdef USE_STATUS_LED

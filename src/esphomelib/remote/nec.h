@@ -34,9 +34,9 @@ class NECTransmitter : public RemoteTransmitter {
 #ifdef USE_REMOTE_RECEIVER
 bool decode_nec(RemoteReceiveData &data, uint16_t *address, uint16_t *command);
 
-class NECDecoder : public RemoteReceiveDecoder {
+class NECReceiver : public RemoteReceiver {
  public:
-  NECDecoder(const std::string &name, uint16_t address, uint16_t command);
+  NECReceiver(const std::string &name, uint16_t address, uint16_t command);
 
   bool matches(RemoteReceiveData &data) override;
 

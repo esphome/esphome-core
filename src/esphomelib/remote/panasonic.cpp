@@ -87,7 +87,7 @@ bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *comm
   return true;
 }
 
-bool PanasonicDecoder::matches(RemoteReceiveData &data) {
+bool PanasonicReceiver::matches(RemoteReceiveData &data) {
   uint16_t address;
   uint32_t command;
   if (!decode_panasonic(data, &address, &command))
@@ -95,8 +95,8 @@ bool PanasonicDecoder::matches(RemoteReceiveData &data) {
 
   return this->address_ == address && this->command_ == command;
 }
-PanasonicDecoder::PanasonicDecoder(const std::string &name, uint16_t address, uint32_t command)
-    : RemoteReceiveDecoder(name), address_(address), command_(command) {
+PanasonicReceiver::PanasonicReceiver(const std::string &name, uint16_t address, uint32_t command)
+    : RemoteReceiver(name), address_(address), command_(command) {
 
 }
 

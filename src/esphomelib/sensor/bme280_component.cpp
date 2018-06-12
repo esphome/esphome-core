@@ -178,7 +178,7 @@ void BME280Component::update() {
   meas_time += 2.3f * oversampling_to_time(this->pressure_oversampling_) + 0.575f;
   meas_time += 2.3f * oversampling_to_time(this->humidity_oversampling_) + 0.575f;
 
-  this->set_timeout("data", uint32_t(ceilf(meas_time)), [this]() {
+  this->set_timeout("data", uint32_t(ceilf(meas_time * 1.5f)), [this]() {
     int32_t t_fine = 0;
     float temperature = this->read_temperature_(&t_fine);
     if (isnan(temperature)) {

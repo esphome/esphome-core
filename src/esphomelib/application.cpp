@@ -849,8 +849,8 @@ Application::MakeESP32HallSensor Application::make_esp32_hall_sensor(const std::
 #endif
 
 #ifdef USE_ESP32_BLE_BEACON
-ESP32BLEBeacon *Application::make_esp32_ble_beacon() {
-  return App.register_component(new ESP32BLEBeacon());
+ESP32BLEBeacon *Application::make_esp32_ble_beacon(const std::array<uint8_t, 16> &uuid) {
+  return App.register_component(new ESP32BLEBeacon(uuid));
 }
 #endif
 

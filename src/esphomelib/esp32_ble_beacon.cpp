@@ -18,6 +18,7 @@
 #include <freertos/task.h>
 #include <esp_gap_ble_api.h>
 #include "esphomelib/log.h"
+#include "esp32_ble_beacon.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -36,13 +37,6 @@ static esp_ble_adv_params_t ble_adv_params = {
 
 #define ENDIAN_CHANGE_U16(x) ((((x)&0xFF00)>>8) + (((x)&0xFF)<<8))
 
-static esp_ble_ibeacon_vendor_t vendor_config = {
-    .proximity_uuid = {0xFD, 0xA5, 0x06, 0x93, 0xA4, 0xE2, 0x4F, 0xB1, 0xAF, 0xCF, 0xC6, 0xEB, 0x07, 0x64, 0x78, 0x25},
-    .major = ENDIAN_CHANGE_U16(10167),
-    .minor = ENDIAN_CHANGE_U16(61958),
-    .measured_power = 0xC5,
-};
-
 static esp_ble_ibeacon_head_t ibeacon_common_head = {
     .flags = {0x02, 0x01, 0x06},
     .length = 0x1A,
@@ -51,25 +45,10 @@ static esp_ble_ibeacon_head_t ibeacon_common_head = {
     .beacon_type = 0x1502
 };
 
-const uint8_t uuid_zeros[ESP_UUID_LEN_128] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-esp_err_t esp_ble_config_ibeacon_data(esp_ble_ibeacon_vendor_t *vendor_config, esp_ble_ibeacon_t *ibeacon_adv_data) {
-  if (vendor_config == nullptr || ibeacon_adv_data == nullptr) {
-    return ESP_ERR_INVALID_ARG;
-  }
-  if (memcmp(vendor_config->proximity_uuid, uuid_zeros, sizeof(uuid_zeros)) == 0) {
-    return ESP_ERR_INVALID_ARG;
-  }
-
-  memcpy(&ibeacon_adv_data->ibeacon_head, &ibeacon_common_head, sizeof(esp_ble_ibeacon_head_t));
-  memcpy(&ibeacon_adv_data->ibeacon_vendor, vendor_config, sizeof(esp_ble_ibeacon_vendor_t));
-
-  return ESP_OK;
-}
-
 void ESP32BLEBeacon::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ESP32 BLE beacon...");
+  global_esp32_ble_beacon = this;
+
   xTaskCreatePinnedToCore(
       ESP32BLEBeacon::ble_core_task,
       "ble_task", // name
@@ -123,11 +102,13 @@ void ESP32BLEBeacon::ble_core_task(void *params) {
   }
 
   esp_ble_ibeacon_t ibeacon_adv_data;
-  err = esp_ble_config_ibeacon_data(&vendor_config, &ibeacon_adv_data);
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "esp_ble_config_ibeacon_data failed: %s", esp_err_to_name(err));
-    return;
-  }
+  memcpy(&ibeacon_adv_data.ibeacon_head, &ibeacon_common_head, sizeof(esp_ble_ibeacon_head_t));
+  memcpy(&ibeacon_adv_data.ibeacon_vendor.proximity_uuid, global_esp32_ble_beacon->uuid.data(),
+         sizeof(ibeacon_adv_data.ibeacon_vendor.proximity_uuid));
+  ibeacon_adv_data.ibeacon_vendor.minor = ENDIAN_CHANGE_U16(global_esp32_ble_beacon->minor);
+  ibeacon_adv_data.ibeacon_vendor.major = ENDIAN_CHANGE_U16(global_esp32_ble_beacon->major);
+  ibeacon_adv_data.ibeacon_vendor.measured_power = 0xC5;
+
   esp_ble_gap_config_adv_data_raw((uint8_t *) &ibeacon_adv_data, sizeof(ibeacon_adv_data));
 
   while (true) {
@@ -164,6 +145,17 @@ void ESP32BLEBeacon::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap
     default: break;
   }
 }
+ESP32BLEBeacon::ESP32BLEBeacon(const std::array<uint8_t, 16> &uuid) : uuid(uuid) {
+
+}
+void ESP32BLEBeacon::set_major(uint16_t major) {
+  this->major = major;
+}
+void ESP32BLEBeacon::set_minor(uint16_t minor) {
+  this->minor = minor;
+}
+
+ESP32BLEBeacon *global_esp32_ble_beacon = nullptr;
 
 ESPHOMELIB_NAMESPACE_END
 

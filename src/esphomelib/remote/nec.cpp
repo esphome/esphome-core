@@ -86,11 +86,11 @@ bool decode_nec(RemoteReceiveData &data, uint16_t *address, uint16_t *command) {
   return true;
 }
 
-NECDecoder::NECDecoder(const std::string &name, uint16_t address, uint16_t command)
-    : RemoteReceiveDecoder(name), address_(address), command_(command) {
+NECReceiver::NECReceiver(const std::string &name, uint16_t address, uint16_t command)
+    : RemoteReceiver(name), address_(address), command_(command) {
 
 }
-bool NECDecoder::matches(RemoteReceiveData &data) {
+bool NECReceiver::matches(RemoteReceiveData &data) {
   uint16_t address;
   uint16_t command;
   if (!decode_nec(data, &address, &command))

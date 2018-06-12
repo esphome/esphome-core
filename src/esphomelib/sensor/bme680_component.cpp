@@ -451,7 +451,7 @@ uint32_t BME680Component::calc_meas_duration_() {
   /* The remaining time should be used for heating */
   tph_dur += this->heater_duration_;
 
-  return tph_dur;
+  return tph_dur * 1.5f;
 }
 BME680Component::BME680Component(I2CComponent *parent,
                                  const std::string &temperature_name,

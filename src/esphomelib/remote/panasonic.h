@@ -34,9 +34,9 @@ class PanasonicTransmitter : public RemoteTransmitter {
 #ifdef USE_REMOTE_RECEIVER
 bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *command);
 
-class PanasonicDecoder : public RemoteReceiveDecoder {
+class PanasonicReceiver : public RemoteReceiver {
  public:
-  PanasonicDecoder(const std::string &name, uint16_t address, uint32_t command);
+  PanasonicReceiver(const std::string &name, uint16_t address, uint32_t command);
 
   bool matches(RemoteReceiveData &data) override;
 

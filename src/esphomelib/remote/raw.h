@@ -32,9 +32,9 @@ class RawTransmitter : public RemoteTransmitter {
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-class RawDecoder : public RemoteReceiveDecoder {
+class RawReceiver : public RemoteReceiver {
  public:
-  RawDecoder(const std::string &name, std::vector<int32_t> data);
+  RawReceiver(const std::string &name, std::vector<int32_t> data);
 
   bool matches(RemoteReceiveData &data) override;
 
