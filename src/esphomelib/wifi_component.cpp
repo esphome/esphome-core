@@ -43,18 +43,24 @@ void WiFiComponent::setup() {
 
   if (this->has_ap()) {
     this->setup_ap_config();
+  } else {
+    WiFi.enableAP(false);
   }
 
   if (this->has_sta()) {
     if (!WiFi.enableSTA(true)) {
       ESP_LOGE(TAG, "WiFi.enableSTA(true) failed!");
+      this->status_set_error();
     }
     WiFi.setAutoConnect(false);
     if (!WiFi.setAutoReconnect(false)) {
       ESP_LOGE(TAG, "WiFi.setAutoReconnect(false) failed!");
+      this->status_set_error();
     }
     delay(10);
     this->start_connecting();
+  } else {
+    WiFi.enableSTA(false);
   }
 }
 
@@ -75,6 +81,7 @@ void WiFiComponent::loop() {
           this->last_connected_ = now;
         } else {
           ESP_LOGW(TAG, "WiFi Connection lost... Reconnecting...");
+          this->status_set_warning();
           this->retry_connect();
         }
         break;
@@ -152,6 +159,7 @@ void WiFiComponent::setup_ap_config() {
   bool ret = WiFi.enableAP(true);
   if (!ret) {
     ESP_LOGE(TAG, "WiFi.enableAP(true) failed");
+    this->status_set_error();
   }
 
   ESP_LOGCONFIG(TAG, "    AP SSID: '%s'", this->ap_.ssid.c_str());
@@ -165,6 +173,7 @@ void WiFiComponent::setup_ap_config() {
                             this->ap_.manual_ip->subnet);
     if (!ret) {
       ESP_LOGE(TAG, "WiFi.softAPConfig() failed!");
+      this->status_set_error();
     }
   }
 
@@ -174,6 +183,7 @@ void WiFiComponent::setup_ap_config() {
     ret = WiFi.softAPsetHostname(this->hostname_.c_str());
     if (!ret) {
       ESP_LOGE(TAG, "WiFi.softAPsetHostname() failed!");
+      this->status_set_error();
     }
   }
 #endif
@@ -184,6 +194,7 @@ void WiFiComponent::setup_ap_config() {
   ret = WiFi.softAP(this->ap_.ssid.c_str(), passphrase, this->ap_.channel);
   if (!ret) {
     ESP_LOGE(TAG, "WiFi.softAP() failed!");
+    this->status_set_error();
   }
 
   ESP_LOGD(TAG, "WiFi AP set up.");
@@ -214,6 +225,7 @@ void WiFiComponent::start_connecting() {
   assert(this->has_sta());
 
   ESP_LOGI(TAG, "WiFi Connecting to '%s'...", this->sta_.ssid.c_str());
+  this->status_set_warning();
 
   bool ret;
   if (this->sta_.manual_ip.has_value()) {
@@ -225,6 +237,7 @@ void WiFiComponent::start_connecting() {
 
   if (!ret) {
     ESP_LOGW(TAG, "WiFi.config() failed!");
+    this->status_set_error();
   }
 
   if (!this->hostname_.empty()) {
@@ -235,8 +248,10 @@ void WiFiComponent::start_connecting() {
 #ifdef ARDUINO_ARCH_ESP8266
     ret = WiFi.hostname(this->hostname_.c_str());
 #endif
-    if (!ret)
+    if (!ret) {
       ESP_LOGE(TAG, "WiFi.hostname() failed!");
+      this->status_set_error();
+    }
   }
 
   const char *passphrase = this->sta_.password.c_str();
@@ -271,6 +286,7 @@ void WiFiComponent::check_connecting_finished() {
     ESP_LOGCONFIG(TAG, "    Gateway: %s", WiFi.gatewayIP().toString().c_str());
     ESP_LOGCONFIG(TAG, "    DNS1: %s", WiFi.dnsIP(0).toString().c_str());
     ESP_LOGCONFIG(TAG, "    DNS2: %s", WiFi.dnsIP(1).toString().c_str());
+    this->status_clear_warning();
 
     if (this->has_ap()) {
       ESP_LOGD(TAG, "Disabling AP...");
@@ -300,9 +316,10 @@ void WiFiComponent::check_connecting_finished() {
     return;
   }
 
-  if (status == WL_IDLE_STATUS || status == WL_DISCONNECTED) {
+  if (status == WL_IDLE_STATUS || status == WL_DISCONNECTED || status == WL_CONNECTION_LOST) {
     // WL_DISCONNECTED is set while not connected yet.
     // WL_IDLE_STATUS is set while we're waiting for the IP address.
+    // WL_CONNECTION_LOST happens on the ESP32
     return;
   }
 
