@@ -50,6 +50,9 @@ void OTAComponent::setup() {
     this->ota_triggered_ = true;
     this->at_ota_progress_message_ = 0;
     this->status_set_warning();
+#ifdef USE_STATUS_LED
+    global_state |= STATUS_LED_WARNING;
+#endif
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
@@ -58,6 +61,11 @@ void OTAComponent::setup() {
     run_safe_shutdown_hooks("ota");
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
+#ifdef USE_STATUS_LED
+    if (global_status_led != nullptr) {
+      global_status_led->loop_();
+    }
+#endif
     if (this->at_ota_progress_message_++ % 8 != 0)
       return; // only print every 8th message
     float percentage = float(progress) * 100 / float(total);
