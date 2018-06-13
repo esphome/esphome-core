@@ -206,8 +206,25 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
   std::vector<int32_t> data;
   int32_t multiplier = this->pin_->is_inverted() ? -1 : 1;
 
+  ESP_LOGVV(TAG, "START:");
   for (size_t i = 0; i < len; i++) {
-    if (bool(item[i].level0) == prev_level) {
+    if (item[i].level0) {
+      ESP_LOGVV(TAG, "%u A: ON %uus (%u ticks)", i, this->to_microseconds(item[i].duration0), item[i].duration0);
+    } else {
+      ESP_LOGVV(TAG, "%u A: OFF %uus (%u ticks)", i, this->to_microseconds(item[i].duration0), item[i].duration0);
+    }
+    if (item[i].level1) {
+      ESP_LOGVV(TAG, "%u B: ON %uus (%u ticks)", i, this->to_microseconds(item[i].duration1), item[i].duration1);
+    } else {
+      ESP_LOGVV(TAG, "%u B: OFF %uus (%u ticks)", i, this->to_microseconds(item[i].duration1), item[i].duration1);
+    }
+  }
+  ESP_LOGVV(TAG, "\n");
+
+  for (size_t i = 0; i < len; i++) {
+    if (item[i].duration0 == 0u) {
+      // Do nothing
+    } else if (bool(item[i].level0) == prev_level) {
       prev_length += item[i].duration0;
     } else {
       if (prev_length > 0) {
@@ -221,7 +238,13 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
       prev_length = item[i].duration0;
     }
 
-    if (bool(item[i].level1) == prev_level) {
+    if (this->to_microseconds(prev_length) > this->idle_us_) {
+      break;
+    }
+
+    if (item[i].duration1 == 0u) {
+      // Do nothing
+    } else if (bool(item[i].level1) == prev_level) {
       prev_length += item[i].duration1;
     } else {
       if (prev_length > 0) {
@@ -233,6 +256,10 @@ std::vector<int32_t> RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, si
       }
       prev_level = bool(item[i].level1);
       prev_length = item[i].duration1;
+    }
+
+    if (this->to_microseconds(prev_length) > this->idle_us_) {
+      break;
     }
   }
   if (prev_length > 0) {

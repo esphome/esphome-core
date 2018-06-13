@@ -24,8 +24,8 @@ class TemplateSwitch : public Switch {
   explicit TemplateSwitch(const std::string &name);
 
   void set_state_lambda(std::function<optional<bool>()> &&f);
-  void add_turn_on_actions(const std::vector<Action<NoArg> *> &actions);
-  void add_turn_off_actions(const std::vector<Action<NoArg> *> &actions);
+  Trigger<NoArg> *get_turn_on_trigger() const;
+  Trigger<NoArg> *get_turn_off_trigger() const;
   void set_optimistic(bool optimistic);
   void loop() override;
 
@@ -39,8 +39,8 @@ class TemplateSwitch : public Switch {
 
   optional<std::function<optional<bool>()>> f_;
   bool optimistic_{false};
-  ActionList<NoArg> turn_on_action_;
-  ActionList<NoArg> turn_off_action_;
+  Trigger<NoArg> *turn_on_trigger_;
+  Trigger<NoArg> *turn_off_trigger_;
 };
 
 } // namespace switch_
