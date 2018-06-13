@@ -361,8 +361,9 @@ void RemoteReceiverComponent::loop() {
 
 #endif
 
-void RemoteReceiverComponent::add_decoder(RemoteReceiver *decoder) {
+RemoteReceiver *RemoteReceiverComponent::add_decoder(RemoteReceiver *decoder) {
   this->decoders_.push_back(decoder);
+  return decoder;
 }
 void RemoteReceiverComponent::add_dumper(RemoteReceiveDumper *dumper) {
   this->dumpers_.push_back(dumper);

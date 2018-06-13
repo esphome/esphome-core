@@ -320,11 +320,15 @@ mqtt:
 After `init_wifi()`, call:
 
 ```cpp
-auto *wifi = App.init_wifi(...);
-wifi->set_sta_manual_ip(ManualIP{
-    .static_ip = IPAddress(192, 168, 178, 204),
-    .gateway = IPAddress(192, 168, 178, 1),
-    .subnet = IPAddress(255, 255, 255, 0)
+auto *wifi = App.init_wifi();
+wifi->set_sta(WiFiAp{
+  .ssid = "MySSID",
+  .password = "MyPassword",
+  .manual_ip = ManualIP{
+      .static_ip = IPAddress(192, 168, 178, 42),
+      .gateway = IPAddress(192, 168, 178, 1),
+      .subnet = IPAddress(255, 255, 255, 0)
+  }
 });
 ```
 

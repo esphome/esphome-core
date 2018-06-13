@@ -197,7 +197,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   void loop() override;
   float get_setup_priority() const override;
 
-  void add_decoder(RemoteReceiver *decoder);
+  RemoteReceiver *add_decoder(RemoteReceiver *decoder);
   void add_dumper(RemoteReceiveDumper *dumper);
 
   void set_buffer_size(uint32_t buffer_size);

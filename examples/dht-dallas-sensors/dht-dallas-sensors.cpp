@@ -10,11 +10,15 @@ void setup() {
   App.set_name("outside");
   App.init_log();
 
-  auto *wifi = App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-  wifi->set_sta_manual_ip(ManualIP{
-      .static_ip = IPAddress(192, 168, 178, 42),
-      .gateway = IPAddress(192, 168, 178, 1),
-      .subnet = IPAddress(255, 255, 255, 0)
+  auto *wifi = App.init_wifi();
+  wifi->set_sta(WiFiAp{
+      .ssid = "MySSID",
+      .password = "MyPassword",
+      .manual_ip = ManualIP{
+          .static_ip = IPAddress(192, 168, 178, 42),
+          .gateway = IPAddress(192, 168, 178, 1),
+          .subnet = IPAddress(255, 255, 255, 0)
+      }
   });
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
   auto *ota = App.init_ota();
