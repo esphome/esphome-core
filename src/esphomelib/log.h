@@ -12,6 +12,10 @@
 // avoid esp-idf redefining our macros
 #include "esphomelib/esphal.h"
 
+#ifdef ARDUINO_ARCH_ESP32
+  #include "esp_err.h"
+#endif
+
 #define ESPHOMELIB_LOG_LEVEL_NONE 0
 #define ESPHOMELIB_LOG_LEVEL_ERROR 1
 #define ESPHOMELIB_LOG_LEVEL_WARN 2
