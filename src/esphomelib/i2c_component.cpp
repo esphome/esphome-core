@@ -137,7 +137,7 @@ bool I2CComponent::receive_16_(uint8_t address, uint16_t *data, uint8_t len) {
   auto *data_8 = reinterpret_cast<uint8_t *>(data);
   for (uint8_t i = 0; i < len; i++) {
     data_8[i * 2 + 1] = this->wire_->read();
-    data_8[i + 2] = this->wire_->read();
+    data_8[i * 2] = this->wire_->read();
     ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN " (0x%04X)",
               BYTE_TO_BINARY(data_8[i * 2 + 1]), BYTE_TO_BINARY(data_8[i * 2]), data[i]);
   }
