@@ -120,7 +120,8 @@ Repeat the above steps with the following libraries:
 - https://github.com/OttoWinter/ArduinoJson/releases
 - https://github.com/FastLED/FastLED/releases
 - https://github.com/me-no-dev/ESPAsyncWebServer/archive/master.zip
-- https://github.com/me-no-dev/AsyncTCP/archive/master.zip
+- https://github.com/me-no-dev/AsyncTCP/archive/master.zip (only needed for ESP32)
+- https://github.com/me-no-dev/ESPAsyncTCP/archive/master.zip (only needed for ESP8266)
 
 After installing esphomelib, you will find a variety of example sketches under **File > Examples > esphomelib**.
 
