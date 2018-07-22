@@ -1009,8 +1009,11 @@ class Application {
   template<class C>
   C *register_controller(C *c);
 
-  /// Set up all the registered components. Call this at the end of your setup() function.
-  void setup();
+  /** Set up all the registered components. Call this at the end of your setup() function.
+   *
+   * @param critical_device if true setup will not block on `Component.can_proceed() == false`.
+   */
+  void setup(bool critical_device = false);
 
   /// Make a loop iteration. Call this in your loop() function.
   void loop();
