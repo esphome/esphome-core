@@ -30,8 +30,10 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
   /** Construct the GPIO binary output.
    *
    * @param pin The output pin to use for this output, can be integer or GPIOOutputPin.
+   * @param default_pin_high If true pin will be set high initially, else low.
    */
-  explicit GPIOBinaryOutputComponent(GPIOPin *pin);
+  explicit GPIOBinaryOutputComponent(GPIOPin *pin,
+                                     bool default_pin_high = false);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -46,6 +48,7 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
 
  protected:
   GPIOPin *pin_;
+  bool default_pin_high_;
 };
 
 } // namespace output
