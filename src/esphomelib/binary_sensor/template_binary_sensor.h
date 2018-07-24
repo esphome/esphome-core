@@ -28,7 +28,7 @@ class TemplateBinarySensor : public Component, public BinarySensor {
   float get_setup_priority() const override;
 
  protected:
-  std::function<optional<bool>()> &&f_;
+  std::function<optional<bool>()> f_;
 };
 
 } // namespace binary_sensor
