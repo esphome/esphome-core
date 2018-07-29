@@ -22,14 +22,15 @@ void GPIOBinaryOutputComponent::write_enabled(bool value) {
 void GPIOBinaryOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO Binary Output...");
   this->pin_->setup();
-  this->pin_->digital_write(false);
+  this->pin_->digital_write(this->default_pin_high_);
 }
 
 float GPIOBinaryOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin)
-  : pin_(pin) { }
+GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin,
+                                                     bool default_pin_high)
+  : pin_(pin), default_pin_high_(default_pin_high) { }
 
 } // namespace output
 
