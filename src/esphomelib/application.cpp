@@ -44,7 +44,7 @@ using namespace esphomelib::remote;
 
 static const char *TAG = "application";
 
-void Application::setup() {
+void Application::setup(bool critical_device) {
   ESP_LOGI(TAG, "Running through setup()...");
   assert(this->application_state_ == COMPONENT_STATE_CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
@@ -52,13 +52,17 @@ void Application::setup() {
     return a->get_setup_priority() >= b->get_setup_priority();
   });
 
+  if (critical_device) {
+    ESP_LOGW(TAG, "Device is marked as critical.");
+  }
+
   for (uint32_t i = 0; i < this->components_.size(); i++) {
     Component *component = this->components_[i];
     if (component->is_failed())
       continue;
 
     component->setup_();
-    if (component->can_proceed())
+    if (component->can_proceed() || critical_device)
       continue;
 
     std::stable_sort(this->components_.begin(), this->components_.begin() + i + 1, [](Component *a, Component *b) {
