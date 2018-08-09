@@ -263,7 +263,7 @@ bool DallasTemperatureSensor::check_scratch_pad_() {
               crc8(this->scratch_pad_, 8));
   }
   if (crc8(this->scratch_pad_, 8) != this->scratch_pad_[8]) {
-    ESP_LOGE(TAG, "Reading scratch pad from Dallas Sensor failed");
+    ESP_LOGE(TAG, "Reading scratchpad from Dallas Sensor failed");
     return false;
   }
   return true;
