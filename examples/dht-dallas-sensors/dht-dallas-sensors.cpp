@@ -12,7 +12,7 @@ void setup() {
 
   auto *wifi = App.init_wifi();
   // *all* parameters have to be declared in *exact order*, as defined in declared structures.
-  // otherwise, compiled will complain with "sorry, unimplemented: non-trivial designated initializers not supported"
+  // otherwise, compiler will complain with "sorry, unimplemented: non-trivial designated initializers not supported"
   wifi->set_sta(WiFiAp{
       .ssid = "MySSID",
       .password = "MyPassword",
