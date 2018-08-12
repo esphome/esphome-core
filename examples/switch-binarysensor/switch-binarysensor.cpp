@@ -5,7 +5,6 @@
 #include <esphomelib.h>
 
 using namespace esphomelib;
-using namespace esphomelib::switch_::ir;
 
 static const char *TAG = "main";
 
