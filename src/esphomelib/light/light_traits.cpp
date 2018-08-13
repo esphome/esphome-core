@@ -2,9 +2,11 @@
 // Created by Otto Winter on 28.11.17.
 //
 
-#include "esphomelib/light/light_traits.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_LIGHT
+
+#include "esphomelib/light/light_traits.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

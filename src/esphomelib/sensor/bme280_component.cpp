@@ -10,11 +10,13 @@
 //  - https://github.com/adafruit/Adafruit_BME280_Library
 //  - https://github.com/sparkfun/SparkFun_BME280_Arduino_Library
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_BME280
+
 #include "esphomelib/sensor/bme280_component.h"
 #include "esphomelib/espmath.h"
 #include "esphomelib/log.h"
-
-#ifdef USE_BME280
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -94,9 +96,9 @@ static const char* iir_filter_to_str(BME280IIRFilter filter) {
 void BME280Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BME280...");
   ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
-  uint8_t chip_id;
+  uint8_t chip_id = 0;
   if (!this->read_byte(BME280_REGISTER_CHIPID, &chip_id) || chip_id != 0x60) {
-    ESP_LOGE(TAG, "Communication with BME280 failed!");
+    ESP_LOGE(TAG, "Communication with BME280 failed! Chip ID: %02X", chip_id);
     this->mark_failed();
     return;
   }
@@ -178,7 +180,7 @@ void BME280Component::update() {
   meas_time += 2.3f * oversampling_to_time(this->pressure_oversampling_) + 0.575f;
   meas_time += 2.3f * oversampling_to_time(this->humidity_oversampling_) + 0.575f;
 
-  this->set_timeout("data", uint32_t(ceilf(meas_time * 1.5f)), [this]() {
+  this->set_timeout("data", uint32_t(ceilf(meas_time)), [this]() {
     int32_t t_fine = 0;
     float temperature = this->read_temperature_(&t_fine);
     if (isnan(temperature)) {

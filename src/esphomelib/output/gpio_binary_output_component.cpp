@@ -2,12 +2,14 @@
 // Created by Otto Winter on 02.12.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_GPIO_OUTPUT
+
 #include "esphomelib/output/gpio_binary_output_component.h"
 
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
-
-#ifdef USE_GPIO_OUTPUT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

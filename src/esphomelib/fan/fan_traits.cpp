@@ -2,9 +2,11 @@
 // Created by Otto Winter on 29.12.17.
 //
 
-#include "esphomelib/fan/fan_traits.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_FAN
+
+#include "esphomelib/fan/fan_traits.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

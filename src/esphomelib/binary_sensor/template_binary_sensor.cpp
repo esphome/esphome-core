@@ -6,16 +6,18 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/binary_sensor/template_binary_sensor.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/template_binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
-TemplateBinarySensor::TemplateBinarySensor(const std::string &name, std::function<optional<bool>()> &&f)
-    : BinarySensor(name), f_(std::move(f)) {
+TemplateBinarySensor::TemplateBinarySensor(const std::string &name)
+    : BinarySensor(name) {
 
 }
 void TemplateBinarySensor::loop() {
@@ -26,6 +28,9 @@ void TemplateBinarySensor::loop() {
 }
 float TemplateBinarySensor::get_setup_priority() const {
   return setup_priority::HARDWARE;
+}
+void TemplateBinarySensor::set_template(std::function<optional<bool>()> &&f) {
+  this->f_ = std::move(f);
 }
 
 } // namespace binary_sensor

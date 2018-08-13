@@ -67,6 +67,7 @@
   #define USE_TSL2561
   #define USE_BH1750
   #define USE_BME280
+  #define USE_BMP280
   #define USE_BME680
   #define USE_SHT3XD
   #define USE_TEMPLATE_SENSOR
@@ -89,6 +90,19 @@
   #endif
   #define USE_DUTY_CYCLE_SENSOR
   #define USE_STATUS_LED
+  #define USE_SPI
+  #define USE_PN532
+  #define USE_UART
+  #define USE_MHZ19
+  #define USE_UART_SWITCH
+  #define USE_UPTIME_SENSOR
+  #define USE_INA219
+  #define USE_INA3221
+  #define USE_HMC5883L
+  #define USE_RDM6300
+  #define USE_MS5611
+  #define USE_HX711
+  #define USE_TCS34725
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -126,10 +140,63 @@
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
   #endif
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
 #endif
 #ifdef USE_TEMPLATE_BINARY_SENSOR
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
+  #endif
+#endif
+#ifdef USE_PN532
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+  #ifndef USE_SPI
+    #define USE_SPI
+  #endif
+#endif
+#ifdef USE_RDM6300
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
+  #endif
+#endif
+#ifdef USE_MHZ19
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
+  #endif
+#endif
+#ifdef USE_TCS34725
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_UART_SWITCH
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
+  #endif
+#endif
+#ifdef USE_UPTIME_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_HX711
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
   #endif
 #endif
 #ifdef USE_DHT_SENSOR
@@ -206,6 +273,38 @@
   #endif
 #endif
 #ifdef USE_MPU6050
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_INA219
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_INA3221
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_HMC5883L
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_MS5611
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif

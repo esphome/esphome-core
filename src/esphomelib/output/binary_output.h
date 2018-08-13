@@ -15,6 +15,12 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
+template<typename T>
+class TurnOffAction;
+
+template<typename T>
+class TurnOnAction;
+
 /** The base class for all binary outputs i.e. outputs that can only be switched on/off.
  *
  * This interface class provides one method you need to override in order to create a binary output
@@ -60,11 +66,59 @@ class BinaryOutput {
   /// Return the power supply assigned to this binary output.
   PowerSupplyComponent *get_power_supply() const;
 
+  template<typename T>
+  TurnOffAction<T> *make_turn_off_action();
+
+  template<typename T>
+  TurnOnAction<T> *make_turn_on_action();
+
  protected:
   bool inverted_{false};
   PowerSupplyComponent *power_supply_{nullptr};
   bool has_requested_high_power_{false};
 };
+
+template<typename T>
+class TurnOffAction : public Action<T> {
+ public:
+  TurnOffAction(BinaryOutput *output);
+
+  void play(T x) override;
+ protected:
+  BinaryOutput *output_;
+};
+template<typename T>
+class TurnOnAction : public Action<T> {
+ public:
+  TurnOnAction(BinaryOutput *output);
+
+  void play(T x) override;
+ protected:
+  BinaryOutput *output_;
+};
+
+template<typename T>
+TurnOffAction<T>::TurnOffAction(BinaryOutput *output) : output_(output) {}
+template<typename T>
+void TurnOffAction<T>::play(T x) {
+  this->output_->disable();
+  this->play_next(x);
+}
+template<typename T>
+TurnOnAction<T>::TurnOnAction(BinaryOutput *output) : output_(output) {}
+template<typename T>
+void TurnOnAction<T>::play(T x) {
+  this->output_->enable();
+  this->play_next(x);
+}
+template<typename T>
+TurnOffAction<T> *BinaryOutput::make_turn_off_action() {
+  return new TurnOffAction<T>(this);
+}
+template<typename T>
+TurnOnAction<T> *BinaryOutput::make_turn_on_action() {
+  return new TurnOnAction<T>(this);
+}
 
 } // namespace output
 

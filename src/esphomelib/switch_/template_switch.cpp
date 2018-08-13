@@ -6,9 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/switch_/template_switch.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_SWITCH
+
+#include "esphomelib/switch_/template_switch.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -52,6 +54,9 @@ Trigger<NoArg> *TemplateSwitch::get_turn_on_trigger() const {
 }
 Trigger<NoArg> *TemplateSwitch::get_turn_off_trigger() const {
   return this->turn_off_trigger_;
+}
+bool TemplateSwitch::do_restore_state() {
+  return false;
 }
 
 } // namespace switch_

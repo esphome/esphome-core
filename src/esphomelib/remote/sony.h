@@ -23,7 +23,7 @@ class SonyTransmitter : public RemoteTransmitter {
  public:
   SonyTransmitter(const std::string &name, uint32_t data, uint8_t nbits);
 
-  RemoteTransmitData get_data() override;
+  void to_data(RemoteTransmitData *data) override;
 
  protected:
   uint32_t data_;
@@ -32,14 +32,14 @@ class SonyTransmitter : public RemoteTransmitter {
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_sony(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits);
+bool decode_sony(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits);
 
 class SonyReceiver : public RemoteReceiver {
  public:
   SonyReceiver(const std::string &name, uint32_t data, uint8_t nbits);
 
  protected:
-  bool matches(RemoteReceiveData &data) override;
+  bool matches(RemoteReceiveData *data) override;
 
  protected:
   uint32_t data_;
@@ -48,7 +48,7 @@ class SonyReceiver : public RemoteReceiver {
 
 class SonyDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData &data) override;
+  void dump(RemoteReceiveData *data) override;
 };
 #endif
 

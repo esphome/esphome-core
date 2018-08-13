@@ -2,13 +2,15 @@
 // Created by Otto Winter on 03.12.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
+
 #include "esphomelib/sensor/filter.h"
 #include "esphomelib/sensor/sensor.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
-
-#ifdef USE_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

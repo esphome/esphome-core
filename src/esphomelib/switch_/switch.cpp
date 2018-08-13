@@ -2,10 +2,12 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include "esphomelib/switch_/switch.h"
-#include "esphomelib/esppreferences.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_SWITCH
+
+#include "esphomelib/switch_/switch.h"
+#include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -41,11 +43,15 @@ void Switch::setup_() {
   this->setup_internal();
   this->setup();
 
-  bool initial_state = global_preferences.get_bool(this->get_name(), "state", false);
-  this->write_state(initial_state);
+  if (this->do_restore_state()) {
+    bool initial_state = global_preferences.get_bool(this->get_name(), "state", false);
+    auto f = std::bind(&Switch::write_state, this, initial_state);
+    this->defer(f);
+  }
 }
 void Switch::publish_state(bool state) {
   this->value = state != this->inverted_;
+
   global_preferences.put_bool(this->get_name(), "state", this->value);
   this->state_callback_.call(this->value);
 }
@@ -58,6 +64,9 @@ void Switch::add_on_state_callback(std::function<void(bool)> &&callback) {
 }
 void Switch::set_inverted(bool inverted) {
   this->inverted_ = inverted;
+}
+bool Switch::do_restore_state() {
+  return true;
 }
 
 } // namespace switch_

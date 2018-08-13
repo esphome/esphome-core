@@ -71,21 +71,17 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE
   #define esph_log_vv(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE, tag, ESPHOMELIB_LOG_FORMAT(tag, VV, format), ##__VA_ARGS__)
 
-  #define if_very_verbose if (true)
+  #define ESPHOMELIB_LOG_HAS_VERY_VERBOSE
 #else
   #define esph_log_vv(tag, format, ...)
-
-  #define if_very_verbose if (false)
 #endif
 
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_VERBOSE
   #define esph_log_v(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_VERBOSE, tag, ESPHOMELIB_LOG_FORMAT(tag, V, format), ##__VA_ARGS__)
 
-  #define if_verbose if (true)
+  #define ESPHOMELIB_LOG_HAS_VERBOSE
 #else
   #define esph_log_v(tag, format, ...)
-
-  #define if_verbose if (false)
 #endif
 
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_DEBUG
@@ -93,45 +89,36 @@ int esp_idf_log_vprintf_(const char *format, va_list args);
 
   #define esph_log_config(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_DEBUG, tag, ESPHOMELIB_LOG_FORMAT(tag, C, format), ##__VA_ARGS__)
 
-  #define if_debug if (true)
-  #define if_config if (true)
+  #define ESPHOMELIB_LOG_HAS_DEBUG
+  #define ESPHOMELIB_LOG_HAS_CONFIG
 #else
   #define esph_log_d(tag, format, ...)
 
   #define esph_log_config(tag, format, ...)
-
-  #define if_debug if (false)
-  #define if_config if (false)
 #endif
 
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_INFO
   #define esph_log_i(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_INFO, tag, ESPHOMELIB_LOG_FORMAT(tag, I, format), ##__VA_ARGS__)
 
-  #define if_info if (true)
+  #define ESPHOMELIB_LOG_HAS_INFO
 #else
   #define esph_log_i(tag, format, ...)
-
-  #define if_info if (false)
 #endif
 
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_WARN
   #define esph_log_w(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_WARN, tag, ESPHOMELIB_LOG_FORMAT(tag, W, format), ##__VA_ARGS__)
 
-  #define if_warn if (true)
+  #define ESPHOMELIB_LOG_HAS_WARN
 #else
   #define esph_log_w(tag, format, ...)
-
-  #define if_warn if (false)
 #endif
 
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_ERROR
   #define esph_log_e(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_ERROR, tag, ESPHOMELIB_LOG_FORMAT(tag, E, format), ##__VA_ARGS__)
 
-  #define if_error if (true)
+  #define ESPHOMELIB_LOG_HAS_ERROR
 #else
   #define esph_log_e(tag, format, ...)
-
-  #define if_error if (false)
 #endif
 
 #ifdef ESP_LOGE

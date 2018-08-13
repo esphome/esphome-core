@@ -2,6 +2,10 @@
 // Created by Otto Winter on 28.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
+
 #include "esphomelib/light/light_color_values.h"
 
 #include <sstream>
@@ -13,13 +17,13 @@
 #include "esphomelib/espmath.h"
 #include "esphomelib/esppreferences.h"
 
-#ifdef USE_LIGHT
-
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
+#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
 static const char *TAG = "light.light_color_values";
+#endif
 
 float LightColorValues::get_state() const {
   return this->state_;
@@ -95,6 +99,12 @@ LightColorValues::LightColorValues(float state, float brightness, float red, flo
   this->set_green(green);
   this->set_blue(blue);
   this->set_white(white);
+}
+
+LightColorValues::LightColorValues(bool state, float brightness, float red, float green, float blue,
+                                   float white)
+  : LightColorValues(state ? 1.0f : 0.0f, brightness, red, green, blue, white) {
+
 }
 
 void LightColorValues::load_from_preferences(const std::string &friendly_name) {

@@ -9,11 +9,13 @@
 //   - https://github.com/closedcube/ClosedCube_HDC1080_Arduino
 //   - http://www.ti.com/lit/ds/symlink/hdc1080.pdf
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_HDC1080_SENSOR
+
 #include "esphomelib/sensor/hdc1080_component.h"
 
 #include "esphomelib/log.h"
-
-#ifdef USE_HDC1080_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

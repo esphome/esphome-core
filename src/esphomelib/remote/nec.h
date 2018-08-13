@@ -23,7 +23,7 @@ class NECTransmitter : public RemoteTransmitter {
  public:
   NECTransmitter(const std::string &name, uint16_t address, uint16_t command);
 
-  RemoteTransmitData get_data() override;
+  void to_data(RemoteTransmitData *data) override;
 
  protected:
   uint16_t address_;
@@ -32,13 +32,13 @@ class NECTransmitter : public RemoteTransmitter {
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_nec(RemoteReceiveData &data, uint16_t *address, uint16_t *command);
+bool decode_nec(RemoteReceiveData *data, uint16_t *address, uint16_t *command);
 
 class NECReceiver : public RemoteReceiver {
  public:
   NECReceiver(const std::string &name, uint16_t address, uint16_t command);
 
-  bool matches(RemoteReceiveData &data) override;
+  bool matches(RemoteReceiveData *data) override;
 
  protected:
   uint16_t address_;
@@ -47,7 +47,7 @@ class NECReceiver : public RemoteReceiver {
 
 class NECDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData &data) override;
+  void dump(RemoteReceiveData *data) override;
 };
 #endif
 

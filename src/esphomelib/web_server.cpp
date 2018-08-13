@@ -6,10 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/web_server.h"
-#include "esphomelib/application.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_WEB_SERVER
+
+#include "esphomelib/web_server.h"
+#include "esphomelib/application.h"
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <ESPmDNS.h>

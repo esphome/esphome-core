@@ -6,16 +6,18 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/sensor/template_sensor.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_SENSOR
+
+#include "esphomelib/sensor/template_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-TemplateSensor::TemplateSensor(const std::string &name, std::function<optional<float>()> &&f, uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval), f_(std::move(f)) {
+TemplateSensor::TemplateSensor(const std::string &name, uint32_t update_interval)
+    : PollingSensorComponent(name, update_interval) {
 
 }
 void TemplateSensor::update() {
@@ -26,6 +28,9 @@ void TemplateSensor::update() {
 }
 float TemplateSensor::get_setup_priority() const {
   return setup_priority::HARDWARE;
+}
+void TemplateSensor::set_template(std::function<optional<float>()> &&f) {
+  this->f_ = std::move(f);
 }
 
 } // namespace sensor

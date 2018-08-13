@@ -2,11 +2,13 @@
 // Created by Otto Winter on 28.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
+
 #include "esphomelib/light/mqtt_json_light_component.h"
 
 #include "esphomelib/log.h"
-
-#ifdef USE_LIGHT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -63,11 +65,9 @@ void MQTTJSONLightComponent::send_discovery(JsonBuffer &buffer, JsonObject &root
   if (this->state_->supports_effects()) {
     root["effect"] = true;
     JsonArray &effect_list = root.createNestedArray("effect_list");
-    for (const LightEffect::Entry &entry : light_effect_entries) {
-      if (!this->state_->get_traits().supports_traits(entry.requirements))
-        continue;
-      effect_list.add(entry.name);
-    }
+    for (auto *effect : this->state_->get_effects())
+      effect_list.add(effect->get_name());
+    effect_list.add("None");
   }
   config.platform = "mqtt_json";
 }

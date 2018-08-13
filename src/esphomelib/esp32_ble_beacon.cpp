@@ -6,11 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/esp32_ble_beacon.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_BLE_BEACON
 
+#include "esphomelib/esp32_ble_beacon.h"
+#include "esphomelib/log.h"
 #include <nvs_flash.h>
 #include <freertos/FreeRTOSConfig.h>
 #include <esp_bt_main.h>
@@ -64,6 +65,13 @@ float ESP32BLEBeacon::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 void ESP32BLEBeacon::ble_core_task(void *params) {
+  ble_setup();
+
+  while (true) {
+    delay(1000);
+  }
+}
+void ESP32BLEBeacon::ble_setup() {
 // Initialize non-volatile storage for the bluetooth controller
   esp_err_t err = nvs_flash_init();
   if (err != ESP_OK) {
@@ -110,10 +118,6 @@ void ESP32BLEBeacon::ble_core_task(void *params) {
   ibeacon_adv_data.ibeacon_vendor.measured_power = 0xC5;
 
   esp_ble_gap_config_adv_data_raw((uint8_t *) &ibeacon_adv_data, sizeof(ibeacon_adv_data));
-
-  while (true) {
-    delay(1000);
-  }
 }
 
 void ESP32BLEBeacon::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {

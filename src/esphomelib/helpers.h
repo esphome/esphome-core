@@ -130,6 +130,10 @@ std::string uint32_to_string(uint32_t num);
 /// Sanitizes the input string with the whitelist.
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist);
 
+uint8_t reverse_bits_8(uint8_t x);
+uint16_t reverse_bits_16(uint16_t x);
+uint32_t reverse_bits_32(uint32_t x);
+
 /** Cross-platform method to disable interrupts.
  *
  * Useful when you need to do some timing-dependent communication.

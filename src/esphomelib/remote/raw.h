@@ -23,7 +23,8 @@ class RawTransmitter : public RemoteTransmitter {
  public:
   RawTransmitter(const std::string &name, std::vector<int32_t> data,
                  uint32_t carrier_frequency = 0);
-  RemoteTransmitData get_data() override;
+
+  void to_data(RemoteTransmitData *data) override;
 
  protected:
   std::vector<int32_t> data_;
@@ -36,7 +37,7 @@ class RawReceiver : public RemoteReceiver {
  public:
   RawReceiver(const std::string &name, std::vector<int32_t> data);
 
-  bool matches(RemoteReceiveData &data) override;
+  bool matches(RemoteReceiveData *data) override;
 
  protected:
   std::vector<int32_t> data_;
@@ -44,7 +45,7 @@ class RawReceiver : public RemoteReceiver {
 
 class RawDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData &data) override;
+  void dump(RemoteReceiveData *data) override;
 };
 #endif
 

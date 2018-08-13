@@ -10,6 +10,7 @@
 #define ESPHOMELIB_SENSOR_MAX6675_H
 
 #include "esphomelib/sensor/sensor.h"
+#include "esphomelib/spi_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_MAX6675_SENSOR
@@ -18,10 +19,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-class MAX6675Sensor : public PollingSensorComponent {
+class MAX6675Sensor : public PollingSensorComponent, public SPIDevice {
  public:
-  MAX6675Sensor(const std::string &name, GPIOPin *cs, GPIOPin *clock, GPIOPin *miso,
-                uint32_t update_interval = 15000);
+  MAX6675Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval = 15000);
 
   void setup() override;
   float get_setup_priority() const override;
@@ -33,12 +33,9 @@ class MAX6675Sensor : public PollingSensorComponent {
   int8_t accuracy_decimals() override;
 
  protected:
-  void read_data_();
-  uint8_t read_spi_();
+  bool msb_first() override;
 
-  GPIOPin *cs_;
-  GPIOPin *clock_;
-  GPIOPin *miso_;
+  void read_data_();
 };
 
 } // namespace sensor

@@ -4,14 +4,16 @@
 // Based on:
 //   - https://github.com/markruys/arduino-DHT
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_DHT_SENSOR
+
 #include "esphomelib/sensor/dht_component.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/espmath.h"
-
-#ifdef USE_DHT_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

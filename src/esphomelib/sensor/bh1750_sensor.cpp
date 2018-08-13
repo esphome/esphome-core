@@ -10,10 +10,12 @@
 //  - https://github.com/claws/BH1750
 //  - https://github.com/mysensors/MySensorsArduinoExamples/tree/master/libraries/BH1750
 
-#include "esphomelib/sensor/bh1750_sensor.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_BH1750
+
+#include "esphomelib/sensor/bh1750_sensor.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -36,16 +38,16 @@ void BH1750Sensor::setup() {
     return;
   }
 
-  if_config {
-    const char *resolution_s;
-    switch (this->resolution_) {
-      case BH1750_RESOLUTION_0P5_LX: resolution_s = "0.5"; break;
-      case BH1750_RESOLUTION_1P0_LX: resolution_s = "1"; break;
-      case BH1750_RESOLUTION_4P0_LX: resolution_s = "4"; break;
-      default: resolution_s = "Unknown"; break;
-    }
-    ESP_LOGCONFIG(TAG, "    Resolution: %s", resolution_s);
+#ifdef ESPHOMELIB_LOG_HAS_CONFIG
+  const char *resolution_s;
+  switch (this->resolution_) {
+    case BH1750_RESOLUTION_0P5_LX: resolution_s = "0.5"; break;
+    case BH1750_RESOLUTION_1P0_LX: resolution_s = "1"; break;
+    case BH1750_RESOLUTION_4P0_LX: resolution_s = "4"; break;
+    default: resolution_s = "Unknown"; break;
   }
+  ESP_LOGCONFIG(TAG, "    Resolution: %s", resolution_s);
+#endif
 }
 
 void BH1750Sensor::update() {

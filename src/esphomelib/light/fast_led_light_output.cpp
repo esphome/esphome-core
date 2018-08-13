@@ -6,10 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/light/fast_led_light_output.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_FAST_LED_LIGHT
+
+#include "esphomelib/light/fast_led_light_output.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -81,6 +83,7 @@ void FastLEDLightOutputComponent::loop() {
   this->controller_->showLeds();
 }
 void FastLEDLightOutputComponent::schedule_show() {
+  ESP_LOGVV(TAG, "Scheduling show...");
   this->next_show_ = true;
 }
 CLEDController &FastLEDLightOutputComponent::add_leds(CLEDController *controller, int num_leds) {
@@ -89,13 +92,14 @@ CLEDController &FastLEDLightOutputComponent::add_leds(CLEDController *controller
   this->controller_ = controller;
   this->num_leds_ = num_leds;
   this->leds_ = new CRGB[num_leds];
+  this->effect_data_ = new uint8_t[num_leds];
 
   for (int i = 0; i < this->num_leds_; i++)
     this->leds_[i] = CRGB::Black;
 
   return *this->controller_;
 }
-CRGB *FastLEDLightOutputComponent::get_leds() const {
+CRGB *FastLEDLightOutputComponent::leds() const {
   return this->leds_;
 }
 CLEDController *FastLEDLightOutputComponent::get_controller() const {
@@ -104,7 +108,7 @@ CLEDController *FastLEDLightOutputComponent::get_controller() const {
 void FastLEDLightOutputComponent::set_max_refresh_rate(uint32_t interval_us) {
   this->max_refresh_rate_ = interval_us;
 }
-int FastLEDLightOutputComponent::get_num_leds() const {
+int FastLEDLightOutputComponent::size() const {
   return this->num_leds_;
 }
 void FastLEDLightOutputComponent::unprevent_writing_leds() {

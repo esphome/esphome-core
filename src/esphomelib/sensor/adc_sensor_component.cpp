@@ -6,11 +6,13 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_ADC_SENSOR
+
 #include "esphomelib/sensor/adc_sensor_component.h"
 
 #include "esphomelib/log.h"
-
-#ifdef USE_ADC_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

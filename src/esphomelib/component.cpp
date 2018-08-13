@@ -15,6 +15,7 @@ static const char *TAG = "component";
 
 namespace setup_priority {
 
+const float PRE_HARDWARE = 110.0f;
 const float HARDWARE = 100.0f;
 const float WIFI = 10.0f;
 const float MQTT_CLIENT = 7.5f;
@@ -52,7 +53,7 @@ void Component::loop() {
 
 }
 
-void Component::set_interval(const std::string &name, uint32_t interval, time_func_t &&f) {
+void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {
   // only put offset in lower half
   uint32_t offset = (random_uint32() % interval) / 2;
   ESP_LOGV(TAG, "set_interval(name='%s', interval=%u, offset=%u)", name.c_str(), interval, offset);
@@ -73,7 +74,7 @@ bool Component::cancel_interval(const std::string &name) {
   return this->cancel_time_function(name, TimeFunction::INTERVAL);
 }
 
-void Component::set_timeout(const std::string &name, uint32_t timeout, time_func_t &&f) {
+void Component::set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f) {
   ESP_LOGV(TAG, "set_timeout(name='%s', timeout=%u)", name.c_str(), timeout);
 
   this->cancel_timeout(name);
@@ -126,11 +127,11 @@ void Component::loop_internal() {
     const uint32_t now = millis();
     TimeFunction *tf = &this->time_functions_[i];
     if (tf->should_run(now)) {
-      if_very_verbose {
-        const char *type = tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
-        ESP_LOGVV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)",
-                  type, tf->name.c_str(), i, tf->interval, tf->last_execution, now);
-      }
+#ifdef ESPHOMELIB_LOG_HAS_VERY_VERBOSE
+      const char *type = tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
+      ESP_LOGVV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)",
+                type, tf->name.c_str(), i, tf->interval, tf->last_execution, now);
+#endif
 
       tf->f();
       // The vector might have reallocated due to new items
@@ -164,13 +165,13 @@ void Component::mark_failed() {
   this->component_state_ |= COMPONENT_STATE_FAILED;
   this->status_set_error();
 }
-void Component::defer(Component::time_func_t &&f) {
+void Component::defer(std::function<void()> &&f) {
   this->defer("", std::move(f));
 }
 bool Component::cancel_defer(const std::string &name) {
   return this->cancel_time_function(name, TimeFunction::DEFER);
 }
-void Component::defer(const std::string &name, Component::time_func_t &&f) {
+void Component::defer(const std::string &name, std::function<void()> &&f) {
   this->cancel_defer(name);
   struct TimeFunction function = {
       .name = name,
@@ -182,10 +183,10 @@ void Component::defer(const std::string &name, Component::time_func_t &&f) {
   };
   this->time_functions_.push_back(function);
 }
-void Component::set_timeout(uint32_t timeout, Component::time_func_t &&f) {
+void Component::set_timeout(uint32_t timeout, std::function<void()> &&f) {
   this->set_timeout("", timeout, std::move(f));
 }
-void Component::set_interval(uint32_t interval, Component::time_func_t &&f) {
+void Component::set_interval(uint32_t interval, std::function<void()> &&f) {
   this->set_interval("", interval, std::move(f));
 }
 bool Component::is_failed() {

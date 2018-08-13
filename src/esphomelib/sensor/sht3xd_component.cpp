@@ -9,11 +9,13 @@
 //   - https://cdn-shop.adafruit.com/product-files/2857/Sensirion_Humidity_SHT3x_Datasheet_digital-767294.pdf
 //   - https://github.com/Sensirion/arduino-sht
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_SHT3XD
+
 #include "esphomelib/sensor/sht3xd_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
-
-#ifdef USE_SHT3XD
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

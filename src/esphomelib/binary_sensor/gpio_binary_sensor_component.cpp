@@ -2,12 +2,13 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
-
-#include "esphomelib/esphal.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_GPIO_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
+#include "esphomelib/esphal.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

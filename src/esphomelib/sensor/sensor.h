@@ -284,6 +284,12 @@ extern const char ICON_SCREEN_ROTATION[];
 extern const char ICON_BRIEFCASE_DOWNLOAD[];
 extern const char ICON_BRIGHTNESS_5[];
 extern const char ICON_GAS_CYLINDER[];
+extern const char ICON_PERIODIC_TABLE_CO2[];
+extern const char ICON_MAGNET[];
+extern const char ICON_THERMOMETER[];
+extern const char ICON_LIGHTBULB[];
+extern const char ICON_BATTERY[];
+extern const char ICON_FLOWER[];
 
 extern const char UNIT_C[];
 extern const char UNIT_PERCENT[];
@@ -293,6 +299,13 @@ extern const char UNIT_DEGREES_PER_SECOND[];
 extern const char UNIT_M_PER_S_SQUARED[];
 extern const char UNIT_LX[];
 extern const char UNIT_OHM[];
+extern const char UNIT_PPM[];
+extern const char UNIT_A[];
+extern const char UNIT_W[];
+extern const char UNIT_UT[];
+extern const char UNIT_DEGREES[];
+extern const char UNIT_K[];
+extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 
 } // namespace sensor
 

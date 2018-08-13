@@ -19,79 +19,90 @@ namespace light {
 
 class LightState;
 
-/** Base-class for all light effects.
- *
- * In order to create a custom effect, first create a subclass implementing apply_effect and optionally initialize
- * which both can use the provided LightState to set light colors and/or start transitions. Next, override get_name()
- * and return the name of your effect. Lastly, you need to register your effect in light_effect_entries using the
- * LightEffect::Entry struct.
- */
 class LightEffect {
  public:
-  /// Internal struct for light_effect_entries.
-  struct Entry {
-    std::string name; ///< The name of your effect.
-    LightTraits requirements; ///< Which traits the light needs to have for this effect.
-    std::function<std::unique_ptr<LightEffect>()> constructor; ///< A function creating a your light effect.
-  };
-
-  /// Return the name of this effect.
-  virtual std::string get_name() const = 0;
+  explicit LightEffect(const std::string &name);
 
   /// Initialize this LightEffect. Will be called once after creation.
-  virtual void initialize(LightState *state);
+  virtual void start();
+
+  virtual void start_();
 
   /// Called when this effect is about to be removed
-  virtual void stop(LightState *state);
+  virtual void stop();
 
   /// Apply this effect. Use the provided state for starting transitions, ...
-  virtual void apply_effect(LightState *state) = 0;
-};
+  virtual void apply() = 0;
 
-/// Default effect for all lights. Does nothing.
-class NoneLightEffect : public LightEffect {
- public:
-  std::string get_name() const override;
+  const std::string &get_name();
 
-  void apply_effect(LightState *state) override;
+  /// Internal method called by the LightState when this light effect is registered in it.
+  virtual void init();
 
-  static std::unique_ptr<LightEffect> create();
+  void init_(LightState *state);
+
+ protected:
+  LightState *state_{nullptr};
+  std::string name_;
 };
 
 /// Random effect. Sets random colors every 10 seconds and slowly transitions between them.
 class RandomLightEffect : public LightEffect {
  public:
-  RandomLightEffect();
+  explicit RandomLightEffect(const std::string &name);
 
-  std::string get_name() const override;
+  void apply() override;
 
-  void apply_effect(LightState *state) override;
+  void set_transition_length(uint32_t transition_length);
 
-  static std::unique_ptr<LightEffect> create();
+  void set_update_interval(uint32_t update_interval);
 
  protected:
-  uint32_t last_color_change_;
+  uint32_t last_color_change_{0};
+  uint32_t transition_length_{7500};
+  uint32_t update_interval_{10000};
 };
 
-#ifdef USE_FAST_LED_LIGHT
-/// Rainbow effect for FastLED
-class FastLEDRainbowLightEffect : public LightEffect {
+class LambdaLightEffect : public LightEffect {
  public:
-  FastLEDRainbowLightEffect() = default;
+  LambdaLightEffect(const std::string &name, const std::function<void()> &f);
 
-  static std::unique_ptr<light::LightEffect> create();
+  void apply() override;
 
-  std::string get_name() const override;
-
-  void apply_effect(light::LightState *state) override;
-
-  void initialize(light::LightState *state) override;
-
-  void stop(light::LightState *state) override;
+ protected:
+  std::function<void()> f_;
 };
-#endif
 
-extern std::vector<LightEffect::Entry> light_effect_entries;
+struct StrobeLightEffectColor {
+  LightColorValues color;
+  uint32_t duration;
+};
+
+class StrobeLightEffect : public LightEffect {
+ public:
+  StrobeLightEffect(const std::string &name);
+  void apply() override;
+
+  void set_colors(const std::vector<StrobeLightEffectColor> &colors);
+
+ protected:
+  std::vector<StrobeLightEffectColor> colors_;
+  uint32_t last_switch_{0};
+  size_t at_color_{0};
+};
+
+class FlickerLightEffect : public LightEffect {
+ public:
+  FlickerLightEffect(const std::string &name);
+
+  void apply() override;
+
+  void set_alpha(float alpha);
+  void set_intensity(float intensity);
+ protected:
+  float intensity_{0.015f};
+  float alpha_{0.95f};
+};
 
 } // namespace light
 

@@ -31,6 +31,8 @@ class TemplateSwitch : public Switch {
 
   float get_setup_priority() const override;
 
+  bool do_restore_state() override;
+
  protected:
   bool optimistic() override;
 

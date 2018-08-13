@@ -2,6 +2,10 @@
 // Created by Otto Winter on 03.12.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_OTA
+
 #include "esphomelib/ota_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/esppreferences.h"
@@ -9,9 +13,6 @@
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/status_led.h"
 #include "esphomelib/defines.h"
-
-#ifdef USE_OTA
-
 #include <ArduinoOTA.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -38,11 +39,14 @@ void OTAComponent::setup() {
       ArduinoOTA.setPassword(this->password_.c_str());
       break;
     }
+#if ARDUINO > 20300
     case HASH: {
       ArduinoOTA.setPasswordHash(this->password_.c_str());
       break;
     }
+#endif
     case OPEN: {}
+    default: break;
   }
 
   ArduinoOTA.onStart([this]() {

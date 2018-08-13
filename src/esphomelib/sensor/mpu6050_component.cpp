@@ -10,10 +10,12 @@
 //   - https://github.com/jarzebski/Arduino-MPU6050
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050
 
-#include "esphomelib/sensor/mpu6050_component.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_MPU6050
+
+#include "esphomelib/sensor/mpu6050_component.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

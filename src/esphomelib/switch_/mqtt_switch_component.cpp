@@ -2,13 +2,15 @@
 // Created by Otto Winter on 02.12.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_SWITCH
+
 #include "esphomelib/switch_/mqtt_switch_component.h"
 
 #include <utility>
 
 #include "esphomelib/log.h"
-
-#ifdef USE_SWITCH
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

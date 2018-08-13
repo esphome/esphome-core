@@ -2,13 +2,15 @@
 // Created by Otto Winter on 26.11.17.
 //
 
-#include "esphomelib/output/ledc_output_component.h"
-
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_LEDC_OUTPUT
 
+#include "esphomelib/output/ledc_output_component.h"
+
 #include <esp32-hal-ledc.h>
+
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

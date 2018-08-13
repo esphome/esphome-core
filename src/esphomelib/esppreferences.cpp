@@ -11,7 +11,9 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
 static const char *TAG = "preferences";
+#endif
 
 #ifdef ARDUINO_ARCH_ESP32
 void ESPPreferences::begin(const std::string &name) {

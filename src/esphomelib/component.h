@@ -15,6 +15,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 /// default setup priorities for components of different types.
 namespace setup_priority {
 
+extern const float PRE_HARDWARE; ///< only for internal components that are necessary for hardware component initialization (like i2c bus)
 extern const float HARDWARE; ///< for hardware initialization, but only where it's really necessary (like outputs)
 extern const float WIFI; ///< for WiFi initialization
 extern const float MQTT_CLIENT; ///< for the MQTT client initialization
@@ -132,14 +133,7 @@ class Component {
   void loop_internal();
   void setup_internal();
 
-  /** Simple typedef for interval/timeout functions
-   *
-   * @see set_interval()
-   * @see set_timeout()
-   */
-  using time_func_t = std::function<void()>;
-
-  void set_interval(uint32_t interval, time_func_t &&f);
+  void set_interval(uint32_t interval, std::function<void()> &&f);
 
   /** Set an interval function with a unique name. Empty name means no cancelling possible.
    *
@@ -156,7 +150,7 @@ class Component {
    *
    * @see cancel_interval()
    */
-  void set_interval(const std::string &name, uint32_t interval, time_func_t &&f);
+  void set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f);
 
   /** Cancel an interval function.
    *
@@ -165,7 +159,7 @@ class Component {
    */
   bool cancel_interval(const std::string &name);
 
-  void set_timeout(uint32_t timeout, time_func_t &&f);
+  void set_timeout(uint32_t timeout, std::function<void()> &&f);
 
   /** Set a timeout function with a unique name.
    *
@@ -181,7 +175,7 @@ class Component {
    *
    * @see cancel_timeout()
    */
-  void set_timeout(const std::string &name, uint32_t timeout, time_func_t &&f);
+  void set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f);
 
   /** Cancel a timeout function.
    *
@@ -197,10 +191,10 @@ class Component {
    * @param name The name of the defer function.
    * @param f The callback.
    */
-  void defer(const std::string &name, time_func_t &&f);
+  void defer(const std::string &name, std::function<void()> &&f);
 
   /// Defer a callback to the next loop() call.
-  void defer(time_func_t &&f);
+  void defer(std::function<void()> &&f);
 
   /// Cancel a defer callback using the specified name, name must not be empty.
   bool cancel_defer(const std::string &name);
@@ -212,7 +206,7 @@ class Component {
     uint32_t interval; ///< The interval/timeout of this function.
     /// The last execution for interval functions and the time, SetInterval was called, for timeout functions.
     uint32_t last_execution;
-    time_func_t f; ///< The function (or callback) itself.
+    std::function<void()> f; ///< The function (or callback) itself.
     bool remove;
 
     bool should_run(uint32_t now) const;

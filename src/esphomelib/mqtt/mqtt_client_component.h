@@ -80,7 +80,7 @@ enum MQTTClientState {
 
 class MQTTClientComponent : public Component {
  public:
-  explicit MQTTClientComponent(const MQTTCredentials &credentials);
+  explicit MQTTClientComponent(const MQTTCredentials &credentials, const std::string &topic_prefix);
 
   /// Set the last will testament message.
   void set_last_will(MQTTMessage &&message);

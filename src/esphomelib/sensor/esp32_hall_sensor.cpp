@@ -6,10 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/sensor/esp32_hall_sensor.h"
-#include "esphomelib/esphal.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_HALL_SENSOR
+
+#include "esphomelib/sensor/esp32_hall_sensor.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -2,12 +2,14 @@
 // Created by Otto Winter on 26.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_OUTPUT
+
 #include "esphomelib/output/float_output.h"
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
-
-#ifdef USE_OUTPUT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -2,22 +2,27 @@
 // Created by Otto Winter on 25.11.17.
 //
 
-#include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
-
-static const char *TAG = "binary_sensor.binary_sensor";
 
 void BinarySensor::add_on_state_callback(binary_callback_t &&callback) {
   this->state_callback_.add(std::move(callback));
 }
 
 void BinarySensor::publish_state(bool state) {
+  if (!this->is_first_raw_ && this->last_raw_ == state)
+    return;
+  this->is_first_raw_ = false;
+  this->last_raw_ = state;
+
   if (this->filter_list_ == nullptr) {
     this->send_value_(state);
   } else {
@@ -25,15 +30,20 @@ void BinarySensor::publish_state(bool state) {
   }
 
 }
-void BinarySensor::send_value_(bool value) {
-  this->value = value;
-  this->state_callback_.call(value);
+void BinarySensor::send_value_(bool state) {
+  if (!this->is_first_value_ && this->last_value_ == state)
+    return;
+  this->is_first_value_ = false;
+  this->last_value_ = state;
+
+  this->value = state;
+  this->state_callback_.call(state);
 }
 std::string BinarySensor::device_class() {
   return "";
 }
 BinarySensor::BinarySensor(const std::string &name) : Nameable(name) {
-  this->add_filter(new UniqueFilter());
+
 }
 
 bool BinarySensor::get_value() const {
