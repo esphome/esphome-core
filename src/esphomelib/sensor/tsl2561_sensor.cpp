@@ -9,10 +9,12 @@
 //   - https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf
 //   - https://github.com/adafruit/TSL2561-Arduino-Library
 
-#include "esphomelib/sensor/tsl2561_sensor.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_TSL2561
+
+#include "esphomelib/sensor/tsl2561_sensor.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

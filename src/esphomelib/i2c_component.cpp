@@ -6,10 +6,13 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/i2c_component.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_I2C
+
+#include "esphomelib/i2c_component.h"
+#include "esphomelib/application.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -19,12 +22,12 @@ I2CComponent::I2CComponent(uint8_t sda_pin, uint8_t scl_pin, bool scan)
     : sda_pin_(sda_pin), scl_pin_(scl_pin), scan_(scan) {
 #ifdef ARDUINO_ARCH_ESP32
   if (next_i2c_bus_num_ == 0)
-    wire_ = &Wire;
+    this->wire_ = &Wire;
   else
-    wire_ = new TwoWire(next_i2c_bus_num_);
+    this->wire_ = new TwoWire(next_i2c_bus_num_);
   next_i2c_bus_num_++;
 #else
-  wire_ = &Wire;
+  this->wire_ = &Wire;
 #endif
 }
 
@@ -46,28 +49,31 @@ void I2CComponent::setup() {
   this->wire_->setClock(this->frequency_);
 }
 void I2CComponent::loop() {
-  if (this->scan_) {
+  if (this->scan_ && App.is_fully_setup()) {
     this->scan_ = false;
     ESP_LOGI(TAG, "Scanning i2c bus for active devices...");
+    uint8_t found = 0;
     for (uint8_t address = 8; address < 120; address++) {
       this->wire_->beginTransmission(address);
       uint8_t error = this->wire_->endTransmission();
 
       if (error == 0) {
         ESP_LOGI(TAG, "Found i2c device at address 0x%02X", address);
+        found++;
       } else if (error == 4) {
         ESP_LOGI(TAG, "Unknown error at address 0x%02X", address);
       }
 
       delay(1);
     }
+    if (found == 0) {
+      ESP_LOGI(TAG, "Found no i2c devices!");
+    }
   }
 }
 float I2CComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE + 10.0f;
+  return setup_priority::PRE_HARDWARE;
 }
-
-
 
 void I2CComponent::begin_transmission_(uint8_t address) {
   ESP_LOGVV(TAG, "Beginning Transmission to 0x%02X:", address);
@@ -137,7 +143,7 @@ bool I2CComponent::receive_16_(uint8_t address, uint16_t *data, uint8_t len) {
   auto *data_8 = reinterpret_cast<uint8_t *>(data);
   for (uint8_t i = 0; i < len; i++) {
     data_8[i * 2 + 1] = this->wire_->read();
-    data_8[i + 2] = this->wire_->read();
+    data_8[i * 2] = this->wire_->read();
     ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN " (0x%04X)",
               BYTE_TO_BINARY(data_8[i * 2 + 1]), BYTE_TO_BINARY(data_8[i * 2]), data[i]);
   }

@@ -6,17 +6,17 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_DEBUG_COMPONENT
+
 #include "esphomelib/debug_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
 #include <string>
 
-#ifdef USE_DEBUG_COMPONENT
-
 #ifdef ARDUINO_ARCH_ESP32
   #include <rom/rtc.h>
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -24,13 +24,12 @@ ESPHOMELIB_NAMESPACE_BEGIN
 static const char *TAG = "debug";
 
 void DebugComponent::setup() {
-  if_debug {
-    // Skip
-  } else {
+#ifndef ESPHOMELIB_LOG_HAS_DEBUG
     ESP_LOGE(TAG, "Debug Component requires debug log level!");
     this->status_set_error();
     return;
-  }
+#endif
+
   ESP_LOGD(TAG, "esphomelib version %s", ESPHOMELIB_VERSION);
   this->free_heap_ = ESP.getFreeHeap();
   ESP_LOGD(TAG, "Free Heap Size: %u bytes", this->free_heap_);

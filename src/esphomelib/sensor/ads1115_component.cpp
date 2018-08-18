@@ -6,9 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/sensor/ads1115_component.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_ADS1115_SENSOR
+
+#include "esphomelib/sensor/ads1115_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

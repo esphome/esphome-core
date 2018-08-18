@@ -16,7 +16,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace mqtt {
 
+#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
 static const char *TAG = "mqtt.component";
+#endif
 
 void MQTTComponent::set_retain(bool retain) {
   this->retain_ = retain;

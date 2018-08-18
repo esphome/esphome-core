@@ -2,12 +2,14 @@
 // Created by Otto Winter on 28.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
+
 #include "esphomelib/light/light_output_component.h"
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
-
-#ifdef USE_LIGHT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

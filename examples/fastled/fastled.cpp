@@ -12,43 +12,21 @@
 using namespace esphomelib;
 
 /// Custom FastLED effect - Note: this will only work with FastLED lights
-class CustomLightEffect : public light::LightEffect {
+class CustomLightEffect : public light::BaseFastLEDLightEffect {
  public:
-  static std::unique_ptr<light::LightEffect> create() { return make_unique<CustomLightEffect>(); }
+  CustomLightEffect(const std::string &name) : BaseFastLEDLightEffect(name) {}
 
-  std::string get_name() const override { return "Custom Rainbow Effect"; }
-
-  void apply_effect(light::LightState *state) override {
-    auto *output = (light::FastLEDLightOutputComponent *) state->get_output();
-    uint8_t hue = millis() / 20;
-    fill_rainbow(output->get_leds(), output->get_num_leds(), hue, 7);
-
-    // make the output show the effect
-    output->schedule_show();
+  void apply(light::FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) override {
+    CHSV hsv;
+    hsv.val = 255; // brightness
+    hsv.sat = 240; // saturation
+    hsv.hue = millis() / 70;
+    for (CRGB &led : fastled) {
+      led = hsv;
+      hsv.hue += 10;
+    }
+    fastled.schedule_show();
   }
-
-  // Prevent any normal light set calls (like setting color manually) affecting our LED array
-  // while this effect is active. Otherwise, when choosing a color from the front-end while
-  // this effect is active, all LEDS would briefly go to the new color but then right back due
-  // to this effect
-  void initialize(light::LightState *state) override {
-    auto *output = (light::FastLEDLightOutputComponent *) state->get_output();
-    output->prevent_writing_leds();
-  }
-  // Tell the light output to respond to normal requests again.
-  void stop(light::LightState *state) override {
-    auto *output = (light::FastLEDLightOutputComponent *) state->get_output();
-    output->unprevent_writing_leds();
-  }
-};
-
-// Make an effect entry so that esphomelib can know about it.
-// Note that you need to register it too (see setup())
-light::LightEffect::Entry custom_light_entry = {
-    .name = "Rainbow Effect",
-    // This effect requires the Brightness and RGB traits and must be used with FastLED
-    .requirements = light::LightTraits(true, true, false, true),
-    .constructor = CustomLightEffect::create
 };
 
 void setup() {
@@ -64,7 +42,7 @@ void setup() {
   fast_led.fast_led->add_leds<NEOPIXEL, 23>(60);
 
   // Register our custom effect
-  light::light_effect_entries.push_back(custom_light_entry);
+  fast_led.state->add_effects({new CustomLightEffect("My Custom Effect")});
 
   App.setup();
 }

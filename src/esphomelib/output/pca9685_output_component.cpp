@@ -5,11 +5,13 @@
 //   - https://github.com/NachtRaveVL/PCA9685-Arduino
 //   - https://cdn-shop.adafruit.com/datasheets/PCA9685.pdf
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_PCA9685_OUTPUT
+
 #include "esphomelib/output/pca9685_output_component.h"
 
 #include "esphomelib/log.h"
-
-#ifdef USE_PCA9685_OUTPUT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

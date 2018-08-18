@@ -23,7 +23,7 @@ class PanasonicTransmitter : public RemoteTransmitter {
  public:
   PanasonicTransmitter(const std::string &name, uint16_t address, uint32_t command);
 
-  RemoteTransmitData get_data() override;
+  void to_data(RemoteTransmitData *data) override;
 
  protected:
   uint16_t address_;
@@ -32,13 +32,13 @@ class PanasonicTransmitter : public RemoteTransmitter {
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_panasonic(RemoteReceiveData &data, uint16_t *address, uint32_t *command);
+bool decode_panasonic(RemoteReceiveData *data, uint16_t *address, uint32_t *command);
 
 class PanasonicReceiver : public RemoteReceiver {
  public:
   PanasonicReceiver(const std::string &name, uint16_t address, uint32_t command);
 
-  bool matches(RemoteReceiveData &data) override;
+  bool matches(RemoteReceiveData *data) override;
 
  protected:
   uint16_t address_;
@@ -47,7 +47,7 @@ class PanasonicReceiver : public RemoteReceiver {
 
 class PanasonicDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData &data) override;
+  void dump(RemoteReceiveData *data) override;
 };
 #endif
 

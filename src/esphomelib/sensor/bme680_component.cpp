@@ -12,10 +12,12 @@
 //   - https://github.com/pimoroni/bme680
 //   - https://github.com/closedcube/ClosedCube_BME680_Arduino
 
-#include "esphomelib/sensor/bme680_component.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_BME680
+
+#include "esphomelib/sensor/bme680_component.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -451,7 +453,7 @@ uint32_t BME680Component::calc_meas_duration_() {
   /* The remaining time should be used for heating */
   tph_dur += this->heater_duration_;
 
-  return tph_dur * 1.5f;
+  return tph_dur;
 }
 BME680Component::BME680Component(I2CComponent *parent,
                                  const std::string &temperature_name,

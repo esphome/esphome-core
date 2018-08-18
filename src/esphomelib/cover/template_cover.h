@@ -24,9 +24,9 @@ class TemplateCover : public Cover, public Component {
   explicit TemplateCover(const std::string &name);
 
   void set_state_lambda(std::function<optional<CoverState>()> &&f);
-  void add_open_actions(const std::vector<Action<NoArg> *> &actions);
-  void add_close_actions(const std::vector<Action<NoArg> *> &actions);
-  void add_stop_actions(const std::vector<Action<NoArg> *> &actions);
+  Trigger<NoArg> *get_open_trigger() const;
+  Trigger<NoArg> *get_close_trigger() const;
+  Trigger<NoArg> *get_stop_trigger() const;
   void set_optimistic(bool optimistic);
 
   void loop() override;
@@ -42,9 +42,9 @@ class TemplateCover : public Cover, public Component {
 
   optional<std::function<optional<CoverState>()>> f_;
   bool optimistic_{false};
-  ActionList<NoArg> open_action_;
-  ActionList<NoArg> close_action_;
-  ActionList<NoArg> stop_action_;
+  Trigger<NoArg> *open_trigger_;
+  Trigger<NoArg> *close_trigger_;
+  Trigger<NoArg> *stop_trigger_;
 };
 
 } // namespace cover

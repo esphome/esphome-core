@@ -2,6 +2,10 @@
 // Created by Otto Winter on 03.12.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_OTA
+
 #include "esphomelib/ota_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/esppreferences.h"
@@ -9,9 +13,6 @@
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/status_led.h"
 #include "esphomelib/defines.h"
-
-#ifdef USE_OTA
-
 #include <ArduinoOTA.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -38,11 +39,14 @@ void OTAComponent::setup() {
       ArduinoOTA.setPassword(this->password_.c_str());
       break;
     }
+#if ARDUINO > 20300
     case HASH: {
       ArduinoOTA.setPasswordHash(this->password_.c_str());
       break;
     }
+#endif
     case OPEN: {}
+    default: break;
   }
 
   ArduinoOTA.onStart([this]() {
@@ -50,6 +54,9 @@ void OTAComponent::setup() {
     this->ota_triggered_ = true;
     this->at_ota_progress_message_ = 0;
     this->status_set_warning();
+#ifdef USE_STATUS_LED
+    global_state |= STATUS_LED_WARNING;
+#endif
   });
   ArduinoOTA.onEnd([&]() {
     ESP_LOGI(TAG, "OTA update finished!");
@@ -58,6 +65,11 @@ void OTAComponent::setup() {
     run_safe_shutdown_hooks("ota");
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
+#ifdef USE_STATUS_LED
+    if (global_status_led != nullptr) {
+      global_status_led->loop_();
+    }
+#endif
     if (this->at_ota_progress_message_++ % 8 != 0)
       return; // only print every 8th message
     float percentage = float(progress) * 100 / float(total);

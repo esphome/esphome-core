@@ -7,10 +7,12 @@
 //
 // Implementation based on https://github.com/adafruit/MAX6675-library/blob/master/max6675.cpp
 
-#include "esphomelib/sensor/max6675_sensor.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_MAX6675_SENSOR
+
+#include "esphomelib/sensor/max6675_sensor.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -18,51 +20,23 @@ namespace sensor {
 
 static const char *TAG = "sensor.max6675";
 
-MAX6675Sensor::MAX6675Sensor(const std::string &name,
-                             GPIOPin *cs,
-                             GPIOPin *clock,
-                             GPIOPin *miso,
-                             uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval), cs_(cs), clock_(clock), miso_(miso) {
-
-}
 void MAX6675Sensor::update() {
-  this->cs_->digital_write(false);
+  this->enable();
   delay(1);
-  // conversion initiated by positiveedge
-  this->cs_->digital_write(true);
+  // conversion initiated by rising edge
+  this->disable();
 
   // Conversion time typ: 170ms, max: 220ms
-  this->set_timeout("value", 220, [this]() {
-    this->read_data_();
-  });
+  auto f = std::bind(&MAX6675Sensor::read_data_, this);
+  this->set_timeout("value", 220, f);
 }
 
 void MAX6675Sensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MAX6675Sensor '%s'...", this->get_name().c_str());
-  this->cs_->setup();
-  this->cs_->digital_write(true);
-
-  this->clock_->setup();
-  this->clock_->digital_write(true);
-
-  this->miso_->setup();
+  this->spi_setup();
 }
 float MAX6675Sensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
-}
-uint8_t MAX6675Sensor::read_spi_() {
-  uint8_t res = 0;
-  for (int i = 7; i >= 0; i--) {
-    this->clock_->digital_write(false);
-    delay(1);
-    if (this->miso_->digital_read())
-      res |= (1 << i);
-    this->clock_->digital_write(true);
-    delay(1);
-  }
-
-  return res;
 }
 std::string MAX6675Sensor::unit_of_measurement() {
   return UNIT_C;
@@ -74,13 +48,12 @@ int8_t MAX6675Sensor::accuracy_decimals() {
   return 1;
 }
 void MAX6675Sensor::read_data_() {
-  this->cs_->digital_write(false);
+  this->enable();
   delay(1);
-
-  uint16_t val = this->read_spi_();
-  val |= uint16_t(this->read_spi_()) << 8;
-
-  this->cs_->digital_write(true);
+  uint8_t data[2];
+  this->read_array(data, 2);
+  uint16_t val = data[1] | (uint16_t(data[0]) << 8);
+  this->disable();
 
   if ((val & 0x04) != 0) {
     // Thermocouple open
@@ -93,6 +66,13 @@ void MAX6675Sensor::read_data_() {
   ESP_LOGD(TAG, "'%s': Got temperature=%.1f°C", this->name_.c_str(), temperature);
   this->push_new_value(temperature);
   this->status_clear_warning();
+}
+
+MAX6675Sensor::MAX6675Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
+    : PollingSensorComponent(name, update_interval), SPIDevice(parent, cs) {}
+
+bool MAX6675Sensor::msb_first() {
+  return true;
 }
 
 } // namespace sensor

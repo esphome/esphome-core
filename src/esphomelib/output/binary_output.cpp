@@ -2,9 +2,11 @@
 // Created by Otto Winter on 02.12.17.
 //
 
-#include "esphomelib/output/binary_output.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_OUTPUT
+
+#include "esphomelib/output/binary_output.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

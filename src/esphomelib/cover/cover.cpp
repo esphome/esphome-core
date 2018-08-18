@@ -6,9 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/cover/cover.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_COVER
+
+#include "esphomelib/cover/cover.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

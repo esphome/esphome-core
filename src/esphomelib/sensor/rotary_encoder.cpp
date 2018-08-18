@@ -6,10 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/sensor/rotary_encoder.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_ROTARY_ENCODER_SENSOR
+
+#include "esphomelib/sensor/rotary_encoder.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

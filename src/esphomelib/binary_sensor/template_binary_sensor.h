@@ -21,14 +21,16 @@ namespace binary_sensor {
 
 class TemplateBinarySensor : public Component, public BinarySensor {
  public:
-  TemplateBinarySensor(const std::string &name, std::function<optional<bool>()> &&f);
+  explicit TemplateBinarySensor(const std::string &name);
+
+  void set_template(std::function<optional<bool>()> &&f);
 
   void loop() override;
 
   float get_setup_priority() const override;
 
  protected:
-  std::function<optional<bool>()> &&f_;
+  std::function<optional<bool>()> f_;
 };
 
 } // namespace binary_sensor

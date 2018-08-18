@@ -289,4 +289,20 @@ rmt_channel_t select_next_rmt_channel() {
 }
 #endif
 
+uint8_t reverse_bits_8(uint8_t x) {
+  x = ((x & 0xAA) >> 1) | ((x & 0x55) << 1);
+  x = ((x & 0xCC) >> 2) | ((x & 0x33) << 2);
+  x = ((x & 0xF0) >> 4) | ((x & 0x0F) << 4);
+  return x;
+}
+
+uint16_t reverse_bits_16(uint16_t x) {
+  return uint16_t(reverse_bits_8(x & 0xFF) << 8) | uint16_t(reverse_bits_8(x >> 8));
+}
+
+template<uint32_t>
+uint32_t reverse_bits(uint32_t x) {
+  return uint32_t(reverse_bits_16(x & 0xFFFF) << 16) | uint32_t(reverse_bits_16(x >> 16));
+}
+
 ESPHOMELIB_NAMESPACE_END

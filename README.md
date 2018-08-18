@@ -120,7 +120,8 @@ Repeat the above steps with the following libraries:
 - https://github.com/OttoWinter/ArduinoJson/releases
 - https://github.com/FastLED/FastLED/releases
 - https://github.com/me-no-dev/ESPAsyncWebServer/archive/master.zip
-- https://github.com/me-no-dev/AsyncTCP/archive/master.zip
+- https://github.com/me-no-dev/AsyncTCP/archive/master.zip (only needed for ESP32)
+- https://github.com/me-no-dev/ESPAsyncTCP/archive/master.zip (only needed for ESP8266)
 
 After installing esphomelib, you will find a variety of example sketches under **File > Examples > esphomelib**.
 
@@ -320,11 +321,15 @@ mqtt:
 After `init_wifi()`, call:
 
 ```cpp
-auto *wifi = App.init_wifi(...);
-wifi->set_sta_manual_ip(ManualIP{
-    .static_ip = IPAddress(192, 168, 178, 204),
-    .gateway = IPAddress(192, 168, 178, 1),
-    .subnet = IPAddress(255, 255, 255, 0)
+auto *wifi = App.init_wifi();
+wifi->set_sta(WiFiAp{
+  .ssid = "MySSID",
+  .password = "MyPassword",
+  .manual_ip = ManualIP{
+      .static_ip = IPAddress(192, 168, 178, 42),
+      .gateway = IPAddress(192, 168, 178, 1),
+      .subnet = IPAddress(255, 255, 255, 0)
+  }
 });
 ```
 

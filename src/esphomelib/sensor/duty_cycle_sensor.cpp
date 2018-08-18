@@ -6,10 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/sensor/duty_cycle_sensor.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_DUTY_CYCLE_SENSOR
+
+#include "esphomelib/sensor/duty_cycle_sensor.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

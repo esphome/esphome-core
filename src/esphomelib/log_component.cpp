@@ -11,7 +11,6 @@
 
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/log.h"
-#include "esphomelib/application.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

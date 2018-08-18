@@ -2,13 +2,15 @@
 // Created by Otto Winter on 25.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_OUTPUT
+
 #include "esphomelib/power_supply_component.h"
 
 #include "esphomelib/esphal.h"
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
-
-#ifdef USE_OUTPUT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -28,7 +30,7 @@ void PowerSupplyComponent::setup() {
 }
 
 float PowerSupplyComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE + 1.0f; // shortly before other hardware
+  return setup_priority::PRE_HARDWARE;
 }
 
 PowerSupplyComponent::PowerSupplyComponent(GPIOPin *pin, uint32_t enable_time, uint32_t keep_on_time)

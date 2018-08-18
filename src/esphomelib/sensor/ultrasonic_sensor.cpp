@@ -6,12 +6,14 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_ULTRASONIC_SENSOR
+
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
-
-#ifdef USE_ULTRASONIC_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

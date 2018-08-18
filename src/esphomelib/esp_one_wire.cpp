@@ -6,9 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/esp_one_wire.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_ONE_WIRE
+
+#include "esphomelib/esp_one_wire.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -6,9 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/binary_sensor/filter.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/filter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -76,6 +78,7 @@ optional<bool> UniqueFilter::new_value(bool value) {
     return value;
   }
 }
+
 } // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END

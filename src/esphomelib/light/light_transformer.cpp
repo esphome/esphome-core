@@ -2,14 +2,16 @@
 // Created by Otto Winter on 02.12.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
+
 #include "esphomelib/light/light_transformer.h"
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
-
-#ifdef USE_LIGHT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

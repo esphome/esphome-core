@@ -60,13 +60,19 @@ class RemoteTransmitData {
 
   void reserve(uint32_t len);
 
-  void set_data(std::vector<int32_t> data);
-
   void set_carrier_frequency(uint32_t carrier_frequency);
 
   uint32_t get_carrier_frequency() const;
 
   const std::vector<int32_t> &get_data() const;
+
+  void set_data(std::vector<int32_t> data);
+
+  void reset();
+
+  std::vector<int32_t>::iterator begin();
+
+  std::vector<int32_t>::iterator end();
 
  protected:
   std::vector<int32_t> data_{};
@@ -79,7 +85,7 @@ class RemoteTransmitter : public switch_::Switch {
  public:
   explicit RemoteTransmitter(const std::string &name);
 
-  virtual RemoteTransmitData get_data() = 0;
+  virtual void to_data(RemoteTransmitData *data) = 0;
 
   void set_parent(RemoteTransmitterComponent *parent);
 
@@ -100,7 +106,7 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
 
   RemoteTransmitter *add_transmitter(RemoteTransmitter *transmitter);
 
-  void send(const RemoteTransmitData &data, uint32_t send_times, uint32_t send_wait);
+  void send(RemoteTransmitData *data, uint32_t send_times, uint32_t send_wait);
 
   void setup() override;
 
@@ -109,6 +115,7 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   void set_carrier_duty_percent(uint8_t carrier_duty_percent);
 
  protected:
+  friend RemoteTransmitter;
 
 #ifdef ARDUINO_ARCH_ESP8266
   void calculate_on_off_time_(uint32_t carrier_frequency,
@@ -124,9 +131,11 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   void configure_rmt();
   uint32_t current_carrier_frequency_{UINT32_MAX};
   bool initialized_{false};
+  std::vector<rmt_item32_t> rmt_temp_;
 #endif
   uint8_t carrier_duty_percent_{50};
   std::vector<RemoteTransmitter *> transmitters_{};
+  RemoteTransmitData temp_;
 };
 
 #endif //USE_REMOTE_TRANSMITTER
@@ -137,7 +146,7 @@ class RemoteReceiverComponent;
 
 class RemoteReceiveData {
  public:
-  RemoteReceiveData(RemoteReceiverComponent *parent, const std::vector<int32_t> &data);
+  RemoteReceiveData(RemoteReceiverComponent *parent, std::vector<int32_t> *data);
 
   bool peek_mark(uint32_t length, uint32_t offset = 0);
 
@@ -157,11 +166,11 @@ class RemoteReceiveData {
 
   void reset_index();
 
-  const std::vector<int32_t> &get_data() const;
+  int32_t pos(uint32_t index) const;
 
-  uint32_t size() {
-    return this->data_.size();
-  }
+  int32_t operator [](uint32_t index) const;
+
+  int32_t size() const;
 
  protected:
   uint32_t lower_bound_(uint32_t length);
@@ -169,24 +178,24 @@ class RemoteReceiveData {
 
   RemoteReceiverComponent *parent_;
   uint32_t index_{0};
-  std::vector<int32_t> data_;
+  std::vector<int32_t> *data_;
 };
 
 class RemoteReceiver : public binary_sensor::BinarySensor {
  public:
   explicit RemoteReceiver(const std::string &name);
 
-  bool process_(RemoteReceiveData &data);
+  bool process_(RemoteReceiveData *data);
 
  protected:
-  virtual bool matches(RemoteReceiveData &data) = 0;
+  virtual bool matches(RemoteReceiveData *data) = 0;
 };
 
 class RemoteReceiveDumper {
  public:
-  virtual void dump(RemoteReceiveData &data) = 0;
+  virtual void dump(RemoteReceiveData *data) = 0;
 
-  void process_(RemoteReceiveData &data);
+  void process_(RemoteReceiveData *data);
 };
 
 class RemoteReceiverComponent : public RemoteControlComponentBase, public Component {
@@ -197,7 +206,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   void loop() override;
   float get_setup_priority() const override;
 
-  void add_decoder(RemoteReceiver *decoder);
+  RemoteReceiver *add_decoder(RemoteReceiver *decoder);
   void add_dumper(RemoteReceiveDumper *dumper);
 
   void set_buffer_size(uint32_t buffer_size);
@@ -209,15 +218,20 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   friend RemoteReceiveData;
 
 #ifdef ARDUINO_ARCH_ESP32
-  std::vector<int32_t> decode_rmt_(rmt_item32_t *item, size_t len);
+  void decode_rmt_(rmt_item32_t *item, size_t len);
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
   RingbufHandle_t ringbuf_;
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  volatile uint32_t remote_buffer_write_at_;
+  /// Stores the time (in micros) that the leading/falling edge happened at
+  ///  * An even index means a falling edge appeared at the time stored at the index
+  ///  * An uneven index means a rising edge appeared at the time stored at the index
   volatile uint32_t *buffer_{nullptr};
+  /// The position last written to
+  volatile uint32_t buffer_write_at_;
+  /// The position last read from
   uint32_t buffer_read_at_{0};
   void gpio_intr();
 #endif
@@ -234,6 +248,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   std::vector<RemoteReceiveDumper *> dumpers_{};
   uint8_t filter_us_{10};
   uint32_t idle_us_{10000};
+  std::vector<int32_t> temp_;
 };
 
 #endif //USE_REMOTE_RECEIVER

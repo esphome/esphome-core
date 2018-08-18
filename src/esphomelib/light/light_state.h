@@ -121,6 +121,7 @@ class LightState : public Nameable, public Component {
 
   /// Lazily get the last current values. Returns the values last returned by get_current_values().
   const LightColorValues &get_current_values_lazy();
+  const LightColorValues &get_remote_values_lazy();
 
   /// Return the name of the current effect, or if no effect is active "None".
   std::string get_effect_name();
@@ -156,15 +157,21 @@ class LightState : public Nameable, public Component {
   /// Set the gamma correction factor
   void set_gamma_correct(float gamma_correct);
 
+  const std::vector<LightEffect *> &get_effects() const;
+
+  void add_effects(std::vector<LightEffect *> effects);
+
  protected:
   uint32_t default_transition_length_{1000};
-  std::unique_ptr<LightEffect> effect_{nullptr};
+  LightEffect *active_effect_{nullptr};
   std::unique_ptr<LightTransformer> transformer_{nullptr};
   LightColorValues values_{};
+  LightColorValues remote_values_{};
   CallbackManager<void()> remote_values_callback_{};
   LightOutput *output_; ///< Store the output to allow effects to have more access.
   bool next_write_{true};
   float gamma_correct_{2.8f};
+  std::vector<LightEffect *> effects_;
 };
 
 /// Interface to write LightStates to hardware.

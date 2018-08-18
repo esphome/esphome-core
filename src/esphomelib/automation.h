@@ -136,11 +136,29 @@ class LambdaAction : public Action<T> {
 };
 
 template<typename T>
+class IfAction : public Action<T> {
+ public:
+  explicit IfAction(std::vector<Condition<T> *> conditions);
+
+  void add_then(const std::vector<Action<T> *> &actions);
+
+  void add_else(const std::vector<Action<T> *> &actions);
+
+  void play(T x) override;
+
+ protected:
+  std::vector<Condition<T> *> conditions_;
+  ActionList<T> then_;
+  ActionList<T> else_;
+};
+
+template<typename T>
 class ActionList {
  public:
   Action<T> *add_action(Action<T> *action);
   void add_actions(const std::vector<Action<T> *> &actions);
   void play(T x);
+  bool empty() const;
 
  protected:
   Action<T> *actions_begin_{nullptr};
@@ -306,6 +324,51 @@ template<typename T>
 void ActionList<T>::play(T x) {
   if (this->actions_begin_ != nullptr)
     this->actions_begin_->play(x);
+}
+template<typename T>
+bool ActionList<T>::empty() const {
+  return this->actions_begin_ == nullptr;
+}
+template<typename T>
+IfAction<T>::IfAction(const std::vector<Condition<T> *> conditions) : conditions_(conditions) {
+
+}
+template<typename T>
+void IfAction<T>::play(T x) {
+  bool res = true;
+  for (auto *condition : this->conditions_) {
+    if (!condition->check(x)) {
+      res = false;
+      break;
+    }
+  }
+  if (res) {
+    if (this->then_.empty()) {
+      this->play_next(x);
+    } else {
+      this->then_.play(x);
+    }
+  } else {
+    if (this->else_.empty()) {
+      this->play_next(x);
+    } else {
+      this->else_.play(x);
+    }
+  }
+}
+template<typename T>
+void IfAction<T>::add_then(const std::vector<Action<T> *> &actions) {
+  this->then_.add_actions(actions);
+  this->then_.add_action(new LambdaAction<T>([this](T x) {
+    this->play_next(x);
+  }));
+}
+template<typename T>
+void IfAction<T>::add_else(const std::vector<Action<T> *> &actions) {
+  this->else_.add_actions(actions);
+  this->else_.add_action(new LambdaAction<T>([this](T x) {
+    this->play_next(x);
+  }));
 }
 
 ESPHOMELIB_NAMESPACE_END

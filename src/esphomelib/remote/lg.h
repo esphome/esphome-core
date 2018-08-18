@@ -23,7 +23,7 @@ class LGTransmitter : public RemoteTransmitter {
  public:
   LGTransmitter(const std::string &name, uint32_t data, uint8_t nbits);
 
-  RemoteTransmitData get_data() override;
+  void to_data(RemoteTransmitData *data) override;
 
  protected:
   uint32_t data_;
@@ -32,14 +32,14 @@ class LGTransmitter : public RemoteTransmitter {
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_lg(RemoteReceiveData &data, uint32_t *data_, uint8_t *nbits);
+bool decode_lg(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits);
 
 class LGReceiver : public RemoteReceiver {
  public:
   LGReceiver(const std::string &name, uint32_t data, uint8_t nbits);
 
  protected:
-  bool matches(RemoteReceiveData &data) override;
+  bool matches(RemoteReceiveData *data) override;
 
  protected:
   uint32_t data_;
@@ -48,7 +48,7 @@ class LGReceiver : public RemoteReceiver {
 
 class LGDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData &data) override;
+  void dump(RemoteReceiveData *data) override;
 };
 #endif
 

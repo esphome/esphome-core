@@ -52,6 +52,7 @@ class ESP32BLEBeacon : public Component {
  protected:
   static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
   static void ble_core_task(void *params);
+  static void ble_setup();
 
   std::array<uint8_t, 16> uuid;
   uint16_t major{10167};

@@ -9,10 +9,12 @@
 //   - https://github.com/skywodd/pcf8574_arduino_library/
 //   - http://www.ti.com/lit/ds/symlink/pcf8574.pdf
 
-#include "esphomelib/io/pcf8574_component.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_PCF8574
+
+#include "esphomelib/io/pcf8574_component.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -123,7 +125,7 @@ PCF8574GPIOOutputPin PCF8574Component::make_output_pin(uint8_t pin, bool inverte
   return {this, pin, PCF8574_OUTPUT, inverted};
 }
 float PCF8574Component::get_setup_priority() const {
-  return setup_priority::HARDWARE + 5.0f;
+  return setup_priority::HARDWARE;
 }
 
 void PCF8574GPIOInputPin::setup() {

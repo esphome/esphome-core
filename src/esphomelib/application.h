@@ -19,12 +19,15 @@
 #include "esphomelib/power_supply_component.h"
 #include "esphomelib/ota_component.h"
 #include "esphomelib/wifi_component.h"
+#include "esphomelib/uart_component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/binary_sensor/esp32_touch_binary_sensor.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/status_binary_sensor.h"
 #include "esphomelib/binary_sensor/template_binary_sensor.h"
+#include "esphomelib/binary_sensor/pn532_component.h"
+#include "esphomelib/binary_sensor/rdm6300.h"
 #include "esphomelib/cover/cover.h"
 #include "esphomelib/cover/mqtt_cover_component.h"
 #include "esphomelib/cover/template_cover.h"
@@ -33,6 +36,8 @@
 #include "esphomelib/i2c_component.h"
 #include "esphomelib/io/pcf8574_component.h"
 #include "esphomelib/light/fast_led_light_output.h"
+#include "esphomelib/light/fast_led_light_effect.h"
+#include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
@@ -45,10 +50,12 @@
 #include "esphomelib/remote/panasonic.h"
 #include "esphomelib/remote/raw.h"
 #include "esphomelib/remote/sony.h"
+#include "esphomelib/remote/rc_switch.h"
 #include "esphomelib/sensor/adc_sensor_component.h"
 #include "esphomelib/sensor/ads1115_component.h"
 #include "esphomelib/sensor/bh1750_sensor.h"
 #include "esphomelib/sensor/bme280_component.h"
+#include "esphomelib/sensor/bmp280_component.h"
 #include "esphomelib/sensor/bme680_component.h"
 #include "esphomelib/sensor/bmp085_component.h"
 #include "esphomelib/sensor/dallas_component.h"
@@ -59,6 +66,7 @@
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/max6675_sensor.h"
+#include "esphomelib/sensor/mhz19_component.h"
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/mpu6050_component.h"
 #include "esphomelib/sensor/pulse_counter.h"
@@ -69,12 +77,20 @@
 #include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/wifi_signal_sensor.h"
+#include "esphomelib/sensor/uptime_sensor.h"
+#include "esphomelib/sensor/ina219.h"
+#include "esphomelib/sensor/ina3221.h"
+#include "esphomelib/sensor/hmc5883l.h"
+#include "esphomelib/sensor/hx711.h"
+#include "esphomelib/sensor/ms5611.h"
+#include "esphomelib/sensor/tcs34725.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
 #include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/switch_/template_switch.h"
+#include "esphomelib/switch_/uart_switch.h"
 #include "esphomelib/status_led.h"
 #include "esphomelib/time/rtc_component.h"
 #include "esphomelib/time/sntp_component.h"
@@ -156,6 +172,16 @@ class Application {
    * @param scan If a scan of connected i2c devices should be done at startup.
    */
   I2CComponent *init_i2c(uint8_t sda_pin = SDA, uint8_t scl_pin = SCL, bool scan = false);
+#endif
+
+#ifdef USE_UART
+  UARTComponent *init_uart(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate = 9600);
+#endif
+
+#ifdef USE_SPI
+  SPIComponent *init_spi(const GPIOOutputPin &clk, const GPIOInputPin &miso, const GPIOOutputPin &mosi);
+
+  SPIComponent *init_spi(const GPIOOutputPin &clk, const GPIOInputPin &miso);
 #endif
 
 #ifdef USE_WEB_SERVER
@@ -284,12 +310,22 @@ class Application {
     binary_sensor::MQTTBinarySensorComponent *mqtt;
   };
 
-  MakeTemplateBinarySensor make_template_binary_sensor(const std::string &name, std::function<optional<bool>()> &&f);
+  MakeTemplateBinarySensor make_template_binary_sensor(const std::string &name);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
   remote::RemoteReceiverComponent *make_remote_receiver_component(const GPIOInputPin &output);
 #endif
+
+#ifdef USE_PN532
+  binary_sensor::PN532Component *make_pn532_component(SPIComponent *parent, const GPIOOutputPin &cs,
+                                                      uint32_t update_interval = 1000);
+#endif
+
+#ifdef USE_RDM6300
+  binary_sensor::RDM6300Component *make_rdm6300_component(UARTComponent *parent);
+#endif
+
 
 
 
@@ -586,6 +622,25 @@ class Application {
                                       uint8_t address = 0x77, uint32_t update_interval = 15000);
 #endif
 
+#ifdef USE_BMP280
+  struct MakeBMP280Sensor {
+    sensor::BMP280Component *bmp280;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_pressure;
+  };
+
+  /** Create a BMP280 Temperature+Pressure i2c sensor.
+   *
+   * @param temperature_name The friendly name the temperature sensor should be advertised as.
+   * @param pressure_name The friendly name the pressure sensor should be advertised as.
+   * @param address The i2c address of the sensor. Defaults to 0x77 (SDO to V_DDIO), can also be 0x76.
+   * @param update_interval The interval in ms to update the sensor values.
+   * @return The BME280Component + MQTT sensors tuple, use this for advanced settings.
+   */
+  MakeBMP280Sensor make_bmp280_sensor(const std::string &temperature_name, const std::string &pressure_name,
+                                      uint8_t address = 0x77, uint32_t update_interval = 15000);
+#endif
+
 #ifdef USE_BME680
   struct MakeBME680Sensor {
     sensor::BME680Component *bme680;
@@ -659,8 +714,7 @@ class Application {
     sensor::MQTTSensorComponent *mqtt;
   };
 
-  MakeTemplateSensor make_template_sensor(const std::string &name, std::function<optional<float>()> &&f,
-                                          uint32_t update_interval = 15000);
+  MakeTemplateSensor make_template_sensor(const std::string &name, uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_MAX6675_SENSOR
@@ -669,9 +723,7 @@ class Application {
     sensor::MQTTSensorComponent *mqtt;
   };
 
-  MakeMAX6675Sensor make_max6675_sensor(const std::string &name, const GPIOOutputPin &cs,
-                                        const GPIOOutputPin &clock,
-                                        const GPIOInputPin &miso,
+  MakeMAX6675Sensor make_max6675_sensor(const std::string &name, SPIComponent *spi_bus, const GPIOOutputPin &cs,
                                         uint32_t update_interval = 15000);
 #endif
 
@@ -694,14 +746,71 @@ class Application {
                                              uint32_t update_interval = 15000);
 #endif
 
+#ifdef USE_MHZ19
+  struct MakeMHZ19Sensor {
+    sensor::MHZ19Component *mhz19;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeMHZ19Sensor make_mhz19_sensor(UARTComponent *parent, const std::string &co2_name,
+                                    uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_UPTIME_SENSOR
+  struct MakeUptimeSensor {
+    sensor::UptimeSensor *uptime;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeUptimeSensor make_uptime_sensor(const std::string &name, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_INA219
+  sensor::INA219Component *make_ina219(float shunt_resistance_ohm, float max_current_a, float max_voltage_v,
+                                       uint8_t address = 0x40, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_INA3221
+  sensor::INA3221Component *make_ina3221(uint8_t address = 0x40, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_HMC5883L
+  sensor::HMC5883LComponent *make_hmc5883l(uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_HX711
+  struct MakeHX711Sensor {
+    sensor::HX711Sensor *hx711;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeHX711Sensor make_hx711_sensor(const std::string &name, const GPIOInputPin &dout, const GPIOOutputPin &sck,
+                                    uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_MS5611
+  struct MakeMS5611Sensor {
+    sensor::MS5611Component *ms5611;
+    sensor::MQTTSensorComponent *mqtt_temperature;
+    sensor::MQTTSensorComponent *mqtt_pressure;
+  };
+
+  MakeMS5611Sensor make_ms5611_sensor(const std::string &temperature_name, const std::string &pressure_name,
+                                      uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_TCS34725
+  sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 15000);
+#endif
+
 #ifdef USE_RTC_COMPONENT
   time::RTCComponent *make_rtc_component(const std::string &tz = "UTC");
 #endif
 
 #ifdef USE_SNTP_COMPONENT
   time::SNTPComponent *make_sntp_component(const std::string &server_1 = "0.pool.ntp.org",
-		                           const std::string &server_2 = "1.pool.ntp.org",
-					   const std::string &server_3 = "2.pool.ntp.org",
+                                           const std::string &server_2 = "1.pool.ntp.org",
+                                           const std::string &server_3 = "2.pool.ntp.org",
                                            const std::string &tz = "UTC");
 #endif
 
@@ -921,6 +1030,15 @@ class Application {
   remote::RemoteTransmitterComponent *make_remote_transmitter_component(const GPIOOutputPin &output);
 #endif
 
+#ifdef USE_UART_SWITCH
+  struct MakeUARTSwitch {
+    switch_::UARTSwitch *uart;
+    switch_::MQTTSwitchComponent *mqtt;
+  };
+
+  MakeUARTSwitch make_uart_switch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data);
+#endif
+
 
 
 
@@ -1031,6 +1149,8 @@ class Application {
 
   /// Get the name of this Application set by set_name().
   const std::string &get_name() const;
+
+  bool is_fully_setup() const;
 
  protected:
   std::vector<Component *> components_{};

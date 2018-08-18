@@ -6,13 +6,15 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_DEEP_SLEEP
+
 #include <Esp.h>
 #include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/ota_component.h"
-
-#ifdef USE_DEEP_SLEEP
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -31,18 +33,18 @@ void DeepSleepComponent::setup() {
     ESP_LOGCONFIG(TAG, "  Wakeup Pin: %u %s", this->wakeup_pin_->get_pin(), this->wakeup_pin_->is_inverted() ? "LOW" : "HIGH");
 #endif
   if (this->run_duration_.has_value())
-    this->set_timeout(*this->run_duration_, [this](){ this->begin_sleep(); });
+    this->set_timeout(*this->run_duration_, [this](){
+      this->begin_sleep_();
+    });
 }
 void DeepSleepComponent::loop() {
   if (this->loop_cycles_.has_value()) {
     if (++this->at_loop_cycle_ >= *this->loop_cycles_)
-      this->begin_sleep();
+      this->begin_sleep_();
   }
 
-#ifdef ARDUINO_ARCH_ESP32
   if (this->next_enter_deep_sleep_)
-    this->begin_sleep();
-#endif
+    this->begin_sleep_();
 }
 float DeepSleepComponent::get_loop_priority() const {
   return -100.0f; // run after everything else is ready
@@ -64,7 +66,11 @@ void DeepSleepComponent::set_run_cycles(uint32_t cycles) {
 void DeepSleepComponent::set_run_duration(uint32_t time_ms) {
   this->run_duration_ = time_ms;
 }
-void DeepSleepComponent::begin_sleep() {
+void DeepSleepComponent::begin_sleep_(bool manual) {
+  if (this->prevent_ && !manual) {
+    this->next_enter_deep_sleep_ = true;
+    return;
+  }
 #ifdef ARDUINO_ARCH_ESP32
   if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_KEEP_AWAKE &&
       this->wakeup_pin_.has_value() && !this->sleep_duration_.has_value() && this->wakeup_pin_->digital_read()) {
@@ -100,6 +106,9 @@ void DeepSleepComponent::begin_sleep() {
 }
 float DeepSleepComponent::get_setup_priority() const {
   return -100.0f;
+}
+void DeepSleepComponent::prevent_deep_sleep() {
+  this->prevent_ = true;
 }
 
 ESPHOMELIB_NAMESPACE_END

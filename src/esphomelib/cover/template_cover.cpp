@@ -6,39 +6,33 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/cover/template_cover.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_COVER
+
+#include "esphomelib/cover/template_cover.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace cover {
 
 TemplateCover::TemplateCover(const std::string &name)
-    : Cover(name) {
+    : Cover(name), open_trigger_(new Trigger<NoArg>()), close_trigger_(new Trigger<NoArg>),
+      stop_trigger_(new Trigger<NoArg>()) {
 
 }
 void TemplateCover::open() {
-  this->open_action_.play(false);
   if (this->optimistic_)
     this->publish_state(COVER_OPEN);
+  this->open_trigger_->trigger();
 }
 void TemplateCover::close() {
-  this->close_action_.play(false);
   if (this->optimistic_)
     this->publish_state(COVER_CLOSED);
+  this->close_trigger_->trigger();
 }
 void TemplateCover::stop() {
-  this->stop_action_.play(false);
-}
-void TemplateCover::add_open_actions(const std::vector<Action<NoArg> *> &actions) {
-  this->open_action_.add_actions(actions);
-}
-void TemplateCover::add_close_actions(const std::vector<Action<NoArg> *> &actions) {
-  this->close_action_.add_actions(actions);
-}
-void TemplateCover::add_stop_actions(const std::vector<Action<NoArg> *> &actions) {
-  this->stop_action_.add_actions(actions);
+  this->stop_trigger_->trigger();
 }
 void TemplateCover::loop() {
   if (this->f_.has_value()) {
@@ -58,6 +52,15 @@ void TemplateCover::set_state_lambda(std::function<optional<CoverState>()> &&f) 
 }
 float TemplateCover::get_setup_priority() const {
   return setup_priority::HARDWARE;
+}
+Trigger<NoArg> *TemplateCover::get_open_trigger() const {
+  return this->open_trigger_;
+}
+Trigger<NoArg> *TemplateCover::get_close_trigger() const {
+  return this->close_trigger_;
+}
+Trigger<NoArg> *TemplateCover::get_stop_trigger() const {
+  return this->stop_trigger_;
 }
 
 } // namespace cover

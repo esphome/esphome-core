@@ -4,12 +4,14 @@
 // Based on:
 //   - https://github.com/milesburton/Arduino-Temperature-Control-Library
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_DALLAS_SENSOR
+
 #include "esphomelib/sensor/dallas_component.h"
 
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
-
-#ifdef USE_DALLAS_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -255,15 +257,15 @@ bool DallasTemperatureSensor::setup_sensor_() {
   return true;
 }
 bool DallasTemperatureSensor::check_scratch_pad_() {
-  if_very_verbose {
-    ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)",
-              this->scratch_pad_[0], this->scratch_pad_[1], this->scratch_pad_[2],
-              this->scratch_pad_[3], this->scratch_pad_[4], this->scratch_pad_[5],
-              this->scratch_pad_[6], this->scratch_pad_[7], this->scratch_pad_[8],
-              crc8(this->scratch_pad_, 8));
-  }
+#ifdef ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE
+  ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)",
+            this->scratch_pad_[0], this->scratch_pad_[1], this->scratch_pad_[2],
+            this->scratch_pad_[3], this->scratch_pad_[4], this->scratch_pad_[5],
+            this->scratch_pad_[6], this->scratch_pad_[7], this->scratch_pad_[8],
+            crc8(this->scratch_pad_, 8));
+#endif
   if (crc8(this->scratch_pad_, 8) != this->scratch_pad_[8]) {
-    ESP_LOGE(TAG, "Reading scratch pad from Dallas Sensor failed");
+    ESP_LOGE(TAG, "Reading scratchpad from Dallas Sensor failed");
     return false;
   }
   return true;

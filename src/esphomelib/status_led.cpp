@@ -6,10 +6,12 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/status_led.h"
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_STATUS_LED
+
+#include "esphomelib/status_led.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -21,7 +23,7 @@ StatusLEDComponent::StatusLEDComponent(GPIOPin *pin) : pin_(pin) {
   global_status_led = this;
 }
 void StatusLEDComponent::setup() {
-  ESP_LOGCONFIG("Setting up Status LED...");
+  ESP_LOGCONFIG(TAG, "Setting up Status LED...");
   this->pin_->setup();
   this->pin_->digital_write(false);
 }

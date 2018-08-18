@@ -6,9 +6,11 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/binary_sensor/status_binary_sensor.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_STATUS_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/status_binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -2,11 +2,12 @@
 // Created by Otto Winter on 29.12.17.
 //
 
-#include "esphomelib/fan/mqtt_fan_component.h"
-
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_FAN
+
+#include "esphomelib/fan/mqtt_fan_component.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

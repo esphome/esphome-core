@@ -37,6 +37,8 @@ class LightColorValues {
 
   LightColorValues(float state, float brightness, float red, float green, float blue, float white);
 
+  LightColorValues(bool state, float brightness, float red, float green, float blue, float white);
+
   /** Linearly interpolate between the values in start to the values in end.
    *
    * This function linearly interpolates the color value by just interpolating every attribute

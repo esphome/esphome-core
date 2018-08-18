@@ -6,13 +6,15 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_PULSE_COUNTER_SENSOR
+
 #include "esphomelib/sensor/pulse_counter.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
 #include "esphomelib/espmath.h"
-
-#ifdef USE_PULSE_COUNTER_SENSOR
 
 #ifdef ARDUINO_ARCH_ESP8266
   #include "FunctionalInterrupt.h"

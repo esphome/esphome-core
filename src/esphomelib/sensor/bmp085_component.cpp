@@ -9,11 +9,13 @@
 //   - https://www.sparkfun.com/datasheets/Components/General/BST-BMP085-DS000-05.pdf
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/BMP085
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_BMP085_SENSOR
+
 #include "esphomelib/sensor/bmp085_component.h"
 
 #include "esphomelib/log.h"
-
-#ifdef USE_BMP085_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

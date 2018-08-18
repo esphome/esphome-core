@@ -45,14 +45,17 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
   /// Only for custom effects: Tell this component to write the new color values on the next loop() iteration.
   void schedule_show();
 
-  /// Only for custom effects: Get a pointer to the internal array of CRGB color values.
-  CRGB *get_leds() const;
-
-  /// Only for custom effects: Get the number of LEDs managed by this component.
-  int get_num_leds() const;
-
   /// Only for custom effects: Get the internal controller.
   CLEDController *get_controller() const;
+
+  CRGB *leds() const;
+  int size() const;
+  CRGB &operator [](int index) const { return this->leds()[index]; }
+  CRGB *begin() { return &this->leds()[0]; }
+  CRGB *end() { return &this->leds()[this->size()]; }
+  uint8_t *effect_data() const {
+    return this->effect_data_;
+  }
 
   /// Set a maximum refresh rate in µs as some lights do not like being updated too often.
   void set_max_refresh_rate(uint32_t interval_us);
@@ -344,6 +347,7 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
  protected:
   CLEDController *controller_{nullptr};
   CRGB *leds_{nullptr};
+  uint8_t *effect_data_{nullptr};
   int num_leds_{0};
   uint32_t last_refresh_{0};
   optional<uint32_t> max_refresh_rate_{};

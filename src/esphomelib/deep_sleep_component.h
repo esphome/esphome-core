@@ -11,6 +11,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/automation.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_DEEP_SLEEP
@@ -33,6 +34,12 @@ enum WakeupPinMode {
 };
 
 #endif
+
+template<typename T>
+class EnterDeepSleepAction;
+
+template<typename T>
+class PreventDeepSleepAction;
 
 /** This component allows setting up the node to go into deep sleep mode to conserve battery.
  *
@@ -62,20 +69,79 @@ class DeepSleepComponent : public Component {
   float get_loop_priority() const override;
   float get_setup_priority() const override;
 
- protected:
   /// Helper to enter deep sleep mode
-  void begin_sleep();
+  void begin_sleep_(bool manual = false);
 
+  template<typename T>
+  EnterDeepSleepAction<T> *make_enter_deep_sleep_action();
+
+  template<typename T>
+  PreventDeepSleepAction<T> *make_prevent_deep_sleep_action();
+
+  void prevent_deep_sleep();
+
+ protected:
   optional<uint64_t> sleep_duration_;
 #ifdef ARDUINO_ARCH_ESP32
   optional<GPIOInputPin> wakeup_pin_;
   WakeupPinMode  wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
-  bool next_enter_deep_sleep_{false};
 #endif
   optional<uint32_t> loop_cycles_;
   uint32_t at_loop_cycle_{0};
   optional<uint32_t> run_duration_;
+  bool next_enter_deep_sleep_{false};
+  bool prevent_{false};
 };
+
+template<typename T>
+class EnterDeepSleepAction : public Action<T> {
+ public:
+  EnterDeepSleepAction(DeepSleepComponent *deep_sleep);
+
+  void play(T x) override;
+ protected:
+  DeepSleepComponent *deep_sleep_;
+};
+
+template<typename T>
+class PreventDeepSleepAction : public Action<T> {
+ public:
+  PreventDeepSleepAction(DeepSleepComponent *deep_sleep);
+
+  void play(T x) override;
+ protected:
+  DeepSleepComponent *deep_sleep_;
+};
+
+template<typename T>
+EnterDeepSleepAction<T>::EnterDeepSleepAction(DeepSleepComponent *deep_sleep) : deep_sleep_(deep_sleep) {}
+
+template<typename T>
+void EnterDeepSleepAction<T>::play(T x) {
+  this->deep_sleep_->begin_sleep_(true);
+  // no need to call play_next. We should be done with execution by now.
+}
+
+template<typename T>
+EnterDeepSleepAction<T> *DeepSleepComponent::make_enter_deep_sleep_action() {
+  return new EnterDeepSleepAction<T>(this);
+}
+
+template<typename T>
+PreventDeepSleepAction<T>::PreventDeepSleepAction(DeepSleepComponent *deep_sleep)
+    : deep_sleep_(deep_sleep) {
+
+}
+template<typename T>
+void PreventDeepSleepAction<T>::play(T x) {
+  this->deep_sleep_->prevent_deep_sleep();
+  this->play_next(x);
+}
+
+template<typename T>
+PreventDeepSleepAction<T> *DeepSleepComponent::make_prevent_deep_sleep_action() {
+  return new PreventDeepSleepAction<T>(this);
+}
 
 ESPHOMELIB_NAMESPACE_END
 

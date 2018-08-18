@@ -6,16 +6,18 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#include "esphomelib/switch_/template_switch.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_SWITCH
+
+#include "esphomelib/switch_/template_switch.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
 TemplateSwitch::TemplateSwitch(const std::string &name)
-    : Switch(name) {
+    : Switch(name), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
 
 }
 void TemplateSwitch::loop() {
@@ -26,20 +28,14 @@ void TemplateSwitch::loop() {
   }
 }
 void TemplateSwitch::turn_on() {
-  this->turn_on_action_.play(false);
   if (this->optimistic_)
     this->publish_state(true);
+  this->turn_on_trigger_->trigger();
 }
 void TemplateSwitch::turn_off() {
-  this->turn_off_action_.play(false);
   if (this->optimistic_)
     this->publish_state(false);
-}
-void TemplateSwitch::add_turn_on_actions(const std::vector<Action<NoArg> *> &actions) {
-  this->turn_on_action_.add_actions(actions);
-}
-void TemplateSwitch::add_turn_off_actions(const std::vector<Action<NoArg> *> &actions) {
-  this->turn_off_action_.add_actions(actions);
+  this->turn_off_trigger_->trigger();
 }
 void TemplateSwitch::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
@@ -52,6 +48,15 @@ void TemplateSwitch::set_state_lambda(std::function<optional<bool>()> &&f) {
 }
 float TemplateSwitch::get_setup_priority() const {
   return setup_priority::HARDWARE;
+}
+Trigger<NoArg> *TemplateSwitch::get_turn_on_trigger() const {
+  return this->turn_on_trigger_;
+}
+Trigger<NoArg> *TemplateSwitch::get_turn_off_trigger() const {
+  return this->turn_off_trigger_;
+}
+bool TemplateSwitch::do_restore_state() {
+  return false;
 }
 
 } // namespace switch_

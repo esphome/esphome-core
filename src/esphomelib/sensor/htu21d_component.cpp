@@ -9,11 +9,13 @@
 //   - http://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FHPC199_6%7FA6%7Fpdf%7FEnglish%7FENG_DS_HPC199_6_A6.pdf%7FCAT-HSC0004
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/HTU21D
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_HTU21D_SENSOR
+
 #include "esphomelib/sensor/htu21d_component.h"
 
 #include "esphomelib/log.h"
-
-#ifdef USE_HTU21D_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -24,6 +26,7 @@ static const uint8_t HTU21D_ADDRESS = 0x40;
 static const uint8_t HTU21D_REGISTER_RESET = 0xFE;
 static const uint8_t HTU21D_REGISTER_TEMPERATURE = 0xE3;
 static const uint8_t HTU21D_REGISTER_HUMIDITY = 0xE5;
+static const uint8_t HTU21D_REGISTER_STATUS = 0xE7;
 
 HTU21DComponent::HTU21DComponent(I2CComponent *parent,
                                  const std::string &temperature_name, const std::string &humidity_name,
@@ -47,7 +50,7 @@ void HTU21DComponent::setup() {
 }
 void HTU21DComponent::update() {
   uint16_t raw_temperature;
-  if (!this->read_byte_16(HTU21D_REGISTER_TEMPERATURE, &raw_temperature)) {
+  if (!this->read_byte_16(HTU21D_REGISTER_TEMPERATURE, &raw_temperature, 50)) {
     this->status_set_warning();
     return;
   }
@@ -55,7 +58,7 @@ void HTU21DComponent::update() {
   float temperature = (float(raw_temperature & 0xFFFC)) * 175.72f / 65536.0f - 46.85f;
 
   uint16_t raw_humidity;
-  if (!this->read_byte_16(HTU21D_REGISTER_HUMIDITY, &raw_humidity)) {
+  if (!this->read_byte_16(HTU21D_REGISTER_HUMIDITY, &raw_humidity, 50)) {
     this->status_set_warning();
     return;
   }

@@ -6,12 +6,14 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_SHUTDOWN_SWITCH
+
 #include "esphomelib/switch_/shutdown_switch.h"
 #include "esphomelib/log.h"
 
 #include <Esp.h>
-
-#ifdef USE_SHUTDOWN_SWITCH
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

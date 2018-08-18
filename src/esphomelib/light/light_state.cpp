@@ -2,6 +2,10 @@
 // Created by Otto Winter on 28.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
+
 #include "esphomelib/light/light_state.h"
 
 #include "esphomelib/helpers.h"
@@ -9,8 +13,6 @@
 #include "esphomelib/esphal.h"
 #include "esphomelib/light/light_transformer.h"
 #include "esphomelib/light/light_effect.h"
-
-#ifdef USE_LIGHT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -25,6 +27,7 @@ void LightState::start_transition(const LightColorValues &target, uint32_t lengt
     this->transformer_ = make_unique<LightTransitionTransformer>(millis(), length,
                                                                  this->get_current_values_lazy(),
                                                                  target);
+    this->remote_values_ = this->transformer_->get_remote_values();
   } else {
     this->set_immediately(target);
   }
@@ -53,26 +56,29 @@ void LightState::start_flash(const LightColorValues &target, uint32_t length) {
 
 LightState::LightState(const std::string &name, LightOutput *output)
   : Nameable(name), output_(output) {
-  this->effect_ = std::move(NoneLightEffect::create());
+
 }
 
 void LightState::set_immediately_without_sending(const LightColorValues &target) {
   this->transformer_ = nullptr;
   this->values_ = target;
+  this->next_write_ = true;
 }
 
 void LightState::set_immediately(const LightColorValues &target) {
   this->set_immediately_without_sending(target);
+  this->remote_values_ = target;
   this->send_values();
 }
 
 LightColorValues LightState::get_current_values() {
-  this->effect_->apply_effect(this);
+  if (this->active_effect_ != nullptr)
+    this->active_effect_->apply();
 
   if (this->transformer_ != nullptr) {
     if (this->transformer_->is_finished()) {
       ESP_LOGD(TAG, "Finished transformer.");
-      this->values_ = this->transformer_->get_end_values();
+      this->remote_values_ = this->values_ = this->transformer_->get_end_values();
       this->transformer_ = nullptr;
       this->send_values();
     } else {
@@ -88,9 +94,10 @@ void LightState::send_values() {
 }
 
 LightColorValues LightState::get_remote_values() {
-  this->effect_->apply_effect(this);
+  if (this->active_effect_ != nullptr)
+    this->active_effect_->apply();
 
-  LightColorValues out = this->values_;
+  LightColorValues out = this->remote_values_;
   if (this->transformer_ != nullptr)
     out = this->transformer_->get_remote_values();
 
@@ -101,22 +108,29 @@ const LightColorValues &LightState::get_current_values_lazy() {
   return this->values_;
 }
 
+const LightColorValues &LightState::get_remote_values_lazy() {
+  return this->remote_values_;
+}
+
 std::string LightState::get_effect_name() {
-  if (this->effect_)
-    return this->effect_->get_name();
+  if (this->active_effect_ != nullptr)
+    return this->active_effect_->get_name();
   else
     return "None";
 }
 
 void LightState::start_effect(const std::string &name) {
-  for (const LightEffect::Entry &entry : light_effect_entries) {
-    if (!this->get_traits().supports_traits(entry.requirements))
-      continue;
-    if (strcasecmp(name.c_str(), entry.name.c_str()) == 0) {
-      ESP_LOGD(TAG, "Starting effect '%s'", name.c_str());
-      this->effect_->stop(this);
-      this->effect_ = std::move(entry.constructor());
-      this->effect_->initialize(this);
+  if (strcasecmp(name.c_str(), "none") == 0) {
+    this->stop_effect();
+    return;
+  }
+  for (auto *effect : this->effects_) {
+    if (strcasecmp(name.c_str(), effect->get_name().c_str()) == 0) {
+      ESP_LOGD(TAG, "Starting effect '%s'", effect->get_name().c_str());
+      this->stop_effect();
+
+      this->active_effect_ = effect;
+      this->active_effect_->start_();
       this->send_values();
       break;
     }
@@ -124,23 +138,15 @@ void LightState::start_effect(const std::string &name) {
 }
 
 bool LightState::supports_effects() {
-  bool found_none_effect = false;
-  for (const LightEffect::Entry &entry : light_effect_entries)
-    if (this->get_traits().supports_traits(entry.requirements)) {
-      if (found_none_effect) {
-        return true;
-      } else {
-        found_none_effect = true;
-      }
-    }
-  return false;
+  return !this->effects_.empty();
 }
 void LightState::set_transformer(std::unique_ptr<LightTransformer> transformer) {
   this->transformer_ = std::move(transformer);
 }
 void LightState::stop_effect() {
-  this->effect_->stop(this);
-  this->effect_ = std::move(NoneLightEffect::create());
+  if (this->active_effect_ != nullptr)
+    this->active_effect_->stop();
+  this->active_effect_ = nullptr;
 }
 void LightState::parse_json(const JsonObject &root) {
   ESP_LOGV(TAG, "Interpreting light JSON.");
@@ -215,7 +221,8 @@ void LightState::current_values_as_rgbw(float *red, float *green, float *blue, f
   *white = gamma_correct(*white, this->gamma_correct_);
 }
 void LightState::loop() {
-  this->effect_->apply_effect(this);
+  if (this->active_effect_ != nullptr)
+    this->active_effect_->apply();
 
   if (this->next_write_ || (this->transformer_ != nullptr && this->transformer_->is_continuous())) {
     this->output_->write_state(this);
@@ -224,6 +231,16 @@ void LightState::loop() {
 }
 LightTraits LightState::get_traits() {
   return this->output_->get_traits();
+}
+const std::vector<LightEffect *> &LightState::get_effects() const {
+  return this->effects_;
+}
+void LightState::add_effects(const std::vector<LightEffect *> effects) {
+  this->effects_.reserve(this->effects_.size() + effects.size());
+  for (auto *effect : effects) {
+    this->effects_.push_back(effect);
+    effect->init_(this);
+  }
 }
 
 } // namespace light

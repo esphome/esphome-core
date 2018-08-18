@@ -92,6 +92,9 @@ class Switch : public Component, public Nameable {
    */
   virtual void add_on_state_callback(std::function<void(bool)> &&callback);
 
+  /// Subclasses can override this to prevent the switch from automatically restoring the state.
+  virtual bool do_restore_state();
+
   /** The current published state of the switch.
    *
    * Inversion is already applied on this value.

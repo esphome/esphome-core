@@ -2,13 +2,15 @@
 // Created by Otto Winter on 26.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
+
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 
 #include "esphomelib/espmath.h"
 #include "esphomelib/log.h"
 #include "esphomelib/component.h"
-
-#ifdef USE_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

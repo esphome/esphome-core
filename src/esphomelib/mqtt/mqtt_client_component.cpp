@@ -6,7 +6,7 @@
 
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
-#include "esphomelib/application.h"
+#include "esphomelib/wifi_component.h"
 
 static const char *TAG = "mqtt.client";
 
@@ -14,10 +14,10 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace mqtt {
 
-MQTTClientComponent::MQTTClientComponent(const MQTTCredentials &credentials)
+MQTTClientComponent::MQTTClientComponent(const MQTTCredentials &credentials, const std::string &topic_prefix)
     : credentials_(credentials) {
   global_mqtt_client = this;
-  this->set_topic_prefix(App.get_name());
+  this->set_topic_prefix(topic_prefix);
 }
 
 void MQTTClientComponent::setup() {
@@ -26,7 +26,7 @@ void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Username: '%s'", this->credentials_.username.c_str());
   ESP_LOGCONFIG(TAG, "    Password: '%s'", this->credentials_.password.c_str());
   if (this->credentials_.client_id.empty())
-    this->credentials_.client_id = generate_hostname(App.get_name());
+    this->credentials_.client_id = generate_hostname(this->topic_prefix_);
   ESP_LOGCONFIG(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
   if (!this->discovery_info_.prefix.empty()) {
     ESP_LOGCONFIG(TAG, "    Discovery prefix: '%s'", this->discovery_info_.prefix.c_str());
@@ -140,12 +140,6 @@ void MQTTClientComponent::check_connected() {
 }
 
 void MQTTClientComponent::loop() {
-  if (millis() - this->last_connected_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
-    ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
-    reboot("mqtt");
-    return;
-  }
-
   switch (this->state_) {
     case MQTT_CLIENT_DISCONNECTED:
       this->start_connect();
@@ -162,6 +156,12 @@ void MQTTClientComponent::loop() {
         this->last_connected_ = millis();
       }
       break;
+  }
+
+  if (millis() - this->last_connected_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
+    ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
+    reboot("mqtt");
+    return;
   }
 }
 

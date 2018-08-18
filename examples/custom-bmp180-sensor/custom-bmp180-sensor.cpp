@@ -11,29 +11,22 @@
 //   See  for more information
 // </WARNING>
 
-#include <esphomelib.h>
-#include <Adafruit_BMP085.h>
+#include "esphomelib/application.h"
 
 using namespace esphomelib;
 
-class BMP180Sensor : public sensor::PollingSensorComponent {
+class CustomSensor : public Component, public sensor::Sensor {
  public:
-  Adafruit_BMP085 bmp;
-
-  BMP180Sensor(const std::string &friendly_name, uint32_t update_interval)
-      : sensor::PollingSensorComponent(friendly_name, update_interval) {}
+  CustomSensor(const std::string &name) : Sensor(name) {}
 
   void setup() override {
-    bmp.begin();
+
   }
 
-  void update() override {
-    int pressure = bmp.readPressure(); // in Pa, or 1/100 hPa
-    push_new_value(pressure / 100.0); // convert to hPa
+  void loop() override {
+
   }
 
-  std::string unit_of_measurement() override { return "hPa"; }
-  int8_t accuracy_decimals() override { return 2; } // 2 decimal places of accuracy.
 };
 
 void setup() {
@@ -44,7 +37,7 @@ void setup() {
   App.init_ota()->start_safe_mode();
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
 
-  auto *custom_sensor = App.register_component(new BMP180Sensor("Custom Sensor Example", 5000));
+  auto *custom_sensor = App.register_component(new CustomSensor("Custom Sensor Example"));
   App.register_sensor(custom_sensor);
 
   App.setup();

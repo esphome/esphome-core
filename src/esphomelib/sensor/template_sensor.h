@@ -21,8 +21,9 @@ namespace sensor {
 
 class TemplateSensor : public PollingSensorComponent {
  public:
-  TemplateSensor(const std::string &name, std::function<optional<float>()> &&f,
-                 uint32_t update_interval = 15000);
+  TemplateSensor(const std::string &name, uint32_t update_interval = 15000);
+
+  void set_template(std::function<optional<float>()> &&f);
 
   void update() override;
 

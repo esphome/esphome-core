@@ -41,17 +41,35 @@ void WiFiComponent::setup() {
 #endif
   WiFi.persistent(false);
 
-  if (this->has_ap()) {
-    this->setup_ap_config();
+  bool ret;
+#ifdef ARDUINO_ARCH_ESP32
+  if (this->has_ap() && this->has_sta()) {
+    ret = WiFi.mode(WIFI_MODE_APSTA);
+  } else if (this->has_ap() && !this->has_sta()) {
+    ret = WiFi.mode(WIFI_MODE_AP);
+  } else if (!this->has_ap() && this->has_sta()) {
+    ret = WiFi.mode(WIFI_MODE_STA);
   } else {
-    WiFi.enableAP(false);
+    ret = false;
+  }
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  if (this->has_ap() && this->has_sta()) {
+    ret = WiFi.mode(WIFI_AP_STA);
+  } else if (this->has_ap() && !this->has_sta()) {
+    ret = WiFi.mode(WIFI_AP);
+  } else if (!this->has_ap() && this->has_sta()) {
+    ret = WiFi.mode(WIFI_STA);
+  } else {
+    ret = false;
+  }
+#endif
+
+  if (!ret) {
+    ESP_LOGE(TAG, "WiFi.mode() failed!");
   }
 
   if (this->has_sta()) {
-    if (!WiFi.enableSTA(true)) {
-      ESP_LOGE(TAG, "WiFi.enableSTA(true) failed!");
-      this->status_set_error();
-    }
     WiFi.setAutoConnect(false);
     if (!WiFi.setAutoReconnect(false)) {
       ESP_LOGE(TAG, "WiFi.setAutoReconnect(false) failed!");
@@ -59,8 +77,6 @@ void WiFiComponent::setup() {
     }
     delay(10);
     this->start_connecting();
-  } else {
-    WiFi.enableSTA(false);
   }
 }
 
@@ -104,6 +120,7 @@ WiFiComponent::WiFiComponent() {
 
 #ifdef ARDUINO_ARCH_ESP32
 void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
+#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
   const char *event_name;
   switch (event) {
     case SYSTEM_EVENT_WIFI_READY: event_name = "WiFi ready";
@@ -139,6 +156,7 @@ void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
   }
 
   ESP_LOGV(TAG, "[WiFi event] %s (num=%d status=%u)", event_name, event, WiFi.status());
+#endif
 
   if (event == SYSTEM_EVENT_STA_DISCONNECTED) {
     // The arduino core has a bug where WiFi.status() is still set to connected even though

@@ -7,14 +7,17 @@
 //
 //
 //
-#include "esphomelib/sensor/wifi_signal_sensor.h"
-#ifdef ARDUINO_ARCH_ESP32
-#include <WiFi.h>
-#else
-#include <ESP8266WiFi.h>
-#endif
+
+#include "esphomelib/defines.h"
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
+
+#include "esphomelib/sensor/wifi_signal_sensor.h"
+#ifdef ARDUINO_ARCH_ESP32
+  #include <WiFi.h>
+#else
+  #include <ESP8266WiFi.h>
+#endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

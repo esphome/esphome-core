@@ -16,6 +16,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
+template<typename T>
+class SetLevelAction;
+
 /** Base class for all output components that can output a variable level, like PWM.
  *
  * Floating Point Outputs always use output values in the range from 0.0 to 1.0 (inclusive), where 0.0 means off
@@ -61,9 +64,48 @@ class FloatOutput : public BinaryOutput {
   /// Implement BinarySensor's write_enabled; this should never be called.
   void write_enabled(bool value) override;
 
+  template<typename T>
+  SetLevelAction<T> *make_set_level_action();
+
  protected:
   float max_power_{1.0f};
 };
+
+template<typename T>
+class SetLevelAction : public Action<T> {
+ public:
+  SetLevelAction(FloatOutput *output);
+
+  void set_level(std::function<float(T)> &&level);
+  void set_level(float level);
+  void play(T x) override;
+
+ protected:
+  FloatOutput *output_;
+  TemplatableValue<float, T> level_;
+};
+
+template<typename T>
+SetLevelAction<T>::SetLevelAction(FloatOutput *output) : output_(output) {}
+
+template<typename T>
+void SetLevelAction<T>::set_level(std::function<float(T)> &&level) {
+  this->level_ = std::move(level);
+}
+template<typename T>
+void SetLevelAction<T>::set_level(float level) {
+  this->level_ = level;
+}
+template<typename T>
+void SetLevelAction<T>::play(T x) {
+  this->output_->set_state_(this->level_.value(x));
+  this->play_next(x);
+}
+
+template<typename T>
+SetLevelAction<T> *FloatOutput::make_set_level_action() {
+  return new SetLevelAction<T>(this);
+}
 
 } // namespace output
 

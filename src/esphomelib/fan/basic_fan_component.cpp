@@ -2,11 +2,12 @@
 // Created by Otto Winter on 30.12.17.
 //
 
-#include "esphomelib/fan/basic_fan_component.h"
-
-#include "esphomelib/log.h"
+#include "esphomelib/defines.h"
 
 #ifdef USE_FAN
+
+#include "esphomelib/fan/basic_fan_component.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

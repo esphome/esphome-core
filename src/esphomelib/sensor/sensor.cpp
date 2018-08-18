@@ -2,18 +2,22 @@
 // Created by Otto Winter on 26.11.17.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
+
 #include <utility>
 #include "esphomelib/sensor/sensor.h"
 
 #include "esphomelib/log.h"
 
-#ifdef USE_SENSOR
-
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
+#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
 static const char *TAG = "sensor.sensor";
+#endif
 
 void Sensor::push_new_value(float value) {
   this->raw_value = value;
@@ -175,6 +179,19 @@ const char ICON_BRIGHTNESS_5[] = "mdi:brightness-5";
 const char UNIT_LX[] = "lx";
 const char UNIT_OHM[] = "Ω";
 const char ICON_GAS_CYLINDER[] = "mdi:gas-cylinder";
+const char ICON_PERIODIC_TABLE_CO2[] = "mdi:periodic-table-co2";
+const char UNIT_PPM[] = "ppm";
+const char UNIT_A[] = "A";
+const char UNIT_W[] = "W";
+const char ICON_MAGNET[] = "mdi:magnet";
+const char ICON_THERMOMETER[] = "mdi:thermometer";
+const char ICON_LIGHTBULB[] = "mdi:lightbulb";
+const char ICON_BATTERY[] = "mdi:battery";
+const char ICON_FLOWER[] = "mdi:flower";
+const char UNIT_UT[] = "µT";
+const char UNIT_DEGREES[] = "°";
+const char UNIT_K[] = "K";
+const char UNIT_MICROSIEMENS_PER_CENTIMETER[] = "µS/cm";
 
 SensorValueTrigger::SensorValueTrigger(Sensor *parent) {
   parent->add_on_value_callback([this](float value) {

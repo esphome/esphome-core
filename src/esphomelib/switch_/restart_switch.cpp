@@ -6,11 +6,13 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_RESTART_SWITCH
+
 #include "esphomelib/switch_/restart_switch.h"
 
 #include "esphomelib/log.h"
-
-#ifdef USE_RESTART_SWITCH
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
