@@ -92,6 +92,8 @@
 #include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/switch_/uart_switch.h"
 #include "esphomelib/status_led.h"
+#include "esphomelib/time/rtc_component.h"
+#include "esphomelib/time/sntp_component.h"
 #include "esphomelib/web_server.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -801,7 +803,16 @@ class Application {
   sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 15000);
 #endif
 
+#ifdef USE_RTC_COMPONENT
+  time::RTCComponent *make_rtc_component(const std::string &tz = "UTC");
+#endif
 
+#ifdef USE_SNTP_COMPONENT
+  time::SNTPComponent *make_sntp_component(const std::string &server_1 = "0.pool.ntp.org",
+                                           const std::string &server_2 = "1.pool.ntp.org",
+                                           const std::string &server_3 = "2.pool.ntp.org",
+                                           const std::string &tz = "UTC");
+#endif
 
 
 

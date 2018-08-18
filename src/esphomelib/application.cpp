@@ -41,6 +41,9 @@ using namespace esphomelib::cover;
 #ifdef USE_REMOTE
 using namespace esphomelib::remote;
 #endif
+#ifdef USE_TIME
+using namespace esphomelib::time;
+#endif
 
 static const char *TAG = "application";
 
@@ -1003,6 +1006,21 @@ bool Application::is_fully_setup() const {
 #ifdef USE_TCS34725
 sensor::TCS34725Component *Application::make_tcs34725(uint32_t update_interval) {
   return this->register_component(new TCS34725Component(this->i2c_, update_interval));
+}
+#endif
+
+#ifdef USE_RTC_COMPONENT
+RTCComponent *Application::make_rtc_component(const std::string &tz) {
+  return this->register_component(new RTCComponent(tz));
+}
+#endif
+
+#ifdef USE_SNTP_COMPONENT
+SNTPComponent *Application::make_sntp_component(const std::string &server_1,
+		                                const std::string &server_2,
+						const std::string &server_3,
+						const std::string &tz) {
+  return this->register_component(new SNTPComponent(server_1, server_2, server_3, tz));
 }
 #endif
 
