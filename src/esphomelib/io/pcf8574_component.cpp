@@ -143,7 +143,7 @@ GPIOPin *PCF8574GPIOInputPin::copy() const {
   return new PCF8574GPIOInputPin(*this);
 }
 void PCF8574GPIOInputPin::pin_mode(uint8_t mode) {
-  this->parent_->pin_mode_(this->pin_, this->mode_);
+  this->parent_->pin_mode_(this->pin_, mode);
 }
 
 void PCF8574GPIOOutputPin::setup() {
@@ -161,7 +161,7 @@ GPIOPin *PCF8574GPIOOutputPin::copy() const {
   return new PCF8574GPIOOutputPin(*this);
 }
 void PCF8574GPIOOutputPin::pin_mode(uint8_t mode) {
-  this->parent_->pin_mode_(this->pin_, this->mode_);
+  this->parent_->pin_mode_(this->pin_, mode);
 }
 
 } // namespace io

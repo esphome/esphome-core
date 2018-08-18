@@ -19,8 +19,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-extern float BME680_GAS_LOOKUP_TABLE_1[16] PROGMEM;
-extern float BME680_GAS_LOOKUP_TABLE_2[16] PROGMEM;
+extern const float BME680_GAS_LOOKUP_TABLE_1[16] PROGMEM;
+extern const float BME680_GAS_LOOKUP_TABLE_2[16] PROGMEM;
 
 /// Enum listing all IIR Filter options for the BME680.
 enum BME680IIRFilter {

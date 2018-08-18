@@ -31,6 +31,10 @@
 #include "esphomelib/cover/cover.h"
 #include "esphomelib/cover/mqtt_cover_component.h"
 #include "esphomelib/cover/template_cover.h"
+#include "esphomelib/display/max7219.h"
+#include "esphomelib/display/lcd_display.h"
+#include "esphomelib/display/ssd1306.h"
+#include "esphomelib/display/waveshare_epaper.h"
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/i2c_component.h"
@@ -181,7 +185,7 @@ class Application {
 #ifdef USE_SPI
   SPIComponent *init_spi(const GPIOOutputPin &clk, const GPIOInputPin &miso, const GPIOOutputPin &mosi);
 
-  SPIComponent *init_spi(const GPIOOutputPin &clk, const GPIOInputPin &miso);
+  SPIComponent *init_spi(const GPIOOutputPin &clk);
 #endif
 
 #ifdef USE_WEB_SERVER
@@ -217,6 +221,57 @@ class Application {
 #ifdef USE_STATUS_LED
   StatusLEDComponent *make_status_led(const GPIOOutputPin &pin);
 #endif
+
+#ifdef USE_DISPLAY
+  display::Font *make_font(std::vector<display::Glyph> &&glyphs, int baseline, int bottom);
+
+  display::Image *make_image(const uint8_t *data_start, int width, int height);
+#endif
+
+#ifdef USE_MAX7219
+  display::MAX7219Component *make_max7219(SPIComponent *parent,
+                                          const GPIOOutputPin &cs,
+                                          uint32_t update_interval = 1000);
+#endif
+
+#ifdef USE_LCD_DISPLAY_PCF8574
+  display::PCF8574LCDDisplay *make_pcf8574_lcd_display(uint8_t columns,
+                                                       uint8_t rows,
+                                                       uint8_t address = 0x3F,
+                                                       uint32_t update_interval = 1000);
+#endif
+
+#ifdef USE_LCD_DISPLAY
+  display::GPIOLCDDisplay *make_gpio_lcd_display(uint8_t columns, uint8_t rows, uint32_t update_interval = 1000);
+#endif
+
+#ifdef USE_SSD1306
+#ifdef USE_SPI
+  display::SPISSD1306 *make_spi_ssd1306(SPIComponent *parent,
+                                        const GPIOOutputPin &cs,
+                                        const GPIOOutputPin &dc,
+                                        uint32_t update_interval = 1000);
+#endif
+#ifdef USE_I2C
+  display::I2CSSD1306 *make_i2c_ssd1306(uint32_t update_interval = 1000);
+#endif
+#endif
+
+#ifdef USE_WAVESHARE_EPAPER
+  display::WaveshareEPaperTypeA *make_waveshare_epaper_type_a(SPIComponent *parent,
+                                                              const GPIOOutputPin &cs,
+                                                              const GPIOOutputPin &dc_pin,
+                                                              display::WaveshareEPaperTypeAModel model,
+                                                              uint32_t update_interval = 10000);
+
+  display::WaveshareEPaper *make_waveshare_epaper_type_b(SPIComponent *parent,
+                                                         const GPIOOutputPin &cs,
+                                                         const GPIOOutputPin &dc_pin,
+                                                         display::WaveshareEPaperTypeBModel model,
+                                                         uint32_t update_interval = 10000);
+#endif
+
+
 
 
 
@@ -574,7 +629,7 @@ class Application {
    * @return The TSL2561Sensor + MQTT sensor pair, use this for advanced settings.
    */
   MakeTSL2561Sensor make_tsl2561_sensor(const std::string &name, uint8_t address = 0x23,
-                                       uint32_t update_interval = 15000);
+                                        uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_BH1750
@@ -803,7 +858,7 @@ class Application {
   sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 15000);
 #endif
 
-#ifdef USE_RTC_COMPONENT
+#ifdef USE_TIME
   time::RTCComponent *make_rtc_component(const std::string &tz = "UTC");
 #endif
 

@@ -1,86 +1,93 @@
 //
-//  rtc.cpp
+//  rtc_component.cpp
 //  esphomelib
 //
 //  Created by Brad Davidson on 06.06.18.
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_TIME
+
 #include "esphomelib/log.h"
 #include "esphomelib/time/rtc_component.h"
-
-#ifdef USE_RTC_COMPONENT
+#include "rtc_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace time {
 
-static const char *TAG = "rtc";
+static const char *TAG = "time.rtc";
 
-EsphomelibTime convert_time_(struct tm *c_tm, time_t c_time){
-  return EsphomelibTime {
-    .second = c_tm->tm_sec,
-    .minute = c_tm->tm_min,
-    .hour = c_tm->tm_hour,
-    .day_of_week = c_tm->tm_wday + 1,
-    .day_of_month = c_tm->tm_mday,
-    .day_of_year = c_tm->tm_yday + 1,
-    .month = c_tm->tm_mon + 1,
-    .year = c_tm->tm_year + 1900,
-    .is_dst = c_tm->tm_isdst,
-    .time = c_time
-  };
-} 
-struct tm revert_time_(const EsphomelibTime &time){
-  struct tm c_tm = tm {
-    .tm_sec = time.second,
-    .tm_min = time.minute,
-    .tm_hour = time.hour,
-    .tm_mday = time.day_of_month,
-    .tm_mon = time.month - 1,
-    .tm_year = time.year - 1900,
-    .tm_wday = time.day_of_week - 1,
-    .tm_yday = time.day_of_year - 1,
-    .tm_isdst = time.is_dst
-  };
-  return c_tm;
-}
-RTCComponent::RTCComponent(const std::string &tz){
+RTCComponent::RTCComponent(const std::string &tz) {
   setenv("TZ", tz.c_str(), 1);
 }
-void RTCComponent::setup(){
+void RTCComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up RTC...");
   tzset();
 }
-void RTCComponent::set_timezone(const std::string &tz){
+void RTCComponent::set_timezone(const std::string &tz) {
   setenv("TZ", tz.c_str(), 1);
   tzset();
 }
-std::string RTCComponent::get_timezone(){
+std::string RTCComponent::get_timezone() {
   const char *tz = getenv("TZ");
-  if (tz == nullptr){ 
+  if (tz == nullptr) {
     return {};
   } else {
     return std::string(tz);
   }
 }
-EsphomelibTime RTCComponent::now(){
+EsphomelibTime RTCComponent::now() {
   time_t t = ::time(nullptr);
   struct tm *c_tm = ::localtime(&t);
-  return convert_time_(c_tm, t);
+  return EsphomelibTime::from_tm(c_tm, t);
 }
-EsphomelibTime RTCComponent::utcnow(){
+EsphomelibTime RTCComponent::utcnow() {
   time_t t = ::time(nullptr);
   struct tm *c_tm = ::gmtime(&t);
-  return convert_time_(c_tm, t);
+  return EsphomelibTime::from_tm(c_tm, t);
 }
-std::string RTCComponent::strftime(const std::string &format, const EsphomelibTime &time){
-  assert(format.size() > 0);
+
+size_t EsphomelibTime::strftime(char *buffer, size_t buffer_len, const char *format) {
+  struct tm c_tm = this->to_c_tm();
+  return ::strftime(buffer, buffer_len, format, &c_tm);
+}
+EsphomelibTime EsphomelibTime::from_tm(struct tm *c_tm, time_t c_time) {
+  return EsphomelibTime{
+      .second = uint8_t(c_tm->tm_sec),
+      .minute = uint8_t(c_tm->tm_min),
+      .hour = uint8_t(c_tm->tm_hour),
+      .day_of_week = uint8_t(c_tm->tm_wday + 1),
+      .day_of_month = uint8_t(c_tm->tm_mday),
+      .day_of_year = uint16_t(c_tm->tm_yday + 1),
+      .month = uint8_t(c_tm->tm_mon + 1),
+      .year = uint16_t(c_tm->tm_year + 1900),
+      .is_daylight_savings_time = bool(c_tm->tm_isdst),
+      .time = c_time
+  };
+}
+struct tm EsphomelibTime::to_c_tm() {
+  struct tm c_tm = tm{
+      .tm_sec = this->second,
+      .tm_min = this->minute,
+      .tm_hour = this->hour,
+      .tm_mday = this->day_of_month,
+      .tm_mon = this->month - 1,
+      .tm_year = this->year - 1900,
+      .tm_wday = this->day_of_week - 1,
+      .tm_yday = this->day_of_year - 1,
+      .tm_isdst = this->is_daylight_savings_time
+  };
+  return c_tm;
+}
+std::string EsphomelibTime::strftime(const std::string &format) {
   std::string timestr;
   timestr.resize(format.size() * 4);
-  struct tm c_tm = revert_time_(time);
+  struct tm c_tm = this->to_c_tm();
   size_t len = ::strftime(&timestr[0], timestr.size(), format.c_str(), &c_tm);
-  while (len == 0){
+  while (len == 0) {
     timestr.resize(timestr.size() * 2);
     len = ::strftime(&timestr[0], timestr.size(), format.c_str(), &c_tm);
   }
@@ -92,4 +99,4 @@ std::string RTCComponent::strftime(const std::string &format, const EsphomelibTi
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_RTC_COMPONENT
+#endif //USE_TIME

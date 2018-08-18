@@ -17,6 +17,7 @@ namespace setup_priority {
 
 extern const float PRE_HARDWARE; ///< only for internal components that are necessary for hardware component initialization (like i2c bus)
 extern const float HARDWARE; ///< for hardware initialization, but only where it's really necessary (like outputs)
+extern const float POST_HARDWARE;
 extern const float WIFI; ///< for WiFi initialization
 extern const float MQTT_CLIENT; ///< for the MQTT client initialization
 extern const float HARDWARE_LATE;

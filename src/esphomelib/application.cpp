@@ -154,7 +154,9 @@ LogComponent *Application::init_log(uint32_t baud_rate,
 }
 
 #ifdef USE_OUTPUT
-PowerSupplyComponent *Application::make_power_supply(const GPIOOutputPin &pin, uint32_t enable_time, uint32_t keep_on_time) {
+PowerSupplyComponent *Application::make_power_supply(const GPIOOutputPin &pin,
+                                                     uint32_t enable_time,
+                                                     uint32_t keep_on_time) {
   auto *atx = new PowerSupplyComponent(pin.copy(), enable_time, keep_on_time);
   return this->register_component(atx);
 }
@@ -745,7 +747,6 @@ Application::MakeRotaryEncoderSensor Application::make_rotary_encoder_sensor(con
 }
 #endif
 
-
 mqtt::MQTTMessageTrigger *Application::make_mqtt_message_trigger(const std::string &topic, uint8_t qos) {
   return global_mqtt_client->make_message_trigger(topic, qos);
 }
@@ -779,7 +780,7 @@ Application::MakeMAX6675Sensor Application::make_max6675_sensor(const std::strin
       new MAX6675Sensor(name, spi_bus, cs.copy(), update_interval)
   );
 
-  return MakeMAX6675Sensor {
+  return MakeMAX6675Sensor{
       .max6675 = sensor,
       .mqtt = this->register_sensor(sensor),
   };
@@ -902,8 +903,8 @@ UARTComponent *Application::init_uart(int8_t tx_pin, int8_t rx_pin, uint32_t bau
 SPIComponent *Application::init_spi(const GPIOOutputPin &clk, const GPIOInputPin &miso, const GPIOOutputPin &mosi) {
   return this->register_component(new SPIComponent(clk.copy(), miso.copy(), mosi.copy()));
 }
-SPIComponent *Application::init_spi(const GPIOOutputPin &clk, const GPIOInputPin &miso) {
-  return this->register_component(new SPIComponent(clk.copy(), miso.copy(), nullptr));
+SPIComponent *Application::init_spi(const GPIOOutputPin &clk) {
+  return this->register_component(new SPIComponent(clk.copy(), nullptr, nullptr));
 }
 #endif
 
@@ -967,13 +968,15 @@ sensor::HMC5883LComponent *Application::make_hmc5883l(uint32_t update_interval) 
 #endif
 
 #ifdef USE_HX711
-Application::MakeHX711Sensor Application::make_hx711_sensor(const std::string &name, const GPIOInputPin &dout, const GPIOOutputPin &sck,
+Application::MakeHX711Sensor Application::make_hx711_sensor(const std::string &name,
+                                                            const GPIOInputPin &dout,
+                                                            const GPIOOutputPin &sck,
                                                             uint32_t update_interval) {
   auto *hx711 = this->register_component(new HX711Sensor(name, dout.copy(), sck.copy(), update_interval));
 
-  return MakeHX711Sensor {
-    .hx711 = hx711,
-    .mqtt = this->register_sensor(hx711),
+  return MakeHX711Sensor{
+      .hx711 = hx711,
+      .mqtt = this->register_sensor(hx711),
   };
 }
 #endif
@@ -986,7 +989,7 @@ Application::MakeMS5611Sensor Application::make_ms5611_sensor(const std::string 
       new MS5611Component(this->i2c_, temperature_name, pressure_name, update_interval)
   );
 
-  return MakeMS5611Sensor {
+  return MakeMS5611Sensor{
       .ms5611 = ms5611,
       .mqtt_temperature = this->register_sensor(ms5611->get_temperature_sensor()),
       .mqtt_pressure = this->register_sensor(ms5611->get_pressure_sensor()),
@@ -1009,7 +1012,88 @@ sensor::TCS34725Component *Application::make_tcs34725(uint32_t update_interval) 
 }
 #endif
 
-#ifdef USE_RTC_COMPONENT
+#ifdef USE_MAX7219
+display::MAX7219Component *Application::make_max7219(SPIComponent *parent,
+                                                     const GPIOOutputPin &cs,
+                                                     uint32_t update_interval) {
+  return this->register_component(new display::MAX7219Component(parent, cs.copy(), update_interval));
+}
+#endif
+
+#ifdef USE_LCD_DISPLAY_PCF8574
+display::PCF8574LCDDisplay *Application::make_pcf8574_lcd_display(uint8_t columns,
+                                                                  uint8_t rows,
+                                                                  uint8_t address,
+                                                                  uint32_t update_interval) {
+  return this->register_component(new display::PCF8574LCDDisplay(this->i2c_, columns, rows, address, update_interval));
+}
+#endif
+
+#ifdef USE_SSD1306
+#ifdef USE_SPI
+display::SPISSD1306 *Application::make_spi_ssd1306(SPIComponent *parent,
+                                                   const GPIOOutputPin &cs,
+                                                   const GPIOOutputPin &dc,
+                                                   uint32_t update_interval) {
+  return this->register_component(new display::SPISSD1306(parent, cs.copy(), dc.copy(), update_interval));
+}
+#endif
+
+#ifdef USE_I2C
+display::I2CSSD1306 *Application::make_i2c_ssd1306(uint32_t update_interval) {
+  return this->register_component(new display::I2CSSD1306(this->i2c_, update_interval));
+}
+#endif
+#endif
+
+#ifdef USE_WAVESHARE_EPAPER
+display::WaveshareEPaperTypeA *Application::make_waveshare_epaper_type_a(SPIComponent *parent,
+                                                                         const GPIOOutputPin &cs,
+                                                                         const GPIOOutputPin &dc_pin,
+                                                                         display::WaveshareEPaperTypeAModel model,
+                                                                         uint32_t update_interval) {
+  return this->register_component(
+      new display::WaveshareEPaperTypeA(parent, cs.copy(), dc_pin.copy(), model, update_interval)
+  );
+}
+
+display::WaveshareEPaper *Application::make_waveshare_epaper_type_b(SPIComponent *parent,
+                                                                    const GPIOOutputPin &cs,
+                                                                    const GPIOOutputPin &dc_pin,
+                                                                    display::WaveshareEPaperTypeBModel model,
+                                                                    uint32_t update_interval) {
+  display::WaveshareEPaper *ret = nullptr;
+  switch (model) {
+    case display::WAVESHARE_EPAPER_2_7_IN:
+      ret = new display::WaveshareEPaper2P7In(parent, cs.copy(), dc_pin.copy(), update_interval);
+      break;
+    case display::WAVESHARE_EPAPER_4_2_IN:
+      ret = new display::WaveshareEPaper4P2In(parent, cs.copy(), dc_pin.copy(), update_interval);
+      break;
+    case display::WAVESHARE_EPAPER_7_5_IN:
+      ret = new display::WaveshareEPaper7P5In(parent, cs.copy(), dc_pin.copy(), update_interval);
+      break;
+  }
+  return this->register_component(ret);
+}
+#endif
+
+#ifdef USE_DISPLAY
+display::Font *Application::make_font(std::vector<display::Glyph> &&glyphs, int baseline, int bottom) {
+  return new display::Font(std::move(glyphs), baseline, bottom);
+}
+display::Image *Application::make_image(const uint8_t *data_start, int width, int height) {
+  return new display::Image(data_start, width, height);
+}
+#endif
+
+#ifdef USE_LCD_DISPLAY
+display::GPIOLCDDisplay *Application::make_gpio_lcd_display(uint8_t columns, uint8_t rows, uint32_t update_interval) {
+  return this->register_component(new display::GPIOLCDDisplay(columns, rows, update_interval));
+}
+#endif
+
+#ifdef USE_TIME
 RTCComponent *Application::make_rtc_component(const std::string &tz) {
   return this->register_component(new RTCComponent(tz));
 }
@@ -1017,9 +1101,9 @@ RTCComponent *Application::make_rtc_component(const std::string &tz) {
 
 #ifdef USE_SNTP_COMPONENT
 SNTPComponent *Application::make_sntp_component(const std::string &server_1,
-		                                const std::string &server_2,
-						const std::string &server_3,
-						const std::string &tz) {
+                                                const std::string &server_2,
+                                                const std::string &server_3,
+                                                const std::string &tz) {
   return this->register_component(new SNTPComponent(server_1, server_2, server_3, tz));
 }
 #endif

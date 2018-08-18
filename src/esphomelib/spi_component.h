@@ -37,6 +37,9 @@ class SPIComponent : public Component {
 
   float get_setup_priority() const override;
 
+  void set_miso(const GPIOInputPin &miso);
+  void set_mosi(const GPIOOutputPin &mosi);
+
  protected:
   GPIOPin *clk_;
   GPIOPin *miso_;

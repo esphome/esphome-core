@@ -103,6 +103,15 @@
   #define USE_MS5611
   #define USE_HX711
   #define USE_TCS34725
+  #define USE_MAX7219
+  #define USE_LCD_DISPLAY
+  #define USE_LCD_DISPLAY_PCF8574
+  #define USE_SSD1306
+  #define USE_WAVESHARE_EPAPER
+  #define USE_DISPLAY
+  #define USE_TIME
+  #define USE_TIME
+  #define USE_SNTP_COMPONENT
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -155,6 +164,14 @@
   #endif
   #ifndef USE_SPI
     #define USE_SPI
+  #endif
+#endif
+#ifdef USE_MAX7219
+  #ifndef USE_SPI
+    #define USE_SPI
+  #endif
+  #ifndef USE_DISPLAY
+    #define USE_DISPLAY
   #endif
 #endif
 #ifdef USE_RDM6300
@@ -457,6 +474,34 @@
 #ifdef USE_TEMPLATE_COVER
   #ifndef USE_COVER
     #define USE_COVER
+  #endif
+#endif
+#ifdef USE_LCD_DISPLAY_PCF8574
+  #ifndef USE_LCD_DISPLAY
+    #define USE_LCD_DISPLAY
+  #endif
+  #ifndef USE_I2C
+    #define USE_I2C
+  #endif
+#endif
+#ifdef USE_LCD_DISPLAY
+  #ifndef USE_DISPLAY
+    #define USE_DISPLAY
+  #endif
+#endif
+#ifdef USE_SSD1306
+  #ifndef USE_DISPLAY
+    #define USE_DISPLAY
+  #endif
+#endif
+#ifdef USE_WAVESHARE_EPAPER
+  #ifndef USE_DISPLAY
+    #define USE_DISPLAY
+  #endif
+#endif
+#ifdef USE_SNTP_COMPONENT
+  #ifndef USE_TIME
+    #define USE_TIME
   #endif
 #endif
 

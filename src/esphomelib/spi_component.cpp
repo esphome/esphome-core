@@ -79,25 +79,17 @@ void SPIComponent::write_array(uint8_t *data, size_t length) {
 }
 
 void SPIComponent::enable(GPIOPin *cs, bool msb_first) {
-  assert(this->active_cs_ == nullptr);
-
   ESP_LOGVV(TAG, "Enabling SPI Chip on pin %u...", cs->get_pin());
   cs->digital_write(false);
 
   this->active_cs_ = cs;
   this->msb_first_ = msb_first;
-  // yield();
-  // delay(1);
 }
 
 void SPIComponent::disable() {
-  assert(this->active_cs_ != nullptr);
-
   ESP_LOGVV(TAG, "Disabling SPI Chip on pin %u...", this->active_cs_->get_pin());
   this->active_cs_->digital_write(true);
   this->active_cs_ = nullptr;
-  // yield();
-  // delay(1);
 }
 void SPIComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SPI bus...");
@@ -113,6 +105,12 @@ void SPIComponent::setup() {
 }
 float SPIComponent::get_setup_priority() const {
   return setup_priority::PRE_HARDWARE;
+}
+void SPIComponent::set_miso(const GPIOInputPin &miso) {
+  this->miso_ = miso.copy();
+}
+void SPIComponent::set_mosi(const GPIOOutputPin &mosi) {
+  this->mosi_ = mosi.copy();
 }
 
 SPIDevice::SPIDevice(SPIComponent *parent, GPIOPin *cs)

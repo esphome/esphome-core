@@ -17,6 +17,7 @@ namespace setup_priority {
 
 const float PRE_HARDWARE = 110.0f;
 const float HARDWARE = 100.0f;
+const float POST_HARDWARE = 90.0f;
 const float WIFI = 10.0f;
 const float MQTT_CLIENT = 7.5f;
 const float HARDWARE_LATE = 0.0f;
