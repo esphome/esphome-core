@@ -21,28 +21,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace display {
 
-static const uint8_t SSD1306_COMMAND_DISPLAY_OFF = 0xAF;
-static const uint8_t SSD1306_COMMAND_DISPLAY_ON = 0xAE;
-static const uint8_t SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV = 0xD5;
-static const uint8_t SSD1306_COMMAND_SET_MULTIPLEX = 0xA8;
-static const uint8_t SSD1306_COMMAND_SET_DISPLAY_OFFSET = 0xD3;
-static const uint8_t SSD1306_COMMAND_SET_START_LINE = 0x40;
-static const uint8_t SSD1306_COMMAND_CHARGE_PUMP = 0x8D;
-static const uint8_t SSD1306_COMMAND_MEMORY_MODE = 0x20;
-static const uint8_t SSD1306_COMMAND_SEGRE_MAP = 0xA0;
-static const uint8_t SSD1306_COMMAND_COM_SCAN_INC = 0xC0;
-static const uint8_t SSD1306_COMMAND_COM_SCAN_DEC = 0xC8;
-static const uint8_t SSD1306_COMMAND_SET_COM_PINS = 0xDA;
-static const uint8_t SSD1306_COMMAND_SET_CONTRAST = 0x81;
-static const uint8_t SSD1306_COMMAND_SET_PRE_CHARGE = 0xD9;
-static const uint8_t SSD1306_COMMAND_SET_VCOM_DETECT = 0xDB;
-static const uint8_t SSD1306_COMMAND_DISPLAY_ALL_ON_RESUME = 0xA4;
-static const uint8_t SSD1306_COMMAND_DEACTIVATE_SCROLL = 0x2E;
-static const uint8_t SSD1306_COMMAND_COLUMN_ADDRESS = 0x21;
-static const uint8_t SSD1306_COMMAND_PAGE_ADDRESS = 0x22;
-
-static const uint8_t SSD1306_NORMAL_DISPLAY = 0xA6;
-
 enum SSD1306Model {
   SSD1306_MODEL_128_32 = 0,
   SSD1306_MODEL_128_64,

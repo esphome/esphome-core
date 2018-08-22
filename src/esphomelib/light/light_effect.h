@@ -65,12 +65,14 @@ class RandomLightEffect : public LightEffect {
 
 class LambdaLightEffect : public LightEffect {
  public:
-  LambdaLightEffect(const std::string &name, const std::function<void()> &f);
+  LambdaLightEffect(const std::string &name, const std::function<void()> &f, uint32_t update_interval);
 
   void apply() override;
 
  protected:
   std::function<void()> f_;
+  uint32_t update_interval_;
+  uint32_t last_run_{0};
 };
 
 struct StrobeLightEffectColor {

@@ -73,7 +73,7 @@ void RDM6300Component::loop() {
         }
 
         if (report) {
-          ESP_LOGD(TAG, "Found new card with ID %u", result);
+          ESP_LOGD(TAG, "Found new tag with ID %u", result);
         }
       }
     }

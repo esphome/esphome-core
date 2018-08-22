@@ -148,8 +148,8 @@ class BME680Component : public PollingComponent, public I2CDevice {
   BME680Oversampling pressure_oversampling_{BME680_OVERSAMPLING_16X};
   BME680Oversampling humidity_oversampling_{BME680_OVERSAMPLING_16X};
   BME680IIRFilter iir_filter_{BME680_IIR_FILTER_OFF};
-  uint16_t heater_temperature_{0};
-  uint16_t heater_duration_{0};
+  uint16_t heater_temperature_{320};
+  uint16_t heater_duration_{150};
 
   BME680TemperatureSensor *temperature_sensor_;
   BME680PressureSensor *pressure_sensor_;

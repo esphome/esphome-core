@@ -250,10 +250,10 @@ class Application {
   display::SPISSD1306 *make_spi_ssd1306(SPIComponent *parent,
                                         const GPIOOutputPin &cs,
                                         const GPIOOutputPin &dc,
-                                        uint32_t update_interval = 1000);
+                                        uint32_t update_interval = 5000);
 #endif
 #ifdef USE_I2C
-  display::I2CSSD1306 *make_i2c_ssd1306(uint32_t update_interval = 1000);
+  display::I2CSSD1306 *make_i2c_ssd1306(uint32_t update_interval = 5000);
 #endif
 #endif
 

@@ -123,17 +123,17 @@ void DisplayBuffer::filled_rectangle(int x1, int y1, int width, int height, int 
     this->horizontal_line(x1, i, width, color);
   }
 }
-void DisplayBuffer::circle(int x_mid, int y_mid, int radius, int color) {
+void DisplayBuffer::circle(int center_x, int center_xy, int radius, int color) {
   int dx = -radius;
   int dy = 0;
   int err = 2 - 2 * radius;
   int e2;
 
   do {
-    this->draw_pixel_at(x_mid - dx, y_mid + dy, color);
-    this->draw_pixel_at(x_mid + dx, y_mid + dy, color);
-    this->draw_pixel_at(x_mid + dx, y_mid - dy, color);
-    this->draw_pixel_at(x_mid - dx, y_mid - dy, color);
+    this->draw_pixel_at(center_x - dx, center_xy + dy, color);
+    this->draw_pixel_at(center_x + dx, center_xy + dy, color);
+    this->draw_pixel_at(center_x + dx, center_xy - dy, color);
+    this->draw_pixel_at(center_x - dx, center_xy - dy, color);
     e2 = err;
     if (e2 < dy) {
       err += ++dy * 2 + 1;
@@ -303,9 +303,11 @@ void DisplayBuffer::printf(int x, int y, Font *font, const char *format, ...) {
 void DisplayBuffer::set_writer(display_writer_t &&writer) {
   this->writer_ = std::move(writer);
 }
-uint8_t *DisplayBuffer::do_update() {
-  if (this->writer_.has_value())
+void *DisplayBuffer::do_update() {
+  if (this->writer_.has_value()) {
+    this->clear();
     (*this->writer_)(*this);
+  }
 }
 #ifdef USE_TIME
 void DisplayBuffer::strftime(int x, int y, Font *font, int color, TextAlign align, const char *format,

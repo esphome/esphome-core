@@ -110,7 +110,6 @@
   #define USE_WAVESHARE_EPAPER
   #define USE_DISPLAY
   #define USE_TIME
-  #define USE_TIME
   #define USE_SNTP_COMPONENT
 #endif
 

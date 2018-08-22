@@ -39,6 +39,14 @@ class LightColorValues {
 
   LightColorValues(bool state, float brightness, float red, float green, float blue, float white);
 
+  static LightColorValues from_binary(bool state);
+
+  static LightColorValues from_monochromatic(float brightness);
+
+  static LightColorValues from_rgb(float r, float g, float b);
+
+  static LightColorValues from_rgbw(float r, float g, float b, float w);
+
   /** Linearly interpolate between the values in start to the values in end.
    *
    * This function linearly interpolates the color value by just interpolating every attribute

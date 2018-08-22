@@ -114,7 +114,7 @@ void PN532Component::loop() {
       }
       offset += sprintf(buf + offset, format, this->buffer_[13 + i]);
     }
-    ESP_LOGD(TAG, "Found new tag %s", buf);
+    ESP_LOGD(TAG, "Found new tag '%s'", buf);
   }
 }
 

@@ -65,13 +65,17 @@ void LightEffect::init_(LightState *state) {
   this->init();
 }
 
-LambdaLightEffect::LambdaLightEffect(const std::string &name, const std::function<void()> &f)
-    : LightEffect(name), f_(f) {
+LambdaLightEffect::LambdaLightEffect(const std::string &name, const std::function<void()> &f, uint32_t update_interval)
+    : LightEffect(name), f_(f), update_interval_(update_interval) {
 
 }
 
 void LambdaLightEffect::apply() {
-  this->f_();
+  const uint32_t now = millis();
+  if (now - this->last_run_ >= this->update_interval_) {
+    this->last_run_ = now;
+    this->f_();
+  }
 }
 
 void StrobeLightEffect::apply() {

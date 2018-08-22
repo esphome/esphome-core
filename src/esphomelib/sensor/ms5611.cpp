@@ -105,10 +105,10 @@ void MS5611Component::calculate_values(uint32_t raw_temperature, uint32_t raw_pr
 
   const float pressure = ((raw_pressure * pressure_sensitivity) / 2097152.0f - pressure_offset) / 3276800.0f;
 
-  ESP_LOGCONFIG(TAG, "Got temperature=%0.02f°C pressure=%0.01fhPa", temperature, pressure * 100.0f);
+  ESP_LOGCONFIG(TAG, "Got temperature=%0.02f°C pressure=%0.01fhPa", temperature, pressure);
 
   this->temperature_sensor_->push_new_value(temperature);
-  this->pressure_sensor_->push_new_value(pressure * 100.0f); // hPa
+  this->pressure_sensor_->push_new_value(pressure); // hPa
   this->status_clear_warning();
 }
 MS5611TemperatureSensor *MS5611Component::get_temperature_sensor() const {

@@ -210,6 +210,31 @@ void LightColorValues::as_brightness(float *brightness) const {
 void LightColorValues::as_binary(bool *binary) const {
   *binary = this->state_ == 1.0f;
 }
+LightColorValues LightColorValues::from_binary(bool state) {
+  return {state, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+}
+LightColorValues LightColorValues::from_monochromatic(float brightness) {
+  if (brightness == 0.0f)
+    return {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+  else
+    return {1.0f, brightness, 1.0f, 1.0f, 1.0f, 1.0f};
+}
+LightColorValues LightColorValues::from_rgb(float r, float g, float b) {
+  float brightness = std::max(r, std::max(g, b));
+  if (brightness == 0.0f) {
+    return {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+  } else {
+    return {1.0f, brightness, r / brightness, g / brightness, b / brightness, 1.0f};
+  }
+}
+LightColorValues LightColorValues::from_rgbw(float r, float g, float b, float w) {
+  float brightness = std::max(r, std::max(g, std::max(b, w)));
+  if (brightness == 0.0f) {
+    return {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+  } else {
+    return {1.0f, brightness, r / brightness, g / brightness, b / brightness, w / brightness};
+  }
+}
 
 } // namespace light
 

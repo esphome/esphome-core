@@ -36,11 +36,14 @@ class BaseFastLEDLightEffect : public LightEffect {
 class FastLEDLambdaLightEffect : public BaseFastLEDLightEffect {
  public:
   FastLEDLambdaLightEffect(const std::string &name,
-                           const std::function<void(FastLEDLightOutputComponent &)> &f);
+                           const std::function<void(FastLEDLightOutputComponent &)> &f,
+                           uint32_t update_interval);
 
   void apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) override;
  protected:
   std::function<void(FastLEDLightOutputComponent &)> f_;
+  uint32_t update_interval_;
+  uint32_t last_run_{0};
 };
 
 /// Rainbow effect for FastLED

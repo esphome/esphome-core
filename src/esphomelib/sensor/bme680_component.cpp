@@ -244,32 +244,33 @@ void BME680Component::update() {
 }
 
 uint8_t BME680Component::calc_heater_resistance_(uint16_t temperature) {
-  float var1 = 0;
-  float var2 = 0;
-  float var3 = 0;
-  float var4 = 0;
-  float var5 = 0;
-  uint8_t res_heat = 0;
-
   if (temperature < 200) temperature = 200;
   if (temperature > 400) temperature = 400;
 
-  const float ambient_temperature = this->calibration_.ambient_temperature;
-  const float gh1 = this->calibration_.gh1;
-  const float gh2 = this->calibration_.gh2;
-  const float gh3 = this->calibration_.gh3;
-  const float res_heat_range = this->calibration_.res_heat_range;
-  const float res_heat_val = this->calibration_.res_heat_val;
+  const uint8_t ambient_temperature = this->calibration_.ambient_temperature;
+  const int8_t gh1 = this->calibration_.gh1;
+  const int16_t gh2 = this->calibration_.gh2;
+  const int8_t gh3 = this->calibration_.gh3;
+  const uint8_t res_heat_range = this->calibration_.res_heat_range;
+  const uint8_t res_heat_val = this->calibration_.res_heat_val;
 
-  var1 = (gh1 / 16.0f) + 49.0f;
-  var2 = ((gh2 / 32768.0f) * 0.0005f) + 0.00235f;
-  var3 = gh3 / 1024.0f;
-  var4 = var1 * (1.0f + var2 * float(temperature));
-  var5 = var4 + var3 * ambient_temperature;
-  res_heat = 3.4f * ((var5 * (4 / (4 + res_heat_range)) *
-      (1 / (1 + res_heat_val * 0.002f))) - 25);
+  uint8_t heatr_res;
+  int32_t var1;
+  int32_t var2;
+  int32_t var3;
+  int32_t var4;
+  int32_t var5;
+  int32_t heatr_res_x100;
 
-  return res_heat;
+  var1 = (((int32_t) ambient_temperature * gh3) / 1000) * 256;
+  var2 = (gh1 + 784) * (((((gh2 + 154009) * temperature * 5) / 100) + 3276800) / 10);
+  var3 = var1 + (var2 / 2);
+  var4 = (var3 / (res_heat_range + 4));
+  var5 = (131 * res_heat_val) + 65536;
+  heatr_res_x100 = (int32_t) (((var4 / var5) - 250) * 34);
+  heatr_res = (uint8_t) ((heatr_res_x100 + 50) / 100);
+
+  return heatr_res;
 }
 uint8_t BME680Component::calc_heater_duration_(uint16_t duration) {
   uint8_t factor = 0;
@@ -303,7 +304,10 @@ void BME680Component::read_data_() {
   float temperature = this->calc_temperature_(raw_temperature);
   float pressure = this->calc_pressure_(raw_pressure);
   float humidity = this->calc_humidity_(raw_humidity);
-  float gas_resistance = this->calc_gas_resistance_(raw_gas, gas_range);
+  float gas_resistance = NAN;
+  if (data[14] & 0x20) {
+    gas_resistance = this->calc_gas_resistance_(raw_gas, gas_range);
+  }
 
   ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%% gas_resistance=%.1fΩ",
            temperature, pressure, humidity, gas_resistance);

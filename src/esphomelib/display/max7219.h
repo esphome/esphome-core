@@ -43,17 +43,21 @@ class MAX7219Component : public PollingComponent, public SPIDevice {
   void set_intensity(uint8_t intensity);
   void set_num_chips(uint8_t num_chips);
 
+  /// Evaluate the printf-format and print the result at the given position.
   uint8_t printf(uint8_t pos, const char *format, ...);
+  /// Evaluate the printf-format and print the result at position 0.
   uint8_t printf(const char *format, ...);
 
+  /// Print `str` at the given position.
   uint8_t print(uint8_t pos, const char *str);
-  uint8_t print(uint8_t pos, const std::string &str);
+  /// Print `str` at position 0.
   uint8_t print(const char *str);
-  uint8_t print(const std::string &str);
 
 #ifdef USE_TIME
+  /// Evaluate the strftime-format and print the result at the given position.
   uint8_t strftime(uint8_t pos, const char *format, time::EsphomelibTime time);
 
+  /// Evaluate the strftime-format and print the result at position 0.
   uint8_t strftime(const char *format, time::EsphomelibTime time);
 #endif
 

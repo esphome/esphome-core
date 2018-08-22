@@ -36,15 +36,23 @@ class LCDDisplay : public PollingComponent {
   void update() override;
   void display();
 
+  /// Print the given text at the specified column and row.
   void print(uint8_t column, uint8_t row, const char *str);
+  /// Print the given string at the specified column and row.
   void print(uint8_t column, uint8_t row, const std::string &str);
+  /// Print the given text at column=0 and row=0.
   void print(const char *str);
+  /// Print the given string at column=0 and row=0.
   void print(const std::string &str);
+  /// Evaluate the printf-format and print the text at the specified column and row.
   void printf(uint8_t column, uint8_t row, const char *format, ...);
+  /// Evaluate the printf-format and print the text at column=0 and row=0.
   void printf(const char *format, ...);
 
 #ifdef USE_TIME
+  /// Evaluate the strftime-format and print the text at the specified column and row.
   void strftime(uint8_t column, uint8_t row, const char *format, time::EsphomelibTime time);
+  /// Evaluate the strftime-format and print the text at column=0 and row=0.
   void strftime(const char *format, time::EsphomelibTime time);
 #endif
 

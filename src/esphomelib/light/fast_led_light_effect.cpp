@@ -81,12 +81,17 @@ void FastLEDRainbowLightEffect::set_width(uint32_t width) {
   this->width_ = width;
 }
 FastLEDLambdaLightEffect::FastLEDLambdaLightEffect(const std::string &name,
-                                                   const std::function<void(FastLEDLightOutputComponent &)> &f)
-    : BaseFastLEDLightEffect(name), f_(f) {
+                                                   const std::function<void(FastLEDLightOutputComponent &)> &f,
+                                                   uint32_t update_interval)
+    : BaseFastLEDLightEffect(name), f_(f), update_interval_(update_interval) {
 
 }
 void FastLEDLambdaLightEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) {
-  this->f_(fastled);
+  const uint32_t now = millis();
+  if (now - this->last_run_ >= this->update_interval_) {
+    this->last_run_ = now;
+    this->f_(fastled);
+  }
 }
 
 inline static uint8_t half_sin8(uint8_t v) {

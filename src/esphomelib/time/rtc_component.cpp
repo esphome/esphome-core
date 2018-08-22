@@ -64,7 +64,7 @@ EsphomelibTime EsphomelibTime::from_tm(struct tm *c_tm, time_t c_time) {
       .day_of_year = uint16_t(c_tm->tm_yday + 1),
       .month = uint8_t(c_tm->tm_mon + 1),
       .year = uint16_t(c_tm->tm_year + 1900),
-      .is_daylight_savings_time = bool(c_tm->tm_isdst),
+      .is_dst = bool(c_tm->tm_isdst),
       .time = c_time
   };
 }
@@ -78,7 +78,7 @@ struct tm EsphomelibTime::to_c_tm() {
       .tm_year = this->year - 1900,
       .tm_wday = this->day_of_week - 1,
       .tm_yday = this->day_of_year - 1,
-      .tm_isdst = this->is_daylight_savings_time
+      .tm_isdst = this->is_dst
   };
   return c_tm;
 }
@@ -93,6 +93,9 @@ std::string EsphomelibTime::strftime(const std::string &format) {
   }
   timestr.resize(len);
   return timestr;
+}
+bool EsphomelibTime::is_valid() const {
+  return this->year >= 2018;
 }
 
 } // namespace time

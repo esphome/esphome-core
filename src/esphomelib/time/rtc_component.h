@@ -26,7 +26,7 @@ struct EsphomelibTime {
    * @note second is generally 0-59; the extra range is to accommodate leap seconds.
    */
   uint8_t second;
-  /// minuntes after the hour [0-59]
+  /// minutes after the hour [0-59]
   uint8_t minute;
   /// hours since midnight [0-23]
   uint8_t hour;
@@ -41,7 +41,7 @@ struct EsphomelibTime {
   /// year
   uint16_t year;
   /// daylight savings time flag
-  bool is_daylight_savings_time;
+  bool is_dst;
   /// unix epoch time (seconds since UTC Midnight January 1, 1970)
   time_t time;
 
@@ -59,6 +59,8 @@ struct EsphomelibTime {
    * microcontrollers.
    */
   std::string strftime(const std::string &format);
+
+  bool is_valid() const;
 
   static EsphomelibTime from_tm(struct tm *c_tm, time_t c_time);
 
