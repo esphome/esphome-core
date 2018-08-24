@@ -43,7 +43,7 @@ MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
 
 void MQTTJSONLightComponent::publish_state() {
   LightColorValues remote_values = this->state_->get_remote_values();
-  remote_values.save_to_preferences(this->state_->get_name());
+  remote_values.save_to_preferences(this->state_->get_name(), this->state_->get_traits());
   this->send_json_message(this->get_state_topic(), [&](JsonBuffer &buffer, JsonObject &root) {
     this->state_->dump_json(buffer, root);
   });
@@ -59,6 +59,8 @@ void MQTTJSONLightComponent::send_discovery(JsonBuffer &buffer, JsonObject &root
     root["brightness"] = true;
   if (this->state_->get_traits().has_rgb())
     root["rgb"] = true;
+  if (this->state_->get_traits().has_color_temperature())
+    root["color_temp"] = true;
   root["flash"] = true;
   if (this->state_->get_traits().has_rgb_white_value())
     root["white_value"] = true;

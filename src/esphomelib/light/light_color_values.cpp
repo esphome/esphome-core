@@ -16,6 +16,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
 #include "esphomelib/esppreferences.h"
+#include "light_color_values.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -87,45 +88,59 @@ LightColorValues LightColorValues::lerp(const LightColorValues &start, const Lig
   v.set_green(esphomelib::lerp(start.get_green(), end.get_green(), completion));
   v.set_blue(esphomelib::lerp(start.get_blue(), end.get_blue(), completion));
   v.set_white(esphomelib::lerp(start.get_white(), end.get_white(), completion));
+  v.set_color_temperature(esphomelib::lerp(start.get_color_temperature(), end.get_color_temperature(), completion));
 
   return v;
 }
 
 LightColorValues::LightColorValues(float state, float brightness, float red, float green, float blue,
-                                   float white) {
+                                   float white, float color_temperature) {
   this->set_state(state);
   this->set_brightness(brightness);
   this->set_red(red);
   this->set_green(green);
   this->set_blue(blue);
   this->set_white(white);
+  this->set_color_temperature(color_temperature);
 }
 
 LightColorValues::LightColorValues(bool state, float brightness, float red, float green, float blue,
-                                   float white)
-  : LightColorValues(state ? 1.0f : 0.0f, brightness, red, green, blue, white) {
+                                   float white, float color_temperature)
+  : LightColorValues(state ? 1.0f : 0.0f, brightness, red, green, blue, white, color_temperature) {
 
 }
 
-void LightColorValues::load_from_preferences(const std::string &friendly_name) {
+void LightColorValues::load_from_preferences(const std::string &friendly_name, const LightTraits &traits) {
   this->set_state(global_preferences.get_float(friendly_name, "state", this->get_state()));
-  this->set_brightness(global_preferences.get_float(friendly_name, "brightness", this->get_brightness()));
-  this->set_red(global_preferences.get_float(friendly_name, "red", this->get_red()));
-  this->set_green(global_preferences.get_float(friendly_name, "green", this->get_green()));
-  this->set_blue(global_preferences.get_float(friendly_name, "blue", this->get_blue()));
-  this->set_white(global_preferences.get_float(friendly_name, "white", this->get_white()));
+  if (traits.has_brightness())
+    this->set_brightness(global_preferences.get_float(friendly_name, "brightness", this->get_brightness()));
+  if (traits.has_rgb()) {
+    this->set_red(global_preferences.get_float(friendly_name, "red", this->get_red()));
+    this->set_green(global_preferences.get_float(friendly_name, "green", this->get_green()));
+    this->set_blue(global_preferences.get_float(friendly_name, "blue", this->get_blue()));
+  }
+  if (traits.has_rgb_white_value())
+    this->set_white(global_preferences.get_float(friendly_name, "white", this->get_white()));
+  if (traits.has_color_temperature())
+    this->set_color_temperature(global_preferences.get_float(friendly_name, "color_temp", this->get_color_temperature()));
 }
 
-void LightColorValues::save_to_preferences(const std::string &friendly_name) const {
+void LightColorValues::save_to_preferences(const std::string &friendly_name, const LightTraits &traits) const {
   global_preferences.put_float(friendly_name, "state", this->get_state());
-  global_preferences.put_float(friendly_name, "brightness", this->get_brightness());
-  global_preferences.put_float(friendly_name, "red", this->get_red());
-  global_preferences.put_float(friendly_name, "green", this->get_green());
-  global_preferences.put_float(friendly_name, "blue", this->get_blue());
-  global_preferences.put_float(friendly_name, "white", this->get_white());
+  if (traits.has_brightness())
+    global_preferences.put_float(friendly_name, "brightness", this->get_brightness());
+  if (traits.has_rgb()) {
+    global_preferences.put_float(friendly_name, "red", this->get_red());
+    global_preferences.put_float(friendly_name, "green", this->get_green());
+    global_preferences.put_float(friendly_name, "blue", this->get_blue());
+  }
+  if (traits.has_rgb_white_value())
+    global_preferences.put_float(friendly_name, "white", this->get_white());
+  if (traits.has_color_temperature())
+    global_preferences.put_float(friendly_name, "color_temp", this->get_color_temperature());
 }
 
-void LightColorValues::parse_json(const JsonObject &root) {
+void LightColorValues::parse_json(const JsonObject &root, const LightTraits &traits) {
   ESP_LOGV(TAG, "Parsing light color values JSON.");
   if (root.containsKey("state")) {
     auto val = parse_on_off(root["state"]);
@@ -135,12 +150,12 @@ void LightColorValues::parse_json(const JsonObject &root) {
     }
   }
 
-  if (root.containsKey("brightness")) {
+  if (traits.has_brightness() && root.containsKey("brightness")) {
     this->set_brightness(float(root["brightness"]) / 255.0f);
     ESP_LOGV(TAG, "    brightness=%.2f", this->get_brightness());
   }
 
-  if (root.containsKey("color")) {
+  if (traits.has_rgb() && root.containsKey("color")) {
     JsonObject &color = root["color"];
     if (color.containsKey("r") && color.containsKey("g") && color.containsKey("b")) {
       this->set_red(float(color["r"]) / 255.0f);
@@ -150,9 +165,14 @@ void LightColorValues::parse_json(const JsonObject &root) {
     }
   }
 
-  if (root.containsKey("white_value")) {
-    this->white_ = float(root["white_value"]) / 255.0f;
+  if (traits.has_rgb_white_value() && root.containsKey("white_value")) {
+    this->set_white(float(root["white_value"]) / 255.0f);
     ESP_LOGV(TAG, "    white_value=%.2f", this->get_white());
+  }
+
+  if (traits.has_color_temperature() && root.containsKey("color_temp")) {
+    this->set_color_temperature(root["color_temp"]);
+    ESP_LOGV(TAG, "    color temperature=%.1f mireds", this->get_color_temperature());
   }
 }
 
@@ -181,6 +201,8 @@ void LightColorValues::dump_json(JsonObject &root, const LightTraits &traits) co
   }
   if (traits.has_rgb_white_value())
     root["white_value"] = uint8_t(this->get_white() * 255);
+  if (traits.has_color_temperature())
+    root["color_temp"] = uint32_t(this->get_color_temperature());
 }
 
 bool LightColorValues::operator==(const LightColorValues &rhs) const {
@@ -189,7 +211,8 @@ bool LightColorValues::operator==(const LightColorValues &rhs) const {
       red_ == rhs.red_ &&
       green_ == rhs.green_ &&
       blue_ == rhs.blue_ &&
-      white_ == rhs.white_;
+      white_ == rhs.white_ &&
+      color_temperature_ == rhs.color_temperature_;
 }
 
 bool LightColorValues::operator!=(const LightColorValues &rhs) const {
@@ -198,6 +221,31 @@ bool LightColorValues::operator!=(const LightColorValues &rhs) const {
 void LightColorValues::as_rgbw(float *red, float *green, float *blue, float *white) const {
   this->as_rgb(red, green, blue);
   *white = this->state_ * this->brightness_ * this->white_;
+}
+
+void LightColorValues::as_rgbww(float color_temperature_cw,
+                                float color_temperature_ww,
+                                float *red,
+                                float *green,
+                                float *blue,
+                                float *cold_white,
+                                float *warm_white) const {
+  this->as_rgb(red, green, blue);
+  const float color_temp = clamp(color_temperature_cw, color_temperature_ww, this->color_temperature_);
+  const float ww_fraction = (color_temp - color_temperature_cw) / (color_temperature_ww - color_temperature_cw);
+  const float cw_fraction = 1.0f - ww_fraction;
+  *cold_white = this->state_ * this->brightness_ * this->white_ * cw_fraction;
+  *warm_white = this->state_ * this->brightness_ * this->white_ * ww_fraction;
+}
+void LightColorValues::as_cwww(float color_temperature_cw,
+                               float color_temperature_ww,
+                               float *cold_white,
+                               float *warm_white) const {
+  const float color_temp = clamp(color_temperature_cw, color_temperature_ww, this->color_temperature_);
+  const float ww_fraction = (color_temp - color_temperature_cw) / (color_temperature_ww - color_temperature_cw);
+  const float cw_fraction = 1.0f - ww_fraction;
+  *cold_white = this->state_ * this->brightness_ * cw_fraction;
+  *warm_white = this->state_ * this->brightness_ * ww_fraction;
 }
 void LightColorValues::as_rgb(float *red, float *green, float *blue) const {
   *red = this->state_ * this->brightness_ * this->red_;
@@ -234,6 +282,12 @@ LightColorValues LightColorValues::from_rgbw(float r, float g, float b, float w)
   } else {
     return {1.0f, brightness, r / brightness, g / brightness, b / brightness, w / brightness};
   }
+}
+float LightColorValues::get_color_temperature() const {
+  return this->color_temperature_;
+}
+void LightColorValues::set_color_temperature(float color_temperature) {
+  this->color_temperature_ = std::max(0.000001f, color_temperature);
 }
 
 } // namespace light

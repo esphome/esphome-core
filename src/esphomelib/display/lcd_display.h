@@ -45,15 +45,15 @@ class LCDDisplay : public PollingComponent {
   /// Print the given string at column=0 and row=0.
   void print(const std::string &str);
   /// Evaluate the printf-format and print the text at the specified column and row.
-  void printf(uint8_t column, uint8_t row, const char *format, ...);
+  void printf(uint8_t column, uint8_t row, const char *format, ...) __attribute__ ((format (printf, 4, 5)));
   /// Evaluate the printf-format and print the text at column=0 and row=0.
-  void printf(const char *format, ...);
+  void printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
 #ifdef USE_TIME
   /// Evaluate the strftime-format and print the text at the specified column and row.
-  void strftime(uint8_t column, uint8_t row, const char *format, time::EsphomelibTime time);
+  void strftime(uint8_t column, uint8_t row, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 4, 0)));
   /// Evaluate the strftime-format and print the text at column=0 and row=0.
-  void strftime(const char *format, time::EsphomelibTime time);
+  void strftime(const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 2, 0)));
 #endif
 
  protected:

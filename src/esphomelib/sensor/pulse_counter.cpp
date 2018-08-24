@@ -26,14 +26,18 @@ namespace sensor {
 
 static const char *TAG = "sensor.pulse_counter";
 
-PulseCounterSensorComponent::PulseCounterSensorComponent(const std::string &name,
-                                                         GPIOPin *pin,
-                                                         uint32_t update_interval)
-  : PollingSensorComponent(name, update_interval), pin_(pin) {
+PulseCounterBase::PulseCounterBase(GPIOPin *pin) : pin_(pin) {
 #ifdef ARDUINO_ARCH_ESP32
   this->pcnt_unit_ = next_pcnt_unit;
   next_pcnt_unit = pcnt_unit_t(int(next_pcnt_unit) + 1); // NOLINT
 #endif
+}
+
+PulseCounterSensorComponent::PulseCounterSensorComponent(const std::string &name,
+                                                         GPIOPin *pin,
+                                                         uint32_t update_interval)
+  : PollingSensorComponent(name, update_interval), PulseCounterBase(pin) {
+
 }
 void PulseCounterSensorComponent::set_edge_mode(PulseCounterCountMode rising_edge_mode, PulseCounterCountMode falling_edge_mode) {
   this->rising_edge_mode_ = rising_edge_mode;
@@ -42,13 +46,41 @@ void PulseCounterSensorComponent::set_edge_mode(PulseCounterCountMode rising_edg
 
 const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
 
+#ifdef ARDUINO_ARCH_ESP8266
+void PulseCounterBase::gpio_intr() {
+  const uint32_t now = micros();
+  if (now - this->last_pulse_ < this->filter_us_) {
+    return;
+  }
+  PulseCounterCountMode mode = this->pin_->digital_read() ? this->rising_edge_mode_ : this->falling_edge_mode_;
+  switch (mode) {
+    case PULSE_COUNTER_DISABLE: break;
+    case PULSE_COUNTER_INCREMENT:
+      this->counter_++;
+      break;
+    case PULSE_COUNTER_DECREMENT:
+      this->counter_--;
+      break;
+  }
+  this->last_pulse_ = now;
+}
+bool PulseCounterBase::pulse_counter_setup_() {
+  this->pin_->setup();
+  auto intr = std::bind(&PulseCounterSensorComponent::gpio_intr, this);
+  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
+  return true;
+}
+pulse_counter_t PulseCounterBase::read_raw_value_() {
+  pulse_counter_t counter = this->counter_;
+  pulse_counter_t ret = this->last_value_ - counter;
+  this->last_value_ = counter;
+  return ret;
+}
+#endif
+
 #ifdef ARDUINO_ARCH_ESP32
-void PulseCounterSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up pulse counter '%s'...", this->get_name().c_str());
+bool PulseCounterBase::pulse_counter_setup_() {
   ESP_LOGCONFIG(TAG, "    PCNT Unit Number: %u", this->pcnt_unit_);
-  ESP_LOGCONFIG(TAG, "    Pin %u", this->pin_->get_pin());
-  ESP_LOGCONFIG(TAG, "    Rising Edge: %s", EDGE_MODE_TO_STRING[this->rising_edge_mode_]);
-  ESP_LOGCONFIG(TAG, "    Falling Edge: %s", EDGE_MODE_TO_STRING[this->falling_edge_mode_]);
 
   pcnt_count_mode_t rising = PCNT_COUNT_DIS, falling = PCNT_COUNT_DIS;
   switch (this->rising_edge_mode_) {
@@ -77,8 +109,7 @@ void PulseCounterSensorComponent::setup() {
   esp_err_t error = pcnt_unit_config(&pcnt_config);
   if (error != ESP_OK) {
     ESP_LOGE(TAG, "Configuring Pulse Counter failed: %s", esp_err_to_name(error));
-    this->mark_failed();
-    return;
+    return false;
   }
 
   if (this->filter_us_ != 0) {
@@ -87,94 +118,57 @@ void PulseCounterSensorComponent::setup() {
     error = pcnt_set_filter_value(this->pcnt_unit_, filter_val);
     if (error != ESP_OK) {
       ESP_LOGE(TAG, "Setting filter value failed: %s", esp_err_to_name(error));
-      this->mark_failed();
-      return;
+      return false;
     }
     error = pcnt_filter_enable(this->pcnt_unit_);
     if (error != ESP_OK) {
       ESP_LOGE(TAG, "Enabling filter failed: %s", esp_err_to_name(error));
-      this->mark_failed();
-      return;
+      return false;
     }
   }
 
   error = pcnt_counter_pause(this->pcnt_unit_);
   if (error != ESP_OK) {
     ESP_LOGE(TAG, "Pausing pulse counter failed: %s", esp_err_to_name(error));
-    this->mark_failed();
-    return;
+    return false;
   }
   error = pcnt_counter_clear(this->pcnt_unit_);
   if (error != ESP_OK) {
     ESP_LOGE(TAG, "Clearing pulse counter failed: %s", esp_err_to_name(error));
-    this->mark_failed();
-    return;
+    return false;
   }
   error = pcnt_counter_resume(this->pcnt_unit_);
   if (error != ESP_OK) {
     ESP_LOGE(TAG, "Resuming pulse counter failed: %s", esp_err_to_name(error));
+    return false;
+  }
+}
+pulse_counter_t PulseCounterBase::read_raw_value_() {
+  pulse_counter_t counter;
+  pcnt_get_counter_value(this->pcnt_unit_, &counter);
+  pulse_counter_t ret = counter - this->last_value_;
+  this->last_value_ = counter;
+  return ret;
+}
+#endif
+
+void PulseCounterSensorComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up pulse counter '%s'...", this->get_name().c_str());
+  ESP_LOGCONFIG(TAG, "    Rising Edge: %s", EDGE_MODE_TO_STRING[this->rising_edge_mode_]);
+  ESP_LOGCONFIG(TAG, "    Falling Edge: %s", EDGE_MODE_TO_STRING[this->falling_edge_mode_]);
+  if (!this->pulse_counter_setup_()) {
     this->mark_failed();
     return;
   }
 }
-void PulseCounterSensorComponent::update() {
-  pulse_counter_t counter;
-  esp_err_t error = pcnt_get_counter_value(this->pcnt_unit_, &counter);
-  if (error != ESP_OK) {
-    ESP_LOGE(TAG, "Getting pulse counter value failed: %s", esp_err_to_name(error));
-    this->status_set_warning();
-    return;
-  }
-  pulse_counter_t delta = counter - this->last_value_;
-  this->last_value_ = counter;
-  float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
-
-  ESP_LOGD(TAG, "'%s': Retrieved counter (raw=%d): %0.2f pulses/min",
-           this->get_name().c_str(), counter, value);
-  this->push_new_value(value);
-  this->status_clear_warning();
-}
-#endif
-
-#ifdef ARDUINO_ARCH_ESP8266
-void PulseCounterSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up pulse counter '%s'...", this->get_name().c_str());
-  this->pin_->setup();
-  ESP_LOGCONFIG(TAG, "    Rising Edge: %s", EDGE_MODE_TO_STRING[this->rising_edge_mode_]);
-  ESP_LOGCONFIG(TAG, "    Falling Edge: %s", EDGE_MODE_TO_STRING[this->falling_edge_mode_]);
-
-  auto intr = std::bind(&PulseCounterSensorComponent::gpio_intr, this);
-  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
-}
 
 void PulseCounterSensorComponent::update() {
-  const pulse_counter_t counter = this->counter_;
-  pulse_counter_t delta = counter - this->last_value_;
-  this->last_value_ = counter;
-  float value = (60000.0f * delta) / float(this->get_update_interval()); // per minute
+  pulse_counter_t raw = this->read_raw_value_();
+  float value = (60000.0f * raw) / float(this->get_update_interval()); // per minute
 
-  ESP_LOGD(TAG, "'%s': Retrieved counter (raw=%d): %0.2f pulses/min",
-           this->get_name().c_str(), counter, value);
+  ESP_LOGD(TAG, "'%s': Retrieved counter: %0.2f pulses/min", this->get_name().c_str(), value);
   this->push_new_value(value);
 }
-void PulseCounterSensorComponent::gpio_intr() {
-  const uint32_t now = micros();
-  if (now - this->last_pulse_ < this->filter_us_) {
-    return;
-  }
-  PulseCounterCountMode mode = this->pin_->digital_read() ? this->rising_edge_mode_ : this->falling_edge_mode_;
-  switch (mode) {
-    case PULSE_COUNTER_DISABLE: break;
-    case PULSE_COUNTER_INCREMENT:
-      this->counter_++;
-      break;
-    case PULSE_COUNTER_DECREMENT:
-      this->counter_--;
-      break;
-  }
-  this->last_pulse_ = now;
-}
-#endif
 
 float PulseCounterSensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

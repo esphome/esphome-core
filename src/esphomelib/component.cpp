@@ -56,7 +56,9 @@ void Component::loop() {
 
 void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {
   // only put offset in lower half
-  uint32_t offset = (random_uint32() % interval) / 2;
+  uint32_t offset = 0;
+  if (interval != 0)
+    offset = (random_uint32() % interval) / 2;
   ESP_LOGV(TAG, "set_interval(name='%s', interval=%u, offset=%u)", name.c_str(), interval, offset);
 
   this->cancel_interval(name);
@@ -138,7 +140,7 @@ void Component::loop_internal() {
       // The vector might have reallocated due to new items
       tf = &this->time_functions_[i];
 
-      if (tf->type == TimeFunction::INTERVAL) {
+      if (tf->type == TimeFunction::INTERVAL && tf->interval != 0) {
         const uint32_t amount = (now - tf->last_execution) / tf->interval;
         tf->last_execution += (amount * tf->interval);
       } else if (tf->type == TimeFunction::DEFER || tf->type == TimeFunction::TIMEOUT) {
@@ -273,7 +275,7 @@ bool Component::TimeFunction::should_run(uint32_t now) const {
     return false;
   if (this->type == DEFER)
     return true;
-  return now - this->last_execution > this->interval;
+  return this->interval != 4294967295UL && now - this->last_execution > this->interval;
 }
 
 ESPHOMELIB_NAMESPACE_END

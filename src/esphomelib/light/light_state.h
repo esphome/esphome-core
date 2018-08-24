@@ -86,6 +86,19 @@ class LightState : public Nameable, public Component {
 
   void current_values_as_rgbw(float *red, float *green, float *blue, float *white);
 
+  void current_values_as_rgbww(float color_temperature_cw,
+                               float color_temperature_ww,
+                               float *red,
+                               float *green,
+                               float *blue,
+                               float *cold_white,
+                               float *warm_white);
+
+  void current_values_as_cwww(float color_temperature_cw,
+                              float color_temperature_ww,
+                              float *cold_white,
+                              float *warm_white);
+
   LightTraits get_traits();
 
   template<typename T>
@@ -232,6 +245,8 @@ class TurnOnAction : public Action<T> {
   void set_blue(float blue);
   void set_white(std::function<float(T)> &&white);
   void set_white(float white);
+  void set_color_temperature(std::function<float(T)> &&white);
+  void set_color_temperature(float white);
   void set_effect(std::function<std::string(T)> &&effect);
   void set_effect(std::string effect);
 
@@ -244,6 +259,7 @@ class TurnOnAction : public Action<T> {
   TemplatableValue<float, T> green_;
   TemplatableValue<float, T> blue_;
   TemplatableValue<float, T> white_;
+  TemplatableValue<float, T> color_temperature_;
   TemplatableValue<uint32_t, T> transition_length_;
   TemplatableValue<uint32_t, T> flash_length_;
   TemplatableValue<std::string, T> effect_;
@@ -328,6 +344,9 @@ void TurnOnAction<T>::play(T x) {
   if (this->white_.has_value()) {
     v.set_white(this->white_.value(x));
   }
+  if (this->color_temperature_.has_value()) {
+    v.set_color_temperature(this->color_temperature_.value(x));
+  }
   if (this->effect_.has_value()) {
     this->state_->start_effect(this->effect_.value(x));
   } else if (this->flash_length_.has_value()) {
@@ -394,6 +413,14 @@ void TurnOnAction<T>::set_white(std::function<float(T)> &&white) {
 template<typename T>
 void TurnOnAction<T>::set_white(float white) {
   this->white_ = white;
+}
+template<typename T>
+void TurnOnAction<T>::set_color_temperature(std::function<float(T)> &&color_temperature) {
+  this->color_temperature_ = std::move(color_temperature);
+}
+template<typename T>
+void TurnOnAction<T>::set_color_temperature(float color_temperature) {
+  this->color_temperature_ = color_temperature;
 }
 template<typename T>
 void TurnOnAction<T>::set_effect(std::function<std::string(T)> &&effect) {

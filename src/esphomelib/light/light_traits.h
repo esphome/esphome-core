@@ -19,13 +19,12 @@ class LightTraits {
  public:
   LightTraits();
 
-  LightTraits(bool brightness, bool rgb, bool rgb_white_value, bool fast_led = false);
-
-  bool supports_traits(const LightTraits &rhs) const;
+  LightTraits(bool brightness, bool rgb, bool rgb_white_value, bool fast_led = false, bool color_temperature = false);
 
   bool has_brightness() const;
   bool has_rgb() const;
   bool has_rgb_white_value() const;
+  bool has_color_temperature() const;
   /// Hack to allow FastLED light effects without dynamic_cast.
   bool has_fast_led() const;
 
@@ -33,6 +32,7 @@ class LightTraits {
   bool brightness_{false};
   bool rgb_{false};
   bool rgb_white_value_{false};
+  bool color_temperature_{false};
   bool fast_led_{false};
 };
 

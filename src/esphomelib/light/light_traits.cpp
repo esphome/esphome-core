@@ -15,13 +15,10 @@ namespace light {
 LightTraits::LightTraits()
     : brightness_(false), rgb_(false), rgb_white_value_(false) {}
 
-LightTraits::LightTraits(bool brightness, bool rgb, bool rgb_white_value, bool fast_led)
-    : brightness_(brightness), rgb_(rgb), rgb_white_value_(rgb_white_value), fast_led_(fast_led) {}
+LightTraits::LightTraits(bool brightness, bool rgb, bool rgb_white_value, bool fast_led, bool color_temperature)
+    : brightness_(brightness), rgb_(rgb), rgb_white_value_(rgb_white_value), fast_led_(fast_led),
+      color_temperature_(color_temperature) {}
 
-bool LightTraits::supports_traits(const LightTraits &rhs) const {
-  return (!rhs.brightness_ || this->brightness_) && (!rhs.rgb_ || this->rgb_) &&
-      (!rhs.rgb_white_value_ || this->rgb_white_value_) && (!rhs.fast_led_ || this->fast_led_);
-}
 bool LightTraits::has_brightness() const {
   return this->brightness_;
 }
@@ -33,6 +30,9 @@ bool LightTraits::has_rgb_white_value() const {
 }
 bool LightTraits::has_fast_led() const {
   return this->fast_led_;
+}
+bool LightTraits::has_color_temperature() const {
+  return this->color_temperature_;
 }
 
 } // namespace light

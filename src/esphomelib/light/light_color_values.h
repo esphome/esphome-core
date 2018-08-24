@@ -35,9 +35,9 @@ class LightColorValues {
   /// Construct the LightColorValues with all attributes enabled, but state set to 0.0
   LightColorValues();
 
-  LightColorValues(float state, float brightness, float red, float green, float blue, float white);
+  LightColorValues(float state, float brightness, float red, float green, float blue, float white, float color_temperature = 1.0f);
 
-  LightColorValues(bool state, float brightness, float red, float green, float blue, float white);
+  LightColorValues(bool state, float brightness, float red, float green, float blue, float white, float color_temperature = 1.0f);
 
   static LightColorValues from_binary(bool state);
 
@@ -64,14 +64,14 @@ class LightColorValues {
    * @param friendly_name The friendly name of the component that's calling this.
    * @see save_to_preferences()
    */
-  void load_from_preferences(const std::string &friendly_name);
+  void load_from_preferences(const std::string &friendly_name, const LightTraits &traits);
 
   /** Store these LightColorValues in the preferences object.
    *
    * @param friendly_name The friendly name of the component that's calling this.
    * @see load_from_preferences()
    */
-  void save_to_preferences(const std::string &friendly_name) const;
+  void save_to_preferences(const std::string &friendly_name, const LightTraits &traits) const;
 
   /** Parse a color from the provided JsonObject.
    *
@@ -79,7 +79,7 @@ class LightColorValues {
    *
    * @param root The json root object.
    */
-  void parse_json(const JsonObject &root);
+  void parse_json(const JsonObject &root, const LightTraits &traits);
 
   /** Dump this color into a JsonObject. Only dumps values if the corresponding traits are marked supported by traits.
    *
@@ -105,6 +105,10 @@ class LightColorValues {
 
   void as_rgbw(float *red, float *green, float *blue, float *white) const;
 
+  void as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green, float *blue, float *cold_white, float *warm_white) const;
+
+  void as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white, float *warm_white) const;
+
   /// Compare this LightColorValues to rhs, return true iff all attributes match.
   bool operator==(const LightColorValues &rhs) const;
   bool operator!=(const LightColorValues &rhs) const;
@@ -127,6 +131,9 @@ class LightColorValues {
   float get_white() const;
   void set_white(float white);
 
+  float get_color_temperature() const;
+  void set_color_temperature(float color_temperature);
+
  protected:
   float state_; ///< ON / OFF, float for transition
   float brightness_;
@@ -134,6 +141,7 @@ class LightColorValues {
   float green_;
   float blue_;
   float white_;
+  float color_temperature_; ///< Color Temperature in Mired
 };
 
 } // namespace light

@@ -28,7 +28,6 @@ uint8_t next_uart_num = 1;
 
 UARTComponent::UARTComponent(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate)
     : tx_pin_(tx_pin), rx_pin_(rx_pin), baud_rate_(baud_rate) {
-  assert(this->rx_pin_ != -1 || this->tx_pin_ != -1);
 #ifdef ARDUINO_ARCH_ESP32
   if (this->rx_pin_ == 3 && this->tx_pin_ == 1) {
     // Default UART for logging
@@ -78,6 +77,12 @@ bool UARTComponent::read_byte(uint8_t *data) {
     return false;
   *data = this->hw_serial_->read();
   ESP_LOGVV(TAG, "    Read 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(*data), *data);
+  return true;
+}
+bool UARTComponent::peek_byte(uint8_t *data) {
+  if (!this->check_read_timeout_())
+    return false;
+  *data = this->hw_serial_->peek();
   return true;
 }
 bool UARTComponent::read_array(uint8_t *data, size_t len) {
@@ -167,6 +172,16 @@ bool UARTComponent::read_byte(uint8_t *data) {
   ESP_LOGVV(TAG, "    Read 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(*data), *data);
   return true;
 }
+bool UARTComponent::peek_byte(uint8_t *data) {
+  if (!this->check_read_timeout_())
+    return false;
+  if (this->hw_serial_ != nullptr) {
+    *data = this->hw_serial_->peek();
+  } else {
+    *data = this->sw_serial_->peek_byte();
+  }
+  return true;
+}
 bool UARTComponent::read_array(uint8_t *data, size_t len) {
   if (!this->check_read_timeout_(len))
     return false;
@@ -192,6 +207,7 @@ bool UARTComponent::check_read_timeout_(size_t len) {
       ESP_LOGE(TAG, "Reading from UART timed out at byte %u!", this->available());
       return false;
     }
+    yield();
   }
   return true;
 }
@@ -300,6 +316,11 @@ uint8_t ESP8266SoftwareSerial::read_byte() {
   this->rx_out_pos_ = (this->rx_out_pos_ + 1) % this->rx_buffer_size_;
   return data;
 }
+uint8_t ESP8266SoftwareSerial::peek_byte() {
+  if (this->rx_in_pos_ == this->rx_out_pos_)
+    return 0;
+  return this->rx_buffer_[this->rx_out_pos_];
+}
 void ESP8266SoftwareSerial::flush() {
   this->rx_in_pos_ = this->rx_out_pos_ = 0;
 }
@@ -322,6 +343,9 @@ void UARTDevice::write_str(const char *str) {
 }
 bool UARTDevice::read_byte(uint8_t *data) {
   return this->parent_->read_byte(data);
+}
+bool UARTDevice::peek_byte(uint8_t *data) {
+  return this->parent_->peek_byte(data);
 }
 bool UARTDevice::read_array(uint8_t *data, size_t len) {
   return this->parent_->read_array(data, len);

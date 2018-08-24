@@ -35,6 +35,7 @@
 #include "esphomelib/display/lcd_display.h"
 #include "esphomelib/display/ssd1306.h"
 #include "esphomelib/display/waveshare_epaper.h"
+#include "esphomelib/display/nextion.h"
 #include "esphomelib/fan/basic_fan_component.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/i2c_component.h"
@@ -88,6 +89,7 @@
 #include "esphomelib/sensor/hx711.h"
 #include "esphomelib/sensor/ms5611.h"
 #include "esphomelib/sensor/tcs34725.h"
+#include "esphomelib/sensor/hlw8012.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
@@ -269,6 +271,10 @@ class Application {
                                                          const GPIOOutputPin &dc_pin,
                                                          display::WaveshareEPaperTypeBModel model,
                                                          uint32_t update_interval = 10000);
+#endif
+
+#ifdef USE_NEXTION
+  display::Nextion *make_nextion(UARTComponent *parent, uint32_t update_interval = 5000);
 #endif
 
 
@@ -869,6 +875,10 @@ class Application {
                                            const std::string &tz = "UTC");
 #endif
 
+#ifdef USE_HLW8012
+  sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 15000);
+#endif
+
 
 
 
@@ -998,6 +1008,21 @@ class Application {
   MakeLight make_rgbw_light(const std::string &friendly_name,
                             output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
                             output::FloatOutput *white);
+
+  MakeLight make_rgbww_light(const std::string &friendly_name,
+                             float cold_white_mireds,
+                             float warm_white_mireds,
+                             output::FloatOutput *red,
+                             output::FloatOutput *green,
+                             output::FloatOutput *blue,
+                             output::FloatOutput *cold_white,
+                             output::FloatOutput *warm_white);
+
+  MakeLight make_cwww_light(const std::string &friendly_name,
+                            float cold_white_mireds,
+                            float warm_white_mireds,
+                            output::FloatOutput *cold_white,
+                            output::FloatOutput *warm_white);
 #endif
 
 #ifdef USE_FAST_LED_LIGHT

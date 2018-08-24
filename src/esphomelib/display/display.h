@@ -180,7 +180,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, int color, TextAlign align, const char *format, ...);
+  void printf(int x, int y, Font *font, int color, TextAlign align, const char *format, ...) __attribute__ ((format (printf, 7, 8)));
 
   /** Evaluate the printf-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -191,7 +191,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, int color, const char *format, ...);
+  void printf(int x, int y, Font *font, int color, const char *format, ...) __attribute__ ((format (printf, 6, 7)));
 
   /** Evaluate the printf-format `format` and print the result with the anchor point at [x,y] with `font`.
    *
@@ -202,7 +202,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, TextAlign align, const char *format, ...);
+  void printf(int x, int y, Font *font, TextAlign align, const char *format, ...) __attribute__ ((format (printf, 6, 7)));
 
   /** Evaluate the printf-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -212,7 +212,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, const char *format, ...);
+  void printf(int x, int y, Font *font, const char *format, ...) __attribute__ ((format (printf, 5, 6)));
 
 #ifdef USE_TIME
 
@@ -226,7 +226,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, int color, TextAlign align, const char *format, time::EsphomelibTime time);
+  void strftime(int x, int y, Font *font, int color, TextAlign align, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 7, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -237,7 +237,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, int color, const char *format, time::EsphomelibTime time);
+  void strftime(int x, int y, Font *font, int color, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 6, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the anchor point at [x,y] with `font`.
    *
@@ -248,7 +248,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, TextAlign align, const char *format, time::EsphomelibTime time);
+  void strftime(int x, int y, Font *font, TextAlign align, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 6, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -258,7 +258,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, const char *format, time::EsphomelibTime time);
+  void strftime(int x, int y, Font *font, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 5, 0)));
 #endif
 
   /// Draw the `image` with the top-left corner at [x,y] to the screen.

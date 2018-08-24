@@ -36,6 +36,29 @@ using pulse_counter_t = int16_t;
 using pulse_counter_t = int32_t;
 #endif
 
+class PulseCounterBase {
+ public:
+  PulseCounterBase(GPIOPin *pin);
+  bool pulse_counter_setup_();
+  pulse_counter_t read_raw_value_();
+
+ protected:
+#ifdef ARDUINO_ARCH_ESP8266
+  void gpio_intr();
+  volatile int16_t counter_{0};
+  volatile uint32_t last_pulse_{0};
+#endif
+
+  GPIOPin *pin_;
+#ifdef ARDUINO_ARCH_ESP32
+  pcnt_unit_t pcnt_unit_;
+#endif
+  PulseCounterCountMode rising_edge_mode_{PULSE_COUNTER_INCREMENT};
+  PulseCounterCountMode falling_edge_mode_{PULSE_COUNTER_DISABLE};
+  uint32_t filter_us_{13};
+  pulse_counter_t last_value_{0};
+};
+
 /** Pulse Counter - This is the sensor component for the ESP32 integrated pulse counter peripheral.
  *
  * It offers 8 pulse counter units that can be setup in several ways to count pulses on a pin.
@@ -47,7 +70,7 @@ using pulse_counter_t = int32_t;
  * The pulse counter defaults to reporting a value of the measurement unit "pulses/min". To
  * modify this behavior, use filters in MQTTSensor.
  */
-class PulseCounterSensorComponent : public PollingSensorComponent {
+class PulseCounterSensorComponent : public PollingSensorComponent, public PulseCounterBase {
  public:
   /** Construct the Pulse Counter instance with the provided pin and update interval.
    *
@@ -73,22 +96,6 @@ class PulseCounterSensorComponent : public PollingSensorComponent {
   void setup() override;
   void update() override;
   float get_setup_priority() const override;
-
- protected:
-#ifdef ARDUINO_ARCH_ESP8266
-  void gpio_intr();
-  volatile int16_t counter_{0};
-  volatile uint32_t last_pulse_{0};
-#endif
-
-  GPIOPin *pin_;
-#ifdef ARDUINO_ARCH_ESP32
-  pcnt_unit_t pcnt_unit_;
-#endif
-  PulseCounterCountMode rising_edge_mode_{PULSE_COUNTER_INCREMENT};
-  PulseCounterCountMode falling_edge_mode_{PULSE_COUNTER_DISABLE};
-  uint32_t filter_us_{13};
-  pulse_counter_t last_value_{0};
 };
 
 #ifdef ARDUINO_ARCH_ESP32

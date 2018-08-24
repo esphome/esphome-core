@@ -44,9 +44,9 @@ class MAX7219Component : public PollingComponent, public SPIDevice {
   void set_num_chips(uint8_t num_chips);
 
   /// Evaluate the printf-format and print the result at the given position.
-  uint8_t printf(uint8_t pos, const char *format, ...);
+  uint8_t printf(uint8_t pos, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
   /// Evaluate the printf-format and print the result at position 0.
-  uint8_t printf(const char *format, ...);
+  uint8_t printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
   /// Print `str` at the given position.
   uint8_t print(uint8_t pos, const char *str);
@@ -55,10 +55,10 @@ class MAX7219Component : public PollingComponent, public SPIDevice {
 
 #ifdef USE_TIME
   /// Evaluate the strftime-format and print the result at the given position.
-  uint8_t strftime(uint8_t pos, const char *format, time::EsphomelibTime time);
+  uint8_t strftime(uint8_t pos, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 3, 0)));
 
   /// Evaluate the strftime-format and print the result at position 0.
-  uint8_t strftime(const char *format, time::EsphomelibTime time);
+  uint8_t strftime(const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 2, 0)));
 #endif
 
  protected:

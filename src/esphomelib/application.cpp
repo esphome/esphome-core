@@ -246,6 +246,32 @@ Application::MakeLight Application::make_rgbw_light(const std::string &friendly_
 #endif
 
 #ifdef USE_LIGHT
+Application::MakeLight Application::make_rgbww_light(const std::string &friendly_name,
+                                                     float cold_white_mireds,
+                                                     float warm_white_mireds,
+                                                     output::FloatOutput *red,
+                                                     output::FloatOutput *green,
+                                                     output::FloatOutput *blue,
+                                                     output::FloatOutput *cold_white,
+                                                     output::FloatOutput *warm_white) {
+  auto *out = new RGBWWLightOutput(cold_white_mireds, warm_white_mireds,
+                                   red, green, blue, cold_white, warm_white);
+  return this->make_light_for_light_output(friendly_name, out);
+}
+#endif
+
+#ifdef USE_LIGHT
+Application::MakeLight Application::make_cwww_light(const std::string &friendly_name,
+                                                    float cold_white_mireds,
+                                                    float warm_white_mireds,
+                                                    output::FloatOutput *cold_white,
+                                                    output::FloatOutput *warm_white) {
+  auto *out = new CWWWLightOutput(cold_white_mireds, warm_white_mireds, cold_white, warm_white);
+  return this->make_light_for_light_output(friendly_name, out);
+}
+#endif
+
+#ifdef USE_LIGHT
 MQTTJSONLightComponent *Application::register_light(LightState *state) {
   for (auto *controller : this->controllers_)
     controller->register_light(state);
@@ -1105,6 +1131,21 @@ SNTPComponent *Application::make_sntp_component(const std::string &server_1,
                                                 const std::string &server_3,
                                                 const std::string &tz) {
   return this->register_component(new SNTPComponent(server_1, server_2, server_3, tz));
+}
+#endif
+
+#ifdef USE_HLW8012
+sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin,
+                                           uint8_t cf_pin,
+                                           uint8_t cf1_pin,
+                                           uint32_t update_interval) {
+  return this->register_component(new HLW8012Component(sel_pin.copy(), cf_pin, cf1_pin, update_interval));
+}
+#endif
+
+#ifdef USE_NEXTION
+display::Nextion *Application::make_nextion(UARTComponent *parent, uint32_t update_interval) {
+  return this->register_component(new display::Nextion(parent, update_interval));
 }
 #endif
 

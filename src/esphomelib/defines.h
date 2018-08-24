@@ -111,6 +111,8 @@
   #define USE_DISPLAY
   #define USE_TIME
   #define USE_SNTP_COMPONENT
+  #define USE_NEXTION
+  #define USE_HLW8012
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -501,6 +503,22 @@
 #ifdef USE_SNTP_COMPONENT
   #ifndef USE_TIME
     #define USE_TIME
+  #endif
+#endif
+#ifdef USE_HLW8012
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_PULSE_COUNTER_SENSOR
+    #define USE_PULSE_COUNTER_SENSOR
+  #endif
+#endif
+#ifdef USE_NEXTION
+  #ifndef USE_DISPLAY
+    #define USE_DISPLAY
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
   #endif
 #endif
 

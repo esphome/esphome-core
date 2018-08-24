@@ -151,7 +151,7 @@ void LightState::stop_effect() {
 void LightState::parse_json(const JsonObject &root) {
   ESP_LOGV(TAG, "Interpreting light JSON.");
   LightColorValues v = this->get_remote_values(); // use remote values for fallback
-  v.parse_json(root);
+  v.parse_json(root, this->get_traits());
   v.normalize_color(this->output_->get_traits());
 
   if (root.containsKey("flash")) {
@@ -185,7 +185,7 @@ void LightState::start_default_transition(const LightColorValues &target) {
 void LightState::setup() {
   ESP_LOGCONFIG(TAG, "Setting up light '%s'...", this->get_name().c_str());
   LightColorValues recovered_values;
-  recovered_values.load_from_preferences(this->get_name());
+  recovered_values.load_from_preferences(this->get_name(), this->get_traits());
   this->set_immediately(recovered_values);
 }
 float LightState::get_setup_priority() const {
@@ -219,6 +219,30 @@ void LightState::current_values_as_rgbw(float *red, float *green, float *blue, f
   *green = gamma_correct(*green, this->gamma_correct_);
   *blue = gamma_correct(*blue, this->gamma_correct_);
   *white = gamma_correct(*white, this->gamma_correct_);
+}
+void LightState::current_values_as_rgbww(float color_temperature_cw,
+                                         float color_temperature_ww,
+                                         float *red,
+                                         float *green,
+                                         float *blue,
+                                         float *cold_white,
+                                         float *warm_white) {
+  this->get_current_values().as_rgbww(color_temperature_cw, color_temperature_ww,
+                                      red, green, blue, cold_white, warm_white);
+  *red = gamma_correct(*red, this->gamma_correct_);
+  *green = gamma_correct(*green, this->gamma_correct_);
+  *blue = gamma_correct(*blue, this->gamma_correct_);
+  *cold_white = gamma_correct(*cold_white, this->gamma_correct_);
+  *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
+}
+void LightState::current_values_as_cwww(float color_temperature_cw,
+                                        float color_temperature_ww,
+                                        float *cold_white,
+                                        float *warm_white) {
+  this->get_current_values().as_cwww(color_temperature_cw, color_temperature_ww,
+                                      cold_white, warm_white);
+  *cold_white = gamma_correct(*cold_white, this->gamma_correct_);
+  *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
 }
 void LightState::loop() {
   if (this->active_effect_ != nullptr)

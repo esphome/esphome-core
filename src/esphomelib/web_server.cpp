@@ -399,6 +399,8 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
       }
       if (obj->get_traits().has_rgb_white_value() && request->hasParam("white_value"))
         v.set_white(request->getParam("white_value")->value().toFloat() / 255.0f);
+      if (obj->get_traits().has_color_temperature() && request->hasParam("color_temp"))
+        v.set_color_temperature(request->getParam("color_temp")->value().toFloat());
 
       v.normalize_color(obj->get_traits());
 

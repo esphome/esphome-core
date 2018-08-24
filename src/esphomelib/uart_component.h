@@ -23,6 +23,7 @@ class ESP8266SoftwareSerial {
   void setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate);
 
   uint8_t read_byte();
+  uint8_t peek_byte();
 
   void flush();
 
@@ -61,6 +62,8 @@ class UARTComponent : public Component {
 
   void write_str(const char *str);
 
+  bool peek_byte(uint8_t *data);
+
   bool read_byte(uint8_t *data);
 
   bool read_array(uint8_t *data, size_t len);
@@ -98,6 +101,7 @@ class UARTDevice {
   void write_str(const char *str);
 
   bool read_byte(uint8_t *data);
+  bool peek_byte(uint8_t *data);
 
   bool read_array(uint8_t *data, size_t len);
 
