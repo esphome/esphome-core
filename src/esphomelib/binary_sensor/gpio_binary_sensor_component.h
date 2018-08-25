@@ -5,13 +5,12 @@
 #ifndef ESPHOMELIB_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H
 #define ESPHOMELIB_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H
 
-#include <cstdint>
-
-#include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_GPIO_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

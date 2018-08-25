@@ -10,12 +10,13 @@
 #define ESPHOMELIB_SSD_1306_H
 
 #include "esphomelib/defines.h"
+
+#ifdef USE_SSD1306
+
 #include "esphomelib/component.h"
 #include "esphomelib/i2c_component.h"
 #include "esphomelib/spi_component.h"
 #include "esphomelib/display/display.h"
-
-#ifdef USE_SSD1306
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -75,6 +76,7 @@ class SPISSD1306 : public SSD1306, public SPIDevice {
 
   void write_display_data() override;
   bool msb_first() override;
+  bool high_speed() override;
 
   GPIOPin *dc_pin_;
 };

@@ -9,12 +9,13 @@
 #ifndef ESPHOMELIB_COVER_COVER_H
 #define ESPHOMELIB_COVER_COVER_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/helpers.h"
-#include "esphomelib/automation.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_COVER
+
+#include "esphomelib/component.h"
+#include "esphomelib/helpers.h"
+#include "esphomelib/automation.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

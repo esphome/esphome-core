@@ -9,11 +9,12 @@
 #ifndef ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H
 #define ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H
 
-#include "esphomelib/mqtt/mqtt_component.h"
-#include "esphomelib/cover/cover.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_COVER
+
+#include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/cover/cover.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

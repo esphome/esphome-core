@@ -5,11 +5,12 @@
 #ifndef ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H
 #define ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H
 
-#include "esphomelib/switch_/switch.h"
-#include "esphomelib/power_supply_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_OUTPUT
+
+#include "esphomelib/automation.h"
+#include "esphomelib/power_supply_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

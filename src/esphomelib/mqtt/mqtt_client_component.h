@@ -10,7 +10,6 @@
 #include <vector>
 #include <ArduinoJson.h>
 #include <AsyncMqttClient.h>
-#include <WiFiClient.h>
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"

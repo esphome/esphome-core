@@ -5,13 +5,13 @@
 #ifndef ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 #define ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 
-#include <ArduinoJson.h>
-#include <string>
-
-#include "esphomelib/light/light_traits.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_LIGHT
+
+#include <ArduinoJson.h>
+#include <string>
+#include "esphomelib/light/light_traits.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

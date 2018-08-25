@@ -10,15 +10,13 @@
 #define ESPHOMELIB_DISPLAY_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/helpers.h"
-#include "esphomelib/time/rtc_component.h"
-#include <cstdint>
-#include <functional>
-#include <vector>
-#include <stdarg.h>
-#include <cstdio>
 
 #ifdef USE_DISPLAY
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/time/rtc_component.h"
+#include <functional>
+#include <vector>
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -295,7 +293,7 @@ class DisplayBuffer {
 
   void init_internal_(uint32_t buffer_length);
 
-  void *do_update();
+  void do_update();
 
   uint8_t *buffer_{nullptr};
   DisplayRotation rotation_{DISPLAY_ROTATION_0_DEGREES};

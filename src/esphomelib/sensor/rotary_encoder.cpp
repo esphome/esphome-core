@@ -108,12 +108,12 @@ void RotaryEncoderSensor::setup() {
   }
   global_rotary_encoders_.push_back(this);
 }
-void RotaryEncoderSensor::encoder_isr_() {
+void ICACHE_RAM_ATTR RotaryEncoderSensor::encoder_isr_() {
   for (auto *encoder : global_rotary_encoders_) {
     encoder->process_state_machine_();
   }
 }
-void RotaryEncoderSensor::process_state_machine_() {
+void ICACHE_RAM_ATTR RotaryEncoderSensor::process_state_machine_() {
   this->state_ &= QEIx4_MASK;
   if (this->pin_a_->digital_read())
     this->state_ |= QEIx4_A;

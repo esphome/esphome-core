@@ -5,10 +5,11 @@
 #ifndef ESPHOMELIB_LIGHT_LIGHT_TRANSFORMER_H
 #define ESPHOMELIB_LIGHT_LIGHT_TRANSFORMER_H
 
-#include "esphomelib/light/light_color_values.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_LIGHT
+
+#include "esphomelib/light/light_color_values.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

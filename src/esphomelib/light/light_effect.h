@@ -5,13 +5,13 @@
 #ifndef ESPHOMELIB_LIGHT_LIGHT_EFFECT_H
 #define ESPHOMELIB_LIGHT_LIGHT_EFFECT_H
 
-#include <string>
-
-#include "esphomelib/light/light_traits.h"
-#include "esphomelib/light/light_state.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_LIGHT
+
+#include <string>
+#include "esphomelib/light/light_traits.h"
+#include "esphomelib/light/light_state.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

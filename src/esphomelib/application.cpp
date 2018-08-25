@@ -85,7 +85,7 @@ void Application::setup() {
   this->application_state_ = COMPONENT_STATE_SETUP;
 }
 
-void Application::loop() {
+void HOT Application::loop() {
   assert(this->application_state_ >= COMPONENT_STATE_SETUP && "Did you forget to call setup()?");
 
   bool first_loop = this->application_state_ == COMPONENT_STATE_SETUP;

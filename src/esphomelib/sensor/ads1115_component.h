@@ -9,14 +9,12 @@
 #ifndef ESPHOMELIB_INPUT_ADS1115_COMPONENT_H
 #define ESPHOMELIB_INPUT_ADS1115_COMPONENT_H
 
-#include <cstdint>
-
-#include "esphomelib/log.h"
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ADS1115_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

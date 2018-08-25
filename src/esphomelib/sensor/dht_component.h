@@ -5,10 +5,11 @@
 #ifndef ESPHOMELIB_SENSOR_DHT_COMPONENT_H
 #define ESPHOMELIB_SENSOR_DHT_COMPONENT_H
 
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_DHT_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

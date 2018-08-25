@@ -30,7 +30,7 @@ inline CRGB random_crgb_slow() {
 
 void BaseFastLEDLightEffect::start_() {
   this->get_fastled_output_()->prevent_writing_leds();
-  for (size_t i = 0; i < this->get_fastled_output_()->size(); i++) {
+  for (int i = 0; i < this->get_fastled_output_()->size(); i++) {
     this->get_fastled_output_()->effect_data()[i] = 0;
   }
   this->start();
@@ -108,7 +108,7 @@ void FastLEDTwinkleEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t b
     this->last_progress_ += pos_add32 * this->progress_interval_;
   }
 
-  for (size_t i = 0; i < fastled.size(); i++) {
+  for (int i = 0; i < fastled.size(); i++) {
     if (fastled.effect_data()[i] != 0) {
       const uint16_t sine = half_sin8(fastled.effect_data()[i]);
       fastled[i] = CRGB(
@@ -153,7 +153,7 @@ void FastLEDRandomTwinkleEffect::apply(FastLEDLightOutputComponent &fastled, uin
   }
   uint8_t subsine = ((8 * (now - this->last_progress_)) / this->progress_interval_) & 0b111;
 
-  for (size_t i = 0; i < fastled.size(); i++) {
+  for (int i = 0; i < fastled.size(); i++) {
     if (fastled.effect_data()[i] != 0) {
       const uint8_t x = (fastled.effect_data()[i] >> 3) & 0b11111;
       const uint8_t color = fastled.effect_data()[i] & 0b111;
@@ -316,7 +316,7 @@ void FastLEDColorWipeEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t
   this->last_add_ = now;
 
   if (!this->reverse_) {
-    for (size_t i = 0; i < fastled.size() - 1; i++)
+    for (int i = 0; i < fastled.size() - 1; i++)
       fastled[i] = fastled[i + 1];
   } else {
     for (size_t i = fastled.size() - 1; i > 0; i++)
@@ -354,7 +354,7 @@ void FastLEDScanEffect::set_move_interval(uint32_t move_interval) {
   this->move_interval_ = move_interval;
 }
 void FastLEDScanEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) {
-  for (size_t i = 0; i < fastled.size(); i++) {
+  for (int i = 0; i < fastled.size(); i++) {
     if (i == this->at_led_)
       fastled[i] = rgb;
     else

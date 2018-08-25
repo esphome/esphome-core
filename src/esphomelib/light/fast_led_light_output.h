@@ -9,12 +9,13 @@
 #ifndef ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H
 #define ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H
 
-#include "esphomelib/power_supply_component.h"
-#include "esphomelib/light/light_state.h"
-#include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_FAST_LED_LIGHT
+
+#include "esphomelib/power_supply_component.h"
+#include "esphomelib/light/light_state.h"
+#include "esphomelib/helpers.h"
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #define FASTLED_ESP32_RAW_PIN_ORDER

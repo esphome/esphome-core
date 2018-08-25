@@ -31,13 +31,14 @@ class SPIComponent : public Component {
 
   void write_array(uint8_t *data, size_t length);
 
-  void enable(GPIOPin *cs, bool msb_first);
+  void enable(GPIOPin *cs, bool msb_first, bool high_speed);
 
   void disable();
 
   float get_setup_priority() const override;
 
   void set_miso(const GPIOInputPin &miso);
+
   void set_mosi(const GPIOOutputPin &mosi);
 
  protected:
@@ -45,7 +46,8 @@ class SPIComponent : public Component {
   GPIOPin *miso_;
   GPIOPin *mosi_;
   GPIOPin *active_cs_{nullptr};
-  bool msb_first_;
+  bool msb_first_{true};
+  bool high_speed_{false};
 };
 
 class SPIDevice {
@@ -68,6 +70,8 @@ class SPIDevice {
 
  protected:
   virtual bool msb_first() = 0;
+
+  virtual bool high_speed();
 
   SPIComponent *parent_;
   GPIOPin *cs_;

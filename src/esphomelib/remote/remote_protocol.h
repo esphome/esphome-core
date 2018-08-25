@@ -6,18 +6,18 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_REMOTE_PROTOCOL_H
-#define ESPHOMELIB_REMOTE_PROTOCOL_H
+#ifndef ESPHOMELIB_REMOTE_REMOTE_PROTOCOL_H
+#define ESPHOMELIB_REMOTE_REMOTE_PROTOCOL_H
+
+#include "esphomelib/defines.h"
+
+#ifdef USE_REMOTE
 
 #include <vector>
-#include <cstdint>
 #include "esphomelib/component.h"
 #include "esphomelib/esphal.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_REMOTE
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <driver/rmt.h>
@@ -259,4 +259,4 @@ ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_REMOTE
 
-#endif //ESPHOMELIB_REMOTE_PROTOCOL_H
+#endif //ESPHOMELIB_REMOTE_REMOTE_PROTOCOL_H

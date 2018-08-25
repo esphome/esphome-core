@@ -5,11 +5,12 @@
 #ifndef ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
 #define ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/esp_one_wire.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_DALLAS_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esp_one_wire.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

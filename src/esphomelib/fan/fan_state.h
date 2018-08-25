@@ -5,15 +5,13 @@
 #ifndef ESPHOMELIB_FAN_FAN_STATE_H
 #define ESPHOMELIB_FAN_FAN_STATE_H
 
-#include <functional>
-
-#include "esphomelib/helpers.h"
-#include "esphomelib/component.h"
-#include "esphomelib/automation.h"
-#include "esphomelib/fan/fan_traits.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_FAN
+
+#include "esphomelib/component.h"
+#include "esphomelib/automation.h"
+#include "esphomelib/fan/fan_traits.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

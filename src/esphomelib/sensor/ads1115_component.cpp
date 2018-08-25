@@ -10,6 +10,7 @@
 
 #ifdef USE_ADS1115_SENSOR
 
+#include "esphomelib/log.h"
 #include "esphomelib/sensor/ads1115_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN

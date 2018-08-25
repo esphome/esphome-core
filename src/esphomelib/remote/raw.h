@@ -6,13 +6,14 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_RAW_H
-#define ESPHOMELIB_RAW_H
+#ifndef ESPHOMELIB_REMOTE_RAW_H
+#define ESPHOMELIB_REMOTE_RAW_H
 
-#include "esphomelib/remote/remote_protocol.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_REMOTE
+
+#include "esphomelib/remote/remote_protocol.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -55,4 +56,4 @@ ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_REMOTE
 
-#endif //ESPHOMELIB_RAW_H
+#endif //ESPHOMELIB_REMOTE_RAW_H

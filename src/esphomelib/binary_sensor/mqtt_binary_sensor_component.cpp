@@ -6,7 +6,6 @@
 
 #ifdef USE_BINARY_SENSOR
 
-#include <utility>
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/log.h"
 

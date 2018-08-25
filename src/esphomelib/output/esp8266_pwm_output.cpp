@@ -18,12 +18,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
-GPIOOutputPin &ESP8266PWMOutput::get_pin() {
-  return this->pin_;
-}
-void ESP8266PWMOutput::set_pin(const GPIOOutputPin &pin) {
-  this->pin_ = pin;
-}
 ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin)
     : pin_(pin) {}
 void ESP8266PWMOutput::setup() {

@@ -15,7 +15,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_RECEIVER
 static const char *TAG = "remote.rc_switch";
+#endif
 
 RCSwitchProtocol rc_switch_protocols[8] = {
     RCSwitchProtocol(0, 0, 0, 0, 0, 0, false),
@@ -44,6 +46,8 @@ RCSwitchProtocol::RCSwitchProtocol(uint32_t sync_high,
       inverted_(inverted) {
 
 }
+
+#ifdef USE_REMOTE_TRANSMITTER
 void RCSwitchProtocol::one(RemoteTransmitData *data) const {
   if (!this->inverted_) {
     data->mark(this->one_high_);
@@ -80,6 +84,9 @@ void RCSwitchProtocol::transmit(RemoteTransmitData *data, uint32_t code, uint8_t
   }
   this->sync(data);
 }
+#endif
+
+#ifdef USE_REMOTE_RECEIVER
 bool RCSwitchProtocol::expect_one(RemoteReceiveData *data) const {
   if (!this->inverted_) {
     if (!data->peek_mark(this->one_high_))
@@ -144,6 +151,8 @@ bool RCSwitchProtocol::decode(RemoteReceiveData *data, uint32_t *out_data, uint8
   }
   return true;
 }
+#endif
+
 void RCSwitchProtocol::simple_code_to_tristate(uint16_t code, uint8_t nbits, uint32_t *out_code) {
   *out_code = 0;
   for (int8_t i = nbits - 1; i >= 0; i--) {

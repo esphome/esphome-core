@@ -9,11 +9,12 @@
 #ifndef ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
 #define ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
 
-#include "esphomelib/light/light_effect.h"
-#include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_FAST_LED_LIGHT
+
+#include "esphomelib/light/light_effect.h"
+#include "esphomelib/light/fast_led_light_output.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -96,7 +97,7 @@ class FastLEDScanEffect : public BaseFastLEDLightEffect {
  protected:
   uint32_t move_interval_{100};
   uint32_t last_move_{0};
-  size_t at_led_{0};
+  int at_led_{0};
   bool direction_{true};
 };
 

@@ -10,11 +10,12 @@
 #define ESPHOMELIB_DISPLAY_MAX7219_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/spi_component.h"
-#include "esphomelib/time/rtc_component.h"
-#include "esphomelib/sensor/sensor.h"
 
 #ifdef USE_MAX7219
+
+#include "esphomelib/helpers.h"
+#include "esphomelib/spi_component.h"
+#include "esphomelib/time/rtc_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

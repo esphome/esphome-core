@@ -43,9 +43,6 @@ class GPIOPin {
    */
   GPIOPin(uint8_t pin, uint8_t mode, bool inverted = false);
 
-  /// Default constructor so that it can be stored in optionals
-  GPIOPin();
-
   virtual GPIOPin *copy() const;
 
   /// Setup the pin mode.
@@ -57,13 +54,6 @@ class GPIOPin {
   /// Set the pin mode
   virtual void pin_mode(uint8_t mode);
 
-  /// Set the inverted mode of this pin.
-  void set_inverted(bool inverted);
-  /// Set the GPIO pin number.
-  void set_pin(uint8_t pin);
-  /// Set the pinMode of this pin.
-  void set_mode(uint8_t mode);
-
   /// Get the GPIO pin number.
   uint8_t get_pin() const;
   /// Get the pinMode of this pin.
@@ -72,9 +62,13 @@ class GPIOPin {
   bool is_inverted() const;
 
  protected:
-  uint8_t pin_;
-  uint8_t mode_;
-  bool inverted_;
+  const uint8_t pin_;
+  const uint8_t mode_;
+  volatile uint32_t *const gpio_clear_;
+  volatile uint32_t *const gpio_set_;
+  volatile uint32_t *const gpio_read_;
+  const uint32_t gpio_mask_;
+  const bool inverted_;
 };
 
 /**  Basically just a GPIOPin, but defaults to OUTPUT pinMode.
@@ -85,8 +79,6 @@ class GPIOPin {
  */
 class GPIOOutputPin : public GPIOPin {
  public:
-  GPIOOutputPin();
-
   GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false); // NOLINT
 };
 
@@ -98,8 +90,6 @@ class GPIOOutputPin : public GPIOPin {
  */
 class GPIOInputPin : public GPIOPin {
  public:
-  GPIOInputPin();
-
   GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false); // NOLINT
 };
 

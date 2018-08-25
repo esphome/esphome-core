@@ -5,13 +5,14 @@
 #ifndef ESPHOMELIB_FAN_BASIC_FAN_COMPONENT_H
 #define ESPHOMELIB_FAN_BASIC_FAN_COMPONENT_H
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_FAN
+
 #include "esphomelib/component.h"
 #include "esphomelib/output/binary_output.h"
 #include "esphomelib/output/float_output.h"
 #include "esphomelib/fan/fan_state.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_FAN
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -9,11 +9,12 @@
 #ifndef ESPHOMELIB_RDM_6300_H
 #define ESPHOMELIB_RDM_6300_H
 
-#include "esphomelib/uart_component.h"
-#include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_RDM6300
+
+#include "esphomelib/uart_component.h"
+#include "esphomelib/binary_sensor/binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

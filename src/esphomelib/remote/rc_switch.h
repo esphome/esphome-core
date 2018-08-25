@@ -6,13 +6,14 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_RC_SWITCH_H
-#define ESPHOMELIB_RC_SWITCH_H
+#ifndef ESPHOMELIB_REMOTE_RC_SWITCH_H
+#define ESPHOMELIB_REMOTE_RC_SWITCH_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/remote/remote_protocol.h"
 
 #ifdef USE_REMOTE
+
+#include "esphomelib/remote/remote_protocol.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -28,6 +29,7 @@ class RCSwitchProtocol {
                    uint32_t one_low,
                    bool inverted);
 
+#ifdef USE_REMOTE_TRANSMITTER
   void one(RemoteTransmitData *data) const;
 
   void zero(RemoteTransmitData *data) const;
@@ -35,7 +37,9 @@ class RCSwitchProtocol {
   void sync(RemoteTransmitData *data) const;
 
   void transmit(RemoteTransmitData *data, uint32_t code, uint8_t len) const;
+#endif
 
+#ifdef USE_REMOTE_RECEIVER
   bool expect_one(RemoteReceiveData *data) const;
 
   bool expect_zero(RemoteReceiveData *data) const;
@@ -43,6 +47,7 @@ class RCSwitchProtocol {
   bool expect_sync(RemoteReceiveData *data) const;
 
   bool decode(RemoteReceiveData *data, uint32_t *out_data, uint8_t *out_nbits) const;
+#endif
 
   static void simple_code_to_tristate(uint16_t code, uint8_t nbits, uint32_t *out_code);
 
@@ -145,4 +150,4 @@ ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_
 
-#endif //ESPHOMELIB_RC_SWITCH_H
+#endif //ESPHOMELIB_REMOTE_RC_SWITCH_H

@@ -17,7 +17,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_RECEIVER
 static const char *TAG = "remote.nec";
+#endif
 
 static const uint32_t HEADER_HIGH_US = 9000;
 static const uint32_t HEADER_LOW_US = 4500;

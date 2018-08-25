@@ -7,6 +7,7 @@
 //
 
 #include "esphomelib/esphal.h"
+#include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -14,7 +15,20 @@ ESPHOMELIB_NAMESPACE_BEGIN
 static const char *TAG = "esphal";
 
 GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
-  : pin_(pin), mode_(mode), inverted_(inverted) {
+  : pin_(pin), mode_(mode), inverted_(inverted),
+#ifdef ARDUINO_ARCH_ESP8266
+    gpio_set_(pin < 16 ? &GPOS : nullptr),
+    gpio_clear_(pin < 16 ? &GPOC : nullptr),
+    gpio_read_(pin < 16 ? &GPI : &GP16I),
+    gpio_mask_(pin < 16 ? (1UL << pin) : 1)
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+    gpio_set_(pin < 32 ? &GPIO.out_w1ts : &GPIO.out1_w1ts.val),
+    gpio_clear_(pin < 32 ? &GPIO.out_w1tc : &GPIO.out1_w1tc.val),
+    gpio_read_(pin < 32 ? &GPIO.in : &GPIO.in1.val),
+    gpio_mask_(pin < 32 ? (1UL << pin) : (1UL << (pin - 32)))
+#endif
+  {
 
 }
 
@@ -57,55 +71,45 @@ void print_pin_mode(uint8_t pin, uint8_t mode) {
 unsigned char GPIOPin::get_pin() const {
   return this->pin_;
 }
-
-void GPIOPin::set_pin(unsigned char pin) {
-  this->pin_ = pin;
-}
-
 unsigned char GPIOPin::get_mode() const {
   return this->mode_;
-}
-
-void GPIOPin::set_mode(unsigned char mode) {
-  this->mode_ = mode;
 }
 
 bool GPIOPin::is_inverted() const {
   return this->inverted_;
 }
-
-void GPIOPin::set_inverted(bool inverted) {
-  this->inverted_ = inverted;
-}
-GPIOPin::GPIOPin() : pin_(0), inverted_(false), mode_(0) {
-
-}
 void GPIOPin::setup() {
   print_pin_mode(this->pin_, this->mode_);
   this->pin_mode(this->mode_);
 }
-bool GPIOPin::digital_read() {
-  return (digitalRead(this->pin_) == HIGH) != this->inverted_;
+bool ICACHE_RAM_ATTR HOT GPIOPin::digital_read() {
+  return bool((*this->gpio_read_) & this->gpio_mask_) != this->inverted_;
 }
-void GPIOPin::digital_write(bool value) {
-  digitalWrite(this->pin_, this->inverted_ != value ? HIGH : LOW);
+void ICACHE_RAM_ATTR HOT GPIOPin::digital_write(bool value) {
+#ifdef ARDUINO_ARCH_ESP8266
+  if (this->gpio_set_ == nullptr) {
+    if (value != this->inverted_)
+      GP16O |= 1;
+    else
+      GP16O &= ~1;
+  }
+#endif
+  if (value != this->inverted_) {
+    (*this->gpio_set_) = this->gpio_mask_;
+  } else {
+    (*this->gpio_clear_) = this->gpio_mask_;
+  }
 }
 GPIOPin *GPIOPin::copy() const { return new GPIOPin(*this); }
 
-void GPIOPin::pin_mode(uint8_t mode) {
+void ICACHE_RAM_ATTR HOT GPIOPin::pin_mode(uint8_t mode) {
   pinMode(this->pin_, mode);
 }
 
 GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}
-GPIOOutputPin::GPIOOutputPin() : GPIOPin() {
-
-}
 
 GPIOInputPin::GPIOInputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}
-GPIOInputPin::GPIOInputPin() : GPIOPin() {
-
-}
 
 ESPHOMELIB_NAMESPACE_END

@@ -10,10 +10,11 @@
 #define ESPHOMELIB_WAVESHARE_E_PAPER_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/spi_component.h"
-#include "esphomelib/display/display.h"
 
 #ifdef USE_WAVESHARE_EPAPER
+
+#include "esphomelib/spi_component.h"
+#include "esphomelib/display/display.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -43,6 +44,8 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
   void setup_pins();
 
   uint32_t get_buffer_length();
+
+  bool high_speed() override;
 
   GPIOPin *reset_pin_{nullptr};
   GPIOPin *dc_pin_;

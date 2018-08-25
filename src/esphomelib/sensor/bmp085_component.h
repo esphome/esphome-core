@@ -9,12 +9,13 @@
 #ifndef ESPHOMELIB_SENSOR_BMP085_COMPONENT_H
 #define ESPHOMELIB_SENSOR_BMP085_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
-#include "esphomelib/i2c_component.h"
 
 #ifdef USE_BMP085_SENSOR
+
+#include "esphomelib/component.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

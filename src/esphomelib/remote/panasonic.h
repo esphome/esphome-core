@@ -6,13 +6,14 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_PANASONIC_H
-#define ESPHOMELIB_PANASONIC_H
+#ifndef ESPHOMELIB_REMOTE_PANASONIC_H
+#define ESPHOMELIB_REMOTE_PANASONIC_H
 
-#include "esphomelib/remote/remote_protocol.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_REMOTE
+
+#include "esphomelib/remote/remote_protocol.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -57,4 +58,4 @@ ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_REMOTE
 
-#endif //ESPHOMELIB_PANASONIC_H
+#endif //ESPHOMELIB_REMOTE_PANASONIC_H

@@ -30,7 +30,7 @@ void DeepSleepComponent::setup() {
     ESP_LOGCONFIG(TAG, "  Loop Cycles: %u", *this->loop_cycles_);
 #ifdef ARDUINO_ARCH_ESP32
   if (this->wakeup_pin_.has_value())
-    ESP_LOGCONFIG(TAG, "  Wakeup Pin: %u %s", this->wakeup_pin_->get_pin(), this->wakeup_pin_->is_inverted() ? "LOW" : "HIGH");
+    ESP_LOGCONFIG(TAG, "  Wakeup Pin: %u %s", (*this->wakeup_pin_)->get_pin(), (*this->wakeup_pin_)->is_inverted() ? "LOW" : "HIGH");
 #endif
   if (this->run_duration_.has_value())
     this->set_timeout(*this->run_duration_, [this](){
@@ -53,8 +53,8 @@ void DeepSleepComponent::set_sleep_duration(uint32_t time_ms) {
   this->sleep_duration_ = uint64_t(time_ms) * 1000;
 }
 #ifdef ARDUINO_ARCH_ESP32
-void DeepSleepComponent::set_wakeup_pin(GPIOInputPin pin) {
-  this->wakeup_pin_ = pin;
+void DeepSleepComponent::set_wakeup_pin(const GPIOInputPin &pin) {
+  this->wakeup_pin_ = pin.copy();
 }
 void DeepSleepComponent::set_wakeup_pin_mode(WakeupPinMode wakeup_pin_mode) {
   this->wakeup_pin_mode_ = wakeup_pin_mode;
@@ -73,7 +73,7 @@ void DeepSleepComponent::begin_sleep_(bool manual) {
   }
 #ifdef ARDUINO_ARCH_ESP32
   if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_KEEP_AWAKE &&
-      this->wakeup_pin_.has_value() && !this->sleep_duration_.has_value() && this->wakeup_pin_->digital_read()) {
+      this->wakeup_pin_.has_value() && !this->sleep_duration_.has_value() && (*this->wakeup_pin_)->digital_read()) {
     // Defer deep sleep until inactive
     if (!this->next_enter_deep_sleep_) {
       this->status_set_warning();
@@ -92,10 +92,10 @@ void DeepSleepComponent::begin_sleep_(bool manual) {
   if (this->sleep_duration_.has_value())
     esp_sleep_enable_timer_wakeup(*this->sleep_duration_);
   if (this->wakeup_pin_.has_value()) {
-    bool level = !this->wakeup_pin_->is_inverted();
-    if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_INVERT_WAKEUP && this->wakeup_pin_->digital_read())
+    bool level = !(*this->wakeup_pin_)->is_inverted();
+    if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_INVERT_WAKEUP && (*this->wakeup_pin_)->digital_read())
       level = !level;
-    esp_sleep_enable_ext0_wakeup(gpio_num_t(this->wakeup_pin_->get_pin()), level);
+    esp_sleep_enable_ext0_wakeup(gpio_num_t((*this->wakeup_pin_)->get_pin()), level);
   }
   esp_deep_sleep_start();
 #endif

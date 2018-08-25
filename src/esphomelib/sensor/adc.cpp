@@ -10,7 +10,7 @@
 
 #ifdef USE_ADC_SENSOR
 
-#include "esphomelib/sensor/adc_sensor_component.h"
+#include "esphomelib/sensor/adc.h"
 
 #include "esphomelib/log.h"
 
@@ -42,12 +42,6 @@ void ADCSensorComponent::setup() {
 }
 float ADCSensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
-}
-GPIOInputPin &ADCSensorComponent::get_pin() {
-  return this->pin_;
-}
-void ADCSensorComponent::set_pin(const GPIOInputPin &pin) {
-  this->pin_ = pin;
 }
 void ADCSensorComponent::update() {
 #ifdef ARDUINO_ARCH_ESP32

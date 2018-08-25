@@ -303,7 +303,7 @@ void DisplayBuffer::printf(int x, int y, Font *font, const char *format, ...) {
 void DisplayBuffer::set_writer(display_writer_t &&writer) {
   this->writer_ = std::move(writer);
 }
-void *DisplayBuffer::do_update() {
+void DisplayBuffer::do_update() {
   if (this->writer_.has_value()) {
     this->clear();
     (*this->writer_)(*this);

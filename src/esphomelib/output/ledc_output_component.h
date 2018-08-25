@@ -5,10 +5,11 @@
 #ifndef ESPHOMELIB_OUTPUT_LEDC_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_LEDC_OUTPUT_COMPONENT_H
 
-#include "esphomelib/output/float_output.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_LEDC_OUTPUT
+
+#include "esphomelib/output/float_output.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

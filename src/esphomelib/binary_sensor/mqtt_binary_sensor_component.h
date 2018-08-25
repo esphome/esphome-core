@@ -5,12 +5,12 @@
 #ifndef ESPHOMELIB_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H
 #define ESPHOMELIB_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H
 
-#include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/helpers.h"
-#include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/mqtt/mqtt_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

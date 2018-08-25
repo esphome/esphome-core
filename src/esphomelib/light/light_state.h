@@ -5,19 +5,18 @@
 #ifndef ESPHOMELIB_LIGHT_LIGHT_STATE_H
 #define ESPHOMELIB_LIGHT_LIGHT_STATE_H
 
-#include <memory>
+#include "esphomelib/defines.h"
+
+#ifdef USE_LIGHT
+
 #include <functional>
 #include <vector>
 #include "esphomelib/light/light_color_values.h"
-
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_transformer.h"
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/helpers.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_LIGHT
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -245,8 +244,8 @@ class TurnOnAction : public Action<T> {
   void set_blue(float blue);
   void set_white(std::function<float(T)> &&white);
   void set_white(float white);
-  void set_color_temperature(std::function<float(T)> &&white);
-  void set_color_temperature(float white);
+  void set_color_temperature(std::function<float(T)> &&color_temperature);
+  void set_color_temperature(float color_temperature);
   void set_effect(std::function<std::string(T)> &&effect);
   void set_effect(std::string effect);
 

@@ -5,12 +5,12 @@
 #ifndef ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H
 #define ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H
 
-#include "esphomelib/output/binary_output.h"
-
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_OUTPUT
+
+#include "esphomelib/output/binary_output.h"
+#include "esphomelib/component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

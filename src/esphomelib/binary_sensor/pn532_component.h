@@ -9,15 +9,14 @@
 #ifndef ESPHOMELIB_PN_532_COMPONENT_H
 #define ESPHOMELIB_PN_532_COMPONENT_H
 
-#include "esphomelib/i2c_component.h"
+#include "esphomelib/defines.h"
+
+#ifdef USE_PN532
+
+#include <vector>
 #include "esphomelib/component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/spi_component.h"
-#include "esphomelib/defines.h"
-
-#include <vector>
-
-#ifdef USE_PN532
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

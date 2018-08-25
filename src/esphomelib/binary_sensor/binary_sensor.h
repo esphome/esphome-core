@@ -5,13 +5,14 @@
 #ifndef ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H
 #define ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_BINARY_SENSOR
+
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/binary_sensor/filter.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_BINARY_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

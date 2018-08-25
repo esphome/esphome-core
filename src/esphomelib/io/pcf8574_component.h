@@ -9,12 +9,13 @@
 #ifndef ESPHOMELIB_PCF_8574_COMPONENT_H
 #define ESPHOMELIB_PCF_8574_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/esphal.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_PCF8574
+
+#include "esphomelib/component.h"
+#include "esphomelib/esphal.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

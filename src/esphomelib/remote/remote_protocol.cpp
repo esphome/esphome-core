@@ -64,7 +64,7 @@ uint32_t RemoteReceiveData::upper_bound_(uint32_t length) {
   return uint32_t(100 + this->parent_->tolerance_) * length / 100U;
 }
 bool RemoteReceiveData::peek_mark(uint32_t length, uint32_t offset) {
-  if (this->index_ + offset >= this->size())
+  if (int32_t(this->index_ + offset) >= this->size())
     return false;
   int32_t value = this->peek(offset);
   const int32_t lo = this->lower_bound_(length);
@@ -72,7 +72,7 @@ bool RemoteReceiveData::peek_mark(uint32_t length, uint32_t offset) {
   return value >= 0 && lo <= value && value <= hi;
 }
 bool RemoteReceiveData::peek_space(uint32_t length, uint32_t offset) {
-  if (this->index_ + offset >= this->size())
+  if (int32_t(this->index_ + offset) >= this->size())
     return false;
   int32_t value = this->peek(offset);
   const int32_t lo = this->lower_bound_(length);
@@ -113,7 +113,7 @@ int32_t RemoteReceiveData::peek(uint32_t offset) {
   return (*this)[this->index_ + offset];
 }
 bool RemoteReceiveData::peek_space_at_least(uint32_t length, uint32_t offset) {
-  if (this->index_ + offset >= this->size())
+  if (int32_t(this->index_ + offset) >= this->size())
     return false;
   int32_t value = this->pos(this->index_ + offset);
   const int32_t lo = this->lower_bound_(length);
@@ -286,7 +286,7 @@ void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-void RemoteReceiverComponent::gpio_intr() {
+void ICACHE_RAM_ATTR RemoteReceiverComponent::gpio_intr() {
   const uint32_t now = micros();
   // If the lhs is 1 (rising edge) we should write to an uneven index and vice versa
   const uint32_t next = (this->buffer_write_at_ + 1) % this->buffer_size_;
@@ -350,7 +350,7 @@ void RemoteReceiverComponent::loop() {
   for (uint32_t i = 0; prev != write_at; i++) {
     int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
 
-    if (delta >= this->idle_us_) {
+    if (uint32_t(delta) >= this->idle_us_) {
       ESP_LOGW(TAG, "Data is coming in too fast!");
       break;
     }

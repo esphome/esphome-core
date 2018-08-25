@@ -5,8 +5,6 @@
 #ifndef ESPHOMELIB_MQTT_MQTT_COMPONENT_H
 #define ESPHOMELIB_MQTT_MQTT_COMPONENT_H
 
-#include <ArduinoJson.h>
-
 #include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/defines.h"

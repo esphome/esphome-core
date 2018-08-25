@@ -9,10 +9,11 @@
 #ifndef ESPHOMELIB_FILTER_H
 #define ESPHOMELIB_FILTER_H
 
-#include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
+
+#include "esphomelib/binary_sensor/binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

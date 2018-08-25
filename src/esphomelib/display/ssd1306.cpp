@@ -271,6 +271,9 @@ SPISSD1306::SPISSD1306(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint3
     : SSD1306(update_interval), SPIDevice(parent, cs), dc_pin_(dc_pin) {
 
 }
+bool SPISSD1306::high_speed() {
+  return true;
+}
 #endif
 
 #ifdef USE_I2C

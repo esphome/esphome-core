@@ -9,11 +9,12 @@
 #ifndef ESPHOMELIB_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H
 #define ESPHOMELIB_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_BINARY_SENSOR
+
+#include "esphomelib/component.h"
+#include "esphomelib/binary_sensor/binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

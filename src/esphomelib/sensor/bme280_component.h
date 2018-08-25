@@ -9,11 +9,12 @@
 #ifndef ESPHOMELIB_SENSOR_BME280_COMPONENT_H
 #define ESPHOMELIB_SENSOR_BME280_COMPONENT_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_BME280
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

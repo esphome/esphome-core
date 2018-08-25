@@ -9,10 +9,11 @@
 #ifndef ESPHOMELIB_ESP_8266_PWM_OUTPUT_H
 #define ESPHOMELIB_ESP_8266_PWM_OUTPUT_H
 
-#include "esphomelib/output/float_output.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP8266_PWM_OUTPUT
+
+#include "esphomelib/output/float_output.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -37,12 +38,8 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
   /// Construct the Software PWM output.
   explicit ESP8266PWMOutput(const GPIOOutputPin &pin);
 
-  /// Get the output pin used by this component.
-  GPIOOutputPin &get_pin();
-
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  void set_pin(const GPIOOutputPin &pin);
 
   /// Initialize pin
   void setup() override;
@@ -53,7 +50,6 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
 
  protected:
   GPIOOutputPin pin_;
-
 };
 
 } // namespace output

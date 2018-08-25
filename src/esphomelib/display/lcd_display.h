@@ -10,12 +10,13 @@
 #define ESPHOMELIB_LCD_DISPLAY_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/esphal.h"
-#include "esphomelib/component.h"
-#include "esphomelib/io/pcf8574_component.h"
-#include "esphomelib/time/rtc_component.h"
 
 #ifdef USE_LCD_DISPLAY
+
+#include "esphomelib/component.h"
+#include "esphomelib/esphal.h"
+#include "esphomelib/i2c_component.h"
+#include "esphomelib/time/rtc_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

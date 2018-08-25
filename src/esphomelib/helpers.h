@@ -17,12 +17,14 @@
 #include "esphomelib/optional.h"
 
 #ifndef JSON_BUFFER_SIZE
-  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(16))
+  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <driver/rmt.h>
 #endif
+
+#define HOT __attribute__ ((hot))
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

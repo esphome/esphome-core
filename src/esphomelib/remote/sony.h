@@ -6,13 +6,14 @@
 //  Copyright © 2018 Otto Winter. All rights reserved.
 //
 
-#ifndef ESPHOMELIB_SONY_H
-#define ESPHOMELIB_SONY_H
+#ifndef ESPHOMELIB_REMOTE_SONY_H
+#define ESPHOMELIB_REMOTE_SONY_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/remote/remote_protocol.h"
 
 #ifdef USE_REMOTE
+
+#include "esphomelib/remote/remote_protocol.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -58,4 +59,4 @@ ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_REMOTE
 
-#endif //ESPHOMELIB_SONY_H
+#endif //ESPHOMELIB_REMOTE_SONY_H

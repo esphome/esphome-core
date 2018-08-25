@@ -17,7 +17,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_RECEIVER
 static const char *TAG = "remote.panasonic";
+#endif
 
 static const uint32_t HEADER_HIGH_US = 3502;
 static const uint32_t HEADER_LOW_US = 1750;

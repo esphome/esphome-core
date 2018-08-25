@@ -243,7 +243,7 @@ void ESP8266SoftwareSerial::setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_ra
   }
 }
 
-void ICACHE_RAM_ATTR ESP8266SoftwareSerial::gpio_intr_() {
+void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::gpio_intr_() {
   uint32_t wait = this->bit_time_ + this->bit_time_/3 - 500;
   const uint32_t start = ESP.getCycleCount();
   uint8_t rec = 0;
@@ -264,7 +264,7 @@ void ICACHE_RAM_ATTR ESP8266SoftwareSerial::gpio_intr_() {
   // Clear RX pin so that the interrupt doesn't re-trigger right away again.
   GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, this->rx_mask_);
 }
-void ESP8266SoftwareSerial::write_byte(uint8_t data) {
+void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
   if (this->tx_mask_ == 0) {
     ESP_LOGE(TAG, "UART doesn't have TX pins set!");
     return;

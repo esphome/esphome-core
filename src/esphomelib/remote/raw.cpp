@@ -19,7 +19,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
+#ifdef USE_REMOTE_RECEIVER
 static const char *TAG = "remote.raw";
+#endif
 
 #ifdef USE_REMOTE_TRANSMITTER
 void RawTransmitter::to_data(RemoteTransmitData *data) {

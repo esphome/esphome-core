@@ -9,10 +9,11 @@
 #ifndef ESPHOMELIB_DUTY_CYCLE_SENSOR_H
 #define ESPHOMELIB_DUTY_CYCLE_SENSOR_H
 
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_DUTY_CYCLE_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -28,9 +29,9 @@ class DutyCycleSensor : public PollingSensorComponent {
   std::string icon() override;
   int8_t accuracy_decimals() override;
 
-  void ICACHE_RAM_ATTR on_interrupt() ;
+  void on_interrupt();
 
-  static void ICACHE_RAM_ATTR gpio_intr();
+  static void gpio_intr();
 
  protected:
   GPIOPin *pin_;

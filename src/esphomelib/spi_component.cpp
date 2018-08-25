@@ -23,21 +23,24 @@ SPIComponent::SPIComponent(GPIOPin *clk, GPIOPin *miso, GPIOPin *mosi)
 
 }
 
-void SPIComponent::write_byte(uint8_t data) {
+void ICACHE_RAM_ATTR HOT SPIComponent::write_byte(uint8_t data) {
   uint8_t send_bits = data;
   if (this->msb_first_)
     send_bits = reverse_bits_8(data);
 
   this->clk_->digital_write(true);
-  delayMicroseconds(5);
+  if (!this->high_speed_)
+    delayMicroseconds(5);
 
   for (size_t i = 0; i < 8; i++) {
-    delayMicroseconds(5);
+    if (!this->high_speed_)
+      delayMicroseconds(5);
     this->clk_->digital_write(false);
 
     // sampling on leading edge
     this->mosi_->digital_write(send_bits & (1 << i));
-    delayMicroseconds(5);
+    if (!this->high_speed_)
+      delayMicroseconds(5);
     this->clk_->digital_write(true);
   }
 
@@ -45,17 +48,17 @@ void SPIComponent::write_byte(uint8_t data) {
             BYTE_TO_BINARY(data), data);
 }
 
-uint8_t SPIComponent::read_byte() {
-  assert(this->active_cs_ != nullptr);
-
+uint8_t ICACHE_RAM_ATTR HOT SPIComponent::read_byte() {
   this->clk_->digital_write(true);
 
   uint8_t data = 0;
   for (size_t i = 0; i < 8; i++) {
-    delayMicroseconds(5);
+    if (!this->high_speed_)
+      delayMicroseconds(5);
     data |= uint8_t(this->miso_->digital_read()) << i;
     this->clk_->digital_write(false);
-    delayMicroseconds(5);
+    if (!this->high_speed_)
+      delayMicroseconds(5);
     this->clk_->digital_write(true);
   }
 
@@ -68,25 +71,26 @@ uint8_t SPIComponent::read_byte() {
 
   return data;
 }
-void SPIComponent::read_array(uint8_t *data, size_t length) {
+void ICACHE_RAM_ATTR HOT SPIComponent::read_array(uint8_t *data, size_t length) {
   for (size_t i = 0; i < length; i++)
     data[i] = this->read_byte();
 }
 
-void SPIComponent::write_array(uint8_t *data, size_t length) {
+void ICACHE_RAM_ATTR HOT SPIComponent::write_array(uint8_t *data, size_t length) {
   for (size_t i = 0; i < length; i++)
     this->write_byte(data[i]);
 }
 
-void SPIComponent::enable(GPIOPin *cs, bool msb_first) {
+void ICACHE_RAM_ATTR HOT SPIComponent::enable(GPIOPin *cs, bool msb_first, bool high_speed) {
   ESP_LOGVV(TAG, "Enabling SPI Chip on pin %u...", cs->get_pin());
   cs->digital_write(false);
 
   this->active_cs_ = cs;
   this->msb_first_ = msb_first;
+  this->high_speed_ = high_speed;
 }
 
-void SPIComponent::disable() {
+void ICACHE_RAM_ATTR HOT SPIComponent::disable() {
   ESP_LOGVV(TAG, "Disabling SPI Chip on pin %u...", this->active_cs_->get_pin());
   this->active_cs_->digital_write(true);
   this->active_cs_ = nullptr;
@@ -116,7 +120,7 @@ void SPIComponent::set_mosi(const GPIOOutputPin &mosi) {
 SPIDevice::SPIDevice(SPIComponent *parent, GPIOPin *cs)
     : parent_(parent), cs_(cs) {}
 void SPIDevice::enable() {
-  this->parent_->enable(this->cs_, this->msb_first());
+  this->parent_->enable(this->cs_, this->msb_first(), this->high_speed());
 }
 void SPIDevice::disable() {
   this->parent_->disable();
@@ -136,6 +140,9 @@ void SPIDevice::write_array(uint8_t *data, size_t length) {
 void SPIDevice::spi_setup() {
   this->cs_->setup();
   this->cs_->digital_write(true);
+}
+bool SPIDevice::high_speed() {
+  return false;
 }
 
 ESPHOMELIB_NAMESPACE_END

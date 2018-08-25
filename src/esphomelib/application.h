@@ -56,7 +56,7 @@
 #include "esphomelib/remote/raw.h"
 #include "esphomelib/remote/sony.h"
 #include "esphomelib/remote/rc_switch.h"
-#include "esphomelib/sensor/adc_sensor_component.h"
+#include "esphomelib/sensor/adc.h"
 #include "esphomelib/sensor/ads1115_component.h"
 #include "esphomelib/sensor/bh1750_sensor.h"
 #include "esphomelib/sensor/bme280_component.h"

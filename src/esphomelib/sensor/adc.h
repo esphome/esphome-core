@@ -35,9 +35,6 @@ class ADCSensorComponent : public PollingSensorComponent {
   /// Construct the ADCSensor with the provided pin and update interval in ms.
   explicit ADCSensorComponent(const std::string &name, GPIOInputPin pin, uint32_t update_interval = 15000);
 
-  /// Manually set the pin used for this ADC sensor.
-  void set_pin(const GPIOInputPin &pin);
-
 #ifdef ARDUINO_ARCH_ESP32
   /// Set the attenuation for this pin. Only available on the ESP32.
   void set_attenuation(adc_attenuation_t attenuation);
@@ -46,7 +43,6 @@ class ADCSensorComponent : public PollingSensorComponent {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Get the pin used for this ADC sensor.
-  GPIOInputPin &get_pin();
 #ifdef ARDUINO_ARCH_ESP32
   /// Get the attenuation used for this sensor.
   adc_attenuation_t get_attenuation() const;

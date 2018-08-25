@@ -5,11 +5,12 @@
 #ifndef ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H
 
-#include "esphomelib/output/binary_output.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_GPIO_OUTPUT
+
+#include "esphomelib/output/binary_output.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
