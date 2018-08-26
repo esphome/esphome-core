@@ -91,6 +91,9 @@ class MQTTClientComponent : public Component {
   /// Remove the birth message.
   void disable_birth_message();
 
+  void set_shutdown_message(MQTTMessage &&message);
+  void disable_shutdown_message();
+
   /// Set the keep alive time in seconds, every 0.7*keep_alive a ping will be sent.
   void set_keep_alive(uint16_t keep_alive_s);
 
@@ -223,6 +226,7 @@ class MQTTClientComponent : public Component {
   /// The birth message (e.g. the message that's send on an established connection.
   /// See last_will_ for what different values denote.
   MQTTMessage birth_message_;
+  MQTTMessage shutdown_message_;
   /// Caches availability.
   Availability availability_{};
   /// The discovery info options for Home Assistant. Undefined optional means

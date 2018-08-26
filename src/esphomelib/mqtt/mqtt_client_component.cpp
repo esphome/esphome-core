@@ -77,6 +77,10 @@ void MQTTClientComponent::setup() {
       }
     });
   add_shutdown_hook([this](const char *cause){
+    if (!this->shutdown_message_.topic.empty()) {
+      yield();
+      this->publish(this->shutdown_message_);
+    }
     this->mqtt_client_.disconnect(true);
   });
 
@@ -118,7 +122,6 @@ void MQTTClientComponent::start_connect() {
 }
 
 void MQTTClientComponent::check_connected() {
-  assert(this->state_ == MQTT_CLIENT_CONNECTING);
   if (!this->mqtt_client_.connected()) {
     if (millis() - this->connect_begin_ > 15000) {
       this->state_ = MQTT_CLIENT_DISCONNECTED;
@@ -231,6 +234,10 @@ void MQTTClientComponent::set_birth_message(MQTTMessage &&message) {
   this->recalculate_availability();
 }
 
+void MQTTClientComponent::set_shutdown_message(MQTTMessage &&message) {
+  this->shutdown_message_ = std::move(message);
+}
+
 void MQTTClientComponent::set_discovery_info(std::string &&prefix, bool retain) {
   this->discovery_info_.prefix = std::move(prefix);
   this->discovery_info_.retain = retain;
@@ -278,6 +285,9 @@ const std::string &MQTTClientComponent::get_topic_prefix() const {
 }
 void MQTTClientComponent::disable_birth_message() {
   this->birth_message_.topic = "";
+}
+void MQTTClientComponent::disable_shutdown_message() {
+  this->shutdown_message_.topic = "";
 }
 bool MQTTClientComponent::is_discovery_enabled() const {
   return !this->discovery_info_.prefix.empty();

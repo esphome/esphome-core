@@ -30,12 +30,6 @@ float WiFiComponent::get_setup_priority() const {
 void WiFiComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up WiFi...");
 
-  add_shutdown_hook([](const char *cause) {
-    if (strcmp(cause, "ota") != 0) {
-      WiFi.mode(WIFI_OFF);
-    }
-  });
-
 #ifdef ARDUINO_ARCH_ESP32
   WiFi.onEvent(on_wifi_event);
 #endif
