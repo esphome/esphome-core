@@ -16,8 +16,7 @@
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
 
-// Avoid annoying compiler messages
-#include "NeoPixelBrightnessBus.h"
+#include "NeoPixelBus.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -32,7 +31,7 @@ namespace light
  *
  * These add_leds helpers can, however, only be called once on a NeoPixelBusLightOutputComponent.
  */
-template <typename T_NEO_PIXEL_BUS>
+template <typename T_COLOR_FEATURE, typename T_METHOD>
 class NeoPixelBusLightOutputComponent : public LightOutput, public Component
 {
 public:
@@ -48,7 +47,7 @@ public:
     this->power_supply_ = power_supply;
   }
 
-  T_NEO_PIXEL_BUS *getcontroller_() const
+  NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *getcontroller_() const
   {
     return this->controller_;
   }
@@ -60,50 +59,38 @@ public:
   }
 
   /// Add some LEDS, can only be called once.
-  T_NEO_PIXEL_BUS &add_leds(T_NEO_PIXEL_BUS *controller)
+  NeoPixelBus<T_COLOR_FEATURE, T_METHOD> &add_leds(NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller)
   {
     assert(this->controller_ == nullptr && "FastLEDLightOutputComponent only supports one controller at a time.");
 
     this->controller_ = controller;
-    for (int i = 0; i < this->controller_->PixelCount(); i++)
-      this->controller_->SetPixelColor(i, RgbwColor(0, 0, 0));
+    this->controller_->ClearTo(typename T_COLOR_FEATURE::ColorObject(0, 0, 0));
 
     this->controller_->Begin();
     return *this->controller_;
   }
 
   // ========== INTERNAL METHODS ==========
-  // (In most use cases you won't need these)
   LightTraits get_traits() override
   {
-    return {true, true, true, true};
+    if (std::is_same<typename T_COLOR_FEATURE::ColorObject, RgbwColor>::value) {
+      return {true, true, true, true};
+    } else {
+      return {true, true, false, true};
+    }
   }
+
   void write_state(LightState *state) override
   {
-    float red, green, blue, white, brightness;
-    state->current_values_as_rgbw(&red, &green, &blue, &white);
-    state->current_values_as_brightness(&brightness);
-    uint8_t redb = red * 255;
-    uint8_t greenb = green * 255;
-    uint8_t blueb = blue * 255;
-    uint8_t whiteb = white * 255;
-    uint8_t brightnessb = brightness * 255;
-    // currently in hass there is no way to only show white via the ui, so disable the colors if all of them are on and therefore very white
-    bool white_colors = redb >= brightnessb - 10 && greenb >= brightnessb - 10 && blueb >= brightnessb - 10 && whiteb >= brightnessb - 10;
-    if (white_colors) {
-       this->controller_->ClearTo(RgbwColor(whiteb));
-       
-     } else {
-      this->controller_->ClearTo(RgbwColor(redb, greenb, blueb, whiteb));
-    }
-
+    this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state));
     this->schedule_show();
   }
+
   void setup() override
   {
     ESP_LOGCONFIG(TAG, "Setting up Neo Pixel Bus light...");
     assert(this->controller_ != nullptr && "You need to add LEDs to this controller!");
-    this->controller_->ClearTo(RgbwColor(0, 0, 0));
+    this->controller_->ClearTo(typename T_COLOR_FEATURE::ColorObject(0, 0, 0));
   }
   void loop() override
   {
@@ -123,7 +110,7 @@ public:
       for (int i = 0; i < this->controller_->PixelCount(); i++)
       {
         auto color = this->controller_->GetPixelColor(i);
-        if (color.R > 0 || color.G > 0 || color.B > 0 || color.W > 0)
+        if (isOn(color))
         {
           is_on = true;
           break;
@@ -151,7 +138,7 @@ public:
   }
 
 protected:
-  T_NEO_PIXEL_BUS *controller_{nullptr};
+  NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller_{nullptr};
   uint32_t last_refresh_{0};
   bool next_show_{true};
 #ifdef USE_OUTPUT
@@ -159,6 +146,50 @@ protected:
   bool has_requested_high_power_{false};
 #endif
 private:
+  template <typename U>
+  static typename std::enable_if<std::is_same<U, RgbColor>::value, RgbColor>::type
+  get_light_color(LightState *state)
+  {
+    float red, green, blue;
+    state->current_values_as_rgb(&red, &green, &blue);
+    uint8_t redb = red * 255;
+    uint8_t greenb = green * 255;
+    uint8_t blueb = blue * 255;
+    return RgbColor(redb, greenb, blueb);
+  }
+
+  template <typename U>
+  static typename std::enable_if<std::is_same<U, RgbwColor>::value, RgbwColor>::type
+  get_light_color(LightState *state)
+  {
+    float red, green, blue, white, brightness;
+    state->current_values_as_rgbw(&red, &green, &blue, &white);
+    state->current_values_as_brightness(&brightness);
+    uint8_t redb = red * 255;
+    uint8_t greenb = green * 255;
+    uint8_t blueb = blue * 255;
+    uint8_t whiteb = white * 255;
+    uint8_t brightnessb = brightness * 255;
+    // currently in hass there is no way to only show white via the ui, so disable the colors if all of them are on and therefore very white
+    bool white_colors = redb >= brightnessb - 10 && greenb >= brightnessb - 10 && blueb >= brightnessb - 10 && whiteb >= brightnessb - 10;
+    if (white_colors)
+    {
+      return RgbwColor(whiteb);
+    }
+    else
+    {
+      return RgbwColor(redb, greenb, blueb, whiteb);
+    }
+  }
+
+  static bool isOn(const RgbColor &color) {
+    return color.R != 0 && color.G != 0 && color.B != 0;
+  }
+
+  static bool isOn(const RgbwColor &color) {
+    return color.R != 0 && color.G != 0 && color.B != 0 && color.W != 0;
+  }
+
   const char *TAG = "light.neo_pixel_bus";
 };
 
@@ -168,4 +199,4 @@ ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_NEO_PIXEL_BUS_LIGHT
 
-#endif //ESPHOMELIB_LIGHT_NEO_PIXEL_BUS_OUTPUT_H
+#endif //ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_OUTPUT_H

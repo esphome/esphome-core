@@ -1038,19 +1038,19 @@ class Application {
 #endif
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
-  template<typename T_NEO_PIXEL_BUS> struct MakeNeoPixelBusLight {
-    light::NeoPixelBusLightOutputComponent<T_NEO_PIXEL_BUS> *neo_pixel_bus;
+  template<typename T_COLOR_FEATURE, typename T_METHOD> struct MakeNeoPixelBusLight {
+    light::NeoPixelBusLightOutputComponent<T_COLOR_FEATURE,T_METHOD> *neo_pixel_bus;
     light::LightState *state;
     light::MQTTJSONLightComponent *mqtt;
   };
 
   /// Create an NeoPixelBus light.
-  template<typename T_NEO_PIXEL_BUS> Application::MakeNeoPixelBusLight<T_NEO_PIXEL_BUS> make_neo_pixel_bus_light(const std::string &name, T_NEO_PIXEL_BUS &light) {
-  auto *neo_pixel = this->register_component(new light::NeoPixelBusLightOutputComponent<T_NEO_PIXEL_BUS>());
+  template<typename T_COLOR_FEATURE, typename T_METHOD> Application::MakeNeoPixelBusLight<T_COLOR_FEATURE,T_METHOD> make_neo_pixel_bus_light(const std::string &name, NeoPixelBus<T_COLOR_FEATURE, T_METHOD> &light) {
+  auto *neo_pixel = this->register_component(new light::NeoPixelBusLightOutputComponent<T_COLOR_FEATURE,T_METHOD>());
   neo_pixel->add_leds(&light);
   auto make = this->make_light_for_light_output(name, neo_pixel);
 
-  return MakeNeoPixelBusLight<T_NEO_PIXEL_BUS>{
+  return MakeNeoPixelBusLight<T_COLOR_FEATURE,T_METHOD> {
       .neo_pixel_bus = neo_pixel,
       .state = make.state,
       .mqtt = make.mqtt,
