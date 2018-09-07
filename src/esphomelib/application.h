@@ -42,6 +42,7 @@
 #include "esphomelib/io/pcf8574_component.h"
 #include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/light/fast_led_light_effect.h"
+#include "esphomelib/light/neo_pixel_bus_light_output.h"
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
@@ -1036,7 +1037,26 @@ class Application {
   MakeFastLEDLight make_fast_led_light(const std::string &name);
 #endif
 
+#ifdef USE_NEO_PIXEL_BUS_LIGHT
+  template<typename T_NEO_PIXEL_BUS> struct MakeNeoPixelBusLight {
+    light::NeoPixelBusLightOutputComponent<T_NEO_PIXEL_BUS> *neo_pixel_bus;
+    light::LightState *state;
+    light::MQTTJSONLightComponent *mqtt;
+  };
 
+  /// Create an NeoPixelBus light.
+  template<typename T_NEO_PIXEL_BUS> Application::MakeNeoPixelBusLight<T_NEO_PIXEL_BUS> make_neo_pixel_bus_light(const std::string &name, T_NEO_PIXEL_BUS &light) {
+  auto *neo_pixel = this->register_component(new light::NeoPixelBusLightOutputComponent<T_NEO_PIXEL_BUS>());
+  neo_pixel->add_leds(&light);
+  auto make = this->make_light_for_light_output(name, neo_pixel);
+
+  return MakeNeoPixelBusLight<T_NEO_PIXEL_BUS>{
+      .neo_pixel_bus = neo_pixel,
+      .state = make.state,
+      .mqtt = make.mqtt,
+  };
+} 
+#endif
 
 
 
