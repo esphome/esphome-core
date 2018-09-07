@@ -55,6 +55,7 @@ bool decode_samsung(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits) {
 
   *data_ = 0;
   for (*nbits = 0; *nbits < 32; (*nbits)++) {
+    ESP_LOGD(TAG, "Decode Samsung: data=0x%08X, nbits=%d", *data_, *nbits);
     if (data->expect_item(BIT_HIGH_US, BIT_ONE_LOW_US)) {
       *data_ = (*data_ << 1) | 1;
     } else if (data->expect_item(BIT_HIGH_US, BIT_ZERO_LOW_US)) {
