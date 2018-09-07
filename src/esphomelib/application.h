@@ -43,6 +43,7 @@
 #include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/light/fast_led_light_effect.h"
 #include "esphomelib/light/neo_pixel_bus_light_output.h"
+#include "esphomelib/light/partitioned_light_output.h"
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
@@ -1046,16 +1047,34 @@ class Application {
 
   /// Create an NeoPixelBus light.
   template<typename T_COLOR_FEATURE, typename T_METHOD> Application::MakeNeoPixelBusLight<T_COLOR_FEATURE,T_METHOD> make_neo_pixel_bus_light(const std::string &name, NeoPixelBus<T_COLOR_FEATURE, T_METHOD> &light) {
-  auto *neo_pixel = this->register_component(new light::NeoPixelBusLightOutputComponent<T_COLOR_FEATURE,T_METHOD>());
-  neo_pixel->add_leds(&light);
-  auto make = this->make_light_for_light_output(name, neo_pixel);
+    auto *neo_pixel = this->register_component(new light::NeoPixelBusLightOutputComponent<T_COLOR_FEATURE,T_METHOD>());
+    neo_pixel->add_leds(&light);
+    auto make = this->make_light_for_light_output(name, neo_pixel);
 
-  return MakeNeoPixelBusLight<T_COLOR_FEATURE,T_METHOD> {
-      .neo_pixel_bus = neo_pixel,
-      .state = make.state,
-      .mqtt = make.mqtt,
+    return MakeNeoPixelBusLight<T_COLOR_FEATURE,T_METHOD> {
+        .neo_pixel_bus = neo_pixel,
+        .state = make.state,
+        .mqtt = make.mqtt,
+    };
+  }
+
+  struct MakePartitionedLight {
+    light::PartitionedLightOutputComponent *partitioned;
+    light::LightState *state;
+    light::MQTTJSONLightComponent *mqtt;
   };
-} 
+
+  /// Create a Partitioned light.
+  Application::MakePartitionedLight make_partitioned_light(const std::string &name, light::PartitionableLightOutput *partitionable, uint16_t index_start, uint16_t index_end) {
+    auto *partitioned = this->register_component(new light::PartitionedLightOutputComponent(partitionable, index_start, index_end));
+    auto make = this->make_light_for_light_output(name, partitioned);
+
+    return MakePartitionedLight {
+        .partitioned = partitioned,
+        .state = make.state,
+        .mqtt = make.mqtt,
+    };
+  }
 #endif
 
 
