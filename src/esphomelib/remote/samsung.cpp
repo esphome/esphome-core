@@ -26,6 +26,8 @@ static const uint32_t HEADER_LOW_US = 4500;
 static const uint32_t BIT_HIGH_US = 560;
 static const uint32_t BIT_ONE_LOW_US = 1690;
 static const uint32_t BIT_ZERO_LOW_US = 560;
+static const uint32_t FOOTER_HIGH_US = 560;
+static const uint32_t FOOTER_LOW_US = 560;
 
 #ifdef USE_REMOTE_TRANSMITTER
 SamsungTransmitter::SamsungTransmitter(const std::string &name, uint32_t data, uint8_t nbits)
@@ -44,7 +46,7 @@ void SamsungTransmitter::to_data(RemoteTransmitData *data) {
       data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);
   }
 
-  data->mark(BIT_HIGH_US);
+  data->item(FOOTER_HIGH_US, FOOTER_LOW_US);
 }
 #endif
 
@@ -63,6 +65,10 @@ bool decode_samsung(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits) {
       return false;
     }
   }
+
+  if (!data->expect_item(FOOTER_HIGH_US/*, FOOTER_LOW_US*/))
+    return false;
+
   return true;
 }
 
