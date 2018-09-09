@@ -1065,9 +1065,10 @@ class Application {
   };
 
   /// Create a Partitioned light.
-  Application::MakePartitionedLight make_partitioned_light(const std::string &name, light::PartitionableLightOutput *partitionable, uint16_t index_start, uint16_t index_end) {
-    auto *partitioned = this->register_component(new light::PartitionedLightOutputComponent(partitionable, index_start, index_end));
+  Application::MakePartitionedLight make_partitioned_light(const std::string &name, light::PartitionableLightOutput *partitionable, light::LightState *partitionable_light_state, uint16_t index_start, uint16_t index_end) {
+    auto *partitioned = this->register_component(new light::PartitionedLightOutputComponent(partitionable, partitionable_light_state, index_start, index_end));
     auto make = this->make_light_for_light_output(name, partitioned);
+    partitionable->register_partition_state(make.state);
 
     return MakePartitionedLight {
         .partitioned = partitioned,

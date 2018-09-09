@@ -84,6 +84,10 @@ public:
   void write_state(LightState *state) override
   {
     this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state));
+    const auto current_values = state->get_remote_values_lazy();
+    for (auto const& state : this->partitions_states_) {
+      state->set_immediately_without_write(current_values);
+    }
     this->schedule_show();
   }
 
@@ -177,7 +181,7 @@ private:
     uint8_t blueb = blue * 255;
     uint8_t whiteb = white * 255;
     uint8_t brightnessb = brightness * 255;
-    // currently in hass there is no way to only show white via the ui, so disable the colors if all of them are on and therefore very white
+    // currently in hass there is no way to only show white via the hass ui, so disable the colors if all of them are on and therefore very white
     bool white_colors = redb >= brightnessb - 10 && greenb >= brightnessb - 10 && blueb >= brightnessb - 10 && whiteb >= brightnessb - 10;
     if (white_colors)
     {

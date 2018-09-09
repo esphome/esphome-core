@@ -72,6 +72,9 @@ class LightState : public Nameable, public Component {
   /// Set the color values immediately.
   void set_immediately(const LightColorValues &target);
 
+  /// Set the color values immediately without writing - useful if the component itself reports a change in color value.
+  void set_immediately_without_write(const LightColorValues &target);
+
   /// Set the color values immediately without sending the new state.
   void set_immediately_without_sending(const LightColorValues &target);
 

@@ -30,6 +30,12 @@ class PartitionableLightOutput
     public:
         virtual void write_partition(LightState *state, uint16_t index_start, uint16_t index_end) = 0;
         virtual LightTraits get_traits() = 0;
+        
+        void register_partition_state(LightState *state) {
+            partitions_states_.push_back(state);
+        }
+    protected:
+        std::vector<LightState *> partitions_states_;
 };
 
 /** This component allows you to address the subset of a (NeoPixelBus) LED Strip and have it act as one light.
@@ -37,8 +43,8 @@ class PartitionableLightOutput
 class PartitionedLightOutputComponent : public LightOutput, public Component
 {
   public:
-    PartitionedLightOutputComponent(PartitionableLightOutput *partitionable, uint16_t index_start, uint16_t index_end) : 
-        partitionable_(partitionable), index_start_(index_start), index_end_(index_end)
+    PartitionedLightOutputComponent(PartitionableLightOutput *partitionable, LightState *master_state, uint16_t index_start, uint16_t index_end) : 
+        partitionable_(partitionable), master_state_(master_state), index_start_(index_start), index_end_(index_end)
     {
     }
     LightTraits get_traits() override
@@ -48,6 +54,10 @@ class PartitionedLightOutputComponent : public LightOutput, public Component
 
     void write_state(LightState *state) override
     {
+        auto current_values = master_state_->get_remote_values_lazy();
+        if (state->get_current_values_lazy().get_state() > current_values.get_state()) {
+            master_state_->set_immediately_without_write(LightColorValues::from_binary(true));
+        }
         partitionable_->write_partition(state, index_start_, index_end_);
     }
     void setup() override
@@ -63,6 +73,7 @@ class PartitionedLightOutputComponent : public LightOutput, public Component
 
   private:
     PartitionableLightOutput *partitionable_;
+    LightState *master_state_;
     uint16_t index_start_;
     uint16_t index_end_;
 };

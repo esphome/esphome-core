@@ -71,6 +71,12 @@ void LightState::set_immediately(const LightColorValues &target) {
   this->send_values();
 }
 
+void LightState::set_immediately_without_write(const LightColorValues &target) {
+  auto next_write = this->next_write_;
+  this->set_immediately(target);
+  this->next_write_ = next_write;
+}
+
 LightColorValues LightState::get_current_values() {
   if (this->active_effect_ != nullptr)
     this->active_effect_->apply();
