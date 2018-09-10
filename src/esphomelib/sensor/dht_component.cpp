@@ -142,13 +142,8 @@ bool DHTComponent::read_sensor_(float *temperature, float *humidity, bool report
             BYTE_TO_BINARY(data[2]), BYTE_TO_BINARY(data[3]),
             BYTE_TO_BINARY(data[4]));
 
-  uint8_t checksum;
-  if (this->model_ == DHT_MODEL_DHT11)
-    checksum = data[0] + data[2];
-  else
-    checksum = data[0] + data[1] + data[2] + data[3];
-
-  if (checksum != data[4]) {
+  uint8_t checksum = (data[0] + data[1] + data[2] + data[3]) & 0xFF;
+  if (data[4] != checksum) {
     if (report_errors) {
       ESP_LOGE(TAG, "Checksum invalid: %u!=%u", checksum, data[4]);
     }
