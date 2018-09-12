@@ -66,7 +66,8 @@ bool decode_samsung(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits) {
     }
   }
 
-  if (!data->expect_item(FOOTER_HIGH_US/*, FOOTER_LOW_US*/))
+  #if (!data->expect_item(FOOTER_HIGH_US, FOOTER_LOW_US))
+  if (!data->expect_mark(FOOTER_HIGH_US))
     return false;
 
   return true;
