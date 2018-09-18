@@ -59,6 +59,16 @@ public:
     this->max_refresh_rate_ = interval_us;
   }
 
+  /// Only for custom effects: Prevent the LightState from writing over all color values in CRGB.
+  void prevent_writing_leds() {
+    this->prevent_writing_leds_ = true;
+  }
+
+  /// Only for custom effects: Stop prevent_writing_leds. Call this when your effect terminates.
+  void unprevent_writing_leds() {
+    this->prevent_writing_leds_ = false;
+  }
+
   /// Add some LEDS, can only be called once.
   NeoPixelBus<T_COLOR_FEATURE, T_METHOD> &add_leds(NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller)
   {
@@ -83,7 +93,10 @@ public:
 
   void write_state(LightState *state) override
   {
-    this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state));
+    if (this->prevent_writing_leds_)
+      return;
+    this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()));
+    
     const auto current_values = state->get_remote_values_lazy();
     for (auto const& state : this->partitions_states_) {
       state->set_immediately_without_write(current_values);
@@ -93,7 +106,9 @@ public:
 
   void write_partition(LightState *state, uint16_t index_start, uint16_t index_end) override
   {
-    this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state), index_start, index_end);
+    if (this->prevent_writing_leds_)
+      return;
+    this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()), index_start, index_end);
     this->schedule_show();
   }
 
@@ -147,22 +162,15 @@ public:
   {
     return setup_priority::HARDWARE;
   }
-
-protected:
-  NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller_{nullptr};
-  uint32_t last_refresh_{0};
-  bool next_show_{true};
-#ifdef USE_OUTPUT
-  PowerSupplyComponent *power_supply_{nullptr};
-  bool has_requested_high_power_{false};
-#endif
-private:
   template <typename U>
   static typename std::enable_if<std::is_same<U, RgbColor>::value, RgbColor>::type
-  get_light_color(LightState *state)
+  get_light_color(LightState *state, const LightColorValues values)
   {
     float red, green, blue;
-    state->current_values_as_rgb(&red, &green, &blue);
+    values.as_rgb(&red, &green, &blue);
+    red = gamma_correct(red, state->get_gamma_correct());
+    green = gamma_correct(green, state->get_gamma_correct());
+    blue = gamma_correct(blue, state->get_gamma_correct());
     uint8_t redb = red * 255;
     uint8_t greenb = green * 255;
     uint8_t blueb = blue * 255;
@@ -171,11 +179,15 @@ private:
 
   template <typename U>
   static typename std::enable_if<std::is_same<U, RgbwColor>::value, RgbwColor>::type
-  get_light_color(LightState *state)
+  get_light_color(LightState *state, const LightColorValues values)
   {
     float red, green, blue, white, brightness;
-    state->current_values_as_rgbw(&red, &green, &blue, &white);
-    state->current_values_as_brightness(&brightness);
+    values.as_rgbw(&red, &green, &blue, &white);
+    values.as_brightness(&brightness);
+    red = gamma_correct(red, state->get_gamma_correct());
+    green = gamma_correct(green, state->get_gamma_correct());
+    blue = gamma_correct(blue, state->get_gamma_correct());
+    white = gamma_correct(white, state->get_gamma_correct());
     uint8_t redb = red * 255;
     uint8_t greenb = green * 255;
     uint8_t blueb = blue * 255;
@@ -192,7 +204,15 @@ private:
       return RgbwColor(redb, greenb, blueb, whiteb);
     }
   }
-
+protected:
+  NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller_{nullptr};
+  uint32_t last_refresh_{0};
+  bool next_show_{true};
+#ifdef USE_OUTPUT
+  PowerSupplyComponent *power_supply_{nullptr};
+  bool has_requested_high_power_{false};
+#endif
+private:
   static bool isOn(const RgbColor &color) {
     return color.R != 0 && color.G != 0 && color.B != 0;
   }
@@ -201,6 +221,7 @@ private:
     return color.R != 0 && color.G != 0 && color.B != 0 && color.W != 0;
   }
 
+  bool prevent_writing_leds_{false};
   const char *TAG = "light.neo_pixel_bus";
 };
 
