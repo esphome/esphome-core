@@ -45,6 +45,7 @@ env:
     - BUILD_TARGET=i2c-sensors
     - BUILD_TARGET=pcf8574
     - BUILD_TARGET=fastled
+    - BUILD_TARGET=neopixelbus
 
 script:
   - platformio run -e $BUILD_TARGET
