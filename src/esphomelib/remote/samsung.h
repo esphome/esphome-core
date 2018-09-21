@@ -22,29 +22,27 @@ namespace remote {
 #ifdef USE_REMOTE_TRANSMITTER
 class SamsungTransmitter : public RemoteTransmitter {
  public:
-  SamsungTransmitter(const std::string &name, uint32_t data, uint8_t nbits);
+  SamsungTransmitter(const std::string &name, uint32_t data);
 
   void to_data(RemoteTransmitData *data) override;
 
  protected:
   uint32_t data_;
-  uint8_t nbits_;
 };
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_samsung(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits);
+bool decode_samsung(RemoteReceiveData *data, uint32_t *data_);
 
 class SamsungReceiver : public RemoteReceiver {
  public:
-  SamsungReceiver(const std::string &name, uint32_t data, uint8_t nbits);
+  SamsungReceiver(const std::string &name, uint32_t data);
 
  protected:
   bool matches(RemoteReceiveData *data) override;
 
  protected:
   uint32_t data_;
-  uint8_t nbits_;
 };
 
 class SamsungDumper : public RemoteReceiveDumper {
