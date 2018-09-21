@@ -67,7 +67,7 @@ bool decode_samsung(RemoteReceiveData *data, uint32_t *data_) {
     }
   }
 
-  return data->expect_mark(FOOTER_HIGH_US));
+  return data->expect_mark(FOOTER_HIGH_US);
 }
 
 SamsungReceiver::SamsungReceiver(const std::string &name, uint32_t data)
