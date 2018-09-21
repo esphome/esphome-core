@@ -21,7 +21,7 @@ namespace remote {
 static const char *TAG = "remote.samsung";
 #endif
 
-static const uint32_t NBITS = 32;
+static const uint8_t NBITS = 32;
 static const uint32_t HEADER_HIGH_US = 4500;
 static const uint32_t HEADER_LOW_US = 4500;
 static const uint32_t BIT_HIGH_US = 560;
