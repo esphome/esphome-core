@@ -54,6 +54,7 @@
 #include "esphomelib/remote/nec.h"
 #include "esphomelib/remote/panasonic.h"
 #include "esphomelib/remote/raw.h"
+#include "esphomelib/remote/samsung.h"
 #include "esphomelib/remote/sony.h"
 #include "esphomelib/remote/rc_switch.h"
 #include "esphomelib/sensor/adc.h"
