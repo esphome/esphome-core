@@ -79,6 +79,17 @@ optional<bool> UniqueFilter::new_value(bool value) {
   }
 }
 
+HeartbeatFilter::HeartbeatFilter(uint32_t interval) : interval_(interval) {}
+optional<bool> HeartbeatFilter::new_value(bool value) {
+  this->value_ = value;
+  return value;
+}
+void HeartbeatFilter::setup() {
+  this->set_interval(this->interval_, [this]() {
+    if (this->value_.has_value())
+      this->output(*this->value_);
+  });
+}
 } // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END

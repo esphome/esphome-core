@@ -11,6 +11,7 @@
 #ifdef USE_ONE_WIRE
 
 #include "esphomelib/esp_one_wire.h"
+#include "esphomelib/helpers.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -19,7 +20,7 @@ const int ONE_WIRE_ROM_SEARCH = 0xF0;
 
 ESPOneWire::ESPOneWire(GPIOPin *pin) : pin_(pin) {}
 
-bool ESPOneWire::reset() {
+bool HOT ESPOneWire::reset() {
   uint8_t retries = 125;
 
   // Wait for communication to clear
@@ -46,7 +47,7 @@ bool ESPOneWire::reset() {
   return r;
 }
 
-void ESPOneWire::write_bit(bool bit) {
+void HOT ESPOneWire::write_bit(bool bit) {
   // Initiate write/read by pulling low.
   this->pin_->pin_mode(OUTPUT);
   this->pin_->digital_write(false);
@@ -67,7 +68,7 @@ void ESPOneWire::write_bit(bool bit) {
   }
 }
 
-bool ESPOneWire::read_bit() {
+bool HOT ESPOneWire::read_bit() {
   // Initiate read slot by pulling LOW for at least 1µs
   this->pin_->pin_mode(OUTPUT);
   this->pin_->digital_write(false);
@@ -119,7 +120,7 @@ void ESPOneWire::reset_search() {
   this->last_family_discrepancy_ = 0;
   this->rom_number = 0;
 }
-uint64_t ESPOneWire::search() {
+uint64_t HOT ESPOneWire::search() {
   if (this->last_device_flag_) {
     return 0u;
   }

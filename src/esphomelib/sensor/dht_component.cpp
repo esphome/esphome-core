@@ -75,7 +75,7 @@ DHTTemperatureSensor *DHTComponent::get_temperature_sensor() const {
 DHTHumiditySensor *DHTComponent::get_humidity_sensor() const {
   return this->humidity_sensor_;
 }
-bool DHTComponent::read_sensor_(float *temperature, float *humidity, bool report_errors) {
+bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool report_errors) {
   *humidity = NAN;
   *temperature = NAN;
 
@@ -103,7 +103,11 @@ bool DHTComponent::read_sensor_(float *temperature, float *humidity, bool report
       if (micros() - start_time > 90) {
         enable_interrupts();
         if (report_errors) {
-          ESP_LOGW(TAG, "Rising edge for bit %d failed!", i);
+          if (i < 0) {
+            ESP_LOGW(TAG, "Waiting for DHT communication to clear failed!");
+          } else {
+            ESP_LOGW(TAG, "Rising edge for bit %d failed!", i);
+          }
         }
         return false;
       }
@@ -117,7 +121,11 @@ bool DHTComponent::read_sensor_(float *temperature, float *humidity, bool report
       if ((end_time = micros()) - start_time > 90) {
         enable_interrupts();
         if (report_errors) {
-          ESP_LOGW(TAG, "Falling edge for bit %d failed!", i);
+          if (i < 0) {
+            ESP_LOGW(TAG, "Requesting data from DHT failed!");
+          } else {
+            ESP_LOGW(TAG, "Falling edge for bit %d failed!", i);
+          }
         }
         return false;
       }
@@ -142,15 +150,14 @@ bool DHTComponent::read_sensor_(float *temperature, float *humidity, bool report
             BYTE_TO_BINARY(data[2]), BYTE_TO_BINARY(data[3]),
             BYTE_TO_BINARY(data[4]));
 
-  uint8_t checksum;
-  if (this->model_ == DHT_MODEL_DHT11)
-    checksum = data[0] + data[2];
-  else
-    checksum = data[0] + data[1] + data[2] + data[3];
+  uint8_t checksum_a = data[0] + data[1] + data[2] + data[3];
+  // On the DHT11, two algorithms for the checksum seem to be used, either the one from the DHT22,
+  // or just using bytes 0 and 2
+  uint8_t checksum_b = this->model_ == DHT_MODEL_DHT11 ? (data[0] + data[2]) : checksum_a;
 
-  if (checksum != data[4]) {
+  if (checksum_a != data[4] && checksum_b != data[4]) {
     if (report_errors) {
-      ESP_LOGE(TAG, "Checksum invalid: %u!=%u", checksum, data[4]);
+      ESP_LOGE(TAG, "Checksum invalid: %u!=%u", checksum_a, data[4]);
     }
     return false;
   }

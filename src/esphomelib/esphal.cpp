@@ -88,10 +88,13 @@ bool ICACHE_RAM_ATTR HOT GPIOPin::digital_read() {
 void ICACHE_RAM_ATTR HOT GPIOPin::digital_write(bool value) {
 #ifdef ARDUINO_ARCH_ESP8266
   if (this->gpio_set_ == nullptr) {
-    if (value != this->inverted_)
+    if (value != this->inverted_) {
       GP16O |= 1;
-    else
+    } else {
       GP16O &= ~1;
+    }
+
+    return;
   }
 #endif
   if (value != this->inverted_) {

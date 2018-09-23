@@ -56,6 +56,19 @@ class DelayedOffFilter : public Filter, public Component {
   uint32_t delay_;
 };
 
+class HeartbeatFilter : public Filter, public Component {
+ public:
+  explicit HeartbeatFilter(uint32_t interval);
+
+  optional<bool> new_value(bool value) override;
+
+  void setup();
+
+ protected:
+  uint32_t interval_;
+  optional<bool> value_{};
+};
+
 class InvertFilter : public Filter {
  public:
   optional<bool> new_value(bool value) override;

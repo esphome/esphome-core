@@ -49,6 +49,9 @@ EsphomelibTime RTCComponent::utcnow() {
   struct tm *c_tm = ::gmtime(&t);
   return EsphomelibTime::from_tm(c_tm, t);
 }
+CronTrigger *RTCComponent::make_cron_trigger() {
+  return new CronTrigger(this);
+}
 
 size_t EsphomelibTime::strftime(char *buffer, size_t buffer_len, const char *format) {
   struct tm c_tm = this->to_c_tm();
@@ -96,6 +99,109 @@ std::string EsphomelibTime::strftime(const std::string &format) {
 }
 bool EsphomelibTime::is_valid() const {
   return this->year >= 2018;
+}
+void EsphomelibTime::increment_second() {
+  this->time++;
+  this->second = (this->second + 1) % 60;
+  if (this->second == 0) {
+    // second roll-over
+    this->minute = (this->minute + 1) % 60;
+    if (this->minute == 0) {
+      // minute roll-over
+      this->hour = (this->hour + 1) % 24;
+      if (this->hour == 0) {
+        // hour roll-over
+        this->day_of_week = (this->day_of_week % 7) + 1;
+
+        static const uint8_t DAYS_IN_MONTH[] = {0, 31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30 , 31};
+        uint8_t days_in_month;
+        if (this->month == 2) {
+          days_in_month = (this->year % 4 == 0) ? 29 : 28;
+        } else {
+          days_in_month = DAYS_IN_MONTH[this->month];
+        }
+        this->day_of_month = (this->day_of_month % days_in_month) + 1;
+        if (this->day_of_month == 1) {
+          // month roll-over
+          this->month = (this->month % 12) + 1;
+        }
+
+        uint16_t days_in_year = (this->year % 4 == 0) ? 366 : 365;
+        this->day_of_year = (this->day_of_year % days_in_year) + 1;
+        if (this->day_of_year == 1) {
+          // year roll-over
+          this->year++;
+        }
+      }
+    }
+  }
+}
+bool EsphomelibTime::operator<(EsphomelibTime other) {
+  return this->time < other.time;
+}
+bool EsphomelibTime::operator<=(EsphomelibTime other) {
+  return this->time <= other.time;
+}
+bool EsphomelibTime::operator==(EsphomelibTime other) {
+  return this->time == other.time;
+}
+bool EsphomelibTime::operator>=(EsphomelibTime other) {
+  return this->time >= other.time;
+}
+bool EsphomelibTime::operator>(EsphomelibTime other) {
+  return this->time > other.time;
+}
+
+void CronTrigger::add_second(uint8_t second) {
+  this->seconds_[second] = true;
+}
+void CronTrigger::add_minute(uint8_t minute) {
+  this->minutes_[minute] = true;
+}
+void CronTrigger::add_hour(uint8_t hour) {
+  this->hours_[hour] = true;
+}
+void CronTrigger::add_day_of_month(uint8_t day_of_month) {
+  this->days_of_month_[day_of_month] = true;
+}
+void CronTrigger::add_month(uint8_t month) {
+  this->months_[month] = true;
+}
+void CronTrigger::add_day_of_week(uint8_t day_of_week) {
+  this->days_of_week_[day_of_week] = true;
+}
+bool CronTrigger::matches(const EsphomelibTime &time) {
+  return time.is_valid() && this->seconds_[time.second] && this->minutes_[time.minute] &&
+      this->hours_[time.hour] && this->days_of_month_[time.day_of_month] && this->months_[time.month] &&
+      this->days_of_week_[time.day_of_week];
+}
+void CronTrigger::loop() {
+  EsphomelibTime time = this->rtc_->now();
+  if (!time.is_valid())
+    return;
+
+  if (this->last_check_.has_value()) {
+    if (*this->last_check_ == time) {
+      // already handled this one
+      return;
+    }
+
+    while (true) {
+      this->last_check_->increment_second();
+      if (*this->last_check_ >= time)
+        break;
+
+      if (this->matches(*this->last_check_))
+        this->trigger();
+    }
+  }
+
+  this->last_check_ = time;
+  if (this->matches(time))
+    this->trigger();
+}
+CronTrigger::CronTrigger(RTCComponent *rtc) : rtc_(rtc) {
+
 }
 
 } // namespace time
