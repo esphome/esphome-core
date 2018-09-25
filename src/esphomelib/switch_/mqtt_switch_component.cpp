@@ -33,13 +33,21 @@ void MQTTSwitchComponent::setup() {
   }
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
-    auto val = parse_on_off(payload.c_str());
-    if (!val.has_value()) {
+    bool state;
+    if (strcasecmp(payload.c_str(), "on") == 0) {
+      state = true;
+    } else if (strcasecmp(payload.c_str(), "off") == 0) {
+      state = false;
+    } else if (strcasecmp(payload.c_str(), "toggle") == 0) {
+      state = !this->switch_->value;
+    } else {
       ESP_LOGW(TAG, "'%s': Received unknown status payload: %s", this->friendly_name().c_str(), payload.c_str());
       this->status_momentary_warning("state", 5000);
+      return;
     }
+
     ESP_LOGD(TAG, "'%s' Turning %s.", this->friendly_name().c_str(), payload.c_str());
-    this->switch_->write_state(*val);
+    this->switch_->write_state(state);
   });
   this->switch_->add_on_state_callback([this](bool enabled){
     this->defer([this, enabled]() {
