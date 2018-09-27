@@ -167,7 +167,9 @@ void MQTTComponent::setup_() {
     this->send_discovery_();
 
   global_mqtt_client->register_mqtt_component(this);
+  this->send_initial_state();
 }
+
 void MQTTComponent::loop_() {
   this->loop_internal();
 

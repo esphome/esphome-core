@@ -31,9 +31,8 @@ void BinarySensor::publish_state(bool state) {
 
 }
 void BinarySensor::send_value_(bool state) {
-  if (!this->is_first_value_ && this->last_value_ == state)
+  if (this->last_value_ == state)
     return;
-  this->is_first_value_ = false;
   this->last_value_ = state;
 
   this->value = state;
