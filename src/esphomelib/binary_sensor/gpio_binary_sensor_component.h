@@ -40,6 +40,7 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
 
  protected:
   GPIOPin *pin_;
+  bool last_state_{false};
 };
 
 } // namespace binary_sensor
