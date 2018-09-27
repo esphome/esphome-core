@@ -54,8 +54,6 @@ void MQTTSwitchComponent::setup() {
       this->publish_state(enabled);
     });
   });
-
-  this->send_initial_state();
 }
 
 std::string MQTTSwitchComponent::component_type() const {

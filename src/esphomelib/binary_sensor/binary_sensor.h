@@ -89,7 +89,7 @@ class BinarySensor : public Nameable {
   virtual std::string device_class();
 
   bool last_raw_, is_first_raw_{true};
-  bool last_value_, is_first_value_{true};
+  bool last_value_;
   CallbackManager<void(bool)> state_callback_{};
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
