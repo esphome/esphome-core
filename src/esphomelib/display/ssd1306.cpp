@@ -19,8 +19,8 @@ namespace display {
 
 static const char *TAG = "display.ssd1306";
 
-static const uint8_t SSD1306_COMMAND_DISPLAY_OFF = 0xAF;
-static const uint8_t SSD1306_COMMAND_DISPLAY_ON = 0xAE;
+static const uint8_t SSD1306_COMMAND_DISPLAY_OFF = 0xAE;
+static const uint8_t SSD1306_COMMAND_DISPLAY_ON = 0xAF;
 static const uint8_t SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV = 0xD5;
 static const uint8_t SSD1306_COMMAND_SET_MULTIPLEX = 0xA8;
 static const uint8_t SSD1306_COMMAND_SET_DISPLAY_OFFSET = 0xD3;
@@ -225,7 +225,6 @@ float SSD1306::get_setup_priority() const {
 }
 void SSD1306::fill(int color) {
   uint8_t fill = color ? 0xFF : 0x00;
-  ESP_LOGD(TAG, "fill(%d): 0x%p", color, this->buffer_);
   for (uint32_t i = 0; i < this->get_buffer_length_(); i++)
     this->buffer_[i] = fill;
 }
