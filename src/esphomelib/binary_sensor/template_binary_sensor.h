@@ -32,6 +32,8 @@ class TemplateBinarySensor : public Component, public BinarySensor {
 
  protected:
   std::function<optional<bool>()> f_;
+  bool last_state_{false};
+  bool is_first_state_{true};
 };
 
 } // namespace binary_sensor

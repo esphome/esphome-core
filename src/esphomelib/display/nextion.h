@@ -81,6 +81,7 @@ class NextionTouchComponent : public binary_sensor::BinarySensor {
  protected:
   uint8_t page_id_;
   uint8_t component_id_;
+  bool last_state_{false};
 };
 
 } // namespace display
