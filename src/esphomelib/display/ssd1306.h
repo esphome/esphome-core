@@ -50,6 +50,7 @@ class SSD1306 : public PollingComponent, public DisplayBuffer {
  protected:
   virtual void command(uint8_t value) = 0;
   virtual void write_display_data() = 0;
+  void init_reset_();
 
   bool is_sh1106_() const;
 

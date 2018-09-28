@@ -44,17 +44,6 @@ static const uint8_t SSD1306_NORMAL_DISPLAY = 0xA6;
 void SSD1306::setup() {
   this->init_internal_(this->get_buffer_length_());
 
-  if (this->reset_pin_ != nullptr) {
-    this->reset_pin_->setup();
-    this->reset_pin_->digital_write(true);
-    delay(1);
-    // Trigger Reset
-    this->reset_pin_->digital_write(false);
-    delay(10);
-    // Wake up
-    this->reset_pin_->digital_write(true);
-  }
-
   this->command(SSD1306_COMMAND_DISPLAY_OFF);
   this->command(SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV);
   this->command(0x80); // suggested ratio
@@ -228,6 +217,18 @@ void SSD1306::fill(int color) {
   for (uint32_t i = 0; i < this->get_buffer_length_(); i++)
     this->buffer_[i] = fill;
 }
+void SSD1306::init_reset_() {
+  if (this->reset_pin_ != nullptr) {
+    this->reset_pin_->setup();
+    this->reset_pin_->digital_write(true);
+    delay(1);
+    // Trigger Reset
+    this->reset_pin_->digital_write(false);
+    delay(10);
+    // Wake up
+    this->reset_pin_->digital_write(true);
+  }
+}
 
 #ifdef USE_SPI
 bool SPISSD1306::msb_first() {
@@ -238,6 +239,7 @@ void SPISSD1306::setup() {
   this->spi_setup();
   this->dc_pin_->setup(); // OUTPUT
 
+  this->init_reset_();
   SSD1306::setup();
 }
 void SPISSD1306::command(uint8_t value) {
@@ -278,6 +280,8 @@ bool SPISSD1306::high_speed() {
 #ifdef USE_I2C
 void I2CSSD1306::setup() {
   ESP_LOGCONFIG(TAG, "Setting up I2C SSD1306...");
+
+  this->init_reset_();
 
   this->parent_->begin_transmission_(this->address_);
   if (!this->parent_->end_transmission_(this->address_)) {
