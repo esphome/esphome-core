@@ -69,15 +69,15 @@ void SSD1306::setup() {
   switch (this->model_) {
     case SSD1306_MODEL_128_32:
     case SH1106_MODEL_128_32:
+    case SSD1306_MODEL_96_16:
+    case SH1106_MODEL_96_16:
       this->command(0x02);
       break;
     case SSD1306_MODEL_128_64:
     case SH1106_MODEL_128_64:
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
       this->command(0x12);
-      break;
-    case SSD1306_MODEL_96_16:
-    case SH1106_MODEL_96_16:
-      this->command(0x02);
       break;
   }
 
@@ -89,6 +89,8 @@ void SSD1306::setup() {
       break;
     case SSD1306_MODEL_128_64:
     case SH1106_MODEL_128_64:
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
       if (this->external_vcc_)
         this->command(0x9F);
       else
@@ -126,26 +128,22 @@ void SSD1306::display() {
   }
 
   this->command(SSD1306_COMMAND_COLUMN_ADDRESS);
-  this->command(0);
-  this->command(this->get_width_internal_() - 1);
-
-  this->command(SSD1306_COMMAND_PAGE_ADDRESS);
-  this->command(0); // Page start address, 0
-
-  // Page end address:
   switch (this->model_) {
-    case SSD1306_MODEL_128_32:
-      this->command(0x03);
-      break;
-    case SSD1306_MODEL_128_64:
-      this->command(0x07);
-      break;
-    case SSD1306_MODEL_96_16:
-      this->command(0x01);
+    case SSD1306_MODEL_64_48:
+      this->command(0x20);
+      this->command(0x20 + this->get_width_internal_() - 1);
       break;
     default:
+      this->command(0); // Page start address, 0
+      this->command(this->get_width_internal_() - 1);
       break;
   }
+
+  this->command(SSD1306_COMMAND_PAGE_ADDRESS);
+  // Page start address, 0
+  this->command(0);
+  // Page end address:
+  this->command((this->get_height_internal_() / 8) - 1);
 
   this->write_display_data();
 }
@@ -176,6 +174,9 @@ int SSD1306::get_height_internal_() {
     case SSD1306_MODEL_96_16:
     case SH1106_MODEL_96_16:
       return 16;
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
+      return 48;
     default: return 0;
   }
 }
@@ -189,6 +190,9 @@ int SSD1306::get_width_internal_() {
     case SSD1306_MODEL_96_16:
     case SH1106_MODEL_96_16:
       return 96;
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
+      return 64;
     default: return 0;
   }
 }
