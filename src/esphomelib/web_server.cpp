@@ -11,6 +11,7 @@
 #ifdef USE_WEB_SERVER
 
 #include "esphomelib/web_server.h"
+#include "esphomelib/log.h"
 #include "esphomelib/application.h"
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -23,6 +24,8 @@
 #include <cstdlib>
 
 ESPHOMELIB_NAMESPACE_BEGIN
+
+static const char *TAG = "web_server";
 
 void write_row(AsyncResponseStream *stream, Nameable *obj,
                const std::string &klass, const std::string &action) {
@@ -81,6 +84,7 @@ void WebServer::set_port(uint16_t port) {
 }
 
 void WebServer::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up web server on port %u...", this->port_);
   this->server_ = new AsyncWebServer(this->port_);
   MDNS.addService("http", "tcp", this->port_);
 
@@ -481,6 +485,8 @@ bool WebServer::canHandle(AsyncWebServerRequest *request) {
   return false;
 }
 void WebServer::handleRequest(AsyncWebServerRequest *request) {
+  ESP_LOGD(TAG, "%s %s", request->methodToString(), request->url().c_str());
+
   if (request->url() == "/") {
     this->handle_index_request(request);
     return;
