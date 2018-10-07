@@ -109,9 +109,9 @@ void MQTTClientComponent::start_connect() {
   const char *password = nullptr;
   if (!this->credentials_.password.empty())
     password = this->credentials_.password.c_str();
+
   this->mqtt_client_.setCredentials(username, password);
 
-  this->mqtt_client_.setCredentials(this->credentials_.username.c_str(), this->credentials_.password.c_str());
   this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
   if (!this->last_will_.topic.empty()) {
     this->mqtt_client_.setWill(this->last_will_.topic.c_str(), this->last_will_.qos, this->last_will_.retain,
