@@ -71,6 +71,8 @@ void WiFiComponent::setup() {
     }
     delay(10);
     this->start_connecting();
+  } else if (this->has_ap()) {
+    this->setup_ap_config();
   }
 }
 
@@ -282,9 +284,6 @@ void WiFiComponent::start_connecting() {
 }
 
 void WiFiComponent::check_connecting_finished() {
-  assert(this->state_ == WIFI_COMPONENT_STATE_STA_CONNECTING || this->state_ == WIFI_COMPONENT_STATE_AP_STA_CONNECTING);
-  assert(this->has_sta());
-
   wl_status_t status = WiFi.status();
   if (status == WL_CONNECTED) {
     ESP_LOGI(TAG, "WiFi connected!");
