@@ -72,7 +72,7 @@ void MQTTClientComponent::setup() {
   });
   if (this->is_log_message_enabled()) {
     global_log_component->add_on_log_callback([this](int level, const char *message) {
-      if (level >= this->log_level_ && this->mqtt_client_.connected() && this->state_ == MQTT_CLIENT_CONNECTED) {
+      if (level <= this->log_level_ && this->mqtt_client_.connected() && this->state_ == MQTT_CLIENT_CONNECTED) {
         this->publish(this->log_message_.topic, message, this->log_message_.qos, this->log_message_.retain);
       }
     });
