@@ -290,6 +290,10 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
   String startString();
 
  protected:
+  void *do_alloc(size_t bytes);
+
+  void initialize_capacity();
+
   std::vector<char> buffer_;
 };
 

@@ -310,27 +310,36 @@ VectorJsonBuffer::String::String(VectorJsonBuffer *parent)
 
 }
 void VectorJsonBuffer::String::append(char c) const {
-  char* last = static_cast<char*>(this->parent_->alloc(1));
+  char* last = static_cast<char*>(this->parent_->do_alloc(1));
   *last = c;
 }
 const char *VectorJsonBuffer::String::c_str() const {
   this->append('\0');
   return &this->parent_->buffer_[this->start_];
 }
-void *VectorJsonBuffer::alloc(size_t bytes) {
-  if (this->buffer_.capacity() <= JSON_BUFFER_SIZE) {
-    // avoid many micro-allocations which won't last long
-    this->buffer_.reserve(JSON_BUFFER_SIZE);
-  }
-  const uint32_t begin = this->buffer_.size();
-  this->buffer_.resize(begin + bytes);
-  return &this->buffer_[begin];
-}
 void VectorJsonBuffer::clear() {
   this->buffer_.clear();
 }
 VectorJsonBuffer::String VectorJsonBuffer::startString() {
   return {this};
+}
+void *VectorJsonBuffer::alloc(size_t bytes) {
+  // Make sure memory addresses are aligned
+  this->initialize_capacity();
+  this->buffer_.resize(round_size_up(this->buffer_.size()));
+  return this->do_alloc(bytes);
+}
+void *VectorJsonBuffer::do_alloc(size_t bytes) {
+  this->initialize_capacity();
+  const uint32_t begin = this->buffer_.size();
+  this->buffer_.resize(begin + bytes);
+  return &this->buffer_[begin];
+}
+void VectorJsonBuffer::initialize_capacity() {
+  if (this->buffer_.capacity() <= JSON_BUFFER_SIZE) {
+    // avoid many micro-allocations which won't last long
+    this->buffer_.reserve(JSON_BUFFER_SIZE);
+  }
 }
 
 VectorJsonBuffer global_json_buffer;
