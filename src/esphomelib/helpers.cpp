@@ -177,18 +177,18 @@ std::string uint32_to_string(uint32_t num) {
   return std::string(buffer);
 }
 std::string build_json(const json_build_t &f) {
-  StaticJsonBuffer<JSON_BUFFER_SIZE> json_buffer;
-  JsonObject &root = json_buffer.createObject();
+  global_json_buffer.clear();
+  JsonObject &root = global_json_buffer.createObject();
 
-  f(json_buffer, root);
+  f(global_json_buffer, root);
 
   std::string buffer;
   root.printTo(buffer);
   return buffer;
 }
 void parse_json(const std::string &data, const json_parse_t &f) {
-  StaticJsonBuffer<JSON_BUFFER_SIZE> buffer;
-  JsonObject &root = buffer.parseObject(data);
+  global_json_buffer.clear();
+  JsonObject &root = global_json_buffer.parseObject(data);
 
   if (!root.success()) {
     ESP_LOGW(TAG, "Parsing JSON failed.");
@@ -304,5 +304,35 @@ template<uint32_t>
 uint32_t reverse_bits(uint32_t x) {
   return uint32_t(reverse_bits_16(x & 0xFFFF) << 16) | uint32_t(reverse_bits_16(x >> 16));
 }
+
+VectorJsonBuffer::String::String(VectorJsonBuffer *parent)
+    : parent_(parent), start_(parent->buffer_.size()) {
+
+}
+void VectorJsonBuffer::String::append(char c) const {
+  char* last = static_cast<char*>(this->parent_->alloc(1));
+  *last = c;
+}
+const char *VectorJsonBuffer::String::c_str() const {
+  this->append('\0');
+  return &this->parent_->buffer_[this->start_];
+}
+void *VectorJsonBuffer::alloc(size_t bytes) {
+  if (this->buffer_.capacity() <= JSON_BUFFER_SIZE) {
+    // avoid many micro-allocations which won't last long
+    this->buffer_.reserve(JSON_BUFFER_SIZE);
+  }
+  const uint32_t begin = this->buffer_.size();
+  this->buffer_.resize(begin + bytes);
+  return &this->buffer_[begin];
+}
+void VectorJsonBuffer::clear() {
+  this->buffer_.clear();
+}
+VectorJsonBuffer::String VectorJsonBuffer::startString() {
+  return {this};
+}
+
+VectorJsonBuffer global_json_buffer;
 
 ESPHOMELIB_NAMESPACE_END
