@@ -322,6 +322,7 @@ void VectorJsonBuffer::clear() {
     free(block);
 
   this->size_ = 0;
+  this->free_blocks_.clear();
 }
 VectorJsonBuffer::String VectorJsonBuffer::startString() {
   return {this};
