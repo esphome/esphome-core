@@ -306,7 +306,7 @@ uint32_t reverse_bits(uint32_t x) {
 }
 
 VectorJsonBuffer::String::String(VectorJsonBuffer *parent)
-    : parent_(parent), start_(parent->buffer_.size()) {
+    : parent_(parent), start_(parent->size()) {
 
 }
 void VectorJsonBuffer::String::append(char c) const {
@@ -318,28 +318,53 @@ const char *VectorJsonBuffer::String::c_str() const {
   return &this->parent_->buffer_[this->start_];
 }
 void VectorJsonBuffer::clear() {
-  this->buffer_.clear();
+  for (char *block : this->free_blocks_)
+    free(block);
+
+  this->size_ = 0;
 }
 VectorJsonBuffer::String VectorJsonBuffer::startString() {
   return {this};
 }
 void *VectorJsonBuffer::alloc(size_t bytes) {
   // Make sure memory addresses are aligned
-  this->initialize_capacity();
-  this->buffer_.resize(round_size_up(this->buffer_.size()));
+  uint32_t new_size = round_size_up(this->size_);
+  this->resize(new_size);
   return this->do_alloc(bytes);
 }
 void *VectorJsonBuffer::do_alloc(size_t bytes) {
-  this->initialize_capacity();
-  const uint32_t begin = this->buffer_.size();
-  this->buffer_.resize(begin + bytes);
+  const uint32_t begin = this->size_;
+  this->resize(begin + bytes);
   return &this->buffer_[begin];
 }
-void VectorJsonBuffer::initialize_capacity() {
-  if (this->buffer_.capacity() <= JSON_BUFFER_SIZE) {
-    // avoid many micro-allocations which won't last long
-    this->buffer_.reserve(JSON_BUFFER_SIZE);
+void VectorJsonBuffer::resize(size_t size) {
+  if (size <= this->size_) {
+    this->size_ = size;
+    return;
   }
+
+  this->reserve(size);
+  this->size_ = size;
+}
+void VectorJsonBuffer::reserve(size_t size) {
+  if (size <= this->capacity_)
+    return;
+
+  uint32_t target_capacity = this->capacity_;
+  if (this->capacity_ == 0) {
+    // lazily initialize with a reasonable size
+    target_capacity = JSON_BUFFER_SIZE;
+  }
+  while (target_capacity < size)
+    target_capacity *= 2;
+
+  char *old_buffer = this->buffer_;
+  this->buffer_ = new char[target_capacity];
+  if (old_buffer != nullptr && this->capacity_ != 0) {
+    this->free_blocks_.push_back(old_buffer);
+    memcpy(this->buffer_, old_buffer, this->capacity_);
+  }
+  this->capacity_ = target_capacity;
 }
 
 VectorJsonBuffer global_json_buffer;
