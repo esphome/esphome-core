@@ -306,7 +306,7 @@ uint32_t reverse_bits(uint32_t x) {
 }
 
 VectorJsonBuffer::String::String(VectorJsonBuffer *parent)
-    : parent_(parent), start_(parent->size()) {
+    : parent_(parent), start_(parent->size_) {
 
 }
 void VectorJsonBuffer::String::append(char c) const {
