@@ -124,6 +124,13 @@ float FastLEDLightOutputComponent::get_setup_priority() const {
 void FastLEDLightOutputComponent::set_power_supply(PowerSupplyComponent *power_supply) {
   this->power_supply_ = power_supply;
 }
+CRGB &FastLEDLightOutputComponent::operator[](int index) const { return this->leds()[index]; }
+CRGB *FastLEDLightOutputComponent::begin() { return &this->leds()[0]; }
+CRGB *FastLEDLightOutputComponent::end() { return &this->leds()[this->size()]; }
+uint8_t *FastLEDLightOutputComponent::effect_data() const {
+  return this->effect_data_;
+}
+
 #endif
 
 } // namespace light
