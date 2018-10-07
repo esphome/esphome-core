@@ -70,6 +70,41 @@ void WiFiComponent::setup() {
       this->status_set_error();
     }
     delay(10);
+
+#ifdef ARDUINO_ARCH_ESP32
+    wifi_ps_type_t power_save;
+    switch (this->power_save_) {
+      case WIFI_POWER_SAVE_LIGHT:
+        power_save = WIFI_PS_MIN_MODEM;
+        break;
+      case WIFI_POWER_SAVE_HIGH:
+        power_save = WIFI_PS_MAX_MODEM;
+        break;
+      case WIFI_POWER_SAVE_NONE:
+      default:
+        power_save = WIFI_PS_NONE;
+        break;
+    }
+    esp_wifi_set_ps(power_save);
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+    sleep_type_t power_save;
+    switch (this->power_save_) {
+      case WIFI_POWER_SAVE_LIGHT:
+        power_save = LIGHT_SLEEP_T;
+        break;
+      case WIFI_POWER_SAVE_HIGH:
+        power_save = MODEM_SLEEP_T;
+        break;
+      case WIFI_POWER_SAVE_NONE:
+      default:
+        power_save = NONE_SLEEP_T;
+        break;
+    }
+    wifi_set_sleep_type(power_save);
+#endif
+
     this->start_connecting();
   } else if (this->has_ap()) {
     this->setup_ap_config();
@@ -374,6 +409,9 @@ void WiFiComponent::set_reboot_timeout(uint32_t reboot_timeout) {
 }
 bool WiFiComponent::is_connected() {
   return this->state_ == WIFI_COMPONENT_STATE_STA_CONNECTED && WiFi.status() == WL_CONNECTED;
+}
+void WiFiComponent::set_power_save_mode(WiFiPowerSaveMode power_save) {
+  this->power_save_ = power_save;
 }
 
 WiFiComponent *global_wifi_component;
