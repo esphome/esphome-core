@@ -94,6 +94,12 @@ struct WiFiAp {
   optional<ManualIP> manual_ip;
 };
 
+enum WiFiPowerSaveMode {
+  WIFI_POWER_SAVE_NONE = 0,
+  WIFI_POWER_SAVE_LIGHT,
+  WIFI_POWER_SAVE_HIGH,
+};
+
 /// This component is responsible for managing the ESP WiFi interface.
 class WiFiComponent : public Component {
  public:
@@ -128,6 +134,20 @@ class WiFiComponent : public Component {
 
   bool is_connected();
 
+  /** Set the power save option for the WiFi interface.
+   *
+   * Options are:
+   *  * WIFI_POWER_SAVE_NONE (default, least power saving)
+   *  * WIFI_POWER_SAVE_LIGHT
+   *  * WIFI_POWER_SAVE_HIGH (try to save as much power as possible)
+   *
+   * Note that this can affect WiFi performance, for example a higher power saving option
+   * can increase the amount of random disconnects from the WiFi router.
+   *
+   * @param power_save The power save mode.
+   */
+  void set_power_save_mode(WiFiPowerSaveMode power_save);
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Setup WiFi interface.
@@ -160,6 +180,7 @@ class WiFiComponent : public Component {
   uint8_t num_retried_{0};
   uint32_t last_connected_{0};
   uint32_t reboot_timeout_{60000};
+  WiFiPowerSaveMode power_save_{WIFI_POWER_SAVE_NONE};
 };
 
 extern WiFiComponent *global_wifi_component;
