@@ -148,8 +148,11 @@ void ESP32BLETracker::ble_setup() {
   // BLE takes some time to be fully set up, 200ms should be more than enough
   delay(200);
 
+  bool first = true;
+
   while (true) {
-    global_esp32_ble_tracker->start_scan(true);
+    global_esp32_ble_tracker->start_scan(first);
+    first = false;
     // wait for result
     xSemaphoreTake(semaphore_scan_end, portMAX_DELAY);
     xSemaphoreGive(semaphore_scan_end);
