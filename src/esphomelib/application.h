@@ -31,6 +31,7 @@
 #include "esphomelib/cover/cover.h"
 #include "esphomelib/cover/mqtt_cover_component.h"
 #include "esphomelib/cover/template_cover.h"
+#include "esphomelib/display/display.h"
 #include "esphomelib/display/max7219.h"
 #include "esphomelib/display/lcd_display.h"
 #include "esphomelib/display/ssd1306.h"
