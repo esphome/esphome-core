@@ -351,7 +351,7 @@ void RemoteReceiverComponent::loop() {
     int32_t delta = this->buffer_[this->buffer_read_at_] - this->buffer_[prev];
 
     if (uint32_t(delta) >= this->idle_us_) {
-      this->buffer_read_at_ = (this->buffer_size_ + write_at - 2) % this->buffer_size_;
+      this->buffer_read_at_ = write_at;
       ESP_LOGW(TAG, "Data is coming in too fast! Please increase the buffer or filter size.");
       return;
     }
