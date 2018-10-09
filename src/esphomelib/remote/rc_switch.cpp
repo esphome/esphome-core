@@ -133,8 +133,7 @@ bool RCSwitchProtocol::expect_sync(RemoteReceiveData *data) const {
   return true;
 }
 bool RCSwitchProtocol::decode(RemoteReceiveData *data, uint32_t *out_data, uint8_t *out_nbits) const {
-  if (!this->expect_sync(data))
-    return false;
+  this->expect_sync(data);
 
   *out_data = 0;
   for (*out_nbits = 1; *out_nbits < 32; *out_nbits += 1) {
@@ -348,7 +347,7 @@ void RCSwitchDumper::dump(RemoteReceiveData *data) {
         buffer[j] = (out_data & (1 << (out_nbits - j - 1))) ? '1' : '0';
 
       buffer[out_nbits] = '\0';
-      ESP_LOGD(TAG, "Received RCSwitch: protocol=%u data='%s'", i, buffer);
+      ESP_LOGD(TAG, "Received RCSwitch Raw: protocol=%u data='%s'", i, buffer);
     }
   }
 }

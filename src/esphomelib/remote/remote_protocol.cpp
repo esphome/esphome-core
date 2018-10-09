@@ -286,7 +286,7 @@ void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-void ICACHE_RAM_ATTR RemoteReceiverComponent::gpio_intr() {
+void ICACHE_RAM_ATTR HOT RemoteReceiverComponent::gpio_intr() {
   const uint32_t now = micros();
   // If the lhs is 1 (rising edge) we should write to an uneven index and vice versa
   const uint32_t next = (this->buffer_write_at_ + 1) % this->buffer_size_;
@@ -348,11 +348,12 @@ void RemoteReceiverComponent::loop() {
   int32_t multiplier = this->buffer_read_at_ % 2 == 0 ? 1 : -1;
 
   for (uint32_t i = 0; prev != write_at; i++) {
-    int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
+    int32_t delta = this->buffer_[this->buffer_read_at_] - this->buffer_[prev];
 
     if (uint32_t(delta) >= this->idle_us_) {
-      ESP_LOGW(TAG, "Data is coming in too fast!");
-      break;
+      this->buffer_read_at_ = (this->buffer_size_ + write_at - 2) % this->buffer_size_;
+      ESP_LOGW(TAG, "Data is coming in too fast! Please increase the buffer or filter size.");
+      return;
     }
 
     ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d",
@@ -362,7 +363,7 @@ void RemoteReceiverComponent::loop() {
     this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
     multiplier *= -1;
   }
-  this->buffer_read_at_ = (this->buffer_size_ + this->buffer_read_at_ - 1) % this->buffer_size_;
+  this->buffer_read_at_ = prev;
   this->temp_.push_back(this->idle_us_ * multiplier);
 
   RemoteReceiveData data(this, &this->temp_);
@@ -559,6 +560,17 @@ void RemoteTransmitterComponent::send(RemoteTransmitData *data, uint32_t send_ti
     this->current_carrier_frequency_ = data->get_carrier_frequency();
     this->configure_rmt();
   }
+
+  ESP_LOGVV(TAG, "START:");
+  for (size_t i = 0; i < data->get_data().size(); i++) {
+    int32_t val = data->get_data()[i];
+    if (val >= 0) {
+      ESP_LOGVV(TAG, "%u ON %uus", i, val);
+    } else {
+      ESP_LOGVV(TAG, "%u OFF %uus", i, -val);
+    }
+  }
+  ESP_LOGVV(TAG, "\n");
 
   this->rmt_temp_.clear();
   this->rmt_temp_.reserve((data->get_data().size() + 1) / 2);
