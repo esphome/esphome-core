@@ -39,7 +39,7 @@ HTU21DComponent::HTU21DComponent(I2CComponent *parent,
 void HTU21DComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HTU21D...");
 
-  if (!this->write_byte(HTU21D_REGISTER_RESET, 0x00)) {
+  if (!this->write_bytes(HTU21D_REGISTER_RESET, nullptr, 0)) {
     ESP_LOGE(TAG, "Connection to HTU21D failed.");
     this->mark_failed();
     return;
