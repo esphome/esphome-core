@@ -1234,6 +1234,19 @@ class Application {
 
   bool is_fully_setup() const;
 
+  /** Tell esphomelib when your project was last compiled. This is used to show
+   * a message like "You're running esphomelib v1.9.0 compiled on Oct 10 2018, 16:42:00"
+   *
+   * To use this method in code, put the following before App.setup():
+   *
+   * ```cpp
+   * App.set_compilation_datetime(__DATE__ ", " __TIME__);
+   * ```
+   *
+   * @param str The string of the time of compilation.
+   */
+  void set_compilation_datetime(const char *str);
+
  protected:
   std::vector<Component *> components_{};
   std::vector<Controller *> controllers_{};
@@ -1241,6 +1254,7 @@ class Application {
   WiFiComponent *wifi_{nullptr};
 
   std::string name_;
+  std::string compilation_time_;
   uint32_t application_state_{COMPONENT_STATE_CONSTRUCTION};
 #ifdef USE_I2C
   I2CComponent *i2c_{nullptr};
