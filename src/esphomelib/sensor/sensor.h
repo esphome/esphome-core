@@ -186,6 +186,9 @@ class Sensor : public Nameable {
   float value{NAN}; ///< Stores the last filtered value. Public because of lambdas.
   float raw_value{NAN}; ///< Stores the last raw value. Public because of lambdas.
 
+  /// Return whether this sensor has gotten a full value (that passed through all filters) yet.
+  bool has_value() const;
+
  protected:
   friend Filter;
   friend MQTTSensorComponent;
@@ -198,6 +201,7 @@ class Sensor : public Nameable {
   optional<std::string> icon_; /// Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
   optional<int8_t> accuracy_decimals_; ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
   Filter *filter_list_{nullptr}; ///< Store all active filters.
+  bool has_value_{false};
 };
 
 class PollingSensorComponent : public PollingComponent, public Sensor {

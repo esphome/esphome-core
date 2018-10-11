@@ -26,6 +26,7 @@ void BinarySensor::publish_state(bool state) {
 
 }
 void BinarySensor::send_value_(bool state) {
+  this->has_value_ = true;
   this->value = state;
   this->state_callback_.call(state);
 }
@@ -74,6 +75,9 @@ void BinarySensor::add_filters(std::vector<Filter *> filters) {
   for (Filter *filter : filters) {
     this->add_filter(filter);
   }
+}
+bool BinarySensor::has_value() const {
+  return this->has_value_;
 }
 
 PressTrigger::PressTrigger(BinarySensor *parent) {

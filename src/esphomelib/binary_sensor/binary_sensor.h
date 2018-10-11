@@ -82,6 +82,8 @@ class BinarySensor : public Nameable {
 
   bool value{false};
 
+  bool has_value() const;
+
  protected:
   // ========== OVERRIDE METHODS ==========
   // (You'll only need this when creating your own custom binary sensor)
@@ -91,6 +93,7 @@ class BinarySensor : public Nameable {
   CallbackManager<void(bool)> state_callback_{};
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
+  bool has_value_{false};
 };
 
 class PressTrigger : public Trigger<NoArg> {
