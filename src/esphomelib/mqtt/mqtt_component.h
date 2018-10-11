@@ -79,6 +79,9 @@ class MQTTComponent : public Component {
    */
   void set_availability(std::string topic, std::string payload_available, std::string payload_not_available);
   void disable_availability();
+
+  /// Internal method for the MQTT client base to schedule a resend of the state on reconnect.
+  void schedule_resend_state();
   
  protected:
   /// Helper method to get the discovery topic for this component.

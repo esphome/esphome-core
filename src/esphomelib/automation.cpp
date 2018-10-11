@@ -35,6 +35,10 @@ ShutdownTrigger::ShutdownTrigger() {
   });
 }
 
+void LoopTrigger::loop() {
+  this->trigger();
+}
+
 RangeCondition::RangeCondition() = default;
 
 bool RangeCondition::check(float x) {

@@ -21,11 +21,17 @@ TemplateSwitch::TemplateSwitch(const std::string &name)
 
 }
 void TemplateSwitch::loop() {
-  if (this->f_.has_value()) {
-    auto s = (*this->f_)();
-    if (s.has_value())
-      this->publish_state(*s);
-  }
+  if (!this->f_.has_value())
+    return;
+  auto s = (*this->f_)();
+  if (!s.has_value())
+    return;
+
+  if (this->last_value_.value_or(!*s) == *s)
+    return;
+
+  this->last_value_ = *s;
+  this->publish_state(*s);
 }
 void TemplateSwitch::turn_on() {
   if (this->optimistic_)

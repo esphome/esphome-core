@@ -18,11 +18,6 @@ void BinarySensor::add_on_state_callback(binary_callback_t &&callback) {
 }
 
 void BinarySensor::publish_state(bool state) {
-  if (!this->is_first_raw_ && this->last_raw_ == state)
-    return;
-  this->is_first_raw_ = false;
-  this->last_raw_ = state;
-
   if (this->filter_list_ == nullptr) {
     this->send_value_(state);
   } else {
@@ -31,11 +26,6 @@ void BinarySensor::publish_state(bool state) {
 
 }
 void BinarySensor::send_value_(bool state) {
-  if (!this->is_first_value_ && this->last_value_ == state)
-    return;
-  this->is_first_value_ = false;
-  this->last_value_ = state;
-
   this->value = state;
   this->state_callback_.call(state);
 }

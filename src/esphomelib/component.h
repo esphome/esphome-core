@@ -60,7 +60,7 @@ class Component {
   /** Where the component's initialization should happen.
    *
    * Analogous to Arduino's setup(). This method is guaranteed to only be called once.
-   * Defaults to doing noting.
+   * Defaults to doing nothing.
    */
   virtual void setup();
 

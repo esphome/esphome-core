@@ -2,7 +2,7 @@
 
 
 **esphomelib** is a library designed to greatly simplify your firmware code for ESP32/ESP8266-based devices with full 
-seamless Home Assistant integration (with automatic MQTT discovery!) so that you can focus on creating the hardware, 
+seamless [Home Assistant](https://www.home-assistant.io) integration (with automatic MQTT discovery!) so that you can focus on creating the hardware, 
 not the software.
 
 ## See [esphomeyaml](https://github.com/OttoWinter/esphomeyaml) for an easy way to use esphomelib

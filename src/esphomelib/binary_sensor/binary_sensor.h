@@ -88,8 +88,6 @@ class BinarySensor : public Nameable {
   /// Get the default device class for this sensor, or empty string for no default.
   virtual std::string device_class();
 
-  bool last_raw_, is_first_raw_{true};
-  bool last_value_, is_first_value_{true};
   CallbackManager<void(bool)> state_callback_{};
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};

@@ -32,7 +32,7 @@ void MQTTBinarySensorComponent::setup() {
 
 MQTTBinarySensorComponent::MQTTBinarySensorComponent(BinarySensor *binary_sensor)
     : MQTTComponent(), binary_sensor_(binary_sensor) {
-  assert(this->binary_sensor_ != nullptr);
+
 }
 const std::string &MQTTBinarySensorComponent::get_payload_on() const {
   return this->payload_on_;

@@ -1,0 +1,39 @@
+---
+# Gitlab CI configuration for my custom build server. For contributors,
+# please use .travis.yml
+
+stages:
+# - lint
+- test
+
+.test: &test
+  tags:
+    - python2.7
+    - esphomelib-test
+  stage: test
+  cache:
+    paths:
+     - /root/.platformio
+     - .piolibdeps
+
+test-basic:
+  <<: *test
+  script:
+    - |
+      platformio run \
+          -e livingroom \
+          -e livingroom8266
+
+test-advanced:
+  <<: *test
+  script:
+  - |
+    platformio run \
+        -e dht-dallas-sensors \
+        -e switch-binarysensor \
+        -e fan-example \
+        -e lights \
+        -e custombmp180 \
+        -e i2c-sensors \
+        -e pcf8574 \
+        -e fastled

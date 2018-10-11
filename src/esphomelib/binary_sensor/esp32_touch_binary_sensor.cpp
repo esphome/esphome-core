@@ -99,7 +99,12 @@ void ESP32TouchComponent::loop() {
       touch_pad_read(child->get_touch_pad(), &value);
     }
 
-    child->publish_state(value < child->get_threshold());
+    bool new_state = value < child->get_threshold();
+    if (child->is_first_state_ || child->last_state_ != new_state) {
+      child->is_first_state_ = false;
+      child->last_state_ = new_state;
+      child->publish_state(new_state);
+    }
 
     if (this->setup_mode_) {
       ESP_LOGD(TAG, "Touch Pad '%s' (T%u): %u", child->get_name().c_str(), child->get_touch_pad(), value);

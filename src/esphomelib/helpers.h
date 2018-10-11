@@ -17,7 +17,7 @@
 #include "esphomelib/optional.h"
 
 #ifndef JSON_BUFFER_SIZE
-  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(32))
+  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(16))
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -267,6 +267,42 @@ extern CallbackManager<void(const char *)> safe_shutdown_hooks;
 #endif
 
 void delay_microseconds_accurate(uint32_t usec);
+
+class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJsonBuffer> {
+ public:
+  class String {
+   public:
+    String(VectorJsonBuffer* parent);
+
+    void append(char c) const;
+
+    const char* c_str() const;
+
+   private:
+    VectorJsonBuffer* parent_;
+    uint32_t start_;
+  };
+
+  void* alloc(size_t bytes) override;
+
+  void clear();
+
+  String startString();
+
+ protected:
+  void *do_alloc(size_t bytes);
+
+  void resize(size_t size);
+
+  void reserve(size_t size);
+
+  char *buffer_{nullptr};
+  size_t size_{0};
+  size_t capacity_{0};
+  std::vector<char *> free_blocks_;
+};
+
+extern VectorJsonBuffer global_json_buffer;
 
 // ================================================
 //                 Definitions

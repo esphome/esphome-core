@@ -166,11 +166,13 @@ void LightState::parse_json(const JsonObject &root) {
   } else if (root.containsKey("transition")) {
     auto length = uint32_t(float(root["transition"]) * 1000);
     this->start_transition(v, length);
-  } else if (root.containsKey("effect")) {
-    const char *effect = root["effect"];
-    this->start_effect(effect);
   } else {
     this->start_default_transition(v);
+  }
+
+  if (root.containsKey("effect")) {
+    const char *effect = root["effect"];
+    this->start_effect(effect);
   }
 }
 

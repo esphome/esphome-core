@@ -11,6 +11,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/application.h"
+#include "mqtt_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -165,10 +166,10 @@ void MQTTComponent::setup_() {
   if (this->is_discovery_enabled())
     this->send_discovery_();
 
-  global_mqtt_client->add_on_connect_callback([this]() {
-    this->resend_state_ = true;
-  });
+  global_mqtt_client->register_mqtt_component(this);
+  this->send_initial_state();
 }
+
 void MQTTComponent::loop_() {
   this->loop_internal();
 
@@ -184,6 +185,9 @@ void MQTTComponent::loop_() {
 
     this->resend_state_ = false;
   }
+}
+void MQTTComponent::schedule_resend_state() {
+  this->resend_state_ = true;
 }
 
 } // namespace mqtt

@@ -19,7 +19,7 @@
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #define FASTLED_ESP32_RAW_PIN_ORDER
-#define FASTLED_RMT_BUILTIN_DRIVER 1
+#define FASTLED_RMT_BUILTIN_DRIVER true
 
 // Avoid annoying compiler messages
 #define FASTLED_INTERNAL
@@ -51,12 +51,10 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 
   CRGB *leds() const;
   int size() const;
-  CRGB &operator [](int index) const { return this->leds()[index]; }
-  CRGB *begin() { return &this->leds()[0]; }
-  CRGB *end() { return &this->leds()[this->size()]; }
-  uint8_t *effect_data() const {
-    return this->effect_data_;
-  }
+  CRGB &operator [](int index) const;
+  CRGB *begin();
+  CRGB *end();
+  uint8_t *effect_data() const;
 
   /// Set a maximum refresh rate in µs as some lights do not like being updated too often.
   void set_max_refresh_rate(uint32_t interval_us);

@@ -14,6 +14,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/automation.h"
+#include "esphomelib/log.h"
 #include "esphomelib/defines.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -76,6 +77,8 @@ enum MQTTClientState {
   MQTT_CLIENT_CONNECTING,
   MQTT_CLIENT_CONNECTED,
 };
+
+class MQTTComponent;
 
 class MQTTClientComponent : public Component {
  public:
@@ -145,6 +148,7 @@ class MQTTClientComponent : public Component {
 
   /// Manually set the topic used for logging.
   void set_log_message_template(MQTTMessage &&message);
+  void set_log_level(int level);
   /// Get the topic used for logging. Defaults to "<topic_prefix>/debug" and the value is cached for speed.
   void disable_log_message();
   bool is_log_message_enabled() const;
@@ -189,9 +193,6 @@ class MQTTClientComponent : public Component {
    */
   void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain);
 
-  /// Add a callback that will be called every time the MQTT client reconnects.
-  void add_on_connect_callback(std::function<void()> &&callback);
-
   /// Setup the MQTT client, registering a bunch of callbacks and attempting to connect.
   void setup() override;
   /// Reconnect if required
@@ -211,6 +212,8 @@ class MQTTClientComponent : public Component {
   void check_connected();
 
   void set_reboot_timeout(uint32_t reboot_timeout);
+
+  void register_mqtt_component(MQTTComponent *component);
 
  protected:
   /// Reconnect to the MQTT broker if not already connected.
@@ -237,11 +240,12 @@ class MQTTClientComponent : public Component {
   };
   std::string topic_prefix_{};
   MQTTMessage log_message_;
+  int log_level_{ESPHOMELIB_LOG_LEVEL};
 
   std::vector<MQTTSubscription> subscriptions_;
   AsyncMqttClient mqtt_client_;
-  CallbackManager<void()> on_connect_{};
   MQTTClientState state_{MQTT_CLIENT_DISCONNECTED};
+  std::vector<MQTTComponent *> children_;
   uint32_t reboot_timeout_{60000};
   uint32_t connect_begin_;
   uint32_t last_connected_{0};

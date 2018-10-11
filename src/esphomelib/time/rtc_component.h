@@ -9,12 +9,15 @@
 #ifndef ESPHOMELIB_TIME_RTC_COMPONENT_H
 #define ESPHOMELIB_TIME_RTC_COMPONENT_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
-#include <stdlib.h>
-#include <time.h>
 
 #ifdef USE_TIME
+
+#include "esphomelib/component.h"
+#include "esphomelib/automation.h"
+#include <stdlib.h>
+#include <time.h>
+#include <bitset>
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -65,6 +68,38 @@ struct EsphomelibTime {
   static EsphomelibTime from_tm(struct tm *c_tm, time_t c_time);
 
   struct tm to_c_tm();
+
+  void increment_second();
+  bool operator<(EsphomelibTime other);
+  bool operator<=(EsphomelibTime other);
+  bool operator==(EsphomelibTime other);
+  bool operator>=(EsphomelibTime other);
+  bool operator>(EsphomelibTime other);
+};
+
+class RTCComponent;
+
+class CronTrigger : public Trigger<NoArg>, public Component {
+ public:
+  explicit CronTrigger(RTCComponent *rtc);
+  void add_second(uint8_t second);
+  void add_minute(uint8_t minute);
+  void add_hour(uint8_t hour);
+  void add_day_of_month(uint8_t day_of_month);
+  void add_month(uint8_t month);
+  void add_day_of_week(uint8_t day_of_week);
+  bool matches(const EsphomelibTime &time);
+  void loop() override;
+
+ protected:
+  std::bitset<61> seconds_;
+  std::bitset<60> minutes_;
+  std::bitset<24> hours_;
+  std::bitset<32> days_of_month_;
+  std::bitset<13> months_;
+  std::bitset<8> days_of_week_;
+  RTCComponent *rtc_;
+  optional<EsphomelibTime> last_check_;
 };
 
 /// The RTC component exposes common timekeeping functions via the device's local real-time clock.
@@ -90,6 +125,8 @@ class RTCComponent : public Component {
 
   /// Get the time without any time zone or DST corrections.
   EsphomelibTime utcnow();
+
+  CronTrigger *make_cron_trigger();
 };
 
 } // namespace time

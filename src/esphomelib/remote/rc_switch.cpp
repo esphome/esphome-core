@@ -76,7 +76,7 @@ void RCSwitchProtocol::sync(RemoteTransmitData *data) const {
   }
 }
 void RCSwitchProtocol::transmit(RemoteTransmitData *data, uint32_t code, uint8_t len) const {
-  for (int16_t i = len - 1; i >= 0; i++) {
+  for (int16_t i = len - 1; i >= 0; i--) {
     if (code & (1 << i))
       this->one(data);
     else

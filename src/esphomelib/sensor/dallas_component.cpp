@@ -49,24 +49,30 @@ void DallasComponent::setup() {
   std::vector<uint64_t> raw_sensors = this->one_wire_->search_vec();
   enable_interrupts();
 
-  ESP_LOGD(TAG, "Found sensors:");
   std::vector<uint64_t> out;
-  for (auto &address : raw_sensors) {
-    std::string s = uint64_to_string(address);
-    auto *address8 = reinterpret_cast<uint8_t *>(&address);
-    if (crc8(address8, 7) != address8[7]) {
-      ESP_LOGW(TAG, "Dallas device 0x%s has invalid CRC.", s.c_str());
-      continue;
+
+  if (raw_sensors.empty()) {
+    ESP_LOGE(TAG, "Found no sensors!");
+  } else {
+    ESP_LOGD(TAG, "Found sensors:");
+    for (auto &address : raw_sensors) {
+      std::string s = uint64_to_string(address);
+      auto *address8 = reinterpret_cast<uint8_t *>(&address);
+      if (crc8(address8, 7) != address8[7]) {
+        ESP_LOGW(TAG, "Dallas device 0x%s has invalid CRC.", s.c_str());
+        continue;
+      }
+      if (address8[0] != DALLAS_MODEL_DS18S20 && address8[0] != DALLAS_MODEL_DS1822 &&
+          address8[0] != DALLAS_MODEL_DS18B20 && address8[0] != DALLAS_MODEL_DS1825 &&
+          address8[0] != DALLAS_MODEL_DS28EA00) {
+        ESP_LOGW(TAG, "Unknown device type 0x%02X.", address8[0]);
+        continue;
+      }
+      ESP_LOGD(TAG, "    0x%s", s.c_str());
+      out.push_back(address);
     }
-    if (address8[0] != DALLAS_MODEL_DS18S20 && address8[0] != DALLAS_MODEL_DS1822 &&
-        address8[0] != DALLAS_MODEL_DS18B20 && address8[0] != DALLAS_MODEL_DS1825 &&
-        address8[0] != DALLAS_MODEL_DS28EA00) {
-      ESP_LOGW(TAG, "Unknown device type 0x%02X.", address8[0]);
-      continue;
-    }
-    ESP_LOGD(TAG, "    0x%s", s.c_str());
-    out.push_back(address);
   }
+
   for (auto sensor : this->sensors_) {
     ESP_LOGCONFIG(TAG, "Device '%s':", sensor->get_name().c_str());
     if (sensor->get_address() == 0) {
@@ -170,7 +176,6 @@ uint8_t DallasTemperatureSensor::get_resolution() const {
   return this->resolution_;
 }
 void DallasTemperatureSensor::set_resolution(uint8_t resolution) {
-  assert(9 <= resolution && resolution <= 12);
   this->resolution_ = resolution;
 }
 uint8_t DallasTemperatureSensor::get_index() const {

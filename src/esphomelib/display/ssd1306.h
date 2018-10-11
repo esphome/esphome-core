@@ -26,9 +26,11 @@ enum SSD1306Model {
   SSD1306_MODEL_128_32 = 0,
   SSD1306_MODEL_128_64,
   SSD1306_MODEL_96_16,
+  SSD1306_MODEL_64_48,
   SH1106_MODEL_128_32,
   SH1106_MODEL_128_64,
   SH1106_MODEL_96_16,
+  SH1106_MODEL_64_48,
 };
 
 class SSD1306 : public PollingComponent, public DisplayBuffer {
@@ -50,6 +52,7 @@ class SSD1306 : public PollingComponent, public DisplayBuffer {
  protected:
   virtual void command(uint8_t value) = 0;
   virtual void write_display_data() = 0;
+  void init_reset_();
 
   bool is_sh1106_() const;
 

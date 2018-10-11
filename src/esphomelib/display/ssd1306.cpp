@@ -19,8 +19,8 @@ namespace display {
 
 static const char *TAG = "display.ssd1306";
 
-static const uint8_t SSD1306_COMMAND_DISPLAY_OFF = 0xAF;
-static const uint8_t SSD1306_COMMAND_DISPLAY_ON = 0xAE;
+static const uint8_t SSD1306_COMMAND_DISPLAY_OFF = 0xAE;
+static const uint8_t SSD1306_COMMAND_DISPLAY_ON = 0xAF;
 static const uint8_t SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV = 0xD5;
 static const uint8_t SSD1306_COMMAND_SET_MULTIPLEX = 0xA8;
 static const uint8_t SSD1306_COMMAND_SET_DISPLAY_OFFSET = 0xD3;
@@ -43,17 +43,6 @@ static const uint8_t SSD1306_NORMAL_DISPLAY = 0xA6;
 
 void SSD1306::setup() {
   this->init_internal_(this->get_buffer_length_());
-
-  if (this->reset_pin_ != nullptr) {
-    this->reset_pin_->setup();
-    this->reset_pin_->digital_write(true);
-    delay(1);
-    // Trigger Reset
-    this->reset_pin_->digital_write(false);
-    delay(10);
-    // Wake up
-    this->reset_pin_->digital_write(true);
-  }
 
   this->command(SSD1306_COMMAND_DISPLAY_OFF);
   this->command(SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV);
@@ -80,15 +69,15 @@ void SSD1306::setup() {
   switch (this->model_) {
     case SSD1306_MODEL_128_32:
     case SH1106_MODEL_128_32:
+    case SSD1306_MODEL_96_16:
+    case SH1106_MODEL_96_16:
       this->command(0x02);
       break;
     case SSD1306_MODEL_128_64:
     case SH1106_MODEL_128_64:
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
       this->command(0x12);
-      break;
-    case SSD1306_MODEL_96_16:
-    case SH1106_MODEL_96_16:
-      this->command(0x02);
       break;
   }
 
@@ -100,6 +89,8 @@ void SSD1306::setup() {
       break;
     case SSD1306_MODEL_128_64:
     case SH1106_MODEL_128_64:
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
       if (this->external_vcc_)
         this->command(0x9F);
       else
@@ -137,26 +128,22 @@ void SSD1306::display() {
   }
 
   this->command(SSD1306_COMMAND_COLUMN_ADDRESS);
-  this->command(0);
-  this->command(this->get_width_internal_() - 1);
-
-  this->command(SSD1306_COMMAND_PAGE_ADDRESS);
-  this->command(0); // Page start address, 0
-
-  // Page end address:
   switch (this->model_) {
-    case SSD1306_MODEL_128_32:
-      this->command(0x03);
-      break;
-    case SSD1306_MODEL_128_64:
-      this->command(0x07);
-      break;
-    case SSD1306_MODEL_96_16:
-      this->command(0x01);
+    case SSD1306_MODEL_64_48:
+      this->command(0x20);
+      this->command(0x20 + this->get_width_internal_() - 1);
       break;
     default:
+      this->command(0); // Page start address, 0
+      this->command(this->get_width_internal_() - 1);
       break;
   }
+
+  this->command(SSD1306_COMMAND_PAGE_ADDRESS);
+  // Page start address, 0
+  this->command(0);
+  // Page end address:
+  this->command((this->get_height_internal_() / 8) - 1);
 
   this->write_display_data();
 }
@@ -187,6 +174,9 @@ int SSD1306::get_height_internal_() {
     case SSD1306_MODEL_96_16:
     case SH1106_MODEL_96_16:
       return 16;
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
+      return 48;
     default: return 0;
   }
 }
@@ -200,6 +190,9 @@ int SSD1306::get_width_internal_() {
     case SSD1306_MODEL_96_16:
     case SH1106_MODEL_96_16:
       return 96;
+    case SSD1306_MODEL_64_48:
+    case SH1106_MODEL_64_48:
+      return 64;
     default: return 0;
   }
 }
@@ -225,9 +218,20 @@ float SSD1306::get_setup_priority() const {
 }
 void SSD1306::fill(int color) {
   uint8_t fill = color ? 0xFF : 0x00;
-  ESP_LOGD(TAG, "fill(%d): 0x%p", color, this->buffer_);
   for (uint32_t i = 0; i < this->get_buffer_length_(); i++)
     this->buffer_[i] = fill;
+}
+void SSD1306::init_reset_() {
+  if (this->reset_pin_ != nullptr) {
+    this->reset_pin_->setup();
+    this->reset_pin_->digital_write(true);
+    delay(1);
+    // Trigger Reset
+    this->reset_pin_->digital_write(false);
+    delay(10);
+    // Wake up
+    this->reset_pin_->digital_write(true);
+  }
 }
 
 #ifdef USE_SPI
@@ -239,6 +243,7 @@ void SPISSD1306::setup() {
   this->spi_setup();
   this->dc_pin_->setup(); // OUTPUT
 
+  this->init_reset_();
   SSD1306::setup();
 }
 void SPISSD1306::command(uint8_t value) {
@@ -279,6 +284,8 @@ bool SPISSD1306::high_speed() {
 #ifdef USE_I2C
 void I2CSSD1306::setup() {
   ESP_LOGCONFIG(TAG, "Setting up I2C SSD1306...");
+
+  this->init_reset_();
 
   this->parent_->begin_transmission_(this->address_);
   if (!this->parent_->end_transmission_(this->address_)) {

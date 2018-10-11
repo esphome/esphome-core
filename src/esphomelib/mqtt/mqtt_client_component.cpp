@@ -70,12 +70,14 @@ void MQTTClientComponent::setup() {
     }
     ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
   });
-  if (this->is_log_message_enabled())
+  if (this->is_log_message_enabled()) {
     global_log_component->add_on_log_callback([this](int level, const char *message) {
-      if (this->mqtt_client_.connected() && this->state_ == MQTT_CLIENT_CONNECTED) {
+      if (level <= this->log_level_ && this->mqtt_client_.connected() && this->state_ == MQTT_CLIENT_CONNECTED) {
         this->publish(this->log_message_.topic, message, this->log_message_.qos, this->log_message_.retain);
       }
     });
+  }
+
   add_shutdown_hook([this](const char *cause){
     if (!this->shutdown_message_.topic.empty()) {
       yield();
@@ -107,9 +109,9 @@ void MQTTClientComponent::start_connect() {
   const char *password = nullptr;
   if (!this->credentials_.password.empty())
     password = this->credentials_.password.c_str();
+
   this->mqtt_client_.setCredentials(username, password);
 
-  this->mqtt_client_.setCredentials(this->credentials_.username.c_str(), this->credentials_.password.c_str());
   this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
   if (!this->last_will_.topic.empty()) {
     this->mqtt_client_.setWill(this->last_will_.topic.c_str(), this->last_will_.qos, this->last_will_.retain,
@@ -139,7 +141,8 @@ void MQTTClientComponent::check_connected() {
   for (MQTTSubscription &subscription : this->subscriptions_)
     this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);
 
-  this->on_connect_.call();
+  for (MQTTComponent *component : this->children_)
+    component->schedule_resend_state();
 }
 
 void MQTTClientComponent::loop() {
@@ -313,9 +316,6 @@ void MQTTClientComponent::publish_json(const std::string &topic, const json_buil
 void MQTTClientComponent::set_log_message_template(MQTTMessage &&message) {
   this->log_message_ = std::move(message);
 }
-void MQTTClientComponent::add_on_connect_callback(std::function<void()> &&callback) {
-  this->on_connect_.add(std::move(callback));
-}
 
 void MQTTClientComponent::on_message(const std::string &topic, const std::string &payload) {
 #ifdef ARDUINO_ARCH_ESP8266
@@ -339,6 +339,12 @@ MQTTMessageTrigger *MQTTClientComponent::make_message_trigger(const std::string 
 }
 void MQTTClientComponent::set_reboot_timeout(uint32_t reboot_timeout) {
   this->reboot_timeout_ = reboot_timeout;
+}
+void MQTTClientComponent::register_mqtt_component(MQTTComponent *component) {
+  this->children_.push_back(component);
+}
+void MQTTClientComponent::set_log_level(int level) {
+  this->log_level_ = level;
 }
 
 #if ASYNC_TCP_SSL_ENABLED

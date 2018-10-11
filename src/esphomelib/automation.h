@@ -99,6 +99,11 @@ class ShutdownTrigger : public Trigger<const char *> {
   ShutdownTrigger();
 };
 
+class LoopTrigger : public Trigger<NoArg>, public Component {
+ public:
+  void loop() override;
+};
+
 template<typename T>
 class ActionList;
 
