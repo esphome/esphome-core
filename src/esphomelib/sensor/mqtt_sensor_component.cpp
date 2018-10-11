@@ -82,7 +82,8 @@ void MQTTSensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, m
   config.command_topic = false;
 }
 void MQTTSensorComponent::send_initial_state() {
-  this->publish_state(this->sensor_->value);
+  if (!isnan(this->sensor_->value))
+    this->publish_state(this->sensor_->value);
 }
 bool MQTTSensorComponent::is_internal() {
   return this->sensor_->is_internal();
