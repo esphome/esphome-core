@@ -65,4 +65,13 @@ void StoringController::register_cover(cover::Cover *cover) {
 }
 #endif
 
+#ifdef USE_TEXT_SENSOR
+void Controller::register_text_sensor(text_sensor::TextSensor *obj) {
+
+}
+void StoringController::register_text_sensor(text_sensor::TextSensor *obj) {
+  this->text_sensors_.push_back(obj);
+}
+#endif
+
 ESPHOMELIB_NAMESPACE_END

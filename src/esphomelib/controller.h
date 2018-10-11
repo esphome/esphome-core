@@ -15,6 +15,7 @@
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/cover/cover.h"
+#include "esphomelib/text_sensor/text_sensor.h"
 #include "esphomelib/defines.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -45,6 +46,10 @@ class Controller {
 #ifdef USE_COVER
  virtual void register_cover(cover::Cover *cover);
 #endif
+
+#ifdef USE_TEXT_SENSOR
+  virtual void register_text_sensor(text_sensor::TextSensor *obj);
+#endif
 };
 
 /// A StoringController is a controller that automatically stores all components internally in vectors.
@@ -74,6 +79,10 @@ class StoringController : public Controller {
   void register_cover(cover::Cover *cover) override;
 #endif
 
+#ifdef USE_TEXT_SENSOR
+  void register_text_sensor(text_sensor::TextSensor *obj) override;
+#endif
+
  protected:
 #ifdef USE_BINARY_SENSOR
   std::vector<binary_sensor::BinarySensor *> binary_sensors_;
@@ -97,6 +106,10 @@ class StoringController : public Controller {
 
 #ifdef USE_COVER
   std::vector<cover::Cover *> covers_;
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  std::vector<text_sensor::TextSensor *> text_sensors_;
 #endif
 };
 

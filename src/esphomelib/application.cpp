@@ -44,6 +44,9 @@ using namespace esphomelib::remote;
 #ifdef USE_TIME
 using namespace esphomelib::time;
 #endif
+#ifdef USE_TEXT_SENSOR
+using namespace esphomelib::text_sensor;
+#endif
 
 static const char *TAG = "application";
 
@@ -1154,6 +1157,28 @@ sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin
 #ifdef USE_NEXTION
 display::Nextion *Application::make_nextion(UARTComponent *parent, uint32_t update_interval) {
   return this->register_component(new display::Nextion(parent, update_interval));
+}
+#endif
+
+#ifdef USE_TEXT_SENSOR
+text_sensor::MQTTTextSensor *Application::register_text_sensor(text_sensor::TextSensor *sensor) {
+  for (auto *controller : this->controllers_)
+    controller->register_text_sensor(sensor);
+  MQTTTextSensor *ret = nullptr;
+  if (this->mqtt_client_ != nullptr)
+    ret = this->register_component(new MQTTTextSensor(sensor));
+  return ret;
+}
+#endif
+
+#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_sensor(const std::string &name,
+                                                                                      std::string topic) {
+  auto *sensor = this->register_component(new MQTTSubscribeTextSensor(name, std::move(topic)));
+  return MakeMQTTSubscribeTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
 }
 #endif
 
