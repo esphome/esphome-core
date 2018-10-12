@@ -117,7 +117,7 @@ void WebServer::setup() {
       client->send(this->light_json(obj).c_str(), "state");
 #endif
 
-#ifdef USE_LIGHT
+#ifdef USE_TEXT_SENSOR
     for (auto *obj : this->text_sensors_)
       client->send(this->text_sensor_json(obj, obj->value).c_str(), "state");
 #endif
@@ -178,6 +178,11 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
 #ifdef USE_LIGHT
   for (auto *obj : this->lights_)
     write_row(stream, obj, "light", "<button>Toggle</button>");
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  for (auto *obj : this->text_sensors_)
+    write_row(stream, obj, "text_sensor", "");
 #endif
 
   stream->print(
