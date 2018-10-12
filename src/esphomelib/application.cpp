@@ -83,6 +83,12 @@ void Application::setup() {
   }
 
   this->application_state_ = COMPONENT_STATE_SETUP;
+
+  if (this->compilation_time_.empty()) {
+    ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION);
+  } else {
+    ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION " compiled on %s", this->compilation_time_.c_str());
+  }
 }
 
 void HOT Application::loop() {
@@ -121,14 +127,16 @@ WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string
 }
 
 void Application::set_name(const std::string &name) {
-  assert(this->name_.empty() && "Name was already set!");
   this->name_ = to_lowercase_underscore(name);
   global_preferences.begin(name);
 }
 
+void Application::set_compilation_datetime(const char *str) {
+  this->compilation_time_ = str;
+}
+
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
                                             const std::string &username, const std::string &password) {
-  assert(this->mqtt_client_ == nullptr);
   MQTTClientComponent *component = new MQTTClientComponent(MQTTCredentials{
       .address = address,
       .port = port,
