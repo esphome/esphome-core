@@ -133,6 +133,9 @@ void Application::set_name(const std::string &name) {
 void Application::set_compilation_datetime(const char *str) {
   this->compilation_time_ = str;
 }
+const std::string &Application::get_compilation_time() const {
+  return this->compilation_time_;
+}
 
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
                                             const std::string &username, const std::string &password) {
@@ -1168,6 +1171,16 @@ Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_s
                                                                                       std::string topic) {
   auto *sensor = this->register_component(new MQTTSubscribeTextSensor(name, std::move(topic)));
   return MakeMQTTSubscribeTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_VERSION_TEXT_SENSOR
+Application::MakeVersionTextSensor Application::make_version_text_sensor(const std::string &name) {
+  auto *sensor = this->register_component(new VersionTextSensor(name));
+  return MakeVersionTextSensor {
       .sensor = sensor,
       .mqtt = this->register_text_sensor(sensor),
   };

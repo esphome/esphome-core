@@ -92,6 +92,7 @@
 #include "esphomelib/text_sensor/text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
+#include "esphomelib/text_sensor/version_text_sensor.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
@@ -906,6 +907,15 @@ class Application {
   MakeMQTTSubscribeTextSensor make_mqtt_subscribe_text_sensor(const std::string &name, std::string topic);
 #endif
 
+#ifdef USE_VERSION_TEXT_SENSOR
+  struct MakeVersionTextSensor {
+    text_sensor::VersionTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeVersionTextSensor make_version_text_sensor(const std::string &name);
+#endif
+
 
 
 
@@ -1270,6 +1280,8 @@ class Application {
    * @param str The string of the time of compilation.
    */
   void set_compilation_datetime(const char *str);
+
+  const std::string &get_compilation_time() const;
 
  protected:
   std::vector<Component *> components_{};
