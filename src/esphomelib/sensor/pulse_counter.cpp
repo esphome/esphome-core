@@ -72,7 +72,7 @@ bool PulseCounterBase::pulse_counter_setup_() {
 }
 pulse_counter_t PulseCounterBase::read_raw_value_() {
   pulse_counter_t counter = this->counter_;
-  pulse_counter_t ret = this->last_value_ - counter;
+  pulse_counter_t ret = counter - this->last_value_;
   this->last_value_ = counter;
   return ret;
 }
