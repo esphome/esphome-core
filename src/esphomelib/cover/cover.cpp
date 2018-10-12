@@ -23,11 +23,15 @@ void Cover::add_on_publish_state_callback(std::function<void(CoverState)> &&f) {
 void Cover::publish_state(CoverState state) {
   if (this->state == state)
     return;
+  this->has_value_ = true;
   this->state = state;
   this->state_callback_.call(state);
 }
 bool Cover::optimistic() {
   return false;
+}
+bool Cover::has_value() const {
+  return this->has_value_;
 }
 
 } // namespace cover

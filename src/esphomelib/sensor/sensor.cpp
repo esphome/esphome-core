@@ -143,6 +143,7 @@ float Sensor::get_raw_value() const {
 std::string Sensor::unique_id() { return ""; }
 
 void Sensor::send_value_to_frontend(float value) {
+  this->has_value_ = true;
   this->value = value;
   this->callback_.call(value);
 }
@@ -154,6 +155,9 @@ RawSensorValueTrigger *Sensor::make_raw_value_trigger() {
 }
 ValueRangeTrigger *Sensor::make_value_range_trigger() {
   return new ValueRangeTrigger(this);
+}
+bool Sensor::has_value() const {
+  return this->has_value_;
 }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)

@@ -60,7 +60,8 @@ void MQTTBinarySensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &r
 }
 
 void MQTTBinarySensorComponent::send_initial_state() {
-  this->publish_state(this->binary_sensor_->value);
+  if (this->binary_sensor_->has_value())
+    this->publish_state(this->binary_sensor_->value);
 }
 bool MQTTBinarySensorComponent::is_internal() {
   return this->binary_sensor_->is_internal();

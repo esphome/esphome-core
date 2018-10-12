@@ -64,7 +64,10 @@ class Cover : public Nameable {
 
   CoverState state{COVER_MAX};
 
+  bool has_value() const;
+
  protected:
+  bool has_value_{false};
   CallbackManager<void(CoverState)> state_callback_{};
 };
 
@@ -150,7 +153,6 @@ template<typename T>
 StopAction<T> *Cover::make_stop_action() {
   return new StopAction<T>(this);
 }
-
 
 } // namespace cover
 
