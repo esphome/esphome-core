@@ -120,7 +120,6 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   std::string light_json(light::LightState *obj);
 #endif
 
-
 #ifdef USE_TEXT_SENSOR
   /// Internally register a text sensor and set a callback on state changes.
   void register_text_sensor(text_sensor::TextSensor *obj) override;
