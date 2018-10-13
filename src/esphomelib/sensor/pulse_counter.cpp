@@ -68,7 +68,15 @@ void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
 bool PulseCounterBase::pulse_counter_setup_() {
   this->pin_->setup();
   auto intr = std::bind(&PulseCounterSensorComponent::gpio_intr, this);
-  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
+  int intr_mode = CHANGE;
+  if (this->rising_edge_mode_ == PULSE_COUNTER_DISABLE) {
+    // only falling
+    intr_mode = this->pin_->is_inverted() ? RISING : FALLING;
+  } else if (this->falling_edge_mode_ == PULSE_COUNTER_DISABLE) {
+    // only rising
+    intr_mode = this->pin_->is_inverted() ? FALLING : RISING;
+  }
+  attachInterrupt(this->pin_->get_pin(), intr, intr_mode);
   return true;
 }
 pulse_counter_t PulseCounterBase::read_raw_value_() {
