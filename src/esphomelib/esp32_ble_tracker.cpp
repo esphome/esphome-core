@@ -257,7 +257,7 @@ enum XiaomiDataType {
 };
 
 XiaomiDataType parse_xiaomi(uint8_t data_type, const uint8_t *data, uint8_t data_length, float *data1, float *data2) {
-  switch (data_type) {
+  switch (data_type & 0x0F) {
     case 0x0D: { // temperature+humidity, 4 bytes, 16-bit signed integer (LE) each, 0.1 °C, 0.1 %
       if (data_length != 4)
         return XIAOMI_NO_DATA;
