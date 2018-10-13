@@ -52,7 +52,7 @@ void Application::setup() {
   assert(this->application_state_ == COMPONENT_STATE_CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
-    return a->get_setup_priority() >= b->get_setup_priority();
+    return a->get_setup_priority() > b->get_setup_priority();
   });
 
   for (uint32_t i = 0; i < this->components_.size(); i++) {
@@ -65,7 +65,7 @@ void Application::setup() {
       continue;
 
     std::stable_sort(this->components_.begin(), this->components_.begin() + i + 1, [](Component *a, Component *b) {
-      return a->get_loop_priority() >= b->get_loop_priority();
+      return a->get_loop_priority() > b->get_loop_priority();
     });
 
     do {
