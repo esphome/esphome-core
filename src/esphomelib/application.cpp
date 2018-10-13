@@ -296,9 +296,7 @@ WiFiComponent *Application::get_wifi() const {
 
 #ifdef USE_OTA
 OTAComponent *Application::init_ota() {
-  auto *ota = new OTAComponent();
-  ota->set_hostname(this->wifi_->get_hostname());
-  return this->register_component(ota);
+  return this->register_component(new OTAComponent());
 }
 #endif
 

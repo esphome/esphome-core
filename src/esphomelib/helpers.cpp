@@ -16,6 +16,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
 #include "esphomelib/espmath.h"
+#include "esphomelib/status_led.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -213,6 +214,10 @@ void reboot(const char *cause) {
   ESP_LOGI(TAG, "Forcing a reboot... Cause: '%s'", cause);
   run_shutdown_hooks(cause);
   ESP.restart();
+  // restart() doesn't always end execution
+  while (true) {
+    yield();
+  }
 }
 void add_shutdown_hook(std::function<void(const char *)> &&f) {
   shutdown_hooks.add(std::move(f));
@@ -221,6 +226,10 @@ void safe_reboot(const char *cause) {
   ESP_LOGI(TAG, "Rebooting safely... Cause: '%s'", cause);
   run_safe_shutdown_hooks(cause);
   ESP.restart();
+  // restart() doesn't always end execution
+  while (true) {
+    yield();
+  }
 }
 void add_safe_shutdown_hook(std::function<void(const char *)> &&f) {
   safe_shutdown_hooks.add(std::move(f));
@@ -298,6 +307,13 @@ uint8_t reverse_bits_8(uint8_t x) {
 
 uint16_t reverse_bits_16(uint16_t x) {
   return uint16_t(reverse_bits_8(x & 0xFF) << 8) | uint16_t(reverse_bits_8(x >> 8));
+}
+void tick_status_led() {
+#ifdef USE_STATUS_LED
+  if (global_status_led != nullptr) {
+    global_status_led->loop_();
+  }
+#endif
 }
 
 template<uint32_t>
