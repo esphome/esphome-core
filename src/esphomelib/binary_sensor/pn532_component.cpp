@@ -93,7 +93,7 @@ void PN532Component::loop() {
   if (this->last_uid_.size() == uid_length) {
     matches = true;
     for (size_t i = 0; i < uid_length; i++)
-      matches = matches && this->last_uid_[i] != this->buffer_[13 + i];
+      matches = matches && this->last_uid_[i] == this->buffer_[13 + i];
   }
 
   if (matches) {
