@@ -107,6 +107,7 @@
 #include "esphomelib/time/rtc_component.h"
 #include "esphomelib/time/sntp_component.h"
 #include "esphomelib/web_server.h"
+#include "esphomelib/http_client_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -1238,6 +1239,10 @@ class Application {
    * @return The PCF8574Component instance to get individual pins.
    */
   io::PCF8574Component *make_pcf8574_component(uint8_t address = 0x21, bool pcf8575 = false);
+#endif
+
+#ifdef USE_HTTP_CLIENT
+  HTTPClientComponent *make_http_client();
 #endif
 
   /// Register the component in this Application instance.

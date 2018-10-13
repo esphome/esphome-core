@@ -1195,6 +1195,12 @@ Application::MakeVersionTextSensor Application::make_version_text_sensor(const s
 }
 #endif
 
+#ifdef USE_HTTP_CLIENT
+HTTPClientComponent *Application::make_http_client() {
+  return this->register_component(new HTTPClientComponent());
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
