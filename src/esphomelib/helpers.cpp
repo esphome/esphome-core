@@ -202,9 +202,9 @@ optional<bool> parse_on_off(const char *str, bool current_state, const char *on,
     return true;
   if (on != nullptr && strcasecmp(str, on) == 0)
     return true;
-  if (off != nullptr && strcasecmp(str, "off") == 0)
+  if (off == nullptr && strcasecmp(str, "off") == 0)
     return false;
-  if (off == nullptr && strcasecmp(str, off) == 0)
+  if (off != nullptr && strcasecmp(str, off) == 0)
     return false;
   if (strcasecmp(str, "toggle") == 0)
     return !current_state;
