@@ -143,7 +143,7 @@ void LightColorValues::save_to_preferences(const std::string &friendly_name, con
 void LightColorValues::parse_json(const JsonObject &root, const LightTraits &traits) {
   ESP_LOGV(TAG, "Parsing light color values JSON.");
   if (root.containsKey("state")) {
-    auto val = parse_on_off(root["state"]);
+    auto val = parse_on_off(root["state"], this->get_state() > 0.0f);
     if (val.has_value()) {
       this->set_state(*val ? 1.0 : 0.0);
       ESP_LOGV(TAG, "    state=%s", *val ? "ON" : "OFF");

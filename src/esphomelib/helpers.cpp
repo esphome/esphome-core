@@ -197,11 +197,17 @@ void parse_json(const std::string &data, const json_parse_t &f) {
 
   f(root);
 }
-optional<bool> parse_on_off(const char *str, const char *payload_on, const char *payload_off) {
-  if (strcasecmp(str, payload_on) == 0)
+optional<bool> parse_on_off(const char *str, bool current_state, const char *on, const char *off) {
+  if (on == nullptr && strcasecmp(str, "on") == 0)
     return true;
-  if (strcasecmp(str, payload_off) == 0)
+  if (on != nullptr && strcasecmp(str, on) == 0)
+    return true;
+  if (off != nullptr && strcasecmp(str, "off") == 0)
     return false;
+  if (off == nullptr && strcasecmp(str, off) == 0)
+    return false;
+  if (strcasecmp(str, "toggle") == 0)
+    return !current_state;
 
   return {};
 }

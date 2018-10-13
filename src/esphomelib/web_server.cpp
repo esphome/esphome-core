@@ -343,7 +343,7 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
       }
       if (request->hasParam("oscillation")) {
         String speed = request->getParam("oscillation")->value();
-        auto val = parse_on_off(speed.c_str());
+        auto val = parse_on_off(speed.c_str(), obj->is_oscillating());
         if (!val.has_value()) {
           request->send(404);
           return;

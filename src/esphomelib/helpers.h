@@ -150,7 +150,7 @@ void enable_interrupts();
 /// Calculate a crc8 of data with the provided data length.
 uint8_t crc8(uint8_t *data, uint8_t len);
 
-optional<bool> parse_on_off(const char *str, const char *payload_on = "on", const char *payload_off = "off");
+optional<bool> parse_on_off(const char *str, bool current_state, const char *on = nullptr, const char *off = nullptr);
 
 /// Helper class that implements a sliding window moving average.
 class SlidingWindowMovingAverage {
