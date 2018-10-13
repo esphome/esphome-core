@@ -11,6 +11,7 @@
 
 #include "esphomelib/component.h"
 #include <WiFiServer.h>
+#include <WiFiClient.h>
 
 #ifdef ARDUINO_ARCH_ESP32
   #define OTA_DEFAULT_PORT 3232
