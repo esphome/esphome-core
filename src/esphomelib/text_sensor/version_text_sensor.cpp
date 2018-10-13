@@ -30,6 +30,13 @@ float VersionTextSensor::get_setup_priority() const {
 }
 VersionTextSensor::VersionTextSensor(const std::string &name) : TextSensor(name) {}
 
+std::string VersionTextSensor::icon() {
+  return "mdi:new-box";
+}
+std::string VersionTextSensor::unique_id() {
+  return get_mac_address() + "-version";
+}
+
 } // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END

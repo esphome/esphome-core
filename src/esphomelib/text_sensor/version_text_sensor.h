@@ -25,6 +25,8 @@ class VersionTextSensor : public TextSensor, public Component {
   explicit VersionTextSensor(const std::string &name);
   void setup() override;
   float get_setup_priority() const override;
+  std::string icon() override;
+  std::string unique_id() override;
 };
 
 } // namespace text_sensor
