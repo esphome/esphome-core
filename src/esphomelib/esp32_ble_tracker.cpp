@@ -106,16 +106,8 @@ void ESP32BLETracker::ble_setup() {
   }
 
   // Initialize the bluetooth controller with the default configuration
-  esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-  err = esp_bt_controller_init(&bt_cfg);
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "esp_bt_controller_init failed: %d", err);
-    return;
-  }
-
-  err = esp_bt_controller_enable(ESP_BT_MODE_BLE);
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "esp_bt_controller_enable failed: %d", err);
+  if (!btStart()) {
+    ESP_LOGE(TAG, "btStart failed: %d", esp_bt_controller_get_status());
     return;
   }
 
