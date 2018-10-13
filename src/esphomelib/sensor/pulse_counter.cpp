@@ -47,14 +47,16 @@ void PulseCounterSensorComponent::set_edge_mode(PulseCounterCountMode rising_edg
 const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
 
 #ifdef ARDUINO_ARCH_ESP8266
-void ICACHE_RAM_ATTR PulseCounterBase::gpio_intr() {
+void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
   const uint32_t now = micros();
-  if (now - this->last_pulse_ < this->filter_us_) {
+  if (now - this->last_pulse_ < this->filter_us_)
     return;
-  }
+  this->last_pulse_ = now;
+
   PulseCounterCountMode mode = this->pin_->digital_read() ? this->rising_edge_mode_ : this->falling_edge_mode_;
   switch (mode) {
-    case PULSE_COUNTER_DISABLE: break;
+    case PULSE_COUNTER_DISABLE:
+      break;
     case PULSE_COUNTER_INCREMENT:
       this->counter_++;
       break;
@@ -62,7 +64,6 @@ void ICACHE_RAM_ATTR PulseCounterBase::gpio_intr() {
       this->counter_--;
       break;
   }
-  this->last_pulse_ = now;
 }
 bool PulseCounterBase::pulse_counter_setup_() {
   this->pin_->setup();
