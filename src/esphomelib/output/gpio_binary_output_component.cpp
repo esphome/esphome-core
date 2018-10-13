@@ -24,7 +24,7 @@ void GPIOBinaryOutputComponent::write_enabled(bool value) {
 void GPIOBinaryOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO Binary Output...");
   this->pin_->setup();
-  this->pin_->digital_write(false);
+  this->pin_->digital_write(this->power_on_value_);
 }
 
 float GPIOBinaryOutputComponent::get_setup_priority() const {
@@ -32,6 +32,10 @@ float GPIOBinaryOutputComponent::get_setup_priority() const {
 }
 GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin)
   : pin_(pin) { }
+
+void GPIOBinaryOutputComponent::set_power_on_value(bool power_on_value) {
+  this->power_on_value_ = power_on_value;
+}
 
 } // namespace output
 
