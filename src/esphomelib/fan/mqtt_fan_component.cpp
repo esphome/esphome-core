@@ -32,7 +32,7 @@ void MQTTFanComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Supports oscillation: %s", this->state_->get_traits().supports_oscillation() ? "YES" : "NO");
 
   this->subscribe(this->get_command_topic(), [this](const std::string &payload) {
-    auto val = parse_on_off(payload.c_str(), "ON", "OFF");
+    auto val = parse_on_off(payload.c_str(), this->state_->get_state());
     if (!val.has_value()) {
       ESP_LOGW(TAG, "Unknown state Payload %s", payload.c_str());
       this->status_momentary_warning("state", 5000);
@@ -44,7 +44,7 @@ void MQTTFanComponent::setup() {
 
   if (this->state_->get_traits().supports_oscillation()) {
     this->subscribe(this->get_oscillation_command_topic(), [this](const std::string &payload) {
-      auto val = parse_on_off(payload.c_str(), "oscillate_on", "oscillate_off");
+      auto val = parse_on_off(payload.c_str(), this->state_->is_oscillating(), "oscillate_on", "oscillate_off");
       if (!val.has_value()) {
         ESP_LOGW(TAG, "Unknown Oscillation Payload %s", payload.c_str());
         this->status_momentary_warning("oscillation", 5000);
