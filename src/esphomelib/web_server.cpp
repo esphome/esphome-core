@@ -485,8 +485,6 @@ bool WebServer::canHandle(AsyncWebServerRequest *request) {
   return false;
 }
 void WebServer::handleRequest(AsyncWebServerRequest *request) {
-  ESP_LOGD(TAG, "%s %s", request->methodToString(), request->url().c_str());
-
   if (request->url() == "/") {
     this->handle_index_request(request);
     return;
