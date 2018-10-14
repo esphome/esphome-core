@@ -5,12 +5,13 @@
 #ifndef ESPHOMELIB_OTA_COMPONENT_H
 #define ESPHOMELIB_OTA_COMPONENT_H
 
-#include <WiFiServer.h>
-
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_OTA
+
+#include "esphomelib/component.h"
+#include <WiFiServer.h>
+#include <WiFiClient.h>
 
 #ifdef ARDUINO_ARCH_ESP32
   #define OTA_DEFAULT_PORT 3232
@@ -21,38 +22,66 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+#ifdef USE_NEW_OTA
+enum OTAResponseTypes {
+  OTA_RESPONSE_OK = 0,
+  OTA_RESPONSE_REQUEST_AUTH = 1,
+
+  OTA_RESPONSE_HEADER_OK = 64,
+  OTA_RESPONSE_AUTH_OK = 65,
+  OTA_RESPONSE_UPDATE_PREPARE_OK = 66,
+  OTA_RESPONSE_BIN_MD5_OK = 67,
+  OTA_RESPONSE_RECEIVE_OK = 68,
+  OTA_RESPONSE_UPDATE_END_OK = 69,
+
+  OTA_RESPONSE_ERROR_MAGIC = 128,
+  OTA_RESPONSE_ERROR_UPDATE_PREPARE = 129,
+  OTA_RESPONSE_ERROR_AUTH_INVALID = 130,
+  OTA_RESPONSE_ERROR_WRITING_FLASH = 131,
+  OTA_RESPONSE_ERROR_UPDATE_END = 132,
+  OTA_RESPONSE_ERROR_INVALID_BOOTSTRAPPING = 133,
+  OTA_RESPONSE_ERROR_UNKNOWN = 255,
+};
+
+extern uint8_t OTA_VERSION_1_0;
+#endif
+
 /// OTAComponent provides a simple way to integrate Over-the-Air updates into your app using ArduinoOTA.
 class OTAComponent : public Component {
  public:
   /** Construct an OTAComponent. Defaults to no authentication.
    *
    * @param port The port ArduinoOTA will listen on.
-   * @param hostname The hostname ArduinoOTA will advertise.
    */
-  explicit OTAComponent(uint16_t port = OTA_DEFAULT_PORT, std::string hostname = "");
+  explicit OTAComponent(uint16_t port = OTA_DEFAULT_PORT);
 
-  /// Set ArduinoOTA to accept updates without authentication.
-  void set_auth_open();
-
-  /** Set a plaintext password that ArduinoOTA will use for authentication.
+#ifdef USE_NEW_OTA
+  /** Set a plaintext password that OTA will use for authentication.
    *
-   * Note: theoretically this password can be read from ROM by an intruder.
+   * Warning: This password will be stored in plaintext in the ROM and can be read
+   * by intruders. It is however secured somewhat secure again MITM attacks (attackers
+   * could still modify the binary while you're sending it, but they can't start OTA processes
+   * themselves.)
    *
    * @param password The plaintext password.
    */
+  void set_auth_password(const std::string &password);
+#else
+  /** Set a plaintext password for legacy OTA.
+   *
+   * @param password The password
+   */
   void set_auth_plaintext_password(const std::string &password);
 
-  /** Set a MD5 password hash that ArduinoOTA will use for authentication.
+  /** Set a hashed password for legacy OTA.
    *
-   * @param hash The MD5 hash of the password.
+   * @param password The MD5 password hash.
    */
   void set_auth_password_hash(const std::string &hash);
+#endif
 
   /// Manually set the port OTA should listen on.
   void set_port(uint16_t port);
-
-  /// Set the hostname advertised with mDNS. Empty for default hostname.
-  void set_hostname(const std::string &hostname);
 
   /** Start OTA safe mode. When called at startup, this method will automatically detect boot loops.
    *
@@ -70,12 +99,9 @@ class OTAComponent : public Component {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-
   void setup() override;
   float get_setup_priority() const override;
   void loop() override;
-
-  const std::string &get_hostname() const;
 
   uint16_t get_port() const;
 
@@ -85,14 +111,24 @@ class OTAComponent : public Component {
   void write_rtc_(uint8_t val);
   uint8_t read_rtc_();
 
-  enum { OPEN, PLAINTEXT, HASH } auth_type_;
+#ifdef USE_NEW_OTA
+  void handle_();
+  size_t wait_receive_(uint8_t *buf, size_t bytes);
+#else
+  enum { OPEN, PLAINTEXT, HASH } auth_type_{OPEN};
+#endif
 
   std::string password_;
 
   uint16_t port_;
-  std::string hostname_;
-  WiFiServer *server_;
-  bool ota_triggered_{false}; ///< stores whether OTA is currently active.
+
+  WiFiServer *server_{nullptr};
+#ifdef USE_NEW_OTA
+  WiFiClient client_{};
+#else
+  bool ota_triggered_{false};
+#endif
+
   bool has_safe_mode_{false}; ///< stores whether safe mode can be enabled.
   uint32_t safe_mode_start_time_; ///<stores when safe mode was enabled.
   uint32_t safe_mode_enable_time_{60000}; ///< The time safe mode should be on for.

@@ -40,6 +40,8 @@ extern const char *HOSTNAME_CHARACTER_WHITELIST;
 /// Gets the MAC address as a string, this can be used as way to identify this ESP32.
 std::string get_mac_address();
 
+void tick_status_led();
+
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
 
@@ -53,13 +55,13 @@ std::string truncate_string(const std::string &s, size_t length);
 bool is_empty(const IPAddress &address);
 
 /// Force a shutdown (and reboot) of the ESP, calling any registered shutdown hooks.
-void reboot(const char *cause);
+void reboot(const char *cause) __attribute__ ((noreturn));
 
 /// Add a shutdown callback.
 void add_shutdown_hook(std::function<void(const char *)> &&f);
 
 /// Create a safe shutdown (and reboot) of the ESP, calling any registered shutdown and safe shutdown hooks.
-void safe_reboot(const char *cause);
+void safe_reboot(const char *cause) __attribute__ ((noreturn));
 
 /// Run shutdown hooks.
 void run_shutdown_hooks(const char *cause);

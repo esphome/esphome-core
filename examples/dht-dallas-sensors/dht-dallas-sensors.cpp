@@ -27,7 +27,6 @@ void setup() {
   auto *ota = App.init_ota();
   ota->set_auth_plaintext_password("PASSWORD"); // set an optional password
   ota->set_port(3232); // This is the default for ESP32
-  ota->set_hostname("custom-hostname"); // manually set the hostname
   ota->start_safe_mode();
 
   auto *dallas = App.make_dallas_component(15);
