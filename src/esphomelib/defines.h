@@ -113,6 +113,7 @@
   #define USE_SNTP_COMPONENT
   #define USE_NEXTION
   #define USE_HLW8012
+  #define USE_MQTT_SUBSCRIBE_SENSOR
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -519,6 +520,11 @@
   #endif
   #ifndef USE_UART
     #define USE_UART
+  #endif
+#endif
+#ifdef USE_MQTT_SUBSCRIBE_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
   #endif
 #endif
 

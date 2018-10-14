@@ -1157,6 +1157,17 @@ display::Nextion *Application::make_nextion(UARTComponent *parent, uint32_t upda
 }
 #endif
 
+#ifdef USE_MQTT_SUBSCRIBE_SENSOR
+Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(const std::string &name, std::string topic) {
+  auto *sensor = this->register_component(new sensor::MQTTSubscribeSensor(name, std::move(topic)));
+
+  return MakeMQTTSubscribeSensor {
+      .sensor = sensor,
+      .mqtt = this->register_sensor(sensor),
+  };
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END

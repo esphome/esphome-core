@@ -92,6 +92,7 @@
 #include "esphomelib/sensor/ms5611.h"
 #include "esphomelib/sensor/tcs34725.h"
 #include "esphomelib/sensor/hlw8012.h"
+#include "esphomelib/sensor/mqtt_subscribe_sensor.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
@@ -880,6 +881,16 @@ class Application {
 #ifdef USE_HLW8012
   sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 15000);
 #endif
+
+#ifdef USE_MQTT_SUBSCRIBE_SENSOR
+  struct MakeMQTTSubscribeSensor {
+    sensor::MQTTSubscribeSensor *sensor;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeMQTTSubscribeSensor make_mqtt_subscribe_sensor(const std::string &name, std::string topic);
+#endif
+
 
 
 
