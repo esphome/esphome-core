@@ -45,8 +45,11 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
   /// Override the BinaryOutput method for writing values to HW.
   void write_enabled(bool value) override;
 
+  void set_power_on_value(bool power_on_value);
+
  protected:
   GPIOPin *pin_;
+  bool power_on_value_{false};
 };
 
 } // namespace output
