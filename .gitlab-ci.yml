@@ -36,4 +36,5 @@ test-advanced:
         -e custombmp180 \
         -e i2c-sensors \
         -e pcf8574 \
+        -e mcp23017 \
         -e fastled

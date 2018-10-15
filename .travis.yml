@@ -44,6 +44,7 @@ env:
     - BUILD_TARGET=custombmp180
     - BUILD_TARGET=i2c-sensors
     - BUILD_TARGET=pcf8574
+    - BUILD_TARGET=mcp23017
     - BUILD_TARGET=fastled
 
 script:
