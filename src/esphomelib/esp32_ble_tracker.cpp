@@ -286,11 +286,10 @@ XiaomiDataType parse_xiaomi(uint8_t data_type, const uint8_t *data, uint8_t data
       *data1 = conductivity;
       return XIAOMI_CONDUCTIVITY;
     }
-    case 0x07: { // illuminance, 4 bytes, 32-bit unsigned integer (LE), 1 lx
-      if (data_length != 4)
+    case 0x07: { // illuminance, 3 bytes, 24-bit unsigned integer (LE), 1 lx
+      if (data_length != 3)
         return XIAOMI_NO_DATA;
-      const uint32_t illuminance =
-          uint32_t(data[0]) | (uint32_t(data[1]) << 8) | (uint32_t(data[2]) << 16) | (uint32_t(data[3]) << 24);
+      const uint32_t illuminance = uint32_t(data[0]) | (uint32_t(data[1]) << 8) | (uint32_t(data[2]) << 16);
       *data1 = illuminance;
       return XIAOMI_ILLUMINANCE;
     }
