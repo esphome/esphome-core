@@ -1,11 +1,3 @@
-//
-//  rotary_encoder.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 16.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_ROTARY_ENCODER_SENSOR

@@ -1,11 +1,3 @@
-//
-//  status_binary_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 29.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_STATUS_BINARY_SENSOR_H
 #define ESPHOMELIB_STATUS_BINARY_SENSOR_H
 

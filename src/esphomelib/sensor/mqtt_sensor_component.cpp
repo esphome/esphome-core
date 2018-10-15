@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_SENSOR

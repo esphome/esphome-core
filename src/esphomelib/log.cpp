@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 22.01.18.
-//
-
 #include "esphomelib/log.h"
 
 #include "esphomelib/log_component.h"

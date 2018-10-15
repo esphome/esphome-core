@@ -1,10 +1,3 @@
-//
-//  mpu6050_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 05.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
 //   - https://github.com/jarzebski/Arduino-MPU6050

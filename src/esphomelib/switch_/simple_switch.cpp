@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 20.01.18.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_SIMPLE_SWITCH

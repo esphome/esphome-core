@@ -1,10 +1,3 @@
-//
-//  max6675_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 19.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Implementation based on https://github.com/adafruit/MAX6675-library/blob/master/max6675.cpp
 
 #include "esphomelib/defines.h"

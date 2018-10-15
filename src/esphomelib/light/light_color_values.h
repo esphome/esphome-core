@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 28.11.17.
-//
-
 #ifndef ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 #define ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 

@@ -1,11 +1,3 @@
-//
-//  shutdown_switch.h
-//  esphomelib
-//
-//  Created by Otto Winter on 04.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SWITCH_SHUTDOWN_SWITCH_H
 #define ESPHOMELIB_SWITCH_SHUTDOWN_SWITCH_H
 

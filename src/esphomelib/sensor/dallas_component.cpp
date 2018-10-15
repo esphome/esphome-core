@@ -1,6 +1,3 @@
-//
-// Created by Otto Winter on 28.12.17.
-//
 // Based on:
 //   - https://github.com/milesburton/Arduino-Temperature-Control-Library
 

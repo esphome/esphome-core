@@ -1,11 +1,3 @@
-//
-//  esp_one_wire.h
-//  esphomelib
-//
-//  Created by Otto Winter on 31.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_ONE_WIRE_H
 #define ESPHOMELIB_ONE_WIRE_H
 

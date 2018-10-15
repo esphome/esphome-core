@@ -1,10 +1,3 @@
-//
-//  bmp085_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 27.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://www.sparkfun.com/datasheets/Components/General/BST-BMP085-DS000-05.pdf
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/BMP085

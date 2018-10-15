@@ -1,11 +1,3 @@
-//
-//  htu21d_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 27.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_HTU21D_COMPONENT_H
 #define ESPHOMELIB_SENSOR_HTU21D_COMPONENT_H
 

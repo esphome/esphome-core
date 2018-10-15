@@ -1,11 +1,3 @@
-//
-//  uptime_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 25.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_UPTIME_SENSOR_H
 #define ESPHOMELIB_UPTIME_SENSOR_H
 

@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 29.12.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_FAN

@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #ifndef ESPHOMELIB_SENSOR_SENSOR_H
 #define ESPHOMELIB_SENSOR_SENSOR_H
 

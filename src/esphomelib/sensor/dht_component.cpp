@@ -1,6 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
 // Based on:
 //   - https://github.com/markruys/arduino-DHT
 

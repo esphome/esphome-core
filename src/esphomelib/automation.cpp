@@ -1,11 +1,3 @@
-//
-//  automation.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 18.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/automation.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN

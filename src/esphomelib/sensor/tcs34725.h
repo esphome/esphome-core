@@ -1,11 +1,3 @@
-//
-//  tcs34725.h
-//  esphomelib
-//
-//  Created by Otto Winter on 11.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_TCS34725_H
 #define ESPHOMELIB_SENSOR_TCS34725_H
 

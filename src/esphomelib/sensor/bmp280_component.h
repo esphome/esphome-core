@@ -1,11 +1,3 @@
-//
-//  bmp280_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 29.07.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_BMP280_COMPONENT_H
 #define ESPHOMELIB_SENSOR_BMP280_COMPONENT_H
 

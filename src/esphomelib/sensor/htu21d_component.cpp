@@ -1,10 +1,3 @@
-//
-//  htu21d_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 27.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - http://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FHPC199_6%7FA6%7Fpdf%7FEnglish%7FENG_DS_HPC199_6_A6.pdf%7FCAT-HSC0004
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/HTU21D

@@ -1,11 +1,3 @@
-//
-//  controller.h
-//  esphomelib
-//
-//  Created by Otto Winter on 12.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_CONTROLLER_H
 #define ESPHOMELIB_CONTROLLER_H
 

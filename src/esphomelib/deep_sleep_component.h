@@ -1,11 +1,3 @@
-//
-//  deep_sleep_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 15.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_DEEP_SLEEP_COMPONENT_H
 #define ESPHOMELIB_DEEP_SLEEP_COMPONENT_H
 

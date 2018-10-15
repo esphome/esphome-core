@@ -1,10 +1,3 @@
-//
-//  pcf8574_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 05.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://github.com/skywodd/pcf8574_arduino_library/
 //   - http://www.ti.com/lit/ds/symlink/pcf8574.pdf

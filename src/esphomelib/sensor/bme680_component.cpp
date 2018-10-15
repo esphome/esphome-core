@@ -1,10 +1,3 @@
-//
-//  bme680_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 10.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://cdn-shop.adafruit.com/product-files/3660/BME680.pdf
 //   - https://github.com/adafruit/Adafruit_BME680

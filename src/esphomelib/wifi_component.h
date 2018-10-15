@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_WIFI_COMPONENT_H
 #define ESPHOMELIB_WIFI_COMPONENT_H
 

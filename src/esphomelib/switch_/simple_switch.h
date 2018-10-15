@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 20.01.18.
-//
-
 #ifndef ESPHOMELIB_SWITCH_SIMPLE_SWITCH
 #define ESPHOMELIB_SWITCH_SIMPLE_SWITCH
 

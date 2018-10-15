@@ -1,11 +1,3 @@
-//
-//  rc_switch.h
-//  esphomelib
-//
-//  Created by Otto Winter on 13.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_REMOTE_RC_SWITCH_H
 #define ESPHOMELIB_REMOTE_RC_SWITCH_H
 

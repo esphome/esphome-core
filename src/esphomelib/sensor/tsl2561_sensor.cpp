@@ -1,10 +1,3 @@
-//
-//  tsl2561_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 09.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf
 //   - https://github.com/adafruit/TSL2561-Arduino-Library

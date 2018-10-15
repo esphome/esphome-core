@@ -1,10 +1,3 @@
-//
-//  dht12_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 17.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Implementation based on:
 //  - ESPEasy: https://github.com/letscontrolit/ESPEasy/blob/mega/src/_P034_DHT12.ino
 //  - DHT12_sensor_library: https://github.com/xreef/DHT12_sensor_library/blob/master/DHT12.cpp

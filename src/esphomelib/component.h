@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_COMPONENT_H
 #define ESPHOMELIB_COMPONENT_H
 

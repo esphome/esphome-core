@@ -1,11 +1,3 @@
-//
-//  defines.h
-//  esphomelib
-//
-//  Created by Otto Winter on 12.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
@@ -114,6 +106,7 @@
   #define USE_NEXTION
   #define USE_HLW8012
   #define USE_MQTT_SUBSCRIBE_SENSOR
+  #define USE_CSE7766
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -525,6 +518,14 @@
 #ifdef USE_MQTT_SUBSCRIBE_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_CSE7766
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
   #endif
 #endif
 

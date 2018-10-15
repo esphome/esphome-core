@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 30.12.17.
-//
-
 #ifndef ESPHOMELIB_FAN_BASIC_FAN_COMPONENT_H
 #define ESPHOMELIB_FAN_BASIC_FAN_COMPONENT_H
 

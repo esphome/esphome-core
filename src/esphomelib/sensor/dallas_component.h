@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 28.12.17.
-//
-
 #ifndef ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
 #define ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
 

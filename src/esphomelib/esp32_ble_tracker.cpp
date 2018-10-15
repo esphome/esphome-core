@@ -1,11 +1,3 @@
-//
-//  esp32_ble_tracker.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 12.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_BLE_TRACKER

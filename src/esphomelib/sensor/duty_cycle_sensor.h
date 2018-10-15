@@ -1,11 +1,3 @@
-//
-//  duty_cycle_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 09.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_DUTY_CYCLE_SENSOR_H
 #define ESPHOMELIB_DUTY_CYCLE_SENSOR_H
 

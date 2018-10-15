@@ -1,11 +1,3 @@
-//
-//  uart_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 24.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_UART

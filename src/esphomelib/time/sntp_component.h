@@ -1,11 +1,3 @@
-//
-//  sntp_component.h
-//  esphomelib
-//
-//  Created by Brad Davidson on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SNTP_COMPONENT_H
 #define ESPHOMELIB_SNTP_COMPONENT_H
 

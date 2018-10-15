@@ -1,11 +1,3 @@
-//
-//  template_binary_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 20.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H
 #define ESPHOMELIB_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H
 

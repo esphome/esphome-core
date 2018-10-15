@@ -1,10 +1,3 @@
-//
-//  hdc1080_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 01.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://github.com/closedcube/ClosedCube_HDC1080_Arduino
 //   - http://www.ti.com/lit/ds/symlink/hdc1080.pdf

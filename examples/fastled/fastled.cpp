@@ -1,11 +1,3 @@
-//
-//  fast_led_light.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 13.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include <esphomelib.h>
 #include <esphomelib/light/light_effect.h>
 
