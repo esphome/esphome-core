@@ -36,6 +36,7 @@ void LEDCOutputComponent::setup() {
 float LEDCOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
+
 LEDCOutputComponent::LEDCOutputComponent(uint8_t pin,
                                          float frequency,
                                          uint8_t bit_depth)

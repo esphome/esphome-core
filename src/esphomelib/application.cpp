@@ -358,13 +358,11 @@ DallasComponent *Application::make_dallas_component(const GPIOOutputPin &pin, ui
 #ifdef USE_GPIO_SWITCH
 Application::MakeGPIOSwitch Application::make_gpio_switch(const std::string &friendly_name,
                                                           const GPIOOutputPin &pin) {
-  auto *binary_output = this->make_gpio_output(pin);
-  auto simple_switch = this->make_simple_switch(friendly_name, binary_output);
+  auto gpio_switch = this->register_component(new GPIOSwitch(friendly_name, pin.copy()));
 
   return {
-      .gpio = binary_output,
-      .switch_ = simple_switch.switch_,
-      .mqtt = simple_switch.mqtt,
+      .switch_ = gpio_switch,
+      .mqtt = this->register_switch(gpio_switch),
   };
 }
 #endif
@@ -605,9 +603,9 @@ sensor::MPU6050Component *Application::make_mpu6050_sensor(uint8_t address, uint
 }
 #endif
 
-#ifdef USE_SIMPLE_SWITCH
-Application::MakeSimpleSwitch Application::make_simple_switch(const std::string &friendly_name, BinaryOutput *output) {
-  auto *s = this->register_component(new SimpleSwitch(friendly_name, output));
+#ifdef USE_OUTPUT_SWITCH
+Application::MakeOutputSwitch Application::make_output_switch(const std::string &friendly_name, BinaryOutput *output) {
+  auto *s = this->register_component(new OutputSwitch(friendly_name, output));
   return {
       .switch_ = s,
       .mqtt = this->register_switch(s)

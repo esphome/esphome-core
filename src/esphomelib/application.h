@@ -92,7 +92,8 @@
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
-#include "esphomelib/switch_/simple_switch.h"
+#include "esphomelib/switch_/output_switch.h"
+#include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/switch_/uart_switch.h"
@@ -1062,8 +1063,7 @@ class Application {
 
 #ifdef USE_GPIO_SWITCH
   struct MakeGPIOSwitch {
-    output::GPIOBinaryOutputComponent *gpio;
-    switch_::SimpleSwitch *switch_;
+    switch_::GPIOSwitch *switch_;
     switch_::MQTTSwitchComponent *mqtt;
   };
 
@@ -1071,7 +1071,7 @@ class Application {
    *
    * @param pin The pin used for this switch. Can be integer or GPIOOutputPin.
    * @param friendly_name The friendly name advertised to Home Assistant for this switch-
-   * @return A GPIOSwitchStruct, use this to set advanced settings.
+   * @return A MakeGPIOSwitch, use this to set advanced settings.
    */
   MakeGPIOSwitch make_gpio_switch(const std::string &friendly_name, const GPIOOutputPin &pin);
 #endif
@@ -1096,14 +1096,14 @@ class Application {
   MakeShutdownSwitch make_shutdown_switch(const std::string &friendly_name);
 #endif
 
-#ifdef USE_SIMPLE_SWITCH
-  struct MakeSimpleSwitch {
-    switch_::SimpleSwitch *switch_;
+#ifdef USE_OUTPUT_SWITCH
+  struct MakeOutputSwitch {
+    switch_::OutputSwitch *switch_;
     switch_::MQTTSwitchComponent *mqtt;
   };
 
-  /// Make a simple switch that exposes a binary output as a switch
-  MakeSimpleSwitch make_simple_switch(const std::string &friendly_name, output::BinaryOutput *output);
+  /// Make an output switch that exposes a binary output as a switch
+  MakeOutputSwitch make_output_switch(const std::string &friendly_name, output::BinaryOutput *output);
 #endif
 
 #ifdef USE_TEMPLATE_SWITCH
