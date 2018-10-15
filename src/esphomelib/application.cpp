@@ -597,6 +597,12 @@ PCF8574Component *Application::make_pcf8574_component(uint8_t address, bool pcf8
 }
 #endif
 
+#ifdef USE_MCP23017
+MCP23017Component *Application::make_mcp23017_component(uint8_t address) {
+  return this->register_component(new MCP23017Component(this->i2c_, address));
+}
+#endif
+
 #ifdef USE_MPU6050
 sensor::MPU6050Component *Application::make_mpu6050_sensor(uint8_t address, uint32_t update_interval) {
   return this->register_component(new MPU6050Component(this->i2c_, address, update_interval));

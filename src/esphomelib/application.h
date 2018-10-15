@@ -41,6 +41,7 @@
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/i2c_component.h"
 #include "esphomelib/io/pcf8574_component.h"
+#include "esphomelib/io/mcp23017_component.h"
 #include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/light/fast_led_light_effect.h"
 #include "esphomelib/light/light_effect.h"
@@ -1212,6 +1213,21 @@ class Application {
    */
   io::PCF8574Component *make_pcf8574_component(uint8_t address = 0x21, bool pcf8575 = false);
 #endif
+
+#ifdef USE_MCP23017
+/** Create a MCP23017 port expander component.
+ *
+ * This component will allow you to emulate GPIOInputPin and GPIOOutputPin instances that
+ * are used within esphomelib. You can therefore simply pass the result of calling
+ * `make_pin` on the component to any method accepting GPIOInputPin or GPIOOutputPin.
+ *
+ * @param address The i2c address to use for this port expander. Defaults to 0x20.
+ * @return The MCP23017Component instance to get individual pins.
+ */
+io::MCP23017Component *make_mcp23017_component(uint8_t address = 0x21);
+
+#endif
+
 
   /// Register the component in this Application instance.
   template<class C>
