@@ -1,8 +1,8 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_SIMPLE_SWITCH
+#ifdef USE_OUTPUT_SWITCH
 
-#include "esphomelib/switch_/simple_switch.h"
+#include "esphomelib/switch_/output_switch.h"
 
 #include "esphomelib/log.h"
 
@@ -10,14 +10,14 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-SimpleSwitch::SimpleSwitch(const std::string &name, output::BinaryOutput *output)
+OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output)
     : Switch(name), output_(output) { }
 
-void SimpleSwitch::turn_on() {
+void OutputSwitch::turn_on() {
   this->output_->enable();
   this->publish_state(true);
 }
-void SimpleSwitch::turn_off() {
+void OutputSwitch::turn_off() {
   this->output_->disable();
   this->publish_state(false);
 }
@@ -26,4 +26,4 @@ void SimpleSwitch::turn_off() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SIMPLE_SWITCH
+#endif //USE_OUTPUT_SWITCH

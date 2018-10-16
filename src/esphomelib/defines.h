@@ -42,7 +42,7 @@
   #endif
   #define USE_LIGHT
   #define USE_SWITCH
-  #define USE_SIMPLE_SWITCH
+  #define USE_OUTPUT_SWITCH
   #define USE_REMOTE
   #define USE_REMOTE_RECEIVER
   #define USE_REMOTE_TRANSMITTER
@@ -395,11 +395,8 @@
   #endif
 #endif
 #ifdef USE_GPIO_SWITCH
-  #ifndef USE_SIMPLE_SWITCH
-    #define USE_SIMPLE_SWITCH
-  #endif
-  #ifndef USE_GPIO_OUTPUT
-    #define USE_GPIO_OUTPUT
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
   #endif
 #endif
 #ifdef USE_TEMPLATE_SWITCH
@@ -422,7 +419,7 @@
     #define USE_OUTPUT
   #endif
 #endif
-#ifdef USE_SIMPLE_SWITCH
+#ifdef USE_OUTPUT_SWITCH
   #ifndef USE_SWITCH
     #define USE_SWITCH
   #endif
