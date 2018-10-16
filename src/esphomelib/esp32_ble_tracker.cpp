@@ -27,11 +27,11 @@ SemaphoreHandle_t semaphore_scan_end;
 uint64_t ble_addr_to_uint64(const esp_bd_addr_t address) {
   uint64_t u = 0;
   u |= uint64_t(address[0] & 0xFF) << 40;
-  u |= uint64_t(address[0] & 0xFF) << 32;
-  u |= uint64_t(address[1] & 0xFF) << 24;
-  u |= uint64_t(address[2] & 0xFF) << 16;
-  u |= uint64_t(address[3] & 0xFF) << 8;
-  u |= uint64_t(address[4] & 0xFF) << 0;
+  u |= uint64_t(address[1] & 0xFF) << 32;
+  u |= uint64_t(address[2] & 0xFF) << 24;
+  u |= uint64_t(address[3] & 0xFF) << 16;
+  u |= uint64_t(address[4] & 0xFF) << 8;
+  u |= uint64_t(address[5] & 0xFF) << 0;
   return u;
 }
 
@@ -49,19 +49,10 @@ ESP32BLERSSISensor *ESP32BLETracker::make_rssi_sensor(const std::string &name, s
   return dev;
 }
 
-XiaomiMiJiaDevice *ESP32BLETracker::make_mijia_sensor(const std::string &temperature_name,
-                                                      const std::string &humidity_name,
-                                                      std::array<uint8_t, 6> address) {
+XiaomiDevice *ESP32BLETracker::make_xiaomi_device(std::array<uint8_t, 6> address) {
   uint64_t addr = ble_addr_to_uint64(address.cbegin());
-  auto *dev = new XiaomiMiJiaDevice(addr, temperature_name, humidity_name);
-  this->mijia_sensors_.push_back(dev);
-  return dev;
-}
-
-XiaomiMiFloraDevice *ESP32BLETracker::make_miflora_sensor(std::array<uint8_t, 6> address) {
-  uint64_t addr = ble_addr_to_uint64(address.cbegin());
-  auto *dev = new XiaomiMiFloraDevice(addr);
-  this->miflora_sensors_.push_back(dev);
+  auto *dev = new XiaomiDevice(this, addr);
+  this->xiaomi_devices_.push_back(dev);
   return dev;
 }
 
@@ -200,8 +191,7 @@ void ESP32BLETracker::gap_scan_result(const esp_ble_gap_cb_param_t::ble_scan_res
     device.parse_scan_rst(param);
 
     this->parse_rssi_sensors_(device);
-    this->parse_mijia_sensors_(device);
-    this->parse_miflora_sensors_(device);
+    this->parse_xiaomi_sensors_(device);
 
     if (this->parse_already_discovered_(device))
       return;
@@ -295,128 +285,96 @@ XiaomiDataType parse_xiaomi(uint8_t data_type, const uint8_t *data, uint8_t data
   }
 }
 
-void ESP32BLETracker::parse_mijia_sensors_(const ESPBTDevice &device) {
+void ESP32BLETracker::parse_xiaomi_sensors_(const ESPBTDevice &device) {
   const uint64_t address = device.address_uint64();
 
   if (!device.get_service_data_uuid().has_value()) {
-    ESP_LOGVV(TAG, "Xiaomi MiJia no service data");
+    ESP_LOGVV(TAG, "Xiaomi no service data");
     return;
   }
 
   if (!device.get_service_data_uuid()->contains(0x95, 0xFE)) {
-    ESP_LOGVV(TAG, "Xiaomi MiJia no service data UUID magic bytes");
+    ESP_LOGVV(TAG, "Xiaomi no service data UUID magic bytes");
     return;
   }
 
   const auto *raw = reinterpret_cast<const uint8_t *>(device.get_service_data().data());
 
-  if (device.get_service_data().size() < 14 ||
-      (raw[1] & 0x20) != 0x20 || raw[2] != 0xAA || raw[3] != 0x01) {
-    ESP_LOGVV(TAG, "Xiaomi MiJia no magic bytes");
+  if (device.get_service_data().size() < 14) {
+    ESP_LOGVV(TAG, "Xiaomi service data too short!");
     return;
   }
 
-  const uint8_t raw_type = raw[11];
-  const uint8_t data_length = raw[13];
-  const uint8_t *data = &raw[14];
-  if (data_length + 14 != device.get_service_data().size()) {
-    ESP_LOGW(TAG, "Xiaomi MiJia data length mismatch");
+  bool is_mijia = (raw[1] & 0x20) == 0x20 && raw[2] == 0xAA && raw[3] == 0x01;
+  bool is_miflora = (raw[1] & 0x20) == 0x20 && raw[2] == 0x98 && raw[3] == 0x00;
+
+  if (!is_mijia && !is_miflora) {
+    ESP_LOGVV(TAG, "Xiaomi no magic bytes");
+    return;
+  }
+
+  const char *type = is_mijia ? "MiJia" : "MiFlora";
+  uint8_t raw_offset = is_mijia ? 11 : 12;
+
+  const uint8_t raw_type = raw[raw_offset];
+  const uint8_t data_length = raw[raw_offset + 2];
+  const uint8_t *data = &raw[raw_offset + 3];
+  if (data_length + raw_offset + 3 != device.get_service_data().size()) {
+    ESP_LOGW(TAG, "Xiaomi %s data length mismatch", type);
     return;
   }
   float data1, data2;
   XiaomiDataType data_type = parse_xiaomi(raw_type, data, data_length, &data1, &data2);
   switch (data_type) {
-    case XIAOMI_TEMPERATURE_HUMIDITY:ESP_LOGD(TAG, "Xiaomi MiJia %s Got temperature=%.1f°C, humidity=%.1f%%",
-                                              device.address_str().c_str(), data1, data2);
+    case XIAOMI_TEMPERATURE_HUMIDITY:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C, humidity=%.1f%%",
+          type, device.address_str().c_str(), data1, data2);
       break;
-    case XIAOMI_TEMPERATURE:ESP_LOGD(TAG, "Xiaomi MiJia %s Got temperature=%.1f°C",
-                                     device.address_str().c_str(), data1);
+    case XIAOMI_TEMPERATURE:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C",
+          type, device.address_str().c_str(), data1);
       break;
-    case XIAOMI_HUMIDITY:ESP_LOGD(TAG, "Xiaomi MiJia %s Got humidity=%.1f%%",
-                                  device.address_str().c_str(), data1);
+    case XIAOMI_HUMIDITY:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got humidity=%.1f%%",
+          type, device.address_str().c_str(), data1);
       break;
-    case XIAOMI_BATTERY_LEVEL:ESP_LOGD(TAG, "Xiaomi MiJia %s Got battery level=%.0f%%",
-                                       device.address_str().c_str(), data1);
+    case XIAOMI_BATTERY_LEVEL:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got battery level=%.0f%%",
+          type, device.address_str().c_str(), data1);
+      break;
+    case XIAOMI_MOISTURE:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got moisture=%.0f%%",
+          type, device.address_str().c_str(), data1);
+      break;
+    case XIAOMI_ILLUMINANCE:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got illuminance=%.0flx",
+          type, device.address_str().c_str(), data1);
+      break;
+    case XIAOMI_CONDUCTIVITY:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got soil conductivity=%.0fµS/cm",
+          type, device.address_str().c_str(), data1);
       break;
     case XIAOMI_NO_DATA:
     default:return;
   }
 
-  for (auto *dev : this->mijia_sensors_) {
+  for (auto *dev : this->xiaomi_devices_) {
     if (dev->address_ == address) {
       switch (data_type) {
-        case XIAOMI_TEMPERATURE_HUMIDITY:dev->get_temperature_sensor()->push_new_value(data1);
-          dev->get_humidity_sensor()->push_new_value(data2);
+        case XIAOMI_TEMPERATURE_HUMIDITY:
+          if (dev->get_temperature_sensor() != nullptr)
+            dev->get_temperature_sensor()->push_new_value(data1);
+          if (dev->get_humidity_sensor() != nullptr)
+            dev->get_humidity_sensor()->push_new_value(data2);
           break;
-        case XIAOMI_TEMPERATURE:dev->get_temperature_sensor()->push_new_value(data1);
-          break;
-        case XIAOMI_HUMIDITY:dev->get_humidity_sensor()->push_new_value(data1);
+        case XIAOMI_HUMIDITY:
+          if (dev->get_humidity_sensor() != nullptr)
+            dev->get_humidity_sensor()->push_new_value(data1);
           break;
         case XIAOMI_BATTERY_LEVEL:
           if (dev->get_battery_level_sensor() != nullptr)
             dev->get_battery_level_sensor()->push_new_value(data1);
           break;
-        default:
-          break;
-      }
-    }
-  }
-}
-
-void ESP32BLETracker::parse_miflora_sensors_(const ESPBTDevice &device) {
-
-  const uint64_t address = device.address_uint64();
-
-  if (!device.get_service_data_uuid().has_value()) {
-    ESP_LOGVV(TAG, "Xiaomi MiFlora no service data");
-    return;
-  }
-
-  if (!device.get_service_data_uuid()->contains(0x95, 0xFE)) {
-    ESP_LOGVV(TAG, "Xiaomi MiFlora no service data UUID magic bytes");
-    return;
-  }
-
-  const auto *raw = reinterpret_cast<const uint8_t *>(device.get_service_data().data());
-
-  if (device.get_service_data().size() < 14 ||
-      (raw[1] & 0x20) != 0x20 || raw[2] != 0x98 || raw[3] != 0x00) {
-    ESP_LOGVV(TAG, "Xiaomi MiFlora no magic bytes");
-    return;
-  }
-
-  const uint8_t raw_type = raw[12];
-  const uint8_t data_length = raw[14];
-  const uint8_t *data = &raw[15];
-  if (data_length + 15 != device.get_service_data().size()) {
-    ESP_LOGW(TAG, "Xiaomi MiFlora data length mismatch");
-    return;
-  }
-  float data1, data2;
-  XiaomiDataType data_type = parse_xiaomi(raw_type, data, data_length, &data1, &data2);
-  switch (data_type) {
-    case XIAOMI_TEMPERATURE:ESP_LOGD(TAG, "Xiaomi MiFlora %s Got temperature=%.1f°C",
-                                     device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_MOISTURE:ESP_LOGD(TAG, "Xiaomi MiFlora %s Got moisture=%.0f%%",
-                                  device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_BATTERY_LEVEL:ESP_LOGD(TAG, "Xiaomi MiFlora %s Got battery level=%.0f%%",
-                                       device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_ILLUMINANCE:ESP_LOGD(TAG, "Xiaomi MiFlora %s Got illuminance=%.0flx",
-                                     device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_CONDUCTIVITY:ESP_LOGD(TAG, "Xiaomi MiFlora %s Got soil conductivity=%.0fµS/cm",
-                                      device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_NO_DATA:
-    default:return;
-  }
-
-  for (auto *dev : this->miflora_sensors_) {
-    if (dev->address_ == address) {
-      switch (data_type) {
         case XIAOMI_TEMPERATURE:
           if (dev->get_temperature_sensor() != nullptr)
             dev->get_temperature_sensor()->push_new_value(data1);
@@ -424,10 +382,6 @@ void ESP32BLETracker::parse_miflora_sensors_(const ESPBTDevice &device) {
         case XIAOMI_MOISTURE:
           if (dev->get_moisture_sensor() != nullptr)
             dev->get_moisture_sensor()->push_new_value(data1);
-          break;
-        case XIAOMI_BATTERY_LEVEL:
-          if (dev->get_battery_level_sensor() != nullptr)
-            dev->get_battery_level_sensor()->push_new_value(data1);
           break;
         case XIAOMI_ILLUMINANCE:
           if (dev->get_illuminance_sensor() != nullptr)
@@ -471,7 +425,8 @@ bool ESP32BLETracker::parse_already_discovered_(const ESPBTDevice &device) {
   }
 
   ESP_LOGD(TAG, "    Address Type: %s", address_type_s);
-  ESP_LOGD(TAG, "    Name: '%s'", device.get_name().c_str());
+  if (!device.get_name().empty())
+    ESP_LOGD(TAG, "    Name: '%s'", device.get_name().c_str());
   if (device.get_tx_power().has_value()) {
     ESP_LOGD(TAG, "    TX Power: %d", *device.get_tx_power());
   }
@@ -526,6 +481,26 @@ bool ESPBTUUID::contains(uint8_t data1, uint8_t data2) const {
   }
   return false;
 }
+std::string ESPBTUUID::to_string() {
+  char sbuf[64];
+  switch (this->uuid_.len) {
+    case ESP_UUID_LEN_16:
+      sprintf(sbuf, "%02X:%02X", this->uuid_.uuid.uuid16 >> 8, this->uuid_.uuid.uuid16);
+      break;
+    case ESP_UUID_LEN_32:
+      sprintf(sbuf, "%02X:%02X:%02X:%02X",
+              this->uuid_.uuid.uuid32 >> 24, this->uuid_.uuid.uuid32 >> 16,
+              this->uuid_.uuid.uuid32 >> 8, this->uuid_.uuid.uuid32);
+      break;
+    default:
+    case ESP_UUID_LEN_128:
+      for (uint8_t i = 0; i < 16; i++)
+        sprintf(sbuf + i * 3, "%02X:", this->uuid_.uuid.uuid128[i]);
+      sbuf[47] = '\0';
+      break;
+  }
+  return sbuf;
+}
 
 void ESPBTDevice::parse_scan_rst(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param) {
   for (uint8_t i = 0; i < ESP_BD_ADDR_LEN; i++)
@@ -533,16 +508,54 @@ void ESPBTDevice::parse_scan_rst(const esp_ble_gap_cb_param_t::ble_scan_result_e
   this->address_type_ = param.ble_addr_type;
   this->rssi_ = param.rssi;
   this->parse_adv(param);
-}
-void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param) {
-  size_t offset = 0;
-  const uint8_t *payload = param.ble_adv;
-  uint8_t len = param.adv_data_len;
 
 #ifdef ESPHOMELIB_LOG_HAS_VERY_VERBOSE
+  ESP_LOGVV(TAG, "Parse Result:");
+  const char *address_type = "";
+  switch (this->address_type_) {
+    case BLE_ADDR_TYPE_PUBLIC:address_type = "PUBLIC";
+      break;
+    case BLE_ADDR_TYPE_RANDOM:address_type = "RANDOM";
+      break;
+    case BLE_ADDR_TYPE_RPA_PUBLIC:address_type = "RPA_PUBLIC";
+      break;
+    case BLE_ADDR_TYPE_RPA_RANDOM:address_type = "RPA_RANDOM";
+      break;
+  }
+  ESP_LOGVV(TAG,
+           "  Address: %02X:%02X:%02X:%02X:%02X:%02X (%s)",
+           this->address_[0],
+           this->address_[1],
+           this->address_[2],
+           this->address_[3],
+           this->address_[4],
+           this->address_[5],
+           address_type);
+
+  ESP_LOGVV(TAG, "  RSSI: %d", this->rssi_);
+  ESP_LOGVV(TAG, "  Name: %s", this->name_.c_str());
+  if (this->tx_power_.has_value()) {
+    ESP_LOGVV(TAG, "  TX Power: %d", *this->tx_power_);
+  }
+  if (this->appearance_.has_value()) {
+    ESP_LOGVV(TAG, "  Appearance: %u", *this->appearance_);
+  }
+  if (this->ad_flag_.has_value()) {
+    ESP_LOGVV(TAG, "  Ad Flag: %u", *this->ad_flag_);
+  }
+  for (auto uuid : this->service_uuids_) {
+    ESP_LOGVV(TAG, "  Service UUID: %s", uuid.to_string().c_str());
+  }
+  ESP_LOGVV(TAG, "  Manufacturer data: '%s'", this->manufacturer_data_.c_str());
+  ESP_LOGVV(TAG, "  Service data: '%s'", this->service_data_.c_str());
+
+  if (this->service_data_uuid_.has_value()) {
+    ESP_LOGVV(TAG, "  Service Data UUID: %s", this->service_data_uuid_->to_string().c_str());
+  }
+
   char buffer[200];
   size_t off = 0;
-  for (uint8_t i = 0; i < len; i++) {
+  for (uint8_t i = 0; i < param.adv_data_len; i++) {
     int ret = snprintf(buffer + off, sizeof(buffer) - off, "%02X.", param.ble_adv[i]);
     if (ret < 0) {
       break;
@@ -551,6 +564,11 @@ void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_pa
   }
   ESP_LOGVV(TAG, "Adv data: %s (%u bytes)", buffer, len);
 #endif
+}
+void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param) {
+  size_t offset = 0;
+  const uint8_t *payload = param.ble_adv;
+  uint8_t len = param.adv_data_len;
 
   while (offset + 2 < len) {
     const uint8_t field_length = payload[offset++]; // First byte is length of adv record
@@ -685,39 +703,9 @@ void ESP32BLETracker::set_scan_interval(uint32_t scan_interval) {
   this->scan_interval_ = scan_interval;
 }
 uint32_t ESP32BLETracker::get_scan_interval() const {
-  return scan_interval_;
+  return this->scan_interval_;
 }
 
-XiaomiMiFloraTemperatureSensor *XiaomiMiFloraDevice::get_temperature_sensor() const {
-  return this->temperature_sensor_;
-}
-XiaomiMiFloraMoistureSensor *XiaomiMiFloraDevice::get_moisture_sensor() const {
-  return this->moisture_sensor_;
-}
-XiaomiMiFloraIlluminanceSensor *XiaomiMiFloraDevice::get_illuminance_sensor() const {
-  return this->illuminance_sensor_;
-}
-XiaomiMiFloraConductivitySensor *XiaomiMiFloraDevice::get_conductivity_sensor() const {
-  return this->conductivity_sensor_;
-}
-XiaomiMiFloraBatteryLevelSensor *XiaomiMiFloraDevice::get_battery_level_sensor() const {
-  return this->battery_level_sensor_;
-}
-XiaomiMiFloraTemperatureSensor *XiaomiMiFloraDevice::make_temperature_sensor(const std::string &name) {
-  return this->temperature_sensor_ = new XiaomiMiFloraTemperatureSensor(name);
-}
-XiaomiMiFloraMoistureSensor *XiaomiMiFloraDevice::make_moisture_sensor(const std::string &name) {
-  return this->moisture_sensor_ = new XiaomiMiFloraMoistureSensor(name);
-}
-XiaomiMiFloraIlluminanceSensor *XiaomiMiFloraDevice::make_illuminance_sensor(const std::string &name) {
-  return this->illuminance_sensor_ = new XiaomiMiFloraIlluminanceSensor(name);
-}
-XiaomiMiFloraConductivitySensor *XiaomiMiFloraDevice::make_conductivity_sensor(const std::string &name) {
-  return this->conductivity_sensor_ = new XiaomiMiFloraConductivitySensor(name);
-}
-XiaomiMiJiaBatteryLevelSensor *XiaomiMiFloraDevice::make_battery_level_sensor(const std::string &name) {
-  return this->battery_level_sensor_ = new XiaomiMiFloraBatteryLevelSensor(name);
-}
 std::string ESP32BLERSSISensor::unit_of_measurement() {
   return "dB";
 }
@@ -740,25 +728,12 @@ ESP32BLERSSISensor::ESP32BLERSSISensor(ESP32BLETracker *parent, const std::strin
     : Sensor(name), parent_(parent), address_(address) {
 
 }
-
-XiaomiMiJiaDevice::XiaomiMiJiaDevice(uint64_t address,
-                                     const std::string &temperature_name,
-                                     const std::string &humidity_name)
-    : address_(address), temperature_sensor_(new XiaomiMiJiaTemperatureSensor(temperature_name)),
-      humidity_sensor_(new XiaomiMiJiaHumiditySensor(humidity_name)) {
-
+uint32_t XiaomiDevice::update_interval() const {
+  // Double the scan interval because Xiaomis don't send values too often.
+  return this->parent_->get_scan_interval() * 2000;
 }
-XiaomiMiJiaTemperatureSensor *XiaomiMiJiaDevice::get_temperature_sensor() const {
-  return this->temperature_sensor_;
-}
-XiaomiMiJiaHumiditySensor *XiaomiMiJiaDevice::get_humidity_sensor() const {
-  return this->humidity_sensor_;
-}
-XiaomiMiJiaBatteryLevelSensor *XiaomiMiJiaDevice::make_battery_level_sensor(const std::string &name) {
-  return this->battery_level_sensor_ = new XiaomiMiJiaBatteryLevelSensor(name);
-}
-XiaomiMiJiaBatteryLevelSensor *XiaomiMiJiaDevice::get_battery_level_sensor() const {
-  return this->battery_level_sensor_;
+std::string XiaomiDevice::unique_id() const {
+  return uint64_to_string(this->address_);
 }
 
 ESP32BLEPresenceDevice::ESP32BLEPresenceDevice(const std::string &name, uint64_t address)
@@ -768,6 +743,119 @@ ESP32BLEPresenceDevice::ESP32BLEPresenceDevice(const std::string &name, uint64_t
 std::string ESP32BLEPresenceDevice::device_class() {
   return "presence";
 }
+
+std::string XiaomiSensor::unit_of_measurement() {
+  switch (this->type_) {
+    case TYPE_TEMPERATURE:
+      return sensor::UNIT_C;
+    case TYPE_CONDUCTIVITY:
+      return sensor::UNIT_MICROSIEMENS_PER_CENTIMETER;
+    case TYPE_ILLUMINANCE:
+      return sensor::UNIT_LX;
+    case TYPE_HUMIDITY:
+    case TYPE_MOISTURE:
+    case TYPE_BATTERY_LEVEL:
+      return sensor::UNIT_PERCENT;
+  }
+  return "";
+}
+std::string XiaomiSensor::icon() {
+  switch (this->type_) {
+    case TYPE_TEMPERATURE:
+      return sensor::ICON_EMPTY;
+    case TYPE_HUMIDITY:
+    case TYPE_MOISTURE:
+      return sensor::ICON_WATER_PERCENT;
+    case TYPE_BATTERY_LEVEL:
+      return sensor::ICON_BATTERY;
+    case TYPE_ILLUMINANCE:
+      return sensor::ICON_BRIGHTNESS_5;
+    case TYPE_CONDUCTIVITY:
+      return sensor::ICON_FLOWER;
+  }
+
+  return "";
+}
+uint32_t XiaomiSensor::update_interval() {
+  return this->parent_->update_interval();
+}
+int8_t XiaomiSensor::accuracy_decimals() {
+  switch (this->type_) {
+    case TYPE_TEMPERATURE:
+    case TYPE_HUMIDITY:
+      return 1;
+    case TYPE_MOISTURE:
+    case TYPE_BATTERY_LEVEL:
+    case TYPE_ILLUMINANCE:
+    case TYPE_CONDUCTIVITY:
+      return 0;
+  }
+  return 0;
+}
+std::string XiaomiSensor::unique_id() {
+  const char *suffix = "";
+  switch (this->type_) {
+    case TYPE_TEMPERATURE:
+      suffix = "-temperature";
+      break;
+    case TYPE_HUMIDITY:
+      suffix = "-humidity";
+      break;
+    case TYPE_BATTERY_LEVEL:
+      suffix = "-battery";
+      break;
+    case TYPE_MOISTURE:
+      suffix = "-moisture";
+      break;
+    case TYPE_ILLUMINANCE:
+      suffix = "-illuminance";
+      break;
+    case TYPE_CONDUCTIVITY:
+      suffix = "-conductivity";
+      break;
+  }
+  return this->parent_->unique_id() + suffix;
+}
+XiaomiSensor::XiaomiSensor(XiaomiDevice *parent, XiaomiSensor::Type type, const std::string &name)
+    : Sensor(name), parent_(parent), type_(type) {}
+
+XiaomiSensor *XiaomiDevice::get_temperature_sensor() const {
+  return this->temperature_sensor_;
+}
+XiaomiSensor *XiaomiDevice::get_humidity_sensor() const {
+  return this->humidity_sensor_;
+}
+XiaomiSensor *XiaomiDevice::get_moisture_sensor() const {
+  return this->moisture_sensor_;
+}
+XiaomiSensor *XiaomiDevice::get_illuminance_sensor() const {
+  return this->illuminance_sensor_;
+}
+XiaomiSensor *XiaomiDevice::get_conductivity_sensor() const {
+  return this->conductivity_sensor_;
+}
+XiaomiSensor *XiaomiDevice::get_battery_level_sensor() const {
+  return this->battery_level_sensor_;
+}
+XiaomiSensor *XiaomiDevice::make_temperature_sensor(const std::string &name) {
+  return this->temperature_sensor_ = new XiaomiSensor(this, XiaomiSensor::TYPE_TEMPERATURE, name);
+}
+XiaomiSensor *XiaomiDevice::make_humidity_sensor(const std::string &name) {
+  return this->humidity_sensor_ = new XiaomiSensor(this, XiaomiSensor::TYPE_HUMIDITY, name);
+}
+XiaomiSensor *XiaomiDevice::make_moisture_sensor(const std::string &name) {
+  return this->moisture_sensor_ = new XiaomiSensor(this, XiaomiSensor::TYPE_MOISTURE, name);
+}
+XiaomiSensor *XiaomiDevice::make_illuminance_sensor(const std::string &name) {
+  return this->illuminance_sensor_ = new XiaomiSensor(this, XiaomiSensor::TYPE_ILLUMINANCE, name);
+}
+XiaomiSensor *XiaomiDevice::make_conductivity_sensor(const std::string &name) {
+  return this->conductivity_sensor_ = new XiaomiSensor(this, XiaomiSensor::TYPE_CONDUCTIVITY, name);
+}
+XiaomiSensor *XiaomiDevice::make_battery_level_sensor(const std::string &name) {
+  return this->battery_level_sensor_ = new XiaomiSensor(this, XiaomiSensor::TYPE_BATTERY_LEVEL, name);
+}
+XiaomiDevice::XiaomiDevice(ESP32BLETracker *parent, uint64_t address) : parent_(parent), address_(address) {}
 
 ESPHOMELIB_NAMESPACE_END
 
