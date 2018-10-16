@@ -93,6 +93,7 @@
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
 #include "esphomelib/text_sensor/version_text_sensor.h"
+#include "esphomelib/text_sensor/template_text_sensor.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
@@ -914,6 +915,15 @@ class Application {
   };
 
   MakeVersionTextSensor make_version_text_sensor(const std::string &name);
+#endif
+
+#ifdef USE_TEMPLATE_TEXT_SENSOR
+  struct MakeTemplateTextSensor {
+    text_sensor::TemplateTextSensor *template_;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeTemplateTextSensor make_template_text_sensor(const std::string &name, uint32_t update_interval = 15000);
 #endif
 
 

@@ -1198,6 +1198,18 @@ Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(con
 }
 #endif
 
+#ifdef USE_TEMPLATE_SENSOR
+Application::MakeTemplateTextSensor Application::make_template_text_sensor(const std::string &name,
+                                                                           uint32_t update_interval) {
+  auto *template_ = this->register_component(new TemplateTextSensor(name, update_interval));
+
+  return MakeTemplateTextSensor{
+      .template_ = template_,
+      .mqtt = this->register_text_sensor(template_),
+  };
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
