@@ -5,6 +5,9 @@
 
 #ifdef USE_OUTPUT_SWITCH
 
+#include "esphomelib/output/binary_output.h"
+#include "esphomelib/switch_/switch.h"
+
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
