@@ -102,11 +102,6 @@ class MCP23017Component : public Component, public I2CDevice {
   float get_setup_priority() const override;
 
  protected:
-  // figure out which bit is it, for a given pin number.
-  // problem comes from A/B side mapping, and reverse order of high-low byte value
-  uint8_t bit_for_pin_(uint8_t pin);
-  // figure out which register of the given 2 is it.
-  uint8_t reg_for_pin_ (uint8_t pin, uint8_t regA, uint8_t regB);
 
   // read a given register
   bool read_reg_ (uint8_t reg, uint8_t *value);

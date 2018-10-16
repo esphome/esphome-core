@@ -1215,16 +1215,16 @@ class Application {
 #endif
 
 #ifdef USE_MCP23017
-/** Create a MCP23017 port expander component.
- *
- * This component will allow you to emulate GPIOInputPin and GPIOOutputPin instances that
- * are used within esphomelib. You can therefore simply pass the result of calling
- * `make_pin` on the component to any method accepting GPIOInputPin or GPIOOutputPin.
- *
- * @param address The i2c address to use for this port expander. Defaults to 0x20.
- * @return The MCP23017Component instance to get individual pins.
- */
-io::MCP23017Component *make_mcp23017_component(uint8_t address = 0x21);
+  /** Create a MCP23017 port expander component.
+   *
+   * This component will allow you to emulate GPIOInputPin and GPIOOutputPin instances that
+   * are used within esphomelib. You can therefore simply pass the result of calling
+   * `make_pin` on the component to any method accepting GPIOInputPin or GPIOOutputPin.
+   *
+   * @param address The i2c address to use for this port expander. Defaults to 0x20.
+   * @return The MCP23017Component instance to get individual pins.
+   */
+  io::MCP23017Component *make_mcp23017_component(uint8_t address = 0x21);
 
 #endif
 

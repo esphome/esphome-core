@@ -37,8 +37,15 @@ void MCP23017Component::setup() {
   }
 
   // set defaults, all pins input
- this->write_reg_ (MCP23017_IODIRA, 0xFF);
- this->write_reg_ (MCP23017_IODIRB, 0xFF);
+ this->write_reg_(MCP23017_IODIRA, 0xFF);
+ this->write_reg_(MCP23017_IODIRB, 0xFF);
+}
+
+static uint8_t bit_for_pin_(uint8_t pin) {
+  return pin % 8;
+}
+static uint8_t reg_for_pin_(uint8_t pin, uint8_t reg_a, uint8_t reg_b) {
+  return (pin < 8) ? reg_a : reg_b;
 }
 
 bool MCP23017Component::digital_read_(uint8_t pin) {
@@ -52,18 +59,20 @@ bool MCP23017Component::digital_read_(uint8_t pin) {
 
 void MCP23017Component::digital_write_(uint8_t pin, bool value) {
   uint8_t gpio;
-  uint8_t bit = this->bit_for_pin_(pin);
+  uint8_t bit = bit_for_pin_(pin);
 
-  uint8_t reg_addr = this->reg_for_pin_(pin, MCP23017_OLATA, MCP23017_OLATB);
+  uint8_t reg_addr = reg_for_pin_(pin, MCP23017_OLATA, MCP23017_OLATB);
   this->read_reg_(reg_addr, &gpio);
 
-  bitWrite(gpio, bit, value);
+  if (value)
+    gpio |= 1 << bit;
+  else
+    gpio &= ~(1 << bit);
 
   // write the new GPIO
-  reg_addr = this->reg_for_pin_(pin, MCP23017_GPIOA, MCP23017_GPIOB);
+  reg_addr = reg_for_pin_(pin, MCP23017_GPIOA, MCP23017_GPIOB);
   this->write_reg_(reg_addr, gpio);
 }
-
 
 void MCP23017Component::pin_mode_(uint8_t pin, uint8_t mode) {
   switch (mode) {
@@ -82,27 +91,11 @@ void MCP23017Component::pin_mode_(uint8_t pin, uint8_t mode) {
   }
 }
 
-uint8_t MCP23017Component::bit_for_pin_(uint8_t pin) {
-  return pin%8;
-}
-
-uint8_t MCP23017Component::reg_for_pin_ (uint8_t pin, uint8_t regA, uint8_t regB) {
-  return (pin < 8) ? regA : regB;
-}
-
-bool MCP23017Component::read_reg_ (uint8_t reg, uint8_t *value) {
+bool MCP23017Component::read_reg_(uint8_t reg, uint8_t *value) {
   if (this->is_failed())
     return false;
 
-  this->parent_->begin_transmission_(this->address_);
-  this->parent_->write_(this->address_, &reg, 1);
-
-  if (!this->parent_->receive_(this->address_, value, 1)) {
-    this->status_set_warning();
-    return false;
-  }
-
-  if (!this->parent_->end_transmission_(this->address_)) {
+  if (!this->read_bytes(reg, value, 1)) {
     this->status_set_warning();
     return false;
   }
@@ -111,26 +104,23 @@ bool MCP23017Component::read_reg_ (uint8_t reg, uint8_t *value) {
   return true;
 }
 
-bool MCP23017Component::write_reg_ (uint8_t reg, uint8_t value){
+bool MCP23017Component::write_reg_(uint8_t reg, uint8_t value) {
   if (this->is_failed())
     return false;
 
-  this->parent_->begin_transmission_(this->address_);
-  this->parent_->write_(this->address_, &reg, 1);
-  this->parent_->write_(this->address_, &value, 1);
-
-  if (!this->parent_->end_transmission_(this->address_)) {
+  if (!this->write_byte(reg, value)) {
     this->status_set_warning();
     return false;
   }
+
   this->status_clear_warning();
   return true;
 
 }
 
-bool MCP23017Component::update_reg_ (uint8_t pin, uint8_t pin_value, uint8_t regA, uint8_t regB){
-  uint8_t reg_addr = this->reg_for_pin_ (pin, regA, regB);
-  uint8_t bit = this->bit_for_pin_ (pin);
+bool MCP23017Component::update_reg_(uint8_t pin, uint8_t pin_value, uint8_t reg_a, uint8_t reg_b) {
+  uint8_t reg_addr = reg_for_pin_(pin, reg_a, reg_a);
+  uint8_t bit = bit_for_pin_(pin);
 
   uint8_t reg_value;
   if (!this->read_reg_(reg_addr, &reg_value)) {
@@ -138,9 +128,12 @@ bool MCP23017Component::update_reg_ (uint8_t pin, uint8_t pin_value, uint8_t reg
     return false;
   }
   // set the value for the particular bit
-  bitWrite (reg_value, bit, pin_value);
+  if (pin_value)
+    reg_value |= 1 << bit;
+  else
+    reg_value &= ~(1 << bit);
 
-  if(!this->write_reg_ (reg_addr, reg_value)) {
+  if(!this->write_reg_(reg_addr, reg_value)) {
     this->status_set_warning();
     return false;
   }
