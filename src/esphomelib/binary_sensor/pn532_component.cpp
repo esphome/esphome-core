@@ -15,6 +15,16 @@ static const char *TAG = "pn532";
 static const uint8_t PN532_NACK[] = {0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00};
 static const uint8_t PN532_ACK[] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
 
+void format_uid(char *buf, uint8_t *uid, uint8_t uid_length) {
+  int offset = 0;
+  for (uint8_t i = 0; i < uid_length; i++) {
+    const char *format = "%02X";
+    if (i + 1 < uid_length)
+      format = "%02X-";
+    offset += sprintf(buf + offset, format, uid[i]);
+  }
+}
+
 void PN532Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up PN532...");
   this->spi_setup();
@@ -76,8 +86,12 @@ void PN532Component::loop() {
 
   uint8_t uid_length = this->buffer_[12];
   bool report = true;
-  for (auto *uid : this->binary_sensors_) {
-    if (uid->process(&this->buffer_[13], uid_length)) {
+  uint8_t *uid = &this->buffer_[13];
+  for (auto *trigger : this->triggers_) {
+    trigger->process(uid, uid_length);
+  }
+  for (auto *tag : this->binary_sensors_) {
+    if (tag->process(&this->buffer_[13], uid_length)) {
       report = false;
     }
   }
@@ -85,7 +99,7 @@ void PN532Component::loop() {
   if (this->last_uid_.size() == uid_length) {
     matches = true;
     for (size_t i = 0; i < uid_length; i++)
-      matches = matches && this->last_uid_[i] == this->buffer_[13 + i];
+      matches = matches && this->last_uid_[i] == uid[i];
   }
 
   if (matches) {
@@ -93,19 +107,12 @@ void PN532Component::loop() {
   } else {
     this->last_uid_.clear();
     for (size_t i = 0; i < uid_length; i++)
-      this->last_uid_.push_back(this->buffer_[13 + i]);
+      this->last_uid_.push_back(uid[i]);
   }
 
   if (report) {
     char buf[32];
-    int offset = 0;
-    for (uint8_t i = 0; i < uid_length; i++) {
-      const char *format = "%02X";
-      if (i + 1 < uid_length) {
-        format = "%02X-";
-      }
-      offset += sprintf(buf + offset, format, this->buffer_[13 + i]);
-    }
+    format_uid(buf, uid, uid_length);
     ESP_LOGD(TAG, "Found new tag '%s'", buf);
   }
 }
@@ -201,6 +208,12 @@ PN532BinarySensor *PN532Component::make_tag(const std::string &name, const std::
   this->binary_sensors_.push_back(tag);
   return tag;
 }
+
+PN532Trigger *PN532Component::make_trigger() {
+  auto *trigger = new PN532Trigger();
+  this->triggers_.push_back(trigger);
+  return trigger;
+}
 bool PN532Component::is_ready() {
   this->enable();
   // Mark we're reading state
@@ -241,6 +254,12 @@ PN532BinarySensor::PN532BinarySensor(const std::string &name, const std::vector<
     : BinarySensor(name), uid_(uid) {
   if (update_interval > 0)
     this->add_filter(App.register_component(new DelayedOffFilter((update_interval * 3) / 2)));
+}
+
+void PN532Trigger::process(uint8_t *uid, uint8_t uid_length) {
+  char buf[32];
+  format_uid(buf, uid, uid_length);
+  this->trigger(std::string(buf));
 }
 
 } // namespace binary_sensor
