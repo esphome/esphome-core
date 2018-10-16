@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 02.12.17.
-//
-
 #ifndef ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H
 #define ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H
 

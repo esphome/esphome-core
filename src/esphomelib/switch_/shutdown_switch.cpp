@@ -1,11 +1,3 @@
-//
-//  shutdown_switch.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 04.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_SHUTDOWN_SWITCH

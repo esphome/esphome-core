@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #ifndef ESPHOMELIB_OUTPUT_LEDC_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_LEDC_OUTPUT_COMPONENT_H
 

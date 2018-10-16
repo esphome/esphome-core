@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #include "esphomelib/wifi_component.h"
 
 #ifdef ARDUINO_ARCH_ESP32

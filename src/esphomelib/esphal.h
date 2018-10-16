@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 22.01.18.
-//
-
 #ifndef ESPHOMELIB_ESPHAL_H
 #define ESPHOMELIB_ESPHAL_H
 

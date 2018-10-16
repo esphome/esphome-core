@@ -1,11 +1,3 @@
-//
-//  uart_switch.h
-//  esphomelib
-//
-//  Created by Otto Winter on 25.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_UART_SWITCH_H
 #define ESPHOMELIB_UART_SWITCH_H
 

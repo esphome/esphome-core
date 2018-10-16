@@ -1,11 +1,3 @@
-//
-//  mqtt_cover.h
-//  esphomelib
-//
-//  Created by Otto Winter on 20.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H
 #define ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H
 

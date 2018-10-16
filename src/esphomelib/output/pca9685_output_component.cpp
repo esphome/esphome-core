@@ -1,6 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
 // Based on:
 //   - https://github.com/NachtRaveVL/PCA9685-Arduino
 //   - https://cdn-shop.adafruit.com/datasheets/PCA9685.pdf

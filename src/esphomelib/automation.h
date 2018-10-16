@@ -1,11 +1,3 @@
-//
-//  automation.h
-//  esphomelib
-//
-//  Created by Otto Winter on 18.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_AUTOMATION_H
 #define ESPHOMELIB_AUTOMATION_H
 

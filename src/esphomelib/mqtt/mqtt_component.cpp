@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #include "esphomelib/mqtt/mqtt_component.h"
 
 #include <algorithm>

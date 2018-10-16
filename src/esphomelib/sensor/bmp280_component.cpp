@@ -1,10 +1,3 @@
-//
-//  bmp280_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 29.07.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //  - https://cdn-shop.adafruit.com/datasheets/BST-BMP280_DS001-10.pdf
 //  - https://github.com/adafruit/Adafruit_BMP280_Library

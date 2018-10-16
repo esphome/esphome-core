@@ -1,11 +1,3 @@
-//
-//  duty_cycle_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 09.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_DUTY_CYCLE_SENSOR

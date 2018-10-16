@@ -1,11 +1,3 @@
-//
-//  hmc5883l.h
-//  esphomelib
-//
-//  Created by Otto Winter on 03.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_HMC_5883_L_H
 #define ESPHOMELIB_HMC_5883_L_H
 

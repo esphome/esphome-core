@@ -1,11 +1,3 @@
-//
-//  status_led.h
-//  esphomelib
-//
-//  Created by Otto Winter on 12.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_STATUS_LED_H
 #define ESPHOMELIB_STATUS_LED_H
 

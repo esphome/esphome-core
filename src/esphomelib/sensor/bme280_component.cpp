@@ -1,10 +1,3 @@
-//
-//  bme280_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 10.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //  - https://cdn-shop.adafruit.com/datasheets/BST-BME280_DS001-10.pdf
 //  - https://github.com/adafruit/Adafruit_BME280_Library

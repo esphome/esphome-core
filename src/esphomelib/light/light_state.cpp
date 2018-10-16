@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 28.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_LIGHT

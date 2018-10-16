@@ -1,11 +1,3 @@
-//
-//  pn532_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 15.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_PN_532_COMPONENT_H
 #define ESPHOMELIB_PN_532_COMPONENT_H
 

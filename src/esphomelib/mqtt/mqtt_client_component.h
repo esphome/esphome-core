@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H
 #define ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H
 

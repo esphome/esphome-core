@@ -1,11 +1,3 @@
-//
-//  sony.h
-//  esphomelib
-//
-//  Created by Otto Winter on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_REMOTE_SONY_H
 #define ESPHOMELIB_REMOTE_SONY_H
 

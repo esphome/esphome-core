@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 27.01.18.
-//
-
 #include "esphomelib/esppreferences.h"
 
 #include <functional>

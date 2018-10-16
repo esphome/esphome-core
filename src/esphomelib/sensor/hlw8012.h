@@ -1,11 +1,3 @@
-//
-//  hlw8012.h
-//  esphomelib
-//
-//  Created by Otto Winter on 24.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_HLW_8012_H
 #define ESPHOMELIB_HLW_8012_H
 

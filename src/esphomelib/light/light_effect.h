@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 02.12.17.
-//
-
 #ifndef ESPHOMELIB_LIGHT_LIGHT_EFFECT_H
 #define ESPHOMELIB_LIGHT_LIGHT_EFFECT_H
 

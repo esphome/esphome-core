@@ -1,11 +1,3 @@
-//
-//  rc_switch.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 13.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/remote/rc_switch.h"
 #include "esphomelib/log.h"
 

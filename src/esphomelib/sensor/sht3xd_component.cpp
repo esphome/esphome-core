@@ -1,10 +1,3 @@
-//
-//  sht3xd_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 11.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://cdn-shop.adafruit.com/product-files/2857/Sensirion_Humidity_SHT3x_Datasheet_digital-767294.pdf
 //   - https://github.com/Sensirion/arduino-sht

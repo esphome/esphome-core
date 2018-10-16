@@ -1,11 +1,3 @@
-//
-//  custom_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 23.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 // <WARNING>
 //   For this example to compile, you'll first need to install the Adafruit BMP085 library
 //   See  for more information

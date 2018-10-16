@@ -1,10 +1,3 @@
-//
-//  bh1750_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 10.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //  - http://www.mouser.com/ds/2/348/bh1750fvi-e-186247.pdf
 //  - https://github.com/claws/BH1750

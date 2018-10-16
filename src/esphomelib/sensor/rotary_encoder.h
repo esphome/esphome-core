@@ -1,10 +1,3 @@
-//
-//  rotary_encoder.h
-//  esphomelib
-//
-//  Created by Otto Winter on 16.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on the awesome work of Jochen Krapf: https://github.com/jkDesignDE/MechInputs
 
 #ifndef ESPHOMELIB_ROTARY_ENCODER_H

@@ -1,11 +1,3 @@
-//
-//  ads1115_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 25.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_INPUT_ADS1115_COMPONENT_H
 #define ESPHOMELIB_INPUT_ADS1115_COMPONENT_H
 

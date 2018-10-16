@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 21.01.18.
-//
-
 #include <esphomelib.h>
 
 using namespace esphomelib;

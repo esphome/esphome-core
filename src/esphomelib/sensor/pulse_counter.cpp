@@ -1,11 +1,3 @@
-//
-//  pulse_counter.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 24.02.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_PULSE_COUNTER_SENSOR

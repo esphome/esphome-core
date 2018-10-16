@@ -1,11 +1,3 @@
-//
-//  fast_led_light_effect.h
-//  esphomelib
-//
-//  Created by Otto Winter on 26.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
 #define ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
 
