@@ -91,7 +91,7 @@ void PN532Component::loop() {
     trigger->process(uid, uid_length);
   }
   for (auto *tag : this->binary_sensors_) {
-    if (tag->process(&this->buffer_[13], uid_length)) {
+    if (tag->process(uid, uid_length)) {
       report = false;
     }
   }
