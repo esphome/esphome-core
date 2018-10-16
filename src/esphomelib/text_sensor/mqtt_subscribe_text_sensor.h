@@ -1,11 +1,3 @@
-//
-//  mqtt_subscribe_text_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 2018/10/11.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_MQTT_SUBSCRIBE_TEXT_SENSOR_H
 #define ESPHOMELIB_MQTT_SUBSCRIBE_TEXT_SENSOR_H
 

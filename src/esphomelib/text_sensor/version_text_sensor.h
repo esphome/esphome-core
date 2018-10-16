@@ -1,11 +1,3 @@
-//
-//  version_text_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 2018/10/12.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_VERSION_TEXT_SENSOR_H
 #define ESPHOMELIB_VERSION_TEXT_SENSOR_H
 
