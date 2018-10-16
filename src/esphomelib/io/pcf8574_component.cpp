@@ -114,7 +114,7 @@ bool PCF8574Component::write_gpio_() {
   return true;
 }
 PCF8574GPIOInputPin PCF8574Component::make_input_pin(uint8_t pin, uint8_t mode, bool inverted) {
-  assert(mode <= PCF8574_OUTPUT);
+  assert(mode == PCF8574_INPUT || mode == PCF8574_INPUT_PULLUP);
   if (this->pcf8575_) { assert(pin < 16); }
   else { assert(pin < 8); }
   return {this, pin, mode, inverted};
