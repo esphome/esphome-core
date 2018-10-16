@@ -1224,7 +1224,7 @@ class Application {
    * @param address The i2c address to use for this port expander. Defaults to 0x20.
    * @return The MCP23017Component instance to get individual pins.
    */
-  io::MCP23017Component *make_mcp23017_component(uint8_t address = 0x21);
+  io::MCP23017Component *make_mcp23017_component(uint8_t address = 0x20);
 
 #endif
 
