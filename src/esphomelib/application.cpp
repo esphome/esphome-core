@@ -1198,7 +1198,7 @@ Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(con
 }
 #endif
 
-#ifdef USE_TEMPLATE_SENSOR
+#ifdef USE_TEMPLATE_TEXT_SENSOR
 Application::MakeTemplateTextSensor Application::make_template_text_sensor(const std::string &name,
                                                                            uint32_t update_interval) {
   auto *template_ = this->register_component(new TemplateTextSensor(name, update_interval));
@@ -1207,6 +1207,12 @@ Application::MakeTemplateTextSensor Application::make_template_text_sensor(const
       .template_ = template_,
       .mqtt = this->register_text_sensor(template_),
   };
+}
+#endif
+
+#ifdef USE_CSE7766
+sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent) {
+  return this->register_component(new sensor::CSE7766Component(parent));
 }
 #endif
 

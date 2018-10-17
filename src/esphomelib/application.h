@@ -89,6 +89,7 @@
 #include "esphomelib/sensor/tcs34725.h"
 #include "esphomelib/sensor/hlw8012.h"
 #include "esphomelib/sensor/mqtt_subscribe_sensor.h"
+#include "esphomelib/sensor/cse7766.h"
 #include "esphomelib/text_sensor/text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
@@ -896,6 +897,10 @@ class Application {
   };
 
   MakeMQTTSubscribeSensor make_mqtt_subscribe_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_CSE7766
+  sensor::CSE7766Component *make_cse7766(UARTComponent *parent);
 #endif
 
 
