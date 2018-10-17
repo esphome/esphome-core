@@ -28,7 +28,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 using json_parse_t = std::function<void(JsonObject &)>;
 
 /// Callback function typedef for building JsonObjects.
-using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
+using json_build_t = std::function<void(JsonObject &)>;
 
 /// The characters that are allowed in a hostname.
 extern const char *HOSTNAME_CHARACTER_WHITELIST;

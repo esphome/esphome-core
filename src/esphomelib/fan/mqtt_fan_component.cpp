@@ -99,7 +99,7 @@ void MQTTFanComponent::send_initial_state() {
 std::string MQTTFanComponent::friendly_name() const {
   return this->state_->get_name();
 }
-void MQTTFanComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+void MQTTFanComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (this->state_->get_traits().supports_oscillation()) {
     root["oscillation_command_topic"] = this->get_oscillation_command_topic();
     root["oscillation_state_topic"] = this->get_oscillation_state_topic();

@@ -63,13 +63,13 @@ void MQTTComponent::send_discovery_() {
 
   ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
 
-  this->send_json_message(this->get_discovery_topic(discovery_info), [&](JsonBuffer &buffer, JsonObject &root) {
+  this->send_json_message(this->get_discovery_topic(discovery_info), [this](JsonObject &root) {
     SendDiscoveryConfig config;
     config.state_topic = true;
     config.command_topic = true;
     config.platform = "mqtt";
 
-    this->send_discovery(buffer, root, config);
+    this->send_discovery(root, config);
 
     root["name"] = this->friendly_name();
     if (strcmp(config.platform, "mqtt") != 0)

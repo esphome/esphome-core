@@ -154,7 +154,7 @@ class LightState : public Nameable, public Component {
   void parse_json(const JsonObject &root);
 
   /// Dump the state of this light as JSON.
-  void dump_json(JsonBuffer &buffer, JsonObject &root);
+  void dump_json(JsonObject &root);
 
   /// Defaults to 1 second (1000 ms).
   uint32_t get_default_transition_length() const;

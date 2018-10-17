@@ -25,7 +25,7 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   /// Set a custom speed state topic. Defaults to "<base>/speed/state".
   void set_custom_speed_state_topic(const std::string &topic);
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

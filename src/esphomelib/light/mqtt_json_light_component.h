@@ -20,7 +20,7 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
 
   void setup() override;
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   void send_initial_state() override;
 
