@@ -90,6 +90,7 @@
 #include "esphomelib/sensor/hlw8012.h"
 #include "esphomelib/sensor/mqtt_subscribe_sensor.h"
 #include "esphomelib/sensor/cse7766.h"
+#include "esphomelib/sensor/pmsx003.h"
 #include "esphomelib/text_sensor/text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
@@ -929,6 +930,10 @@ class Application {
   };
 
   MakeTemplateTextSensor make_template_text_sensor(const std::string &name, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_PMSX003
+  sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
 #endif
 
 

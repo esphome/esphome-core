@@ -111,6 +111,7 @@
   #define USE_TEMPLATE_TEXT_SENSOR
   #define USE_MQTT_SUBSCRIBE_SENSOR
   #define USE_CSE7766
+  #define USE_PMSX003
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -522,6 +523,14 @@
   #endif
 #endif
 #ifdef USE_CSE7766
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
+  #endif
+#endif
+#ifdef USE_PMSX003
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif
