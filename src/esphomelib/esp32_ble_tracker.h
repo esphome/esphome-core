@@ -17,8 +17,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 class ESP32BLEPresenceDevice;
 class ESP32BLERSSISensor;
-class XiaomiMiJiaDevice;
-class XiaomiMiFloraDevice;
+class XiaomiDevice;
 class ESPBTDevice;
 
 /** The ESP32BLETracker class is a hub for all ESP32 Bluetooth Low Energy devices.
@@ -70,8 +69,7 @@ class ESP32BLETracker : public Component {
 
   ESP32BLERSSISensor *make_rssi_sensor(const std::string &name, std::array<uint8_t, 6> address);
 
-  XiaomiMiJiaDevice *make_mijia_sensor(const std::string &temperature_name, const std::string &humidity_name, std::array<uint8_t, 6> address);
-  XiaomiMiFloraDevice *make_miflora_sensor(std::array<uint8_t, 6> address);
+  XiaomiDevice *make_xiaomi_device(std::array<uint8_t, 6> address);
 
   /** Set the number of seconds (!) that a single BLE scan should take.
    *
@@ -106,8 +104,7 @@ class ESP32BLETracker : public Component {
 
   void parse_presence_sensors_(const ESPBTDevice &device);
   void parse_rssi_sensors_(const ESPBTDevice &device);
-  void parse_mijia_sensors_(const ESPBTDevice &device);
-  void parse_miflora_sensors_(const ESPBTDevice &device);
+  void parse_xiaomi_sensors_(const ESPBTDevice &device);
 
   bool parse_already_discovered_(const ESPBTDevice &device);
   bool has_already_discovered_(uint64_t address);
@@ -118,8 +115,7 @@ class ESP32BLETracker : public Component {
   /// An array of registered devices to track
   std::vector<ESP32BLEPresenceDevice *> presence_sensors_;
   std::vector<ESP32BLERSSISensor *> rssi_sensors_;
-  std::vector<XiaomiMiJiaDevice *> mijia_sensors_;
-  std::vector<XiaomiMiFloraDevice *> miflora_sensors_;
+  std::vector<XiaomiDevice *> xiaomi_devices_;
   /// A structure holding the ESP BLE scan parameters.
   esp_ble_scan_params_t scan_params_;
   /// The interval in seconds to perform scans.
@@ -156,56 +152,61 @@ class ESP32BLERSSISensor : public sensor::Sensor {
   ESP32BLETracker *parent_;
 };
 
-using XiaomiMiJiaTemperatureSensor = sensor::EmptySensor<1, sensor::ICON_EMPTY, sensor::UNIT_C>;
-using XiaomiMiJiaHumiditySensor = sensor::EmptySensor<1, sensor::ICON_WATER_PERCENT, sensor::UNIT_PERCENT>;
-using XiaomiMiJiaBatteryLevelSensor = sensor::EmptySensor<0, sensor::ICON_BATTERY, sensor::UNIT_PERCENT>;
-
-class XiaomiMiJiaDevice {
+class XiaomiSensor : public sensor::Sensor {
  public:
-  XiaomiMiJiaDevice(uint64_t address, const std::string &temperature_name, const std::string &humidity_name);
+  enum Type {
+    TYPE_TEMPERATURE = 0,
+    TYPE_HUMIDITY,
+    TYPE_MOISTURE,
+    TYPE_ILLUMINANCE,
+    TYPE_CONDUCTIVITY,
+    TYPE_BATTERY_LEVEL,
+  };
 
-  XiaomiMiJiaTemperatureSensor *get_temperature_sensor() const;
-  XiaomiMiJiaHumiditySensor *get_humidity_sensor() const;
-  XiaomiMiJiaBatteryLevelSensor *get_battery_level_sensor() const;
-  XiaomiMiJiaBatteryLevelSensor *make_battery_level_sensor(const std::string &name);
+  XiaomiSensor(XiaomiDevice *parent, Type type, const std::string &name);
+
+  std::string unit_of_measurement() override;
+  std::string icon() override;
+  uint32_t update_interval() override;
+  int8_t accuracy_decimals() override;
+  std::string unique_id() override;
  protected:
-  friend ESP32BLETracker;
-
-  uint64_t address_;
-  XiaomiMiJiaTemperatureSensor *temperature_sensor_;
-  XiaomiMiJiaHumiditySensor *humidity_sensor_;
-  XiaomiMiJiaBatteryLevelSensor *battery_level_sensor_{nullptr};
+  XiaomiDevice *parent_;
+  Type type_;
 };
 
-using XiaomiMiFloraTemperatureSensor = sensor::EmptySensor<1, sensor::ICON_EMPTY, sensor::UNIT_C>;
-using XiaomiMiFloraMoistureSensor = sensor::EmptySensor<0, sensor::ICON_WATER_PERCENT, sensor::UNIT_PERCENT>;
-using XiaomiMiFloraIlluminanceSensor = sensor::EmptySensor<0, sensor::ICON_BRIGHTNESS_5, sensor::UNIT_LX>;
-using XiaomiMiFloraConductivitySensor = sensor::EmptySensor<0, sensor::ICON_FLOWER, sensor::UNIT_MICROSIEMENS_PER_CENTIMETER>;
-using XiaomiMiFloraBatteryLevelSensor = sensor::EmptySensor<0, sensor::ICON_BATTERY, sensor::UNIT_PERCENT>;
-
-class XiaomiMiFloraDevice {
+class XiaomiDevice {
  public:
-  XiaomiMiFloraDevice(uint64_t address) : address_(address) {}
+  XiaomiDevice(ESP32BLETracker *parent, uint64_t address);
 
-  XiaomiMiFloraTemperatureSensor *get_temperature_sensor() const;
-  XiaomiMiFloraMoistureSensor *get_moisture_sensor() const;
-  XiaomiMiFloraIlluminanceSensor *get_illuminance_sensor() const;
-  XiaomiMiFloraConductivitySensor *get_conductivity_sensor() const;
-  XiaomiMiFloraBatteryLevelSensor *get_battery_level_sensor() const;
-  XiaomiMiFloraTemperatureSensor *make_temperature_sensor(const std::string &name);
-  XiaomiMiFloraMoistureSensor *make_moisture_sensor(const std::string &name);
-  XiaomiMiFloraIlluminanceSensor *make_illuminance_sensor(const std::string &name);
-  XiaomiMiFloraConductivitySensor *make_conductivity_sensor(const std::string &name);
-  XiaomiMiJiaBatteryLevelSensor *make_battery_level_sensor(const std::string &name);
+  XiaomiSensor *get_temperature_sensor() const;
+  XiaomiSensor *get_humidity_sensor() const;
+  XiaomiSensor *get_moisture_sensor() const;
+  XiaomiSensor *get_illuminance_sensor() const;
+  XiaomiSensor *get_conductivity_sensor() const;
+  XiaomiSensor *get_battery_level_sensor() const;
+  XiaomiSensor *make_temperature_sensor(const std::string &name);
+  XiaomiSensor *make_humidity_sensor(const std::string &name);
+  XiaomiSensor *make_moisture_sensor(const std::string &name);
+  XiaomiSensor *make_illuminance_sensor(const std::string &name);
+  XiaomiSensor *make_conductivity_sensor(const std::string &name);
+  XiaomiSensor *make_battery_level_sensor(const std::string &name);
+
+  uint32_t update_interval() const;
+
+  std::string unique_id() const;
+
  protected:
   friend ESP32BLETracker;
 
+  ESP32BLETracker *parent_;
   uint64_t address_;
-  XiaomiMiFloraTemperatureSensor *temperature_sensor_{nullptr};
-  XiaomiMiFloraMoistureSensor *moisture_sensor_{nullptr};
-  XiaomiMiFloraIlluminanceSensor *illuminance_sensor_{nullptr};
-  XiaomiMiFloraConductivitySensor *conductivity_sensor_{nullptr};
-  XiaomiMiFloraBatteryLevelSensor *battery_level_sensor_{nullptr};
+  XiaomiSensor *temperature_sensor_{nullptr};
+  XiaomiSensor *humidity_sensor_{nullptr};
+  XiaomiSensor *moisture_sensor_{nullptr};
+  XiaomiSensor *illuminance_sensor_{nullptr};
+  XiaomiSensor *conductivity_sensor_{nullptr};
+  XiaomiSensor *battery_level_sensor_{nullptr};
 };
 
 class ESPBTUUID {
@@ -219,6 +220,8 @@ class ESPBTUUID {
   static ESPBTUUID from_raw(const uint8_t *data);
 
   bool contains(uint8_t data1, uint8_t data2) const;
+
+  std::string to_string();
 
  protected:
   esp_bt_uuid_t uuid_;
