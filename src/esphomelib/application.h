@@ -89,6 +89,11 @@
 #include "esphomelib/sensor/tcs34725.h"
 #include "esphomelib/sensor/hlw8012.h"
 #include "esphomelib/sensor/mqtt_subscribe_sensor.h"
+#include "esphomelib/text_sensor/text_sensor.h"
+#include "esphomelib/text_sensor/mqtt_text_sensor.h"
+#include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
+#include "esphomelib/text_sensor/version_text_sensor.h"
+#include "esphomelib/text_sensor/template_text_sensor.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
@@ -404,6 +409,11 @@ class Application {
 #ifdef USE_SENSOR
   /// Register a sensor and create a MQTT Sensor if the MQTT client is set up
   sensor::MQTTSensorComponent *register_sensor(sensor::Sensor *sensor);
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  /// Register a text sensor and create a MQTT Sensor if the MQTT client is set up
+  text_sensor::MQTTTextSensor *register_text_sensor(text_sensor::TextSensor *sensor);
 #endif
 
 #ifdef USE_DHT_SENSOR
@@ -889,6 +899,33 @@ class Application {
 #endif
 
 
+#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+  struct MakeMQTTSubscribeTextSensor {
+    text_sensor::MQTTSubscribeTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeMQTTSubscribeTextSensor make_mqtt_subscribe_text_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_VERSION_TEXT_SENSOR
+  struct MakeVersionTextSensor {
+    text_sensor::VersionTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeVersionTextSensor make_version_text_sensor(const std::string &name);
+#endif
+
+#ifdef USE_TEMPLATE_TEXT_SENSOR
+  struct MakeTemplateTextSensor {
+    text_sensor::TemplateTextSensor *template_;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeTemplateTextSensor make_template_text_sensor(const std::string &name, uint32_t update_interval = 15000);
+#endif
+
 
 
 
@@ -1253,6 +1290,8 @@ class Application {
    * @param str The string of the time of compilation.
    */
   void set_compilation_datetime(const char *str);
+
+  const std::string &get_compilation_time() const;
 
  protected:
   std::vector<Component *> components_{};

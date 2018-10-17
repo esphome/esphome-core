@@ -105,6 +105,10 @@
   #define USE_SNTP_COMPONENT
   #define USE_NEXTION
   #define USE_HLW8012
+  #define USE_TEXT_SENSOR
+  #define USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+  #define USE_VERSION_TEXT_SENSOR
+  #define USE_TEMPLATE_TEXT_SENSOR
   #define USE_MQTT_SUBSCRIBE_SENSOR
   #define USE_CSE7766
 #endif
@@ -523,6 +527,22 @@
   #endif
   #ifndef USE_UART
     #define USE_UART
+  #endif
+#endif
+
+#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+  #ifndef USE_TEXT_SENSOR
+    #define USE_TEXT_SENSOR
+  #endif
+#endif
+#ifdef USE_VERSION_TEXT_SENSOR
+  #ifndef USE_TEXT_SENSOR
+    #define USE_TEXT_SENSOR
+  #endif
+#endif
+#ifdef USE_TEMPLATE_TEXT_SENSOR
+  #ifndef USE_TEXT_SENSOR
+    #define USE_TEXT_SENSOR
   #endif
 #endif
 

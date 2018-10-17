@@ -40,6 +40,9 @@ using namespace esphomelib::remote;
 #ifdef USE_TIME
 using namespace esphomelib::time;
 #endif
+#ifdef USE_TEXT_SENSOR
+using namespace esphomelib::text_sensor;
+#endif
 
 static const char *TAG = "application";
 
@@ -129,6 +132,9 @@ void Application::set_name(const std::string &name) {
 
 void Application::set_compilation_datetime(const char *str) {
   this->compilation_time_ = str;
+}
+const std::string &Application::get_compilation_time() const {
+  return this->compilation_time_;
 }
 
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
@@ -1149,6 +1155,38 @@ display::Nextion *Application::make_nextion(UARTComponent *parent, uint32_t upda
 }
 #endif
 
+#ifdef USE_TEXT_SENSOR
+text_sensor::MQTTTextSensor *Application::register_text_sensor(text_sensor::TextSensor *sensor) {
+  for (auto *controller : this->controllers_)
+    controller->register_text_sensor(sensor);
+  MQTTTextSensor *ret = nullptr;
+  if (this->mqtt_client_ != nullptr)
+    ret = this->register_component(new MQTTTextSensor(sensor));
+  return ret;
+}
+#endif
+
+#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_sensor(const std::string &name,
+                                                                                      std::string topic) {
+  auto *sensor = this->register_component(new MQTTSubscribeTextSensor(name, std::move(topic)));
+  return MakeMQTTSubscribeTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_VERSION_TEXT_SENSOR
+Application::MakeVersionTextSensor Application::make_version_text_sensor(const std::string &name) {
+  auto *sensor = this->register_component(new VersionTextSensor(name));
+  return MakeVersionTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
 #ifdef USE_MQTT_SUBSCRIBE_SENSOR
 Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(const std::string &name, std::string topic) {
   auto *sensor = this->register_component(new sensor::MQTTSubscribeSensor(name, std::move(topic)));
@@ -1156,6 +1194,18 @@ Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(con
   return MakeMQTTSubscribeSensor {
       .sensor = sensor,
       .mqtt = this->register_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_TEMPLATE_SENSOR
+Application::MakeTemplateTextSensor Application::make_template_text_sensor(const std::string &name,
+                                                                           uint32_t update_interval) {
+  auto *template_ = this->register_component(new TemplateTextSensor(name, update_interval));
+
+  return MakeTemplateTextSensor{
+      .template_ = template_,
+      .mqtt = this->register_text_sensor(template_),
   };
 }
 #endif

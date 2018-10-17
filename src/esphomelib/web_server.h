@@ -1,15 +1,14 @@
 #ifndef ESPHOMELIB_WEB_SERVER_H
 #define ESPHOMELIB_WEB_SERVER_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/controller.h"
-#include "esphomelib/switch_/switch.h"
 #include "esphomelib/defines.h"
-
-#include <vector>
 
 #ifdef USE_WEB_SERVER
 
+#include "esphomelib/component.h"
+#include "esphomelib/controller.h"
+
+#include <vector>
 #include <ESPAsyncWebServer.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -119,6 +118,17 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
 
   /// Dump the light state as a JSON string.
   std::string light_json(light::LightState *obj);
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  /// Internally register a text sensor and set a callback on state changes.
+  void register_text_sensor(text_sensor::TextSensor *obj) override;
+
+  /// Handle a text sensor request under '/text_sensor/<id>'.
+  void handle_text_sensor_request(AsyncWebServerRequest *request, UrlMatch match);
+
+  /// Dump the text sensor state with its value as a JSON string.
+  std::string text_sensor_json(text_sensor::TextSensor *obj, const std::string &value);
 #endif
 
   /// Override the web handler's canHandle method.

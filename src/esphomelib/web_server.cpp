@@ -108,6 +108,11 @@ void WebServer::setup() {
     for (auto *obj : this->lights_)
       client->send(this->light_json(obj).c_str(), "state");
 #endif
+
+#ifdef USE_TEXT_SENSOR
+    for (auto *obj : this->text_sensors_)
+      client->send(this->text_sensor_json(obj, obj->value).c_str(), "state");
+#endif
   });
 
   if (global_log_component != nullptr)
@@ -167,6 +172,11 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
     write_row(stream, obj, "light", "<button>Toggle</button>");
 #endif
 
+#ifdef USE_TEXT_SENSOR
+  for (auto *obj : this->text_sensors_)
+    write_row(stream, obj, "text_sensor", "");
+#endif
+
   stream->print(
       F("</tbody></table><p>See <a href=\"https://esphomelib.com/web-api/index.html\">esphomelib Web API</a> for REST API documentation.</p>"
         "<h2>Debug Log</h2><pre id=\"log\"></pre>"
@@ -208,6 +218,33 @@ std::string WebServer::sensor_json(sensor::Sensor *obj, float value) {
     if (!obj->get_unit_of_measurement().empty())
       state += " " + obj->get_unit_of_measurement();
     root["state"] = state;
+    root["value"] = value;
+  });
+}
+#endif
+
+#ifdef USE_TEXT_SENSOR
+void WebServer::register_text_sensor(text_sensor::TextSensor *obj) {
+  StoringController::register_text_sensor(obj);
+  obj->add_on_value_callback([this, obj](std::string value) {
+    this->defer([this, obj, value] {
+      this->events_.send(this->text_sensor_json(obj, value).c_str(), "state");
+    });
+  });
+}
+void WebServer::handle_text_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
+  for (text_sensor::TextSensor *obj : this->text_sensors_) {
+    if (obj->get_name_id() == match.id) {
+      std::string data = this->text_sensor_json(obj, obj->value);
+      request->send(200, "text/json", data.c_str());
+      return;
+    }
+  }
+  request->send(404);
+}
+std::string WebServer::text_sensor_json(text_sensor::TextSensor *obj, const std::string &value) {
+  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+    root["id"] = "text_sensor-" + obj->get_name_id();
     root["value"] = value;
   });
 }
@@ -474,6 +511,11 @@ bool WebServer::canHandle(AsyncWebServerRequest *request) {
     return true;
 #endif
 
+#ifdef USE_TEXT_SENSOR
+  if (request->method() == HTTP_GET && match.domain == "text_sensor")
+    return true;
+#endif
+
   return false;
 }
 void WebServer::handleRequest(AsyncWebServerRequest *request) {
@@ -514,6 +556,13 @@ void WebServer::handleRequest(AsyncWebServerRequest *request) {
 #ifdef USE_LIGHT
   if (match.domain == "light") {
     this->handle_light_request(request, match);
+    return;
+  }
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  if (match.domain == "text_sensor") {
+    this->handle_text_sensor_request(request, match);
     return;
   }
 #endif
