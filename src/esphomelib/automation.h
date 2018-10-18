@@ -150,6 +150,15 @@ class IfAction : public Action<T> {
 };
 
 template<typename T>
+class UpdateComponentAction : public Action<T> {
+ public:
+  UpdateComponentAction(PollingComponent *component);
+  void play(T x) override;
+ protected:
+  PollingComponent *component_;
+};
+
+template<typename T>
 class ActionList {
  public:
   Action<T> *add_action(Action<T> *action);
@@ -366,6 +375,18 @@ void IfAction<T>::add_else(const std::vector<Action<T> *> &actions) {
   this->else_.add_action(new LambdaAction<T>([this](T x) {
     this->play_next(x);
   }));
+}
+
+template<typename T>
+void UpdateComponentAction<T>::play(T x) {
+  this->component_->update();
+  this->play_next(x);
+}
+
+template<typename T>
+UpdateComponentAction<T>::UpdateComponentAction(PollingComponent *component)
+  : component_(component) {
+
 }
 
 ESPHOMELIB_NAMESPACE_END
