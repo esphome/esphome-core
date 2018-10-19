@@ -169,7 +169,7 @@ void PulseCounterSensorComponent::update() {
   float value = (60000.0f * raw) / float(this->get_update_interval()); // per minute
 
   ESP_LOGD(TAG, "'%s': Retrieved counter: %0.2f pulses/min", this->get_name().c_str(), value);
-  this->push_new_value(value);
+  this->publish_state(value);
 }
 
 float PulseCounterSensorComponent::get_setup_priority() const {

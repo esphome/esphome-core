@@ -4,7 +4,6 @@
 
 #include "esphomelib/display/display.h"
 #include "esphomelib/log.h"
-#include "display.h"
 
 #include <pgmspace.h>
 

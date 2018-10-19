@@ -4,7 +4,6 @@
 
 #include "esphomelib/log.h"
 #include "esphomelib/time/rtc_component.h"
-#include "rtc_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -118,7 +118,7 @@ void CSE7766Component::parse_data_() {
     float voltage = voltage_calib / float(voltage_cycle);
     ESP_LOGD(TAG, "Got voltage=%.1fV", voltage);
     if (this->voltage_ != nullptr)
-      this->voltage_->push_new_value(voltage);
+      this->voltage_->publish_state(voltage);
   }
 
   if ((adj >> 5 != 0) && power_cycle != 0 && current_cycle != 0) {
@@ -126,7 +126,7 @@ void CSE7766Component::parse_data_() {
     float current = current_calib / float(current_cycle);
     ESP_LOGD(TAG, "Got current=%.1fA", current);
     if (this->current_ != nullptr)
-      this->current_->push_new_value(current);
+      this->current_->publish_state(current);
   }
 
   if ((adj >> 4 != 0) && power_cycle != 0) {
@@ -134,7 +134,7 @@ void CSE7766Component::parse_data_() {
     float active_power = power_calib / float(power_cycle);
     ESP_LOGD(TAG, "Got power=%.1fW", active_power);
     if (this->power_ != nullptr)
-      this->power_->push_new_value(active_power);
+      this->power_->publish_state(active_power);
   }
 }
 uint32_t CSE7766Component::get_24_bit_uint(uint8_t start_index) {

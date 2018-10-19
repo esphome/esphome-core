@@ -49,7 +49,7 @@ std::string MQTTCoverComponent::friendly_name() const {
   return this->cover_->get_name();
 }
 void MQTTCoverComponent::send_initial_state() {
-  if (this->cover_->has_value())
+  if (this->cover_->has_state())
     this->publish_state(this->cover_->state);
 }
 bool MQTTCoverComponent::is_internal() {

@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_INA_219_H
 #define ESPHOMELIB_INA_219_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/component.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_INA219
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/component.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

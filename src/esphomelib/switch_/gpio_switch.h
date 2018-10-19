@@ -1,11 +1,3 @@
-//
-//  gpio_switch.h
-//  esphomelib
-//
-//  Created by Otto Winter on 2018/10/15.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SWITCH_GPIO_SWITCH_H
 #define ESPHOMELIB_SWITCH_GPIO_SWITCH_H
 
@@ -34,10 +26,9 @@ class GPIOSwitch : public Switch {
   void set_power_on_value(bool power_on_value);
 
  protected:
-  void turn_on() override;
-  void turn_off() override;
+  void write_state(bool state) override;
 
-  GPIOPin *pin_;
+  GPIOPin *const pin_;
   bool power_on_value_{false};
 };
 

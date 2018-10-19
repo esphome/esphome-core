@@ -11,15 +11,16 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace switch_ {
 
 OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output)
-    : Switch(name), output_(output) { }
+    : Switch(name), output_(output) {
 
-void OutputSwitch::turn_on() {
-  this->output_->enable();
-  this->publish_state(true);
 }
-void OutputSwitch::turn_off() {
-  this->output_->disable();
-  this->publish_state(false);
+void OutputSwitch::write_state(bool state) {
+  if (state) {
+    this->output_->turn_on();
+  } else {
+    this->output_->turn_off();
+  }
+  this->publish_state(true);
 }
 
 } // namespace switch_

@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_UART_SWITCH_H
 #define ESPHOMELIB_UART_SWITCH_H
 
-#include "esphomelib/switch_/switch.h"
-#include "esphomelib/uart_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_UART_SWITCH
+
+#include "esphomelib/switch_/switch.h"
+#include "esphomelib/uart_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -16,10 +17,7 @@ class UARTSwitch : public Switch, public UARTDevice {
   UARTSwitch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data);
 
  protected:
-  void turn_on() override;
-  void turn_off() override;
-
- protected:
+  void write_state(bool state) override;
   std::vector<uint8_t> data_;
 };
 

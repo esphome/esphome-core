@@ -1,10 +1,11 @@
 #ifndef ESPHOMELIB_DEBUG_COMPONENT_H
 #define ESPHOMELIB_DEBUG_COMPONENT_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_DEBUG_COMPONENT
+
+#include "esphomelib/component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -29,7 +29,7 @@ RawTransmitter::RawTransmitter(const std::string &name,
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-void remote::RawDumper::dump(RemoteReceiveData *data) {
+void RawDumper::dump(RemoteReceiveData *data) {
   char buffer[256];
   uint32_t buffer_offset = 0;
   buffer_offset += sprintf(buffer, "Received Raw: ");

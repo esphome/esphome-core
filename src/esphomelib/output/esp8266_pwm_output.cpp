@@ -15,7 +15,7 @@ ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin)
 void ESP8266PWMOutput::setup() {
   assert(this->pin_.get_pin() <= 16);
   this->pin_.setup();
-  this->set_state_(0.0f);
+  this->turn_off();
 }
 void ESP8266PWMOutput::write_state(float state) {
   const uint16_t max_duty = 1023;

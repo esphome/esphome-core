@@ -5,7 +5,8 @@
 
 #ifdef USE_REMOTE
 
-#include "esphomelib/remote/remote_protocol.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -22,10 +23,12 @@ class PanasonicTransmitter : public RemoteTransmitter {
   uint16_t address_;
   uint32_t command_;
 };
+
+void encode_panasonic(RemoteTransmitData *data, uint16_t address, uint32_t command);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_panasonic(RemoteReceiveData *data, uint16_t *address, uint32_t *command);
+PanasonicDecodeData decode_panasonic(RemoteReceiveData *data);
 
 class PanasonicReceiver : public RemoteReceiver {
  public:

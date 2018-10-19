@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_SENSOR_TSL2561_SENSOR_H
 #define ESPHOMELIB_SENSOR_TSL2561_SENSOR_H
 
-#include "esphomelib/i2c_component.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_TSL2561
+
+#include "esphomelib/i2c_component.h"
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

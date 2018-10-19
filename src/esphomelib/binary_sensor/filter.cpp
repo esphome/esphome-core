@@ -25,7 +25,7 @@ optional<bool> DelayedOnFilter::new_value(bool value) {
 
 void Filter::output(bool value) {
   if (this->next_ == nullptr) {
-    this->parent_->send_value_(value);
+    this->parent_->send_state_internal_(value);
   } else {
     this->next_->input(value);
   }

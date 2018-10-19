@@ -13,19 +13,6 @@ TemplateCover::TemplateCover(const std::string &name)
       stop_trigger_(new Trigger<NoArg>()) {
 
 }
-void TemplateCover::open() {
-  if (this->optimistic_)
-    this->publish_state(COVER_OPEN);
-  this->open_trigger_->trigger();
-}
-void TemplateCover::close() {
-  if (this->optimistic_)
-    this->publish_state(COVER_CLOSED);
-  this->close_trigger_->trigger();
-}
-void TemplateCover::stop() {
-  this->stop_trigger_->trigger();
-}
 void TemplateCover::loop() {
   if (this->f_.has_value()) {
     auto s = (*this->f_)();
@@ -53,6 +40,26 @@ Trigger<NoArg> *TemplateCover::get_close_trigger() const {
 }
 Trigger<NoArg> *TemplateCover::get_stop_trigger() const {
   return this->stop_trigger_;
+}
+void TemplateCover::write_command(CoverCommand command) {
+  switch (command) {
+    case COVER_COMMAND_OPEN: {
+      if (this->optimistic_)
+        this->publish_state(COVER_OPEN);
+      this->open_trigger_->trigger();
+      break;
+    }
+    case COVER_COMMAND_CLOSE: {
+      if (this->optimistic_)
+        this->publish_state(COVER_CLOSED);
+      this->close_trigger_->trigger();
+      break;
+    }
+    case COVER_COMMAND_STOP: {
+      this->stop_trigger_->trigger();
+      break;
+    }
+  }
 }
 
 } // namespace cover

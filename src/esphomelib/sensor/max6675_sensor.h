@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_SENSOR_MAX6675_H
 #define ESPHOMELIB_SENSOR_MAX6675_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/spi_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_MAX6675_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/spi_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

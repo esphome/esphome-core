@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_MHZ_19_COMPONENT_H
 #define ESPHOMELIB_MHZ_19_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/uart_component.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_MHZ19
+
+#include "esphomelib/component.h"
+#include "esphomelib/uart_component.h"
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

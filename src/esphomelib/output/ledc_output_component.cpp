@@ -30,7 +30,7 @@ void LEDCOutputComponent::setup() {
   ledcSetup(this->channel_, this->frequency_, this->bit_depth_);
   ledcAttachPin(this->pin_, this->channel_);
 
-  this->disable(); // initialize off
+  this->turn_off(); // initialize off
 }
 
 float LEDCOutputComponent::get_setup_priority() const {

@@ -137,8 +137,8 @@ void BMP280Component::update() {
 
     ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa",
              temperature, pressure);
-    this->temperature_sensor_->push_new_value(temperature);
-    this->pressure_sensor_->push_new_value(pressure);
+    this->temperature_sensor_->publish_state(temperature);
+    this->pressure_sensor_->publish_state(pressure);
     this->status_clear_warning();
   });
 }

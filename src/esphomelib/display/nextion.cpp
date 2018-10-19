@@ -4,7 +4,6 @@
 
 #include "esphomelib/display/nextion.h"
 #include "esphomelib/log.h"
-#include "nextion.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

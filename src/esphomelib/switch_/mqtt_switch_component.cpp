@@ -14,8 +14,6 @@ namespace switch_ {
 
 static const char *TAG = "switch.mqtt";
 
-using esphomelib::binary_sensor::binary_callback_t;
-
 MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
     : MQTTComponent(), switch_(switch_) {
 
@@ -29,16 +27,25 @@ void MQTTSwitchComponent::setup() {
   }
 
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
-    optional<bool> state = parse_on_off(payload.c_str(), this->switch_->value);
-
-    if (!state.has_value()){
-      ESP_LOGW(TAG, "'%s': Received unknown status payload: %s", this->friendly_name().c_str(), payload.c_str());
-      this->status_momentary_warning("state", 5000);
-      return;
+    switch (parse_on_off(payload.c_str())) {
+      case PARSE_ON:
+        ESP_LOGD(TAG, "'%s' Turning ON.", this->friendly_name().c_str());
+        this->switch_->turn_on();
+        break;
+      case PARSE_OFF:
+        ESP_LOGD(TAG, "'%s' Turning OFF.", this->friendly_name().c_str());
+        this->switch_->turn_off();
+        break;
+      case PARSE_TOGGLE:
+        ESP_LOGD(TAG, "'%s' Toggling.", this->friendly_name().c_str());
+        this->switch_->toggle();
+        break;
+      case PARSE_NONE:
+      default:
+        ESP_LOGW(TAG, "'%s': Received unknown status payload: %s", this->friendly_name().c_str(), payload.c_str());
+        this->status_momentary_warning("state", 5000);
+        break;
     }
-
-    ESP_LOGD(TAG, "'%s' Turning %s.", this->friendly_name().c_str(), payload.c_str());
-    this->switch_->write_state(*state);
   });
   this->switch_->add_on_state_callback([this](bool enabled){
     this->defer([this, enabled]() {
@@ -57,7 +64,7 @@ void MQTTSwitchComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
     root["optimistic"] = true;
 }
 void MQTTSwitchComponent::send_initial_state() {
-  this->publish_state(this->switch_->value);
+  this->publish_state(this->switch_->state);
 }
 bool MQTTSwitchComponent::is_internal() {
   return this->switch_->is_internal();

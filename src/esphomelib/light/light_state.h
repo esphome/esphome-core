@@ -71,8 +71,6 @@ class LightState : public Nameable, public Component {
   /// Set the color values immediately without sending the new state.
   void set_immediately_without_sending(const LightColorValues &target);
 
-  void start_default_transition(const LightColorValues &target);
-
   void current_values_as_binary(bool *binary);
 
   void current_values_as_brightness(float *brightness);
@@ -98,12 +96,48 @@ class LightState : public Nameable, public Component {
 
   template<typename T>
   ToggleAction<T> *make_toggle_action();
-
   template<typename T>
   TurnOffAction<T> *make_turn_off_action();
-
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
+
+  class StateCall {
+   public:
+    StateCall(LightState *state, bool binary_state);
+    LightState::StateCall &set_state(bool state);
+    LightState::StateCall &set_transition_length(uint32_t transition_length);
+    LightState::StateCall &set_flash_length(uint32_t flash_length);
+    LightState::StateCall &set_brightness(float brightness);
+    LightState::StateCall &set_rgb(float red, float green, float blue);
+    LightState::StateCall &set_rgbw(float red, float green, float blue, float white);
+    LightState::StateCall &set_red(float red);
+    LightState::StateCall &set_green(float green);
+    LightState::StateCall &set_blue(float blue);
+    LightState::StateCall &set_white(float white);
+    LightState::StateCall &set_color_temperature(float color_temperature);
+    LightState::StateCall &set_effect(std::string effect);
+    LightState::StateCall &parse_color_json(JsonObject &root);
+    LightState::StateCall &parse_json(JsonObject &root);
+
+    void perform();
+
+   protected:
+    LightState *state_;
+    bool binary_state_;
+    optional<float> brightness_;
+    optional<float> red_;
+    optional<float> green_;
+    optional<float> blue_;
+    optional<float> white_;
+    optional<float> color_temperature_;
+    optional<uint32_t> transition_length_;
+    optional<uint32_t> flash_length_;
+    optional<std::string> effect_;
+  };
+
+  LightState::StateCall turn_on();
+  LightState::StateCall turn_off();
+  LightState::StateCall toggle();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -149,9 +183,6 @@ class LightState : public Nameable, public Component {
 
   /// Return whether the light has any effects that meet the trait requirements.
   bool supports_effects();
-
-  /// Parse and apply the provided JSON payload.
-  void parse_json(const JsonObject &root);
 
   /// Dump the state of this light as JSON.
   void dump_json(JsonObject &root);

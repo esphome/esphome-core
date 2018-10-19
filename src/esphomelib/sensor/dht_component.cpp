@@ -50,8 +50,8 @@ void DHTComponent::update() {
   if (error) {
     ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
-    this->temperature_sensor_->push_new_value(temperature);
-    this->humidity_sensor_->push_new_value(humidity);
+    this->temperature_sensor_->publish_state(temperature);
+    this->humidity_sensor_->publish_state(humidity);
     this->status_clear_warning();
   } else {
     ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin_ number) and "

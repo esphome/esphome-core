@@ -1,12 +1,3 @@
-//
-//  gpio_switch.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 2018/10/15.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_GPIO_SWITCH
@@ -20,7 +11,7 @@ namespace switch_ {
 
 static const char *TAG = "switch.gpio";
 
-GPIOSwitch::GPIOSwitch(const std::string &name, esphomelib::GPIOPin *pin)
+GPIOSwitch::GPIOSwitch(const std::string &name, GPIOPin *pin)
     : Switch(name), pin_(pin) {
 
 }
@@ -35,16 +26,12 @@ void GPIOSwitch::setup() {
   this->pin_->digital_write(this->power_on_value_);
   this->publish_state(this->power_on_value_);
 }
-void GPIOSwitch::turn_on() {
-  this->pin_->digital_write(true);
-  this->publish_state(true);
-}
-void GPIOSwitch::turn_off() {
-  this->pin_->digital_write(false);
-  this->publish_state(true);
-}
 void GPIOSwitch::set_power_on_value(bool power_on_value) {
   this->power_on_value_ = power_on_value;
+}
+void GPIOSwitch::write_state(bool state) {
+  this->pin_->digital_write(state);
+  this->publish_state(state);
 }
 
 } // namespace switch_

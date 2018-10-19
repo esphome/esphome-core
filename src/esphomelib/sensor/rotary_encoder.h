@@ -3,11 +3,12 @@
 #ifndef ESPHOMELIB_ROTARY_ENCODER_H
 #define ESPHOMELIB_ROTARY_ENCODER_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ROTARY_ENCODER_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

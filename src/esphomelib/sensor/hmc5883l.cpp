@@ -105,13 +105,13 @@ void HMC5883LComponent::update() {
       x, y, z, heading);
 
   if (this->x_sensor_ != nullptr)
-    this->x_sensor_->push_new_value(x);
+    this->x_sensor_->publish_state(x);
   if (this->y_sensor_ != nullptr)
-    this->y_sensor_->push_new_value(y);
+    this->y_sensor_->publish_state(y);
   if (this->z_sensor_ != nullptr)
-    this->z_sensor_->push_new_value(z);
+    this->z_sensor_->publish_state(z);
   if (this->heading_sensor_ != nullptr)
-    this->heading_sensor_->push_new_value(heading);
+    this->heading_sensor_->publish_state(heading);
 }
 HMC5883LComponent::HMC5883LComponent(I2CComponent *parent, uint32_t update_interval)
     : PollingComponent(update_interval), I2CDevice(parent, HMC5883L_ADDRESS) {}

@@ -82,7 +82,7 @@ void INA3221Component::update() {
       }
       bus_voltage_v = int16_t(raw) / 1000.0f;
       if (channel.bus_voltage_sensor_ != nullptr)
-        channel.bus_voltage_sensor_->push_new_value(bus_voltage_v);
+        channel.bus_voltage_sensor_->publish_state(bus_voltage_v);
     }
     if (channel.should_measure_shunt_voltage()) {
       if (!this->read_byte_16(ina3221_shunt_voltage_register(i), &raw, 1)) {
@@ -91,13 +91,13 @@ void INA3221Component::update() {
       }
       const float shunt_voltage_v = int16_t(raw) * 40.0f / 1000000.0f;
       if (channel.shunt_voltage_sensor_ != nullptr)
-        channel.shunt_voltage_sensor_->push_new_value(shunt_voltage_v);
+        channel.shunt_voltage_sensor_->publish_state(shunt_voltage_v);
       current_a = shunt_voltage_v / channel.shunt_resistance_;
       if (channel.current_sensor_ != nullptr)
-        channel.current_sensor_->push_new_value(current_a);
+        channel.current_sensor_->publish_state(current_a);
     }
     if (channel.power_sensor_ != nullptr) {
-      channel.power_sensor_->push_new_value(bus_voltage_v * current_a);
+      channel.power_sensor_->publish_state(bus_voltage_v * current_a);
     }
   }
 }

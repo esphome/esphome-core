@@ -13,8 +13,8 @@ namespace output {
 
 static const char *TAG = "output.gpio";
 
-void GPIOBinaryOutputComponent::write_enabled(bool value) {
-  this->pin_->digital_write(value);
+void GPIOBinaryOutputComponent::write_state(bool state) {
+  this->pin_->digital_write(state);
 }
 
 void GPIOBinaryOutputComponent::setup() {
@@ -27,7 +27,9 @@ float GPIOBinaryOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin)
-  : pin_(pin) { }
+  : pin_(pin) {
+
+}
 
 } // namespace output
 

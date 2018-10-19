@@ -24,13 +24,10 @@ class TemplateCover : public Cover, public Component {
 
   void loop() override;
 
-  void open() override;
-  void close() override;
-  void stop() override;
-
   float get_setup_priority() const override;
 
  protected:
+  void write_command(CoverCommand command) override;
   bool optimistic() override;
 
   optional<std::function<optional<CoverState>()>> f_;

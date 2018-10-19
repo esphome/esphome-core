@@ -146,7 +146,7 @@ void ESP32BLETracker::start_scan(bool first) {
     }
     for (auto *device : this->rssi_sensors_) {
       if (!this->has_already_discovered_(device->address_))
-        device->push_new_value(NAN);
+        device->publish_state(NAN);
     }
   }
   this->already_discovered_.clear();
@@ -215,7 +215,7 @@ void ESP32BLETracker::parse_rssi_sensors_(const ESPBTDevice &device) {
   const uint64_t address = device.address_uint64();
   for (auto *dev : this->rssi_sensors_) {
     if (dev->address_ == address)
-      dev->push_new_value(device.get_rssi());
+      dev->publish_state(device.get_rssi());
   }
 }
 
@@ -363,33 +363,33 @@ void ESP32BLETracker::parse_xiaomi_sensors_(const ESPBTDevice &device) {
       switch (data_type) {
         case XIAOMI_TEMPERATURE_HUMIDITY:
           if (dev->get_temperature_sensor() != nullptr)
-            dev->get_temperature_sensor()->push_new_value(data1);
+            dev->get_temperature_sensor()->publish_state(data1);
           if (dev->get_humidity_sensor() != nullptr)
-            dev->get_humidity_sensor()->push_new_value(data2);
+            dev->get_humidity_sensor()->publish_state(data2);
           break;
         case XIAOMI_HUMIDITY:
           if (dev->get_humidity_sensor() != nullptr)
-            dev->get_humidity_sensor()->push_new_value(data1);
+            dev->get_humidity_sensor()->publish_state(data1);
           break;
         case XIAOMI_BATTERY_LEVEL:
           if (dev->get_battery_level_sensor() != nullptr)
-            dev->get_battery_level_sensor()->push_new_value(data1);
+            dev->get_battery_level_sensor()->publish_state(data1);
           break;
         case XIAOMI_TEMPERATURE:
           if (dev->get_temperature_sensor() != nullptr)
-            dev->get_temperature_sensor()->push_new_value(data1);
+            dev->get_temperature_sensor()->publish_state(data1);
           break;
         case XIAOMI_MOISTURE:
           if (dev->get_moisture_sensor() != nullptr)
-            dev->get_moisture_sensor()->push_new_value(data1);
+            dev->get_moisture_sensor()->publish_state(data1);
           break;
         case XIAOMI_ILLUMINANCE:
           if (dev->get_illuminance_sensor() != nullptr)
-            dev->get_illuminance_sensor()->push_new_value(data1);
+            dev->get_illuminance_sensor()->publish_state(data1);
           break;
         case XIAOMI_CONDUCTIVITY:
           if (dev->get_conductivity_sensor() != nullptr)
-            dev->get_conductivity_sensor()->push_new_value(data1);
+            dev->get_conductivity_sensor()->publish_state(data1);
           break;
         default:
           break;

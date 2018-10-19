@@ -13,21 +13,19 @@ namespace light {
 
 void RandomLightEffect::apply() {
   const uint32_t now = millis();
-  if (now - this->last_color_change_ >= this->update_interval_) {
-    LightColorValues v = this->state_->get_current_values_lazy();
-
-    v.set_state(1.0f);
-    if (v.get_brightness() == 0.0f)
-      v.set_brightness(1.0f);
-    v.set_red(random_float());
-    v.set_green(random_float());
-    v.set_blue(random_float());
-    v.set_white(random_float());
-    v.normalize_color(this->state_->get_traits());
-    this->state_->start_transition(v, this->transition_length_);
-
-    this->last_color_change_ = now;
+  if (now - this->last_color_change_ < this->update_interval_) {
+    return;
   }
+  auto call = this->state_->turn_on();
+  call.set_red(random_float());
+  call.set_green(random_float());
+  call.set_blue(random_float());
+  call.set_white(random_float());
+  call.set_color_temperature(random_float());
+  call.set_transition_length(this->transition_length_);
+  call.perform();
+
+  this->last_color_change_ = now;
 }
 
 RandomLightEffect::RandomLightEffect(const std::string &name) : LightEffect(name) {}
@@ -105,7 +103,7 @@ inline float random_cubic_float() {
 }
 
 void FlickerLightEffect::apply() {
-  LightColorValues remote = this->state_->get_remote_values_lazy();
+  LightColorValues remote = this->state_->get_remote_values();
   LightColorValues current = this->state_->get_current_values_lazy();
   LightColorValues out;
   const float alpha = this->alpha_;

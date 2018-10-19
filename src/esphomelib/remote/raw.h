@@ -5,7 +5,8 @@
 
 #ifdef USE_REMOTE
 
-#include "esphomelib/remote/remote_protocol.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

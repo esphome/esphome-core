@@ -20,8 +20,6 @@
   #include <driver/rmt.h>
 #endif
 
-#define HOT __attribute__ ((hot))
-
 ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Callback function typedef for parsing JsonObjects.
@@ -148,7 +146,14 @@ void enable_interrupts();
 /// Calculate a crc8 of data with the provided data length.
 uint8_t crc8(uint8_t *data, uint8_t len);
 
-optional<bool> parse_on_off(const char *str, bool current_state, const char *on = nullptr, const char *off = nullptr);
+enum ParseOnOffState {
+  PARSE_NONE = 0,
+  PARSE_ON,
+  PARSE_OFF,
+  PARSE_TOGGLE,
+};
+
+ParseOnOffState parse_on_off(const char *str, const char *on = nullptr, const char *off = nullptr);
 
 /// Helper class that implements a sliding window moving average.
 class SlidingWindowMovingAverage {

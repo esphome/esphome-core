@@ -80,7 +80,7 @@ void BMP085Component::read_temperature_() {
   this->calibration_.b5 =  x1 + x2;
   float temperature = (this->calibration_.b5 >> 4) / 10.0f;
   ESP_LOGD(TAG, "Got Temperature=%.1f°C", temperature);
-  this->temperature_->push_new_value(temperature);
+  this->temperature_->publish_state(temperature);
   this->status_clear_warning();
 
   if (!this->set_mode_(BMP085_CONTROL_MODE_PRESSURE_3)) {
@@ -127,7 +127,7 @@ void BMP085Component::read_pressure_() {
 
   ESP_LOGD(TAG, "Got Pressure=%.1fhPa", pressure);
 
-  this->pressure_->push_new_value(pressure);
+  this->pressure_->publish_state(pressure);
   this->status_clear_warning();
 }
 BMP085TemperatureSensor *BMP085Component::get_temperature_sensor() const {

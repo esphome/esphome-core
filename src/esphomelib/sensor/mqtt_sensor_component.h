@@ -1,13 +1,14 @@
 #ifndef ESPHOMELIB_SENSOR_MQTT_SENSOR_COMPONENT_H
 #define ESPHOMELIB_SENSOR_MQTT_SENSOR_COMPONENT_H
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
+
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/sensor/filter.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

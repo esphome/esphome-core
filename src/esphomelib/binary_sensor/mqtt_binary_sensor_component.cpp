@@ -56,8 +56,8 @@ void MQTTBinarySensorComponent::send_discovery(JsonObject &root, mqtt::SendDisco
 }
 
 void MQTTBinarySensorComponent::send_initial_state() {
-  if (this->binary_sensor_->has_value())
-    this->publish_state(this->binary_sensor_->value);
+  if (this->binary_sensor_->has_state())
+    this->publish_state(this->binary_sensor_->state);
 }
 bool MQTTBinarySensorComponent::is_internal() {
   return this->binary_sensor_->is_internal();

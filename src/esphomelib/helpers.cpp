@@ -194,19 +194,19 @@ void parse_json(const std::string &data, const json_parse_t &f) {
 
   f(root);
 }
-optional<bool> parse_on_off(const char *str, bool current_state, const char *on, const char *off) {
+ParseOnOffState parse_on_off(const char *str, const char *on, const char *off) {
   if (on == nullptr && strcasecmp(str, "on") == 0)
-    return true;
+    return PARSE_ON;
   if (on != nullptr && strcasecmp(str, on) == 0)
-    return true;
+    return PARSE_ON;
   if (off == nullptr && strcasecmp(str, "off") == 0)
-    return false;
+    return PARSE_OFF;
   if (off != nullptr && strcasecmp(str, off) == 0)
-    return false;
+    return PARSE_OFF;
   if (strcasecmp(str, "toggle") == 0)
-    return !current_state;
+    return PARSE_TOGGLE;
 
-  return {};
+  return PARSE_NONE;
 }
 
 CallbackManager<void(const char *)> shutdown_hooks;

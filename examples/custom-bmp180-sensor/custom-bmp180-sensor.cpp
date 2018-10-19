@@ -22,7 +22,7 @@ class BMP180Sensor : public sensor::PollingSensorComponent {
 
   void update() override {
     int pressure = bmp.readPressure(); // in Pa, or 1/100 hPa
-    push_new_value(pressure / 100.0); // convert to hPa
+    publish_state(pressure / 100.0); // convert to hPa
   }
 
   std::string unit_of_measurement() override { return "hPa"; }
@@ -67,10 +67,10 @@ class BMP180Component : public PollingComponent {
   void update() override {
     // This is the actual sensor reading logic.
     int pressure = bmp.readPressure();
-    pressure_sensor->push_new_value(pressure / 100.0);
+    pressure_sensor->publish_state(pressure / 100.0);
 
     float temperature = bmp.readTemperature();
-    temperature_sensor->push_new_value(temperature);
+    temperature_sensor->publish_state(temperature);
   }
 };
 

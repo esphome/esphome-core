@@ -48,7 +48,7 @@ void UltrasonicSensorComponent::update() {
 
   ESP_LOGV(TAG, "Echo took %uµs (%fm)", time, result);
 
-  this->push_new_value(result);
+  this->publish_state(result);
 }
 uint32_t UltrasonicSensorComponent::get_timeout_us() const {
   return this->timeout_us_;

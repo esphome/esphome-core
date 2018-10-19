@@ -15,7 +15,7 @@ TemplateTextSensor::TemplateTextSensor(const std::string &name, uint32_t update_
 void TemplateTextSensor::update() {
   auto val = this->f_();
   if (val.has_value()) {
-    this->push_new_value(*val);
+    this->publish_state(*val);
   }
 }
 float TemplateTextSensor::get_setup_priority() const {

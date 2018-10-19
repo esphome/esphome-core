@@ -72,14 +72,14 @@ void TCS34725Component::update() {
   const float channel_r = raw_r / 655.35f;
   const float channel_g = raw_g / 655.35f;
   const float channel_b = raw_b / 655.35f;
-  if (this->clear_sensor_ != nullptr) this->clear_sensor_->push_new_value(channel_c);
-  if (this->red_sensor_ != nullptr) this->red_sensor_->push_new_value(channel_r);
-  if (this->green_sensor_ != nullptr) this->green_sensor_->push_new_value(channel_g);
-  if (this->blue_sensor_ != nullptr) this->blue_sensor_->push_new_value(channel_b);
+  if (this->clear_sensor_ != nullptr) this->clear_sensor_->publish_state(channel_c);
+  if (this->red_sensor_ != nullptr) this->red_sensor_->publish_state(channel_r);
+  if (this->green_sensor_ != nullptr) this->green_sensor_->publish_state(channel_g);
+  if (this->blue_sensor_ != nullptr) this->blue_sensor_->publish_state(channel_b);
 
   // Formulae taken from Adafruit TCS35725 library
   float illuminance = (-0.32466f * channel_r) + (1.57837f * channel_g) + (-0.73191f * channel_b);
-  if (this->illuminance_sensor_ != nullptr) this->illuminance_sensor_->push_new_value(illuminance);
+  if (this->illuminance_sensor_ != nullptr) this->illuminance_sensor_->publish_state(illuminance);
 
   // Color temperature
   // 1. Convert RGB to XYZ color space
@@ -96,7 +96,7 @@ void TCS34725Component::update() {
 
   // 4. final color temperature in Kelvin.
   const float color_temperature = (449.0f * powf(n, 3.0f)) + (3525.0f * powf(n, 2.0f)) + (6823.3f * n) + 5520.33f;
-  if (this->color_temperature_sensor_ != nullptr) this->color_temperature_sensor_->push_new_value(color_temperature);
+  if (this->color_temperature_sensor_ != nullptr) this->color_temperature_sensor_->publish_state(color_temperature);
 
   ESP_LOGD(TAG, "Got R=%.1f%%,G=%.1f%%,B=%.1f%%,C=%.1f%% Illuminance=%.1flx Color Temperature=%.1fK",
       channel_r, channel_g, channel_b, channel_c, illuminance, color_temperature);

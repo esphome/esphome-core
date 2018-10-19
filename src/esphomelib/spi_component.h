@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_SPI_COMPONENT_H
 #define ESPHOMELIB_SPI_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_SPI
+
+#include "esphomelib/component.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

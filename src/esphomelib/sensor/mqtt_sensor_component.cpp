@@ -31,9 +31,8 @@ void MQTTSensorComponent::setup() {
     ESP_LOGCONFIG(TAG, "    Unique ID: '%s'", this->sensor_->unique_id().c_str());
   }
 
-  this->sensor_->add_on_value_callback([this](float value) {
-    this->publish_state(value);
-  });
+  auto f = std::bind(&MQTTSensorComponent::publish_state, this, std::placeholders::_1);
+  this->sensor_->add_on_state_callback(f);
 }
 
 std::string MQTTSensorComponent::component_type() const {
@@ -44,13 +43,7 @@ uint32_t MQTTSensorComponent::get_expire_after() const {
   if (this->expire_after_.has_value()) {
     return *this->expire_after_;
   } else {
-    uint32_t interval = this->sensor_->update_interval();
-    Filter *filter = this->sensor_->filter_list_;
-    while (filter != nullptr) {
-      interval = filter->expected_interval(interval);
-      filter = filter->next_;
-    }
-    return interval * 3;
+    return this->sensor_->calculate_expected_filter_update_interval() * 3;
   }
 }
 void MQTTSensorComponent::set_expire_after(uint32_t expire_after) {
@@ -75,8 +68,8 @@ void MQTTSensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
   config.command_topic = false;
 }
 void MQTTSensorComponent::send_initial_state() {
-  if (this->sensor_->has_value())
-    this->publish_state(this->sensor_->value);
+  if (this->sensor_->has_state())
+    this->publish_state(this->sensor_->state);
 }
 bool MQTTSensorComponent::is_internal() {
   return this->sensor_->is_internal();

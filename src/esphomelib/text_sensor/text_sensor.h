@@ -13,19 +13,19 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace text_sensor {
 
-class TextSensorValueTrigger;
+class TextSensorStateTrigger;
 
 class TextSensor : public Nameable {
  public:
   explicit TextSensor(const std::string &name) : Nameable(name) {}
 
-  void push_new_value(std::string value);
+  void publish_state(std::string state);
 
   void set_icon(const std::string &icon);
 
-  void add_on_value_callback(std::function<void(std::string)> callback);
+  void add_on_state_callback(std::function<void(std::string)> callback);
 
-  std::string value;
+  std::string state;
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -35,19 +35,19 @@ class TextSensor : public Nameable {
 
   virtual std::string unique_id();
 
-  TextSensorValueTrigger *make_value_trigger();
+  TextSensorStateTrigger *make_state_trigger();
 
-  bool has_value();
+  bool has_state();
 
  protected:
   CallbackManager<void(std::string)> callback_;
   optional<std::string> icon_;
-  bool has_value_{false};
+  bool has_state_{false};
 };
 
-class TextSensorValueTrigger : public Trigger<std::string> {
+class TextSensorStateTrigger : public Trigger<std::string> {
  public:
-  explicit TextSensorValueTrigger(TextSensor *parent);
+  explicit TextSensorStateTrigger(TextSensor *parent);
 };
 
 } // namespace text_sensor

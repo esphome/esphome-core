@@ -49,7 +49,7 @@ void HLW8012Component::update() {
       float current = cf1_hz * current_multiplier_micros / 1000000.0f;
       ESP_LOGD(TAG, "Got power=%.1fW, current=%.1fA", power, current);
       if (this->current_sensor_ != nullptr) {
-        this->current_sensor_->push_new_value(current);
+        this->current_sensor_->publish_state(current);
       }
     } else {
       const float voltage_multiplier_micros =
@@ -57,13 +57,13 @@ void HLW8012Component::update() {
       float voltage = cf1_hz * voltage_multiplier_micros / 1000000.0f;
       ESP_LOGD(TAG, "Got power=%.1fW, voltage=%.1fV", power, voltage);
       if (this->voltage_sensor_ != nullptr) {
-        this->voltage_sensor_->push_new_value(voltage);
+        this->voltage_sensor_->publish_state(voltage);
       }
     }
   }
 
   if (this->power_sensor_ != nullptr) {
-    this->power_sensor_->push_new_value(power);
+    this->power_sensor_->publish_state(power);
   }
 
   if (this->change_mode_at_++ == this->change_mode_every_) {

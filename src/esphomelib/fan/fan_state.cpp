@@ -12,65 +12,68 @@ namespace fan {
 
 static const char *TAG = "fan.state";
 
-bool FanState::get_state() const {
-  return this->state_;
-}
-void FanState::set_state(bool state) {
-  this->state_ = state;
-  this->state_callback_.call();
-}
-FanSpeed fan::FanState::get_speed() const {
-  return this->speed_;
-}
-void FanState::set_speed(FanSpeed speed) {
-  this->speed_ = speed;
-  this->state_callback_.call();
-}
-bool FanState::is_oscillating() const {
-  return this->oscillating_;
-}
-void FanState::set_oscillating(bool oscillating) {
-  this->oscillating_ = oscillating;
-  this->state_callback_.call();
-}
 const FanTraits &FanState::get_traits() const {
   return this->traits_;
 }
 void FanState::set_traits(const FanTraits &traits) {
   this->traits_ = traits;
 }
-void FanState::add_on_state_change_callback(std::function<void()> &&update_callback) {
-  this->state_callback_.add(std::move(update_callback));
+void FanState::add_on_state_callback(std::function<void()> &&callback) {
+  this->state_callback_.add(std::move(callback));
 }
 FanState::FanState(const std::string &name) : Nameable(name) {}
 
 void FanState::load_from_preferences() {
-  this->set_state(global_preferences.get_bool(this->get_name(), "state", false));
-  this->set_oscillating(global_preferences.get_bool(this->get_name(), "oscillating", false));
-  this->set_speed(static_cast<FanSpeed>(global_preferences.get_int32(this->get_name(), "speed", FAN_SPEED_HIGH)));
+  this->state = global_preferences.get_bool(this->get_name(), "state", false);
+  this->oscillating = global_preferences.get_bool(this->get_name(), "oscillating", false);
+  this->speed = static_cast<FanSpeed>(global_preferences.get_int32(this->get_name(), "speed", FAN_SPEED_HIGH));
 }
 void FanState::save_to_preferences() {
-  global_preferences.put_bool(this->get_name(), "state", this->get_state());
-  global_preferences.put_bool(this->get_name(), "oscillating", this->is_oscillating());
-  global_preferences.put_int32(this->get_name(), "speed", this->get_speed());
+  global_preferences.put_bool(this->get_name(), "state", this->state);
+  global_preferences.put_bool(this->get_name(), "oscillating", this->oscillating);
+  global_preferences.put_int32(this->get_name(), "speed", this->speed);
 }
-bool FanState::set_speed(const char *speed) {
-  if (strcasecmp(speed, "off") == 0) {
-    ESP_LOGD(TAG, "Turning Fan Speed off.");
-    this->set_speed(FAN_SPEED_OFF);
-  } else if (strcasecmp(speed, "low") == 0) {
-    ESP_LOGD(TAG, "Turning Fan Speed low.");
+FanState::StateCall FanState::turn_on() {
+  return FanState::StateCall(this, true);
+}
+FanState::StateCall FanState::turn_off() {
+  return FanState::StateCall(this, false);
+}
+FanState::StateCall FanState::toggle() {
+  return FanState::StateCall(this, !this->state);
+}
+
+FanState::StateCall::StateCall(FanState *state, bool binary_state)
+    : state_(state), binary_state_(binary_state) {
+
+}
+FanState::StateCall &FanState::StateCall::set_oscillating(bool oscillating) {
+  this->oscillating_ = oscillating;
+  return *this;
+}
+FanState::StateCall &FanState::StateCall::set_speed(FanSpeed speed) {
+  this->speed_ = speed;
+  return *this;
+}
+void FanState::StateCall::perform() {
+  if (this->oscillating_.has_value()) {
+    this->state_->oscillating = *this->oscillating_;
+  }
+  if (this->speed_.has_value()) {
+    this->state_->speed = *this->speed_;
+  }
+  this->state_->state = binary_state_;
+  this->state_->state_callback_.call();
+}
+FanState::StateCall &FanState::StateCall::set_speed(const char *speed) {
+  if (strcasecmp(speed, "low") == 0) {
     this->set_speed(FAN_SPEED_LOW);
   } else if (strcasecmp(speed, "medium") == 0) {
-    ESP_LOGD(TAG, "Turning Fan Speed medium.");
     this->set_speed(FAN_SPEED_MEDIUM);
   } else if (strcasecmp(speed, "high") == 0) {
-    ESP_LOGD(TAG, "Turning Fan Speed high.");
     this->set_speed(FAN_SPEED_HIGH);
-  } else {
-    return false;
   }
-  return true;
+  return *this;
 }
 
 } // namespace fan

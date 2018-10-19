@@ -144,7 +144,7 @@ void DallasComponent::update() {
 
       float tempc = sensor->get_temp_c();
       ESP_LOGD(TAG, "'%s': Got Temperature=%.1f°C", sensor->get_name().c_str(), tempc);
-      sensor->push_new_value(tempc);
+      sensor->publish_state(tempc);
     });
   }
 }

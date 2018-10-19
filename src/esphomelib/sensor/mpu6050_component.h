@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_MPU_6050_COMPONENT_H
 #define ESPHOMELIB_MPU_6050_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
-#include "esphomelib/i2c_component.h"
 
 #ifdef USE_MPU6050
+
+#include "esphomelib/component.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

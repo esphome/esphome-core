@@ -4,7 +4,6 @@
 
 #include "esphomelib/display/max7219.h"
 #include "esphomelib/log.h"
-#include "max7219.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

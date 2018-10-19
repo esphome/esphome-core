@@ -4,7 +4,6 @@
 
 #include "esphomelib/display/lcd_display.h"
 #include "esphomelib/log.h"
-#include "lcd_display.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

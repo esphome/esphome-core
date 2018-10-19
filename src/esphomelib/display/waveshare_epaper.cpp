@@ -4,7 +4,6 @@
 
 #include "esphomelib/display/waveshare_epaper.h"
 #include "esphomelib/log.h"
-#include "waveshare_epaper.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

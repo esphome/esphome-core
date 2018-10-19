@@ -99,8 +99,8 @@ void MS5611Component::calculate_values(uint32_t raw_temperature, uint32_t raw_pr
 
   ESP_LOGCONFIG(TAG, "Got temperature=%0.02f°C pressure=%0.01fhPa", temperature, pressure);
 
-  this->temperature_sensor_->push_new_value(temperature);
-  this->pressure_sensor_->push_new_value(pressure); // hPa
+  this->temperature_sensor_->publish_state(temperature);
+  this->pressure_sensor_->publish_state(pressure); // hPa
   this->status_clear_warning();
 }
 MS5611TemperatureSensor *MS5611Component::get_temperature_sensor() const {
