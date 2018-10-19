@@ -169,7 +169,7 @@ TurnOnAction<T>::TurnOnAction(Switch *a_switch) : switch_(a_switch) {}
 
 template<typename T>
 void TurnOnAction<T>::play(T x) {
-  this->switch_->write_state(true);
+  this->switch_->turn_on();
   this->play_next(x);
 }
 
@@ -178,7 +178,7 @@ TurnOffAction<T>::TurnOffAction(Switch *a_switch) : switch_(a_switch) {}
 
 template<typename T>
 void TurnOffAction<T>::play(T x) {
-  this->switch_->write_state(false);
+  this->switch_->turn_off();
   this->play_next(x);
 }
 
@@ -187,7 +187,7 @@ ToggleAction<T>::ToggleAction(Switch *a_switch) : switch_(a_switch) {}
 
 template<typename T>
 void ToggleAction<T>::play(T x) {
-  this->switch_->write_state(!this->switch_->value);
+  this->switch_->toggle();
   this->play_next(x);
 }
 

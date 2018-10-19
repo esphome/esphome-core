@@ -40,7 +40,7 @@ BaseFastLEDLightEffect::BaseFastLEDLightEffect(const std::string &name) : LightE
 }
 void BaseFastLEDLightEffect::apply() {
   float brightness_f, r_f, g_f, b_f;
-  LightColorValues color = this->state_->get_remote_values_lazy();
+  LightColorValues color = this->state_->get_remote_values();
   color.as_brightness(&brightness_f);
   color.as_rgb(&r_f, &g_f, &b_f);
   const auto brightness = uint8_t(brightness_f * 255);

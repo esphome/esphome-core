@@ -103,7 +103,7 @@ class LightState : public Nameable, public Component {
 
   class StateCall {
    public:
-    StateCall(LightState *state, bool binary_state);
+    StateCall(LightState *state);
     LightState::StateCall &set_state(bool state);
     LightState::StateCall &set_transition_length(uint32_t transition_length);
     LightState::StateCall &set_flash_length(uint32_t flash_length);
@@ -123,7 +123,7 @@ class LightState : public Nameable, public Component {
 
    protected:
     LightState *state_;
-    bool binary_state_;
+    optional<bool> binary_state_;
     optional<float> brightness_;
     optional<float> red_;
     optional<float> green_;
@@ -138,6 +138,7 @@ class LightState : public Nameable, public Component {
   LightState::StateCall turn_on();
   LightState::StateCall turn_off();
   LightState::StateCall toggle();
+  LightState::StateCall make_call();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -163,7 +164,6 @@ class LightState : public Nameable, public Component {
 
   /// Lazily get the last current values. Returns the values last returned by get_current_values().
   const LightColorValues &get_current_values_lazy();
-  const LightColorValues &get_remote_values_lazy();
 
   /// Return the name of the current effect, or if no effect is active "None".
   std::string get_effect_name();

@@ -230,13 +230,16 @@ void LightState::add_effects(const std::vector<LightEffect *> effects) {
   }
 }
 LightState::StateCall LightState::turn_on() {
-  return LightState::StateCall(this, true);
+  return this->make_call().set_state(true);
 }
 LightState::StateCall LightState::turn_off() {
-  return LightState::StateCall(this, false);
+  return this->make_call().set_state(false);
 }
 LightState::StateCall LightState::toggle() {
-  return LightState::StateCall(this, this->get_remote_values().get_state() == 0.0f);
+  return this->make_call().set_state(this->get_remote_values().get_state() == 0.0f);
+}
+LightState::StateCall LightState::make_call() {
+  return LightState::StateCall(this);
 }
 
 LightState::StateCall &LightState::StateCall::set_state(bool state) {

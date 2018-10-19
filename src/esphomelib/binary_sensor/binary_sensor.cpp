@@ -103,7 +103,7 @@ ClickTrigger::ClickTrigger(BinarySensor *parent, uint32_t min_length, uint32_t m
     } else {
       const uint32_t length = millis() - this->start_time_;
       if (match_interval(this->min_length_, this->max_length_, length))
-        this->trigger();
+        this->trigger(length);
     }
   });
 }
