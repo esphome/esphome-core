@@ -59,6 +59,8 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 
   void set_power_supply(PowerSupplyComponent *power_supply);
 
+  void set_correction(float red, float green, float blue);
+
   /// Add some LEDS, can only be called once.
   CLEDController &add_leds(CLEDController *controller, int num_leds);
 
@@ -338,6 +340,7 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
  protected:
   CLEDController *controller_{nullptr};
   CRGB *leds_{nullptr};
+  CRGB correction_{UncorrectedColor};
   uint8_t *effect_data_{nullptr};
   int num_leds_{0};
   uint32_t last_refresh_{0};
