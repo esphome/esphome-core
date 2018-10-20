@@ -55,9 +55,13 @@ struct Availability {
 };
 
 class MQTTMessageTrigger;
+class MQTTJsonMessageTrigger;
 
 template<typename T>
 class MQTTPublishAction;
+
+template<typename T>
+class MQTTPublishJsonAction;
 
 /** Internal struct for MQTT Home Assistant discovery
  *
@@ -200,8 +204,13 @@ class MQTTClientComponent : public Component {
 
   MQTTMessageTrigger *make_message_trigger(const std::string &topic, uint8_t qos = 0);
 
+  MQTTJsonMessageTrigger *make_json_message_trigger(const std::string &topic, uint8_t qos = 0);
+
   template<typename T>
   MQTTPublishAction<T> *make_publish_action();
+
+  template<typename T>
+  MQTTPublishJsonAction<T> *make_publish_json_action();
 
   bool can_proceed() override;
 
@@ -247,9 +256,16 @@ class MQTTClientComponent : public Component {
   uint32_t last_connected_{0};
 };
 
+extern MQTTClientComponent *global_mqtt_client;
+
 class MQTTMessageTrigger : public Trigger<std::string> {
  public:
   explicit MQTTMessageTrigger(const std::string &topic, uint8_t qos = 0);
+};
+
+class MQTTJsonMessageTrigger : public Trigger<const JsonObject &> {
+ public:
+  explicit MQTTJsonMessageTrigger(const std::string &topic, uint8_t qos = 0);
 };
 
 template<typename T>
@@ -275,9 +291,62 @@ class MQTTPublishAction : public Action<T> {
   TemplatableValue<bool, T> retain_{false};
 };
 
-extern MQTTClientComponent *global_mqtt_client;
+template<typename T>
+class MQTTPublishJsonAction : public Action<T> {
+ public:
+  MQTTPublishJsonAction();
+
+  void set_topic(std::function<std::string(T)> topic);
+  void set_topic(std::string topic);
+  void set_payload(std::function<void(T, JsonObject &)> payload);
+  void set_qos(uint8_t qos);
+  void set_retain(bool retain);
+  void play(T x) override;
+
+ protected:
+  TemplatableValue<std::string, T> topic_;
+  std::function<void(T, JsonObject &)> payload_;
+  uint8_t qos_{0};
+  bool retain_{false};
+};
 
 // =============== TEMPLATE DEFINITIONS ===============
+
+template<typename T>
+void MQTTPublishJsonAction<T>::set_topic(std::function<std::string(T)> topic) {
+  this->topic_ = std::move(topic);
+}
+template<typename T>
+void MQTTPublishJsonAction<T>::set_topic(std::string topic) {
+  this->topic_ = topic;
+}
+template<typename T>
+void MQTTPublishJsonAction<T>::set_payload(std::function<void(T, JsonObject &)> payload) {
+  this->payload_ = std::move(payload);
+}
+template<typename T>
+void MQTTPublishJsonAction<T>::set_qos(uint8_t qos) {
+  this->qos_ = qos;
+}
+template<typename T>
+void MQTTPublishJsonAction<T>::set_retain(bool retain) {
+  this->retain_ = retain;
+}
+template<typename T>
+void MQTTPublishJsonAction<T>::play(T x) {
+  auto f = [this, x](JsonObject &root) {
+    this->payload_(x, root);
+  };
+  global_mqtt_client->publish_json(this->topic_.value(x), f, this->qos_, this->retain_);
+  this->play_next(x);
+}
+template<typename T>
+MQTTPublishJsonAction<T>::MQTTPublishJsonAction() = default;
+
+template<typename T>
+MQTTPublishJsonAction<T> *MQTTClientComponent::make_publish_json_action() {
+  return new MQTTPublishJsonAction<T>();
+}
 
 template<typename T>
 void MQTTPublishAction<T>::play(T x) {

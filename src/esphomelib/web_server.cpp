@@ -212,7 +212,7 @@ void WebServer::handle_sensor_request(AsyncWebServerRequest *request, UrlMatch m
   request->send(404);
 }
 std::string WebServer::sensor_json(sensor::Sensor *obj, float value) {
-  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj, value](JsonObject &root) {
     root["id"] = "sensor-" + obj->get_name_id();
     std::string state = value_accuracy_to_string(value, obj->get_accuracy_decimals());
     if (!obj->get_unit_of_measurement().empty())
@@ -243,7 +243,7 @@ void WebServer::handle_text_sensor_request(AsyncWebServerRequest *request, UrlMa
   request->send(404);
 }
 std::string WebServer::text_sensor_json(text_sensor::TextSensor *obj, const std::string &value) {
-  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj, value](JsonObject &root) {
     root["id"] = "text_sensor-" + obj->get_name_id();
     root["value"] = value;
   });
@@ -260,7 +260,7 @@ void WebServer::register_switch(switch_::Switch *obj) {
   });
 }
 std::string WebServer::switch_json(switch_::Switch *obj, bool value) {
-  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj, value](JsonObject &root) {
     root["id"] = "switch-" + obj->get_name_id();
     root["state"] = value ? "ON" : "OFF";
     root["value"] = value;
@@ -302,7 +302,7 @@ void WebServer::register_binary_sensor(binary_sensor::BinarySensor *obj) {
   });
 }
 std::string WebServer::binary_sensor_json(binary_sensor::BinarySensor *obj, bool value) {
-  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj, value](JsonObject &root) {
     root["id"] = "binary_sensor-" + obj->get_name_id();
     root["state"] = value ? "ON" : "OFF";
     root["value"] = value;
@@ -330,7 +330,7 @@ void WebServer::register_fan(fan::FanState *obj) {
   });
 }
 std::string WebServer::fan_json(fan::FanState *obj) {
-  return build_json([obj](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj](JsonObject &root) {
     root["id"] = "fan-" + obj->get_name_id();
     root["state"] = obj->get_state() ? "ON" : "OFF";
     root["value"] = obj->get_state();
@@ -468,10 +468,10 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
   request->send(404);
 }
 std::string WebServer::light_json(light::LightState *obj) {
-  return build_json([obj](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj](JsonObject &root) {
     root["id"] = "light-" + obj->get_name_id();
     root["state"] = obj->get_remote_values().get_state() == 1.0 ? "ON" : "OFF";
-    obj->dump_json(buffer, root);
+    obj->dump_json(root);
   });
 }
 #endif

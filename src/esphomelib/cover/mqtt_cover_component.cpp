@@ -37,7 +37,7 @@ void MQTTCoverComponent::setup() {
   });
 }
 
-void MQTTCoverComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+void MQTTCoverComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (this->cover_->optimistic())
     root["optimistic"] = true;
 }

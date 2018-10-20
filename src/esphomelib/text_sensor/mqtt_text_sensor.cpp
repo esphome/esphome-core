@@ -15,7 +15,7 @@ MQTTTextSensor::MQTTTextSensor(TextSensor *sensor)
     : MQTTComponent(), sensor_(sensor) {
 
 }
-void MQTTTextSensor::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+void MQTTTextSensor::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->sensor_->get_icon().empty())
     root["icon"] = this->sensor_->get_icon();
 

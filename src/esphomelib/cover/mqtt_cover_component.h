@@ -17,7 +17,7 @@ class MQTTCoverComponent : public mqtt::MQTTComponent {
   explicit MQTTCoverComponent(Cover *cover);
 
   void setup() override;
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   void send_initial_state() override;
   bool is_internal() override;

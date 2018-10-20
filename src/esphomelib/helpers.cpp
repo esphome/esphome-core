@@ -177,7 +177,7 @@ std::string build_json(const json_build_t &f) {
   global_json_buffer.clear();
   JsonObject &root = global_json_buffer.createObject();
 
-  f(global_json_buffer, root);
+  f(root);
 
   std::string buffer;
   root.printTo(buffer);

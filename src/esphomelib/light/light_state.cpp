@@ -172,7 +172,7 @@ void LightState::set_default_transition_length(uint32_t default_transition_lengt
 uint32_t LightState::get_default_transition_length() const {
   return this->default_transition_length_;
 }
-void LightState::dump_json(JsonBuffer &buffer, JsonObject &root) {
+void LightState::dump_json(JsonObject &root) {
   if (this->supports_effects())
     root["effect"] = this->get_effect_name();
   this->get_remote_values().dump_json(root, this->output_->get_traits());

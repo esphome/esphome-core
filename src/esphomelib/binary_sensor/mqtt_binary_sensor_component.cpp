@@ -45,7 +45,7 @@ void MQTTBinarySensorComponent::set_payload_off(std::string payload_off) {
 std::string MQTTBinarySensorComponent::friendly_name() const {
   return this->binary_sensor_->get_name();
 }
-void MQTTBinarySensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+void MQTTBinarySensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->binary_sensor_->get_device_class().empty())
     root["device_class"] = this->binary_sensor_->get_device_class();
   if (this->payload_on_ != "ON")

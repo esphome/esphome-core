@@ -24,7 +24,7 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
   // (In most use cases you won't need these)
   void setup() override;
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   void send_initial_state() override;
   bool is_internal() override;
