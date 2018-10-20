@@ -94,11 +94,11 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
       ESP_LOGD(TAG, "Got PM1.0 Concentration: %u µg/m^3, PM2.5 Concentration %u µg/m^3, PM10.0 Concentration: %u µg/m^3",
           pm_1_0_concentration, pm_2_5_concentration, pm_10_0_concentration);
       if (this->pm_1_0_sensor_ != nullptr)
-        this->pm_1_0_sensor_->push_new_value(pm_1_0_concentration);
+        this->pm_1_0_sensor_->publish_state(pm_1_0_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
-        this->pm_2_5_sensor_->push_new_value(pm_2_5_concentration);
+        this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       if (this->pm_10_0_sensor_ != nullptr)
-        this->pm_10_0_sensor_->push_new_value(pm_10_0_concentration);
+        this->pm_10_0_sensor_->publish_state(pm_10_0_concentration);
       break;
     }
     case PMSX003_TYPE_5003T: {
@@ -108,11 +108,11 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
       ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%%",
           pm_2_5_concentration, temperature, humidity);
       if (this->pm_2_5_sensor_ != nullptr)
-        this->pm_2_5_sensor_->push_new_value(pm_2_5_concentration);
+        this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       if (this->temperature_sensor_ != nullptr)
-        this->temperature_sensor_->push_new_value(temperature);
+        this->temperature_sensor_->publish_state(temperature);
       if (this->humidity_sensor_ != nullptr)
-        this->humidity_sensor_->push_new_value(humidity);
+        this->humidity_sensor_->publish_state(humidity);
       break;
     }
     case PMSX003_TYPE_5003ST: {
@@ -123,13 +123,13 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
       ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%% Formaldehyde: %u µg/m^3",
                pm_2_5_concentration, temperature, humidity, formaldehyde);
       if (this->pm_2_5_sensor_ != nullptr)
-        this->pm_2_5_sensor_->push_new_value(pm_2_5_concentration);
+        this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       if (this->temperature_sensor_ != nullptr)
-        this->temperature_sensor_->push_new_value(temperature);
+        this->temperature_sensor_->publish_state(temperature);
       if (this->humidity_sensor_ != nullptr)
-        this->humidity_sensor_->push_new_value(humidity);
+        this->humidity_sensor_->publish_state(humidity);
       if (this->formaldehyde_sensor_ != nullptr)
-        this->formaldehyde_sensor_->push_new_value(formaldehyde);
+        this->formaldehyde_sensor_->publish_state(formaldehyde);
       break;
     }
   }

@@ -186,12 +186,11 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
 
 void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
   ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u with JSON...", topic.c_str(), qos);
+  auto f = std::bind(&parse_json, std::placeholders::_1, callback);
   MQTTSubscription subscription{
       .topic = topic,
       .qos = qos,
-      .callback = [this, callback](const std::string &payload) {
-        parse_json(payload, callback);
-      },
+      .callback = f,
   };
   this->subscriptions_.push_back(subscription);
 

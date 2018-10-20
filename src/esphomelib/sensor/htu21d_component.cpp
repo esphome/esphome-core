@@ -59,8 +59,8 @@ void HTU21DComponent::update() {
   float humidity = (float(raw_humidity & 0xFFFC)) * 125.0f / 65536.0f - 6.0f;
   ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
-  this->temperature_->push_new_value(temperature);
-  this->humidity_->push_new_value(humidity);
+  this->temperature_->publish_state(temperature);
+  this->humidity_->publish_state(humidity);
   this->status_clear_warning();
 }
 HTU21DTemperatureSensor *HTU21DComponent::get_temperature_sensor() const {

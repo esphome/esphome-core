@@ -15,9 +15,9 @@ class RestartSwitch : public Switch {
  public:
   explicit RestartSwitch(const std::string &name);
 
-  void turn_on() override;
-  void turn_off() override;
   std::string icon() override;
+ protected:
+  void write_state(bool state) override;
 };
 
 } // namespace switch_

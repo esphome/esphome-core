@@ -20,13 +20,12 @@ void MQTTJSONLightComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT light...");
 
   this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
-    this->state_->parse_json(root);
+    this->state_->make_call().parse_json(root).perform();
   });
 
-  this->state_->add_new_remote_values_callback([this]() {
-    this->defer("send", [this]() {
-      this->publish_state();
-    });
+  auto f = std::bind(&MQTTJSONLightComponent::publish_state, this);
+  this->state_->add_new_remote_values_callback([this, f]() {
+    this->defer("send", f);
   });
 
   this->publish_state();
@@ -34,7 +33,7 @@ void MQTTJSONLightComponent::setup() {
 
 MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
     : MQTTComponent(), state_(state) {
-  assert(state != nullptr);
+
 }
 
 void MQTTJSONLightComponent::publish_state() {

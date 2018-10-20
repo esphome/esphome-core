@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_HMC_5883_L_H
 #define ESPHOMELIB_HMC_5883_L_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_HMC5883L
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

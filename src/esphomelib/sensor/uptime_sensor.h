@@ -1,10 +1,11 @@
 #ifndef ESPHOMELIB_UPTIME_SENSOR_H
 #define ESPHOMELIB_UPTIME_SENSOR_H
 
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_UPTIME_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

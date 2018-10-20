@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
 #define ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
 
-#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
-#include "esphomelib/mqtt/mqtt_component.h"
-#include "esphomelib/switch_/switch.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_SWITCH
+
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
+#include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/switch_/switch.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

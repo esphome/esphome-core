@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_ESP32_BLE_TRACKER_H
 #define ESPHOMELIB_ESP32_BLE_TRACKER_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_BLE_TRACKER
+
+#include "esphomelib/component.h"
+#include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/sensor/sensor.h"
 
 #include <string>
 #include <array>

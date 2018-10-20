@@ -32,11 +32,15 @@ std::string MQTTComponent::get_default_topic_for(const std::string &suffix) cons
 }
 
 const std::string MQTTComponent::get_state_topic() const {
-  return this->get_topic_for("state");
+  if (this->custom_state_topic_.empty())
+    return this->get_default_topic_for("state");
+  return this->custom_state_topic_;
 }
 
 const std::string MQTTComponent::get_command_topic() const {
-  return this->get_topic_for("command");
+  if (this->custom_command_topic_.empty())
+    return this->get_default_topic_for("command");
+  return this->custom_command_topic_;
 }
 
 void MQTTComponent::send_message(const std::string &topic, const std::string &payload,
@@ -147,18 +151,10 @@ void MQTTComponent::disable_discovery() {
   this->discovery_enabled_ = false;
 }
 void MQTTComponent::set_custom_state_topic(const std::string &custom_state_topic) {
-  this->set_custom_topic("state", custom_state_topic);
+  this->custom_state_topic_ = custom_state_topic;
 }
 void MQTTComponent::set_custom_command_topic(const std::string &custom_command_topic) {
-  this->set_custom_topic("command", custom_command_topic);
-}
-void MQTTComponent::set_custom_topic(const std::string &key, const std::string &custom_topic) {
-  this->custom_topics_[key] = custom_topic;
-}
-const std::string MQTTComponent::get_topic_for(const std::string &key) const {
-  if (this->custom_topics_.find(key) != this->custom_topics_.end())
-    return this->custom_topics_.find(key)->second;
-  return this->get_default_topic_for(key);
+  this->custom_command_topic_ = custom_command_topic;
 }
 
 void MQTTComponent::set_availability(std::string topic,

@@ -11,9 +11,9 @@ namespace text_sensor {
 
 void VersionTextSensor::setup() {
   if (App.get_compilation_time().empty()) {
-    this->push_new_value(ESPHOMELIB_VERSION);
+    this->publish_state(ESPHOMELIB_VERSION);
   } else {
-    this->push_new_value(ESPHOMELIB_VERSION " " + App.get_compilation_time());
+    this->publish_state(ESPHOMELIB_VERSION " " + App.get_compilation_time());
   }
 }
 float VersionTextSensor::get_setup_priority() const {

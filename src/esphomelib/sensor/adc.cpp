@@ -64,7 +64,7 @@ void ADCSensorComponent::update() {
 
   ESP_LOGD(TAG, "'%s': Got voltage=%.2fV", this->get_name().c_str(), value_v);
 
-  this->push_new_value(value_v);
+  this->publish_state(value_v);
 }
 std::string ADCSensorComponent::unit_of_measurement() {
   return "V";

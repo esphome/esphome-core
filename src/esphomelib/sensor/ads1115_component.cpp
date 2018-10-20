@@ -133,7 +133,7 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
 
   float v = millivolts / 1000.0f;
   ESP_LOGD(TAG, "'%s': Got Voltage=%fV", sensor->get_name().c_str(), v);
-  sensor->push_new_value(v);
+  sensor->publish_state(v);
   this->status_clear_warning();
 }
 

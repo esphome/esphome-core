@@ -3,6 +3,9 @@
 
 #define ESPHOMELIB_VERSION "1.8.2"
 
+#define HOT __attribute__ ((hot))
+#define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
+
 #ifndef DOXYGEN
   #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {
   #define ESPHOMELIB_NAMESPACE_END }

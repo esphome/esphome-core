@@ -13,7 +13,7 @@ static const char *TAG = "fan.mqtt";
 
 MQTTFanComponent::MQTTFanComponent(FanState *state)
     : MQTTComponent(), state_(state) {
-  assert(this->state_ != nullptr);
+
 }
 
 FanState *MQTTFanComponent::get_state() const {
@@ -28,70 +28,95 @@ void MQTTFanComponent::setup() {
   ESP_LOGCONFIG(TAG, "    Supports oscillation: %s", this->state_->get_traits().supports_oscillation() ? "YES" : "NO");
 
   this->subscribe(this->get_command_topic(), [this](const std::string &payload) {
-    auto val = parse_on_off(payload.c_str(), this->state_->get_state());
-    if (!val.has_value()) {
-      ESP_LOGW(TAG, "Unknown state Payload %s", payload.c_str());
-      this->status_momentary_warning("state", 5000);
-      return;
+    auto val = parse_on_off(payload.c_str());
+    switch (val) {
+      case PARSE_ON:
+        ESP_LOGD(TAG, "'%s' Turning Fan ON.", this->friendly_name().c_str());
+        this->state_->turn_on().perform();
+        break;
+      case PARSE_OFF:
+        ESP_LOGD(TAG, "'%s' Turning Fan OFF.", this->friendly_name().c_str());
+        this->state_->turn_off().perform();
+        break;
+      case PARSE_TOGGLE:
+        ESP_LOGD(TAG, "'%s' Toggling Fan.", this->friendly_name().c_str());
+        this->state_->toggle().perform();
+        break;
+      case PARSE_NONE:
+      default:
+        ESP_LOGW(TAG, "Unknown state payload %s", payload.c_str());
+        this->status_momentary_warning("state", 5000);
+        break;
     }
-    ESP_LOGD(TAG, "'%s' Turning Fan %s.", this->friendly_name().c_str(), payload.c_str());
-    this->state_->set_state(*val);
   });
 
   if (this->state_->get_traits().supports_oscillation()) {
     this->subscribe(this->get_oscillation_command_topic(), [this](const std::string &payload) {
-      auto val = parse_on_off(payload.c_str(), this->state_->is_oscillating(), "oscillate_on", "oscillate_off");
-      if (!val.has_value()) {
-        ESP_LOGW(TAG, "Unknown Oscillation Payload %s", payload.c_str());
-        this->status_momentary_warning("oscillation", 5000);
-        return;
+      auto val = parse_on_off(payload.c_str(), "oscillate_on", "oscillate_off");
+      switch (val) {
+        case PARSE_ON:
+          ESP_LOGD(TAG, "'%s': Setting oscillating ON", this->friendly_name().c_str());
+          this->state_->make_call().set_oscillating(true).perform();
+          break;
+        case PARSE_OFF:
+          ESP_LOGD(TAG, "'%s': Setting oscillating OFF", this->friendly_name().c_str());
+          this->state_->make_call().set_oscillating(false).perform();
+          break;
+        case PARSE_TOGGLE:
+          this->state_->make_call().set_oscillating(!this->state_->oscillating).perform();
+          break;
+        case PARSE_NONE:
+          ESP_LOGW(TAG, "Unknown Oscillation Payload %s", payload.c_str());
+          this->status_momentary_warning("oscillation", 5000);
+          break;
       }
-      ESP_LOGD(TAG, "'%s': Setting oscillating %s", this->friendly_name().c_str(), payload.c_str());
-      this->state_->set_oscillating(*val);
     });
   }
 
   if (this->state_->get_traits().supports_speed()) {
     this->subscribe(this->get_speed_command_topic(), [this](const std::string &payload) {
-      if (!this->state_->set_speed(payload.c_str())) {
-        ESP_LOGW(TAG, "Unknown Speed Payload %s", payload.c_str());
-        this->status_momentary_warning("speed", 5000);
-        return;
-      }
+      this->state_->make_call().set_speed(payload.c_str()).perform();
     });
   }
 
-  this->state_->add_on_state_change_callback([this]() {
-    this->defer("send", [this]() {
-      this->publish_state();
-    });
+  auto f = std::bind(&MQTTFanComponent::publish_state, this);
+  this->state_->add_on_state_callback([this, f]() {
+    this->defer("send", f);
   });
 
   this->state_->load_from_preferences();
 }
 void MQTTFanComponent::set_custom_oscillation_command_topic(const std::string &topic) {
-  this->set_custom_topic("oscillation/command", topic);
+  this->custom_oscillation_command_topic_ = topic;
 }
 void MQTTFanComponent::set_custom_oscillation_state_topic(const std::string &topic) {
-  this->set_custom_topic("oscillation/state", topic);
+  this->custom_oscillation_state_topic_ = topic;
 }
 void MQTTFanComponent::set_custom_speed_command_topic(const std::string &topic) {
-  this->set_custom_topic("speed/command", topic);
+  this->custom_speed_command_topic_ = topic;
 }
 void MQTTFanComponent::set_custom_speed_state_topic(const std::string &topic) {
-  this->set_custom_topic("speed/state", topic);
+  this->custom_speed_state_topic_ = topic;
 }
 const std::string MQTTFanComponent::get_oscillation_command_topic() const {
-  return this->get_topic_for("oscillation/command");
+  if (this->custom_oscillation_command_topic_.empty())
+    return this->get_default_topic_for("oscillation/command");
+  return this->custom_oscillation_command_topic_;
 }
 const std::string MQTTFanComponent::get_oscillation_state_topic() const {
-  return this->get_topic_for("oscillation/state");
+  if (this->custom_oscillation_state_topic_.empty())
+    return this->get_default_topic_for("oscillation/state");
+  return this->custom_oscillation_state_topic_;
 }
 const std::string MQTTFanComponent::get_speed_command_topic() const {
-  return this->get_topic_for("speed/command");
+  if (this->custom_speed_command_topic_.empty())
+    return this->get_default_topic_for("speed/command");
+  return this->custom_speed_command_topic_;
 }
 const std::string MQTTFanComponent::get_speed_state_topic() const {
-  return this->get_topic_for("speed/state");
+  if (this->custom_speed_state_topic_.empty())
+    return this->get_default_topic_for("speed/state");
+  return this->custom_speed_state_topic_;
 }
 void MQTTFanComponent::send_initial_state() {
   this->publish_state();
@@ -113,19 +138,15 @@ bool MQTTFanComponent::is_internal() {
   return this->state_->is_internal();
 }
 void MQTTFanComponent::publish_state() {
-  const char *state_s = this->state_->get_state() ? "ON" : "OFF";
+  const char *state_s = this->state_->state ? "ON" : "OFF";
   ESP_LOGD(TAG, "'%s' Sending state %s.", this->state_->get_name().c_str(), state_s);
   this->send_message(this->get_state_topic(), state_s);
   if (this->state_->get_traits().supports_oscillation())
     this->send_message(this->get_oscillation_state_topic(),
-                       this->state_->is_oscillating() ? "oscillate_on" : "oscillate_off");
+                       this->state_->oscillating ? "oscillate_on" : "oscillate_off");
   if (this->state_->get_traits().supports_speed()) {
     const char *payload;
-    switch (this->state_->get_speed()) {
-      case FAN_SPEED_OFF: {
-        payload = "off";
-        break;
-      }
+    switch (this->state_->speed) {
       case FAN_SPEED_LOW: {
         payload = "low";
         break;

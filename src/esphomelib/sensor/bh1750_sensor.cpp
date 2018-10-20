@@ -84,7 +84,7 @@ void BH1750Sensor::read_data_() {
 
   float lx = float(raw_value) / 1.2f;
   ESP_LOGD(TAG, "'%s': Got illuminance=%.1flx", this->get_name().c_str(), lx);
-  this->push_new_value(lx);
+  this->publish_state(lx);
   this->status_clear_warning();
 }
 void BH1750Sensor::set_resolution(BH1750Resolution resolution) {

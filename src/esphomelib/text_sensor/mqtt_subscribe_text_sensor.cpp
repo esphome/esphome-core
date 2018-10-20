@@ -15,7 +15,7 @@ MQTTSubscribeTextSensor::MQTTSubscribeTextSensor(const std::string &name, std::s
 }
 void MQTTSubscribeTextSensor::setup() {
   mqtt::global_mqtt_client->subscribe(this->topic_, [this](std::string payload) {
-    this->push_new_value(payload);
+    this->publish_state(payload);
   }, this->qos_);
 }
 float MQTTSubscribeTextSensor::get_setup_priority() const {

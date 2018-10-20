@@ -40,7 +40,7 @@ BaseFastLEDLightEffect::BaseFastLEDLightEffect(const std::string &name) : LightE
 }
 void BaseFastLEDLightEffect::apply() {
   float brightness_f, r_f, g_f, b_f;
-  LightColorValues color = this->state_->get_remote_values_lazy();
+  LightColorValues color = this->state_->get_remote_values();
   color.as_brightness(&brightness_f);
   color.as_rgb(&r_f, &g_f, &b_f);
   const auto brightness = uint8_t(brightness_f * 255);
@@ -213,7 +213,7 @@ void FastLEDFireworksEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t
     uint16_t new_value = uint16_t(fastled[0][j]) + uint16_t(fastled[1][j] / 2);
     fastled[0][j] = new_value > 255 ? 255 : new_value;
   }
-  const uint32_t last = fastled.size() - 1;
+  const uint32_t last = fastled.size() - 1UL;
   for (size_t i = 1; i < last; i++) {
     for (uint8_t j = 0; j < 3; j++) {
       uint16_t new_value = uint16_t(fastled[i - 1][j] / 4) + uint16_t(fastled[i][j]) + uint16_t(fastled[i + 1][j] / 4);
@@ -308,10 +308,10 @@ void FastLEDColorWipeEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t
   this->last_add_ = now;
 
   if (!this->reverse_) {
-    for (int i = 0; i < fastled.size() - 1; i++)
+    for (size_t i = 0; i < fastled.size() - 1UL; i++)
       fastled[i] = fastled[i + 1];
   } else {
-    for (size_t i = fastled.size() - 1; i > 0; i++)
+    for (size_t i = fastled.size() - 1UL; i > 0; i++)
       fastled[i] = fastled[i - 1];
   }
 

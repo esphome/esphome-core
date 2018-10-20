@@ -16,7 +16,12 @@ namespace cover {
 enum CoverState {
   COVER_OPEN = 0,
   COVER_CLOSED,
-  COVER_MAX
+};
+
+enum CoverCommand {
+  COVER_COMMAND_OPEN = 0,
+  COVER_COMMAND_CLOSE,
+  COVER_COMMAND_STOP,
 };
 
 template<typename T>
@@ -30,9 +35,9 @@ class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
 
-  virtual void open() = 0;
-  virtual void close() = 0;
-  virtual void stop() = 0;
+  void open();
+  void close();
+  void stop();
 
   void add_on_publish_state_callback(std::function<void(CoverState)> &&f);
 
@@ -40,10 +45,8 @@ class Cover : public Nameable {
 
   template<typename T>
   OpenAction<T> *make_open_action();
-
   template<typename T>
   CloseAction<T> *make_close_action();
-
   template<typename T>
   StopAction<T> *make_stop_action();
 
@@ -54,12 +57,14 @@ class Cover : public Nameable {
    */
   virtual bool optimistic();
 
-  CoverState state{COVER_MAX};
+  CoverState state{COVER_OPEN};
 
-  bool has_value() const;
+  bool has_state() const;
 
  protected:
-  bool has_value_{false};
+  virtual void write_command(CoverCommand command) = 0;
+
+  bool has_state_{false};
   CallbackManager<void(CoverState)> state_callback_{};
 };
 

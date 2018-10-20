@@ -2,9 +2,10 @@
 #define ESPHOMELIB_SENSOR_WIFI_SIGNAL_SENSOR_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/sensor/sensor.h"
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

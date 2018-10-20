@@ -1,11 +1,11 @@
 #ifndef ESPHOMELIB_ESP_32_BLE_BEACON_H
 #define ESPHOMELIB_ESP_32_BLE_BEACON_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_BLE_BEACON
 
+#include "esphomelib/component.h"
 #include <esp_gap_ble_api.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN

@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_SENSOR_PULSE_COUNTER_H
 #define ESPHOMELIB_SENSOR_PULSE_COUNTER_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_PULSE_COUNTER_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <driver/pcnt.h>

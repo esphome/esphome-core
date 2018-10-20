@@ -24,11 +24,11 @@ void MQTTSubscribeSensor::setup() {
     float value = ::strtof(payload.c_str(), &end);
     if (end == nullptr) {
       ESP_LOGW(TAG, "Can't convert '%s' to number!", payload.c_str());
-      this->push_new_value(NAN);
+      this->publish_state(NAN);
       return;
     }
 
-    this->push_new_value(value);
+    this->publish_state(value);
   }, this->qos_);
 }
 

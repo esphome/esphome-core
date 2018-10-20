@@ -1,12 +1,12 @@
 #ifndef ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H
 #define ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H
 
-#include "esphomelib/sensor/sensor.h"
-
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ULTRASONIC_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

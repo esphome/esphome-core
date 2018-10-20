@@ -16,7 +16,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 /// Internal helper struct that is used to parse incoming URLs
 struct UrlMatch {
   std::string domain; ///< The domain of the component, for example "sensor"
-  std::string id; ///< The id of the device that's being aceesed, for example "living_room_fan"
+  std::string id; ///< The id of the device that's being accessed, for example "living_room_fan"
   std::string method; ///< The method that's being called, for example "turn_on"
   bool valid; ///< Whether this match is valid
 };

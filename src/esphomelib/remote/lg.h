@@ -5,7 +5,8 @@
 
 #ifdef USE_REMOTE
 
-#include "esphomelib/remote/remote_protocol.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -22,10 +23,12 @@ class LGTransmitter : public RemoteTransmitter {
   uint32_t data_;
   uint8_t nbits_;
 };
+
+void encode_lg(RemoteTransmitData *data, uint32_t data_, uint8_t nbits);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_lg(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits);
+LGDecodeData decode_lg(RemoteReceiveData *data);
 
 class LGReceiver : public RemoteReceiver {
  public:
@@ -34,7 +37,6 @@ class LGReceiver : public RemoteReceiver {
  protected:
   bool matches(RemoteReceiveData *data) override;
 
- protected:
   uint32_t data_;
   uint8_t nbits_;
 };

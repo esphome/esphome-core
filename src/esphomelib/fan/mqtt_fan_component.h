@@ -49,6 +49,10 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
  protected:
   std::string friendly_name() const override;
 
+  std::string custom_oscillation_command_topic_;
+  std::string custom_oscillation_state_topic_;
+  std::string custom_speed_command_topic_;
+  std::string custom_speed_state_topic_;
   FanState *state_;
 };
 

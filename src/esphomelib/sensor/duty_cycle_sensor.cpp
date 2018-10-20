@@ -70,7 +70,7 @@ void DutyCycleSensor::update() {
 
   const float value = (on_time / total_time) * 100.0f;
   ESP_LOGD(TAG, "'%s' Got duty cycle=%.1f%%", this->get_name().c_str(), value);
-  this->push_new_value(value);
+  this->publish_state(value);
 
   this->on_time_ = 0;
   this->last_interrupt_ = now;

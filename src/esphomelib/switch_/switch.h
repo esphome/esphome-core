@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_SWITCH_SWITCH_H
 #define ESPHOMELIB_SWITCH_SWITCH_H
 
-#include "esphomelib/binary_sensor/binary_sensor.h"
-#include "esphomelib/component.h"
-#include "esphomelib/automation.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_SWITCH
+
+#include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/component.h"
+#include "esphomelib/automation.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -28,39 +29,47 @@ class Switch : public Component, public Nameable {
  public:
   explicit Switch(const std::string &name);
 
-  float get_setup_priority() const override;
-  void setup_() override;
-
   /** Publish a state to the front-end from the back-end.
    *
    * The input value is inverted if applicable. Then the internal value member is set and
    * finally the callbacks are called.
    *
-   * @param state
+   * @param state The new state.
    */
   void publish_state(bool state);
 
+  union {
+    /// The current reported state of the binary sensor.
+    bool state;
+    ESPDEPRECATED(".value is deprecated, please use .state instead") bool value;
+  };
+
+  /** Turn this switch on. This is called by the front-end.
+   *
+   * For implementing switches, please override write_state.
+   */
+  void turn_on();
+  /** Turn this switch off. This is called by the front-end.
+   *
+   * For implementing switches, please override write_state.
+   */
+  void turn_off();
+  /** Toggle this switch. This is called by the front-end.
+   *
+   * For implementing switches, please override write_state.
+   */
+  void toggle();
+
+  /** Set whether the state should be treated as inverted.
+   *
+   * To the developer and user an inverted switch will act just like a non-inverted one.
+   * In particular, the only thing that's changed by this is the value passed to
+   * write_state and the state in publish_state. The .state member variable and
+   * turn_on/turn_off/toggle remain unaffected.
+   *
+   * @param inverted Whether to invert this switch.
+   */
   void set_inverted(bool inverted);
-
-  /** This method is called by the front-end components to set the state.
-   *
-   * The internal logic will then invert it if applicable and call the
-   * turn_on or turn_off abstract method.
-   *
-   * Note that this will not trigger sending the state. The overriden
-   * turn_on and turn_off methods should do this manually.
-   *
-   * @param state The binary state to write.
-   */
-  void write_state(bool state);
-
-  /** Override this to set the Home Assistant icon for this switch.
-   *
-   * Return "" to disable this feature.
-   *
-   * @return The icon of this switch, for example "mdi:fan".
-   */
-  virtual std::string icon();
 
   /// Set the icon for this switch. "" for no icon.
   void set_icon(const std::string &icon);
@@ -75,6 +84,16 @@ class Switch : public Component, public Nameable {
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
 
+  /** Set callback for state changes.
+   *
+   * @param callback The void(bool) callback.
+   */
+  void add_on_state_callback(std::function<void(bool)> &&callback);
+
+  float get_setup_priority() const override;
+
+  void setup_() override;
+
   /** Return whether this switch is optimistic - i.e. if both the ON/OFF actions should be displayed in Home Assistant
    * because the real state is unknown.
    *
@@ -82,32 +101,32 @@ class Switch : public Component, public Nameable {
    */
   virtual bool optimistic();
 
-  /** Set callback for state changes.
-   *
-   * @param callback The void(bool) callback.
-   */
-  virtual void add_on_state_callback(std::function<void(bool)> &&callback);
-
   /// Subclasses can override this to prevent the switch from automatically restoring the state.
   virtual bool do_restore_state();
 
-  /** The current published state of the switch.
-   *
-   * Inversion is already applied on this value.
-   */
-  bool value{false};
-
  protected:
-  /// Turn this switch on. When creating a switch, you should implement this (inversion will already be applied).
-  virtual void turn_on() = 0;
-  /// Turn this switch off. When creating a switch, you should implement this (inversion will already be applied).
-  virtual void turn_off() = 0;
+  /** Write the given state to hardware. You should implement this
+   * abstract method if you want to create your own switch.
+   *
+   * In the implementation of this method, you should also call
+   * publish_state to acknowledge that the state was written to the hardware.
+   *
+   * @param state The state to write. Inversion is already applied if user specified it.
+   */
+  virtual void write_state(bool state) = 0;
+
+  /** Override this to set the Home Assistant icon for this switch.
+   *
+   * Return "" to disable this feature.
+   *
+   * @return The icon of this switch, for example "mdi:fan".
+   */
+  virtual std::string icon();
 
   optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
 
   CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
-  bool first_value_{true};
 };
 
 template<typename T>
@@ -150,7 +169,7 @@ TurnOnAction<T>::TurnOnAction(Switch *a_switch) : switch_(a_switch) {}
 
 template<typename T>
 void TurnOnAction<T>::play(T x) {
-  this->switch_->write_state(true);
+  this->switch_->turn_on();
   this->play_next(x);
 }
 
@@ -159,7 +178,7 @@ TurnOffAction<T>::TurnOffAction(Switch *a_switch) : switch_(a_switch) {}
 
 template<typename T>
 void TurnOffAction<T>::play(T x) {
-  this->switch_->write_state(false);
+  this->switch_->turn_off();
   this->play_next(x);
 }
 
@@ -168,7 +187,7 @@ ToggleAction<T>::ToggleAction(Switch *a_switch) : switch_(a_switch) {}
 
 template<typename T>
 void ToggleAction<T>::play(T x) {
-  this->switch_->write_state(!this->switch_->value);
+  this->switch_->toggle();
   this->play_next(x);
 }
 

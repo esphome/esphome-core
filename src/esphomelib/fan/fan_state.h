@@ -15,8 +15,7 @@ namespace fan {
 
 /// Simple enum to represent the speed of a fan.
 enum FanSpeed {
-  FAN_SPEED_OFF = 0, ///< The fan is OFF (this option combined with state ON should make the fan be off.)
-  FAN_SPEED_LOW, ///< The fan is running on low speed.
+  FAN_SPEED_LOW = 0, ///< The fan is running on low speed.
   FAN_SPEED_MEDIUM, ///< The fan is running on medium speed.
   FAN_SPEED_HIGH  ///< The fan is running on high/full speed.
 };
@@ -41,21 +40,8 @@ class FanState : public Nameable {
   explicit FanState(const std::string &name);
 
   /// Register a callback that will be called each time the state changes.
-  void add_on_state_change_callback(std::function<void()> &&update_callback);
+  void add_on_state_callback(std::function<void()> &&callback);
 
-  /// Get the current ON/OFF state of this fan.
-  bool get_state() const;
-  /// Set the current ON/OFF state of this fan.
-  void set_state(bool state);
-  /// Get the current oscillating state of this fan.
-  bool is_oscillating() const;
-  /// Set the current oscillating state of this fan.
-  void set_oscillating(bool oscillating);
-  /// Get the current speed of this fan.
-  FanSpeed get_speed() const;
-  /// Set the current speed of this fan.
-  void set_speed(FanSpeed speed);
-  bool set_speed(const char *speed);
   /// Get the traits of this fan (i.e. what features it supports).
   const FanTraits &get_traits() const;
   /// Set the traits of this fan (i.e. what features it supports).
@@ -73,10 +59,37 @@ class FanState : public Nameable {
   template<typename T>
   ToggleAction<T> *make_toggle_action();
 
+  /// The current ON/OFF state of the fan.
+  bool state{false};
+  /// The current oscillation state of the fan.
+  bool oscillating{false};
+  /// The current fan speed.
+  FanSpeed speed{FAN_SPEED_HIGH};
+
+  class StateCall {
+   public:
+    explicit StateCall(FanState *state);
+
+    FanState::StateCall &set_state(bool state);
+    FanState::StateCall &set_oscillating(bool oscillating);
+    FanState::StateCall &set_speed(FanSpeed speed);
+    FanState::StateCall &set_speed(const char *speed);
+
+    void perform();
+
+   protected:
+    FanState *const state_;
+    optional<bool> binary_state_;
+    optional<bool> oscillating_{};
+    optional<FanSpeed> speed_{};
+  };
+
+  FanState::StateCall turn_on();
+  FanState::StateCall turn_off();
+  FanState::StateCall toggle();
+  FanState::StateCall make_call();
+
  protected:
-  bool state_{false};
-  bool oscillating_{false};
-  FanSpeed speed_{FAN_SPEED_HIGH};
   FanTraits traits_{};
   CallbackManager<void()> state_callback_{};
 };
@@ -125,7 +138,7 @@ ToggleAction<T>::ToggleAction(FanState *state) : state_(state) {
 }
 template<typename T>
 void ToggleAction<T>::play(T x) {
-  this->state_->set_state(!this->state_->get_state());
+  this->state_->toggle().perform();
   this->play_next(x);
 }
 
@@ -151,13 +164,14 @@ void TurnOnAction<T>::set_speed(FanSpeed speed) {
 }
 template<typename T>
 void TurnOnAction<T>::play(T x) {
-  this->state_->set_state(true);
+  auto call = this->state_->turn_on();
   if (this->oscillating_.has_value()) {
-    this->state_->set_oscillating(this->oscillating_.value(x));
+    call.set_oscillating(this->oscillating_.value(x));
   }
   if (this->speed_.has_value()) {
-    this->state_->set_speed(this->speed_.value(x));
+    call.set_speed(this->speed_.value(x));
   }
+  call.perform();
   this->play_next(x);
 }
 
@@ -167,7 +181,7 @@ TurnOffAction<T>::TurnOffAction(FanState *state) : state_(state) {
 }
 template<typename T>
 void TurnOffAction<T>::play(T x) {
-  this->state_->set_state(false);
+  this->state_->turn_off().perform();
   this->play_next(x);
 }
 

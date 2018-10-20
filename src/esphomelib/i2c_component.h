@@ -1,11 +1,11 @@
 #ifndef ESPHOMELIB_I2C_COMPONENT_H
 #define ESPHOMELIB_I2C_COMPONENT_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_I2C
 
+#include "esphomelib/component.h"
 #include <Wire.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN

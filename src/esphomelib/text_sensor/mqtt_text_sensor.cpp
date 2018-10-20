@@ -31,16 +31,15 @@ void MQTTTextSensor::setup() {
     ESP_LOGCONFIG(TAG, "    Unique ID: '%s'", this->sensor_->unique_id().c_str());
   }
 
-  this->sensor_->add_on_value_callback([this](std::string value) {
-    this->publish_state(value);
-  });
+  auto f = std::bind(&MQTTTextSensor::publish_state, this, std::placeholders::_1);
+  this->sensor_->add_on_state_callback(f);
 }
 void MQTTTextSensor::publish_state(const std::string &value) {
   this->send_message(this->get_state_topic(), value);
 }
 void MQTTTextSensor::send_initial_state() {
-  if (this->sensor_->has_value())
-    this->publish_state(this->sensor_->value);
+  if (this->sensor_->has_state())
+    this->publish_state(this->sensor_->state);
 }
 bool MQTTTextSensor::is_internal() {
   return this->sensor_->is_internal();

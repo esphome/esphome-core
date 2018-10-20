@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_SENSOR_ADC_SENSOR_COMPONENT_H
 #define ESPHOMELIB_SENSOR_ADC_SENSOR_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ADC_SENSOR
+
+#include "esphomelib/component.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

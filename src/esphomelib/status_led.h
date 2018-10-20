@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_STATUS_LED_H
 #define ESPHOMELIB_STATUS_LED_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_STATUS_LED
+
+#include "esphomelib/component.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

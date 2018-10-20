@@ -14,13 +14,12 @@ static const char *TAG = "fan.basic_fan";
 void BasicFanComponent::set_binary(output::BinaryOutput *output) {
   this->binary_output_ = output;
 }
-void BasicFanComponent::set_speed(output::FloatOutput *output, float off_speed, float low_speed, float medium_speed, float high_speed) {
+void BasicFanComponent::set_speed(output::FloatOutput *output, float low_speed, float medium_speed, float high_speed) {
   FanTraits traits = this->state_->get_traits();
   traits.set_speed(true);
   this->state_->set_traits(traits);
 
   this->speed_output_ = output;
-  this->off_speed_ = off_speed;
   this->low_speed_ = low_speed;
   this->medium_speed_ = medium_speed;
   this->high_speed_ = high_speed;
@@ -40,38 +39,43 @@ void BasicFanComponent::set_state(FanState *state) {
 }
 void BasicFanComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Basic Fan '%s'...", this->state_->get_name().c_str());
-  this->state_->add_on_state_change_callback([this]() { this->next_update_ = true; });
+  this->state_->add_on_state_callback([this]() { this->next_update_ = true; });
 }
 void BasicFanComponent::loop() {
-  if (this->next_update_) {
-    this->next_update_ = false;
+  if (!this->next_update_) {
+    return;
+  }
+  this->next_update_ = false;
 
-    if (this->state_->get_traits().supports_speed()) {
-      float speed = this->off_speed_;
-      if (this->state_->get_state()) {
-        if (this->state_->get_speed() == FAN_SPEED_LOW)
-          speed = this->low_speed_;
-        else if (this->state_->get_speed() == FAN_SPEED_MEDIUM)
-          speed = this->medium_speed_;
-        else if (this->state_->get_speed() == FAN_SPEED_HIGH)
-          speed = this->high_speed_;
-      }
-      ESP_LOGD(TAG, "Setting speed: %.2f", speed);
-      this->speed_output_->set_state_(speed);
+  if (this->state_->get_traits().supports_speed()) {
+    float speed = this->high_speed_;
+    if (this->state_->state) {
+      if (this->state_->speed == FAN_SPEED_LOW)
+        speed = this->low_speed_;
+      else if (this->state_->speed == FAN_SPEED_MEDIUM)
+        speed = this->medium_speed_;
+      else if (this->state_->speed == FAN_SPEED_HIGH)
+        speed = this->high_speed_;
     }
-    if (this->binary_output_ != nullptr) {
-      bool enable = this->state_->get_state();
-      if (enable) this->binary_output_->enable();
-      else this->binary_output_->disable();
-      ESP_LOGD(TAG, "Setting binary state: %d", int(enable));
-    }
+    ESP_LOGD(TAG, "Setting speed: %.2f", speed);
+    this->speed_output_->set_level(speed);
+  }
+  if (this->binary_output_ != nullptr) {
+    bool enable = this->state_->state;
+    if (enable)
+      this->binary_output_->turn_off();
+    else this->binary_output_->turn_on();
+    ESP_LOGD(TAG, "Setting binary state: %d", int(enable));
+  }
 
-    if (this->state_->get_traits().supports_oscillation()) {
-      bool enable = this->state_->is_oscillating();
-      if (enable) this->binary_output_->enable();
-      else this->binary_output_->disable();
-      ESP_LOGD(TAG, "Setting oscillation: %d", int(enable));
+  if (this->state_->get_traits().supports_oscillation()) {
+    bool enable = this->state_->oscillating;
+    if (enable) {
+      this->binary_output_->turn_on();
+    } else {
+      this->binary_output_->turn_off();
     }
+    ESP_LOGD(TAG, "Setting oscillation: %d", int(enable));
   }
 }
 float BasicFanComponent::get_setup_priority() const {

@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_SENSOR_TEMPLATE_SENSOR_H
 #define ESPHOMELIB_SENSOR_TEMPLATE_SENSOR_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/helpers.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -64,7 +64,6 @@ class MQTTComponent : public Component {
   void set_custom_state_topic(const std::string &custom_state_topic);
   /// Set a custom command topic. Set to "" for default behavior.
   void set_custom_command_topic(const std::string &custom_command_topic);
-  void set_custom_topic(const std::string &key, const std::string &custom_topic);
 
   /// MQTT_COMPONENT setup priority.
   float get_setup_priority() const override;
@@ -105,10 +104,6 @@ class MQTTComponent : public Component {
 
   /// Get the MQTT topic for listening to commands.
   const std::string get_command_topic() const;
-
-  /// Get the MQTT topic for a specific suffix/key, if a custom topic has been defined, that one will be used.
-  /// Otherwise, one will be generated with get_default_topic_for().
-  const std::string get_topic_for(const std::string &key) const;
 
   /// Internal method to start sending discovery info, this will call send_discovery().
   void send_discovery_();
@@ -159,7 +154,8 @@ class MQTTComponent : public Component {
   std::string get_default_object_id() const;
 
  protected:
-  std::map<std::string, std::string> custom_topics_{};
+  std::string custom_state_topic_{};
+  std::string custom_command_topic_{};
   bool retain_{true};
   bool discovery_enabled_{true};
   Availability *availability_{nullptr};

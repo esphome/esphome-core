@@ -1,10 +1,11 @@
 #ifndef ESPHOMELIB_SENSOR_HX711_H
 #define ESPHOMELIB_SENSOR_HX711_H
 
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_HX711
+
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

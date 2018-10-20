@@ -11,7 +11,6 @@
 #include <freertos/task.h>
 #include <esp_gap_ble_api.h>
 #include "esphomelib/log.h"
-#include "esp32_ble_beacon.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

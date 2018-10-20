@@ -1,12 +1,13 @@
 #ifndef ESPHOMELIB_SENSOR_HTU21D_COMPONENT_H
 #define ESPHOMELIB_SENSOR_HTU21D_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_HTU21D_SENSOR
+
+#include "esphomelib/component.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

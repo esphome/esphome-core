@@ -13,7 +13,7 @@ std::string StatusBinarySensor::device_class() {
 }
 StatusBinarySensor::StatusBinarySensor(const std::string &name)
     : BinarySensor(name) {
-  this->value = true;
+  this->publish_state(true);
 }
 
 } // namespace binary_sensor

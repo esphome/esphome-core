@@ -33,11 +33,6 @@ class TurnOnAction;
  */
 class BinaryOutput {
  public:
-  // ===== OVERRIDE THIS =====
-  /// Write a binary state to hardware, inversion is already applied.
-  virtual void write_enabled(bool enabled) = 0;
-  // ===== OVERRIDE THIS =====
-
   /// Set the inversion state of this binary output.
   void set_inverted(bool inverted);
 
@@ -50,10 +45,10 @@ class BinaryOutput {
   void set_power_supply(PowerSupplyComponent *power_supply);
 
   /// Enable this binary output.
-  virtual void enable();
+  virtual void turn_on();
 
   /// Disable this binary output.
-  virtual void disable();
+  virtual void turn_off();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -65,11 +60,12 @@ class BinaryOutput {
 
   template<typename T>
   TurnOffAction<T> *make_turn_off_action();
-
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
 
  protected:
+  virtual void write_state(bool state) = 0;
+
   bool inverted_{false};
   PowerSupplyComponent *power_supply_{nullptr};
   bool has_requested_high_power_{false};
@@ -98,14 +94,14 @@ template<typename T>
 TurnOffAction<T>::TurnOffAction(BinaryOutput *output) : output_(output) {}
 template<typename T>
 void TurnOffAction<T>::play(T x) {
-  this->output_->disable();
+  this->output_->turn_off();
   this->play_next(x);
 }
 template<typename T>
 TurnOnAction<T>::TurnOnAction(BinaryOutput *output) : output_(output) {}
 template<typename T>
 void TurnOnAction<T>::play(T x) {
-  this->output_->enable();
+  this->output_->turn_on();
   this->play_next(x);
 }
 template<typename T>

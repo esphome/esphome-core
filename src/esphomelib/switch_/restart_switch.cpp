@@ -12,22 +12,24 @@ namespace switch_ {
 
 static const char *TAG = "switch.restart";
 
-void RestartSwitch::turn_on() {
-  ESP_LOGI(TAG, "Restarting device...");
-  // first acknowledge command
-  this->publish_state(false);
-  // then execute
-  delay(100); // Let MQTT settle a bit
-  safe_reboot("restart");
-}
 std::string RestartSwitch::icon() {
   return "mdi:restart";
 }
-void RestartSwitch::turn_off() {
-  // Do nothing
-  this->publish_state(false);
+RestartSwitch::RestartSwitch(const std::string &name)
+: Switch(name) {
+
 }
-RestartSwitch::RestartSwitch(const std::string &name) : Switch(name) {}
+void RestartSwitch::write_state(bool state) {
+  // Acknowledge
+  this->publish_state(false);
+
+  if (state) {
+    ESP_LOGI(TAG, "Restarting device...");
+    // then execute
+    delay(100); // Let MQTT settle a bit
+    safe_reboot("restart");
+  }
+}
 
 } // namespace switch_
 

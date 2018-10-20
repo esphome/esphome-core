@@ -1,11 +1,12 @@
 #ifndef ESPHOMELIB_SNTP_COMPONENT_H
 #define ESPHOMELIB_SNTP_COMPONENT_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
-#include "esphomelib/time/rtc_component.h"
 
 #ifdef USE_SNTP_COMPONENT
+
+#include "esphomelib/component.h"
+#include "esphomelib/time/rtc_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

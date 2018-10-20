@@ -146,7 +146,7 @@ void ESP32BLETracker::start_scan(bool first) {
     }
     for (auto *device : this->rssi_sensors_) {
       if (!this->has_already_discovered_(device->address_))
-        device->push_new_value(NAN);
+        device->publish_state(NAN);
     }
   }
   this->already_discovered_.clear();
@@ -215,7 +215,7 @@ void ESP32BLETracker::parse_rssi_sensors_(const ESPBTDevice &device) {
   const uint64_t address = device.address_uint64();
   for (auto *dev : this->rssi_sensors_) {
     if (dev->address_ == address)
-      dev->push_new_value(device.get_rssi());
+      dev->publish_state(device.get_rssi());
   }
 }
 
@@ -363,33 +363,33 @@ void ESP32BLETracker::parse_xiaomi_sensors_(const ESPBTDevice &device) {
       switch (data_type) {
         case XIAOMI_TEMPERATURE_HUMIDITY:
           if (dev->get_temperature_sensor() != nullptr)
-            dev->get_temperature_sensor()->push_new_value(data1);
+            dev->get_temperature_sensor()->publish_state(data1);
           if (dev->get_humidity_sensor() != nullptr)
-            dev->get_humidity_sensor()->push_new_value(data2);
+            dev->get_humidity_sensor()->publish_state(data2);
           break;
         case XIAOMI_HUMIDITY:
           if (dev->get_humidity_sensor() != nullptr)
-            dev->get_humidity_sensor()->push_new_value(data1);
+            dev->get_humidity_sensor()->publish_state(data1);
           break;
         case XIAOMI_BATTERY_LEVEL:
           if (dev->get_battery_level_sensor() != nullptr)
-            dev->get_battery_level_sensor()->push_new_value(data1);
+            dev->get_battery_level_sensor()->publish_state(data1);
           break;
         case XIAOMI_TEMPERATURE:
           if (dev->get_temperature_sensor() != nullptr)
-            dev->get_temperature_sensor()->push_new_value(data1);
+            dev->get_temperature_sensor()->publish_state(data1);
           break;
         case XIAOMI_MOISTURE:
           if (dev->get_moisture_sensor() != nullptr)
-            dev->get_moisture_sensor()->push_new_value(data1);
+            dev->get_moisture_sensor()->publish_state(data1);
           break;
         case XIAOMI_ILLUMINANCE:
           if (dev->get_illuminance_sensor() != nullptr)
-            dev->get_illuminance_sensor()->push_new_value(data1);
+            dev->get_illuminance_sensor()->publish_state(data1);
           break;
         case XIAOMI_CONDUCTIVITY:
           if (dev->get_conductivity_sensor() != nullptr)
-            dev->get_conductivity_sensor()->push_new_value(data1);
+            dev->get_conductivity_sensor()->publish_state(data1);
           break;
         default:
           break;
@@ -628,7 +628,7 @@ void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_pa
         }
         this->service_data_uuid_ = ESPBTUUID::from_uint16(*reinterpret_cast<const uint16_t *>(record));
         if (record_length > 2)
-          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 2), record_length - 2);
+          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 2), record_length - 2UL);
         break;
       }
       case ESP_BLE_AD_TYPE_32SERVICE_DATA: {
@@ -638,7 +638,7 @@ void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_pa
         }
         this->service_data_uuid_ = ESPBTUUID::from_uint32(*reinterpret_cast<const uint32_t *>(record));
         if (record_length > 4)
-          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 4), record_length - 4);
+          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 4), record_length - 4UL);
         break;
       }
       case ESP_BLE_AD_TYPE_128SERVICE_DATA: {
@@ -648,7 +648,7 @@ void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_pa
         }
         this->service_data_uuid_ = ESPBTUUID::from_raw(record);
         if (record_length > 16)
-          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 16), record_length - 16);
+          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 16), record_length - 16UL);
         break;
       }
       default: {
