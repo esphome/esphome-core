@@ -1216,6 +1216,12 @@ sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent) {
 }
 #endif
 
+#ifdef USE_PMSX003
+sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type) {
+  return this->register_component(new PMSX003Component(parent, type));
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END

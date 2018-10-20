@@ -192,6 +192,8 @@ const char UNIT_UT[] = "µT";
 const char UNIT_DEGREES[] = "°";
 const char UNIT_K[] = "K";
 const char UNIT_MICROSIEMENS_PER_CENTIMETER[] = "µS/cm";
+const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m^3";
+const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
 
 SensorValueTrigger::SensorValueTrigger(Sensor *parent) {
   parent->add_on_value_callback([this](float value) {
