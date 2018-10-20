@@ -169,7 +169,7 @@ void RemoteTransmitterComponent::send_(RemoteTransmitData *data, uint32_t send_t
     bool level = val >= 0;
     if (!level)
       val = -val;
-    val = this->from_microseconds(val);
+    val = this->from_microseconds(static_cast<uint32_t>(val));
 
     do {
       int32_t item = std::min(val, 32767);

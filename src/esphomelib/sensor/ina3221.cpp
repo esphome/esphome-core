@@ -53,7 +53,7 @@ void INA3221Component::setup() {
   config |= 0b0000000111000000;
   // 0b0000000000xxx000 << 3 Shunt Voltage Conversion time (same as above)
   config |= 0b0000000000111000;
-  // 0b0000000000000xxx << 0 Operating mode (111 -> Shunt and bus, contiuous)
+  // 0b0000000000000xxx << 0 Operating mode (111 -> Shunt and bus, continuous)
   config |= 0b0000000000000111;
   if (!this->write_byte_16(INA3221_REGISTER_CONFIG, config)) {
     this->mark_failed();

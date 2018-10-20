@@ -67,10 +67,10 @@ void RawDumper::dump(RemoteReceiveData *data) {
 bool RawReceiver::matches(RemoteReceiveData *data) {
   for (int32_t val : this->data_) {
     if (val < 0) {
-      if (!data->expect_space(-val))
+      if (!data->expect_space(static_cast<uint32_t>(-val)))
         return false;
     } else {
-      if (!data->expect_mark(val))
+      if (!data->expect_mark(static_cast<uint32_t>(val)))
         return false;
     }
   }

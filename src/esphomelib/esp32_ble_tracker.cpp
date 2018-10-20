@@ -628,7 +628,7 @@ void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_pa
         }
         this->service_data_uuid_ = ESPBTUUID::from_uint16(*reinterpret_cast<const uint16_t *>(record));
         if (record_length > 2)
-          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 2), record_length - 2);
+          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 2), record_length - 2UL);
         break;
       }
       case ESP_BLE_AD_TYPE_32SERVICE_DATA: {
@@ -638,7 +638,7 @@ void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_pa
         }
         this->service_data_uuid_ = ESPBTUUID::from_uint32(*reinterpret_cast<const uint32_t *>(record));
         if (record_length > 4)
-          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 4), record_length - 4);
+          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 4), record_length - 4UL);
         break;
       }
       case ESP_BLE_AD_TYPE_128SERVICE_DATA: {
@@ -648,7 +648,7 @@ void ESPBTDevice::parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_pa
         }
         this->service_data_uuid_ = ESPBTUUID::from_raw(record);
         if (record_length > 16)
-          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 16), record_length - 16);
+          this->service_data_ = std::string(reinterpret_cast<const char *>(record + 16), record_length - 16UL);
         break;
       }
       default: {

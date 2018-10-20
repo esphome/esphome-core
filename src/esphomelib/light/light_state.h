@@ -310,16 +310,11 @@ ToggleAction<T>::ToggleAction(LightState *state) : state_(state) {}
 
 template<typename T>
 void ToggleAction<T>::play(T x) {
-  auto v = this->state_->get_remote_values();
-  if (v.get_state() > 0.0f)
-    v.set_state(0.0f);
-  else
-    v.set_state(1.0f);
+  auto call = this->state_->toggle();
   if (this->transition_length_.has_value()) {
-    this->state_->start_transition(v, this->transition_length_.value(x));
-  } else {
-    this->state_->start_default_transition(v);
+    call.set_transition_length(this->transition_length_.value(x));
   }
+  call.perform();
   this->play_next(x);
 }
 template<typename T>
@@ -334,13 +329,11 @@ template<typename T>
 TurnOffAction<T>::TurnOffAction(LightState *state) : state_(state) {}
 template<typename T>
 void TurnOffAction<T>::play(T x) {
-  auto v = this->state_->get_remote_values();
-  v.set_state(0.0f);
+  auto call = this->state_->turn_off();
   if (this->transition_length_.has_value()) {
-    this->state_->start_transition(v, this->transition_length_.value(x));
-  } else {
-    this->state_->start_default_transition(v);
+    call.set_transition_length(this->transition_length_.value(x));
   }
+  call.perform();
   this->play_next(x);
 }
 template<typename T>
@@ -353,35 +346,35 @@ void TurnOffAction<T>::set_transition_length(uint32_t transition_length) {
 }
 template<typename T>
 void TurnOnAction<T>::play(T x) {
-  auto v = this->state_->get_remote_values();
-  v.set_state(1.0f);
+  auto call = this->state_->turn_on();
   if (this->brightness_.has_value()) {
-    v.set_brightness(this->brightness_.value(x));
+    call.set_brightness(this->brightness_.value(x));
   }
   if (this->red_.has_value()) {
-    v.set_red(this->red_.value(x));
+    call.set_red(this->red_.value(x));
   }
   if (this->green_.has_value()) {
-    v.set_green(this->green_.value(x));
+    call.set_green(this->green_.value(x));
   }
   if (this->blue_.has_value()) {
-    v.set_blue(this->blue_.value(x));
+    call.set_blue(this->blue_.value(x));
   }
   if (this->white_.has_value()) {
-    v.set_white(this->white_.value(x));
+    call.set_white(this->white_.value(x));
   }
   if (this->color_temperature_.has_value()) {
-    v.set_color_temperature(this->color_temperature_.value(x));
+    call.set_color_temperature(this->color_temperature_.value(x));
   }
   if (this->effect_.has_value()) {
-    this->state_->start_effect(this->effect_.value(x));
-  } else if (this->flash_length_.has_value()) {
-    this->state_->start_flash(v, this->flash_length_.value(x));
-  } else if (this->transition_length_.has_value()) {
-    this->state_->start_transition(v, this->transition_length_.value(x));
-  } else {
-    this->state_->start_default_transition(v);
+    call.set_effect(this->effect_.value(x));
   }
+  if (this->flash_length_.has_value()) {
+    call.set_flash_length(this->flash_length_.value(x));
+  }
+  if (this->transition_length_.has_value()) {
+    call.set_transition_length(this->transition_length_.value(x));
+  }
+  call.perform();
   this->play_next(x);
 }
 template<typename T>

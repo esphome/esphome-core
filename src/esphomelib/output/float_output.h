@@ -86,7 +86,7 @@ void SetLevelAction<T>::set_level(float level) {
 }
 template<typename T>
 void SetLevelAction<T>::play(T x) {
-  this->output_->set_state_(this->level_.value(x));
+  this->output_->set_level(this->level_.value(x));
   this->play_next(x);
 }
 

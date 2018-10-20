@@ -356,10 +356,15 @@ LightState::StateCall &LightState::StateCall::parse_json(JsonObject &root) {
 void LightState::StateCall::perform() {
   // use remote values for fallback
   LightColorValues v = this->state_->get_remote_values();
-  const char *state_s = this->binary_state_ ? "ON" : "OFF";
   LightTraits traits = this->state_->get_traits();
-  ESP_LOGD(TAG, "'%s' Turning %s", this->state_->get_name().c_str(), state_s);
-  v.set_state(this->binary_state_);
+
+  if (this->binary_state_.has_value()) {
+    const char *state_s = *this->binary_state_ ? "ON" : "OFF";
+    ESP_LOGD(TAG, "'%s' Turning %s", this->state_->get_name().c_str(), state_s);
+    v.set_state(*this->binary_state_);
+  } else {
+    ESP_LOGD(TAG, "'%s' Seeting", this->state_->get_name().c_str());
+  }
   if (traits.has_brightness() && this->brightness_.has_value()) {
     v.set_brightness(*this->brightness_);
     ESP_LOGD(TAG, "  Brightness: %.0f%%", v.get_brightness() * 100.0f);

@@ -94,14 +94,14 @@ template<typename T>
 TurnOffAction<T>::TurnOffAction(BinaryOutput *output) : output_(output) {}
 template<typename T>
 void TurnOffAction<T>::play(T x) {
-  this->output_->disable();
+  this->output_->turn_off();
   this->play_next(x);
 }
 template<typename T>
 TurnOnAction<T>::TurnOnAction(BinaryOutput *output) : output_(output) {}
 template<typename T>
 void TurnOnAction<T>::play(T x) {
-  this->output_->enable();
+  this->output_->turn_on();
   this->play_next(x);
 }
 template<typename T>
