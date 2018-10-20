@@ -8,6 +8,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/remote/remote_protocol.h"
 #include "esphomelib/remote/rc_switch_protocol.h"
+#include "esphomelib/switch_/switch.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
