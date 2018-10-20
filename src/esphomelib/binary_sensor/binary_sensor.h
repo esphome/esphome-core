@@ -97,7 +97,7 @@ class ReleaseTrigger : public Trigger<NoArg> {
   explicit ReleaseTrigger(BinarySensor *parent);
 };
 
-class ClickTrigger : public Trigger<uint32_t> {
+class ClickTrigger : public Trigger<NoArg> {
  public:
   explicit ClickTrigger(BinarySensor *parent, uint32_t min_length, uint32_t max_length);
 
