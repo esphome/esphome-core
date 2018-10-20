@@ -57,5 +57,9 @@ void RangeCondition::set_max(float max) {
   this->max_ = max;
 }
 
+void Script::execute() {
+  this->trigger();
+}
+
 ESPHOMELIB_NAMESPACE_END
 

@@ -97,6 +97,17 @@ class LoopTrigger : public Trigger<NoArg>, public Component {
 };
 
 template<typename T>
+class ScriptExecuteAction;
+
+class Script : public Trigger<NoArg> {
+ public:
+  void execute();
+
+  template<typename T>
+  ScriptExecuteAction<T> *make_execute_action();
+};
+
+template<typename T>
 class ActionList;
 
 template<typename T>
@@ -147,6 +158,25 @@ class IfAction : public Action<T> {
   std::vector<Condition<T> *> conditions_;
   ActionList<T> then_;
   ActionList<T> else_;
+};
+
+template<typename T>
+class UpdateComponentAction : public Action<T> {
+ public:
+  UpdateComponentAction(PollingComponent *component);
+  void play(T x) override;
+ protected:
+  PollingComponent *component_;
+};
+
+template<typename T>
+class ScriptExecuteAction : public Action<T> {
+ public:
+  ScriptExecuteAction(Script *script);
+
+  void play(T x) override;
+ protected:
+  Script *script_;
 };
 
 template<typename T>
@@ -366,6 +396,35 @@ void IfAction<T>::add_else(const std::vector<Action<T> *> &actions) {
   this->else_.add_action(new LambdaAction<T>([this](T x) {
     this->play_next(x);
   }));
+}
+
+template<typename T>
+void UpdateComponentAction<T>::play(T x) {
+  this->component_->update();
+  this->play_next(x);
+}
+
+template<typename T>
+UpdateComponentAction<T>::UpdateComponentAction(PollingComponent *component)
+  : component_(component) {
+
+}
+
+template<typename T>
+ScriptExecuteAction<T>::ScriptExecuteAction(Script *script)
+  : script_(script) {
+
+}
+
+template<typename T>
+void ScriptExecuteAction<T>::play(T x) {
+  this->script_->trigger();
+  this->play_next(x);
+}
+
+template<typename T>
+ScriptExecuteAction<T> *Script::make_execute_action() {
+  return new ScriptExecuteAction<T>(this);
 }
 
 ESPHOMELIB_NAMESPACE_END
