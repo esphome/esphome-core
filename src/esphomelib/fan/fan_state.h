@@ -68,8 +68,9 @@ class FanState : public Nameable {
 
   class StateCall {
    public:
-    explicit StateCall(FanState *state, bool binary_state);
+    explicit StateCall(FanState *state);
 
+    FanState::StateCall &set_state(bool state);
     FanState::StateCall &set_oscillating(bool oscillating);
     FanState::StateCall &set_speed(FanSpeed speed);
     FanState::StateCall &set_speed(const char *speed);
@@ -78,7 +79,7 @@ class FanState : public Nameable {
 
    protected:
     FanState *const state_;
-    bool binary_state_;
+    optional<bool> binary_state_;
     optional<bool> oscillating_{};
     optional<FanSpeed> speed_{};
   };
@@ -86,6 +87,7 @@ class FanState : public Nameable {
   FanState::StateCall turn_on();
   FanState::StateCall turn_off();
   FanState::StateCall toggle();
+  FanState::StateCall make_call();
 
  protected:
   FanTraits traits_{};

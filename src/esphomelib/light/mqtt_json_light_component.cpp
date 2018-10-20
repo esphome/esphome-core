@@ -20,7 +20,7 @@ void MQTTJSONLightComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT light...");
 
   this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
-    this->state_->turn_on().parse_json(root).perform();
+    this->state_->make_call().parse_json(root).perform();
   });
 
   auto f = std::bind(&MQTTJSONLightComponent::publish_state, this);

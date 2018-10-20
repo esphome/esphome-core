@@ -56,14 +56,14 @@ void MQTTFanComponent::setup() {
       switch (val) {
         case PARSE_ON:
           ESP_LOGD(TAG, "'%s': Setting oscillating ON", this->friendly_name().c_str());
-          this->state_->turn_on().set_oscillating(true).perform();
+          this->state_->make_call().set_oscillating(true).perform();
           break;
         case PARSE_OFF:
           ESP_LOGD(TAG, "'%s': Setting oscillating OFF", this->friendly_name().c_str());
-          this->state_->turn_on().set_oscillating(false).perform();
+          this->state_->make_call().set_oscillating(false).perform();
           break;
         case PARSE_TOGGLE:
-          this->state_->turn_on().set_oscillating(!this->state_->oscillating).perform();
+          this->state_->make_call().set_oscillating(!this->state_->oscillating).perform();
           break;
         case PARSE_NONE:
           ESP_LOGW(TAG, "Unknown Oscillation Payload %s", payload.c_str());
@@ -75,7 +75,7 @@ void MQTTFanComponent::setup() {
 
   if (this->state_->get_traits().supports_speed()) {
     this->subscribe(this->get_speed_command_topic(), [this](const std::string &payload) {
-      this->state_->turn_on().set_speed(payload.c_str()).perform();
+      this->state_->make_call().set_speed(payload.c_str()).perform();
     });
   }
 

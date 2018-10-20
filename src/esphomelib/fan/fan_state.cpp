@@ -34,17 +34,20 @@ void FanState::save_to_preferences() {
   global_preferences.put_int32(this->get_name(), "speed", this->speed);
 }
 FanState::StateCall FanState::turn_on() {
-  return FanState::StateCall(this, true);
+  return this->make_call().set_state(true);
 }
 FanState::StateCall FanState::turn_off() {
-  return FanState::StateCall(this, false);
+  return this->make_call().set_state(false);
 }
 FanState::StateCall FanState::toggle() {
-  return FanState::StateCall(this, !this->state);
+  return this->make_call().set_state(!this->state);
+}
+FanState::StateCall FanState::make_call() {
+  return FanState::StateCall(this);
 }
 
-FanState::StateCall::StateCall(FanState *state, bool binary_state)
-    : state_(state), binary_state_(binary_state) {
+FanState::StateCall::StateCall(FanState *state)
+    : state_(state) {
 
 }
 FanState::StateCall &FanState::StateCall::set_oscillating(bool oscillating) {
@@ -56,13 +59,15 @@ FanState::StateCall &FanState::StateCall::set_speed(FanSpeed speed) {
   return *this;
 }
 void FanState::StateCall::perform() {
+  if (this->binary_state_.has_value()) {
+    this->state_->state = *this->binary_state_;
+  }
   if (this->oscillating_.has_value()) {
     this->state_->oscillating = *this->oscillating_;
   }
   if (this->speed_.has_value()) {
     this->state_->speed = *this->speed_;
   }
-  this->state_->state = binary_state_;
   this->state_->state_callback_.call();
 }
 FanState::StateCall &FanState::StateCall::set_speed(const char *speed) {

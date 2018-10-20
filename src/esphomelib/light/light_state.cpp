@@ -407,8 +407,8 @@ void LightState::StateCall::perform() {
     this->state_->start_effect(*this->effect_);
   }
 }
-LightState::StateCall::StateCall(LightState *state, bool binary_state)
-    : state_(state), binary_state_(binary_state) {
+LightState::StateCall::StateCall(LightState *state)
+    : state_(state) {
 
 }
 } // namespace light
