@@ -7,7 +7,6 @@
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/application.h"
-#include "mqtt_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -71,7 +70,8 @@ void MQTTComponent::send_discovery_() {
 
     this->send_discovery(root, config);
 
-    root["name"] = this->friendly_name();
+    std::string name = this->friendly_name();
+    root["name"] = name;
     if (strcmp(config.platform, "mqtt") != 0)
       root["platform"] = config.platform;
     if (config.state_topic)
@@ -92,6 +92,29 @@ void MQTTComponent::send_discovery_() {
       if (this->availability_->payload_not_available != "offline")
         root["payload_not_available"] = this->availability_->payload_not_available;
     }
+
+    const std::string &node_name = App.get_name();
+    std::string unique_id = this->unique_id();
+    if (!unique_id.empty()) {
+      root["unique_id"] = unique_id;
+    } else {
+      // default to almost-unique ID. It's a hack but the only way to get that
+      // gorgeous device registry view.
+      root["unique_id"] = "ESP" + this->component_type() + this->get_default_object_id();
+    }
+
+    JsonObject &device_info = root.createNestedObject("device");
+    device_info["identifiers"] = get_mac_address();
+    device_info["name"] = node_name;
+    if (App.get_compilation_time().empty()) {
+      device_info["sw_version"] = "esphomelib v" ESPHOMELIB_VERSION;
+    } else {
+      device_info["sw_version"] = "esphomelib v" ESPHOMELIB_VERSION " " + App.get_compilation_time();
+    }
+#ifdef ARDUINO_BOARD
+    device_info["model"] = ARDUINO_BOARD;
+#endif
+    device_info["manufacturer"] = "espressif";
   }, 0, discovery_info.retain);
 }
 
@@ -184,6 +207,9 @@ void MQTTComponent::loop_() {
 }
 void MQTTComponent::schedule_resend_state() {
   this->resend_state_ = true;
+}
+std::string MQTTComponent::unique_id() {
+  return "";
 }
 
 } // namespace mqtt

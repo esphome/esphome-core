@@ -72,9 +72,6 @@ void MQTTSensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
   if (!this->sensor_->get_icon().empty())
     root["icon"] = this->sensor_->get_icon();
 
-  if (!this->sensor_->unique_id().empty())
-    root["unique_id"] = this->sensor_->unique_id();
-
   config.command_topic = false;
 }
 void MQTTSensorComponent::send_initial_state() {
@@ -89,6 +86,9 @@ void MQTTSensorComponent::publish_state(float value) {
   ESP_LOGD(TAG, "'%s': Pushing out value %f with %d decimals of accuracy",
            this->sensor_->get_name().c_str(), value, accuracy);
   this->send_message(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
+}
+std::string MQTTSensorComponent::unique_id() {
+  return this->sensor_->unique_id();
 }
 
 } // namespace sensor

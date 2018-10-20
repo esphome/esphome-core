@@ -93,6 +93,13 @@ class MQTTComponent : public Component {
   /// Get the friendly name of this MQTT component.
   virtual std::string friendly_name() const = 0;
 
+  /** A unique ID for this MQTT component, empty for no unique id. See unique ID requirements:
+   * https://developers.home-assistant.io/docs/en/entity_registry_index.html#unique-id-requirements
+   *
+   * @return The unique id as a string.
+   */
+  virtual std::string unique_id();
+
   /// Get the MQTT topic that new states will be shared to.
   const std::string get_state_topic() const;
 
