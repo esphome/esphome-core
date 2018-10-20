@@ -50,7 +50,7 @@ FanState::StateCall::StateCall(FanState *state)
     : state_(state) {
 
 }
-FanState::StateCall &set_state(bool state) {
+FanState::StateCall &FanState::StateCall::set_state(bool state) {
   this->binary_state_ = state;
   return *this;
 }
