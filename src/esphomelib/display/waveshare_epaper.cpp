@@ -119,7 +119,7 @@ void WaveshareEPaper::fill(int color) {
   for (uint32_t i = 0; i < this->get_buffer_length(); i++)
     this->buffer_[i] = fill;
 }
-void WaveshareEPaper::draw_absolute_pixel_internal_(int x, int y, int color) {
+void HOT WaveshareEPaper::draw_absolute_pixel_internal_(int x, int y, int color) {
   if (x >= this->get_width_internal_() || y >= this->get_height_internal_() || x < 0 || y < 0)
     return;
 
@@ -169,7 +169,7 @@ void WaveshareEPaperTypeA::setup() {
   this->command(WAVESHARE_EPAPER_COMMAND_DATA_ENTRY_MODE_SETTING);
   this->data(0x03); // from top left to bottom right
 }
-void WaveshareEPaperTypeA::display() {
+void HOT WaveshareEPaperTypeA::display() {
   if (!this->wait_until_idle_()) {
     this->status_set_warning();
     return;
@@ -411,7 +411,7 @@ void WaveshareEPaper2P7In::setup() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_LUT_BLACK_TO_BLACK);
   for (uint8_t i : LUT_BLACK_TO_BLACK_2_7) this->data(i);
 }
-void WaveshareEPaper2P7In::display() {
+void HOT WaveshareEPaper2P7In::display() {
   // TODO check active frame buffer to only transmit once / use partial transmits
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
   delay(2);
@@ -518,7 +518,7 @@ void WaveshareEPaper4P2In::setup() {
   for (uint8_t i : LUT_BLACK_TO_BLACK_4_2) this->data(i);
 
 }
-void WaveshareEPaper4P2In::display() {
+void HOT WaveshareEPaper4P2In::display() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_RESOLUTION_SETTING);
   this->data(0x01);
   this->data(0x90);
@@ -597,7 +597,7 @@ void WaveshareEPaper7P5In::setup() {
   this->command(0xE5);
   this->data(0x03);
 }
-void WaveshareEPaper7P5In::display() {
+void HOT WaveshareEPaper7P5In::display() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
   for (size_t i = 0; i < this->get_buffer_length(); i++) {
     uint8_t temp1 = this->buffer_[i];

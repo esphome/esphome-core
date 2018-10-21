@@ -55,7 +55,7 @@ int DisplayBuffer::get_height() {
 void DisplayBuffer::set_rotation(DisplayRotation rotation) {
   this->rotation_ = rotation;
 }
-void DisplayBuffer::draw_pixel_at(int x, int y, int color) {
+void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_0_DEGREES:break;
     case DISPLAY_ROTATION_90_DEGREES:
@@ -73,14 +73,14 @@ void DisplayBuffer::draw_pixel_at(int x, int y, int color) {
   }
   this->draw_absolute_pixel_internal_(x, y, color);
 }
-void DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {
+void HOT DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {
   const int32_t dx = x2 >= x1 ? x2 - x1 : x1 - x2;
   const int32_t sx = x1 < x2 ? 1 : -1;
-  const int32_t dy = y2 <= y1 ? y2 - y1 : y1 - y2;
+  const int32_t dy = y2 >= y1 ? y2 - y1 : y1 - y2;
   const int32_t sy = y1 < y2 ? 1 : -1;
   int32_t err = dx + dy;
 
-  while ((x1 != x2) && (y1 != y2)) {
+  while ((x1 != x2) || (y1 != y2)) {
     this->draw_pixel_at(x1, y1, color);
     if (2 * err >= dy) {
       err += dy;
@@ -92,12 +92,12 @@ void DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {
     }
   }
 }
-void DisplayBuffer::horizontal_line(int x, int y, int width, int color) {
+void HOT DisplayBuffer::horizontal_line(int x, int y, int width, int color) {
   // Future: Could be made more efficient by manipulating buffer directly in certain rotations.
   for (int i = x; i < x + width; i++)
     this->draw_pixel_at(i, y, color);
 }
-void DisplayBuffer::vertical_line(int x, int y, int height, int color) {
+void HOT DisplayBuffer::vertical_line(int x, int y, int height, int color) {
   // Future: Could be made more efficient by manipulating buffer directly in certain rotations.
   for (int i = y; i < y + height; i++)
     this->draw_pixel_at(x, i, color);
@@ -114,7 +114,7 @@ void DisplayBuffer::filled_rectangle(int x1, int y1, int width, int height, int 
     this->horizontal_line(x1, i, width, color);
   }
 }
-void DisplayBuffer::circle(int center_x, int center_xy, int radius, int color) {
+void HOT DisplayBuffer::circle(int center_x, int center_xy, int radius, int color) {
   int dx = -radius;
   int dy = 0;
   int err = 2 - 2 * radius;

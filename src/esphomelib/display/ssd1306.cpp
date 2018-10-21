@@ -193,7 +193,7 @@ size_t SSD1306::get_buffer_length_() {
 }
 SSD1306::SSD1306(uint32_t update_interval) : PollingComponent(update_interval) {}
 
-void SSD1306::draw_absolute_pixel_internal_(int x, int y, int color) {
+void HOT SSD1306::draw_absolute_pixel_internal_(int x, int y, int color) {
   if (x > this->get_width_internal_() || x < 0 || y > this->get_height_internal_() || y < 0)
     return;
 
@@ -244,7 +244,7 @@ void SPISSD1306::command(uint8_t value) {
   this->write_byte(value);
   this->disable();
 }
-void SPISSD1306::write_display_data() {
+void HOT SPISSD1306::write_display_data() {
   if (this->is_sh1106_()) {
     for (uint8_t y = 0; y < this->get_height_internal_() / 8; y++) {
       this->command(0xB0 + y);
@@ -291,7 +291,7 @@ void I2CSSD1306::setup() {
 void I2CSSD1306::command(uint8_t value) {
   this->write_byte(0x00, value);
 }
-void I2CSSD1306::write_display_data() {
+void HOT I2CSSD1306::write_display_data() {
   if (this->is_sh1106_()) {
     for (uint8_t page = 0; page < this->get_height_internal_() / 8; page++) {
       this->command(0xB0 + page); // row
