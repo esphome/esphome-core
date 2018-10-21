@@ -194,7 +194,7 @@ size_t SSD1306::get_buffer_length_() {
 SSD1306::SSD1306(uint32_t update_interval) : PollingComponent(update_interval) {}
 
 void HOT SSD1306::draw_absolute_pixel_internal_(int x, int y, int color) {
-  if (x > this->get_width_internal_() || x < 0 || y > this->get_height_internal_() || y < 0)
+  if (x >= this->get_width_internal_() || x < 0 || y >= this->get_height_internal_() || y < 0)
     return;
 
   uint16_t pos = x + (y / 8) * this->get_width_internal_();

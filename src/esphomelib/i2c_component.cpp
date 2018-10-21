@@ -103,7 +103,7 @@ bool I2CComponent::request_from_(uint8_t address, uint8_t len) {
   }
   return true;
 }
-void I2CComponent::write_(uint8_t address, const uint8_t *data, uint8_t len) {
+void HOT I2CComponent::write_(uint8_t address, const uint8_t *data, uint8_t len) {
   for (size_t i = 0; i < len; i++) {
     ESP_LOGVV(TAG, "    Writing 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
               BYTE_TO_BINARY(data[i]), data[i]);
@@ -111,12 +111,13 @@ void I2CComponent::write_(uint8_t address, const uint8_t *data, uint8_t len) {
     feed_wdt();
   }
 }
-void I2CComponent::write_16_(uint8_t address, const uint16_t *data, uint8_t len) {
+void HOT I2CComponent::write_16_(uint8_t address, const uint16_t *data, uint8_t len) {
   for (size_t i = 0; i < len; i++) {
     ESP_LOGVV(TAG, "    Writing 0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN " (0x%04X)",
               BYTE_TO_BINARY(data[i] >> 8), BYTE_TO_BINARY(data[i]), data[i]);
     this->wire_->write(data[i] >> 8);
     this->wire_->write(data[i]);
+    feed_wdt();
   }
 }
 
@@ -127,6 +128,7 @@ bool I2CComponent::receive_(uint8_t address, uint8_t *data, uint8_t len) {
     data[i] = this->wire_->read();
     ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
               BYTE_TO_BINARY(data[i]), data[i]);
+    feed_wdt();
   }
   return true;
 }

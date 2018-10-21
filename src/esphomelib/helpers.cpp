@@ -321,7 +321,7 @@ void ICACHE_RAM_ATTR HOT feed_wdt() {
 #ifdef ARDUINO_ARCH_ESP8266
   static uint32_t last_feed = 0;
   uint32_t now = millis();
-  if (now - last_feed > 5)
+  if (now - last_feed > 3)
     ESP.wdtFeed();
   last_feed = now;
 #endif
