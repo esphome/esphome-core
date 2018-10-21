@@ -255,6 +255,7 @@ void HOT SPISSD1306::write_display_data() {
         this->enable();
         this->write_byte(this->buffer_[x + y * this->get_width_internal_()]);
         this->disable();
+        feed_wdt();
       }
     }
   } else {

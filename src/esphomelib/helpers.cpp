@@ -317,6 +317,15 @@ void tick_status_led() {
   }
 #endif
 }
+void ICACHE_RAM_ATTR HOT feed_wdt() {
+#ifdef ARDUINO_ARCH_ESP8266
+  static uint32_t last_feed = 0;
+  uint32_t now = millis();
+  if (now - last_feed > 5)
+    ESP.wdtFeed();
+  last_feed = now;
+#endif
+}
 
 template<uint32_t>
 uint32_t reverse_bits(uint32_t x) {

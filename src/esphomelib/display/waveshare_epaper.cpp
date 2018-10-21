@@ -206,8 +206,10 @@ void HOT WaveshareEPaperTypeA::display() {
   }
 
   this->command(WAVESHARE_EPAPER_COMMAND_WRITE_RAM);
-  for (size_t i = 0; i < this->get_buffer_length(); i++)
+  for (size_t i = 0; i < this->get_buffer_length(); i++) {
     this->data(this->buffer_[i]);
+    feed_wdt();
+  }
 
   this->command(WAVESHARE_EPAPER_COMMAND_DISPLAY_UPDATE_CONTROL_2);
   this->data(0xC4);
@@ -420,8 +422,10 @@ void HOT WaveshareEPaper2P7In::display() {
   delay(2);
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_2);
   delay(2);
-  for (size_t i = 0; i < this->get_buffer_length(); i++)
+  for (size_t i = 0; i < this->get_buffer_length(); i++) {
     this->data(this->buffer_[i]);
+    feed_wdt();
+  }
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
 int WaveshareEPaper2P7In::get_width_internal_() {
@@ -535,13 +539,17 @@ void HOT WaveshareEPaper4P2In::display() {
   // TODO check active frame buffer to only transmit once / use partial transmits
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
   delay(2);
-  for (size_t i = 0; i < this->get_buffer_length(); i++)
+  for (size_t i = 0; i < this->get_buffer_length(); i++) {
     this->data(this->buffer_[i]);
+    feed_wdt();
+  }
   delay(2);
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_2);
   delay(2);
-  for (size_t i = 0; i < this->get_buffer_length(); i++)
+  for (size_t i = 0; i < this->get_buffer_length(); i++) {
     this->data(this->buffer_[i]);
+    feed_wdt();
+  }
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
 int WaveshareEPaper4P2In::get_width_internal_() {
@@ -618,6 +626,8 @@ void HOT WaveshareEPaper7P5In::display() {
       temp1 <<= 1;
       this->data(temp2);
     }
+
+    feed_wdt();
   }
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }

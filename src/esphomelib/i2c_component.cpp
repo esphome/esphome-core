@@ -108,6 +108,7 @@ void I2CComponent::write_(uint8_t address, const uint8_t *data, uint8_t len) {
     ESP_LOGVV(TAG, "    Writing 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
               BYTE_TO_BINARY(data[i]), data[i]);
     this->wire_->write(data[i]);
+    feed_wdt();
   }
 }
 void I2CComponent::write_16_(uint8_t address, const uint16_t *data, uint8_t len) {

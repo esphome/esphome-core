@@ -36,6 +36,8 @@ std::string get_mac_address();
 
 void tick_status_led();
 
+void feed_wdt();
+
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
 

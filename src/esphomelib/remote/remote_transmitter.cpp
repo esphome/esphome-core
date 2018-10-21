@@ -235,7 +235,6 @@ void RemoteTransmitterComponent::send_(RemoteTransmitData *data, uint32_t send_t
 
     ESP.wdtFeed();
     disable_interrupts();
-    uint32_t start = micros();
     for (int32_t item : *data) {
       if (item > 0) {
         const auto length = uint32_t(item);
@@ -244,10 +243,7 @@ void RemoteTransmitterComponent::send_(RemoteTransmitData *data, uint32_t send_t
         const auto length = uint32_t(-item);
         this->space_(length);
       }
-      if (micros() - start > 5000) {
-        start = micros();
-        ESP.wdtFeed();
-      }
+      feed_wdt();
     }
     enable_interrupts();
 

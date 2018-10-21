@@ -69,8 +69,10 @@ void ICACHE_RAM_ATTR HOT SPIComponent::read_array(uint8_t *data, size_t length) 
 }
 
 void ICACHE_RAM_ATTR HOT SPIComponent::write_array(uint8_t *data, size_t length) {
-  for (size_t i = 0; i < length; i++)
+  for (size_t i = 0; i < length; i++) {
+    feed_wdt();
     this->write_byte(data[i]);
+  }
 }
 
 void ICACHE_RAM_ATTR HOT SPIComponent::enable(GPIOPin *cs, bool msb_first, bool high_speed) {
