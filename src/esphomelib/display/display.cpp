@@ -4,6 +4,7 @@
 
 #include "esphomelib/display/display.h"
 #include "esphomelib/log.h"
+#include "esphomelib/espmath.h"
 
 #include <pgmspace.h>
 
@@ -74,19 +75,20 @@ void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
   this->draw_absolute_pixel_internal_(x, y, color);
 }
 void HOT DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {
-  const int32_t dx = x2 >= x1 ? x2 - x1 : x1 - x2;
-  const int32_t sx = x1 < x2 ? 1 : -1;
-  const int32_t dy = y2 >= y1 ? y2 - y1 : y1 - y2;
-  const int32_t sy = y1 < y2 ? 1 : -1;
-  int32_t err = dx + dy;
+  const int32_t dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+  const int32_t dy = abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+  int32_t err = (dx > dy ? dx : -dy) / 2;
 
-  while ((x1 != x2) || (y1 != y2)) {
+  while (true) {
     this->draw_pixel_at(x1, y1, color);
-    if (2 * err >= dy) {
-      err += dy;
+    if (x1 == x2 && y1 == y2)
+      break;
+    int32_t e2 = err;
+    if (e2 > -dx) {
+      err -= dy;
       x1 += sx;
     }
-    if (2 * err <= dx) {
+    if (e2 < dy) {
       err += dx;
       y1 += sy;
     }
