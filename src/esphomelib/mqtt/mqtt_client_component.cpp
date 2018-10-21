@@ -299,10 +299,11 @@ const Availability &MQTTClientComponent::get_availability() {
 void MQTTClientComponent::recalculate_availability() {
   if (this->birth_message_.topic.empty() || this->birth_message_.topic != this->last_will_.topic) {
     this->availability_.topic = "";
+    return;
   }
-  this->availability_.topic = this->get_topic_prefix() + "/status";
-  this->availability_.payload_available = "online";
-  this->availability_.payload_not_available = "offline";
+  this->availability_.topic = this->birth_message_.topic;
+  this->availability_.payload_available = this->birth_message_.payload;
+  this->availability_.payload_not_available = this->last_will_.payload;
 }
 void MQTTClientComponent::publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain) {
   std::string message = build_json(f);
