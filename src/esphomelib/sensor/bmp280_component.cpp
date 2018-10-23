@@ -1,10 +1,3 @@
-//
-//  bmp280_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 29.07.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //  - https://cdn-shop.adafruit.com/datasheets/BST-BMP280_DS001-10.pdf
 //  - https://github.com/adafruit/Adafruit_BMP280_Library
@@ -144,8 +137,8 @@ void BMP280Component::update() {
 
     ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa",
              temperature, pressure);
-    this->temperature_sensor_->push_new_value(temperature);
-    this->pressure_sensor_->push_new_value(pressure);
+    this->temperature_sensor_->publish_state(temperature);
+    this->pressure_sensor_->publish_state(pressure);
     this->status_clear_warning();
   });
 }

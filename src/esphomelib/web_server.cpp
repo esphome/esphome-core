@@ -1,11 +1,3 @@
-//
-//  web_server.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 14.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_WEB_SERVER
@@ -94,17 +86,17 @@ void WebServer::setup() {
 
 #ifdef USE_SENSOR
     for (auto *obj : this->sensors_)
-      client->send(this->sensor_json(obj, obj->value).c_str(), "state");
+      client->send(this->sensor_json(obj, obj->state).c_str(), "state");
 #endif
 
 #ifdef USE_SWITCH
     for (auto *obj : this->switches_)
-      client->send(this->switch_json(obj, obj->value).c_str(), "state");
+      client->send(this->switch_json(obj, obj->state).c_str(), "state");
 #endif
 
 #ifdef USE_BINARY_SENSOR
     for (auto *obj : this->binary_sensors_)
-      client->send(this->binary_sensor_json(obj, obj->value).c_str(), "state");
+      client->send(this->binary_sensor_json(obj, obj->state).c_str(), "state");
 #endif
 
 #ifdef USE_FAN
@@ -115,6 +107,11 @@ void WebServer::setup() {
 #ifdef USE_LIGHT
     for (auto *obj : this->lights_)
       client->send(this->light_json(obj).c_str(), "state");
+#endif
+
+#ifdef USE_TEXT_SENSOR
+    for (auto *obj : this->text_sensors_)
+      client->send(this->text_sensor_json(obj, obj->state).c_str(), "state");
 #endif
   });
 
@@ -175,6 +172,11 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
     write_row(stream, obj, "light", "<button>Toggle</button>");
 #endif
 
+#ifdef USE_TEXT_SENSOR
+  for (auto *obj : this->text_sensors_)
+    write_row(stream, obj, "text_sensor", "");
+#endif
+
   stream->print(
       F("</tbody></table><p>See <a href=\"https://esphomelib.com/web-api/index.html\">esphomelib Web API</a> for REST API documentation.</p>"
         "<h2>Debug Log</h2><pre id=\"log\"></pre>"
@@ -193,7 +195,7 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
 #ifdef USE_SENSOR
 void WebServer::register_sensor(sensor::Sensor *obj) {
   StoringController::register_sensor(obj);
-  obj->add_on_value_callback([this, obj](float value) {
+  obj->add_on_state_callback([this, obj](float value) {
     this->defer([this, obj, value] {
       this->events_.send(this->sensor_json(obj, value).c_str(), "state");
     });
@@ -202,7 +204,7 @@ void WebServer::register_sensor(sensor::Sensor *obj) {
 void WebServer::handle_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
   for (sensor::Sensor *obj : this->sensors_) {
     if (obj->get_name_id() == match.id) {
-      std::string data = this->sensor_json(obj, obj->value);
+      std::string data = this->sensor_json(obj, obj->state);
       request->send(200, "text/json", data.c_str());
       return;
     }
@@ -210,12 +212,39 @@ void WebServer::handle_sensor_request(AsyncWebServerRequest *request, UrlMatch m
   request->send(404);
 }
 std::string WebServer::sensor_json(sensor::Sensor *obj, float value) {
-  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj, value](JsonObject &root) {
     root["id"] = "sensor-" + obj->get_name_id();
     std::string state = value_accuracy_to_string(value, obj->get_accuracy_decimals());
     if (!obj->get_unit_of_measurement().empty())
       state += " " + obj->get_unit_of_measurement();
     root["state"] = state;
+    root["value"] = value;
+  });
+}
+#endif
+
+#ifdef USE_TEXT_SENSOR
+void WebServer::register_text_sensor(text_sensor::TextSensor *obj) {
+  StoringController::register_text_sensor(obj);
+  obj->add_on_state_callback([this, obj](std::string value) {
+    this->defer([this, obj, value] {
+      this->events_.send(this->text_sensor_json(obj, value).c_str(), "state");
+    });
+  });
+}
+void WebServer::handle_text_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
+  for (text_sensor::TextSensor *obj : this->text_sensors_) {
+    if (obj->get_name_id() == match.id) {
+      std::string data = this->text_sensor_json(obj, obj->state);
+      request->send(200, "text/json", data.c_str());
+      return;
+    }
+  }
+  request->send(404);
+}
+std::string WebServer::text_sensor_json(text_sensor::TextSensor *obj, const std::string &value) {
+  return build_json([obj, value](JsonObject &root) {
+    root["id"] = "text_sensor-" + obj->get_name_id();
     root["value"] = value;
   });
 }
@@ -231,7 +260,7 @@ void WebServer::register_switch(switch_::Switch *obj) {
   });
 }
 std::string WebServer::switch_json(switch_::Switch *obj, bool value) {
-  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj, value](JsonObject &root) {
     root["id"] = "switch-" + obj->get_name_id();
     root["state"] = value ? "ON" : "OFF";
     root["value"] = value;
@@ -243,16 +272,16 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
       continue;
 
     if (request->method() == HTTP_GET) {
-      std::string data = this->switch_json(obj, obj->value);
+      std::string data = this->switch_json(obj, obj->state);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      obj->write_state(!obj->value);
+      obj->toggle();
       request->send(200);
     } else if (match.method == "turn_on") {
-      obj->write_state(true);
+      obj->turn_on();
       request->send(200);
     } else if (match.method == "turn_off") {
-      obj->write_state(false);
+      obj->turn_off();
       request->send(200);
     } else {
       request->send(404);
@@ -273,7 +302,7 @@ void WebServer::register_binary_sensor(binary_sensor::BinarySensor *obj) {
   });
 }
 std::string WebServer::binary_sensor_json(binary_sensor::BinarySensor *obj, bool value) {
-  return build_json([obj, value](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj, value](JsonObject &root) {
     root["id"] = "binary_sensor-" + obj->get_name_id();
     root["state"] = value ? "ON" : "OFF";
     root["value"] = value;
@@ -282,7 +311,7 @@ std::string WebServer::binary_sensor_json(binary_sensor::BinarySensor *obj, bool
 void WebServer::handle_binary_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
   for (binary_sensor::BinarySensor *obj : this->binary_sensors_) {
     if (obj->get_name_id() == match.id) {
-      std::string data = this->binary_sensor_json(obj, obj->value);
+      std::string data = this->binary_sensor_json(obj, obj->state);
       request->send(200, "text/json", data.c_str());
       return;
     }
@@ -294,21 +323,19 @@ void WebServer::handle_binary_sensor_request(AsyncWebServerRequest *request, Url
 #ifdef USE_FAN
 void WebServer::register_fan(fan::FanState *obj) {
   StoringController::register_fan(obj);
-  obj->add_on_state_change_callback([this, obj]() {
+  obj->add_on_state_callback([this, obj]() {
     this->defer([this, obj] {
       this->events_.send(this->fan_json(obj).c_str(), "state");
     });
   });
 }
 std::string WebServer::fan_json(fan::FanState *obj) {
-  return build_json([obj](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj](JsonObject &root) {
     root["id"] = "fan-" + obj->get_name_id();
-    root["state"] = obj->get_state() ? "ON" : "OFF";
-    root["value"] = obj->get_state();
+    root["state"] = obj->state ? "ON" : "OFF";
+    root["value"] = obj->state;
     if (obj->get_traits().supports_speed()) {
-      switch (obj->get_speed()) {
-        case fan::FAN_SPEED_OFF: root["speed"] = "off";
-          break;
+      switch (obj->speed) {
         case fan::FAN_SPEED_LOW: root["speed"] = "low";
           break;
         case fan::FAN_SPEED_MEDIUM: root["speed"] = "medium";
@@ -318,7 +345,7 @@ std::string WebServer::fan_json(fan::FanState *obj) {
       }
     }
     if (obj->get_traits().supports_oscillation())
-      root["oscillation"] = obj->is_oscillating();
+      root["oscillation"] = obj->oscillating;
   });
 }
 void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch match) {
@@ -330,29 +357,35 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
       std::string data = this->fan_json(obj);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      obj->set_state(!obj->get_state());
+      obj->toggle().perform();
       request->send(200);
     } else if (match.method == "turn_on") {
-      obj->set_state(true);
+      auto call = obj->turn_on();
       if (request->hasParam("speed")) {
         String speed = request->getParam("speed")->value();
-        if (!obj->set_speed(speed.c_str())) {
-          request->send(404);
-          return;
-        }
+        call.set_speed(speed.c_str());
       }
       if (request->hasParam("oscillation")) {
         String speed = request->getParam("oscillation")->value();
         auto val = parse_on_off(speed.c_str());
-        if (!val.has_value()) {
-          request->send(404);
-          return;
+        switch (val) {
+          case PARSE_ON:
+            call.set_oscillating(true);
+            break;
+          case PARSE_OFF:
+            call.set_oscillating(false);
+            break;
+          case PARSE_TOGGLE:
+            call.set_oscillating(!obj->oscillating);
+            break;
+          case PARSE_NONE:
+            request->send(404);
+            return;
         }
-        obj->set_oscillating(*val);
       }
       request->send(200);
     } else if (match.method == "turn_off") {
-      obj->set_state(false);
+      obj->turn_off().perform();
       request->send(200);
     } else {
       request->send(404);
@@ -381,55 +414,47 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
       std::string data = this->light_json(obj);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      auto v = obj->get_remote_values();
-      if (v.get_state() > 0.0f)
-        v.set_state(0.0f);
-      else
-        v.set_state(1.0f);
-      obj->start_default_transition(v);
+      obj->toggle().perform();
       request->send(200);
     } else if (match.method == "turn_on") {
-      auto v = obj->get_remote_values();
-      v.set_state(1.0f);
+      auto call = obj->turn_on();
       if (obj->get_traits().has_brightness() && request->hasParam("brightness"))
-        v.set_brightness(request->getParam("brightness")->value().toFloat() / 255.0f);
+        call.set_brightness(request->getParam("brightness")->value().toFloat() / 255.0f);
       if (obj->get_traits().has_rgb()) {
         if (request->hasParam("r"))
-          v.set_red(request->getParam("r")->value().toFloat() / 255.0f);
+          call.set_red(request->getParam("r")->value().toFloat() / 255.0f);
         if (request->hasParam("g"))
-          v.set_green(request->getParam("g")->value().toFloat() / 255.0f);
+          call.set_green(request->getParam("g")->value().toFloat() / 255.0f);
         if (request->hasParam("b"))
-          v.set_blue(request->getParam("b")->value().toFloat() / 255.0f);
+          call.set_blue(request->getParam("b")->value().toFloat() / 255.0f);
       }
       if (obj->get_traits().has_rgb_white_value() && request->hasParam("white_value"))
-        v.set_white(request->getParam("white_value")->value().toFloat() / 255.0f);
+        call.set_white(request->getParam("white_value")->value().toFloat() / 255.0f);
       if (obj->get_traits().has_color_temperature() && request->hasParam("color_temp"))
-        v.set_color_temperature(request->getParam("color_temp")->value().toFloat());
+        call.set_color_temperature(request->getParam("color_temp")->value().toFloat());
 
-      v.normalize_color(obj->get_traits());
 
-      if (request->hasParam("flash")) {
-        uint32_t length = request->getParam("flash")->value().toFloat() * 1000;
-        obj->start_flash(v, length);
-      } else if (request->hasParam("transition")) {
-        uint32_t length = request->getParam("transition")->value().toFloat() * 1000;
-        obj->start_transition(v, length);
-      } else if (request->hasParam("effect")) {
+      if (request->hasParam("flash"))
+        call.set_flash_length(request->getParam("flash")->value().toFloat() * 1000);
+
+      if (request->hasParam("transition"))
+        call.set_transition_length(request->getParam("transition")->value().toFloat() * 1000);
+
+
+      if (request->hasParam("effect")) {
         const char *effect = request->getParam("effect")->value().c_str();
-        obj->start_effect(effect);
-      } else {
-        obj->start_default_transition(v);
+        call.set_effect(effect);
       }
+
+      call.perform();
       request->send(200);
     } else if (match.method == "turn_off") {
-      auto v = obj->get_remote_values();
-      v.set_state(0.0f);
+      auto call = obj->turn_off();
       if (request->hasParam("transition")) {
         uint32_t length = request->getParam("transition")->value().toFloat() * 1000;
-        obj->start_transition(v, length);
-      } else {
-        obj->start_default_transition(v);
+        call.set_transition_length(length);
       }
+      call.perform();
       request->send(200);
     } else {
       request->send(404);
@@ -439,10 +464,10 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
   request->send(404);
 }
 std::string WebServer::light_json(light::LightState *obj) {
-  return build_json([obj](JsonBuffer &buffer, JsonObject &root) {
+  return build_json([obj](JsonObject &root) {
     root["id"] = "light-" + obj->get_name_id();
     root["state"] = obj->get_remote_values().get_state() == 1.0 ? "ON" : "OFF";
-    obj->dump_json(buffer, root);
+    obj->dump_json(root);
   });
 }
 #endif
@@ -482,11 +507,14 @@ bool WebServer::canHandle(AsyncWebServerRequest *request) {
     return true;
 #endif
 
+#ifdef USE_TEXT_SENSOR
+  if (request->method() == HTTP_GET && match.domain == "text_sensor")
+    return true;
+#endif
+
   return false;
 }
 void WebServer::handleRequest(AsyncWebServerRequest *request) {
-  ESP_LOGD(TAG, "%s %s", request->methodToString(), request->url().c_str());
-
   if (request->url() == "/") {
     this->handle_index_request(request);
     return;
@@ -524,6 +552,13 @@ void WebServer::handleRequest(AsyncWebServerRequest *request) {
 #ifdef USE_LIGHT
   if (match.domain == "light") {
     this->handle_light_request(request, match);
+    return;
+  }
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  if (match.domain == "text_sensor") {
+    this->handle_text_sensor_request(request, match);
     return;
   }
 #endif

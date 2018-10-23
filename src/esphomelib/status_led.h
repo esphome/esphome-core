@@ -1,19 +1,12 @@
-//
-//  status_led.h
-//  esphomelib
-//
-//  Created by Otto Winter on 12.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_STATUS_LED_H
 #define ESPHOMELIB_STATUS_LED_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_STATUS_LED
+
+#include "esphomelib/component.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

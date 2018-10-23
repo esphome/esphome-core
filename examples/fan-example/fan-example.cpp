@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 24.01.18.
-//
-
 #include <esphomelib.h>
 
 using namespace esphomelib;
@@ -22,7 +18,7 @@ void setup() {
   // 0.33 -> low speed
   // 0.66 -> medium speed
   // 1.0 -> high speed
-  speed_fan.output->set_speed(App.make_ledc_output(33), 0.0, 0.33, 0.66, 1.0);
+  speed_fan.output->set_speed(App.make_ledc_output(33), 0.33, 0.66, 1.0);
 
   auto oscillating_fan = App.make_fan("Oscillating Fan");
   oscillating_fan.output->set_binary(App.make_gpio_output(34));

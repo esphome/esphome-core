@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 29.12.17.
-//
-
 #ifndef ESPHOMELIB_FAN_FAN_TRAITS_H
 #define ESPHOMELIB_FAN_FAN_TRAITS_H
 

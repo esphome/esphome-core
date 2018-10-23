@@ -1,11 +1,3 @@
-//
-//  panasonic.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 05.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_REMOTE
@@ -29,25 +21,7 @@ static const uint32_t BIT_ONE_LOW_US = 1244;
 
 #ifdef USE_REMOTE_TRANSMITTER
 void PanasonicTransmitter::to_data(RemoteTransmitData *data) {
-  data->reserve(100);
-  data->item(HEADER_HIGH_US, HEADER_LOW_US);
-  data->set_carrier_frequency(35000);
-
-  uint32_t mask;
-  for (mask = 1UL << 15; mask != 0; mask >>= 1) {
-    if (this->address_ & mask)
-      data->item(BIT_HIGH_US, BIT_ONE_LOW_US);
-    else
-      data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);
-  }
-
-  for (mask = 1UL << 31; mask != 0; mask >>= 1) {
-    if (this->command_ & mask)
-      data->item(BIT_HIGH_US, BIT_ONE_LOW_US);
-    else
-      data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);
-  }
-  data->mark(BIT_HIGH_US);
+  encode_panasonic(data, this->address_, this->command_);
 }
 
 PanasonicTransmitter::PanasonicTransmitter(const std::string &name,
@@ -56,47 +30,69 @@ PanasonicTransmitter::PanasonicTransmitter(const std::string &name,
     : RemoteTransmitter(name), address_(address), command_(command) {
 
 }
+
+void encode_panasonic(RemoteTransmitData *data, uint16_t address, uint32_t command) {
+  data->reserve(100);
+  data->item(HEADER_HIGH_US, HEADER_LOW_US);
+  data->set_carrier_frequency(35000);
+
+  uint32_t mask;
+  for (mask = 1UL << 15; mask != 0; mask >>= 1) {
+    if (address & mask)
+      data->item(BIT_HIGH_US, BIT_ONE_LOW_US);
+    else
+      data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);
+  }
+
+  for (mask = 1UL << 31; mask != 0; mask >>= 1) {
+    if (command & mask)
+      data->item(BIT_HIGH_US, BIT_ONE_LOW_US);
+    else
+      data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);
+  }
+  data->mark(BIT_HIGH_US);
+}
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_panasonic(RemoteReceiveData *data, uint16_t *address, uint32_t *command) {
+PanasonicDecodeData decode_panasonic(RemoteReceiveData *data) {
+  PanasonicDecodeData out{};
+  out.valid = false;
+  out.address = 0;
+  out.command = 0;
   if (!data->expect_item(HEADER_HIGH_US, HEADER_LOW_US))
-    return false;
+    return out;
 
-  *address = 0;
   uint32_t mask;
   for (mask = 1UL << 15; mask != 0; mask >>= 1) {
     if (data->expect_item(BIT_HIGH_US, BIT_ONE_LOW_US)) {
-      *address |= mask;
+      out.address |= mask;
     } else if (data->expect_item(BIT_HIGH_US, BIT_ZERO_LOW_US)) {
-      *address &= ~mask;
+      out.address &= ~mask;
     } else {
-      return false;
+      return out;
     }
 
   }
 
-  *command = 0;
   for (mask = 1UL << 31; mask != 0; mask >>= 1) {
     if (data->expect_item(BIT_HIGH_US, BIT_ONE_LOW_US)) {
-      *command |= mask;
+      out.command |= mask;
     } else if (data->expect_item(BIT_HIGH_US, BIT_ZERO_LOW_US)) {
-      *command &= ~mask;
+      out.command &= ~mask;
     } else {
-      return false;
+      return out;
     }
   }
 
-  return true;
+  out.valid = true;
+  return out;
 }
 
 bool PanasonicReceiver::matches(RemoteReceiveData *data) {
-  uint16_t address;
-  uint32_t command;
-  if (!decode_panasonic(data, &address, &command))
-    return false;
+  auto decode = decode_panasonic(data);
 
-  return this->address_ == address && this->command_ == command;
+  return decode.valid && this->address_ == decode.address && this->command_ == decode.command;
 }
 PanasonicReceiver::PanasonicReceiver(const std::string &name, uint16_t address, uint32_t command)
     : RemoteReceiver(name), address_(address), command_(command) {
@@ -104,12 +100,11 @@ PanasonicReceiver::PanasonicReceiver(const std::string &name, uint16_t address, 
 }
 
 void PanasonicDumper::dump(RemoteReceiveData *data) {
-  uint16_t address;
-  uint32_t command;
-  if (!decode_panasonic(data, &address, &command))
+  auto decode = decode_panasonic(data);
+  if (!decode.valid)
     return;
 
-  ESP_LOGD(TAG, "Received Panasonic: address=0x%04X, command=0x%08X", address, command);
+  ESP_LOGD(TAG, "Received Panasonic: address=0x%04X, command=0x%08X", decode.address, decode.command);
 }
 #endif
 

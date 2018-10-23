@@ -1,11 +1,3 @@
-//
-//  ads1115_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 25.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_ADS1115_SENSOR
@@ -141,7 +133,7 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
 
   float v = millivolts / 1000.0f;
   ESP_LOGD(TAG, "'%s': Got Voltage=%fV", sensor->get_name().c_str(), v);
-  sensor->push_new_value(v);
+  sensor->publish_state(v);
   this->status_clear_warning();
 }
 

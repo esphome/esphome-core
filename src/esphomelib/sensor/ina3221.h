@@ -1,19 +1,12 @@
-//
-//  ina3221.h
-//  esphomelib
-//
-//  Created by Otto Winter on 03.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_INA3221_H
 #define ESPHOMELIB_INA3221_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_INA3221
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

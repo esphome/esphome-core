@@ -1,17 +1,14 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #ifndef ESPHOMELIB_SENSOR_MQTT_SENSOR_COMPONENT_H
 #define ESPHOMELIB_SENSOR_MQTT_SENSOR_COMPONENT_H
+
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
 
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/sensor/filter.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -31,10 +28,10 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
   /// Setup an expiry, 0 disables it
   void set_expire_after(uint32_t expire_after);
-  /// Disable Home Assistant value exiry.
+  /// Disable Home Assistant value expiry.
   void disable_expire_after();
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -54,7 +51,8 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
   std::string friendly_name() const override;
 
- protected:
+  std::string unique_id() override;
+
   Sensor *sensor_;
   optional<uint32_t> expire_after_; // Override the expire after advertised to Home Assistant
 };

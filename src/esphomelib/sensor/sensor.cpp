@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_SENSOR
@@ -19,17 +15,20 @@ namespace sensor {
 static const char *TAG = "sensor.sensor";
 #endif
 
-void Sensor::push_new_value(float value) {
-  this->raw_value = value;
-  this->raw_callback_.call(value);
+void Sensor::publish_state(float state) {
+  this->raw_state = state;
+  this->raw_callback_.call(state);
 
-  ESP_LOGV(TAG, "'%s': Received new value %f", this->name_.c_str(), value);
+  ESP_LOGV(TAG, "'%s': Received new state %f", this->name_.c_str(), state);
 
   if (this->filter_list_ == nullptr) {
-    this->send_value_to_frontend(value);
+    this->send_state_to_frontend_internal_(state);
   } else {
-    this->filter_list_->input(value);
+    this->filter_list_->input(state);
   }
+}
+void Sensor::push_new_value(float state) {
+  this->publish_state(state);
 }
 std::string Sensor::unit_of_measurement() {
   return "";
@@ -44,9 +43,9 @@ int8_t Sensor::accuracy_decimals() {
   return 0;
 }
 Sensor::Sensor(const std::string &name)
-    : Nameable(name) {
+    : Nameable(name), state(NAN), raw_state(NAN) {
   // By default, apply a smoothing over the last 15 values
-  this->add_sliding_window_average_filter(15, 15);
+  this->add_filter(new SlidingWindowMovingAverageFilter(15, 15));
 }
 
 void Sensor::set_unit_of_measurement(const std::string &unit_of_measurement) {
@@ -58,10 +57,10 @@ void Sensor::set_icon(const std::string &icon) {
 void Sensor::set_accuracy_decimals(int8_t accuracy_decimals) {
   this->accuracy_decimals_ = accuracy_decimals;
 }
-void Sensor::add_on_value_callback(sensor_callback_t callback) {
+void Sensor::add_on_state_callback(std::function<void(float)> &&callback) {
   this->callback_.add(std::move(callback));
 }
-void Sensor::add_on_raw_value_callback(sensor_callback_t callback) {
+void Sensor::add_on_raw_state_callback(std::function<void(float)> &&callback) {
   this->raw_callback_.add(std::move(callback));
 }
 std::string Sensor::get_icon() {
@@ -94,7 +93,7 @@ void Sensor::add_filter(Filter *filter) {
     };
   }
   filter->initialize([this](float value) {
-    this->send_value_to_frontend(value);
+    this->send_state_to_frontend_internal_(value);
   });
 }
 void Sensor::add_filters(const std::list<Filter *> &filters) {
@@ -105,24 +104,6 @@ void Sensor::add_filters(const std::list<Filter *> &filters) {
 void Sensor::set_filters(const std::list<Filter *> &filters) {
   this->clear_filters();
   this->add_filters(filters);
-}
-void Sensor::add_lambda_filter(lambda_filter_t filter) {
-  this->add_filter(new LambdaFilter(std::move(filter)));
-}
-void Sensor::add_offset_filter(float offset) {
-  this->add_filter(new OffsetFilter(offset));
-}
-void Sensor::add_multiply_filter(float multiplier) {
-  this->add_filter(new MultiplyFilter(multiplier));
-}
-void Sensor::add_filter_out_value_filter(float values_to_filter_out) {
-  this->add_filter(new FilterOutValueFilter(values_to_filter_out));
-}
-void Sensor::add_sliding_window_average_filter(size_t window_size, size_t send_every) {
-  this->add_filter(new SlidingWindowMovingAverageFilter(window_size, send_every));
-}
-void Sensor::add_exponential_moving_average_filter(float alpha, size_t send_every) {
-  this->add_filter(new ExponentialMovingAverageFilter(alpha, send_every));
 }
 void Sensor::clear_filters() {
   Filter *filter = this->filter_list_;
@@ -135,25 +116,44 @@ void Sensor::clear_filters() {
   this->filter_list_ = nullptr;
 }
 float Sensor::get_value() const {
-  return this->value;
+  return this->state;
+}
+float Sensor::get_state() const {
+  return this->state;
 }
 float Sensor::get_raw_value() const {
-  return this->raw_value;
+  return this->raw_state;
+}
+float Sensor::get_raw_state() const {
+  return this->raw_state;
 }
 std::string Sensor::unique_id() { return ""; }
 
-void Sensor::send_value_to_frontend(float value) {
-  this->value = value;
-  this->callback_.call(value);
+void Sensor::send_state_to_frontend_internal_(float state) {
+  this->has_state_ = true;
+  this->state = state;
+  this->callback_.call(state);
 }
-SensorValueTrigger *Sensor::make_value_trigger() {
-  return new SensorValueTrigger(this);
+SensorStateTrigger *Sensor::make_state_trigger() {
+  return new SensorStateTrigger(this);
 }
-RawSensorValueTrigger *Sensor::make_raw_value_trigger() {
-  return new RawSensorValueTrigger(this);
+SensorRawStateTrigger *Sensor::make_raw_state_trigger() {
+  return new SensorRawStateTrigger(this);
 }
 ValueRangeTrigger *Sensor::make_value_range_trigger() {
   return new ValueRangeTrigger(this);
+}
+bool Sensor::has_state() const {
+  return this->has_state_;
+}
+uint32_t Sensor::calculate_expected_filter_update_interval() {
+  uint32_t interval = this->update_interval();
+  Filter *filter = this->filter_list_;
+  while (filter != nullptr) {
+    interval = filter->expected_interval(interval);
+    filter = filter->next_;
+  }
+  return interval;
 }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
@@ -192,21 +192,23 @@ const char UNIT_UT[] = "µT";
 const char UNIT_DEGREES[] = "°";
 const char UNIT_K[] = "K";
 const char UNIT_MICROSIEMENS_PER_CENTIMETER[] = "µS/cm";
+const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m^3";
+const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
 
-SensorValueTrigger::SensorValueTrigger(Sensor *parent) {
-  parent->add_on_value_callback([this](float value) {
+SensorStateTrigger::SensorStateTrigger(Sensor *parent) {
+  parent->add_on_state_callback([this](float value) {
     this->trigger(value);
   });
 }
 
-RawSensorValueTrigger::RawSensorValueTrigger(Sensor *parent) {
-  parent->add_on_raw_value_callback([this](float value) {
+SensorRawStateTrigger::SensorRawStateTrigger(Sensor *parent) {
+  parent->add_on_raw_state_callback([this](float value) {
     this->trigger(value);
   });
 }
 
 ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) {
-  parent->add_on_value_callback([this](float value) {
+  parent->add_on_state_callback([this](float value) {
     if (isnan(value))
       return;
 
@@ -214,7 +216,7 @@ ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) {
     float local_max = this->max_.value(value);
 
     bool in_range = (isnan(local_min) && value <= local_max) || (isnan(local_max) && value >= local_min)
-                    || (!isnan(local_min) && !isnan(local_max) && local_min <= value && value <= local_max);
+        || (!isnan(local_min) && !isnan(local_max) && local_min <= value && value <= local_max);
 
     if (in_range != this->previous_in_range_ && in_range) {
       this->trigger(value);

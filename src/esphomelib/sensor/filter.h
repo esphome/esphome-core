@@ -1,18 +1,15 @@
-//
-// Created by Otto Winter on 03.12.17.
-//
-
 #ifndef ESPHOMELIB_SENSOR_FILTER_H
 #define ESPHOMELIB_SENSOR_FILTER_H
+
+#include "esphomelib/defines.h"
+
+#ifdef USE_SENSOR
 
 #include <cstdint>
 #include <utility>
 #include <list>
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_SENSOR
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

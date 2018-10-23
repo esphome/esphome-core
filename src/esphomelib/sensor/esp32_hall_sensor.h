@@ -1,18 +1,11 @@
-//
-//  esp32_hall_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 02.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_ESP32_HALL_SENSOR_H
 #define ESPHOMELIB_SENSOR_ESP32_HALL_SENSOR_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/sensor/sensor.h"
 
 #ifdef USE_ESP32_HALL_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

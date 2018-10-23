@@ -1,11 +1,3 @@
-//
-//  uart_switch.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 25.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_UART_SWITCH
@@ -20,17 +12,20 @@ namespace switch_ {
 static const char *TAG = "switch.uart";
 
 UARTSwitch::UARTSwitch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data)
-    : Switch(name), UARTDevice(parent), data_(data) {}
+    : Switch(name), UARTDevice(parent), data_(data) {
 
-void UARTSwitch::turn_on() {
+}
+
+void UARTSwitch::write_state(bool state) {
+  if (!state) {
+    this->publish_state(false);
+    return;
+  }
+
   this->publish_state(true);
   ESP_LOGD(TAG, "'%s': Sending data...", this->get_name().c_str());
   this->write_array(this->data_.data(), this->data_.size());
   this->publish_state(false);
-}
-
-void UARTSwitch::turn_off() {
-  // Do nothing
 }
 
 } // namespace switch_

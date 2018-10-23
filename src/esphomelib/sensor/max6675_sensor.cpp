@@ -1,10 +1,3 @@
-//
-//  max6675_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 19.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Implementation based on https://github.com/adafruit/MAX6675-library/blob/master/max6675.cpp
 
 #include "esphomelib/defines.h"
@@ -64,7 +57,7 @@ void MAX6675Sensor::read_data_() {
 
   float temperature = float(val >> 3) / 4.0f;
   ESP_LOGD(TAG, "'%s': Got temperature=%.1f°C", this->name_.c_str(), temperature);
-  this->push_new_value(temperature);
+  this->publish_state(temperature);
   this->status_clear_warning();
 }
 

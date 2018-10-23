@@ -1,11 +1,3 @@
-//
-//  status_binary_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 29.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_STATUS_BINARY_SENSOR
@@ -21,7 +13,7 @@ std::string StatusBinarySensor::device_class() {
 }
 StatusBinarySensor::StatusBinarySensor(const std::string &name)
     : BinarySensor(name) {
-  this->value = true;
+  this->publish_state(true);
 }
 
 } // namespace binary_sensor

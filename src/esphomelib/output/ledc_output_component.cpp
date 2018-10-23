@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_LEDC_OUTPUT
@@ -34,12 +30,13 @@ void LEDCOutputComponent::setup() {
   ledcSetup(this->channel_, this->frequency_, this->bit_depth_);
   ledcAttachPin(this->pin_, this->channel_);
 
-  this->disable(); // initialize off
+  this->turn_off(); // initialize off
 }
 
 float LEDCOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
+
 LEDCOutputComponent::LEDCOutputComponent(uint8_t pin,
                                          float frequency,
                                          uint8_t bit_depth)

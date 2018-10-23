@@ -1,11 +1,3 @@
-//
-//  mqtt_cover.h
-//  esphomelib
-//
-//  Created by Otto Winter on 20.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H
 #define ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H
 
@@ -25,7 +17,7 @@ class MQTTCoverComponent : public mqtt::MQTTComponent {
   explicit MQTTCoverComponent(Cover *cover);
 
   void setup() override;
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   void send_initial_state() override;
   bool is_internal() override;

@@ -1,11 +1,3 @@
-//
-//  esp8266_pwm_output.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 25.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP8266_PWM_OUTPUT
@@ -23,7 +15,7 @@ ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin)
 void ESP8266PWMOutput::setup() {
   assert(this->pin_.get_pin() <= 16);
   this->pin_.setup();
-  this->set_state_(0.0f);
+  this->turn_off();
 }
 void ESP8266PWMOutput::write_state(float state) {
   const uint16_t max_duty = 1023;

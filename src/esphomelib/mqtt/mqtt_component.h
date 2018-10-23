@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_MQTT_MQTT_COMPONENT_H
 #define ESPHOMELIB_MQTT_MQTT_COMPONENT_H
 
@@ -47,7 +43,7 @@ class MQTTComponent : public Component {
   void loop_() override;
 
   /// Send discovery info the Home Assistant, override this.
-  virtual void send_discovery(JsonBuffer &buffer, JsonObject &root, SendDiscoveryConfig &config) = 0;
+  virtual void send_discovery(JsonObject &root, SendDiscoveryConfig &config) = 0;
 
   virtual void send_initial_state() = 0;
 
@@ -68,7 +64,6 @@ class MQTTComponent : public Component {
   void set_custom_state_topic(const std::string &custom_state_topic);
   /// Set a custom command topic. Set to "" for default behavior.
   void set_custom_command_topic(const std::string &custom_command_topic);
-  void set_custom_topic(const std::string &key, const std::string &custom_topic);
 
   /// MQTT_COMPONENT setup priority.
   float get_setup_priority() const override;
@@ -97,15 +92,18 @@ class MQTTComponent : public Component {
   /// Get the friendly name of this MQTT component.
   virtual std::string friendly_name() const = 0;
 
+  /** A unique ID for this MQTT component, empty for no unique id. See unique ID requirements:
+   * https://developers.home-assistant.io/docs/en/entity_registry_index.html#unique-id-requirements
+   *
+   * @return The unique id as a string.
+   */
+  virtual std::string unique_id();
+
   /// Get the MQTT topic that new states will be shared to.
   const std::string get_state_topic() const;
 
   /// Get the MQTT topic for listening to commands.
   const std::string get_command_topic() const;
-
-  /// Get the MQTT topic for a specific suffix/key, if a custom topic has been defined, that one will be used.
-  /// Otherwise, one will be generated with get_default_topic_for().
-  const std::string get_topic_for(const std::string &key) const;
 
   /// Internal method to start sending discovery info, this will call send_discovery().
   void send_discovery_();
@@ -156,7 +154,8 @@ class MQTTComponent : public Component {
   std::string get_default_object_id() const;
 
  protected:
-  std::map<std::string, std::string> custom_topics_{};
+  std::string custom_state_topic_{};
+  std::string custom_command_topic_{};
   bool retain_{true};
   bool discovery_enabled_{true};
   Availability *availability_{nullptr};

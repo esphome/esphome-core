@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #include "esphomelib/mqtt/mqtt_client_component.h"
 
 #include "esphomelib/log.h"
@@ -190,12 +186,11 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
 
 void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
   ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u with JSON...", topic.c_str(), qos);
+  auto f = std::bind(&parse_json, std::placeholders::_1, callback);
   MQTTSubscription subscription{
       .topic = topic,
       .qos = qos,
-      .callback = [this, callback](const std::string &payload) {
-        parse_json(payload, callback);
-      },
+      .callback = f,
   };
   this->subscriptions_.push_back(subscription);
 
@@ -317,12 +312,59 @@ void MQTTClientComponent::set_log_message_template(MQTTMessage &&message) {
   this->log_message_ = std::move(message);
 }
 
+// INFO: MQTT spec mandates that topics must not be empty and must be valid NULL-terminated UTF-8 strings.
+static bool topic_match_(const char *message, const char *subscription, bool is_normal, bool past_separator) {
+  // Reached end of both strings at the same time, this means we have a successful match
+  if (*message == '\0' && *subscription == '\0')
+    return true;
+
+  // Either the message or the subscribe are at the end. This means they don't match.
+  if (*message == '\0' || *subscription == '\0')
+    return false;
+
+  bool do_wildcards = is_normal || past_separator;
+
+  if (*subscription == '+' && do_wildcards) {
+    // single level wildcard
+    // consume + from subscription
+    subscription++;
+    // consume everything from message until '/' found or end of string
+    while (*message != '\0' && *message != '/') {
+      message++;
+    }
+    // after this, both pointers will point to a '/' or to the end of the string
+
+    return topic_match_(message, subscription, is_normal, true);
+  }
+
+  if (*subscription == '#' && do_wildcards) {
+    // multilevel wildcard - MQTT mandates that this must be at end of subscribe topic
+    return true;
+  }
+
+  // this handles '/' and normal characters at the same time.
+  if (*message != *subscription)
+    return false;
+
+  past_separator = past_separator || *subscription == '/';
+
+  // consume characters
+  subscription++;
+  message++;
+
+  return topic_match_(message, subscription, is_normal, past_separator);
+}
+
+static bool topic_match(const char *message, const char *subscription) {
+  return topic_match_(message, subscription, *message != '\0' && *message != '$', false);
+}
+
 void MQTTClientComponent::on_message(const std::string &topic, const std::string &payload) {
 #ifdef ARDUINO_ARCH_ESP8266
   this->defer([this, topic, payload]() {
 #endif
     for (auto &subscription : this->subscriptions_)
-      if (topic == subscription.topic)
+      if (topic_match(topic.c_str(), subscription.topic.c_str()))
         subscription.callback(payload);
 #ifdef ARDUINO_ARCH_ESP8266
   });
@@ -336,6 +378,9 @@ bool MQTTClientComponent::is_log_message_enabled() const {
 }
 MQTTMessageTrigger *MQTTClientComponent::make_message_trigger(const std::string &topic, uint8_t qos) {
   return new MQTTMessageTrigger(topic, qos);
+}
+MQTTJsonMessageTrigger *MQTTClientComponent::make_json_message_trigger(const std::string &topic, uint8_t qos) {
+  return new MQTTJsonMessageTrigger(topic, qos);
 }
 void MQTTClientComponent::set_reboot_timeout(uint32_t reboot_timeout) {
   this->reboot_timeout_ = reboot_timeout;
@@ -359,6 +404,12 @@ MQTTClientComponent *global_mqtt_client = nullptr;
 MQTTMessageTrigger::MQTTMessageTrigger(const std::string &topic, uint8_t qos) {
   global_mqtt_client->subscribe(topic, [this](const std::string &payload) {
     this->trigger(payload);
+  }, qos);
+}
+
+MQTTJsonMessageTrigger::MQTTJsonMessageTrigger(const std::string &topic, uint8_t qos) {
+  global_mqtt_client->subscribe_json(topic, [this](JsonObject &root) {
+    this->trigger(root);
   }, qos);
 }
 

@@ -1,11 +1,3 @@
-//
-//  fast_led_light_output.h
-//  esphomelib
-//
-//  Created by Otto Winter on 13.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H
 #define ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H
 
@@ -66,6 +58,8 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
   void unprevent_writing_leds();
 
   void set_power_supply(PowerSupplyComponent *power_supply);
+
+  void set_correction(float red, float green, float blue);
 
   /// Add some LEDS, can only be called once.
   CLEDController &add_leds(CLEDController *controller, int num_leds);
@@ -346,6 +340,7 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
  protected:
   CLEDController *controller_{nullptr};
   CRGB *leds_{nullptr};
+  CRGB correction_{UncorrectedColor};
   uint8_t *effect_data_{nullptr};
   int num_leds_{0};
   uint32_t last_refresh_{0};

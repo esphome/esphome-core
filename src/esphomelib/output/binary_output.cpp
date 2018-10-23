@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 02.12.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_OUTPUT
@@ -24,19 +20,19 @@ PowerSupplyComponent *BinaryOutput::get_power_supply() const {
 void BinaryOutput::set_power_supply(PowerSupplyComponent *power_supply) {
   this->power_supply_ = power_supply;
 }
-void BinaryOutput::enable() {
+void BinaryOutput::turn_on() {
   if (this->power_supply_ != nullptr && !this->has_requested_high_power_) {
     this->power_supply_->request_high_power();
     this->has_requested_high_power_ = true;
   }
-  this->write_enabled(!this->inverted_);
+  this->write_state(!this->inverted_);
 }
-void BinaryOutput::disable() {
+void BinaryOutput::turn_off() {
   if (this->power_supply_ != nullptr && this->has_requested_high_power_) {
     this->power_supply_->unrequest_high_power();
     this->has_requested_high_power_ = false;
   }
-  this->write_enabled(this->inverted_);
+  this->write_state(this->inverted_);
 }
 
 } // namespace output

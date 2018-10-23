@@ -1,11 +1,3 @@
-//
-//  sony.h
-//  esphomelib
-//
-//  Created by Otto Winter on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_REMOTE_SONY_H
 #define ESPHOMELIB_REMOTE_SONY_H
 
@@ -13,7 +5,8 @@
 
 #ifdef USE_REMOTE
 
-#include "esphomelib/remote/remote_protocol.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -30,10 +23,12 @@ class SonyTransmitter : public RemoteTransmitter {
   uint32_t data_;
   uint8_t nbits_;
 };
+
+void encode_sony(RemoteTransmitData *data, uint32_t data_, uint8_t nbits);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_sony(RemoteReceiveData *data, uint32_t *data_, uint8_t *nbits);
+SonyDecodeData decode_sony(RemoteReceiveData *data);
 
 class SonyReceiver : public RemoteReceiver {
  public:

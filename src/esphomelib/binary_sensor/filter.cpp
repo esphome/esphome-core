@@ -1,11 +1,3 @@
-//
-//  filter.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 11.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
@@ -33,7 +25,7 @@ optional<bool> DelayedOnFilter::new_value(bool value) {
 
 void Filter::output(bool value) {
   if (this->next_ == nullptr) {
-    this->parent_->send_value_(value);
+    this->parent_->send_state_internal_(value);
   } else {
     this->next_->input(value);
   }

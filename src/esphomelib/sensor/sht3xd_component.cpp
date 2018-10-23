@@ -1,10 +1,3 @@
-//
-//  sht3xd_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 11.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://cdn-shop.adafruit.com/product-files/2857/Sensirion_Humidity_SHT3x_Datasheet_digital-767294.pdf
 //   - https://github.com/Sensirion/arduino-sht
@@ -79,8 +72,8 @@ void SHT3XDComponent::update() {
     float humidity = 100.0f * float(raw_data[1]) / 65535.0f;
 
     ESP_LOGD(TAG, "Got temperature=%.2f°C humidity=%.2f%%", temperature, humidity);
-    this->temperature_sensor_->push_new_value(temperature);
-    this->humidity_sensor_->push_new_value(humidity);
+    this->temperature_sensor_->publish_state(temperature);
+    this->humidity_sensor_->publish_state(humidity);
     this->status_clear_warning();
   });
 }

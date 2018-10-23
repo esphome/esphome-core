@@ -1,18 +1,9 @@
-//
-//  lcd_display.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 14.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_LCD_DISPLAY
 
 #include "esphomelib/display/lcd_display.h"
 #include "esphomelib/log.h"
-#include "lcd_display.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

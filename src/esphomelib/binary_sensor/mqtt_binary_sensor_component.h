@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #ifndef ESPHOMELIB_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H
 #define ESPHOMELIB_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H
 
@@ -35,7 +31,7 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   void setup() override;
 
   /// Send Home Assistant discovery info
-  void send_discovery(JsonBuffer &buffer, JsonObject &obj, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &obj, mqtt::SendDiscoveryConfig &config) override;
 
   /// Get the payload this binary sensor uses for an ON value.
   const std::string &get_payload_on() const;

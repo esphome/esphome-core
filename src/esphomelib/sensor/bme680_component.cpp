@@ -1,10 +1,3 @@
-//
-//  bme680_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 10.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://cdn-shop.adafruit.com/product-files/3660/BME680.pdf
 //   - https://github.com/adafruit/Adafruit_BME680
@@ -311,10 +304,10 @@ void BME680Component::read_data_() {
 
   ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%% gas_resistance=%.1fΩ",
            temperature, pressure, humidity, gas_resistance);
-  this->temperature_sensor_->push_new_value(temperature);
-  this->pressure_sensor_->push_new_value(pressure);
-  this->humidity_sensor_->push_new_value(humidity);
-  this->gas_resistance_sensor_->push_new_value(gas_resistance);
+  this->temperature_sensor_->publish_state(temperature);
+  this->pressure_sensor_->publish_state(pressure);
+  this->humidity_sensor_->publish_state(humidity);
+  this->gas_resistance_sensor_->publish_state(gas_resistance);
   this->status_clear_warning();
 }
 

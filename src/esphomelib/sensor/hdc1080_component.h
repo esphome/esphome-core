@@ -1,20 +1,13 @@
-//
-//  hdc1080_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 01.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_HDC1080_COMPONENT_H
 #define ESPHOMELIB_SENSOR_HDC1080_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/sensor/sensor.h"
 #include "esphomelib/defines.h"
-#include "esphomelib/i2c_component.h"
 
 #ifdef USE_HDC1080_SENSOR
+
+#include "esphomelib/component.h"
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

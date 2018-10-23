@@ -1,19 +1,11 @@
-//
-//  esp32_ble_beacon.h
-//  esphomelib
-//
-//  Created by Otto Winter on 11.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_ESP_32_BLE_BEACON_H
 #define ESPHOMELIB_ESP_32_BLE_BEACON_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_BLE_BEACON
 
+#include "esphomelib/component.h"
 #include <esp_gap_ble_api.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN

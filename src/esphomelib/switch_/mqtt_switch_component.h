@@ -1,16 +1,13 @@
-//
-// Created by Otto Winter on 02.12.17.
-//
-
 #ifndef ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
 #define ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
+
+#include "esphomelib/defines.h"
+
+#ifdef USE_SWITCH
 
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/switch_/switch.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_SWITCH
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -28,7 +25,7 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
   // (In most use cases you won't need these)
   void setup() override;
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   void send_initial_state() override;
   bool is_internal() override;

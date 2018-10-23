@@ -1,10 +1,3 @@
-//
-//  bme280_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 10.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //  - https://cdn-shop.adafruit.com/datasheets/BST-BME280_DS001-10.pdf
 //  - https://github.com/adafruit/Adafruit_BME280_Library
@@ -193,9 +186,9 @@ void BME280Component::update() {
 
     ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%%",
              temperature, pressure, humidity);
-    this->temperature_sensor_->push_new_value(temperature);
-    this->pressure_sensor_->push_new_value(pressure);
-    this->humidity_sensor_->push_new_value(humidity);
+    this->temperature_sensor_->publish_state(temperature);
+    this->pressure_sensor_->publish_state(pressure);
+    this->humidity_sensor_->publish_state(humidity);
     this->status_clear_warning();
   });
 }

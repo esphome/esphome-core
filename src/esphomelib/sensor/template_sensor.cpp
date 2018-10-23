@@ -1,11 +1,3 @@
-//
-//  template_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 19.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_SENSOR
@@ -23,7 +15,7 @@ TemplateSensor::TemplateSensor(const std::string &name, uint32_t update_interval
 void TemplateSensor::update() {
   auto val = this->f_();
   if (val.has_value()) {
-    this->push_new_value(*val);
+    this->publish_state(*val);
   }
 }
 float TemplateSensor::get_setup_priority() const {

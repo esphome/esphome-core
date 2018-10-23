@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 28.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_LIGHT
@@ -16,7 +12,6 @@
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
 #include "esphomelib/esppreferences.h"
-#include "light_color_values.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -32,6 +27,9 @@ float LightColorValues::get_state() const {
 
 void LightColorValues::set_state(float state) {
   this->state_ = clamp(0.0f, 1.0f, state);
+}
+void LightColorValues::set_state(bool state) {
+  this->state_ = state ? 1.0f : 0.0f;
 }
 
 float LightColorValues::get_brightness() const {
@@ -138,42 +136,6 @@ void LightColorValues::save_to_preferences(const std::string &friendly_name, con
     global_preferences.put_float(friendly_name, "white", this->get_white());
   if (traits.has_color_temperature())
     global_preferences.put_float(friendly_name, "color_temp", this->get_color_temperature());
-}
-
-void LightColorValues::parse_json(const JsonObject &root, const LightTraits &traits) {
-  ESP_LOGV(TAG, "Parsing light color values JSON.");
-  if (root.containsKey("state")) {
-    auto val = parse_on_off(root["state"]);
-    if (val.has_value()) {
-      this->set_state(*val ? 1.0 : 0.0);
-      ESP_LOGV(TAG, "    state=%s", *val ? "ON" : "OFF");
-    }
-  }
-
-  if (traits.has_brightness() && root.containsKey("brightness")) {
-    this->set_brightness(float(root["brightness"]) / 255.0f);
-    ESP_LOGV(TAG, "    brightness=%.2f", this->get_brightness());
-  }
-
-  if (traits.has_rgb() && root.containsKey("color")) {
-    JsonObject &color = root["color"];
-    if (color.containsKey("r") && color.containsKey("g") && color.containsKey("b")) {
-      this->set_red(float(color["r"]) / 255.0f);
-      this->set_green(float(color["g"]) / 255.0f);
-      this->set_blue(float(color["b"]) / 255.0f);
-      ESP_LOGV(TAG, "    r=%.2f, g=%.2f, b=%.2f", this->get_red(), this->get_green(), this->get_blue());
-    }
-  }
-
-  if (traits.has_rgb_white_value() && root.containsKey("white_value")) {
-    this->set_white(float(root["white_value"]) / 255.0f);
-    ESP_LOGV(TAG, "    white_value=%.2f", this->get_white());
-  }
-
-  if (traits.has_color_temperature() && root.containsKey("color_temp")) {
-    this->set_color_temperature(root["color_temp"]);
-    ESP_LOGV(TAG, "    color temperature=%.1f mireds", this->get_color_temperature());
-  }
 }
 
 void LightColorValues::normalize_color(const LightTraits &traits) {

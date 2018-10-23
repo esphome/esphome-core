@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H
 #define ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H
 
@@ -19,7 +15,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace binary_sensor {
 
 /// typedef for binary_sensor callbacks. First parameter is new value.
-using binary_callback_t = std::function<void(bool)>;
 
 class PressTrigger;
 class ReleaseTrigger;
@@ -41,22 +36,23 @@ class BinarySensor : public Nameable {
    */
   explicit BinarySensor(const std::string &name);
 
-  /** Set callback for state changes.
+  /** Add a callback to be notified of state changes.
    *
    * @param callback The void(bool) callback.
    */
-  virtual void add_on_state_callback(binary_callback_t &&callback);
+  virtual void add_on_state_callback(std::function<void(bool)> &&callback);
 
-  /** Publish a new state.
-   *
-   * Inverted input is handled by this method and sub-classes don't need to worry about inverting themselves.
+  /** Publish a new state to the front-end.
    *
    * @param state The new state.
    */
   virtual void publish_state(bool state);
 
-  /// Get the current boolean value of this binary sensor.
-  bool get_value() const;
+  union {
+    /// The current reported state of the binary sensor.
+    bool state;
+    ESPDEPRECATED(".value is deprecated, please use .state instead") bool value;
+  };
 
   /// Manually set the Home Assistant device class (see esphomelib::binary_sensor::device_class)
   void set_device_class(const std::string &device_class);
@@ -65,22 +61,19 @@ class BinarySensor : public Nameable {
   std::string get_device_class();
 
   PressTrigger *make_press_trigger();
-
   ReleaseTrigger *make_release_trigger();
-
   ClickTrigger *make_click_trigger(uint32_t min_length, uint32_t max_length);
-
   DoubleClickTrigger *make_double_click_trigger(uint32_t min_length, uint32_t max_length);
 
   void add_filter(Filter *filter);
-
   void add_filters(std::vector<Filter *> filters);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  void send_value_(bool state);
+  void send_state_internal_(bool state);
 
-  bool value{false};
+  /// Return whether this binary sensor has outputted a state.
+  bool has_state() const;
 
  protected:
   // ========== OVERRIDE METHODS ==========
@@ -91,6 +84,7 @@ class BinarySensor : public Nameable {
   CallbackManager<void(bool)> state_callback_{};
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
+  bool has_state_{false};
 };
 
 class PressTrigger : public Trigger<NoArg> {

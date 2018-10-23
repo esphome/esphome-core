@@ -1,23 +1,14 @@
-//
-//  web_server.h
-//  esphomelib
-//
-//  Created by Otto Winter on 14.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_WEB_SERVER_H
 #define ESPHOMELIB_WEB_SERVER_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/controller.h"
-#include "esphomelib/switch_/switch.h"
 #include "esphomelib/defines.h"
-
-#include <vector>
 
 #ifdef USE_WEB_SERVER
 
+#include "esphomelib/component.h"
+#include "esphomelib/controller.h"
+
+#include <vector>
 #include <ESPAsyncWebServer.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -25,7 +16,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 /// Internal helper struct that is used to parse incoming URLs
 struct UrlMatch {
   std::string domain; ///< The domain of the component, for example "sensor"
-  std::string id; ///< The id of the device that's being aceesed, for example "living_room_fan"
+  std::string id; ///< The id of the device that's being accessed, for example "living_room_fan"
   std::string method; ///< The method that's being called, for example "turn_on"
   bool valid; ///< Whether this match is valid
 };
@@ -127,6 +118,17 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
 
   /// Dump the light state as a JSON string.
   std::string light_json(light::LightState *obj);
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  /// Internally register a text sensor and set a callback on state changes.
+  void register_text_sensor(text_sensor::TextSensor *obj) override;
+
+  /// Handle a text sensor request under '/text_sensor/<id>'.
+  void handle_text_sensor_request(AsyncWebServerRequest *request, UrlMatch match);
+
+  /// Dump the text sensor state with its value as a JSON string.
+  std::string text_sensor_json(text_sensor::TextSensor *obj, const std::string &value);
 #endif
 
   /// Override the web handler's canHandle method.

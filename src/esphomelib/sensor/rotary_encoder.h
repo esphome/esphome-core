@@ -1,20 +1,14 @@
-//
-//  rotary_encoder.h
-//  esphomelib
-//
-//  Created by Otto Winter on 16.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on the awesome work of Jochen Krapf: https://github.com/jkDesignDE/MechInputs
 
 #ifndef ESPHOMELIB_ROTARY_ENCODER_H
 #define ESPHOMELIB_ROTARY_ENCODER_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ROTARY_ENCODER_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

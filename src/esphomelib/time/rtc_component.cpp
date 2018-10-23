@@ -1,18 +1,9 @@
-//
-//  rtc_component.cpp
-//  esphomelib
-//
-//  Created by Brad Davidson on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_TIME
 
 #include "esphomelib/log.h"
 #include "esphomelib/time/rtc_component.h"
-#include "rtc_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

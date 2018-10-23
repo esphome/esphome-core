@@ -1,11 +1,3 @@
-//
-//  fast_led_light_output.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 13.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_FAST_LED_LIGHT
@@ -40,6 +32,7 @@ void FastLEDLightOutputComponent::setup() {
   assert(this->controller_ != nullptr && "You need to add LEDs to this controller!");
   this->controller_->init();
   this->controller_->setLeds(this->leds_, this->num_leds_);
+  this->controller_->setCorrection(this->correction_);
   if (!this->max_refresh_rate_.has_value()) {
     this->set_max_refresh_rate(this->controller_->getMaxRefreshRate());
   }
@@ -129,6 +122,9 @@ CRGB *FastLEDLightOutputComponent::begin() { return &this->leds()[0]; }
 CRGB *FastLEDLightOutputComponent::end() { return &this->leds()[this->size()]; }
 uint8_t *FastLEDLightOutputComponent::effect_data() const {
   return this->effect_data_;
+}
+void FastLEDLightOutputComponent::set_correction(float red, float green, float blue) {
+  this->correction_ = CRGB(red * 255, green * 255, blue * 255);
 }
 
 #endif

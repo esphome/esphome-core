@@ -1,11 +1,3 @@
-//
-//  automation.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 18.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/automation.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -63,6 +55,10 @@ void RangeCondition::set_max(std::function<float(float)> &&max) {
 }
 void RangeCondition::set_max(float max) {
   this->max_ = max;
+}
+
+void Script::execute() {
+  this->trigger();
 }
 
 ESPHOMELIB_NAMESPACE_END

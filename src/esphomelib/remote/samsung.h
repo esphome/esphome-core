@@ -1,11 +1,3 @@
-//
-//  samsung.h
-//  esphomelib
-//
-//  Created by Otto Winter on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_REMOTE_SAMSUNG_H
 #define ESPHOMELIB_REMOTE_SAMSUNG_H
 
@@ -13,7 +5,8 @@
 
 #ifdef USE_REMOTE
 
-#include "esphomelib/remote/remote_protocol.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -29,10 +22,12 @@ class SamsungTransmitter : public RemoteTransmitter {
  protected:
   uint32_t data_;
 };
+
+void encode_samsung(RemoteTransmitData *data, uint32_t data_);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_samsung(RemoteReceiveData *data, uint32_t *data_);
+SamsungDecodeData decode_samsung(RemoteReceiveData *data);
 
 class SamsungReceiver : public RemoteReceiver {
  public:
@@ -41,7 +36,6 @@ class SamsungReceiver : public RemoteReceiver {
  protected:
   bool matches(RemoteReceiveData *data) override;
 
- protected:
   uint32_t data_;
 };
 

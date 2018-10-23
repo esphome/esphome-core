@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 30.12.17.
-//
-
 #ifndef ESPHOMELIB_FAN_BASIC_FAN_COMPONENT_H
 #define ESPHOMELIB_FAN_BASIC_FAN_COMPONENT_H
 
@@ -30,12 +26,11 @@ class BasicFanComponent : public Component {
   /** Create a fan that supports speed operation (OFF/LOW/MEDIUM/HIGH SPEED). Can't be mixed with set_binary.
    *
    * @param output The FloatOutput where all speed/state commands should land.
-   * @param off_speed The speed that should be sent to the output if the fan is OFF.
    * @param low_speed The speed that should be sent to the output if the fan is in LOW speed mode.
    * @param medium_speed The speed that should be sent to the output if the fan is in MEDIUM speed mode.
    * @param high_speed The speed that should be sent to the output if the fan is in HIGH speed mode.
    */
-  void set_speed(output::FloatOutput *output, float off_speed = 0.0, float low_speed = 0.33, float medium_speed = 0.66, float high_speed = 1.0);
+  void set_speed(output::FloatOutput *output, float low_speed = 0.33, float medium_speed = 0.66, float high_speed = 1.0);
 
   /** Set an oscillation output for this fan.
    *
@@ -56,7 +51,6 @@ class BasicFanComponent : public Component {
   FanState *state_{nullptr};
   output::BinaryOutput *binary_output_{nullptr};
   output::FloatOutput *speed_output_{nullptr};
-  float off_speed_{};
   float low_speed_{};
   float medium_speed_{};
   float high_speed_{};

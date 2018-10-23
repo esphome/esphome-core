@@ -1,11 +1,3 @@
-//
-//  i2c-sensors.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 25.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 // This class shows you how you can use various i2c sensors with esphomelib
 
 #include <esphomelib.h>

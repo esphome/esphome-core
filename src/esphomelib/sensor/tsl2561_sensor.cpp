@@ -1,10 +1,3 @@
-//
-//  tsl2561_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 09.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf
 //   - https://github.com/adafruit/TSL2561-Arduino-Library
@@ -146,7 +139,7 @@ void TSL2561Sensor::read_data_() {
 
   float lx = this->calculate_lx_(data0, data1);
   ESP_LOGD(TAG, "Got illuminance=%.1flx", lx);
-  this->push_new_value(lx);
+  this->publish_state(lx);
   this->status_clear_warning();
 }
 std::string TSL2561Sensor::unit_of_measurement() {

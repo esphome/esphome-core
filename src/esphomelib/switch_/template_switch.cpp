@@ -1,11 +1,3 @@
-//
-//  template_switch.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 20.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_SWITCH
@@ -27,21 +19,21 @@ void TemplateSwitch::loop() {
   if (!s.has_value())
     return;
 
-  if (this->last_value_.value_or(!*s) == *s)
+  if (this->last_state_.value_or(!*s) == *s)
     return;
 
-  this->last_value_ = *s;
+  this->last_state_ = *s;
   this->publish_state(*s);
 }
-void TemplateSwitch::turn_on() {
+void TemplateSwitch::write_state(bool state) {
+  if (state) {
+    this->turn_on_trigger_->trigger();
+  } else {
+    this->turn_off_trigger_->trigger();
+  }
+
   if (this->optimistic_)
-    this->publish_state(true);
-  this->turn_on_trigger_->trigger();
-}
-void TemplateSwitch::turn_off() {
-  if (this->optimistic_)
-    this->publish_state(false);
-  this->turn_off_trigger_->trigger();
+    this->publish_state(state);
 }
 void TemplateSwitch::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;

@@ -1,19 +1,12 @@
-//
-//  uart_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 24.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_UART_COMPONENT_H
 #define ESPHOMELIB_UART_COMPONENT_H
 
-#include <HardwareSerial.h>
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_UART
+
+#include <HardwareSerial.h>
+#include "esphomelib/component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

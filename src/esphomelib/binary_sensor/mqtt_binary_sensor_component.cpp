@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
@@ -49,7 +45,7 @@ void MQTTBinarySensorComponent::set_payload_off(std::string payload_off) {
 std::string MQTTBinarySensorComponent::friendly_name() const {
   return this->binary_sensor_->get_name();
 }
-void MQTTBinarySensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+void MQTTBinarySensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->binary_sensor_->get_device_class().empty())
     root["device_class"] = this->binary_sensor_->get_device_class();
   if (this->payload_on_ != "ON")
@@ -60,7 +56,8 @@ void MQTTBinarySensorComponent::send_discovery(JsonBuffer &buffer, JsonObject &r
 }
 
 void MQTTBinarySensorComponent::send_initial_state() {
-  this->publish_state(this->binary_sensor_->value);
+  if (this->binary_sensor_->has_state())
+    this->publish_state(this->binary_sensor_->state);
 }
 bool MQTTBinarySensorComponent::is_internal() {
   return this->binary_sensor_->is_internal();

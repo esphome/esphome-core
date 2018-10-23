@@ -1,18 +1,9 @@
-//
-//  display.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 15.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_DISPLAY
 
 #include "esphomelib/display/display.h"
 #include "esphomelib/log.h"
-#include "display.h"
 
 #include <pgmspace.h>
 
@@ -182,8 +173,8 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
   int x_at = x_start;
   while (text[i] != '\0') {
     int match_length;
-    int glpyh_n = font->match_next_glyph(text + i, &match_length);
-    if (glpyh_n < 0) {
+    int glyph_n = font->match_next_glyph(text + i, &match_length);
+    if (glyph_n < 0) {
       // Unknown char, skip
       ESP_LOGW(TAG, "Encountered character without representation in font: '%c'", text[i]);
       if (!font->get_glyphs().empty()) {
@@ -198,7 +189,7 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
       continue;
     }
 
-    const Glyph &glyph = font->get_glyphs()[glpyh_n];
+    const Glyph &glyph = font->get_glyphs()[glyph_n];
     int scan_x1, scan_y1, scan_width, scan_height;
     glyph.scan_area(&scan_x1, &scan_y1, &scan_width, &scan_height);
 
@@ -400,8 +391,8 @@ void Font::measure(const char *str, int *width, int *x_offset, int *baseline, in
   int x = 0;
   while (str[i] != '\0') {
     int match_length;
-    int glpyh_n = this->match_next_glyph(str + i, &match_length);
-    if (glpyh_n < 0) {
+    int glyph_n = this->match_next_glyph(str + i, &match_length);
+    if (glyph_n < 0) {
       // Unknown char, skip
       if (!this->get_glyphs().empty())
         x += this->get_glyphs()[0].width_;
@@ -409,7 +400,7 @@ void Font::measure(const char *str, int *width, int *x_offset, int *baseline, in
       continue;
     }
 
-    const Glyph &glyph = this->glyphs_[glpyh_n];
+    const Glyph &glyph = this->glyphs_[glyph_n];
     if (!has_char)
       min_x = glyph.offset_x;
     else

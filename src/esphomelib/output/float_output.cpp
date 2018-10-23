@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_OUTPUT
@@ -23,7 +19,7 @@ float FloatOutput::get_max_power() const {
   return this->max_power_;
 }
 
-void FloatOutput::set_state_(float state) {
+void FloatOutput::set_level(float state) {
   state = clamp(0.0f, 1.0f, state);
 
   if (state > 0.0f) { // ON
@@ -41,19 +37,12 @@ void FloatOutput::set_state_(float state) {
 
   float adjusted_value =  state * this->max_power_;
   if (this->is_inverted())
-    adjusted_value = 1 - adjusted_value;
+    adjusted_value = 1.0f - adjusted_value;
   this->write_state(adjusted_value);
 }
 
-void FloatOutput::enable() {
-  this->set_state_(1.0f);
-}
-void FloatOutput::disable() {
-  this->set_state_(0.0f);
-}
-void FloatOutput::write_enabled(bool value) {
-  // This should never be called, as we override enable & disable
-  assert(false);
+void FloatOutput::write_state(bool state) {
+  this->set_level(state != this->inverted_ ? 1.0f : 0.0f);
 }
 
 } // namespace output

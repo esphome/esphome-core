@@ -1,110 +1,129 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_APPLICATION_H
 #define ESPHOMELIB_APPLICATION_H
 
 #include <vector>
 #include "esphomelib/defines.h"
-#include "esphomelib/component.h"
 #include "esphomelib/automation.h"
+#include "esphomelib/component.h"
 #include "esphomelib/controller.h"
-#include "esphomelib/esp32_ble_beacon.h"
-#include "esphomelib/esp32_ble_tracker.h"
 #include "esphomelib/debug_component.h"
 #include "esphomelib/deep_sleep_component.h"
+#include "esphomelib/esp32_ble_beacon.h"
+#include "esphomelib/esp32_ble_tracker.h"
+#include "esphomelib/esp_one_wire.h"
+#include "esphomelib/esphal.h"
+#include "esphomelib/esppreferences.h"
+#include "esphomelib/i2c_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
-#include "esphomelib/power_supply_component.h"
 #include "esphomelib/ota_component.h"
-#include "esphomelib/wifi_component.h"
+#include "esphomelib/power_supply_component.h"
+#include "esphomelib/spi_component.h"
+#include "esphomelib/status_led.h"
 #include "esphomelib/uart_component.h"
-#include "esphomelib/mqtt/mqtt_client_component.h"
+#include "esphomelib/web_server.h"
+#include "esphomelib/wifi_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/binary_sensor/esp32_touch_binary_sensor.h"
+#include "esphomelib/binary_sensor/filter.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
-#include "esphomelib/binary_sensor/status_binary_sensor.h"
-#include "esphomelib/binary_sensor/template_binary_sensor.h"
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/pn532_component.h"
 #include "esphomelib/binary_sensor/rdm6300.h"
+#include "esphomelib/binary_sensor/status_binary_sensor.h"
+#include "esphomelib/binary_sensor/template_binary_sensor.h"
 #include "esphomelib/cover/cover.h"
 #include "esphomelib/cover/mqtt_cover_component.h"
 #include "esphomelib/cover/template_cover.h"
 #include "esphomelib/display/display.h"
-#include "esphomelib/display/max7219.h"
 #include "esphomelib/display/lcd_display.h"
+#include "esphomelib/display/max7219.h"
+#include "esphomelib/display/nextion.h"
 #include "esphomelib/display/ssd1306.h"
 #include "esphomelib/display/waveshare_epaper.h"
-#include "esphomelib/display/nextion.h"
 #include "esphomelib/fan/basic_fan_component.h"
+#include "esphomelib/fan/fan_state.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
-#include "esphomelib/i2c_component.h"
 #include "esphomelib/io/pcf8574_component.h"
-#include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/light/fast_led_light_effect.h"
+#include "esphomelib/light/fast_led_light_output.h"
+#include "esphomelib/light/light_color_values.h"
 #include "esphomelib/light/neo_pixel_bus_light_output.h"
 #include "esphomelib/light/partitioned_light_output.h"
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_output_component.h"
+#include "esphomelib/light/light_state.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/mqtt/mqtt_client_component.h"
+#include "esphomelib/mqtt/mqtt_component.h"
+#include "esphomelib/output/binary_output.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
+#include "esphomelib/output/float_output.h"
 #include "esphomelib/output/gpio_binary_output_component.h"
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
-#include "esphomelib/remote/remote_protocol.h"
 #include "esphomelib/remote/lg.h"
 #include "esphomelib/remote/nec.h"
 #include "esphomelib/remote/panasonic.h"
 #include "esphomelib/remote/raw.h"
+#include "esphomelib/remote/rc_switch.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 #include "esphomelib/remote/samsung.h"
 #include "esphomelib/remote/sony.h"
-#include "esphomelib/remote/rc_switch.h"
 #include "esphomelib/sensor/adc.h"
 #include "esphomelib/sensor/ads1115_component.h"
 #include "esphomelib/sensor/bh1750_sensor.h"
 #include "esphomelib/sensor/bme280_component.h"
-#include "esphomelib/sensor/bmp280_component.h"
 #include "esphomelib/sensor/bme680_component.h"
 #include "esphomelib/sensor/bmp085_component.h"
+#include "esphomelib/sensor/bmp280_component.h"
+#include "esphomelib/sensor/cse7766.h"
 #include "esphomelib/sensor/dallas_component.h"
-#include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/sensor/dht12_component.h"
+#include "esphomelib/sensor/dht_component.h"
 #include "esphomelib/sensor/duty_cycle_sensor.h"
 #include "esphomelib/sensor/esp32_hall_sensor.h"
-#include "esphomelib/sensor/htu21d_component.h"
+#include "esphomelib/sensor/filter.h"
 #include "esphomelib/sensor/hdc1080_component.h"
+#include "esphomelib/sensor/hlw8012.h"
+#include "esphomelib/sensor/hmc5883l.h"
+#include "esphomelib/sensor/htu21d_component.h"
+#include "esphomelib/sensor/hx711.h"
+#include "esphomelib/sensor/ina219.h"
+#include "esphomelib/sensor/ina3221.h"
 #include "esphomelib/sensor/max6675_sensor.h"
 #include "esphomelib/sensor/mhz19_component.h"
-#include "esphomelib/sensor/mqtt_sensor_component.h"
 #include "esphomelib/sensor/mpu6050_component.h"
+#include "esphomelib/sensor/mqtt_sensor_component.h"
+#include "esphomelib/sensor/mqtt_subscribe_sensor.h"
+#include "esphomelib/sensor/ms5611.h"
+#include "esphomelib/sensor/pmsx003.h"
 #include "esphomelib/sensor/pulse_counter.h"
 #include "esphomelib/sensor/rotary_encoder.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/sensor/sht3xd_component.h"
+#include "esphomelib/sensor/tcs34725.h"
 #include "esphomelib/sensor/template_sensor.h"
 #include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
-#include "esphomelib/sensor/wifi_signal_sensor.h"
 #include "esphomelib/sensor/uptime_sensor.h"
-#include "esphomelib/sensor/ina219.h"
-#include "esphomelib/sensor/ina3221.h"
-#include "esphomelib/sensor/hmc5883l.h"
-#include "esphomelib/sensor/hx711.h"
-#include "esphomelib/sensor/ms5611.h"
-#include "esphomelib/sensor/tcs34725.h"
-#include "esphomelib/sensor/hlw8012.h"
+#include "esphomelib/sensor/wifi_signal_sensor.h"
+#include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
+#include "esphomelib/switch_/output_switch.h"
 #include "esphomelib/switch_/restart_switch.h"
 #include "esphomelib/switch_/shutdown_switch.h"
-#include "esphomelib/switch_/simple_switch.h"
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/switch_/uart_switch.h"
-#include "esphomelib/status_led.h"
+#include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
+#include "esphomelib/text_sensor/mqtt_text_sensor.h"
+#include "esphomelib/text_sensor/template_text_sensor.h"
+#include "esphomelib/text_sensor/text_sensor.h"
+#include "esphomelib/text_sensor/version_text_sensor.h"
 #include "esphomelib/time/rtc_component.h"
 #include "esphomelib/time/sntp_component.h"
-#include "esphomelib/web_server.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -408,6 +427,11 @@ class Application {
 #ifdef USE_SENSOR
   /// Register a sensor and create a MQTT Sensor if the MQTT client is set up
   sensor::MQTTSensorComponent *register_sensor(sensor::Sensor *sensor);
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  /// Register a text sensor and create a MQTT Sensor if the MQTT client is set up
+  text_sensor::MQTTTextSensor *register_text_sensor(text_sensor::TextSensor *sensor);
 #endif
 
 #ifdef USE_DHT_SENSOR
@@ -883,6 +907,51 @@ class Application {
   sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 15000);
 #endif
 
+#ifdef USE_MQTT_SUBSCRIBE_SENSOR
+  struct MakeMQTTSubscribeSensor {
+    sensor::MQTTSubscribeSensor *sensor;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeMQTTSubscribeSensor make_mqtt_subscribe_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_CSE7766
+  sensor::CSE7766Component *make_cse7766(UARTComponent *parent);
+#endif
+
+
+#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+  struct MakeMQTTSubscribeTextSensor {
+    text_sensor::MQTTSubscribeTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeMQTTSubscribeTextSensor make_mqtt_subscribe_text_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_VERSION_TEXT_SENSOR
+  struct MakeVersionTextSensor {
+    text_sensor::VersionTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeVersionTextSensor make_version_text_sensor(const std::string &name);
+#endif
+
+#ifdef USE_TEMPLATE_TEXT_SENSOR
+  struct MakeTemplateTextSensor {
+    text_sensor::TemplateTextSensor *template_;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeTemplateTextSensor make_template_text_sensor(const std::string &name, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_PMSX003
+  sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
+#endif
+
 
 
 
@@ -1095,8 +1164,7 @@ class Application {
 
 #ifdef USE_GPIO_SWITCH
   struct MakeGPIOSwitch {
-    output::GPIOBinaryOutputComponent *gpio;
-    switch_::SimpleSwitch *switch_;
+    switch_::GPIOSwitch *switch_;
     switch_::MQTTSwitchComponent *mqtt;
   };
 
@@ -1104,7 +1172,7 @@ class Application {
    *
    * @param pin The pin used for this switch. Can be integer or GPIOOutputPin.
    * @param friendly_name The friendly name advertised to Home Assistant for this switch-
-   * @return A GPIOSwitchStruct, use this to set advanced settings.
+   * @return A MakeGPIOSwitch, use this to set advanced settings.
    */
   MakeGPIOSwitch make_gpio_switch(const std::string &friendly_name, const GPIOOutputPin &pin);
 #endif
@@ -1129,14 +1197,14 @@ class Application {
   MakeShutdownSwitch make_shutdown_switch(const std::string &friendly_name);
 #endif
 
-#ifdef USE_SIMPLE_SWITCH
-  struct MakeSimpleSwitch {
-    switch_::SimpleSwitch *switch_;
+#ifdef USE_OUTPUT_SWITCH
+  struct MakeOutputSwitch {
+    switch_::OutputSwitch *switch_;
     switch_::MQTTSwitchComponent *mqtt;
   };
 
-  /// Make a simple switch that exposes a binary output as a switch
-  MakeSimpleSwitch make_simple_switch(const std::string &friendly_name, output::BinaryOutput *output);
+  /// Make an output switch that exposes a binary output as a switch
+  MakeOutputSwitch make_output_switch(const std::string &friendly_name, output::BinaryOutput *output);
 #endif
 
 #ifdef USE_TEMPLATE_SWITCH
@@ -1274,6 +1342,21 @@ class Application {
 
   bool is_fully_setup() const;
 
+  /** Tell esphomelib when your project was last compiled. This is used to show
+   * a message like "You're running esphomelib v1.9.0 compiled on Oct 10 2018, 16:42:00"
+   *
+   * To use this method in code, put the following before App.setup():
+   *
+   * ```cpp
+   * App.set_compilation_datetime(__DATE__ ", " __TIME__);
+   * ```
+   *
+   * @param str The string of the time of compilation.
+   */
+  void set_compilation_datetime(const char *str);
+
+  const std::string &get_compilation_time() const;
+
  protected:
   std::vector<Component *> components_{};
   std::vector<Controller *> controllers_{};
@@ -1281,6 +1364,7 @@ class Application {
   WiFiComponent *wifi_{nullptr};
 
   std::string name_;
+  std::string compilation_time_;
   uint32_t application_state_{COMPONENT_STATE_CONSTRUCTION};
 #ifdef USE_I2C
   I2CComponent *i2c_{nullptr};

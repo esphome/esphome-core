@@ -1,11 +1,3 @@
-//
-//  pn532_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 15.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_PN_532_COMPONENT_H
 #define ESPHOMELIB_PN_532_COMPONENT_H
 
@@ -23,6 +15,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace binary_sensor {
 
 class PN532BinarySensor;
+class PN532Trigger;
 
 class PN532Component : public PollingComponent, public SPIDevice {
  public:
@@ -36,11 +29,11 @@ class PN532Component : public PollingComponent, public SPIDevice {
   void loop() override;
 
   PN532BinarySensor *make_tag(const std::string &name, const std::vector<uint8_t> &uid);
+  PN532Trigger *make_trigger();
 
  protected:
   bool msb_first() override;
 
- protected:
   void pn532_write_command_(uint8_t len);
   bool pn532_write_command_check_ack_(uint8_t len, bool ignore = false);
 
@@ -53,6 +46,7 @@ class PN532Component : public PollingComponent, public SPIDevice {
   uint8_t buffer_[32];
   bool requested_read_{false};
   std::vector<PN532BinarySensor *> binary_sensors_;
+  std::vector<PN532Trigger *> triggers_;
   std::vector<uint8_t> last_uid_;
 };
 
@@ -63,6 +57,11 @@ class PN532BinarySensor : public binary_sensor::BinarySensor {
   bool process(uint8_t *data, uint8_t len);
  protected:
   std::vector<uint8_t> uid_;
+};
+
+class PN532Trigger : public Trigger<std::string> {
+ public:
+  void process(uint8_t *uid, uint8_t uid_length);
 };
 
 } // namespace binary_sensor

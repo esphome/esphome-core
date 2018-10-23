@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 27.01.18.
-//
-
 #ifndef ESPHOMELIB_ESPPREFERENCES_H
 #define ESPHOMELIB_ESPPREFERENCES_H
 

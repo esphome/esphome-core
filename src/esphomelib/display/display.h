@@ -1,11 +1,3 @@
-//
-//  display.h
-//  esphomelib
-//
-//  Created by Otto Winter on 15.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_DISPLAY_H
 #define ESPHOMELIB_DISPLAY_H
 

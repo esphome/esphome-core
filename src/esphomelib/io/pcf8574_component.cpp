@@ -1,10 +1,3 @@
-//
-//  pcf8574_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 05.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://github.com/skywodd/pcf8574_arduino_library/
 //   - http://www.ti.com/lit/ds/symlink/pcf8574.pdf
@@ -114,7 +107,7 @@ bool PCF8574Component::write_gpio_() {
   return true;
 }
 PCF8574GPIOInputPin PCF8574Component::make_input_pin(uint8_t pin, uint8_t mode, bool inverted) {
-  assert(mode <= PCF8574_OUTPUT);
+  assert(mode == PCF8574_INPUT || mode == PCF8574_INPUT_PULLUP);
   if (this->pcf8575_) { assert(pin < 16); }
   else { assert(pin < 8); }
   return {this, pin, mode, inverted};

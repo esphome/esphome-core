@@ -1,10 +1,3 @@
-//
-//  dht12_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 17.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Implementation based on:
 //  - ESPEasy: https://github.com/letscontrolit/ESPEasy/blob/mega/src/_P034_DHT12.ino
 //  - DHT12_sensor_library: https://github.com/xreef/DHT12_sensor_library/blob/master/DHT12.cpp
@@ -50,8 +43,8 @@ void DHT12Component::update() {
   float humidity = raw_humidity / 10.0f;
 
   ESP_LOGD(TAG, "Got temperature=%.2f°C humidity=%.2f%%", temperature, humidity);
-  this->temperature_sensor_->push_new_value(temperature);
-  this->humidity_sensor_->push_new_value(humidity);
+  this->temperature_sensor_->publish_state(temperature);
+  this->humidity_sensor_->publish_state(humidity);
   this->status_clear_warning();
 }
 void DHT12Component::setup() {

@@ -1,11 +1,3 @@
-//
-//  panasonic.h
-//  esphomelib
-//
-//  Created by Otto Winter on 05.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_REMOTE_PANASONIC_H
 #define ESPHOMELIB_REMOTE_PANASONIC_H
 
@@ -13,7 +5,8 @@
 
 #ifdef USE_REMOTE
 
-#include "esphomelib/remote/remote_protocol.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -30,10 +23,12 @@ class PanasonicTransmitter : public RemoteTransmitter {
   uint16_t address_;
   uint32_t command_;
 };
+
+void encode_panasonic(RemoteTransmitData *data, uint16_t address, uint32_t command);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_panasonic(RemoteReceiveData *data, uint16_t *address, uint32_t *command);
+PanasonicDecodeData decode_panasonic(RemoteReceiveData *data);
 
 class PanasonicReceiver : public RemoteReceiver {
  public:

@@ -1,20 +1,13 @@
-//
-//  deep_sleep_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 15.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_DEEP_SLEEP_COMPONENT_H
 #define ESPHOMELIB_DEEP_SLEEP_COMPONENT_H
+
+#include "esphomelib/defines.h"
+
+#ifdef USE_DEEP_SLEEP
 
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/automation.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_DEEP_SLEEP
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 27.01.18.
-//
-
 #include "esphomelib/esppreferences.h"
 
 #include <functional>
@@ -111,7 +107,6 @@ size_t ESPPreferences::put_uint8(const std::string &friendly_name, const std::st
   const std::string key_ = this->get_preference_key(friendly_name, key);
   ESP_LOGVV(TAG, "'%s' -> putting uint8 %u", key_.c_str(), value);
   return this->preferences_.putUChar(key_.c_str(), value);
-  return this->preferences_.putUChar(this->get_preference_key(friendly_name, key).c_str(), value);
 }
 size_t ESPPreferences::put_int16(const std::string &friendly_name, const std::string &key, int16_t value) {
   const std::string key_ = this->get_preference_key(friendly_name, key);

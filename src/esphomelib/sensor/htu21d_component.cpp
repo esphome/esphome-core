@@ -1,10 +1,3 @@
-//
-//  htu21d_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 27.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - http://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FHPC199_6%7FA6%7Fpdf%7FEnglish%7FENG_DS_HPC199_6_A6.pdf%7FCAT-HSC0004
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/HTU21D
@@ -66,8 +59,8 @@ void HTU21DComponent::update() {
   float humidity = (float(raw_humidity & 0xFFFC)) * 125.0f / 65536.0f - 6.0f;
   ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
-  this->temperature_->push_new_value(temperature);
-  this->humidity_->push_new_value(humidity);
+  this->temperature_->publish_state(temperature);
+  this->humidity_->publish_state(humidity);
   this->status_clear_warning();
 }
 HTU21DTemperatureSensor *HTU21DComponent::get_temperature_sensor() const {

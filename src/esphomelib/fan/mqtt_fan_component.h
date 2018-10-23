@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 29.12.17.
-//
-
 #ifndef ESPHOMELIB_FAN_MQTT_FAN_COMPONENT_H
 #define ESPHOMELIB_FAN_MQTT_FAN_COMPONENT_H
 
@@ -29,7 +25,7 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   /// Set a custom speed state topic. Defaults to "<base>/speed/state".
   void set_custom_speed_state_topic(const std::string &topic);
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -53,6 +49,10 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
  protected:
   std::string friendly_name() const override;
 
+  std::string custom_oscillation_command_topic_;
+  std::string custom_oscillation_state_topic_;
+  std::string custom_speed_command_topic_;
+  std::string custom_speed_state_topic_;
   FanState *state_;
 };
 

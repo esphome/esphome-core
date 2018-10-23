@@ -1,11 +1,3 @@
-//
-//  mqtt_cover.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 20.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_COVER
@@ -45,7 +37,7 @@ void MQTTCoverComponent::setup() {
   });
 }
 
-void MQTTCoverComponent::send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+void MQTTCoverComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (this->cover_->optimistic())
     root["optimistic"] = true;
 }
@@ -57,7 +49,8 @@ std::string MQTTCoverComponent::friendly_name() const {
   return this->cover_->get_name();
 }
 void MQTTCoverComponent::send_initial_state() {
-  this->publish_state(this->cover_->state);
+  if (this->cover_->has_state())
+    this->publish_state(this->cover_->state);
 }
 bool MQTTCoverComponent::is_internal() {
   return this->cover_->is_internal();

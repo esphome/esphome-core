@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #include <cstdio>
 #include <algorithm>
 
@@ -16,6 +12,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
 #include "esphomelib/espmath.h"
+#include "esphomelib/status_led.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -180,7 +177,7 @@ std::string build_json(const json_build_t &f) {
   global_json_buffer.clear();
   JsonObject &root = global_json_buffer.createObject();
 
-  f(global_json_buffer, root);
+  f(root);
 
   std::string buffer;
   root.printTo(buffer);
@@ -197,13 +194,19 @@ void parse_json(const std::string &data, const json_parse_t &f) {
 
   f(root);
 }
-optional<bool> parse_on_off(const char *str, const char *payload_on, const char *payload_off) {
-  if (strcasecmp(str, payload_on) == 0)
-    return true;
-  if (strcasecmp(str, payload_off) == 0)
-    return false;
+ParseOnOffState parse_on_off(const char *str, const char *on, const char *off) {
+  if (on == nullptr && strcasecmp(str, "on") == 0)
+    return PARSE_ON;
+  if (on != nullptr && strcasecmp(str, on) == 0)
+    return PARSE_ON;
+  if (off == nullptr && strcasecmp(str, "off") == 0)
+    return PARSE_OFF;
+  if (off != nullptr && strcasecmp(str, off) == 0)
+    return PARSE_OFF;
+  if (strcasecmp(str, "toggle") == 0)
+    return PARSE_TOGGLE;
 
-  return {};
+  return PARSE_NONE;
 }
 
 CallbackManager<void(const char *)> shutdown_hooks;
@@ -213,6 +216,10 @@ void reboot(const char *cause) {
   ESP_LOGI(TAG, "Forcing a reboot... Cause: '%s'", cause);
   run_shutdown_hooks(cause);
   ESP.restart();
+  // restart() doesn't always end execution
+  while (true) {
+    yield();
+  }
 }
 void add_shutdown_hook(std::function<void(const char *)> &&f) {
   shutdown_hooks.add(std::move(f));
@@ -221,6 +228,10 @@ void safe_reboot(const char *cause) {
   ESP_LOGI(TAG, "Rebooting safely... Cause: '%s'", cause);
   run_safe_shutdown_hooks(cause);
   ESP.restart();
+  // restart() doesn't always end execution
+  while (true) {
+    yield();
+  }
 }
 void add_safe_shutdown_hook(std::function<void(const char *)> &&f) {
   safe_shutdown_hooks.add(std::move(f));
@@ -298,6 +309,13 @@ uint8_t reverse_bits_8(uint8_t x) {
 
 uint16_t reverse_bits_16(uint16_t x) {
   return uint16_t(reverse_bits_8(x & 0xFF) << 8) | uint16_t(reverse_bits_8(x >> 8));
+}
+void tick_status_led() {
+#ifdef USE_STATUS_LED
+  if (global_status_led != nullptr) {
+    global_status_led->loop_();
+  }
+#endif
 }
 
 template<uint32_t>

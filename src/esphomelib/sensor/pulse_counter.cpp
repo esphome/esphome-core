@@ -1,11 +1,3 @@
-//
-//  pulse_counter.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 24.02.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_PULSE_COUNTER_SENSOR
@@ -47,14 +39,16 @@ void PulseCounterSensorComponent::set_edge_mode(PulseCounterCountMode rising_edg
 const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
 
 #ifdef ARDUINO_ARCH_ESP8266
-void ICACHE_RAM_ATTR PulseCounterBase::gpio_intr() {
+void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
   const uint32_t now = micros();
-  if (now - this->last_pulse_ < this->filter_us_) {
+  if (now - this->last_pulse_ < this->filter_us_)
     return;
-  }
+  this->last_pulse_ = now;
+
   PulseCounterCountMode mode = this->pin_->digital_read() ? this->rising_edge_mode_ : this->falling_edge_mode_;
   switch (mode) {
-    case PULSE_COUNTER_DISABLE: break;
+    case PULSE_COUNTER_DISABLE:
+      break;
     case PULSE_COUNTER_INCREMENT:
       this->counter_++;
       break;
@@ -62,17 +56,24 @@ void ICACHE_RAM_ATTR PulseCounterBase::gpio_intr() {
       this->counter_--;
       break;
   }
-  this->last_pulse_ = now;
 }
 bool PulseCounterBase::pulse_counter_setup_() {
   this->pin_->setup();
   auto intr = std::bind(&PulseCounterSensorComponent::gpio_intr, this);
-  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
+  int intr_mode = CHANGE;
+  if (this->rising_edge_mode_ == PULSE_COUNTER_DISABLE) {
+    // only falling
+    intr_mode = this->pin_->is_inverted() ? RISING : FALLING;
+  } else if (this->falling_edge_mode_ == PULSE_COUNTER_DISABLE) {
+    // only rising
+    intr_mode = this->pin_->is_inverted() ? FALLING : RISING;
+  }
+  attachInterrupt(this->pin_->get_pin(), intr, intr_mode);
   return true;
 }
 pulse_counter_t PulseCounterBase::read_raw_value_() {
   pulse_counter_t counter = this->counter_;
-  pulse_counter_t ret = this->last_value_ - counter;
+  pulse_counter_t ret = counter - this->last_value_;
   this->last_value_ = counter;
   return ret;
 }
@@ -168,7 +169,7 @@ void PulseCounterSensorComponent::update() {
   float value = (60000.0f * raw) / float(this->get_update_interval()); // per minute
 
   ESP_LOGD(TAG, "'%s': Retrieved counter: %0.2f pulses/min", this->get_name().c_str(), value);
-  this->push_new_value(value);
+  this->publish_state(value);
 }
 
 float PulseCounterSensorComponent::get_setup_priority() const {

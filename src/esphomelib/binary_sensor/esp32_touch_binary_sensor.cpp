@@ -1,11 +1,3 @@
-//
-//  esp32_touch_binary_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 11.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_TOUCH_BINARY_SENSOR

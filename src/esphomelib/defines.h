@@ -1,15 +1,10 @@
-//
-//  defines.h
-//  esphomelib
-//
-//  Created by Otto Winter on 12.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
 #define ESPHOMELIB_VERSION "1.8.2"
+
+#define HOT __attribute__ ((hot))
+#define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
 
 #ifndef DOXYGEN
   #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {
@@ -50,7 +45,7 @@
   #endif
   #define USE_LIGHT
   #define USE_SWITCH
-  #define USE_SIMPLE_SWITCH
+  #define USE_OUTPUT_SWITCH
   #define USE_REMOTE
   #define USE_REMOTE_RECEIVER
   #define USE_REMOTE_TRANSMITTER
@@ -114,6 +109,13 @@
   #define USE_SNTP_COMPONENT
   #define USE_NEXTION
   #define USE_HLW8012
+  #define USE_TEXT_SENSOR
+  #define USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+  #define USE_VERSION_TEXT_SENSOR
+  #define USE_TEMPLATE_TEXT_SENSOR
+  #define USE_MQTT_SUBSCRIBE_SENSOR
+  #define USE_CSE7766
+  #define USE_PMSX003
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -402,11 +404,8 @@
   #endif
 #endif
 #ifdef USE_GPIO_SWITCH
-  #ifndef USE_SIMPLE_SWITCH
-    #define USE_SIMPLE_SWITCH
-  #endif
-  #ifndef USE_GPIO_OUTPUT
-    #define USE_GPIO_OUTPUT
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
   #endif
 #endif
 #ifdef USE_TEMPLATE_SWITCH
@@ -429,7 +428,7 @@
     #define USE_OUTPUT
   #endif
 #endif
-#ifdef USE_SIMPLE_SWITCH
+#ifdef USE_OUTPUT_SWITCH
   #ifndef USE_SWITCH
     #define USE_SWITCH
   #endif
@@ -520,6 +519,43 @@
   #endif
   #ifndef USE_UART
     #define USE_UART
+  #endif
+#endif
+#ifdef USE_MQTT_SUBSCRIBE_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_CSE7766
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
+  #endif
+#endif
+#ifdef USE_PMSX003
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
+  #endif
+#endif
+
+#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+  #ifndef USE_TEXT_SENSOR
+    #define USE_TEXT_SENSOR
+  #endif
+#endif
+#ifdef USE_VERSION_TEXT_SENSOR
+  #ifndef USE_TEXT_SENSOR
+    #define USE_TEXT_SENSOR
+  #endif
+#endif
+#ifdef USE_TEMPLATE_TEXT_SENSOR
+  #ifndef USE_TEXT_SENSOR
+    #define USE_TEXT_SENSOR
   #endif
 #endif
 

@@ -1,18 +1,9 @@
-//
-//  nextion.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 23.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_NEXTION
 
 #include "esphomelib/display/nextion.h"
 #include "esphomelib/log.h"
-#include "nextion.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

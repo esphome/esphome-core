@@ -1,19 +1,12 @@
-//
-//  max6675.h
-//  esphomelib
-//
-//  Created by Otto Winter on 19.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_MAX6675_H
 #define ESPHOMELIB_SENSOR_MAX6675_H
 
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/spi_component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_MAX6675_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/spi_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

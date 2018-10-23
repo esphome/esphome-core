@@ -1,19 +1,12 @@
-//
-//  sntp_component.h
-//  esphomelib
-//
-//  Created by Brad Davidson on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SNTP_COMPONENT_H
 #define ESPHOMELIB_SNTP_COMPONENT_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
-#include "esphomelib/time/rtc_component.h"
 
 #ifdef USE_SNTP_COMPONENT
+
+#include "esphomelib/component.h"
+#include "esphomelib/time/rtc_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

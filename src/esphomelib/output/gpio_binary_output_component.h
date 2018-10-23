@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 02.12.17.
-//
-
 #ifndef ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H
 #define ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H
 
@@ -43,7 +39,7 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
   float get_setup_priority() const override;
 
   /// Override the BinaryOutput method for writing values to HW.
-  void write_enabled(bool value) override;
+  void write_state(bool state) override;
 
  protected:
   GPIOPin *pin_;

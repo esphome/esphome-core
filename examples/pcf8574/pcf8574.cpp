@@ -1,8 +1,3 @@
-//
-//  Created by Otto Winter on 05.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include <esphomelib.h>
 
 using namespace esphomelib;
@@ -19,10 +14,13 @@ void setup() {
 
   auto *pcf8574 = App.make_pcf8574_component(0x21);
   App.make_gpio_binary_sensor("PCF pin 0 sensor", pcf8574->make_input_pin(0, PCF8574_INPUT));
+  App.make_gpio_binary_sensor("PCF pin 1 sensor", pcf8574->make_input_pin(1, PCF8574_INPUT_PULLUP));
+
   App.make_gpio_binary_sensor("PCF pin 0 sensor", 0);
-  App.make_gpio_switch("PCF pin 1 switch", pcf8574->make_output_pin(1));
-  auto *out = App.make_gpio_output(pcf8574->make_output_pin(2));
-  App.make_binary_light("PCF pin 2 light", out);
+
+  App.make_gpio_switch("PCF pin 4 switch", pcf8574->make_output_pin(4));
+  auto *out = App.make_gpio_output(pcf8574->make_output_pin(5));
+  App.make_binary_light("PCF pin 5 light", out);
 
   App.setup();
 }

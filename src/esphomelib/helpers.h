@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_HELPERS_H
 #define ESPHOMELIB_HELPERS_H
 
@@ -24,21 +20,21 @@
   #include <driver/rmt.h>
 #endif
 
-#define HOT __attribute__ ((hot))
-
 ESPHOMELIB_NAMESPACE_BEGIN
 
 /// Callback function typedef for parsing JsonObjects.
 using json_parse_t = std::function<void(JsonObject &)>;
 
 /// Callback function typedef for building JsonObjects.
-using json_build_t = std::function<void(JsonBuffer &, JsonObject &)>;
+using json_build_t = std::function<void(JsonObject &)>;
 
 /// The characters that are allowed in a hostname.
 extern const char *HOSTNAME_CHARACTER_WHITELIST;
 
 /// Gets the MAC address as a string, this can be used as way to identify this ESP32.
 std::string get_mac_address();
+
+void tick_status_led();
 
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
@@ -53,13 +49,13 @@ std::string truncate_string(const std::string &s, size_t length);
 bool is_empty(const IPAddress &address);
 
 /// Force a shutdown (and reboot) of the ESP, calling any registered shutdown hooks.
-void reboot(const char *cause);
+void reboot(const char *cause) __attribute__ ((noreturn));
 
 /// Add a shutdown callback.
 void add_shutdown_hook(std::function<void(const char *)> &&f);
 
 /// Create a safe shutdown (and reboot) of the ESP, calling any registered shutdown and safe shutdown hooks.
-void safe_reboot(const char *cause);
+void safe_reboot(const char *cause) __attribute__ ((noreturn));
 
 /// Run shutdown hooks.
 void run_shutdown_hooks(const char *cause);
@@ -150,7 +146,14 @@ void enable_interrupts();
 /// Calculate a crc8 of data with the provided data length.
 uint8_t crc8(uint8_t *data, uint8_t len);
 
-optional<bool> parse_on_off(const char *str, const char *payload_on = "on", const char *payload_off = "off");
+enum ParseOnOffState {
+  PARSE_NONE = 0,
+  PARSE_ON,
+  PARSE_OFF,
+  PARSE_TOGGLE,
+};
+
+ParseOnOffState parse_on_off(const char *str, const char *on = nullptr, const char *off = nullptr);
 
 /// Helper class that implements a sliding window moving average.
 class SlidingWindowMovingAverage {

@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_BINARY_SENSOR
@@ -13,31 +9,29 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
-void BinarySensor::add_on_state_callback(binary_callback_t &&callback) {
+void BinarySensor::add_on_state_callback(std::function<void(bool)> &&callback) {
   this->state_callback_.add(std::move(callback));
 }
 
 void BinarySensor::publish_state(bool state) {
   if (this->filter_list_ == nullptr) {
-    this->send_value_(state);
+    this->send_state_internal_(state);
   } else {
     this->filter_list_->input(state);
   }
 
 }
-void BinarySensor::send_value_(bool state) {
-  this->value = state;
+void BinarySensor::send_state_internal_(bool state) {
+  this->has_state_ = true;
+  this->state = state;
   this->state_callback_.call(state);
 }
 std::string BinarySensor::device_class() {
   return "";
 }
-BinarySensor::BinarySensor(const std::string &name) : Nameable(name) {
+BinarySensor::BinarySensor(const std::string &name)
+  : Nameable(name), state(false) {
 
-}
-
-bool BinarySensor::get_value() const {
-  return this->value;
 }
 void BinarySensor::set_device_class(const std::string &device_class) {
   this->device_class_ = device_class;
@@ -74,6 +68,9 @@ void BinarySensor::add_filters(std::vector<Filter *> filters) {
   for (Filter *filter : filters) {
     this->add_filter(filter);
   }
+}
+bool BinarySensor::has_state() const {
+  return this->has_state_;
 }
 
 PressTrigger::PressTrigger(BinarySensor *parent) {

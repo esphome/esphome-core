@@ -1,11 +1,3 @@
-//
-//  duty_cycle_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 09.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_DUTY_CYCLE_SENSOR
@@ -78,7 +70,7 @@ void DutyCycleSensor::update() {
 
   const float value = (on_time / total_time) * 100.0f;
   ESP_LOGD(TAG, "'%s' Got duty cycle=%.1f%%", this->get_name().c_str(), value);
-  this->push_new_value(value);
+  this->publish_state(value);
 
   this->on_time_ = 0;
   this->last_interrupt_ = now;

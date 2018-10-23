@@ -1,19 +1,12 @@
-//
-//  template_switch.h
-//  esphomelib
-//
-//  Created by Otto Winter on 20.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SWITCH_TEMPLATE_SWITCH_H
 #define ESPHOMELIB_SWITCH_TEMPLATE_SWITCH_H
 
-#include "esphomelib/switch_/switch.h"
-#include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_TEMPLATE_SWITCH
+
+#include "esphomelib/switch_/switch.h"
+#include "esphomelib/helpers.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -36,12 +29,11 @@ class TemplateSwitch : public Switch {
  protected:
   bool optimistic() override;
 
-  void turn_on() override;
-  void turn_off() override;
+  void write_state(bool state) override;
 
   optional<std::function<optional<bool>()>> f_;
   bool optimistic_{false};
-  optional<bool> last_value_{};
+  optional<bool> last_state_{};
   Trigger<NoArg> *turn_on_trigger_;
   Trigger<NoArg> *turn_off_trigger_;
 };

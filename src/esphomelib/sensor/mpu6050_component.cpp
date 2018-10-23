@@ -1,10 +1,3 @@
-//
-//  mpu6050_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 05.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
 //   - https://github.com/jarzebski/Arduino-MPU6050
@@ -128,21 +121,21 @@ void MPU6050Component::update() {
            accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, temperature);
 
   if (this->accel_x_sensor_ != nullptr)
-    this->accel_x_sensor_->push_new_value(accel_x);
+    this->accel_x_sensor_->publish_state(accel_x);
   if (this->accel_y_sensor_ != nullptr)
-    this->accel_y_sensor_->push_new_value(accel_y);
+    this->accel_y_sensor_->publish_state(accel_y);
   if (this->accel_z_sensor_ != nullptr)
-    this->accel_z_sensor_->push_new_value(accel_z);
+    this->accel_z_sensor_->publish_state(accel_z);
 
   if (this->temperature_sensor_ != nullptr)
-    this->temperature_sensor_->push_new_value(temperature);
+    this->temperature_sensor_->publish_state(temperature);
 
   if (this->gyro_x_sensor_ != nullptr)
-    this->gyro_x_sensor_->push_new_value(gyro_x);
+    this->gyro_x_sensor_->publish_state(gyro_x);
   if (this->gyro_y_sensor_ != nullptr)
-    this->gyro_y_sensor_->push_new_value(gyro_y);
+    this->gyro_y_sensor_->publish_state(gyro_y);
   if (this->gyro_z_sensor_ != nullptr)
-    this->gyro_z_sensor_->push_new_value(gyro_z);
+    this->gyro_z_sensor_->publish_state(gyro_z);
 
   this->status_clear_warning();
 }

@@ -1,11 +1,3 @@
-//
-//  uptime_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 25.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_UPTIME_SENSOR
@@ -39,7 +31,7 @@ void UptimeSensor::update() {
   // of precision in a single division, but let's do it like this to be sure.
   const uint64_t seconds_int = this->uptime_ / 1000ULL;
   const float seconds = float(seconds_int) + (this->uptime_ % 1000ULL) / 1000.0f;
-  this->push_new_value(seconds);
+  this->publish_state(seconds);
 }
 std::string UptimeSensor::unit_of_measurement() {
   return "s";

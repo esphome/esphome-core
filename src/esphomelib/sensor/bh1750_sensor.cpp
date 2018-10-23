@@ -1,10 +1,3 @@
-//
-//  bh1750_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 10.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //  - http://www.mouser.com/ds/2/348/bh1750fvi-e-186247.pdf
 //  - https://github.com/claws/BH1750
@@ -91,7 +84,7 @@ void BH1750Sensor::read_data_() {
 
   float lx = float(raw_value) / 1.2f;
   ESP_LOGD(TAG, "'%s': Got illuminance=%.1flx", this->get_name().c_str(), lx);
-  this->push_new_value(lx);
+  this->publish_state(lx);
   this->status_clear_warning();
 }
 void BH1750Sensor::set_resolution(BH1750Resolution resolution) {

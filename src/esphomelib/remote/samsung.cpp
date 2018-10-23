@@ -1,11 +1,3 @@
-//
-//  samsung.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_REMOTE
@@ -35,13 +27,17 @@ SamsungTransmitter::SamsungTransmitter(const std::string &name, uint32_t data)
     : RemoteTransmitter(name), data_(data) {}
 
 void SamsungTransmitter::to_data(RemoteTransmitData *data) {
+  encode_samsung(data, this->data_);
+}
+
+void encode_samsung(RemoteTransmitData *data, uint32_t data_) {
   data->set_carrier_frequency(38000);
   data->reserve(4 + NBITS * 2u);
 
   data->item(HEADER_HIGH_US, HEADER_LOW_US);
 
   for (uint32_t mask = 1UL << (NBITS - 1); mask != 0; mask >>= 1) {
-    if (this->data_ & mask)
+    if (data_ & mask)
       data->item(BIT_HIGH_US, BIT_ONE_LOW_US);
     else
       data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);
@@ -52,41 +48,45 @@ void SamsungTransmitter::to_data(RemoteTransmitData *data) {
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-bool decode_samsung(RemoteReceiveData *data, uint32_t *data_) {
+SamsungDecodeData decode_samsung(RemoteReceiveData *data) {
+  SamsungDecodeData out{};
+  out.valid = false;
+  out.data = 0;
   if (!data->expect_item(HEADER_HIGH_US, HEADER_LOW_US))
-    return false;
+    return out;
 
-  *data_ = 0;
   for (uint8_t i = 0; i < NBITS; i++) {
+    out.data <<= 1UL;
     if (data->expect_item(BIT_HIGH_US, BIT_ONE_LOW_US)) {
-      *data_ = (*data_ << 1) | 1;
+      out.data |= 1UL;
     } else if (data->expect_item(BIT_HIGH_US, BIT_ZERO_LOW_US)) {
-      *data_ = (*data_ << 1) | 0;
+      out.data |= 0UL;
     } else {
-      return false;
+      return out;
     }
   }
 
-  return data->expect_mark(FOOTER_HIGH_US);
+  out.valid = data->expect_mark(FOOTER_HIGH_US);
+  return out;
 }
 
 SamsungReceiver::SamsungReceiver(const std::string &name, uint32_t data)
     : RemoteReceiver(name), data_(data) {}
 
 bool SamsungReceiver::matches(RemoteReceiveData *data) {
-  uint32_t data_;
-  if (!decode_samsung(data, &data_))
+  auto decode = decode_samsung(data);
+  if (!decode.valid)
     return false;
 
-  return this->data_ == data_;
+  return this->data_ == decode.data;
 }
 
 void SamsungDumper::dump(RemoteReceiveData *data) {
-  uint32_t data_;
-  if (!decode_samsung(data, &data_))
+  auto decode = decode_samsung(data);
+  if (!decode.valid)
     return;
 
-  ESP_LOGD(TAG, "Received Samsung: data=0x%08X", data_);
+  ESP_LOGD(TAG, "Received Samsung: data=0x%08X", decode.data);
 }
 #endif
 

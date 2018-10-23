@@ -1,11 +1,3 @@
-//
-//  raw.h
-//  esphomelib
-//
-//  Created by Otto Winter on 05.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_REMOTE_RAW_H
 #define ESPHOMELIB_REMOTE_RAW_H
 
@@ -13,7 +5,8 @@
 
 #ifdef USE_REMOTE
 
-#include "esphomelib/remote/remote_protocol.h"
+#include "esphomelib/remote/remote_receiver.h"
+#include "esphomelib/remote/remote_transmitter.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

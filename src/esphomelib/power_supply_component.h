@@ -1,15 +1,12 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_POWER_SUPPLY_COMPONENT_H
 #define ESPHOMELIB_POWER_SUPPLY_COMPONENT_H
 
-#include "esphomelib/component.h"
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_OUTPUT
+
+#include "esphomelib/component.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

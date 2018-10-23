@@ -1,19 +1,11 @@
-//
-//  i2c_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 05.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_I2C_COMPONENT_H
 #define ESPHOMELIB_I2C_COMPONENT_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_I2C
 
+#include "esphomelib/component.h"
 #include <Wire.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN

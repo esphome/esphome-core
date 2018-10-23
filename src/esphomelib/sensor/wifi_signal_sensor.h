@@ -1,18 +1,11 @@
-//
-//  wifi_signal_sensor.h
-//  esphomelib
-//
-//  Created by Brad Davidson on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_WIFI_SIGNAL_SENSOR_H
 #define ESPHOMELIB_SENSOR_WIFI_SIGNAL_SENSOR_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/sensor/sensor.h"
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

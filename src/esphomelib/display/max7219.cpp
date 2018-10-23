@@ -1,18 +1,9 @@
-//
-//  max7219.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 14.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_MAX7219
 
 #include "esphomelib/display/max7219.h"
 #include "esphomelib/log.h"
-#include "max7219.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

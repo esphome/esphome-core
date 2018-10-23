@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #ifndef ESPHOMELIB_WIFI_COMPONENT_H
 #define ESPHOMELIB_WIFI_COMPONENT_H
 
@@ -180,7 +176,7 @@ class WiFiComponent : public Component {
   uint8_t num_retried_{0};
   uint32_t last_connected_{0};
   uint32_t reboot_timeout_{60000};
-  WiFiPowerSaveMode power_save_{WIFI_POWER_SAVE_NONE};
+  optional<WiFiPowerSaveMode> power_save_{};
 };
 
 extern WiFiComponent *global_wifi_component;

@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 28.11.17.
-//
-
 #ifndef ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 #define ESPHOMELIB_LIGHT_LIGHT_COLOR_VALUES_H
 
@@ -73,14 +69,6 @@ class LightColorValues {
    */
   void save_to_preferences(const std::string &friendly_name, const LightTraits &traits) const;
 
-  /** Parse a color from the provided JsonObject.
-   *
-   * See <a href="https://home-assistant.io/components/light.mqtt_json/">Home Assistant MQTT JSON light</a>.
-   *
-   * @param root The json root object.
-   */
-  void parse_json(const JsonObject &root, const LightTraits &traits);
-
   /** Dump this color into a JsonObject. Only dumps values if the corresponding traits are marked supported by traits.
    *
    * @param root The json root object.
@@ -115,6 +103,7 @@ class LightColorValues {
 
   float get_state() const;
   void set_state(float state);
+  void set_state(bool state);
 
   float get_brightness() const;
   void set_brightness(float brightness);

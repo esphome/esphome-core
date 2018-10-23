@@ -1,20 +1,13 @@
-//
-//  ina219.h
-//  esphomelib
-//
-//  Created by Otto Winter on 02.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_INA_219_H
 #define ESPHOMELIB_INA_219_H
+
+#include "esphomelib/defines.h"
+
+#ifdef USE_INA219
 
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/component.h"
 #include "esphomelib/i2c_component.h"
-#include "esphomelib/defines.h"
-
-#ifdef USE_INA219
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

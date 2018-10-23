@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 26.11.17.
-//
-
 #ifndef ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H
 #define ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H
 
@@ -34,11 +30,6 @@ class SetLevelAction;
  */
 class FloatOutput : public BinaryOutput {
  public:
-  // ===== OVERRIDE THIS =====
-  /// Write a floating point state to hardware, inversion and max_power is already applied.
-  virtual void write_state(float state) = 0;
-  // ===== OVERRIDE THIS =====
-
   /** Set the maximum power output of this component.
    *
    * All values are multiplied by this float to get the adjusted value.
@@ -47,27 +38,24 @@ class FloatOutput : public BinaryOutput {
    */
   void set_max_power(float max_power);
 
+  /// Set the level of this float output, this is called from the front-end.
+  void set_level(float state);
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-
-  /// This is the method that is called internally by the MQTT component.
-  void set_state_(float state);
-
-  /// Override BinaryOutput's enable() and disable() so that we can convert it to float.
-  void enable() override;
-  /// Override BinaryOutput's enable() and disable() so that we can convert it to float.
-  void disable() override;
 
   /// Get the maximum power output.
   float get_max_power() const;
 
   /// Implement BinarySensor's write_enabled; this should never be called.
-  void write_enabled(bool value) override;
+  void write_state(bool value) override;
 
   template<typename T>
   SetLevelAction<T> *make_set_level_action();
 
  protected:
+  virtual void write_state(float state) = 0;
+
   float max_power_{1.0f};
 };
 
@@ -98,7 +86,7 @@ void SetLevelAction<T>::set_level(float level) {
 }
 template<typename T>
 void SetLevelAction<T>::play(T x) {
-  this->output_->set_state_(this->level_.value(x));
+  this->output_->set_level(this->level_.value(x));
   this->play_next(x);
 }
 

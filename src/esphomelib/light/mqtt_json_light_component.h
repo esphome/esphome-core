@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 28.11.17.
-//
-
 #ifndef ESPHOMELIB_LIGHT_MQTT_JSON_LIGHT_COMPONENT
 #define ESPHOMELIB_LIGHT_MQTT_JSON_LIGHT_COMPONENT
 
@@ -24,7 +20,7 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
 
   void setup() override;
 
-  void send_discovery(JsonBuffer &buffer, JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
+  void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
   void send_initial_state() override;
 

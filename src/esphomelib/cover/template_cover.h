@@ -1,11 +1,3 @@
-//
-//  template_cover.h
-//  esphomelib
-//
-//  Created by Otto Winter on 20.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_COVER_TEMPLATE_COVER_H
 #define ESPHOMELIB_COVER_TEMPLATE_COVER_H
 
@@ -32,13 +24,10 @@ class TemplateCover : public Cover, public Component {
 
   void loop() override;
 
-  void open() override;
-  void close() override;
-  void stop() override;
-
   float get_setup_priority() const override;
 
  protected:
+  void write_command(CoverCommand command) override;
   bool optimistic() override;
 
   optional<std::function<optional<CoverState>()>> f_;

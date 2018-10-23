@@ -1,13 +1,3 @@
-//
-//  wifi_signal_sensor.cpp
-//  esphomelib
-//
-//  Created by Brad Davidson on 06.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-//
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
@@ -28,7 +18,7 @@ WiFiSignalSensor::WiFiSignalSensor(const std::string &name, uint32_t update_inte
 
 }
 void WiFiSignalSensor::update() {
-  this->push_new_value(WiFi.RSSI());
+  this->publish_state(WiFi.RSSI());
 }
 std::string WiFiSignalSensor::unit_of_measurement() {
   return "dB";

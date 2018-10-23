@@ -1,19 +1,12 @@
-//
-//  tcs34725.h
-//  esphomelib
-//
-//  Created by Otto Winter on 11.08.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_TCS34725_H
 #define ESPHOMELIB_SENSOR_TCS34725_H
 
 #include "esphomelib/defines.h"
-#include "esphomelib/sensor/sensor.h"
-#include "esphomelib/i2c_component.h"
 
 #ifdef USE_TCS34725
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/i2c_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

@@ -1,11 +1,3 @@
-//
-//  dht12_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 17.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_DHT12_COMPONENT_H
 #define ESPHOMELIB_SENSOR_DHT12_COMPONENT_H
 

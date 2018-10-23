@@ -1,11 +1,3 @@
-//
-//  esp32_hall_sensor.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 02.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_ESP32_HALL_SENSOR
@@ -23,7 +15,7 @@ ESP32HallSensor::ESP32HallSensor(const std::string &name, uint32_t update_interv
 }
 void ESP32HallSensor::update() {
   float value = hallRead() / 4095.0f;
-  this->push_new_value(value * 10000.0f);
+  this->publish_state(value * 10000.0f);
 }
 std::string ESP32HallSensor::unit_of_measurement() {
   return "µT";

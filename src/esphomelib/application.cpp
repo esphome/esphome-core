@@ -1,7 +1,3 @@
-//
-// Created by Otto Winter on 25.11.17.
-//
-
 #include "esphomelib/application.h"
 
 #include <utility>
@@ -44,6 +40,9 @@ using namespace esphomelib::remote;
 #ifdef USE_TIME
 using namespace esphomelib::time;
 #endif
+#ifdef USE_TEXT_SENSOR
+using namespace esphomelib::text_sensor;
+#endif
 
 static const char *TAG = "application";
 
@@ -52,7 +51,7 @@ void Application::setup() {
   assert(this->application_state_ == COMPONENT_STATE_CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
-    return a->get_setup_priority() >= b->get_setup_priority();
+    return a->get_setup_priority() > b->get_setup_priority();
   });
 
   for (uint32_t i = 0; i < this->components_.size(); i++) {
@@ -65,7 +64,7 @@ void Application::setup() {
       continue;
 
     std::stable_sort(this->components_.begin(), this->components_.begin() + i + 1, [](Component *a, Component *b) {
-      return a->get_loop_priority() >= b->get_loop_priority();
+      return a->get_loop_priority() > b->get_loop_priority();
     });
 
     do {
@@ -83,6 +82,12 @@ void Application::setup() {
   }
 
   this->application_state_ = COMPONENT_STATE_SETUP;
+
+  if (this->compilation_time_.empty()) {
+    ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION);
+  } else {
+    ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION " compiled on %s", this->compilation_time_.c_str());
+  }
 }
 
 void HOT Application::loop() {
@@ -121,14 +126,19 @@ WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string
 }
 
 void Application::set_name(const std::string &name) {
-  assert(this->name_.empty() && "Name was already set!");
   this->name_ = to_lowercase_underscore(name);
   global_preferences.begin(name);
 }
 
+void Application::set_compilation_datetime(const char *str) {
+  this->compilation_time_ = str;
+}
+const std::string &Application::get_compilation_time() const {
+  return this->compilation_time_;
+}
+
 MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
                                             const std::string &username, const std::string &password) {
-  assert(this->mqtt_client_ == nullptr);
   MQTTClientComponent *component = new MQTTClientComponent(MQTTCredentials{
       .address = address,
       .port = port,
@@ -288,9 +298,7 @@ WiFiComponent *Application::get_wifi() const {
 
 #ifdef USE_OTA
 OTAComponent *Application::init_ota() {
-  auto *ota = new OTAComponent();
-  ota->set_hostname(this->wifi_->get_hostname());
-  return this->register_component(ota);
+  return this->register_component(new OTAComponent());
 }
 #endif
 
@@ -356,13 +364,11 @@ DallasComponent *Application::make_dallas_component(const GPIOOutputPin &pin, ui
 #ifdef USE_GPIO_SWITCH
 Application::MakeGPIOSwitch Application::make_gpio_switch(const std::string &friendly_name,
                                                           const GPIOOutputPin &pin) {
-  auto *binary_output = this->make_gpio_output(pin);
-  auto simple_switch = this->make_simple_switch(friendly_name, binary_output);
+  auto gpio_switch = this->register_component(new GPIOSwitch(friendly_name, pin.copy()));
 
   return {
-      .gpio = binary_output,
-      .switch_ = simple_switch.switch_,
-      .mqtt = simple_switch.mqtt,
+      .switch_ = gpio_switch,
+      .mqtt = this->register_switch(gpio_switch),
   };
 }
 #endif
@@ -603,9 +609,9 @@ sensor::MPU6050Component *Application::make_mpu6050_sensor(uint8_t address, uint
 }
 #endif
 
-#ifdef USE_SIMPLE_SWITCH
-Application::MakeSimpleSwitch Application::make_simple_switch(const std::string &friendly_name, BinaryOutput *output) {
-  auto *s = this->register_component(new SimpleSwitch(friendly_name, output));
+#ifdef USE_OUTPUT_SWITCH
+Application::MakeOutputSwitch Application::make_output_switch(const std::string &friendly_name, BinaryOutput *output) {
+  auto *s = this->register_component(new OutputSwitch(friendly_name, output));
   return {
       .switch_ = s,
       .mqtt = this->register_switch(s)
@@ -1146,6 +1152,73 @@ sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin
 #ifdef USE_NEXTION
 display::Nextion *Application::make_nextion(UARTComponent *parent, uint32_t update_interval) {
   return this->register_component(new display::Nextion(parent, update_interval));
+}
+#endif
+
+#ifdef USE_TEXT_SENSOR
+text_sensor::MQTTTextSensor *Application::register_text_sensor(text_sensor::TextSensor *sensor) {
+  for (auto *controller : this->controllers_)
+    controller->register_text_sensor(sensor);
+  MQTTTextSensor *ret = nullptr;
+  if (this->mqtt_client_ != nullptr)
+    ret = this->register_component(new MQTTTextSensor(sensor));
+  return ret;
+}
+#endif
+
+#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_sensor(const std::string &name,
+                                                                                      std::string topic) {
+  auto *sensor = this->register_component(new MQTTSubscribeTextSensor(name, std::move(topic)));
+  return MakeMQTTSubscribeTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_VERSION_TEXT_SENSOR
+Application::MakeVersionTextSensor Application::make_version_text_sensor(const std::string &name) {
+  auto *sensor = this->register_component(new VersionTextSensor(name));
+  return MakeVersionTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_MQTT_SUBSCRIBE_SENSOR
+Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(const std::string &name, std::string topic) {
+  auto *sensor = this->register_component(new sensor::MQTTSubscribeSensor(name, std::move(topic)));
+
+  return MakeMQTTSubscribeSensor {
+      .sensor = sensor,
+      .mqtt = this->register_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_TEMPLATE_TEXT_SENSOR
+Application::MakeTemplateTextSensor Application::make_template_text_sensor(const std::string &name,
+                                                                           uint32_t update_interval) {
+  auto *template_ = this->register_component(new TemplateTextSensor(name, update_interval));
+
+  return MakeTemplateTextSensor{
+      .template_ = template_,
+      .mqtt = this->register_text_sensor(template_),
+  };
+}
+#endif
+
+#ifdef USE_CSE7766
+sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent) {
+  return this->register_component(new sensor::CSE7766Component(parent));
+}
+#endif
+
+#ifdef USE_PMSX003
+sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type) {
+  return this->register_component(new PMSX003Component(parent, type));
 }
 #endif
 

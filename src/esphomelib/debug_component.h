@@ -1,18 +1,11 @@
-//
-//  debug_component.h
-//  esphomelib
-//
-//  Created by Otto Winter on 13.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_DEBUG_COMPONENT_H
 #define ESPHOMELIB_DEBUG_COMPONENT_H
 
-#include "esphomelib/component.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_DEBUG_COMPONENT
+
+#include "esphomelib/component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

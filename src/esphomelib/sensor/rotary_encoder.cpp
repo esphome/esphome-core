@@ -1,11 +1,3 @@
-//
-//  rotary_encoder.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 16.05.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_ROTARY_ENCODER_SENSOR
@@ -145,7 +137,7 @@ void ICACHE_RAM_ATTR RotaryEncoderSensor::process_state_machine_() {
 void RotaryEncoderSensor::loop() {
   if (this->has_changed_) {
     this->has_changed_ = false;
-    this->push_new_value(this->counter_);
+    this->publish_state(this->counter_);
   }
 }
 std::string RotaryEncoderSensor::unit_of_measurement() {

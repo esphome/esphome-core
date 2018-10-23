@@ -1,20 +1,12 @@
-//
-//  ultrasonic_sensor.h
-//  esphomelib
-//
-//  Created by Otto Winter on 21.03.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #ifndef ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H
 #define ESPHOMELIB_SENSOR_ULTRASONIC_SENSOR_H
 
-#include "esphomelib/sensor/sensor.h"
-
-#include "esphomelib/esphal.h"
 #include "esphomelib/defines.h"
 
 #ifdef USE_ULTRASONIC_SENSOR
+
+#include "esphomelib/sensor/sensor.h"
+#include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

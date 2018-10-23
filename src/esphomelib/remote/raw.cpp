@@ -1,11 +1,3 @@
-//
-//  raw.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 05.06.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_REMOTE
@@ -37,7 +29,7 @@ RawTransmitter::RawTransmitter(const std::string &name,
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-void remote::RawDumper::dump(RemoteReceiveData *data) {
+void RawDumper::dump(RemoteReceiveData *data) {
   char buffer[256];
   uint32_t buffer_offset = 0;
   buffer_offset += sprintf(buffer, "Received Raw: ");
@@ -75,10 +67,10 @@ void remote::RawDumper::dump(RemoteReceiveData *data) {
 bool RawReceiver::matches(RemoteReceiveData *data) {
   for (int32_t val : this->data_) {
     if (val < 0) {
-      if (!data->expect_space(-val))
+      if (!data->expect_space(static_cast<uint32_t>(-val)))
         return false;
     } else {
-      if (!data->expect_mark(val))
+      if (!data->expect_mark(static_cast<uint32_t>(val)))
         return false;
     }
   }

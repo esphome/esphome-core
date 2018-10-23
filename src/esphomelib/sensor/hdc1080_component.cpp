@@ -1,10 +1,3 @@
-//
-//  hdc1080_component.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 01.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
 // Based on:
 //   - https://github.com/closedcube/ClosedCube_HDC1080_Arduino
 //   - http://www.ti.com/lit/ds/symlink/hdc1080.pdf
@@ -56,7 +49,7 @@ void HDC1080Component::update() {
     return;
   }
   float temp = raw_temp * 0.0025177f - 40.0f; // raw * 2^-16 * 165 - 40
-  this->temperature_->push_new_value(temp);
+  this->temperature_->publish_state(temp);
 
   uint16_t raw_humidity;
   if (!this->read_byte_16(HDC1080_CMD_HUMIDITY, &raw_humidity, 9)) {
@@ -64,7 +57,7 @@ void HDC1080Component::update() {
     return;
   }
   float humidity = raw_humidity * 0.001525879f; // raw * 2^-16 * 100
-  this->humidity_->push_new_value(humidity);
+  this->humidity_->publish_state(humidity);
 
   ESP_LOGD(TAG, "Got temperature=%.1f°C humidity=%.1f%%", temp, humidity);
   this->status_clear_warning();

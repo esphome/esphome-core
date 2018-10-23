@@ -1,11 +1,3 @@
-//
-//  controller.cpp
-//  esphomelib
-//
-//  Created by Otto Winter on 12.04.18.
-//  Copyright © 2018 Otto Winter. All rights reserved.
-//
-
 #include "esphomelib/controller.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -62,6 +54,15 @@ void Controller::register_cover(cover::Cover *cover) {
 }
 void StoringController::register_cover(cover::Cover *cover) {
   this->covers_.push_back(cover);
+}
+#endif
+
+#ifdef USE_TEXT_SENSOR
+void Controller::register_text_sensor(text_sensor::TextSensor *obj) {
+
+}
+void StoringController::register_text_sensor(text_sensor::TextSensor *obj) {
+  this->text_sensors_.push_back(obj);
 }
 #endif
 
