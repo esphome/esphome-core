@@ -107,6 +107,8 @@
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/uptime_sensor.h"
 #include "esphomelib/sensor/wifi_signal_sensor.h"
+#include "esphomelib/stepper/stepper.h"
+#include "esphomelib/stepper/a4988.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/output_switch.h"
@@ -1243,6 +1245,10 @@ class Application {
   MakeTemplateCover make_template_cover(const std::string &name);
 #endif
 
+
+#ifdef USE_A4988
+  stepper::A4988 *make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin);
+#endif
 
 
 
