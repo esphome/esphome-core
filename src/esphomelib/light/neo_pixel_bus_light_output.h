@@ -10,7 +10,6 @@
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
 
 #include "NeoPixelBus.h"
-#include "esphomelib/light/partitioned_light_output.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -25,7 +24,7 @@ namespace light {
  * These add_leds helpers can, however, only be called once on a NeoPixelBusLightOutputComponent.
  */
 template <typename T_COLOR_FEATURE, typename T_METHOD>
-class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public Component {
+class NeoPixelBusLightOutputComponent : public LightOutput, public Component {
  public:
   /// Only for custom effects: Tell this component to write the new color values on the next loop() iteration.
   void schedule_show() {
@@ -79,19 +78,6 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
     this->controller_->ClearTo(
         this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()));
 
-    const auto remote_values = state->get_remote_values();
-    for (auto const &state : this->partitions_states_) {
-      state->set_immediately_without_write(remote_values);
-    }
-    this->schedule_show();
-  }
-
-  void write_partition(LightState *state, uint16_t index_start, uint16_t index_end) override {
-    if (this->prevent_writing_leds_)
-      return;
-    this->controller_->ClearTo(
-        this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()), index_start,
-        index_end);
     this->schedule_show();
   }
 

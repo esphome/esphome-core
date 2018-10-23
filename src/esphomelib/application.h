@@ -50,7 +50,6 @@
 #include "esphomelib/light/light_color_values.h"
 #include "esphomelib/light/neo_pixel_bus_light_output.h"
 #include "esphomelib/light/neo_pixel_bus_light_effect.h"
-#include "esphomelib/light/partitioned_light_output.h"
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/light_state.h"
@@ -1126,25 +1125,6 @@ class Application {
 
     return MakeNeoPixelBusLight<T_COLOR_FEATURE,T_METHOD> {
         .neo_pixel_bus = neo_pixel,
-        .state = make.state,
-        .mqtt = make.mqtt,
-    };
-  }
-
-  struct MakePartitionedLight {
-    light::PartitionedLightOutputComponent *partitioned;
-    light::LightState *state;
-    light::MQTTJSONLightComponent *mqtt;
-  };
-
-  /// Create a Partitioned light.
-  Application::MakePartitionedLight make_partitioned_light(const std::string &name, light::PartitionableLightOutput *partitionable, light::LightState *partitionable_light_state, uint16_t index_start, uint16_t index_end) {
-    auto *partitioned = this->register_component(new light::PartitionedLightOutputComponent(partitionable, partitionable_light_state, index_start, index_end));
-    auto make = this->make_light_for_light_output(name, partitioned);
-    partitionable->register_partition_state(make.state);
-
-    return MakePartitionedLight {
-        .partitioned = partitioned,
         .state = make.state,
         .mqtt = make.mqtt,
     };

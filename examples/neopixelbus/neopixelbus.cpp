@@ -24,10 +24,6 @@ void setup() {
     new light::NeoPixelBusLoop<NeoGrbwFeature, Neo800KbpsMethod>("Short Loop", 20000, 3)
   });
 
-  App.make_partitioned_light("NeoPixelBus Light Partition 1", neopixel.neo_pixel_bus, neopixel.state, 0, 9);
-  App.make_partitioned_light("NeoPixelBus Light Partition 2", neopixel.neo_pixel_bus, neopixel.state, 10, 19);
-  App.make_partitioned_light("NeoPixelBus Light Partition 3", neopixel.neo_pixel_bus, neopixel.state, 20, 29);
-
   App.setup();
 }
 
