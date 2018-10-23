@@ -11,8 +11,8 @@
 
 #include "esphomelib/defines.h"
 #include "esphomelib/helpers.h"
-#include "esphomelib/log.h"
 #include "esphomelib/light/light_state.h"
+#include "esphomelib/log.h"
 #include "esphomelib/power_supply_component.h"
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
@@ -85,7 +85,8 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
   void write_state(LightState *state) override {
     if (this->prevent_writing_leds_)
       return;
-    this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()));
+    this->controller_->ClearTo(
+        this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()));
 
     const auto current_values = state->get_remote_values_lazy();
     for (auto const &state : this->partitions_states_) {
@@ -97,7 +98,9 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
   void write_partition(LightState *state, uint16_t index_start, uint16_t index_end) override {
     if (this->prevent_writing_leds_)
       return;
-    this->controller_->ClearTo(this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()), index_start, index_end);
+    this->controller_->ClearTo(
+        this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()), index_start,
+        index_end);
     this->schedule_show();
   }
 
@@ -144,8 +147,8 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
     return setup_priority::HARDWARE;
   }
   template <typename U>
-  static typename std::enable_if<std::is_same<U, RgbColor>::value, RgbColor>::type
-  get_light_color(LightState *state, const LightColorValues values) {
+  static typename std::enable_if<std::is_same<U, RgbColor>::value, RgbColor>::type get_light_color(
+      LightState *state, const LightColorValues values) {
     float red, green, blue;
     values.as_rgb(&red, &green, &blue);
     red = gamma_correct(red, state->get_gamma_correct());
@@ -158,8 +161,8 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
   }
 
   template <typename U>
-  static typename std::enable_if<std::is_same<U, RgbwColor>::value, RgbwColor>::type
-  get_light_color(LightState *state, const LightColorValues values) {
+  static typename std::enable_if<std::is_same<U, RgbwColor>::value, RgbwColor>::type get_light_color(
+      LightState *state, const LightColorValues values) {
     float red, green, blue, white, brightness;
     values.as_rgbw(&red, &green, &blue, &white);
     values.as_brightness(&brightness);
@@ -172,8 +175,10 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
     uint8_t blueb = blue * 255;
     uint8_t whiteb = white * 255;
     uint8_t brightnessb = brightness * 255;
-    // currently in hass there is no way to only show white via the hass ui, so disable the colors if all of them are on and therefore very white
-    bool white_colors = redb >= brightnessb - 10 && greenb >= brightnessb - 10 && blueb >= brightnessb - 10 && whiteb >= brightnessb - 10;
+    // currently in hass there is no way to only show white via the hass ui, so disable the colors if all of them are on
+    // and therefore very white
+    bool white_colors = redb >= brightnessb - 10 && greenb >= brightnessb - 10 && blueb >= brightnessb - 10 &&
+                        whiteb >= brightnessb - 10;
     if (white_colors) {
       return RgbwColor(whiteb);
     } else {
@@ -206,6 +211,6 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  //USE_NEO_PIXEL_BUS_LIGHT
+#endif  // USE_NEO_PIXEL_BUS_LIGHT
 
-#endif  //ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_OUTPUT_H
+#endif  // ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_OUTPUT_H

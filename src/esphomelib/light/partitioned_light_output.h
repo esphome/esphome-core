@@ -37,8 +37,9 @@ class PartitionableLightOutput {
  */
 class PartitionedLightOutputComponent : public LightOutput, public Component {
  public:
-  PartitionedLightOutputComponent(PartitionableLightOutput *partitionable, LightState *master_state, uint16_t index_start, uint16_t index_end) : partitionable_(partitionable), master_state_(master_state), index_start_(index_start), index_end_(index_end) {
-  }
+  PartitionedLightOutputComponent(PartitionableLightOutput *partitionable, LightState *master_state,
+                                  uint16_t index_start, uint16_t index_end)
+      : partitionable_(partitionable), master_state_(master_state), index_start_(index_start), index_end_(index_end) {}
   LightTraits get_traits() override;
 
   void write_state(LightState *state) override;

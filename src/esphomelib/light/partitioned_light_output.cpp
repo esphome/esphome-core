@@ -32,11 +32,9 @@ void PartitionedLightOutputComponent::write_state(LightState *state) {
   partitionable_->write_partition(state, index_start_, index_end_);
 }
 
-void PartitionedLightOutputComponent::setup() {
-}
+void PartitionedLightOutputComponent::setup() {}
 
-void PartitionedLightOutputComponent::loop() {
-}
+void PartitionedLightOutputComponent::loop() {}
 
 float PartitionedLightOutputComponent::get_setup_priority() const {
   return setup_priority::POST_HARDWARE;
@@ -44,4 +42,4 @@ float PartitionedLightOutputComponent::get_setup_priority() const {
 
 }  // namespace light
 ESPHOMELIB_NAMESPACE_END
-#endif  //USE_NEO_PIXEL_BUS_LIGHT
+#endif  // USE_NEO_PIXEL_BUS_LIGHT

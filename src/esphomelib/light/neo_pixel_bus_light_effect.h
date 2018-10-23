@@ -26,8 +26,8 @@ template <typename T_COLOR_FEATURE, typename T_METHOD>
 class BaseNeoPixelBusLightEffect : public LightEffect {
  public:
   explicit BaseNeoPixelBusLightEffect(const std::string &name, uint16_t countAnimations,
-                                      uint16_t timeScale = NEO_MILLISECONDS) : LightEffect(name), animations_(NeoPixelAnimator(countAnimations, timeScale)) {
-  }
+                                      uint16_t timeScale = NEO_MILLISECONDS)
+      : LightEffect(name), animations_(NeoPixelAnimator(countAnimations, timeScale)) {}
   void start_() override {
     this->get_neo_pixel_bus_output_()->prevent_writing_leds();
     this->start();
@@ -37,15 +37,16 @@ class BaseNeoPixelBusLightEffect : public LightEffect {
     this->animations_.StopAll();
   }
 
-  virtual void apply(NeoPixelBusLightOutputComponent<T_COLOR_FEATURE, T_METHOD> &output, uint8_t brightness, typename T_COLOR_FEATURE::ColorObject color) {
-  }
+  virtual void apply(NeoPixelBusLightOutputComponent<T_COLOR_FEATURE, T_METHOD> &output, uint8_t brightness,
+                     typename T_COLOR_FEATURE::ColorObject color) {}
 
   void apply() override {
     float brightness_f;
     auto state = this->state_;
     const auto values = state->get_remote_values_lazy();
     values.as_brightness(&brightness_f);
-    this->color_ = this->get_neo_pixel_bus_output_()->template get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, values);
+    this->color_ = this->get_neo_pixel_bus_output_()->template get_light_color<typename T_COLOR_FEATURE::ColorObject>(
+        state, values);
     this->apply(*this->get_neo_pixel_bus_output_(), brightness_f, this->color_);
     this->animations_.UpdateAnimations();
     this->get_neo_pixel_bus_output_()->schedule_show();
@@ -65,14 +66,15 @@ class BaseNeoPixelBusLightEffect : public LightEffect {
 template <typename T_COLOR_FEATURE, typename T_METHOD>
 class NeoPixelBusLoop : public BaseNeoPixelBusLightEffect<T_COLOR_FEATURE, T_METHOD> {
  public:
-  NeoPixelBusLoop(const std::string &name, const uint16_t duration = 5000, const int looplength = 10) : BaseNeoPixelBusLightEffect<T_COLOR_FEATURE, T_METHOD>(name, 1), duration_(duration), looplength_(looplength) {
-  }
+  NeoPixelBusLoop(const std::string &name, const uint16_t duration = 5000, const int looplength = 10)
+      : BaseNeoPixelBusLightEffect<T_COLOR_FEATURE, T_METHOD>(name, 1), duration_(duration), looplength_(looplength) {}
 
   virtual void start() override {
     using namespace std::placeholders;
 
     // setup aniamtion
-    this->animations_.StartAnimation(0, this->duration_, std::bind(&NeoPixelBusLoop<T_COLOR_FEATURE, T_METHOD>::update_pixel_loop, this, _1));
+    this->animations_.StartAnimation(
+        0, this->duration_, std::bind(&NeoPixelBusLoop<T_COLOR_FEATURE, T_METHOD>::update_pixel_loop, this, _1));
   }
 
  private:
@@ -112,6 +114,6 @@ class NeoPixelBusLoop : public BaseNeoPixelBusLightEffect<T_COLOR_FEATURE, T_MET
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  //USE_FAST_LED_LIGHT
+#endif  // USE_FAST_LED_LIGHT
 
-#endif  //ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
+#endif  // ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
