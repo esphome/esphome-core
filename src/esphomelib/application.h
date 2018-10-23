@@ -49,6 +49,7 @@
 #include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/light/light_color_values.h"
 #include "esphomelib/light/neo_pixel_bus_light_output.h"
+#include "esphomelib/light/neo_pixel_bus_light_effect.h"
 #include "esphomelib/light/partitioned_light_output.h"
 #include "esphomelib/light/light_effect.h"
 #include "esphomelib/light/light_output_component.h"
@@ -1110,8 +1111,9 @@ class Application {
 #endif
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
-  template<typename T_COLOR_FEATURE, typename T_METHOD> struct MakeNeoPixelBusLight {
-    light::NeoPixelBusLightOutputComponent<T_COLOR_FEATURE,T_METHOD> *neo_pixel_bus;
+  template<typename T_COLOR_FEATURE, typename T_METHOD>
+  struct MakeNeoPixelBusLight {
+    light::NeoPixelBusLightOutputComponent<T_COLOR_FEATURE, T_METHOD> *neo_pixel_bus;
     light::LightState *state;
     light::MQTTJSONLightComponent *mqtt;
   };

@@ -1,11 +1,3 @@
-//
-//  neo_pixel_bus_light_output.h
-//  esphomelib
-//
-//  Created by Patrick Huy on 03.09.18.
-//  Copyright © 2018 Patrick Huy. Some rights reserved.
-//
-
 #ifndef ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_OUTPUT_H
 #define ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_OUTPUT_H
 
@@ -18,7 +10,7 @@
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
 
 #include "NeoPixelBus.h"
-#include "partitioned_light_output.h"
+#include "esphomelib/light/partitioned_light_output.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -33,11 +25,10 @@ namespace light {
  * These add_leds helpers can, however, only be called once on a NeoPixelBusLightOutputComponent.
  */
 template <typename T_COLOR_FEATURE, typename T_METHOD>
-class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public LightOutput, public Component {
+class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public Component {
  public:
   /// Only for custom effects: Tell this component to write the new color values on the next loop() iteration.
   void schedule_show() {
-    ESP_LOGVV(TAG, "Scheduling show...");
     this->next_show_ = true;
   }
 
@@ -64,7 +55,7 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
 
   /// Add some LEDS, can only be called once.
   NeoPixelBus<T_COLOR_FEATURE, T_METHOD> &add_leds(NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller) {
-    assert(this->controller_ == nullptr && "FastLEDLightOutputComponent only supports one controller at a time.");
+    assert(this->controller_ == nullptr && "NeoPixelBusLightOutputComponent only supports one controller at a time.");
 
     this->controller_ = controller;
     this->controller_->ClearTo(typename T_COLOR_FEATURE::ColorObject(0, 0, 0));
@@ -105,7 +96,6 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
   }
 
   void setup() override {
-    ESP_LOGCONFIG(TAG, "Setting up Neo Pixel Bus light...");
     assert(this->controller_ != nullptr && "You need to add LEDs to this controller!");
     this->controller_->ClearTo(typename T_COLOR_FEATURE::ColorObject(0, 0, 0));
   }
@@ -116,8 +106,6 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
     uint32_t now = micros();
     this->last_refresh_ = now;
     this->next_show_ = false;
-
-    ESP_LOGVV(TAG, "Writing RGB values to bus...");
 
 #ifdef USE_OUTPUT
     if (this->power_supply_ != nullptr) {
@@ -174,16 +162,7 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
     uint8_t greenb = green * 255;
     uint8_t blueb = blue * 255;
     uint8_t whiteb = white * 255;
-    uint8_t brightnessb = brightness * 255;
-    // currently in hass there is no way to only show white via the hass ui, so disable the colors if all of them are on
-    // and therefore very white
-    bool white_colors = redb >= brightnessb - 10 && greenb >= brightnessb - 10 && blueb >= brightnessb - 10 &&
-                        whiteb >= brightnessb - 10;
-    if (white_colors) {
-      return RgbwColor(whiteb);
-    } else {
-      return RgbwColor(redb, greenb, blueb, whiteb);
-    }
+    return RgbwColor(redb, greenb, blueb, whiteb);
   }
 
  protected:
@@ -194,7 +173,6 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
   PowerSupplyComponent *power_supply_{nullptr};
   bool has_requested_high_power_{false};
 #endif
- private:
   static bool is_on(const RgbColor &color) {
     return color.R != 0 && color.G != 0 && color.B != 0;
   }
@@ -204,7 +182,6 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
   }
 
   bool prevent_writing_leds_{false};
-  const char *TAG = "light.neo_pixel_bus";
 };
 
 }  // namespace light

@@ -1,20 +1,11 @@
-//
-//  neopixelbus.cpp
-//  esphomelib
-//
-//  Created by Patrick Huy on 07.09.18.
-//  Copyright © 2018 Patrick Huy. Some rights reserved.
-//
-
 #include <esphomelib.h>
-#include <esphomelib/light/neo_pixel_bus_light_effect.h>
 
 using namespace esphomelib;
 
-uint16_t PixelCount = 30;
-uint8_t PixelPin = 2;
-// in Neo800KbpsMethod (dma) the PixelPin is not used and is always PIN 2 (RX)
-NeoPixelBus<NeoGrbwFeature, Neo800KbpsMethod> strip(PixelCount, PixelPin);
+uint16_t pixel_count = 30;
+uint8_t pixel_pin = 2;
+// in Neo800KbpsMethod (dma) the pixel_pin is not used and is always PIN 2 (RX)
+NeoPixelBus<NeoGrbwFeature, Neo800KbpsMethod> strip(pixel_count, pixel_pin);
 
 void setup() {
   App.set_name("neopixelbus");
@@ -27,14 +18,11 @@ void setup() {
   auto neopixel = App.make_neo_pixel_bus_light("NeoPixelBus SK 6812 Light", strip);
   neopixel.state->set_default_transition_length(800);
 
-  auto randomEffect = new light::RandomLightEffect("Random");
-  auto loopEffect = new light::NeoPixelBusLoop<NeoGrbwFeature, Neo800KbpsMethod>("Loop", 60000, 100);
-  auto shortLoopEffect = new light::NeoPixelBusLoop<NeoGrbwFeature, Neo800KbpsMethod>("Short Loop", 20000, 3);
-  std::vector<light::LightEffect*> effects;
-  effects.push_back(randomEffect);
-  effects.push_back(loopEffect);
-  effects.push_back(shortLoopEffect);
-  neopixel.state->add_effects(effects);
+  neopixel.state->add_effects({
+    new light::RandomLightEffect("Random"),
+    new light::NeoPixelBusLoop<NeoGrbwFeature, Neo800KbpsMethod>("Loop", 60000, 100),
+    new light::NeoPixelBusLoop<NeoGrbwFeature, Neo800KbpsMethod>("Short Loop", 20000, 3)
+  });
 
   App.make_partitioned_light("NeoPixelBus Light Partition 1", neopixel.neo_pixel_bus, neopixel.state, 0, 9);
   App.make_partitioned_light("NeoPixelBus Light Partition 2", neopixel.neo_pixel_bus, neopixel.state, 10, 19);

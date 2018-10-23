@@ -1,11 +1,3 @@
-//
-//  neo_pixel_bus_light_effect.h
-//  esphomelib
-//
-//  Created by Patrick Huy on 05.09.18.
-//  color_to_setright © 2018 Patrick Huy. Some rights reserved.
-//
-
 #ifndef ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_EFFECT_H
 #define ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_EFFECT_H
 
@@ -25,9 +17,9 @@ namespace light {
 template <typename T_COLOR_FEATURE, typename T_METHOD>
 class BaseNeoPixelBusLightEffect : public LightEffect {
  public:
-  explicit BaseNeoPixelBusLightEffect(const std::string &name, uint16_t countAnimations,
-                                      uint16_t timeScale = NEO_MILLISECONDS)
-      : LightEffect(name), animations_(NeoPixelAnimator(countAnimations, timeScale)) {}
+  explicit BaseNeoPixelBusLightEffect(const std::string &name, uint16_t count_animations,
+                                      uint16_t time_scale = NEO_MILLISECONDS)
+      : LightEffect(name), animations_(NeoPixelAnimator(count_animations, time_scale)) {}
   void start_() override {
     this->get_neo_pixel_bus_output_()->prevent_writing_leds();
     this->start();
@@ -69,7 +61,7 @@ class NeoPixelBusLoop : public BaseNeoPixelBusLightEffect<T_COLOR_FEATURE, T_MET
   NeoPixelBusLoop(const std::string &name, const uint16_t duration = 5000, const int looplength = 10)
       : BaseNeoPixelBusLightEffect<T_COLOR_FEATURE, T_METHOD>(name, 1), duration_(duration), looplength_(looplength) {}
 
-  virtual void start() override {
+  void start() override {
     using namespace std::placeholders;
 
     // setup aniamtion
@@ -114,6 +106,6 @@ class NeoPixelBusLoop : public BaseNeoPixelBusLightEffect<T_COLOR_FEATURE, T_MET
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_FAST_LED_LIGHT
+#endif  // USE_NEO_PIXEL_BUS_LIGHT
 
-#endif  // ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
+#endif  // ESPHOMELIB_NEO_PIXEL_BUS_LIGHT_EFFECT_H

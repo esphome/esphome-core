@@ -1,11 +1,3 @@
-//
-//  partitioned_light_output.h
-//  esphomelib
-//
-//  Created by Patrick Huy on 03.09.18.
-//  Copyright © 2018 Patrick Huy. Some rights reserved.
-//
-
 #ifndef ESPHOMELIB_PARTITIONED_LIGHT_OUTPUT_H
 #define ESPHOMELIB_PARTITIONED_LIGHT_OUTPUT_H
 
@@ -22,7 +14,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
-class PartitionableLightOutput {
+class PartitionableLightOutput : public LightOutput {
  public:
   virtual void write_partition(LightState *state, uint16_t index_start, uint16_t index_end) = 0;
   virtual LightTraits get_traits() = 0;
