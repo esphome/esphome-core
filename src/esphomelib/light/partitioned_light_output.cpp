@@ -25,8 +25,8 @@ LightTraits PartitionedLightOutputComponent::get_traits() {
 }
 
 void PartitionedLightOutputComponent::write_state(LightState *state) {
-  auto current_values = master_state_->get_remote_values_lazy();
-  if (state->get_current_values_lazy().get_state() > current_values.get_state()) {
+  auto remote_values = master_state_->get_remote_values();
+  if (state->get_current_values_lazy().get_state() > remote_values.get_state()) {
     master_state_->set_immediately_without_write(LightColorValues::from_binary(true));
   }
   partitionable_->write_partition(state, index_start_, index_end_);

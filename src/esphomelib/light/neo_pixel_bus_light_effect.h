@@ -43,7 +43,7 @@ class BaseNeoPixelBusLightEffect : public LightEffect {
   void apply() override {
     float brightness_f;
     auto state = this->state_;
-    const auto values = state->get_remote_values_lazy();
+    const auto values = state->get_remote_values();
     values.as_brightness(&brightness_f);
     this->color_ = this->get_neo_pixel_bus_output_()->template get_light_color<typename T_COLOR_FEATURE::ColorObject>(
         state, values);

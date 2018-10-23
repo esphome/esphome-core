@@ -88,9 +88,9 @@ class NeoPixelBusLightOutputComponent : public PartitionableLightOutput, public 
     this->controller_->ClearTo(
         this->get_light_color<typename T_COLOR_FEATURE::ColorObject>(state, state->get_current_values()));
 
-    const auto current_values = state->get_remote_values_lazy();
+    const auto remote_values = state->get_remote_values();
     for (auto const &state : this->partitions_states_) {
-      state->set_immediately_without_write(current_values);
+      state->set_immediately_without_write(remote_values);
     }
     this->schedule_show();
   }
