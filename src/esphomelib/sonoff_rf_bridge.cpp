@@ -82,10 +82,17 @@ void SonoffRFBridge::process_data_() {
     uint8_t b = (data >> (23 - i)) & 1;
     data_s[i] = '0' + b;
   }
-  ESP_LOGD(TAG, "Got data sync=%u low=%u high=%u data='%s'",
-           t_sync, t_low, t_high, data_s);
 
-
+  bool report = true;
+  for (auto *sens : this->binary_sensors_) {
+    if (sens->process(t_sync, t_low, t_high, data)) {
+      report = false;
+    }
+  }
+  if (report) {
+    ESP_LOGD(TAG, "Got data sync=%u low=%u high=%u data='%s'",
+             t_sync, t_low, t_high, data_s);
+  }
 }
 void SonoffRFBridge::ack_() {
   this->write_str("\r\n");
