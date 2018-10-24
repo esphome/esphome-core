@@ -18,6 +18,7 @@
 #include "esphomelib/log_component.h"
 #include "esphomelib/ota_component.h"
 #include "esphomelib/power_supply_component.h"
+#include "esphomelib/sonoff_rf_bridge.h"
 #include "esphomelib/spi_component.h"
 #include "esphomelib/status_led.h"
 #include "esphomelib/uart_component.h"
@@ -1243,7 +1244,9 @@ class Application {
   MakeTemplateCover make_template_cover(const std::string &name);
 #endif
 
-
+#ifdef USE_SONOFF_RF_BRIDGE
+  SonoffRFBridge *make_sonoff_rf_bridge(UARTComponent *parent);
+#endif
 
 
 

@@ -115,6 +115,7 @@
   #define USE_MQTT_SUBSCRIBE_SENSOR
   #define USE_CSE7766
   #define USE_PMSX003
+  #define USE_SONOFF_RF_BRIDGE
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -555,6 +556,18 @@
 #ifdef USE_TEMPLATE_TEXT_SENSOR
   #ifndef USE_TEXT_SENSOR
     #define USE_TEXT_SENSOR
+  #endif
+#endif
+
+#ifdef USE_SONOFF_RF_BRIDGE
+  #ifndef USE_UART
+    #define USE_UART
+  #endif
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+  #ifndef USE_SWITCH
+    #define USE_SWITCH
   #endif
 #endif
 

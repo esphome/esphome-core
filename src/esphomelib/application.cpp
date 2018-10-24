@@ -1222,6 +1222,12 @@ sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, senso
 }
 #endif
 
+#ifdef USE_SONOFF_RF_BRIDGE
+SonoffRFBridge *Application::make_sonoff_rf_bridge(UARTComponent *parent) {
+  return this->register_component(new SonoffRFBridge(parent));
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
