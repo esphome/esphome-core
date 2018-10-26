@@ -14,7 +14,7 @@ namespace light {
 using esphomelib::output::FloatOutput;
 
 LightTraits BinaryLightOutput::get_traits() {
-  return {false, false, false};
+  return {false, false, false, false};
 }
 void BinaryLightOutput::write_state(LightState *state) {
   bool value;
@@ -28,7 +28,7 @@ BinaryLightOutput::BinaryLightOutput(output::BinaryOutput *output)
 }
 
 LightTraits MonochromaticLightOutput::get_traits() {
-  return {true, false, false};
+  return {true, false, false, false};
 }
 void MonochromaticLightOutput::write_state(LightState *state) {
   float value;
@@ -41,7 +41,7 @@ MonochromaticLightOutput::MonochromaticLightOutput(FloatOutput *output)
 }
 
 LightTraits CWWWLightOutput::get_traits() {
-  return {true, false, false, false, true};
+  return {true, false, false, true};
 }
 void CWWWLightOutput::write_state(LightState *state) {
   float cold_white, warm_white;
@@ -60,7 +60,7 @@ CWWWLightOutput::CWWWLightOutput(float cold_white_mireds,
 }
 
 LightTraits RGBLightOutput::get_traits() {
-  return {true, true, false};
+  return {true, true, false, false};
 }
 void RGBLightOutput::write_state(LightState *state) {
   float red, green, blue;
@@ -75,7 +75,7 @@ RGBLightOutput::RGBLightOutput(FloatOutput *red, FloatOutput *green, FloatOutput
 }
 
 LightTraits RGBWLightOutput::get_traits() {
-  return {true, true, true};
+  return {true, true, true, false};
 }
 void RGBWLightOutput::write_state(LightState *state) {
   float red, green, blue, white;
@@ -91,7 +91,7 @@ RGBWLightOutput::RGBWLightOutput(FloatOutput *red, FloatOutput *green, FloatOutp
 }
 
 LightTraits RGBWWLightOutput::get_traits() {
-  return {true, true, true, false, true};
+  return {true, true, true, true};
 }
 void RGBWWLightOutput::write_state(LightState *state) {
   float red, green, blue, cold_white, warm_white;

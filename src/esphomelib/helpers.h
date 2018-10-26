@@ -113,6 +113,11 @@ double random_double();
 /// Returns a random float between 0 and 1. Essentially just casts random_double() to a float.
 float random_float();
 
+void fast_random_set_seed(uint32_t seed);
+uint32_t fast_random_32();
+uint16_t fast_random_16();
+uint8_t fast_random_8();
+
 /// Applies gamma correction with the provided gamma to value.
 float gamma_correct(float value, float gamma);
 

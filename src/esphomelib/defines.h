@@ -5,6 +5,7 @@
 
 #define HOT __attribute__ ((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
+#define ALWAYS_INLINE __attribute__((always_inline))
 
 #ifndef DOXYGEN
   #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {

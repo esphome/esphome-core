@@ -45,7 +45,7 @@
 #include "esphomelib/fan/fan_state.h"
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/io/pcf8574_component.h"
-#include "esphomelib/light/fast_led_light_effect.h"
+#include "esphomelib/light/addressable_light_effect.h"
 #include "esphomelib/light/fast_led_light_output.h"
 #include "esphomelib/light/light_color_values.h"
 #include "esphomelib/light/light_effect.h"
