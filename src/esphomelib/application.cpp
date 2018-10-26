@@ -109,6 +109,7 @@ void HOT Application::loop() {
     }
     new_global_state |= component->get_component_state();
     global_state |= new_global_state;
+    feed_wdt();
   }
   global_state = new_global_state;
   yield();
