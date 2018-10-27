@@ -26,8 +26,8 @@ void CSE7766Component::loop() {
 
   this->last_transmission_ = now;
   while (this->available() != 0) {
-    uint8_t data;
-    if (!this->read_byte(&data) || !this->check_byte_(data, this->raw_data_index_)) {
+    this->read_byte(&this->raw_data_[this->raw_data_index_])
+    if (!this->check_byte_()) {
       this->raw_data_index_ = 0;
       this->status_set_warning();
       continue;
@@ -44,7 +44,9 @@ void CSE7766Component::loop() {
 float CSE7766Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-bool CSE7766Component::check_byte_(uint8_t byte, uint8_t index) {
+bool CSE7766Component::check_byte_() {
+  uint8_t index = this->raw_data_index_;
+  uint8_t byte = this->raw_data_[index];
   if (index == 0) {
     // Header - 0x55
     if (byte == 0xAA) {
@@ -52,7 +54,7 @@ bool CSE7766Component::check_byte_(uint8_t byte, uint8_t index) {
       return false;
     }
     if ((byte & 0xF0) == 0xF0) {
-      ESP_LOGW(TAG, "CSE7766 reports abnormal hardware: ");
+      ESP_LOGW(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
       if ((byte >> 3) & 1) {
         ESP_LOGW(TAG, "  Voltage cycle exceeds range.");
       }
@@ -75,7 +77,7 @@ bool CSE7766Component::check_byte_(uint8_t byte, uint8_t index) {
   }
 
   if (index == 1) {
-    if (byte != 0xFA) {
+    if (byte != 0x5A) {
       ESP_LOGW(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
       return false;
     }
