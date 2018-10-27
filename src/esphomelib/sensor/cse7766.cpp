@@ -26,7 +26,7 @@ void CSE7766Component::loop() {
 
   this->last_transmission_ = now;
   while (this->available() != 0) {
-    this->read_byte(&this->raw_data_[this->raw_data_index_])
+    this->read_byte(&this->raw_data_[this->raw_data_index_]);
     if (!this->check_byte_()) {
       this->raw_data_index_ = 0;
       this->status_set_warning();
