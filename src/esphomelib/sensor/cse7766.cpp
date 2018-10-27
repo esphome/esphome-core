@@ -28,7 +28,6 @@ void CSE7766Component::loop() {
   while (this->available() != 0) {
     uint8_t data;
     if (!this->read_byte(&data) || !this->check_byte_(data, this->raw_data_index_)) {
-      ESP_LOGW(TAG, "Error reading CSE7766 data.");
       this->raw_data_index_ = 0;
       this->status_set_warning();
       continue;
@@ -69,7 +68,7 @@ bool CSE7766Component::check_byte_(uint8_t byte, uint8_t index) {
       return false;
     }
     if (byte != 0x55) {
-      ESP_LOGW(TAG, "Invalid Header Start from CSE7766: 0x%02X!", byte);
+      ESP_LOGV(TAG, "Invalid Header Start from CSE7766: 0x%02X!", byte);
       return false;
     }
     return true;
