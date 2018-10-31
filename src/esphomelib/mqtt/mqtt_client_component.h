@@ -183,7 +183,7 @@ class MQTTClientComponent : public Component {
    * @param payload The payload.
    * @param retain Whether to retain the message.
    */
-  void publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain);
+  void publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
 
   /** Construct and send a JSON MQTT message.
    *
@@ -191,7 +191,7 @@ class MQTTClientComponent : public Component {
    * @param f The Json Message builder.
    * @param retain Whether to retain the message.
    */
-  void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain);
+  void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos = 0, bool retain = false);
 
   /// Setup the MQTT client, registering a bunch of callbacks and attempting to connect.
   void setup() override;
