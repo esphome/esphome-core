@@ -33,7 +33,7 @@ class CSE7766Component : public Component, public UARTDevice {
   float get_setup_priority() const override;
 
  protected:
-  bool check_byte_(uint8_t byte, uint8_t index);
+  bool check_byte_();
   void parse_data_();
   uint32_t get_24_bit_uint(uint8_t start_index);
 

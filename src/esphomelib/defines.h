@@ -115,6 +115,8 @@
   #define USE_MQTT_SUBSCRIBE_SENSOR
   #define USE_CSE7766
   #define USE_PMSX003
+  #define USE_STEPPER
+  #define USE_A4988
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -555,6 +557,12 @@
 #ifdef USE_TEMPLATE_TEXT_SENSOR
   #ifndef USE_TEXT_SENSOR
     #define USE_TEXT_SENSOR
+  #endif
+#endif
+
+#ifdef USE_A4988
+  #ifndef USE_STEPPER
+    #define USE_STEPPER
   #endif
 #endif
 

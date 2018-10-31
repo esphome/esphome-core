@@ -69,8 +69,10 @@ void ICACHE_RAM_ATTR HOT SPIComponent::read_array(uint8_t *data, size_t length) 
 }
 
 void ICACHE_RAM_ATTR HOT SPIComponent::write_array(uint8_t *data, size_t length) {
-  for (size_t i = 0; i < length; i++)
+  for (size_t i = 0; i < length; i++) {
+    feed_wdt();
     this->write_byte(data[i]);
+  }
 }
 
 void ICACHE_RAM_ATTR HOT SPIComponent::enable(GPIOPin *cs, bool msb_first, bool high_speed) {
@@ -111,29 +113,29 @@ void SPIComponent::set_mosi(const GPIOOutputPin &mosi) {
 
 SPIDevice::SPIDevice(SPIComponent *parent, GPIOPin *cs)
     : parent_(parent), cs_(cs) {}
-void SPIDevice::enable() {
+void HOT SPIDevice::enable() {
   this->parent_->enable(this->cs_, this->msb_first(), this->high_speed());
 }
-void SPIDevice::disable() {
+void HOT SPIDevice::disable() {
   this->parent_->disable();
 }
-uint8_t SPIDevice::read_byte() {
+uint8_t HOT SPIDevice::read_byte() {
   return this->parent_->read_byte();
 }
-void SPIDevice::read_array(uint8_t *data, size_t length) {
+void HOT SPIDevice::read_array(uint8_t *data, size_t length) {
   return this->parent_->read_array(data, length);
 }
-void SPIDevice::write_byte(uint8_t data) {
+void HOT SPIDevice::write_byte(uint8_t data) {
   return this->parent_->write_byte(data);
 }
-void SPIDevice::write_array(uint8_t *data, size_t length) {
+void HOT SPIDevice::write_array(uint8_t *data, size_t length) {
   this->parent_->write_array(data, length);
 }
 void SPIDevice::spi_setup() {
   this->cs_->setup();
   this->cs_->digital_write(true);
 }
-bool SPIDevice::high_speed() {
+bool HOT SPIDevice::high_speed() {
   return false;
 }
 

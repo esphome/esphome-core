@@ -43,6 +43,9 @@ using namespace esphomelib::time;
 #ifdef USE_TEXT_SENSOR
 using namespace esphomelib::text_sensor;
 #endif
+#ifdef USE_STEPPER
+using namespace esphomelib::stepper;
+#endif
 
 static const char *TAG = "application";
 
@@ -106,6 +109,7 @@ void HOT Application::loop() {
     }
     new_global_state |= component->get_component_state();
     global_state |= new_global_state;
+    feed_wdt();
   }
   global_state = new_global_state;
   yield();
@@ -1219,6 +1223,12 @@ sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent) {
 #ifdef USE_PMSX003
 sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type) {
   return this->register_component(new PMSX003Component(parent, type));
+}
+#endif
+
+#ifdef USE_A4988
+stepper::A4988 *Application::make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin) {
+  return this->register_component(new A4988(step_pin.copy(), dir_pin.copy()));
 }
 #endif
 

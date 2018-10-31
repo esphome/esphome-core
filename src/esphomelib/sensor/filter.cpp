@@ -12,8 +12,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-SlidingWindowMovingAverageFilter::SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every)
-    : send_every_(send_every), send_at_(send_every - 1),
+SlidingWindowMovingAverageFilter::SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every, size_t send_first_at)
+    : send_every_(send_every), send_at_(send_every - send_first_at),
       value_average_(SlidingWindowMovingAverage(window_size)) {
 
 }

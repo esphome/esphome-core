@@ -64,8 +64,11 @@ class SlidingWindowMovingAverageFilter : public Filter {
    *
    * @param window_size The number of values that should be averaged.
    * @param send_every After how many sensor values should a new one be pushed out.
+   * @param send_first_at After how many values to forward the very first value. Defaults to the first value
+   *   on startup being published on the first *raw* value, so with no filter applied. Must be less than or equal to
+   *   send_every.
    */
-  explicit SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every);
+  explicit SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every, uint32_t send_first_at = 1);
 
   optional<float> new_value(float value) override;
 

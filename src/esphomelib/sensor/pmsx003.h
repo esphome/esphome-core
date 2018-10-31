@@ -8,6 +8,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/uart_component.h"
+#include "esphomelib/helpers.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -62,8 +63,9 @@ class PMSX003Component : public UARTDevice, public Component {
   PMSX003Sensor *make_formaldehyde_sensor(const std::string &name);
 
  protected:
-  bool check_byte_(uint8_t byte, uint8_t index);
-  uint16_t get_16_bit_uint(uint8_t start_index);
+  optional<bool> check_byte_();
+  void parse_data_();
+  uint16_t get_16_bit_uint_(uint8_t start_index);
 
   uint8_t data_[64];
   uint8_t data_index_{0};
