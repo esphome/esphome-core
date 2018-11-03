@@ -137,16 +137,16 @@ void ESP32BLETracker::ble_setup() {
 void ESP32BLETracker::start_scan(bool first) {
   xSemaphoreTake(semaphore_scan_end, portMAX_DELAY);
 
-  ESP_LOGD(TAG, "Starting scan...");
+  this->defer([]() {
+    ESP_LOGD(TAG, "Starting scan...");
+  });
   if (!first) {
     // also O(N^2), but will only be called once every minute or so
     for (auto *device : this->presence_sensors_) {
       if (!this->has_already_discovered_(device->address_))
-        device->publish_state(false);
-    }
-    for (auto *device : this->rssi_sensors_) {
-      if (!this->has_already_discovered_(device->address_))
-        device->publish_state(NAN);
+        this->defer([device]() {
+          device->publish_state(false);
+        });
     }
   }
   this->already_discovered_.clear();
@@ -197,7 +197,9 @@ void ESP32BLETracker::gap_scan_result(const esp_ble_gap_cb_param_t::ble_scan_res
       return;
     this->parse_presence_sensors_(device);
   } else if (param.search_evt == ESP_GAP_SEARCH_INQ_CMPL_EVT) {
-    ESP_LOGD(TAG, "Scan complete.");
+    this->defer([]() {
+      ESP_LOGD(TAG, "Scan complete.");
+    });
     xSemaphoreGive(semaphore_scan_end);
   }
 }
@@ -213,9 +215,12 @@ bool ESP32BLETracker::has_already_discovered_(uint64_t address) {
 
 void ESP32BLETracker::parse_rssi_sensors_(const ESPBTDevice &device) {
   const uint64_t address = device.address_uint64();
+  int rssi = device.get_rssi();
   for (auto *dev : this->rssi_sensors_) {
     if (dev->address_ == address)
-      dev->publish_state(device.get_rssi());
+      this->defer([dev, rssi]() {
+        dev->publish_state(rssi);
+      });
   }
 }
 
@@ -319,83 +324,91 @@ void ESP32BLETracker::parse_xiaomi_sensors_(const ESPBTDevice &device) {
   const uint8_t raw_type = raw[raw_offset];
   const uint8_t data_length = raw[raw_offset + 2];
   const uint8_t *data = &raw[raw_offset + 3];
-  if (data_length + raw_offset + 3 != device.get_service_data().size()) {
-    ESP_LOGW(TAG, "Xiaomi %s data length mismatch", type);
+  const uint8_t expected_length = data_length + raw_offset + 3;
+  const uint8_t actual_length = device.get_service_data().size();
+  if (expected_length != actual_length) {
+    ESP_LOGV(TAG, "Xiaomi %s data length mismatch (%u != %d)", type, expected_length, actual_length);
     return;
   }
   float data1, data2;
   XiaomiDataType data_type = parse_xiaomi(raw_type, data, data_length, &data1, &data2);
-  switch (data_type) {
-    case XIAOMI_TEMPERATURE_HUMIDITY:
-      ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C, humidity=%.1f%%",
-          type, device.address_str().c_str(), data1, data2);
-      break;
-    case XIAOMI_TEMPERATURE:
-      ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C",
-          type, device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_HUMIDITY:
-      ESP_LOGD(TAG, "Xiaomi %s %s Got humidity=%.1f%%",
-          type, device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_BATTERY_LEVEL:
-      ESP_LOGD(TAG, "Xiaomi %s %s Got battery level=%.0f%%",
-          type, device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_MOISTURE:
-      ESP_LOGD(TAG, "Xiaomi %s %s Got moisture=%.0f%%",
-          type, device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_ILLUMINANCE:
-      ESP_LOGD(TAG, "Xiaomi %s %s Got illuminance=%.0flx",
-          type, device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_CONDUCTIVITY:
-      ESP_LOGD(TAG, "Xiaomi %s %s Got soil conductivity=%.0fµS/cm",
-          type, device.address_str().c_str(), data1);
-      break;
-    case XIAOMI_NO_DATA:
-    default:return;
-  }
+  if (data_type == XIAOMI_NO_DATA)
+    return;
 
-  for (auto *dev : this->xiaomi_devices_) {
-    if (dev->address_ == address) {
-      switch (data_type) {
-        case XIAOMI_TEMPERATURE_HUMIDITY:
-          if (dev->get_temperature_sensor() != nullptr)
-            dev->get_temperature_sensor()->publish_state(data1);
-          if (dev->get_humidity_sensor() != nullptr)
-            dev->get_humidity_sensor()->publish_state(data2);
-          break;
-        case XIAOMI_HUMIDITY:
-          if (dev->get_humidity_sensor() != nullptr)
-            dev->get_humidity_sensor()->publish_state(data1);
-          break;
-        case XIAOMI_BATTERY_LEVEL:
-          if (dev->get_battery_level_sensor() != nullptr)
-            dev->get_battery_level_sensor()->publish_state(data1);
-          break;
-        case XIAOMI_TEMPERATURE:
-          if (dev->get_temperature_sensor() != nullptr)
-            dev->get_temperature_sensor()->publish_state(data1);
-          break;
-        case XIAOMI_MOISTURE:
-          if (dev->get_moisture_sensor() != nullptr)
-            dev->get_moisture_sensor()->publish_state(data1);
-          break;
-        case XIAOMI_ILLUMINANCE:
-          if (dev->get_illuminance_sensor() != nullptr)
-            dev->get_illuminance_sensor()->publish_state(data1);
-          break;
-        case XIAOMI_CONDUCTIVITY:
-          if (dev->get_conductivity_sensor() != nullptr)
-            dev->get_conductivity_sensor()->publish_state(data1);
-          break;
-        default:
-          break;
+  std::string address_str = device.address_str();
+  this->defer([this, address_str, data_type, type, data1, data2, address]() {
+    switch (data_type) {
+      case XIAOMI_TEMPERATURE_HUMIDITY:
+        ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C, humidity=%.1f%%",
+                 type, address_str.c_str(), data1, data2);
+        break;
+      case XIAOMI_TEMPERATURE:
+        ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C",
+                 type, address_str.c_str(), data1);
+        break;
+      case XIAOMI_HUMIDITY:
+        ESP_LOGD(TAG, "Xiaomi %s %s Got humidity=%.1f%%",
+                 type, address_str.c_str(), data1);
+        break;
+      case XIAOMI_BATTERY_LEVEL:
+        ESP_LOGD(TAG, "Xiaomi %s %s Got battery level=%.0f%%",
+                 type, address_str.c_str(), data1);
+        break;
+      case XIAOMI_MOISTURE:
+        ESP_LOGD(TAG, "Xiaomi %s %s Got moisture=%.0f%%",
+                 type, address_str.c_str(), data1);
+        break;
+      case XIAOMI_ILLUMINANCE:
+        ESP_LOGD(TAG, "Xiaomi %s %s Got illuminance=%.0flx",
+                 type, address_str.c_str(), data1);
+        break;
+      case XIAOMI_CONDUCTIVITY:
+        ESP_LOGD(TAG, "Xiaomi %s %s Got soil conductivity=%.0fµS/cm",
+                 type, address_str.c_str(), data1);
+        break;
+      default:
+        break;
+    }
+
+    for (auto *dev : this->xiaomi_devices_) {
+      if (dev->address_ == address) {
+        switch (data_type) {
+          case XIAOMI_TEMPERATURE_HUMIDITY:
+            if (dev->get_temperature_sensor() != nullptr)
+              dev->get_temperature_sensor()->publish_state(data1);
+            if (dev->get_humidity_sensor() != nullptr)
+              dev->get_humidity_sensor()->publish_state(data2);
+            break;
+          case XIAOMI_HUMIDITY:
+            if (dev->get_humidity_sensor() != nullptr)
+              dev->get_humidity_sensor()->publish_state(data1);
+            break;
+          case XIAOMI_BATTERY_LEVEL:
+            if (dev->get_battery_level_sensor() != nullptr)
+              dev->get_battery_level_sensor()->publish_state(data1);
+            break;
+          case XIAOMI_TEMPERATURE:
+            if (dev->get_temperature_sensor() != nullptr)
+              dev->get_temperature_sensor()->publish_state(data1);
+            break;
+          case XIAOMI_MOISTURE:
+            if (dev->get_moisture_sensor() != nullptr)
+              dev->get_moisture_sensor()->publish_state(data1);
+            break;
+          case XIAOMI_ILLUMINANCE:
+            if (dev->get_illuminance_sensor() != nullptr)
+              dev->get_illuminance_sensor()->publish_state(data1);
+            break;
+          case XIAOMI_CONDUCTIVITY:
+            if (dev->get_conductivity_sensor() != nullptr)
+              dev->get_conductivity_sensor()->publish_state(data1);
+            break;
+          default:
+            break;
+        }
       }
     }
-  }
+  });
 }
 
 bool ESP32BLETracker::parse_already_discovered_(const ESPBTDevice &device) {
@@ -408,28 +421,30 @@ bool ESP32BLETracker::parse_already_discovered_(const ESPBTDevice &device) {
   this->already_discovered_.push_back(address);
 
 #ifdef ESPHOMELIB_LOG_HAS_DEBUG
-  ESP_LOGD(TAG, "Found device %s RSSI=%d", device.address_str().c_str(), device.get_rssi());
+  this->defer([device]() {
+    ESP_LOGD(TAG, "Found device %s RSSI=%d", device.address_str().c_str(), device.get_rssi());
 
-  const char *address_type_s;
-  switch (device.get_address_type()) {
-    case BLE_ADDR_TYPE_PUBLIC: address_type_s = "PUBLIC";
-      break;
-    case BLE_ADDR_TYPE_RANDOM: address_type_s = "RANDOM";
-      break;
-    case BLE_ADDR_TYPE_RPA_PUBLIC: address_type_s = "RPA_PUBLIC";
-      break;
-    case BLE_ADDR_TYPE_RPA_RANDOM: address_type_s = "RPA_RANDOM";
-      break;
-    default: address_type_s = "UNKNOWN";
-      break;
-  }
+    const char *address_type_s;
+    switch (device.get_address_type()) {
+      case BLE_ADDR_TYPE_PUBLIC: address_type_s = "PUBLIC";
+        break;
+      case BLE_ADDR_TYPE_RANDOM: address_type_s = "RANDOM";
+        break;
+      case BLE_ADDR_TYPE_RPA_PUBLIC: address_type_s = "RPA_PUBLIC";
+        break;
+      case BLE_ADDR_TYPE_RPA_RANDOM: address_type_s = "RPA_RANDOM";
+        break;
+      default: address_type_s = "UNKNOWN";
+        break;
+    }
 
-  ESP_LOGD(TAG, "    Address Type: %s", address_type_s);
-  if (!device.get_name().empty())
-    ESP_LOGD(TAG, "    Name: '%s'", device.get_name().c_str());
-  if (device.get_tx_power().has_value()) {
-    ESP_LOGD(TAG, "    TX Power: %d", *device.get_tx_power());
-  }
+    ESP_LOGD(TAG, "    Address Type: %s", address_type_s);
+    if (!device.get_name().empty())
+      ESP_LOGD(TAG, "    Name: '%s'", device.get_name().c_str());
+    if (device.get_tx_power().has_value()) {
+      ESP_LOGD(TAG, "    TX Power: %d", *device.get_tx_power());
+    }
+  });
 #endif
 
   return false;
@@ -439,7 +454,9 @@ void ESP32BLETracker::parse_presence_sensors_(const ESPBTDevice &device) {
   const uint64_t address = device.address_uint64();
   for (auto *dev : this->presence_sensors_) {
     if (dev->address_ == address)
-      dev->publish_state(true);
+      this->defer([dev]() {
+        dev->publish_state(true);
+      });
   }
 }
 
