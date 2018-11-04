@@ -220,6 +220,8 @@ class MQTTClientComponent : public Component {
 
   void register_mqtt_component(MQTTComponent *component);
 
+  bool is_connected();
+
  protected:
   /// Reconnect to the MQTT broker if not already connected.
   void start_connect();

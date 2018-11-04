@@ -15,14 +15,21 @@ namespace binary_sensor {
  *
  * Most of the magic doesn't happen here, but in Application.make_status_binary_sensor.
  */
-class StatusBinarySensor : public BinarySensor {
+class StatusBinarySensor : public BinarySensor, public Component {
  public:
   /// Construct the status binary sensor
   explicit StatusBinarySensor(const std::string &name);
 
+  void loop() override;
+
+  void setup() override;
+
+  float get_setup_priority() const override;
+
  protected:
   /// "connectivity" device class.
   std::string device_class() override;
+  bool last_status_{false};
 };
 
 } // namespace binary_sensor
