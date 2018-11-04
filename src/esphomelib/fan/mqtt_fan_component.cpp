@@ -155,12 +155,11 @@ void MQTTFanComponent::publish_state() {
         payload = "medium";
         break;
       }
+      default:
       case FAN_SPEED_HIGH: {
         payload = "high";
         break;
       }
-      default:
-        assert(false);
     }
     this->send_message(this->get_speed_state_topic(), payload);
   }
