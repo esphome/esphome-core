@@ -148,6 +148,9 @@ bool Sensor::has_state() const {
 }
 uint32_t Sensor::calculate_expected_filter_update_interval() {
   uint32_t interval = this->update_interval();
+  if (interval == 4294967295UL)
+    // update_interval: never
+    return 0;
   Filter *filter = this->filter_list_;
   while (filter != nullptr) {
     interval = filter->expected_interval(interval);
