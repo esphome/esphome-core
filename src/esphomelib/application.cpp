@@ -504,7 +504,7 @@ I2CComponent *Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, bool scan)
 
 #ifdef USE_STATUS_BINARY_SENSOR
 Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const std::string &friendly_name) {
-  auto *binary_sensor = new StatusBinarySensor(friendly_name); // not a component
+  auto *binary_sensor = this->register_component(new StatusBinarySensor(friendly_name));
   auto *mqtt = this->register_binary_sensor(binary_sensor);
   mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
   mqtt->disable_availability();
