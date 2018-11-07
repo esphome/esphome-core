@@ -9,13 +9,14 @@
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <ESPmDNS.h>
+#include <Update.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
   #include <ESP8266mDNS.h>
+  #include <Updater.h>
 #endif
 
 #include <cstdlib>
-#include <Update.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
