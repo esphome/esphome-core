@@ -60,6 +60,7 @@
 #include "esphomelib/output/gpio_binary_output_component.h"
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
+#include "esphomelib/output/my9231_output_component.h"
 #include "esphomelib/remote/lg.h"
 #include "esphomelib/remote/nec.h"
 #include "esphomelib/remote/panasonic.h"
@@ -1022,6 +1023,16 @@ class Application {
   output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin_);
 #endif
 
+#ifdef USE_MY9231_OUTPUT
+  /** Create a MY9231 component.
+   *
+   * @param pin_di The pin which DI is connected to.
+   * @param pin_dcki The pin which DCKI is connected to.
+   * @return The MY9231 component. Use this for advanced settings.
+   */
+  output::MY9231OutputComponent *make_my9231_component(const GPIOOutputPin &pin_di,
+                                                       const GPIOOutputPin &pin_dcki);
+#endif
 
 
 

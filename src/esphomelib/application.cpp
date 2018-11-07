@@ -240,6 +240,14 @@ PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
 }
 #endif
 
+#ifdef USE_MY9231_OUTPUT
+MY9231OutputComponent *Application::make_my9231_component(const GPIOOutputPin &pin_di,
+                                                          const GPIOOutputPin &pin_dcki) {
+  auto *my9231 = new MY9231OutputComponent(pin_di.copy(), pin_dcki.copy());
+  return this->register_component(my9231);
+}
+#endif
+
 #ifdef USE_LIGHT
 Application::MakeLight Application::make_rgb_light(const std::string &friendly_name,
                                                    FloatOutput *red, FloatOutput *green, FloatOutput *blue) {
