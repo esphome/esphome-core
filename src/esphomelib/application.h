@@ -892,15 +892,8 @@ class Application {
   sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 15000);
 #endif
 
-#ifdef USE_TIME
-  time::RTCComponent *make_rtc_component(const std::string &tz = "UTC");
-#endif
-
 #ifdef USE_SNTP_COMPONENT
-  time::SNTPComponent *make_sntp_component(const std::string &server_1 = "0.pool.ntp.org",
-                                           const std::string &server_2 = "1.pool.ntp.org",
-                                           const std::string &server_3 = "2.pool.ntp.org",
-                                           const std::string &tz = "UTC");
+  time::SNTPComponent *make_sntp_component();
 #endif
 
 #ifdef USE_HLW8012

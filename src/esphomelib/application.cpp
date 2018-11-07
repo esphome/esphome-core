@@ -1127,18 +1127,9 @@ display::GPIOLCDDisplay *Application::make_gpio_lcd_display(uint8_t columns, uin
 }
 #endif
 
-#ifdef USE_TIME
-RTCComponent *Application::make_rtc_component(const std::string &tz) {
-  return this->register_component(new RTCComponent(tz));
-}
-#endif
-
 #ifdef USE_SNTP_COMPONENT
-SNTPComponent *Application::make_sntp_component(const std::string &server_1,
-                                                const std::string &server_2,
-                                                const std::string &server_3,
-                                                const std::string &tz) {
-  return this->register_component(new SNTPComponent(server_1, server_2, server_3, tz));
+SNTPComponent *Application::make_sntp_component() {
+  return this->register_component(new SNTPComponent());
 }
 #endif
 
