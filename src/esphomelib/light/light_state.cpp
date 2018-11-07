@@ -438,8 +438,8 @@ void LightState::StateCall::perform() {
     this->state_->start_flash(v, *this->flash_length_);
   } else {
     uint32_t length = this->transition_length_.value_or(this->state_->default_transition_length_);
-    if (traits.has_brightness()) {
-      ESP_LOGD(TAG, "  Transition Length: %u ms", *this->transition_length_);
+    if (traits.has_brightness() && length != 0) {
+      ESP_LOGD(TAG, "  Transition Length: %u ms", length);
     }
     this->state_->start_transition(v, length);
   }
