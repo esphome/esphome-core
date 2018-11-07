@@ -7,6 +7,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
+#include "esphomelib/esppreferences.h"
 #include "esphomelib/fan/fan_traits.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -34,7 +35,7 @@ class ToggleAction;
  * Both the frontend and the backend can register callbacks whenever a state is changed from the
  * frontend and whenever a state is actually changed and should be pushed to the frontend
  */
-class FanState : public Nameable {
+class FanState : public Nameable, public Component {
  public:
   /// Construct the fan state with name.
   explicit FanState(const std::string &name);
@@ -46,11 +47,6 @@ class FanState : public Nameable {
   const FanTraits &get_traits() const;
   /// Set the traits of this fan (i.e. what features it supports).
   void set_traits(const FanTraits &traits);
-
-  /// Load a fan state from the preferences into this object.
-  void load_from_preferences();
-  /// Save the fan state from this object into the preferences.
-  void save_to_preferences();
 
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
@@ -89,9 +85,13 @@ class FanState : public Nameable {
   FanState::StateCall toggle();
   FanState::StateCall make_call();
 
+  void setup() override;
+  float get_setup_priority() const override;
+
  protected:
   FanTraits traits_{};
   CallbackManager<void()> state_callback_{};
+  ESPPreferenceObject rtc_;
 };
 
 template<typename T>

@@ -20,14 +20,14 @@ float GPIOSwitch::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 void GPIOSwitch::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up GPIO Switch...");
+  ESP_LOGCONFIG(TAG, "Setting up GPIO Switch '%s'...", this->get_name().c_str());
   this->pin_->setup();
-  ESP_LOGCONFIG(TAG, "  Power On Value: %s", this->power_on_value_ ? "ON" : "OFF");
-  this->pin_->digital_write(this->power_on_value_);
-  this->publish_state(this->power_on_value_);
-}
-void GPIOSwitch::set_power_on_value(bool power_on_value) {
-  this->power_on_value_ = power_on_value;
+  bool restored = this->get_initial_state().value_or(false);
+  if (restored) {
+    this->turn_on();
+  } else {
+    this->turn_off();
+  }
 }
 void GPIOSwitch::write_state(bool state) {
   this->pin_->digital_write(state);

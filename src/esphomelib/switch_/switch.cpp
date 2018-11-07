@@ -3,11 +3,14 @@
 #ifdef USE_SWITCH
 
 #include "esphomelib/switch_/switch.h"
+#include "esphomelib/log.h"
 #include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
+
+static const char *TAG = "switch";
 
 std::string Switch::icon() {
   return "";
@@ -27,31 +30,32 @@ void Switch::set_icon(const std::string &icon) {
   this->icon_ = icon;
 }
 void Switch::turn_on() {
+  ESP_LOGD(TAG, "'%s' Turning ON.", this->get_name().c_str());
   this->write_state(!this->inverted_);
 }
 void Switch::turn_off() {
+  ESP_LOGD(TAG, "'%s' Turning OFF.", this->get_name().c_str());
   this->write_state(this->inverted_);
 }
 void Switch::toggle() {
+  ESP_LOGD(TAG, "'%s' Toggling %s.", this->get_name().c_str(), this->state ? "OFF" : "ON");
   this->write_state(this->inverted_ == this->state);
 }
 float Switch::get_setup_priority() const {
   return setup_priority::HARDWARE - 1.0f;
 }
-void Switch::setup_() {
-  this->setup_internal();
-  this->setup();
-
-  if (this->do_restore_state()) {
-    bool initial_state = global_preferences.get_bool(this->get_name(), "state", this->state);
-    auto f = std::bind(&Switch::write_state, this, initial_state);
-    this->defer(f);
-  }
+optional<bool> Switch::get_initial_state() {
+  this->rtc_ = global_preferences.make_preference(4, 2704004739UL);
+  if (!this->rtc_.load())
+    return {};
+  bool initial_state = this->rtc_[0];
+  return initial_state;
 }
 void Switch::publish_state(bool state) {
   this->state = state != this->inverted_;
 
-  global_preferences.put_bool(this->get_name(), "state", this->state);
+  this->rtc_[0] = this->state ? 1 : 0;
+  this->rtc_.save();
   this->state_callback_.call(this->state);
 }
 bool Switch::optimistic() {
@@ -63,9 +67,6 @@ void Switch::add_on_state_callback(std::function<void(bool)> &&callback) {
 }
 void Switch::set_inverted(bool inverted) {
   this->inverted_ = inverted;
-}
-bool Switch::do_restore_state() {
-  return true;
 }
 
 } // namespace switch_

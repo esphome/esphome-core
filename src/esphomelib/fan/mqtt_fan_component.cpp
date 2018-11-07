@@ -83,8 +83,6 @@ void MQTTFanComponent::setup() {
   this->state_->add_on_state_callback([this, f]() {
     this->defer("send", f);
   });
-
-  this->state_->load_from_preferences();
 }
 void MQTTFanComponent::set_custom_oscillation_command_topic(const std::string &topic) {
   this->custom_oscillation_command_topic_ = topic;
@@ -163,7 +161,6 @@ void MQTTFanComponent::publish_state() {
     }
     this->send_message(this->get_speed_state_topic(), payload);
   }
-  this->state_->save_to_preferences();
 }
 
 } // namespace fan

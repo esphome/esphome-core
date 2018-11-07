@@ -108,36 +108,6 @@ LightColorValues::LightColorValues(bool state, float brightness, float red, floa
 
 }
 
-void LightColorValues::load_from_preferences(const std::string &friendly_name, const LightTraits &traits) {
-  this->set_state(global_preferences.get_float(friendly_name, "state", this->get_state()));
-  if (traits.has_brightness())
-    this->set_brightness(global_preferences.get_float(friendly_name, "brightness", this->get_brightness()));
-  if (traits.has_rgb()) {
-    this->set_red(global_preferences.get_float(friendly_name, "red", this->get_red()));
-    this->set_green(global_preferences.get_float(friendly_name, "green", this->get_green()));
-    this->set_blue(global_preferences.get_float(friendly_name, "blue", this->get_blue()));
-  }
-  if (traits.has_rgb_white_value())
-    this->set_white(global_preferences.get_float(friendly_name, "white", this->get_white()));
-  if (traits.has_color_temperature())
-    this->set_color_temperature(global_preferences.get_float(friendly_name, "color_temp", this->get_color_temperature()));
-}
-
-void LightColorValues::save_to_preferences(const std::string &friendly_name, const LightTraits &traits) const {
-  global_preferences.put_float(friendly_name, "state", this->get_state());
-  if (traits.has_brightness())
-    global_preferences.put_float(friendly_name, "brightness", this->get_brightness());
-  if (traits.has_rgb()) {
-    global_preferences.put_float(friendly_name, "red", this->get_red());
-    global_preferences.put_float(friendly_name, "green", this->get_green());
-    global_preferences.put_float(friendly_name, "blue", this->get_blue());
-  }
-  if (traits.has_rgb_white_value())
-    global_preferences.put_float(friendly_name, "white", this->get_white());
-  if (traits.has_color_temperature())
-    global_preferences.put_float(friendly_name, "color_temp", this->get_color_temperature());
-}
-
 void LightColorValues::normalize_color(const LightTraits &traits) {
   if (traits.has_rgb()) {
     float max_value = fmaxf(this->get_red(), fmaxf(this->get_green(), this->get_blue()));

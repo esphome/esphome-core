@@ -23,10 +23,6 @@
 ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "ota";
-#ifdef ARDUINO_ARCH_ESP32
-static const char *PREF_TAG = "ota"; ///< Tag for preferences.
-static const char *PREF_SAFE_MODE_COUNTER_KEY = "safe_mode";
-#endif
 
 #ifdef USE_NEW_OTA
 uint8_t OTA_VERSION_1_0 = 1;
@@ -84,11 +80,7 @@ void OTAComponent::setup() {
     run_safe_shutdown_hooks("ota");
   });
   ArduinoOTA.onProgress([this](uint progress, uint total) {
-#ifdef USE_STATUS_LED
-    if (global_status_led != nullptr) {
-      global_status_led->loop_();
-    }
-#endif
+    tick_status_led();
     if (this->at_ota_progress_message_++ % 8 != 0)
       return; // only print every 8th message
     float percentage = float(progress) * 100 / float(total);
@@ -441,6 +433,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
   this->safe_mode_start_time_ = millis();
   this->safe_mode_enable_time_ = enable_time;
   this->safe_mode_num_attempts_ = num_attempts;
+  this->rtc_ = global_preferences.make_preference(4, 669657188UL);
   this->safe_mode_rtc_value_ = this->read_rtc_();
 
   ESP_LOGCONFIG(TAG, "There have been %u suspected unsuccessful boot attempts.", this->safe_mode_rtc_value_);
@@ -479,25 +472,13 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
   }
 }
 void OTAComponent::write_rtc_(uint8_t val) {
-#ifdef ARDUINO_ARCH_ESP8266
-  uint32_t data = val;
-  ESP.rtcUserMemoryWrite(0, &data, sizeof(data));
-#endif
-#ifdef ARDUINO_ARCH_ESP32
-  global_preferences.put_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, static_cast<uint8_t>(val));
-#endif
+  this->rtc_[0] = val;
+  this->rtc_.save();
 }
 uint8_t OTAComponent::read_rtc_() {
-#ifdef ARDUINO_ARCH_ESP8266
-  uint32_t rtc_data;
-  ESP.rtcUserMemoryRead(0, &rtc_data, sizeof(rtc_data));
-  if (rtc_data > 255) // num attempts 255 at max
+  if (!this->rtc_.load())
     return 0;
-  return uint8_t(rtc_data);
-#endif
-#ifdef ARDUINO_ARCH_ESP32
-  return global_preferences.get_uint8(PREF_TAG, PREF_SAFE_MODE_COUNTER_KEY, 0);
-#endif
+  return this->rtc_[0];
 }
 void OTAComponent::clean_rtc() {
   this->write_rtc_(0);
