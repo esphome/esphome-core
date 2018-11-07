@@ -50,6 +50,7 @@ class HLW8012Component : public PollingComponent {
   friend HLW8012CurrentSensor;
   friend HLW8012VoltageSensor;
 
+  uint32_t nth_value_{0};
   bool current_mode_{false};
   uint32_t change_mode_at_{0};
   uint32_t change_mode_every_{8};
