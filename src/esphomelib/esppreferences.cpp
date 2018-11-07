@@ -102,7 +102,7 @@ uint32_t *ESPPreferenceObject::data() const {
 uint32_t ESPPreferenceObject::calculate_crc_() const {
   uint32_t crc = 42;
   for (size_t i = 1; i < this->total_length_uint() - 1; i++) {
-    crc |= (this->data_[i] * 2654435769UL) >> 1;
+    crc ^= (this->data_[i] * 2654435769UL) >> 1;
   }
   return crc;
 }
