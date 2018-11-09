@@ -65,6 +65,8 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   /// Handle an index request under '/'.
   void handle_index_request(AsyncWebServerRequest *request);
 
+  void handle_update_request(AsyncWebServerRequest *request);
+
 #ifdef USE_SENSOR
   /// Internally register a sensor and set a callback on state changes.
   void register_sensor(sensor::Sensor *obj) override;
@@ -135,6 +137,9 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   bool canHandle(AsyncWebServerRequest *request) override;
   /// Override the web handler's handleRequest method.
   void handleRequest(AsyncWebServerRequest *request) override;
+  void handleUpload(AsyncWebServerRequest *request,
+                    const String &filename, size_t index, uint8_t *data, size_t len,
+                    bool final) override;
   /// This web handle is not trivial.
   bool isRequestHandlerTrivial() override;
 
@@ -144,6 +149,8 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   AsyncEventSource events_{"/events"};
   const char *css_url_{nullptr};
   const char *js_url_{nullptr};
+  uint32_t last_ota_progress_{0};
+  uint32_t ota_read_length_{0};
 };
 
 ESPHOMELIB_NAMESPACE_END
