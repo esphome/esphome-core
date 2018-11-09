@@ -1221,6 +1221,19 @@ stepper::A4988 *Application::make_a4988(const GPIOOutputPin &step_pin, const GPI
 }
 #endif
 
+#ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
+Application::MakeTotalDailyEnergySensor Application::make_total_daily_energy_sensor(const std::string &name,
+                                                                                    time::RealTimeClockComponent *time,
+                                                                                    sensor::Sensor *parent) {
+  auto total = this->register_component(new TotalDailyEnergy(name, time, parent));
+  return {
+      .total_energy = total,
+      .mqtt = this->register_sensor(total)
+  };
+}
+#endif
+
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END

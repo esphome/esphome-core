@@ -103,6 +103,7 @@
 #include "esphomelib/sensor/sht3xd_component.h"
 #include "esphomelib/sensor/tcs34725.h"
 #include "esphomelib/sensor/template_sensor.h"
+#include "esphomelib/sensor/total_daily_energy.h"
 #include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/uptime_sensor.h"
@@ -943,6 +944,16 @@ class Application {
 
 #ifdef USE_PMSX003
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
+#endif
+
+#ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
+  struct MakeTotalDailyEnergySensor {
+    sensor::TotalDailyEnergy *total_energy;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeTotalDailyEnergySensor make_total_daily_energy_sensor(const std::string &name, time::RealTimeClockComponent *time,
+      sensor::Sensor *parent);
 #endif
 
 
