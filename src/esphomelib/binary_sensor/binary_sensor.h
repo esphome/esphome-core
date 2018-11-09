@@ -20,7 +20,14 @@ class PressTrigger;
 class ReleaseTrigger;
 class ClickTrigger;
 class DoubleClickTrigger;
+class MultiClickTrigger;
 class Filter;
+
+struct MultiClickTriggerEvent {
+  bool state;
+  uint32_t min_length;
+  uint32_t max_length;
+};
 
 /** Base class for all binary_sensor-type classes.
  *
@@ -64,6 +71,7 @@ class BinarySensor : public Nameable {
   ReleaseTrigger *make_release_trigger();
   ClickTrigger *make_click_trigger(uint32_t min_length, uint32_t max_length);
   DoubleClickTrigger *make_double_click_trigger(uint32_t min_length, uint32_t max_length);
+  MultiClickTrigger *make_multi_click_trigger(const std::vector<MultiClickTriggerEvent> &timing);
 
   void add_filter(Filter *filter);
   void add_filters(std::vector<Filter *> filters);
@@ -116,6 +124,32 @@ class DoubleClickTrigger : public Trigger<NoArg> {
   uint32_t end_time_{0};
   uint32_t min_length_; /// Minimum length of click. 0 means no minimum.
   uint32_t max_length_; /// Maximum length of click. 0 means no maximum.
+};
+
+class MultiClickTrigger : public Trigger<NoArg>, public Component {
+ public:
+  explicit MultiClickTrigger(BinarySensor *parent, const std::vector<MultiClickTriggerEvent> &timing);
+
+  void setup() override;
+
+  float get_setup_priority() const override;
+
+  void set_invalid_cooldown(uint32_t invalid_cooldown);
+
+ protected:
+  void on_state_(bool state);
+  void schedule_cooldown_();
+  void schedule_is_valid_(uint32_t min_length);
+  void schedule_is_not_valid_(uint32_t max_length);
+  void trigger_();
+
+  BinarySensor *parent_;
+  std::vector<MultiClickTriggerEvent> timing_;
+  uint32_t invalid_cooldown_{1000};
+  optional<size_t> at_index_{};
+  bool last_state_{false};
+  bool is_in_cooldown_{false};
+  bool is_valid_{false};
 };
 
 } // namespace binary_sensor
