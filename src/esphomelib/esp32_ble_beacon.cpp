@@ -75,6 +75,8 @@ void ESP32BLEBeacon::ble_setup() {
     return;
   }
 
+  esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
+
   err = esp_bluedroid_init();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "esp_bluedroid_init failed: %d", err);
