@@ -11,9 +11,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
 static const char *TAG = "sensor.sensor";
-#endif
 
 void Sensor::publish_state(float state) {
   this->raw_state = state;
@@ -132,6 +130,8 @@ std::string Sensor::unique_id() { return ""; }
 void Sensor::send_state_to_frontend_internal_(float state) {
   this->has_state_ = true;
   this->state = state;
+  ESP_LOGD(TAG, "'%s': Sending state %.5f with %d decimals of accuracy",
+           this->get_name().c_str(), state, this->get_accuracy_decimals());
   this->callback_.call(state);
 }
 SensorStateTrigger *Sensor::make_state_trigger() {

@@ -76,8 +76,6 @@ bool MQTTSensorComponent::is_internal() {
 }
 void MQTTSensorComponent::publish_state(float value) {
   int8_t accuracy = this->sensor_->get_accuracy_decimals();
-  ESP_LOGD(TAG, "'%s': Pushing out value %f with %d decimals of accuracy",
-           this->sensor_->get_name().c_str(), value, accuracy);
   this->send_message(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
 }
 std::string MQTTSensorComponent::unique_id() {

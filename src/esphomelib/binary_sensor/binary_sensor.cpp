@@ -9,6 +9,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
+static const char *TAG = "binary_sensor";
+
 void BinarySensor::add_on_state_callback(std::function<void(bool)> &&callback) {
   this->state_callback_.add(std::move(callback));
 }
@@ -22,6 +24,7 @@ void BinarySensor::publish_state(bool state) {
 
 }
 void BinarySensor::send_state_internal_(bool state) {
+  ESP_LOGD(TAG, "'%s': Sending state %s", this->get_name().c_str(), state ? "ON" : "OFF");
   this->has_state_ = true;
   this->state = state;
   this->state_callback_.call(state);
@@ -72,7 +75,6 @@ void BinarySensor::add_filters(std::vector<Filter *> filters) {
 bool BinarySensor::has_state() const {
   return this->has_state_;
 }
-
 PressTrigger::PressTrigger(BinarySensor *parent) {
   parent->add_on_state_callback([this](bool state) {
     if (state)
