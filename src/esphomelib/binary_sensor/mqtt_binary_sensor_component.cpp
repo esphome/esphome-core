@@ -54,7 +54,6 @@ void MQTTBinarySensorComponent::publish_state(bool state) {
     return;
 
   const char *state_s = state ? "ON" : "OFF";
-  ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s);
   this->send_message(this->get_state_topic(), state_s);
 }
 void MQTTBinarySensorComponent::set_is_status(bool status) {

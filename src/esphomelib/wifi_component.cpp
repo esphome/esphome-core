@@ -178,6 +178,8 @@ void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
       break;
     case SYSTEM_EVENT_AP_STADISCONNECTED: event_name = "AP STA disconnected";
       break;
+    case SYSTEM_EVENT_AP_STAIPASSIGNED: event_name = "AP STA IP assigned";
+      break;
     case SYSTEM_EVENT_AP_PROBEREQRECVED: event_name = "AP Probe Request received";
       break;
     default: event_name = "UNKNOWN";
