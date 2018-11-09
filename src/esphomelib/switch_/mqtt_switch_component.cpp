@@ -29,15 +29,12 @@ void MQTTSwitchComponent::setup() {
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
     switch (parse_on_off(payload.c_str())) {
       case PARSE_ON:
-        ESP_LOGD(TAG, "'%s' Turning ON.", this->friendly_name().c_str());
         this->switch_->turn_on();
         break;
       case PARSE_OFF:
-        ESP_LOGD(TAG, "'%s' Turning OFF.", this->friendly_name().c_str());
         this->switch_->turn_off();
         break;
       case PARSE_TOGGLE:
-        ESP_LOGD(TAG, "'%s' Toggling.", this->friendly_name().c_str());
         this->switch_->toggle();
         break;
       case PARSE_NONE:

@@ -384,7 +384,7 @@ const std::string &Application::get_name() const {
 #ifdef USE_FAN
 Application::MakeFan Application::make_fan(const std::string &friendly_name) {
   MakeFan s{};
-  s.state = new FanState(friendly_name);
+  s.state = this->register_component(new FanState(friendly_name));
   s.mqtt = this->register_fan(s.state);
   s.output = this->register_component(new BasicFanComponent());
   s.output->set_state(s.state);

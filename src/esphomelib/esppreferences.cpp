@@ -7,221 +7,114 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
-#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
 static const char *TAG = "preferences";
+
+ESPPreferenceObject::ESPPreferenceObject()
+    : rtc_offset_(0), length_(0), type_(0), data_(nullptr) {
+
+}
+ESPPreferenceObject::ESPPreferenceObject(size_t rtc_offset, size_t length, uint32_t type)
+    : rtc_offset_(rtc_offset), length_(length), type_(type) {
+  this->length_ = ((this->length_ + 3) / 4) * 4;
+  this->data_ = new uint32_t[this->total_length_uint()];
+  for (uint32_t i = 0; i < this->total_length_uint(); i++)
+    this->data_[i] = 0;
+}
+uint32_t &ESPPreferenceObject::operator[](int i) {
+  if (!this->is_initialized())
+    return this->type_;
+  return this->data()[i];
+}
+bool ESPPreferenceObject::load() {
+  if (!this->is_initialized()) {
+    ESP_LOGV(TAG, "Load Pref Not initialized!");
+    return false;
+  }
+  this->load_internal_();
+  bool valid = this->data_[0] == this->type_ &&
+      this->data_[this->total_length_uint() - 1] == this->calculate_crc_();
+
+  ESP_LOGVV(TAG, "LOAD %u: valid=%d, 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, valid ? 1:0, this->data_[0], this->data_[1], this->data_[2],
+            this->type_, this->calculate_crc_());
+  return valid;
+}
+void ESPPreferenceObject::save() {
+  if (!this->is_initialized()) {
+    ESP_LOGV(TAG, "Save Pref Not initialized!");
+    return;
+  }
+
+  this->data_[0] = this->type_;
+  this->data_[this->total_length_uint() - 1] = this->calculate_crc_();
+  this->save_internal_();
+  ESP_LOGVV(TAG, "SAVE %u: 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, this->data_[0], this->data_[1], this->data_[2],
+            this->type_, this->calculate_crc_());
+}
+
+#ifdef ARDUINO_ARCH_ESP8266
+void ESPPreferenceObject::save_internal_() {
+  ESP.rtcUserMemoryWrite(this->rtc_offset_, this->data_, this->total_length_bytes());
+}
+void ESPPreferenceObject::load_internal_() {
+  ESP.rtcUserMemoryRead(this->rtc_offset_, this->data_, this->total_length_bytes());
+}
+void ESPPreferences::begin(const std::string &name) {
+
+}
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
+void ESPPreferenceObject::save_internal_() {
+  char key[32];
+  sprintf(key, "%u", this->rtc_offset_);
+  size_t ret = global_preferences.preferences_.putBytes(key, this->data_, this->total_length_bytes());
+  if (ret != this->total_length_bytes()) {
+    ESP_LOGV(TAG, "putBytes failed!");
+  }
+}
+void ESPPreferenceObject::load_internal_() {
+  char key[32];
+  sprintf(key, "%u", this->rtc_offset_);
+  size_t ret = global_preferences.preferences_.getBytes(key, this->data_, this->total_length_bytes());
+  if (ret != this->total_length_bytes()) {
+    ESP_LOGV(TAG, "getBytes failed!");
+  }
+}
 void ESPPreferences::begin(const std::string &name) {
   const std::string key = truncate_string(name, 15);
   ESP_LOGV(TAG, "Opening preferences with key '%s'", key.c_str());
   this->preferences_.begin(key.c_str());
 }
-
-std::string ESPPreferences::get_preference_key(const std::string &friendly_name, const std::string &key) {
-  // TODO: Improve this - the hash function is less than ideal.
-  size_t h = std::hash<std::string>{}(friendly_name);
-  char buffer[8];
-  snprintf(buffer, sizeof(buffer), "%0zx", h);
-  std::string name_hash = std::string(buffer);
-  std::string trunc_key = truncate_string(key, 7);
-  return name_hash + "-" + trunc_key;
-}
-bool ESPPreferences::get_bool(const std::string &friendly_name, const std::string &key, bool default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  bool value = this->preferences_.getBool(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered bool %s", key_.c_str(), value ? "ON" : "OFF");
-  return value;
-}
-int8_t ESPPreferences::get_int8(const std::string &friendly_name, const std::string &key, int8_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  int8_t value = this->preferences_.getChar(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered int8 %d", key_.c_str(), value);
-  return value;
-}
-uint8_t ESPPreferences::get_uint8(const std::string &friendly_name, const std::string &key, uint8_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  uint8_t value = this->preferences_.getUChar(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered uint8 %u", key_.c_str(), value);
-  return value;
-}
-int16_t ESPPreferences::get_int16(const std::string &friendly_name, const std::string &key, int16_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  int16_t value = this->preferences_.getShort(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered int16 %d", key_.c_str(), value);
-  return value;
-}
-uint16_t ESPPreferences::get_uint16(const std::string &friendly_name, const std::string &key, uint16_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  uint16_t value = this->preferences_.getUShort(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered uint16 %u", key_.c_str(), value);
-  return value;
-}
-int32_t ESPPreferences::get_int32(const std::string &friendly_name, const std::string &key, int32_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  int32_t value = this->preferences_.getInt(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered int32 %d", key_.c_str(), value);
-  return value;
-}
-uint32_t ESPPreferences::get_uint32(const std::string &friendly_name, const std::string &key, uint32_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  uint32_t value = this->preferences_.getUInt(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered uint32 %u", key_.c_str(), value);
-  return value;
-}
-int64_t ESPPreferences::get_int64(const std::string &friendly_name, const std::string &key, int64_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  int64_t value = this->preferences_.getLong64(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered int64 %lld", key_.c_str(), value);
-  return value;
-}
-uint64_t ESPPreferences::get_uint64(const std::string &friendly_name, const std::string &key, uint64_t default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  uint64_t value = this->preferences_.getULong64(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered uint64 %llu", key_.c_str(), value);
-  return value;
-}
-float ESPPreferences::get_float(const std::string &friendly_name, const std::string &key, float default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  float value = this->preferences_.getFloat(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered float %f", key_.c_str(), value);
-  return value;
-}
-double ESPPreferences::get_double(const std::string &friendly_name, const std::string &key, double default_value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  double value = this->preferences_.getFloat(key_.c_str(), default_value);
-  ESP_LOGVV(TAG, "'%s' -> recovered double %llf", key_.c_str(), value);
-  return value;
-}
-size_t ESPPreferences::put_bool(const std::string &friendly_name, const std::string &key, bool value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting bool %s", key_.c_str(), value ? "ON" : "OFF");
-  return this->preferences_.putBool(key_.c_str(), value);
-}
-size_t ESPPreferences::put_int8(const std::string &friendly_name, const std::string &key, int8_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting int8 %d", key_.c_str(), value);
-  return this->preferences_.putChar(key_.c_str(), value);
-}
-size_t ESPPreferences::put_uint8(const std::string &friendly_name, const std::string &key, uint8_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting uint8 %u", key_.c_str(), value);
-  return this->preferences_.putUChar(key_.c_str(), value);
-}
-size_t ESPPreferences::put_int16(const std::string &friendly_name, const std::string &key, int16_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting int16 %d", key_.c_str(), value);
-  return this->preferences_.putShort(key_.c_str(), value);
-}
-size_t ESPPreferences::put_uint16(const std::string &friendly_name, const std::string &key, uint16_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting uint16 %u", key_.c_str(), value);
-  return this->preferences_.putUShort(key_.c_str(), value);
-}
-size_t ESPPreferences::put_int32(const std::string &friendly_name, const std::string &key, int32_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting int32 %d", key_.c_str(), value);
-  return this->preferences_.putInt(key_.c_str(), value);
-}
-size_t ESPPreferences::put_uint32(const std::string &friendly_name, const std::string &key, uint32_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting uint32 %u", key_.c_str(), value);
-  return this->preferences_.putUInt(key_.c_str(), value);
-}
-size_t ESPPreferences::put_int64(const std::string &friendly_name, const std::string &key, int64_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting int64 %lld", key_.c_str(), value);
-  return this->preferences_.putLong64(key_.c_str(), value);
-}
-size_t ESPPreferences::put_uint64(const std::string &friendly_name, const std::string &key, uint64_t value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting uint64 %llu", key_.c_str(), value);
-  return this->preferences_.putULong64(key_.c_str(), value);
-}
-size_t ESPPreferences::put_float(const std::string &friendly_name, const std::string &key, float value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting float %f", key_.c_str(), value);
-  return this->preferences_.putFloat(key_.c_str(), value);
-}
-size_t ESPPreferences::put_double(const std::string &friendly_name, const std::string &key, double value) {
-  const std::string key_ = this->get_preference_key(friendly_name, key);
-  ESP_LOGVV(TAG, "'%s' -> putting double %f", key_.c_str(), value);
-  return this->preferences_.putDouble(key_.c_str(), value);
-}
 #endif
-#ifdef ARDUINO_ARCH_ESP8266
-// TODO implement this for ESP8266
 
-void ESPPreferences::begin(const std::string &name) {
+size_t ESPPreferenceObject::total_length_bytes() const {
+  // type + data + CRC
+  return this->length_ + 2 * sizeof(uint32_t);
+}
+size_t ESPPreferenceObject::total_length_uint() const {
+  return this->length_ / sizeof(uint32_t) + 2;
+}
+uint32_t *ESPPreferenceObject::data() const {
+  return &this->data_[1];
+}
+uint32_t ESPPreferenceObject::calculate_crc_() const {
+  uint32_t crc = 42;
+  for (size_t i = 1; i < this->total_length_uint() - 1; i++) {
+    crc ^= (this->data_[i] * 2654435769UL) >> 1;
+  }
+  return crc;
+}
+bool ESPPreferenceObject::is_initialized() const {
+  return this->data_ != nullptr;
+}
 
+ESPPreferenceObject ESPPreferences::make_preference(size_t length, uint32_t type) {
+  auto pref = ESPPreferenceObject(this->current_offset_, length, type);
+  this->current_offset_ += pref.total_length_bytes();
+  return pref;
 }
-bool ESPPreferences::get_bool(const std::string &friendly_name, const std::string &key, bool default_value) {
-  return default_value;
-}
-int8_t ESPPreferences::get_int8(const std::string &friendly_name, const std::string &key, int8_t default_value) {
-  return default_value;
-}
-uint8_t ESPPreferences::get_uint8(const std::string &friendly_name, const std::string &key, uint8_t default_value) {
-  return default_value;
-}
-int16_t ESPPreferences::get_int16(const std::string &friendly_name, const std::string &key, int16_t default_value) {
-  return default_value;
-}
-uint16_t ESPPreferences::get_uint16(const std::string &friendly_name, const std::string &key, uint16_t default_value) {
-  return default_value;
-}
-int32_t ESPPreferences::get_int32(const std::string &friendly_name, const std::string &key, int32_t default_value) {
-  return default_value;
-}
-uint32_t ESPPreferences::get_uint32(const std::string &friendly_name, const std::string &key, uint32_t default_value) {
-  return default_value;
-}
-int64_t ESPPreferences::get_int64(const std::string &friendly_name, const std::string &key, int64_t default_value) {
-  return default_value;
-}
-uint64_t ESPPreferences::get_uint64(const std::string &friendly_name, const std::string &key, uint64_t default_value) {
-  return default_value;
-}
-float ESPPreferences::get_float(const std::string &friendly_name, const std::string &key, float default_value) {
-  return default_value;
-}
-double ESPPreferences::get_double(const std::string &friendly_name, const std::string &key, double default_value) {
-  return default_value;
-}
-size_t ESPPreferences::put_bool(const std::string &friendly_name, const std::string &key, bool value) {
-  return 0;
-}
-size_t ESPPreferences::put_int8(const std::string &friendly_name, const std::string &key, int8_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_uint8(const std::string &friendly_name, const std::string &key, uint8_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_int16(const std::string &friendly_name, const std::string &key, int16_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_uint16(const std::string &friendly_name, const std::string &key, uint16_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_int32(const std::string &friendly_name, const std::string &key, int32_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_uint32(const std::string &friendly_name, const std::string &key, uint32_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_int64(const std::string &friendly_name, const std::string &key, int64_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_uint64(const std::string &friendly_name, const std::string &key, uint64_t value) {
-  return 0;
-}
-size_t ESPPreferences::put_float(const std::string &friendly_name, const std::string &key, float value) {
-  return 0;
-}
-size_t ESPPreferences::put_double(const std::string &friendly_name, const std::string &key, double value) {
-  return 0;
-}
-#endif
 
 ESPPreferences global_preferences;
 

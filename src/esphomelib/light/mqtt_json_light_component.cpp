@@ -37,8 +37,6 @@ MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
 }
 
 void MQTTJSONLightComponent::publish_state() {
-  LightColorValues remote_values = this->state_->get_remote_values();
-  remote_values.save_to_preferences(this->state_->get_name(), this->state_->get_traits());
   this->send_json_message(this->get_state_topic(), [&](JsonObject &root) {
     this->state_->dump_json(root);
   });

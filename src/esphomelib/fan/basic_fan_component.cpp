@@ -48,7 +48,7 @@ void BasicFanComponent::loop() {
   this->next_update_ = false;
 
   if (this->state_->get_traits().supports_speed()) {
-    float speed = this->high_speed_;
+    float speed = 0.0f;
     if (this->state_->state) {
       if (this->state_->speed == FAN_SPEED_LOW)
         speed = this->low_speed_;

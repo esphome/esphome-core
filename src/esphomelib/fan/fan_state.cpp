@@ -23,16 +23,6 @@ void FanState::add_on_state_callback(std::function<void()> &&callback) {
 }
 FanState::FanState(const std::string &name) : Nameable(name) {}
 
-void FanState::load_from_preferences() {
-  this->state = global_preferences.get_bool(this->get_name(), "state", false);
-  this->oscillating = global_preferences.get_bool(this->get_name(), "oscillating", false);
-  this->speed = static_cast<FanSpeed>(global_preferences.get_int32(this->get_name(), "speed", FAN_SPEED_HIGH));
-}
-void FanState::save_to_preferences() {
-  global_preferences.put_bool(this->get_name(), "state", this->state);
-  global_preferences.put_bool(this->get_name(), "oscillating", this->oscillating);
-  global_preferences.put_int32(this->get_name(), "speed", this->speed);
-}
 FanState::StateCall FanState::turn_on() {
   return this->make_call().set_state(true);
 }
@@ -44,6 +34,28 @@ FanState::StateCall FanState::toggle() {
 }
 FanState::StateCall FanState::make_call() {
   return FanState::StateCall(this);
+}
+
+struct FanStateRTCState {
+  bool state;
+  FanSpeed speed;
+  bool oscillating;
+};
+
+void FanState::setup() {
+  this->rtc_ = global_preferences.make_preference<FanStateRTCState>(1569162164UL);
+  FanStateRTCState recovered;
+  if (!this->rtc_.load(&recovered))
+    return;
+
+  auto call = this->make_call();
+  call.set_state(recovered.state);
+  call.set_speed(recovered.speed);
+  call.set_oscillating(recovered.oscillating);
+  call.perform();
+}
+float FanState::get_setup_priority() const {
+  return setup_priority::HARDWARE - 1.0f;
 }
 
 FanState::StateCall::StateCall(FanState *state)
@@ -70,8 +82,25 @@ void FanState::StateCall::perform() {
     this->state_->oscillating = *this->oscillating_;
   }
   if (this->speed_.has_value()) {
-    this->state_->speed = *this->speed_;
+    switch (*this->speed_) {
+      case FAN_SPEED_LOW:
+      case FAN_SPEED_MEDIUM:
+      case FAN_SPEED_HIGH:
+        this->state_->speed = *this->speed_;
+        break;
+      default:
+        // protect from invalid input
+        break;
+    }
+
   }
+
+  FanStateRTCState saved;
+  saved.state = this->state_->state;
+  saved.speed = this->state_->speed;
+  saved.oscillating = this->state_->oscillating;
+  this->state_->rtc_.save(&saved);
+
   this->state_->state_callback_.call();
 }
 FanState::StateCall &FanState::StateCall::set_speed(const char *speed) {

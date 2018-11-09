@@ -8,6 +8,7 @@
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
+#include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -92,7 +93,7 @@ class Switch : public Component, public Nameable {
 
   float get_setup_priority() const override;
 
-  void setup_() override;
+  optional<bool> get_initial_state();
 
   /** Return whether this switch is optimistic - i.e. if both the ON/OFF actions should be displayed in Home Assistant
    * because the real state is unknown.
@@ -100,9 +101,6 @@ class Switch : public Component, public Nameable {
    * Defaults to false.
    */
   virtual bool optimistic();
-
-  /// Subclasses can override this to prevent the switch from automatically restoring the state.
-  virtual bool do_restore_state();
 
  protected:
   /** Write the given state to hardware. You should implement this
@@ -127,6 +125,7 @@ class Switch : public Component, public Nameable {
 
   CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
+  ESPPreferenceObject rtc_;
 };
 
 template<typename T>

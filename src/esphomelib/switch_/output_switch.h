@@ -20,6 +20,8 @@ class OutputSwitch : public Switch {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
+
+  void setup() override;
  protected:
   void write_state(bool state) override;
 
