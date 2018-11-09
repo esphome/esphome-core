@@ -34,9 +34,9 @@ bool ESPPreferenceObject::load() {
   bool valid = this->data_[0] == this->type_ &&
       this->data_[this->total_length_uint() - 1] == this->calculate_crc_();
 
-  ESP_LOGV(TAG, "LOAD %u: valid=%d, 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
-      this->rtc_offset_, valid ? 1:0, this->data_[0], this->data_[1], this->data_[2],
-      this->type_, this->calculate_crc_());
+  ESP_LOGVV(TAG, "LOAD %u: valid=%d, 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, valid ? 1:0, this->data_[0], this->data_[1], this->data_[2],
+            this->type_, this->calculate_crc_());
   return valid;
 }
 void ESPPreferenceObject::save() {
@@ -48,9 +48,9 @@ void ESPPreferenceObject::save() {
   this->data_[0] = this->type_;
   this->data_[this->total_length_uint() - 1] = this->calculate_crc_();
   this->save_internal_();
-  ESP_LOGV(TAG, "SAVE %u: 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
-           this->rtc_offset_, this->data_[0], this->data_[1], this->data_[2],
-           this->type_, this->calculate_crc_());
+  ESP_LOGVV(TAG, "SAVE %u: 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, this->data_[0], this->data_[1], this->data_[2],
+            this->type_, this->calculate_crc_());
 }
 
 #ifdef ARDUINO_ARCH_ESP8266
