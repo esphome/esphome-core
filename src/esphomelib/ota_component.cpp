@@ -343,6 +343,12 @@ void OTAComponent::handle_() {
 
   // Acknowledge Update end OK - 1 byte
   this->client_.write(OTA_RESPONSE_UPDATE_END_OK);
+
+  // Read ACK
+  if (!this->wait_receive_(buf, 1) || buf[0] != OTA_RESPONSE_OK) {
+    ESP_LOGW(TAG, "Reading back acknowledgement failed!");
+    // do not go to error, this is not fatal
+  }
   this->client_.flush();
   this->client_.stop();
   delay(10);
