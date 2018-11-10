@@ -48,7 +48,7 @@ void BasicFanComponent::loop() {
   this->next_update_ = false;
 
   if (this->state_->get_traits().supports_speed()) {
-    float speed = this->high_speed_;
+    float speed = 0.0f;
     if (this->state_->state) {
       if (this->state_->speed == FAN_SPEED_LOW)
         speed = this->low_speed_;
@@ -63,8 +63,9 @@ void BasicFanComponent::loop() {
   if (this->binary_output_ != nullptr) {
     bool enable = this->state_->state;
     if (enable)
+      this->binary_output_->turn_on();
+    else
       this->binary_output_->turn_off();
-    else this->binary_output_->turn_on();
     ESP_LOGD(TAG, "Setting binary state: %d", int(enable));
   }
 

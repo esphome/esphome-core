@@ -37,6 +37,10 @@ void HLW8012Component::update() {
   float cf_hz = this->cf_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
   float cf1_hz = this->cf1_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
 
+  if (this->nth_value_++ < 2) {
+    return;
+  }
+
   const float v_ref_squared = HLW8012_REFERENCE_VOLTAGE * HLW8012_REFERENCE_VOLTAGE;
   const float power_multiplier_micros = 64000000.0f * v_ref_squared * this->voltage_divider_ / this->current_resistor_ / 24.0f / HLW8012_CLOCK_FREQUENCY;
   float power = cf_hz * power_multiplier_micros / 1000000.0f;

@@ -103,6 +103,7 @@
 #include "esphomelib/sensor/sht3xd_component.h"
 #include "esphomelib/sensor/tcs34725.h"
 #include "esphomelib/sensor/template_sensor.h"
+#include "esphomelib/sensor/total_daily_energy.h"
 #include "esphomelib/sensor/tsl2561_sensor.h"
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/uptime_sensor.h"
@@ -892,15 +893,8 @@ class Application {
   sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 15000);
 #endif
 
-#ifdef USE_TIME
-  time::RTCComponent *make_rtc_component(const std::string &tz = "UTC");
-#endif
-
 #ifdef USE_SNTP_COMPONENT
-  time::SNTPComponent *make_sntp_component(const std::string &server_1 = "0.pool.ntp.org",
-                                           const std::string &server_2 = "1.pool.ntp.org",
-                                           const std::string &server_3 = "2.pool.ntp.org",
-                                           const std::string &tz = "UTC");
+  time::SNTPComponent *make_sntp_component();
 #endif
 
 #ifdef USE_HLW8012
@@ -950,6 +944,16 @@ class Application {
 
 #ifdef USE_PMSX003
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
+#endif
+
+#ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
+  struct MakeTotalDailyEnergySensor {
+    sensor::TotalDailyEnergy *total_energy;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeTotalDailyEnergySensor make_total_daily_energy_sensor(const std::string &name, time::RealTimeClockComponent *time,
+      sensor::Sensor *parent);
 #endif
 
 

@@ -86,7 +86,7 @@ void MQTTClientComponent::setup() {
   this->start_connect();
 }
 bool MQTTClientComponent::can_proceed() {
-  return this->state_ == MQTT_CLIENT_CONNECTED && this->mqtt_client_.connected();
+  return this->is_connected();
 }
 
 void MQTTClientComponent::start_connect() {
@@ -391,6 +391,9 @@ void MQTTClientComponent::register_mqtt_component(MQTTComponent *component) {
 }
 void MQTTClientComponent::set_log_level(int level) {
   this->log_level_ = level;
+}
+bool MQTTClientComponent::is_connected() {
+  return this->state_ == MQTT_CLIENT_CONNECTED && this->mqtt_client_.connected();
 }
 
 #if ASYNC_TCP_SSL_ENABLED

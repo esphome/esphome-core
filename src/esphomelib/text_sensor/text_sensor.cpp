@@ -14,7 +14,7 @@ static const char *TAG = "text_sensor.text_sensor";
 void TextSensor::publish_state(std::string state) {
   this->state = state;
   this->has_state_ = true;
-  ESP_LOGV(TAG, "'%s': Received new value %s", this->name_.c_str(), state.c_str());
+  ESP_LOGD(TAG, "'%s': Sending state '%s'", this->name_.c_str(), state.c_str());
   this->callback_.call(state);
 }
 void TextSensor::set_icon(const std::string &icon) {

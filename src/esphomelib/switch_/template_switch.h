@@ -12,19 +12,20 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-class TemplateSwitch : public Switch {
+class TemplateSwitch : public Switch, public Component {
  public:
   explicit TemplateSwitch(const std::string &name);
 
+  void setup() override;
+
   void set_state_lambda(std::function<optional<bool>()> &&f);
+  void set_restore_state(bool restore_state);
   Trigger<NoArg> *get_turn_on_trigger() const;
   Trigger<NoArg> *get_turn_off_trigger() const;
   void set_optimistic(bool optimistic);
   void loop() override;
 
   float get_setup_priority() const override;
-
-  bool do_restore_state() override;
 
  protected:
   bool optimistic() override;
@@ -36,6 +37,7 @@ class TemplateSwitch : public Switch {
   optional<bool> last_state_{};
   Trigger<NoArg> *turn_on_trigger_;
   Trigger<NoArg> *turn_off_trigger_;
+  bool restore_state_{true};
 };
 
 } // namespace switch_

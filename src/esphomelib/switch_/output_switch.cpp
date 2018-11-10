@@ -22,6 +22,20 @@ void OutputSwitch::write_state(bool state) {
   }
   this->publish_state(true);
 }
+void OutputSwitch::setup() {
+  auto restored = this->get_initial_state();
+  if (!restored.has_value())
+    return;
+
+  if (*restored) {
+    this->turn_on();
+  } else {
+    this->turn_off();
+  }
+}
+float OutputSwitch::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace switch_
 

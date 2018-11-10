@@ -13,6 +13,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -38,11 +39,8 @@ class LightState : public Nameable, public Component {
   /// Construct this LightState using the provided traits and name.
   LightState(const std::string &name, LightOutput *output);
 
-  /** Start an effect by name. Uses light_effect_entries in light_effect.h for finding the correct effect.
-   *
-   * @param name The name of the effect, case insensitive.
-   */
-  void start_effect(const std::string &name);
+  /// Start an effect with the given index
+  void start_effect(uint32_t effect_index);
 
   /// Stop the current effect (if one is active).
   void stop_effect();
@@ -115,7 +113,8 @@ class LightState : public Nameable, public Component {
     LightState::StateCall &set_blue(float blue);
     LightState::StateCall &set_white(float white);
     LightState::StateCall &set_color_temperature(float color_temperature);
-    LightState::StateCall &set_effect(std::string effect);
+    LightState::StateCall &set_effect(const std::string &effect);
+    LightState::StateCall &set_effect(uint32_t effect_index);
     LightState::StateCall &parse_color_json(JsonObject &root);
     LightState::StateCall &parse_json(JsonObject &root);
 
@@ -132,7 +131,7 @@ class LightState : public Nameable, public Component {
     optional<float> color_temperature_;
     optional<uint32_t> transition_length_;
     optional<uint32_t> flash_length_;
-    optional<std::string> effect_;
+    optional<uint32_t> effect_;
   };
 
   LightState::StateCall turn_on();
@@ -201,8 +200,10 @@ class LightState : public Nameable, public Component {
   void add_effects(std::vector<LightEffect *> effects);
 
  protected:
+  ESPPreferenceObject rtc_;
   uint32_t default_transition_length_{1000};
   LightEffect *active_effect_{nullptr};
+  optional<uint32_t> active_effect_index_{};
   std::unique_ptr<LightTransformer> transformer_{nullptr};
   LightColorValues values_{};
   LightColorValues remote_values_{};

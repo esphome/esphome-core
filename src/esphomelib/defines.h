@@ -117,6 +117,7 @@
   #define USE_PMSX003
   #define USE_STEPPER
   #define USE_A4988
+  #define USE_TOTAL_DAILY_ENERGY_SENSOR
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -563,6 +564,15 @@
 #ifdef USE_A4988
   #ifndef USE_STEPPER
     #define USE_STEPPER
+  #endif
+#endif
+
+#ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_TIME
+    #define USE_TIME
   #endif
 #endif
 

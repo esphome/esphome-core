@@ -384,7 +384,7 @@ const std::string &Application::get_name() const {
 #ifdef USE_FAN
 Application::MakeFan Application::make_fan(const std::string &friendly_name) {
   MakeFan s{};
-  s.state = new FanState(friendly_name);
+  s.state = this->register_component(new FanState(friendly_name));
   s.mqtt = this->register_fan(s.state);
   s.output = this->register_component(new BasicFanComponent());
   s.output->set_state(s.state);
@@ -504,13 +504,11 @@ I2CComponent *Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, bool scan)
 
 #ifdef USE_STATUS_BINARY_SENSOR
 Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const std::string &friendly_name) {
-  assert(this->mqtt_client_ != nullptr);
-  auto *binary_sensor = new StatusBinarySensor(friendly_name); // not a component
+  auto *binary_sensor = this->register_component(new StatusBinarySensor(friendly_name));
   auto *mqtt = this->register_binary_sensor(binary_sensor);
   mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
-  mqtt->set_payload_on(this->mqtt_client_->get_availability().payload_available);
-  mqtt->set_payload_off(this->mqtt_client_->get_availability().payload_not_available);
   mqtt->disable_availability();
+  mqtt->set_is_status(true);
   return MakeStatusBinarySensor{
       .status = binary_sensor,
       .mqtt = mqtt,
@@ -520,7 +518,7 @@ Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const
 
 #ifdef USE_RESTART_SWITCH
 Application::MakeRestartSwitch Application::make_restart_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new RestartSwitch(friendly_name)); // not a component
+  auto *switch_ = new RestartSwitch(friendly_name); // not a component
   return MakeRestartSwitch{
       .restart = switch_,
       .mqtt = this->register_switch(switch_),
@@ -530,7 +528,7 @@ Application::MakeRestartSwitch Application::make_restart_switch(const std::strin
 
 #ifdef USE_SHUTDOWN_SWITCH
 Application::MakeShutdownSwitch Application::make_shutdown_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new ShutdownSwitch(friendly_name));
+  auto *switch_ = new ShutdownSwitch(friendly_name);
   return MakeShutdownSwitch{
       .shutdown = switch_,
       .mqtt = this->register_switch(switch_),
@@ -956,7 +954,7 @@ PN532Component *Application::make_pn532_component(SPIComponent *parent,
 Application::MakeUARTSwitch Application::make_uart_switch(UARTComponent *parent,
                                                           const std::string &name,
                                                           const std::vector<uint8_t> &data) {
-  auto *uart = this->register_component(new UARTSwitch(parent, name, data));
+  auto *uart = new UARTSwitch(parent, name, data);
 
   return MakeUARTSwitch{
       .uart = uart,
@@ -1129,18 +1127,9 @@ display::GPIOLCDDisplay *Application::make_gpio_lcd_display(uint8_t columns, uin
 }
 #endif
 
-#ifdef USE_TIME
-RTCComponent *Application::make_rtc_component(const std::string &tz) {
-  return this->register_component(new RTCComponent(tz));
-}
-#endif
-
 #ifdef USE_SNTP_COMPONENT
-SNTPComponent *Application::make_sntp_component(const std::string &server_1,
-                                                const std::string &server_2,
-                                                const std::string &server_3,
-                                                const std::string &tz) {
-  return this->register_component(new SNTPComponent(server_1, server_2, server_3, tz));
+SNTPComponent *Application::make_sntp_component() {
+  return this->register_component(new SNTPComponent());
 }
 #endif
 
@@ -1231,6 +1220,19 @@ stepper::A4988 *Application::make_a4988(const GPIOOutputPin &step_pin, const GPI
   return this->register_component(new A4988(step_pin.copy(), dir_pin.copy()));
 }
 #endif
+
+#ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
+Application::MakeTotalDailyEnergySensor Application::make_total_daily_energy_sensor(const std::string &name,
+                                                                                    time::RealTimeClockComponent *time,
+                                                                                    sensor::Sensor *parent) {
+  auto total = this->register_component(new TotalDailyEnergy(name, time, parent));
+  return {
+      .total_energy = total,
+      .mqtt = this->register_sensor(total)
+  };
+}
+#endif
+
 
 Application App; // NOLINT
 
