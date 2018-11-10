@@ -383,7 +383,7 @@ size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes) {
       return 0;
     }
     uint32_t now = millis();
-    if (availi == 0 && now - start > 5000) {
+    if (availi == 0 && now - start > 10000) {
       ESP_LOGW(TAG, "Timeout waiting for data!");
       return 0;
     }
