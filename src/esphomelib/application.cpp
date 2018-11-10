@@ -518,7 +518,7 @@ Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const
 
 #ifdef USE_RESTART_SWITCH
 Application::MakeRestartSwitch Application::make_restart_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new RestartSwitch(friendly_name)); // not a component
+  auto *switch_ = new RestartSwitch(friendly_name); // not a component
   return MakeRestartSwitch{
       .restart = switch_,
       .mqtt = this->register_switch(switch_),
@@ -528,7 +528,7 @@ Application::MakeRestartSwitch Application::make_restart_switch(const std::strin
 
 #ifdef USE_SHUTDOWN_SWITCH
 Application::MakeShutdownSwitch Application::make_shutdown_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new ShutdownSwitch(friendly_name));
+  auto *switch_ = new ShutdownSwitch(friendly_name);
   return MakeShutdownSwitch{
       .shutdown = switch_,
       .mqtt = this->register_switch(switch_),
@@ -954,7 +954,7 @@ PN532Component *Application::make_pn532_component(SPIComponent *parent,
 Application::MakeUARTSwitch Application::make_uart_switch(UARTComponent *parent,
                                                           const std::string &name,
                                                           const std::vector<uint8_t> &data) {
-  auto *uart = this->register_component(new UARTSwitch(parent, name, data));
+  auto *uart = new UARTSwitch(parent, name, data);
 
   return MakeUARTSwitch{
       .uart = uart,

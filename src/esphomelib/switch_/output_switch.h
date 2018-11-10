@@ -13,7 +13,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace switch_ {
 
 /// A simple switch that exposes a binary output as a switch.
-class OutputSwitch : public Switch {
+class OutputSwitch : public Switch, public Component {
  public:
   /// Construct this SimpleSwitch with the provided BinaryOutput.
   explicit OutputSwitch(const std::string &name, output::BinaryOutput *output);
@@ -22,6 +22,7 @@ class OutputSwitch : public Switch {
   // (In most use cases you won't need these)
 
   void setup() override;
+  float get_setup_priority() const override;
  protected:
   void write_state(bool state) override;
 

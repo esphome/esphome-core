@@ -33,6 +33,9 @@ void OutputSwitch::setup() {
     this->turn_off();
   }
 }
+float OutputSwitch::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace switch_
 

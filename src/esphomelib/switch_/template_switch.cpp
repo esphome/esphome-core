@@ -9,7 +9,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace switch_ {
 
 TemplateSwitch::TemplateSwitch(const std::string &name)
-    : Switch(name), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
+    : Switch(name), Component(), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
 
 }
 void TemplateSwitch::loop() {

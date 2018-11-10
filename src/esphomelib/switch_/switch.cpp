@@ -41,9 +41,6 @@ void Switch::toggle() {
   ESP_LOGD(TAG, "'%s' Toggling %s.", this->get_name().c_str(), this->state ? "OFF" : "ON");
   this->write_state(this->inverted_ == this->state);
 }
-float Switch::get_setup_priority() const {
-  return setup_priority::HARDWARE - 1.0f;
-}
 optional<bool> Switch::get_initial_state() {
   this->rtc_ = global_preferences.make_preference(4, 2704004739UL);
   if (!this->rtc_.load())

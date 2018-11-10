@@ -12,7 +12,7 @@ namespace switch_ {
 static const char *TAG = "switch.gpio";
 
 GPIOSwitch::GPIOSwitch(const std::string &name, GPIOPin *pin)
-    : Switch(name), pin_(pin) {
+    : Switch(name), Component(), pin_(pin) {
 
 }
 

@@ -12,7 +12,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-class TemplateSwitch : public Switch {
+class TemplateSwitch : public Switch, public Component {
  public:
   explicit TemplateSwitch(const std::string &name);
 

@@ -26,7 +26,7 @@ class TurnOnAction;
  * A switch is basically just a combination of a binary sensor (for reporting switch values)
  * and a write_state method that writes a state to the hardware.
  */
-class Switch : public Component, public Nameable {
+class Switch : public Nameable {
  public:
   explicit Switch(const std::string &name);
 
@@ -90,8 +90,6 @@ class Switch : public Component, public Nameable {
    * @param callback The void(bool) callback.
    */
   void add_on_state_callback(std::function<void(bool)> &&callback);
-
-  float get_setup_priority() const override;
 
   optional<bool> get_initial_state();
 

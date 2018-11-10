@@ -13,7 +13,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-class GPIOSwitch : public Switch {
+class GPIOSwitch : public Switch, public Component {
  public:
   GPIOSwitch(const std::string &name, GPIOPin *pin);
 
