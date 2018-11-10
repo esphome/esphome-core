@@ -63,8 +63,9 @@ void BasicFanComponent::loop() {
   if (this->binary_output_ != nullptr) {
     bool enable = this->state_->state;
     if (enable)
+      this->binary_output_->turn_on();
+    else
       this->binary_output_->turn_off();
-    else this->binary_output_->turn_on();
     ESP_LOGD(TAG, "Setting binary state: %d", int(enable));
   }
 
