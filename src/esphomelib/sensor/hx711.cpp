@@ -24,6 +24,7 @@ void HX711Sensor::dump_config() {
   ESP_LOGCONFIG(TAG, "HX711 '%s':", this->name_.c_str());
   LOG_PIN("  DOUT Pin: ", this->dout_pin_);
   LOG_PIN("  SCK Pin: ", this->sck_pin_);
+  LOG_UPDATE_INTERVAL(this);
 }
 float HX711Sensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

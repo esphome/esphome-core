@@ -45,7 +45,7 @@ void BasicFanComponent::dump_config() {
   if (this->oscillating_output_ != nullptr) {
     ESP_LOGCONFIG(TAG, "  Oscillation: YES");
   }
-  if (this->binary_output_ != nullptr) {
+  if (this->binary_output_ == nullptr) {
     ESP_LOGCONFIG(TAG, "  Mode: Binary");
   } else {
     ESP_LOGCONFIG(TAG, "  Mode: Speed");

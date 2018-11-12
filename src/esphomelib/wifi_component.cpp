@@ -405,8 +405,8 @@ void WiFiComponent::check_connecting_finished() {
 }
 
 void WiFiComponent::retry_connect() {
-  if (this->num_retried_ > 10 && this->reboot_timeout_ == 0) {
-    // If retry failed for more than 10 times, let's restart STA
+  if (this->num_retried_ > 5) {
+    // If retry failed for more than 5 times, let's restart STA
     ESP_LOGW(TAG, "Restarting WiFi adapter...");
     if (!WiFi.enableSTA(false)) {
       ESP_LOGE(TAG, "WiFi.enableSTA(false) failed!");

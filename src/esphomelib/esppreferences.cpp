@@ -142,7 +142,7 @@ bool ESPPreferences::is_prevent_write() {
 bool ESPPreferenceObject::save_internal_() {
   char key[32];
   sprintf(key, "%u", this->rtc_offset_);
-  uint32_t len = this->length_words_ * 4;
+  uint32_t len = (this->length_words_ + 1) * 4;
   size_t ret = global_preferences.preferences_.putBytes(key, this->data_, len);
   if (ret != len) {
     ESP_LOGV(TAG, "putBytes failed!");
@@ -153,7 +153,7 @@ bool ESPPreferenceObject::save_internal_() {
 bool ESPPreferenceObject::load_internal_() {
   char key[32];
   sprintf(key, "%u", this->rtc_offset_);
-  uint32_t len = this->length_words_ * 4;
+  uint32_t len = (this->length_words_ + 1) * 4;
   size_t ret = global_preferences.preferences_.getBytes(key, this->data_, len);
   if (ret != len) {
     ESP_LOGV(TAG, "getBytes failed!");
@@ -187,10 +187,6 @@ uint32_t ESPPreferenceObject::calculate_crc_() const {
 bool ESPPreferenceObject::is_initialized() const {
   return this->data_ != nullptr;
 }
-
-#ifdef ARDUINO_ARCH_ESP8266
-
-#endif
 
 ESPPreferences global_preferences;
 

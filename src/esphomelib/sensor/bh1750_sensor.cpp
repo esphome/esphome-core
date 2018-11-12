@@ -23,7 +23,7 @@ BH1750Sensor::BH1750Sensor(I2CComponent *parent, const std::string &name,
     : PollingSensorComponent(name, update_interval), I2CDevice(parent, address) {}
 
 void BH1750Sensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up BS1750 '%s'...", this->name_.c_str());
+  ESP_LOGCONFIG(TAG, "Setting up BH1750 '%s'...", this->name_.c_str());
   if (!this->write_bytes(BH1750_COMMAND_POWER_ON, nullptr, 0)) {
     this->mark_failed();
     return;
@@ -34,8 +34,6 @@ void BH1750Sensor::dump_config() {
   LOG_I2C_DEVICE(this);
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Communication with BH1750 failed!");
-    this->mark_failed();
-    return;
   }
 
   const char *resolution_s;
