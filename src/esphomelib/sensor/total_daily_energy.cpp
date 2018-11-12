@@ -14,7 +14,7 @@ void TotalDailyEnergy::setup() {
 
   float recovered;
   if (this->pref_.load(&recovered)) {
-    this->publish_state(recovered);
+    this->publish_state_and_save_(recovered);
   } else {
     this->publish_state_and_save_(0);
   }
