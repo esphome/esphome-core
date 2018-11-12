@@ -70,7 +70,7 @@ void WiFiComponent::setup() {
 
 #ifdef ARDUINO_ARCH_ESP32
     wifi_ps_type_t power_save;
-    switch (*this->power_save_) {
+    switch (this->power_save_) {
       case WIFI_POWER_SAVE_LIGHT:
         power_save = WIFI_PS_MIN_MODEM;
         break;
