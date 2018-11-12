@@ -30,6 +30,9 @@ ShutdownTrigger::ShutdownTrigger() {
 void LoopTrigger::loop() {
   this->trigger();
 }
+float LoopTrigger::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
 
 RangeCondition::RangeCondition() = default;
 

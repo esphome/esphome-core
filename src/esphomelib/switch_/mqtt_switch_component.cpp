@@ -20,12 +20,6 @@ MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
 }
 
 void MQTTSwitchComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->switch_->get_name().c_str());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->switch_->get_icon().c_str());
-  if (this->switch_->optimistic()) {
-    ESP_LOGCONFIG(TAG, "    Optimistic: YES");
-  }
-
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
     switch (parse_on_off(payload.c_str())) {
       case PARSE_ON:
@@ -50,6 +44,16 @@ void MQTTSwitchComponent::setup() {
     });
   });
 }
+void MQTTSwitchComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT switch '%s': ", this->switch_->get_name().c_str());
+  if (!this->switch_->get_icon().empty()) {
+    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->switch_->get_icon().c_str());
+  }
+  if (this->switch_->optimistic()) {
+    ESP_LOGCONFIG(TAG, "  Optimistic: YES");
+  }
+  LOG_MQTT_COMPONENT(true, true);
+}
 
 std::string MQTTSwitchComponent::component_type() const {
   return "switch";
@@ -71,7 +75,6 @@ std::string MQTTSwitchComponent::friendly_name() const {
 }
 void MQTTSwitchComponent::publish_state(bool state) {
   const char *state_s = state ? "ON" : "OFF";
-  ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s);
   this->send_message(this->get_state_topic(), state_s);
 }
 

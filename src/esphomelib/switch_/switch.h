@@ -21,6 +21,9 @@ class TurnOffAction;
 template<typename T>
 class TurnOnAction;
 
+#define LOG_SWITCH(this) \
+  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); }
+
 /** Base class for all switches.
  *
  * A switch is basically just a combination of a binary sensor (for reporting switch values)

@@ -88,10 +88,14 @@ static const char* iir_filter_to_str(BME280IIRFilter filter) {
 
 void BME280Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BME280...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t chip_id = 0;
-  if (!this->read_byte(BME280_REGISTER_CHIPID, &chip_id) || chip_id != 0x60) {
-    ESP_LOGE(TAG, "Communication with BME280 failed! Chip ID: %02X", chip_id);
+  if (!this->read_byte(BME280_REGISTER_CHIPID, &chip_id)) {
+    this->error_code_ = COMMUNICATION_FAILED;
+    this->mark_failed();
+    return;
+  }
+  if (chip_id != 0x60) {
+    this->error_code_ = WRONG_CHIP_ID;
     this->mark_failed();
     return;
   }
@@ -118,11 +122,6 @@ void BME280Component::setup() {
   this->calibration_.h5 = read_u8(BME280_REGISTER_DIG_H5 + 1) << 4 | (read_u8(BME280_REGISTER_DIG_H5) >> 4);
   this->calibration_.h6 = read_u8(BME280_REGISTER_DIG_H6);
 
-  ESP_LOGCONFIG(TAG, "    Temperature Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
-  ESP_LOGCONFIG(TAG, "    Pressure Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
-  ESP_LOGCONFIG(TAG, "    Humidity Oversampling: %s", oversampling_to_str(this->humidity_oversampling_));
-  ESP_LOGCONFIG(TAG, "    IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
-
   uint8_t humid_register = 0;
   if (!this->read_byte(BME280_REGISTER_CONTROLHUMID, &humid_register)) {
     this->mark_failed();
@@ -148,8 +147,29 @@ void BME280Component::setup() {
     return;
   }
 }
+void BME280Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "BME280:");
+  LOG_I2C_DEVICE(this);
+  switch (this->error_code_) {
+    case COMMUNICATION_FAILED:
+      ESP_LOGE(TAG, "Communication with BME280 failed!");
+      break;
+    case WRONG_CHIP_ID:
+      ESP_LOGE(TAG, "BMP280 has wrong chip ID! Is it a BMP280?");
+      break;
+    case NONE:
+    default:
+      break;
+  }
+
+  ESP_LOGCONFIG(TAG, "    Temperature Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
+  ESP_LOGCONFIG(TAG, "    Pressure Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
+  ESP_LOGCONFIG(TAG, "    Humidity Oversampling: %s", oversampling_to_str(this->humidity_oversampling_));
+  ESP_LOGCONFIG(TAG, "    IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
+  LOG_UPDATE_INTERVAL(this);
+}
 float BME280Component::get_setup_priority() const {
-  return Component::get_setup_priority();
+  return setup_priority::HARDWARE_LATE;
 }
 
 inline uint8_t oversampling_to_time(BME280Oversampling over_sampling) {

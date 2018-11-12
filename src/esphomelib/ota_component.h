@@ -97,6 +97,7 @@ class OTAComponent : public Component {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void loop() override;
 

@@ -78,6 +78,7 @@ class BMP280Component : public PollingComponent, public I2CDevice {
   BMP280PressureSensor *get_pressure_sensor() const;
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
 
@@ -96,6 +97,11 @@ class BMP280Component : public PollingComponent, public I2CDevice {
   BMP280IIRFilter iir_filter_{BMP280_IIR_FILTER_OFF};
   BMP280TemperatureSensor *temperature_sensor_;
   BMP280PressureSensor *pressure_sensor_;
+  enum ErrorCode {
+    NONE = 0,
+    COMMUNICATION_FAILED,
+    WRONG_CHIP_ID,
+  } error_code_{NONE};
 };
 
 } // namespace sensor

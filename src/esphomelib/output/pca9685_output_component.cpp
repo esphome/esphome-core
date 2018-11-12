@@ -45,8 +45,7 @@ PCA9685OutputComponent::PCA9685OutputComponent(I2CComponent *parent, float frequ
 }
 
 void PCA9685OutputComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent.");
-  ESP_LOGCONFIG(TAG, "    Mode: 0x%02X", this->mode_);
+  ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent...");
 
   ESP_LOGV(TAG, "    Resetting devices...");
   if (!this->write_bytes(PCA9685_REGISTER_SOFTWARE_RESET, nullptr, 0)) {
@@ -62,8 +61,6 @@ void PCA9685OutputComponent::setup() {
     this->mark_failed();
     return;
   }
-
-  ESP_LOGCONFIG(TAG, "    Frequency: %.0f", this->frequency_);
 
   int pre_scaler = (25000000 / (4096 * this->frequency_)) - 1;
   if (pre_scaler > 255) pre_scaler = 255;
@@ -94,6 +91,15 @@ void PCA9685OutputComponent::setup() {
   delayMicroseconds(500);
 
   this->loop();
+}
+
+void PCA9685OutputComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "PCA9685:");
+  ESP_LOGCONFIG(TAG, "  Mode: 0x%02X", this->mode_);
+  ESP_LOGCONFIG(TAG, "  Frequency: %.0f Hz", this->frequency_);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Setting up PCA9685 failed!");
+  }
 }
 
 void PCA9685OutputComponent::loop() {
@@ -147,7 +153,6 @@ void PCA9685OutputComponent::set_channel_value(uint8_t channel, uint16_t value) 
 PCA9685OutputComponent::Channel *PCA9685OutputComponent::create_channel(uint8_t channel,
                                                                         PowerSupplyComponent *power_supply,
                                                                         float max_power) {
-  ESP_LOGV(TAG, "Getting channel %d...", channel);
   this->min_channel_ = std::min(this->min_channel_, channel);
   this->max_channel_ = std::max(this->max_channel_, channel);
   auto *c = new Channel(this, channel);

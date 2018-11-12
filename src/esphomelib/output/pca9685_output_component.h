@@ -52,6 +52,7 @@ class PCA9685OutputComponent : public Component, public I2CDevice {
 
   /// Setup the PCA9685.
   void setup() override;
+  void dump_config() override;
   /// HARDWARE setup_priority
   float get_setup_priority() const override;
   /// Send new values if they were updated.

@@ -17,6 +17,7 @@ class TemplateSwitch : public Switch, public Component {
   explicit TemplateSwitch(const std::string &name);
 
   void setup() override;
+  void dump_config() override;
 
   void set_state_lambda(std::function<optional<bool>()> &&f);
   void set_restore_state(bool restore_state);

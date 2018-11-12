@@ -73,6 +73,7 @@ class ADS1115Component : public Component, public I2CDevice {
   // (In most use cases you won't need these)
   /// Set up the internal sensor array.
   void setup() override;
+  void dump_config() override;
   /// HARDWARE_LATE setup priority
   float get_setup_priority() const override;
 

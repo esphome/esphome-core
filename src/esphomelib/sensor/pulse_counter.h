@@ -35,6 +35,8 @@ class PulseCounterBase {
   bool pulse_counter_setup_();
   pulse_counter_t read_raw_value_();
 
+  GPIOPin *get_pin();
+
  protected:
 #ifdef ARDUINO_ARCH_ESP8266
   void gpio_intr();
@@ -89,6 +91,7 @@ class PulseCounterSensorComponent : public PollingSensorComponent, public PulseC
   void setup() override;
   void update() override;
   float get_setup_priority() const override;
+  void dump_config() override;
 };
 
 #ifdef ARDUINO_ARCH_ESP32

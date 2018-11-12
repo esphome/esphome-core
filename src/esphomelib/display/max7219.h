@@ -27,6 +27,8 @@ class MAX7219Component : public PollingComponent, public SPIDevice {
 
   void setup() override;
 
+  void dump_config() override;
+
   void update() override;
 
   float get_setup_priority() const override;

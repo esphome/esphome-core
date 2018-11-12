@@ -10,11 +10,11 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace sensor {
 
 void TotalDailyEnergy::setup() {
-  this->pref_ = global_preferences.make_preference<float>(1436924412UL);
+  this->pref_ = global_preferences.make_preference<float>(1436924412UL, this->name_);
 
   float recovered;
   if (this->pref_.load(&recovered)) {
-    this->publish_state(recovered);
+    this->publish_state_and_save_(recovered);
   } else {
     this->publish_state_and_save_(0);
   }

@@ -118,7 +118,7 @@ class LightState : public Nameable, public Component {
     LightState::StateCall &parse_color_json(JsonObject &root);
     LightState::StateCall &parse_json(JsonObject &root);
 
-    void perform();
+    void perform() const;
 
    protected:
     LightState *state_;

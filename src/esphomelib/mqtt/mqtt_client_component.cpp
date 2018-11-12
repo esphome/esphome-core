@@ -18,58 +18,22 @@ MQTTClientComponent::MQTTClientComponent(const MQTTCredentials &credentials, con
 
 void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT...");
-  ESP_LOGCONFIG(TAG, "    Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
-  ESP_LOGCONFIG(TAG, "    Username: '%s'", this->credentials_.username.c_str());
-  ESP_LOGCONFIG(TAG, "    Password: '%s'", this->credentials_.password.c_str());
   if (this->credentials_.client_id.empty())
     this->credentials_.client_id = generate_hostname(this->topic_prefix_);
-  ESP_LOGCONFIG(TAG, "    Client ID: '%s'", this->credentials_.client_id.c_str());
-  if (!this->discovery_info_.prefix.empty()) {
-    ESP_LOGCONFIG(TAG, "    Discovery prefix: '%s'", this->discovery_info_.prefix.c_str());
-    ESP_LOGCONFIG(TAG, "    Discovery retain: %s", this->discovery_info_.retain ? "true" : "false");
-  }
   this->mqtt_client_.onMessage([this](char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total){
     std::string payload_s(payload, len);
     std::string topic_s(topic);
     this->on_message(topic_s, payload_s);
   });
   this->mqtt_client_.onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
-    const char *reason_s = nullptr;
-    switch (reason) {
-      case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
-        reason_s = "TCP disconnected";
-        break;
-      case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
-        reason_s = "Unacceptable Protocol Version";
-        break;
-      case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
-        reason_s = "Identifier Rejected";
-        break;
-      case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
-        reason_s = "Server Unavailable";
-        break;
-      case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
-        reason_s = "Malformed Credentials";
-        break;
-      case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
-        reason_s = "Not Authorized";
-        break;
-      case AsyncMqttClientDisconnectReason::ESP8266_NOT_ENOUGH_SPACE:
-        reason_s = "Not Enough Space";
-        break;
-      case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
-        reason_s = "TLS Bad Fingerprint";
-        break;
-      default:
-        reason_s = "Unknown";
-        break;
-    }
-    ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
+    this->state_ = MQTT_CLIENT_DISCONNECTED;
+    this->disconnect_reason_ = reason;
   });
   if (this->is_log_message_enabled()) {
     global_log_component->add_on_log_callback([this](int level, const char *message) {
-      if (level <= this->log_level_ && this->mqtt_client_.connected() && this->state_ == MQTT_CLIENT_CONNECTED) {
-        this->publish(this->log_message_.topic, message, this->log_message_.qos, this->log_message_.retain);
+      if (level <= this->log_level_ && this->is_connected()) {
+        this->publish(this->log_message_.topic, message, strlen(message),
+            this->log_message_.qos, this->log_message_.retain);
       }
     });
   }
@@ -78,12 +42,30 @@ void MQTTClientComponent::setup() {
     if (!this->shutdown_message_.topic.empty()) {
       yield();
       this->publish(this->shutdown_message_);
+      yield();
     }
     this->mqtt_client_.disconnect(true);
   });
 
   this->last_connected_ = millis();
   this->start_connect();
+}
+void MQTTClientComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT:");
+  ESP_LOGCONFIG(TAG, "  Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
+  ESP_LOGCONFIG(TAG, "  Username: '%s'", this->credentials_.username.c_str());
+  ESP_LOGCONFIG(TAG, "  Client ID: '%s'", this->credentials_.client_id.c_str());
+  if (!this->discovery_info_.prefix.empty()) {
+    ESP_LOGCONFIG(TAG, "  Discovery prefix: '%s'", this->discovery_info_.prefix.c_str());
+    ESP_LOGCONFIG(TAG, "  Discovery retain: %s", YESNO(this->discovery_info_.retain));
+  }
+  ESP_LOGCONFIG(TAG, "  Topic Prefix: '%s'", this->topic_prefix_.c_str());
+  if (!this->log_message_.topic.empty()) {
+    ESP_LOGCONFIG(TAG, "  Log Topic: '%s'", this->log_message_.topic.c_str());
+  }
+  if (!this->availability_.topic.empty()) {
+    ESP_LOGCONFIG(TAG, "  Availability: '%s'", this->availability_.topic.c_str());
+  }
 }
 bool MQTTClientComponent::can_proceed() {
   return this->is_connected();
@@ -131,6 +113,9 @@ void MQTTClientComponent::check_connected() {
   this->state_ = MQTT_CLIENT_CONNECTED;
   this->status_clear_warning();
   ESP_LOGI(TAG, "MQTT Connected!");
+  // MQTT Client needs some time to be fully set up.
+  delay(100);
+
   if (!this->birth_message_.topic.empty())
     this->publish(this->birth_message_);
 
@@ -142,9 +127,51 @@ void MQTTClientComponent::check_connected() {
 }
 
 void MQTTClientComponent::loop() {
+  if (this->disconnect_reason_.has_value()) {
+    const char *reason_s = nullptr;
+    switch (*this->disconnect_reason_) {
+      case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
+        reason_s = "TCP disconnected";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
+        reason_s = "Unacceptable Protocol Version";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
+        reason_s = "Identifier Rejected";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
+        reason_s = "Server Unavailable";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
+        reason_s = "Malformed Credentials";
+        break;
+      case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
+        reason_s = "Not Authorized";
+        break;
+      case AsyncMqttClientDisconnectReason::ESP8266_NOT_ENOUGH_SPACE:
+        reason_s = "Not Enough Space";
+        break;
+      case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
+        reason_s = "TLS Bad Fingerprint";
+        break;
+      default:
+        reason_s = "Unknown";
+        break;
+    }
+    if (!global_wifi_component->is_connected()) {
+      reason_s = "WiFi disconnected";
+    }
+    ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
+    this->disconnect_reason_.reset();
+  }
+
+  const uint32_t now = millis();
+
   switch (this->state_) {
     case MQTT_CLIENT_DISCONNECTED:
-      this->start_connect();
+      if (now - this->connect_begin_ > 5000) {
+        this->start_connect();
+      }
       break;
     case MQTT_CLIENT_CONNECTING:
       this->check_connected();
@@ -155,7 +182,7 @@ void MQTTClientComponent::loop() {
         ESP_LOGW(TAG, "Lost MQTT Client connection!");
         this->start_connect();
       } else {
-        this->last_connected_ = millis();
+        this->last_connected_ = now;
       }
       break;
   }
@@ -163,7 +190,6 @@ void MQTTClientComponent::loop() {
   if (millis() - this->last_connected_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
     ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
     reboot("mqtt");
-    return;
   }
 }
 
@@ -172,7 +198,7 @@ void MQTTClientComponent::set_keep_alive(uint16_t keep_alive_s) {
 }
 
 void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
-  ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u...", topic.c_str(), qos);
+  ESP_LOGV(TAG, "Subscribing to topic='%s' qos=%u...", topic.c_str(), qos);
   MQTTSubscription subscription{
       .topic = topic,
       .qos = qos,
@@ -185,7 +211,7 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
 }
 
 void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
-  ESP_LOGD(TAG, "Subscribing to topic='%s' qos=%u with JSON...", topic.c_str(), qos);
+  ESP_LOGV(TAG, "Subscribing to topic='%s' qos=%u with JSON...", topic.c_str(), qos);
   auto f = std::bind(&parse_json, std::placeholders::_1, callback);
   MQTTSubscription subscription{
       .topic = topic,
@@ -199,22 +225,31 @@ void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t 
 }
 
 void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain) {
+  this->publish(topic, payload.data(), payload.size(), qos, retain);
+}
+
+void MQTTClientComponent::publish(const std::string &topic, const char *payload, size_t payload_length,
+    uint8_t qos, bool retain) {
+  if (!this->is_connected()) {
+    // critical components will re-transmit their messages
+    return;
+  }
   bool logging_topic = topic == this->log_message_.topic;
   if (!logging_topic) {
-    ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload.c_str(), retain);
+    ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload, retain);
   }
 
   this->loop();
-  uint16_t ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload.data(), payload.length());
+  uint16_t ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload, payload_length);
   yield();
-  if (ret == 0 && !logging_topic) {
-    yield();
-    ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload.data(), payload.length());
+  if (ret == 0 && !logging_topic && this->is_connected()) {
+    delay(5);
+    ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload, payload_length);
     if (ret == 0) {
       ESP_LOGW(TAG, "Publish failed!");
       this->status_momentary_warning("publish", 5000);
     }
-    yield();
+    delay(1);
   }
 }
 
@@ -306,8 +341,9 @@ void MQTTClientComponent::recalculate_availability() {
   this->availability_.payload_not_available = this->last_will_.payload;
 }
 void MQTTClientComponent::publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain) {
-  std::string message = build_json(f);
-  this->publish(topic, message, qos, retain);
+  size_t len;
+  const char *message = build_json(f, &len);
+  this->publish(topic, message, len, qos, retain);
 }
 void MQTTClientComponent::set_log_message_template(MQTTMessage &&message) {
   this->log_message_ = std::move(message);

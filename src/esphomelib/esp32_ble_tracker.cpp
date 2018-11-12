@@ -59,15 +59,20 @@ XiaomiDevice *ESP32BLETracker::make_xiaomi_device(std::array<uint8_t, 6> address
 void ESP32BLETracker::setup() {
   global_esp32_ble_tracker = this;
 
-  xTaskCreatePinnedToCore(
-      ESP32BLETracker::ble_core_task,
-      "ble_task", // name
-      10000, // stack size (in words)
-      nullptr, // input params
-      1, // priority
-      nullptr, // Handle, not needed
-      0 // core
-  );
+  if (!ESP32BLETracker::ble_setup()) {
+    this->mark_failed();
+    return;
+  }
+
+  global_esp32_ble_tracker->start_scan(true);
+}
+
+void ESP32BLETracker::loop() {
+  auto ret = xSemaphoreTake(semaphore_scan_end, 0L);
+  if (ret) {
+    xSemaphoreGive(semaphore_scan_end);
+    global_esp32_ble_tracker->start_scan(false);
+  }
 }
 
 void ESP32BLETracker::ble_core_task(void *params) {
@@ -78,20 +83,20 @@ void ESP32BLETracker::ble_core_task(void *params) {
   }
 }
 
-void ESP32BLETracker::ble_setup() {
+bool ESP32BLETracker::ble_setup() {
   semaphore_scan_end = xSemaphoreCreateMutex();
 
   // Initialize non-volatile storage for the bluetooth controller
   esp_err_t err = nvs_flash_init();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "nvs_flash_init failed: %d", err);
-    return;
+    return false;
   }
 
   // Initialize the bluetooth controller with the default configuration
   if (!btStart()) {
     ESP_LOGE(TAG, "btStart failed: %d", esp_bt_controller_get_status());
-    return;
+    return false;
   }
 
   esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
@@ -99,17 +104,17 @@ void ESP32BLETracker::ble_setup() {
   err = esp_bluedroid_init();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "esp_bluedroid_init failed: %d", err);
-    return;
+    return false;
   }
   err = esp_bluedroid_enable();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "esp_bluedroid_enable failed: %d", err);
-    return;
+    return false;
   }
   err = esp_ble_gap_register_callback(ESP32BLETracker::gap_event_handler);
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "esp_ble_gap_register_callback failed: %d", err);
-    return;
+    return false;
   }
 
   // Empty name
@@ -119,21 +124,13 @@ void ESP32BLETracker::ble_setup() {
   err = esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &iocap, sizeof(uint8_t));
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "esp_ble_gap_set_security_param failed: %d", err);
-    return;
+    return false;
   }
 
   // BLE takes some time to be fully set up, 200ms should be more than enough
   delay(200);
 
-  bool first = true;
-
-  while (true) {
-    global_esp32_ble_tracker->start_scan(first);
-    first = false;
-    // wait for result
-    xSemaphoreTake(semaphore_scan_end, portMAX_DELAY);
-    xSemaphoreGive(semaphore_scan_end);
-  }
+  return true;
 }
 
 void ESP32BLETracker::start_scan(bool first) {

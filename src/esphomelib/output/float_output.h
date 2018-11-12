@@ -15,6 +15,10 @@ namespace output {
 template<typename T>
 class SetLevelAction;
 
+#define LOG_FLOAT_OUTPUT(this) \
+  LOG_BINARY_OUTPUT(this) \
+  if (this->max_power_ != 1.0f) { ESP_LOGCONFIG(TAG, "  Max Power: %.1f%%", this->max_power_ * 100.0f); }
+
 /** Base class for all output components that can output a variable level, like PWM.
  *
  * Floating Point Outputs always use output values in the range from 0.0 to 1.0 (inclusive), where 0.0 means off

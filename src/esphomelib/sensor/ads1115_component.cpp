@@ -17,10 +17,8 @@ static const uint8_t ADS1115_DATA_RATE_860_SPS = 0b111;
 
 void ADS1115Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ADS1115...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02x", this->address_);
   uint16_t value;
   if (!this->read_byte_16(ADS1115_REGISTER_CONVERSION, &value)) {
-    ESP_LOGE(TAG, "Connection to ADS1115 with address 0x%02x failed.", this->address_);
     this->mark_failed();
     return;
   }
@@ -65,13 +63,22 @@ void ADS1115Component::setup() {
     return;
   }
   for (auto *sensor : this->sensors_) {
-    ESP_LOGCONFIG(TAG, "  Sensor %s", sensor->get_name().c_str());
-    ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
-    ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
-
     this->set_interval(sensor->get_name(), sensor->update_interval(), [this, sensor]{
       this->request_measurement_(sensor);
     });
+  }
+}
+void ADS1115Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "Setting up ADS1115...");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with ADS1115 failed!");
+  }
+
+  for (auto *sensor : this->sensors_) {
+    ESP_LOGCONFIG(TAG, "  Sensor %s", sensor->get_name().c_str());
+    ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
+    ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
   }
 }
 float ADS1115Component::get_setup_priority() const {

@@ -54,7 +54,7 @@ void Application::setup() {
   assert(this->application_state_ == COMPONENT_STATE_CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
-    return a->get_setup_priority() > b->get_setup_priority();
+    return a->get_actual_setup_priority() > b->get_actual_setup_priority();
   });
 
   for (uint32_t i = 0; i < this->components_.size(); i++) {
@@ -86,10 +86,17 @@ void Application::setup() {
 
   this->application_state_ = COMPONENT_STATE_SETUP;
 
+  ESP_LOGI(TAG, "setup() finished successfully!");
+
   if (this->compilation_time_.empty()) {
     ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION);
   } else {
     ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION " compiled on %s", this->compilation_time_.c_str());
+  }
+
+  for (uint32_t i = 0; i < this->components_.size(); i++) {
+    Component *component = this->components_[i];
+    component->dump_config();
   }
 }
 

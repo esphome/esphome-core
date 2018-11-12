@@ -24,10 +24,9 @@ static const uint8_t TCS34725_REGISTER_GDATAL  = TCS34725_COMMAND_BIT | 0x18;
 static const uint8_t TCS34725_REGISTER_BDATAL  = TCS34725_COMMAND_BIT | 0x1A;
 
 void TCS34725Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up TCS34725 with address=0x%02X...", this->address_);
+  ESP_LOGCONFIG(TAG, "Setting up TCS34725...");
   uint8_t id;
   if (!this->read_byte(TCS34725_REGISTER_ID, &id)) {
-    ESP_LOGE(TAG, "Communication with TCS34725 failed!");
     this->mark_failed();
     return;
   }
@@ -49,6 +48,15 @@ void TCS34725Component::setup() {
     this->mark_failed();
     return;
   }
+}
+
+void TCS34725Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "TCS34725:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with TCS34725 failed!");
+  }
+  LOG_UPDATE_INTERVAL(this);
 }
 float TCS34725Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

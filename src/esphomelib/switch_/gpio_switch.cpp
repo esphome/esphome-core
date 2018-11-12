@@ -20,14 +20,20 @@ float GPIOSwitch::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 void GPIOSwitch::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up GPIO Switch '%s'...", this->get_name().c_str());
+  ESP_LOGCONFIG(TAG, "Setting up GPIO Switch '%s'...", this->name_.c_str());
   this->pin_->setup();
   bool restored = this->get_initial_state().value_or(false);
+  ESP_LOGD(TAG, "  Restored state %s", ONOFF(restored));
   if (restored) {
     this->turn_on();
   } else {
     this->turn_off();
   }
+}
+void GPIOSwitch::dump_config() {
+  ESP_LOGCONFIG(TAG, "GPIO Switch '%s':", this->name_.c_str());
+  LOG_PIN("  Pin: ", this->pin_);
+  LOG_SWITCH(this);
 }
 void GPIOSwitch::write_state(bool state) {
   this->pin_->digital_write(state);

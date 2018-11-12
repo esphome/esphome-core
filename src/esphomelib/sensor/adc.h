@@ -45,6 +45,7 @@ class ADCSensorComponent : public PollingSensorComponent {
   void update() override;
   /// Setup ADc
   void setup() override;
+  void dump_config() override;
   /// Unit of measurement: "V".
   std::string unit_of_measurement() override;
   /// Icon: "mdi:flash".

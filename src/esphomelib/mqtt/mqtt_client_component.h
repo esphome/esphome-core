@@ -185,6 +185,9 @@ class MQTTClientComponent : public Component {
    */
   void publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
 
+  void publish(const std::string &topic, const char *payload, size_t payload_length,
+               uint8_t qos = 0, bool retain = false);
+
   /** Construct and send a JSON MQTT message.
    *
    * @param topic The topic.
@@ -195,6 +198,7 @@ class MQTTClientComponent : public Component {
 
   /// Setup the MQTT client, registering a bunch of callbacks and attempting to connect.
   void setup() override;
+  void dump_config() override;
   /// Reconnect if required
   void loop() override;
   /// MQTT client setup priority
@@ -256,6 +260,7 @@ class MQTTClientComponent : public Component {
   uint32_t reboot_timeout_{60000};
   uint32_t connect_begin_;
   uint32_t last_connected_{0};
+  optional<AsyncMqttClientDisconnectReason> disconnect_reason_{};
 };
 
 extern MQTTClientComponent *global_mqtt_client;

@@ -19,6 +19,11 @@ void GPIOBinarySensorComponent::setup() {
   this->publish_state(this->last_state_);
 }
 
+void GPIOBinarySensorComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "GPIO Binary Sensor '%s':", this->name_.c_str());
+  LOG_PIN("  Pin: ", this->pin_);
+}
+
 void GPIOBinarySensorComponent::loop() {
   bool new_state = this->pin_->digital_read();
   if (this->last_state_ != new_state) {
@@ -30,7 +35,6 @@ void GPIOBinarySensorComponent::loop() {
 float GPIOBinarySensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-
 GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GPIOPin *pin)
   : BinarySensor(name), pin_(pin) {
 

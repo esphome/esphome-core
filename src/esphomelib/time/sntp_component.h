@@ -23,6 +23,7 @@ class SNTPComponent : public RealTimeClockComponent {
   SNTPComponent();
 
   void setup() override;
+  void dump_config() override;
   /// Change the servers used by SNTP for timekeeping
   void set_servers(const std::string &server_1,
                    const std::string &server_2,

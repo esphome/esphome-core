@@ -78,9 +78,6 @@ MHZ19TemperatureSensor *MHZ19Component::make_temperature_sensor(const std::strin
 MHZ19CO2Sensor *MHZ19Component::get_co2_sensor() const {
   return this->co2_sensor_;
 }
-void MHZ19Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MHZ19...");
-}
 float MHZ19Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }

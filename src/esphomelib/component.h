@@ -2,9 +2,9 @@
 #define ESPHOMELIB_COMPONENT_H
 
 #include <functional>
-#include <map>
 #include <vector>
 #include "esphomelib/defines.h"
+#include "esphomelib/helpers.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -14,9 +14,9 @@ namespace setup_priority {
 extern const float PRE_HARDWARE; ///< only for internal components that are necessary for hardware component initialization (like i2c bus)
 extern const float HARDWARE; ///< for hardware initialization, but only where it's really necessary (like outputs)
 extern const float POST_HARDWARE;
+extern const float HARDWARE_LATE;
 extern const float WIFI; ///< for WiFi initialization
 extern const float MQTT_CLIENT; ///< for the MQTT client initialization
-extern const float HARDWARE_LATE;
 extern const float MQTT_COMPONENT; ///< for MQTT component initialization
 extern const float LATE;
 
@@ -33,6 +33,8 @@ extern const uint32_t STATUS_LED_WARNING;
 extern const uint32_t STATUS_LED_ERROR;
 
 extern uint32_t global_state;
+
+#define LOG_UPDATE_INTERVAL(this) ESP_LOGCONFIG(TAG, "  Update Interval: %u", this->get_update_interval());
 
 /** The base class for all esphomelib components.
  *
@@ -67,6 +69,8 @@ class Component {
    */
   virtual void loop();
 
+  virtual void dump_config();
+
   /** priority of setup(). higher -> executed earlier
    *
    * Defaults to 0.
@@ -74,6 +78,10 @@ class Component {
    * @return The setup priority of this component
    */
   virtual float get_setup_priority() const;
+
+  float get_actual_setup_priority() const;
+
+  void set_setup_priority(float priority);
 
   /** priority of loop(). higher -> executed earlier
    *
@@ -220,6 +228,7 @@ class Component {
   std::vector<TimeFunction> time_functions_;
 
   uint32_t component_state_{0x0000}; ///< State of this component.
+  optional<float> setup_priority_override_;
 };
 
 /** This class simplifies creating components that periodically check a state.

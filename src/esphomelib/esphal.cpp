@@ -24,10 +24,9 @@ GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
 
 }
 
-void print_pin_mode(uint8_t pin, uint8_t mode) {
-#ifdef ESPHOMELIB_LOG_HAS_CONFIG
+const char *GPIOPin::get_pin_mode_name() const {
   const char *mode_s;
-  switch (mode) {
+  switch (this->mode_) {
     case INPUT: mode_s = "INPUT"; break;
     case OUTPUT: mode_s = "OUTPUT"; break;
     case INPUT_PULLUP: mode_s = "INPUT_PULLUP"; break;
@@ -56,8 +55,8 @@ void print_pin_mode(uint8_t pin, uint8_t mode) {
 
     default: mode_s = "UNKNOWN"; break;
   }
-  ESP_LOGCONFIG(TAG, "    GPIO Pin %u with mode %s", pin, mode_s);
-#endif
+
+  return mode_s;
 }
 
 unsigned char GPIOPin::get_pin() const {
@@ -71,7 +70,6 @@ bool GPIOPin::is_inverted() const {
   return this->inverted_;
 }
 void GPIOPin::setup() {
-  print_pin_mode(this->pin_, this->mode_);
   this->pin_mode(this->mode_);
 }
 bool ICACHE_RAM_ATTR HOT GPIOPin::digital_read() {

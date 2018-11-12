@@ -22,6 +22,9 @@ optional<bool> DelayedOnFilter::new_value(bool value) {
     return false;
   }
 }
+float DelayedOnFilter::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 void Filter::output(bool value) {
   if (this->next_ == nullptr) {
@@ -50,6 +53,9 @@ optional<bool> DelayedOffFilter::new_value(bool value) {
     this->cancel_timeout("OFF");
     return true;
   }
+}
+float DelayedOffFilter::get_setup_priority() const {
+  return setup_priority::HARDWARE;
 }
 
 optional<bool> InvertFilter::new_value(bool value) {
@@ -81,6 +87,9 @@ void HeartbeatFilter::setup() {
     if (this->value_.has_value())
       this->output(*this->value_);
   });
+}
+float HeartbeatFilter::get_setup_priority() const {
+  return setup_priority::HARDWARE;
 }
 } // namespace binary_sensor
 

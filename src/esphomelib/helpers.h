@@ -72,6 +72,8 @@ void run_safe_shutdown_hooks(const char *cause);
 std::string to_lowercase_underscore(std::string s);
 
 /// Build a JSON string with the provided json build function.
+const char *build_json(const json_build_t &f, size_t *length);
+
 std::string build_json(const json_build_t &f);
 
 /// Parse a JSON string and run the provided json parse function if it's valid.
@@ -289,6 +291,8 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
   };
 
   void* alloc(size_t bytes) override;
+
+  size_t size() const;
 
   void clear();
 

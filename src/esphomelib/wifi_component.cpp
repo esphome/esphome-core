@@ -27,7 +27,8 @@ void WiFiComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up WiFi...");
 
 #ifdef ARDUINO_ARCH_ESP32
-  WiFi.onEvent(on_wifi_event);
+  auto f = std::bind(&WiFiComponent::on_wifi_event, this, std::placeholders::_1, std::placeholders::_2);
+  WiFi.onEvent(f);
 #endif
   WiFi.persistent(false);
 
@@ -67,41 +68,39 @@ void WiFiComponent::setup() {
     }
     delay(10);
 
-    if (this->power_save_.has_value()) {
 #ifdef ARDUINO_ARCH_ESP32
-      wifi_ps_type_t power_save;
-      switch (*this->power_save_) {
-        case WIFI_POWER_SAVE_LIGHT:
-          power_save = WIFI_PS_MIN_MODEM;
-          break;
-        case WIFI_POWER_SAVE_HIGH:
-          power_save = WIFI_PS_MAX_MODEM;
-          break;
-        case WIFI_POWER_SAVE_NONE:
-        default:
-          power_save = WIFI_PS_NONE;
-          break;
-      }
-      esp_wifi_set_ps(power_save);
+    wifi_ps_type_t power_save;
+    switch (this->power_save_) {
+      case WIFI_POWER_SAVE_LIGHT:
+        power_save = WIFI_PS_MIN_MODEM;
+        break;
+      case WIFI_POWER_SAVE_HIGH:
+        power_save = WIFI_PS_MAX_MODEM;
+        break;
+      case WIFI_POWER_SAVE_NONE:
+      default:
+        power_save = WIFI_PS_NONE;
+        break;
+    }
+    esp_wifi_set_ps(power_save);
 #endif
 
 #ifdef ARDUINO_ARCH_ESP8266
-      sleep_type_t power_save;
-      switch (*this->power_save_) {
-        case WIFI_POWER_SAVE_LIGHT:
-          power_save = LIGHT_SLEEP_T;
-          break;
-        case WIFI_POWER_SAVE_HIGH:
-          power_save = MODEM_SLEEP_T;
-          break;
-        case WIFI_POWER_SAVE_NONE:
-        default:
-          power_save = NONE_SLEEP_T;
-          break;
-      }
-      wifi_set_sleep_type(power_save);
-#endif
+    sleep_type_t power_save;
+    switch (this->power_save_) {
+      case WIFI_POWER_SAVE_LIGHT:
+        power_save = LIGHT_SLEEP_T;
+        break;
+      case WIFI_POWER_SAVE_HIGH:
+        power_save = MODEM_SLEEP_T;
+        break;
+      case WIFI_POWER_SAVE_NONE:
+      default:
+        power_save = NONE_SLEEP_T;
+        break;
     }
+    wifi_set_sleep_type(power_save);
+#endif
 
     this->start_connecting();
   } else if (this->has_ap()) {
@@ -122,12 +121,17 @@ void WiFiComponent::loop() {
 
       case WIFI_COMPONENT_STATE_STA_CONNECTED:
       case WIFI_COMPONENT_STATE_AP_STA_CONNECTED: {
-        if (WiFi.status() == WL_CONNECTED) {
-          this->last_connected_ = now;
-        } else {
+#ifdef ARDUINO_ARCH_ESP32
+        if (this->error_from_callback_) {
+          this->handle_error_from_callback();
+        } else
+#endif
+        if (WiFi.status() != WL_CONNECTED) {
           ESP_LOGW(TAG, "WiFi Connection lost... Reconnecting...");
           this->status_set_warning();
           this->retry_connect();
+        } else {
+          this->last_connected_ = now;
         }
         break;
       }
@@ -148,7 +152,7 @@ WiFiComponent::WiFiComponent() {
 }
 
 #ifdef ARDUINO_ARCH_ESP32
-void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
+void WiFiComponent::on_wifi_event(system_event_id_t event, system_event_info_t info) {
 #ifdef ESPHOMELIB_LOG_HAS_VERBOSE
   const char *event_name;
   switch (event) {
@@ -190,9 +194,10 @@ void WiFiComponent::on_wifi_event(WiFiEvent_t event) {
 #endif
 
   if (event == SYSTEM_EVENT_STA_DISCONNECTED) {
-    // The arduino core has a bug where WiFi.status() is still set to connected even though
-    // it received a disconnected event.
-    global_wifi_component->retry_connect();
+    uint8_t reason = info.disconnected.reason;
+    if (reason == WIFI_REASON_AUTH_EXPIRE || (reason >= WIFI_REASON_BEACON_TIMEOUT && WIFI_REASON_AUTH_FAIL)) {
+      this->error_from_callback_ = true;
+    }
   }
 }
 #endif
@@ -211,12 +216,12 @@ void WiFiComponent::setup_ap_config() {
     this->status_set_error();
   }
 
-  ESP_LOGCONFIG(TAG, "    AP SSID: '%s'", this->ap_.ssid.c_str());
-  ESP_LOGCONFIG(TAG, "    AP Password: '%s'", this->ap_.password.c_str());
+  ESP_LOGCONFIG(TAG, "  AP SSID: '%s'", this->ap_.ssid.c_str());
+  ESP_LOGCONFIG(TAG, "  AP Password: '%s'", this->ap_.password.c_str());
   if (this->ap_.manual_ip.has_value()) {
-    ESP_LOGCONFIG(TAG, "    AP Static IP: '%s'", this->ap_.manual_ip->static_ip.toString().c_str());
-    ESP_LOGCONFIG(TAG, "    AP Gateway: '%s'", this->ap_.manual_ip->gateway.toString().c_str());
-    ESP_LOGCONFIG(TAG, "    AP Subnet: '%s'", this->ap_.manual_ip->subnet.toString().c_str());
+    ESP_LOGCONFIG(TAG, "  AP Static IP: '%s'", this->ap_.manual_ip->static_ip.toString().c_str());
+    ESP_LOGCONFIG(TAG, "  AP Gateway: '%s'", this->ap_.manual_ip->gateway.toString().c_str());
+    ESP_LOGCONFIG(TAG, "  AP Subnet: '%s'", this->ap_.manual_ip->subnet.toString().c_str());
 
     ret = WiFi.softAPConfig(this->ap_.manual_ip->static_ip, this->ap_.manual_ip->gateway,
                             this->ap_.manual_ip->subnet);
@@ -247,7 +252,7 @@ void WiFiComponent::setup_ap_config() {
   }
 
   ESP_LOGD(TAG, "WiFi AP set up.");
-  ESP_LOGCONFIG(TAG, "    IP Address: %s", WiFi.softAPIP().toString().c_str());
+  ESP_LOGCONFIG(TAG, "  IP Address: %s", WiFi.softAPIP().toString().c_str());
 
   if (!this->has_sta()) {
     this->state_ = WIFI_COMPONENT_STATE_AP;
@@ -271,8 +276,6 @@ void WiFiComponent::set_sta(const WiFiAp &ap) {
 }
 
 void WiFiComponent::start_connecting() {
-  assert(this->has_sta());
-
   ESP_LOGI(TAG, "WiFi Connecting to '%s'...", this->sta_.ssid.c_str());
   this->status_set_warning();
 
@@ -318,21 +321,34 @@ void WiFiComponent::start_connecting() {
   this->action_started_ = millis();
 }
 
+static void print_connect_params() {
+  uint8_t *bssid = WiFi.BSSID();
+  ESP_LOGCONFIG(TAG, "  SSID: '%s'", WiFi.SSID().c_str());
+  ESP_LOGCONFIG(TAG, "  IP Address: %s", WiFi.localIP().toString().c_str());
+  ESP_LOGCONFIG(TAG, "  BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
+                bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+  ESP_LOGCONFIG(TAG, "  Channel: %d", WiFi.channel());
+  ESP_LOGCONFIG(TAG, "  Subnet: %s", WiFi.subnetMask().toString().c_str());
+  ESP_LOGCONFIG(TAG, "  Gateway: %s", WiFi.gatewayIP().toString().c_str());
+  ESP_LOGCONFIG(TAG, "  DNS1: %s", WiFi.dnsIP(0).toString().c_str());
+  ESP_LOGCONFIG(TAG, "  DNS2: %s", WiFi.dnsIP(1).toString().c_str());
+}
+
+void WiFiComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "WiFi:");
+  print_connect_params();
+}
+
 void WiFiComponent::check_connecting_finished() {
   wl_status_t status = WiFi.status();
   if (status == WL_CONNECTED) {
     ESP_LOGI(TAG, "WiFi connected!");
-    uint8_t *bssid = WiFi.BSSID();
-    ESP_LOGCONFIG(TAG, "    SSID: %s", WiFi.SSID().c_str());
-    ESP_LOGCONFIG(TAG, "    BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
-                  bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-    ESP_LOGCONFIG(TAG, "    Channel: %d", WiFi.channel());
-    ESP_LOGCONFIG(TAG, "    IP Address: %s", WiFi.localIP().toString().c_str());
-    ESP_LOGCONFIG(TAG, "    Subnet: %s", WiFi.subnetMask().toString().c_str());
-    ESP_LOGCONFIG(TAG, "    Gateway: %s", WiFi.gatewayIP().toString().c_str());
-    ESP_LOGCONFIG(TAG, "    DNS1: %s", WiFi.dnsIP(0).toString().c_str());
-    ESP_LOGCONFIG(TAG, "    DNS2: %s", WiFi.dnsIP(1).toString().c_str());
+    print_connect_params();
     this->status_clear_warning();
+    this->cooldown_reconnect_.reset();
+#ifdef ARDUINO_ARCH_ESP32
+    this->error_from_callback_ = false;
+#endif
 
     if (this->has_ap()) {
       ESP_LOGD(TAG, "Disabling AP...");
@@ -344,6 +360,32 @@ void WiFiComponent::check_connecting_finished() {
     return;
   }
 
+  uint32_t now = millis();
+  if (now - this->action_started_ > 30000) {
+    ESP_LOGW(TAG, "Timeout while connecting to WiFi.");
+    this->retry_connect();
+    return;
+  }
+
+#ifdef ARDUINO_ARCH_ESP32
+  if (this->error_from_callback_) {
+    this->handle_error_from_callback();
+    return;
+  }
+#endif
+
+  if (status == WL_IDLE_STATUS || status == WL_DISCONNECTED || status == WL_CONNECTION_LOST) {
+    // WL_DISCONNECTED is set while not connected yet.
+    // WL_IDLE_STATUS is set while we're waiting for the IP address.
+    // WL_CONNECTION_LOST happens on the ESP32
+    return;
+  }
+
+  if (this->cooldown_reconnect_.has_value() && now - *this->cooldown_reconnect_ < 2000) {
+    return;
+  }
+  this->cooldown_reconnect_ = now;
+
   if (status == WL_NO_SSID_AVAIL) {
     ESP_LOGW(TAG, "WiFi network can not be found anymore.");
     this->retry_connect();
@@ -353,19 +395,6 @@ void WiFiComponent::check_connecting_finished() {
   if (status == WL_CONNECT_FAILED) {
     ESP_LOGW(TAG, "Connecting to WiFi network failed. Are the credentials wrong?");
     this->retry_connect();
-    return;
-  }
-
-  if (millis() - this->action_started_ > 30000) {
-    ESP_LOGW(TAG, "Timeout while connecting to WiFi.");
-    this->retry_connect();
-    return;
-  }
-
-  if (status == WL_IDLE_STATUS || status == WL_DISCONNECTED || status == WL_CONNECTION_LOST) {
-    // WL_DISCONNECTED is set while not connected yet.
-    // WL_IDLE_STATUS is set while we're waiting for the IP address.
-    // WL_CONNECTION_LOST happens on the ESP32
     return;
   }
 
@@ -413,6 +442,16 @@ bool WiFiComponent::is_connected() {
 void WiFiComponent::set_power_save_mode(WiFiPowerSaveMode power_save) {
   this->power_save_ = power_save;
 }
+#ifdef ARDUINO_ARCH_ESP32
+void WiFiComponent::handle_error_from_callback() {
+  this->error_from_callback_ = false;
+  WiFi.enableSTA(false);
+  if (this->has_ap() && this->state_ == WIFI_COMPONENT_STATE_AP_STA_CONNECTED) {
+    this->setup_ap_config();
+  }
+  this->start_connecting();
+}
+#endif
 
 WiFiComponent *global_wifi_component;
 

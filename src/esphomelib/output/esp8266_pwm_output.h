@@ -35,6 +35,7 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
 
   /// Initialize pin
   void setup() override;
+  void dump_config() override;
   /// HARDWARE setup_priority
   float get_setup_priority() const override;
   /// Override FloatOutput's write_state for analogWrite

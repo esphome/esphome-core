@@ -19,20 +19,26 @@ static const uint8_t MS5611_CMD_CONV_D2 = 0x50;
 static const uint8_t MS5611_CMD_READ_PROM = 0xA2;
 
 void MS5611Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MS5611 with address=0x%02X...", this->address_);
+  ESP_LOGCONFIG(TAG, "Setting up MS5611...");
   if (!this->write_bytes(MS5611_CMD_RESET, nullptr, 0)) {
-    ESP_LOGE(TAG, "Communication with MS5611 failed!");
     this->mark_failed();
     return;
   }
   delay(100);
   for (uint8_t offset = 0; offset < 6; offset++) {
     if (!this->read_byte_16(MS5611_CMD_READ_PROM + (offset * 2), &this->prom[offset])) {
-      ESP_LOGE(TAG, "Reading byte %d from MS5611 PROM failed!", offset);
       this->mark_failed();
       return;
     }
   }
+}
+void MS5611Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "MS5611:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with MS5611 failed!");
+  }
+  LOG_UPDATE_INTERVAL(this);
 }
 float MS5611Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
@@ -97,7 +103,7 @@ void MS5611Component::calculate_values(uint32_t raw_temperature, uint32_t raw_pr
 
   const float pressure = ((raw_pressure * pressure_sensitivity) / 2097152.0f - pressure_offset) / 3276800.0f;
 
-  ESP_LOGCONFIG(TAG, "Got temperature=%0.02f°C pressure=%0.01fhPa", temperature, pressure);
+  ESP_LOGD(TAG, "Got temperature=%0.02f°C pressure=%0.01fhPa", temperature, pressure);
 
   this->temperature_sensor_->publish_state(temperature);
   this->pressure_sensor_->publish_state(pressure); // hPa

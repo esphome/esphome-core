@@ -10,12 +10,18 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace output {
 
+static const char *TAG = "output.esp8266_pwm";
+
 ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin)
     : pin_(pin) {}
 void ESP8266PWMOutput::setup() {
-  assert(this->pin_.get_pin() <= 16);
   this->pin_.setup();
   this->turn_off();
+}
+void ESP8266PWMOutput::dump_config() {
+  ESP_LOGCONFIG(TAG, "ESP8266 PWM:");
+  LOG_PIN("  Pin: ", &this->pin_);
+  LOG_FLOAT_OUTPUT(this);
 }
 void ESP8266PWMOutput::write_state(float state) {
   const uint16_t max_duty = 1023;

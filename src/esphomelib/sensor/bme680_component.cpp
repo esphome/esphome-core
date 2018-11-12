@@ -71,10 +71,8 @@ static const char* iir_filter_to_str(BME680IIRFilter filter) {
 
 void BME680Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BME680...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t chip_id;
   if (!this->read_byte(BME680_REGISTER_CHIPID, &chip_id) || chip_id != 0x61) {
-    ESP_LOGE(TAG, "Communication with BME680 failed!");
     this->mark_failed();
     return;
   }
@@ -132,17 +130,6 @@ void BME680Component::setup() {
   }
 
   this->calibration_.ambient_temperature = 25; // prime ambient temperature
-
-  ESP_LOGCONFIG(TAG, "    Temperature Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
-  ESP_LOGCONFIG(TAG, "    Pressure Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
-  ESP_LOGCONFIG(TAG, "    Humidity Oversampling: %s", oversampling_to_str(this->humidity_oversampling_));
-  ESP_LOGCONFIG(TAG, "    IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
-  if (this->heater_duration_ == 0 || this->heater_temperature_ == 0) {
-    ESP_LOGCONFIG(TAG, "    Heater OFF");
-  } else {
-    ESP_LOGCONFIG(TAG, "    Heater temperature=%u°C duration=%ums",
-                  this->heater_temperature_, this->heater_duration_);
-  }
 
   // Config register
   uint8_t config_register;
@@ -215,6 +202,26 @@ void BME680Component::setup() {
       return;
     }
   }
+}
+
+void BME680Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "BME680:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with BME680 failed!");
+  }
+
+  ESP_LOGCONFIG(TAG, "  Temperature Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
+  ESP_LOGCONFIG(TAG, "  Pressure Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
+  ESP_LOGCONFIG(TAG, "  Humidity Oversampling: %s", oversampling_to_str(this->humidity_oversampling_));
+  ESP_LOGCONFIG(TAG, "  IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
+  if (this->heater_duration_ == 0 || this->heater_temperature_ == 0) {
+    ESP_LOGCONFIG(TAG, "  Heater OFF");
+  } else {
+    ESP_LOGCONFIG(TAG, "  Heater temperature=%u°C duration=%ums",
+                  this->heater_temperature_, this->heater_duration_);
+  }
+  LOG_UPDATE_INTERVAL(this);
 }
 
 float BME680Component::get_setup_priority() const {

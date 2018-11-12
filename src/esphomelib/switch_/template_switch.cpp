@@ -3,10 +3,13 @@
 #ifdef USE_TEMPLATE_SWITCH
 
 #include "esphomelib/switch_/template_switch.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
+
+static const char *TAG = "switch.template";
 
 TemplateSwitch::TemplateSwitch(const std::string &name)
     : Switch(name), Component(), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
@@ -57,12 +60,20 @@ void TemplateSwitch::setup() {
   if (!this->restore_state_)
     return;
 
-  bool restored = this->get_initial_state().value_or(false);
-  if (restored) {
+  auto restored = this->get_initial_state();
+  if (!restored.has_value())
+    return;
+
+  ESP_LOGD(TAG, "  Restored state %s", ONOFF(*restored));
+  if (*restored) {
     this->turn_on();
   } else {
     this->turn_off();
   }
+}
+void TemplateSwitch::dump_config() {
+  ESP_LOGCONFIG(TAG, "Template Switch '%s':", this->name_.c_str());
+  LOG_SWITCH(this);
 }
 void TemplateSwitch::set_restore_state(bool restore_state) {
   this->restore_state_ = restore_state;

@@ -39,6 +39,7 @@ class RotaryEncoderSensor : public Sensor, public Component {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   void setup() override;
+  void dump_config() override;
   void loop() override;
   std::string unit_of_measurement() override;
   std::string icon() override;

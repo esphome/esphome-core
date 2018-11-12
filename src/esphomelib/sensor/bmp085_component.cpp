@@ -31,10 +31,8 @@ void BMP085Component::update() {
 }
 void BMP085Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BMP085...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t data[22];
   if (!this->read_bytes(BMP085_REGISTER_AC1_H, data, 22)) {
-    ESP_LOGE(TAG, "Connection to BMP085 failed.");
     this->mark_failed();
     return;
   }
@@ -51,6 +49,14 @@ void BMP085Component::setup() {
   this->calibration_.mb = ((data[16] & 0xFF) << 8) | (data[17] & 0xFF);
   this->calibration_.mc = ((data[18] & 0xFF) << 8) | (data[19] & 0xFF);
   this->calibration_.md = ((data[20] & 0xFF) << 8) | (data[21] & 0xFF);
+}
+void BMP085Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "BMP085:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Connection with BMP085 failed!");
+  }
+  LOG_UPDATE_INTERVAL(this);
 }
 BMP085Component::BMP085Component(I2CComponent *parent,
                                  const std::string &temperature_name, const std::string &pressure_name,

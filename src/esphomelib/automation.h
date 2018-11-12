@@ -5,6 +5,7 @@
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
+#include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -94,6 +95,7 @@ class ShutdownTrigger : public Trigger<const char *> {
 class LoopTrigger : public Trigger<NoArg>, public Component {
  public:
   void loop() override;
+  float get_setup_priority() const override;
 };
 
 template<typename T>
@@ -130,6 +132,7 @@ class DelayAction : public Action<T>, public Component {
   void set_delay(uint32_t delay);
 
   void play(T x) override;
+  float get_setup_priority() const override;
  protected:
   TemplatableValue<uint32_t, T> delay_{0};
 };
@@ -211,6 +214,29 @@ class Automation {
   ActionList<T> actions_;
 };
 
+template<typename T>
+class GlobalVariableComponent : public Component {
+ public:
+  explicit GlobalVariableComponent();
+  explicit GlobalVariableComponent(T initial_value);
+
+  T &value();
+
+  void setup() override;
+
+  float get_setup_priority() const override;
+
+  void loop() override;
+
+  void set_restore_value(uint32_t name_hash);
+
+ protected:
+  T value_{};
+  T prev_value_{};
+  bool restore_value_{false};
+  uint32_t name_hash_{};
+  ESPPreferenceObject rtc_;
+};
 
 // =============== TEMPLATE DEFINITIONS ===============
 
@@ -278,6 +304,10 @@ void DelayAction<T>::set_delay(std::function<uint32_t(T)> &&delay) {
 template<typename T>
 void DelayAction<T>::set_delay(uint32_t delay) {
   this->delay_ = delay;
+}
+template<typename T>
+float DelayAction<T>::get_setup_priority() const {
+  return setup_priority::HARDWARE;
 }
 
 template<typename T>
@@ -425,6 +455,47 @@ void ScriptExecuteAction<T>::play(T x) {
 template<typename T>
 ScriptExecuteAction<T> *Script::make_execute_action() {
   return new ScriptExecuteAction<T>(this);
+}
+
+template<typename T>
+GlobalVariableComponent<T>::GlobalVariableComponent() {
+
+}
+template<typename T>
+GlobalVariableComponent<T>::GlobalVariableComponent(T initial_value)
+    : value_(initial_value) {
+
+}
+template<typename T>
+T &GlobalVariableComponent<T>::value() {
+  return this->value_;
+}
+template<typename T>
+void GlobalVariableComponent<T>::setup() {
+  if (this->restore_value_) {
+    this->rtc_ = global_preferences.make_preference<T>(1944399030U ^ this->name_hash_);
+    this->rtc_.load(&this->value_);
+  }
+  memcpy(&this->prev_value_, &this->value_, sizeof(T));
+}
+template<typename T>
+float GlobalVariableComponent<T>::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
+template<typename T>
+void GlobalVariableComponent<T>::loop() {
+  if (this->restore_value_) {
+    int diff = memcmp(&this->value_, &this->prev_value_, sizeof(T));
+    if (diff != 0) {
+      this->rtc_.save(&this->value_);
+      memcpy(&this->prev_value_, &this->value_, sizeof(T));
+    }
+  }
+}
+template<typename T>
+void GlobalVariableComponent<T>::set_restore_value(uint32_t name_hash) {
+  this->restore_value_ = true;
+  this->name_hash_ = name_hash;
 }
 
 ESPHOMELIB_NAMESPACE_END
