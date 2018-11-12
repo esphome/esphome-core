@@ -43,7 +43,7 @@ struct FanStateRTCState {
 };
 
 void FanState::setup() {
-  this->rtc_ = global_preferences.make_preference<FanStateRTCState>(1569162164UL);
+  this->rtc_ = global_preferences.make_preference<FanStateRTCState>(1569162164UL, this->name_);
   FanStateRTCState recovered;
   if (!this->rtc_.load(&recovered))
     return;
@@ -74,7 +74,7 @@ FanState::StateCall &FanState::StateCall::set_speed(FanSpeed speed) {
   this->speed_ = speed;
   return *this;
 }
-void FanState::StateCall::perform() {
+void FanState::StateCall::perform() const {
   if (this->binary_state_.has_value()) {
     this->state_->state = *this->binary_state_;
   }

@@ -24,6 +24,7 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   void setup() override;
+  void dump_config() override;
 
   void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 

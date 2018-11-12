@@ -28,7 +28,6 @@ class CSE7766Component : public Component, public UARTDevice {
 
   CSE7766PowerSensor *make_power_sensor(const std::string &name);
 
-  void setup() override;
   void loop() override;
   float get_setup_priority() const override;
 

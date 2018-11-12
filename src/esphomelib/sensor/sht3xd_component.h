@@ -28,6 +28,7 @@ class SHT3XDComponent : public PollingComponent, public I2CDevice {
   SHT3XDHumiditySensor *get_humidity_sensor() const;
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
 

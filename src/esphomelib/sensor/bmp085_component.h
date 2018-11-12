@@ -38,6 +38,7 @@ class BMP085Component : public PollingComponent, public I2CDevice {
   void update() override;
   /// Setup the sensor and test for a connection.
   void setup() override;
+  void dump_config() override;
 
   float get_setup_priority() const override;
 

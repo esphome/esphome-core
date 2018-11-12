@@ -31,22 +31,34 @@ void DHTComponent::setup() {
   this->pin_->setup();
   this->pin_->digital_write(true);
 }
+void DHTComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "DHT:");
+  LOG_PIN("  Pin: ", this->pin_);
+  if (this->is_auto_detect_) {
+    ESP_LOGCONFIG(TAG, "  Auto-detected model: %s", this->model_ == DHT_MODEL_DHT11 ? "DHT11" : "DHT22");
+  } else if (this->model_ == DHT_MODEL_DHT11) {
+    ESP_LOGCONFIG(TAG, "  Model: DHT11");
+  } else {
+    ESP_LOGCONFIG(TAG, "  Model: DHT22 (or equivalent)");
+  }
+
+  LOG_UPDATE_INTERVAL(this);
+}
 
 void DHTComponent::update() {
   float temperature, humidity;
+  bool error;
   if (this->model_ == DHT_MODEL_AUTO_DETECT) {
     this->model_ = DHT_MODEL_DHT22;
-    bool error = this->read_sensor_(&temperature, &humidity, false);
+    error = this->read_sensor_(&temperature, &humidity, false);
     if (error) {
       this->model_ = DHT_MODEL_DHT11;
-      ESP_LOGCONFIG(TAG, "Auto-detected model DHT11. Override with the 'model:' configuration option");
-    } else {
-      ESP_LOGCONFIG(TAG, "Auto-detected model DHT22. Override with the 'model:' configuration option");
+      return;
     }
-    return;
+  } else {
+    error = this->read_sensor_(&temperature, &humidity, true);
   }
 
-  bool error = this->read_sensor_(&temperature, &humidity, true);
   if (error) {
     ESP_LOGD(TAG, "Got Temperature=%.1f°C Humidity=%.1f%%", temperature, humidity);
 
@@ -54,8 +66,11 @@ void DHTComponent::update() {
     this->humidity_sensor_->publish_state(humidity);
     this->status_clear_warning();
   } else {
-    ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin_ number) and "
-                  "consider manually specifying the DHT model using the model option. Error code: %d", error);
+    const char *str = "";
+    if (this->is_auto_detect_) {
+      str = " and consider manually specifying the DHT model using the model option";
+    }
+    ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin_ number)%s.", str);
     this->status_set_warning();
   }
 }
@@ -65,6 +80,7 @@ float DHTComponent::get_setup_priority() const {
 }
 void DHTComponent::set_dht_model(DHTModel model) {
   this->model_ = model;
+  this->is_auto_detect_ = model == DHT_MODEL_AUTO_DETECT;
 }
 DHTTemperatureSensor *DHTComponent::get_temperature_sensor() const {
   return this->temperature_sensor_;

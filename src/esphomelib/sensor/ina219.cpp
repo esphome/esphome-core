@@ -39,11 +39,10 @@ static const uint8_t INA219_REGISTER_CURRENT = 0x04;
 static const uint8_t INA219_REGISTER_CALIBRATION = 0x05;
 
 void INA219Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up INA219 with address=0x%02X...", this->address_);
+  ESP_LOGCONFIG(TAG, "Setting up INA219...");
   // Config Register
   // 0bx000000000000000 << 15 RESET Bit (1 -> trigger reset)
   if (!this->write_byte_16(INA219_REGISTER_CONFIG, 0x8000)) {
-    ESP_LOGE(TAG, "Resetting INA219 failed!");
     this->mark_failed();
     return;
   }
@@ -133,6 +132,19 @@ void INA219Component::setup() {
     this->mark_failed();
     return;
   }
+}
+
+void INA219Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "INA219:");
+  LOG_I2C_DEVICE(this);
+
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with INA219 failed!");
+    this->mark_failed();
+    return;
+  }
+
+  LOG_UPDATE_INTERVAL(this);
 }
 
 float INA219Component::get_setup_priority() const {

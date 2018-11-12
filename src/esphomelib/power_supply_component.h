@@ -59,6 +59,7 @@ class PowerSupplyComponent : public Component {
   // (In most use cases you won't need these)
   /// Register callbacks.
   void setup() override;
+  void dump_config() override;
   /// Hardware setup priority (+1).
   float get_setup_priority() const override;
 

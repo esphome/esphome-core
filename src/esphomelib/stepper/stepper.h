@@ -18,6 +18,11 @@ class SetTargetAction;
 template<typename T>
 class ReportPositionAction;
 
+#define LOG_STEPPER(this) \
+    ESP_LOGCONFIG(TAG, "  Acceleration: %.0f steps/s^2", this->acceleration_); \
+    ESP_LOGCONFIG(TAG, "  Deceleration: %.0f steps/s^2", this->deceleration_); \
+    ESP_LOGCONFIG(TAG, "  Max Speed: %.0f steps/s", this->max_speed_);
+
 class Stepper {
  public:
   void set_target(int32_t steps);

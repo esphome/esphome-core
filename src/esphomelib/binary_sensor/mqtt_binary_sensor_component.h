@@ -30,6 +30,8 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   /// Send discovery.
   void setup() override;
 
+  void dump_config() override;
+
   /// Send Home Assistant discovery info
   void send_discovery(JsonObject &obj, mqtt::SendDiscoveryConfig &config) override;
 

@@ -17,6 +17,7 @@ class MAX6675Sensor : public PollingSensorComponent, public SPIDevice {
   MAX6675Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval = 15000);
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
 
   void update() override;

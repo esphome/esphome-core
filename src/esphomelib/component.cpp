@@ -14,9 +14,9 @@ namespace setup_priority {
 const float PRE_HARDWARE = 110.0f;
 const float HARDWARE = 100.0f;
 const float POST_HARDWARE = 90.0f;
+const float HARDWARE_LATE = 50.0f;
 const float WIFI = 10.0f;
 const float MQTT_CLIENT = 7.5f;
-const float HARDWARE_LATE = 0.0f;
 const float MQTT_COMPONENT = -5.0f;
 const float LATE = -10.0f;
 
@@ -51,6 +51,7 @@ void Component::loop() {
 }
 
 void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {
+  const uint32_t now = millis();
   // only put offset in lower half
   uint32_t offset = 0;
   if (interval != 0)
@@ -62,7 +63,7 @@ void Component::set_interval(const std::string &name, uint32_t interval, std::fu
       .name = name,
       .type = TimeFunction::INTERVAL,
       .interval = interval,
-      .last_execution = millis() - interval - offset,
+      .last_execution = now - interval - offset,
       .f = std::move(f),
       .remove = false,
   };
@@ -74,6 +75,7 @@ bool Component::cancel_interval(const std::string &name) {
 }
 
 void Component::set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f) {
+  const uint32_t now = millis();
   ESP_LOGVV(TAG, "set_timeout(name='%s', timeout=%u)", name.c_str(), timeout);
 
   this->cancel_timeout(name);
@@ -81,7 +83,7 @@ void Component::set_timeout(const std::string &name, uint32_t timeout, std::func
       .name = name,
       .type = TimeFunction::TIMEOUT,
       .interval = timeout,
-      .last_execution = millis(),
+      .last_execution = now,
       .f = std::move(f),
       .remove = false,
   };
@@ -117,8 +119,6 @@ uint32_t Component::get_component_state() const {
   return this->component_state_;
 }
 void Component::loop_internal() {
-  assert((this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_SETUP ||
-         (this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_LOOP);
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_LOOP;
 
@@ -154,7 +154,6 @@ void Component::loop_internal() {
   );
 }
 void Component::setup_internal() {
-  assert((this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_CONSTRUCTION);
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_SETUP;
 }
@@ -224,6 +223,15 @@ void Component::status_momentary_error(const std::string &name, uint32_t length)
     this->status_clear_error();
   });
 }
+void Component::dump_config() {
+
+}
+float Component::get_actual_setup_priority() const {
+  return this->setup_priority_override_.value_or(this->get_setup_priority());
+}
+void Component::set_setup_priority(float priority) {
+  this->setup_priority_override_ = priority;
+}
 
 PollingComponent::PollingComponent(uint32_t update_interval)
     : Component(), update_interval_(update_interval) {}
@@ -236,7 +244,6 @@ void PollingComponent::setup_() {
   this->setup();
 
   // Register interval.
-  ESP_LOGCONFIG(TAG, "    Update interval: %ums", this->get_update_interval());
   this->set_interval("update", this->get_update_interval(), [this]() { this->update(); });
 }
 

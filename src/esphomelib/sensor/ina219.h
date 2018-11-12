@@ -23,6 +23,7 @@ class INA219Component : public PollingComponent, public I2CDevice {
                   float shunt_resistance_ohm, float max_current_a, float max_voltage_v,
                   uint8_t address = 0x40, uint32_t update_interval = 15000);
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
 

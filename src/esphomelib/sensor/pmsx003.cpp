@@ -11,9 +11,6 @@ namespace sensor {
 
 static const char *TAG = "sensor.pmsx003";
 
-void PMSX003Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up PMS5003...");
-}
 void PMSX003Component::loop() {
   const uint32_t now = millis();
   if (now - this->last_transmission_ >= 500) {

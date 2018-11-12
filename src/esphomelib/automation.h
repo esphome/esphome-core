@@ -94,6 +94,7 @@ class ShutdownTrigger : public Trigger<const char *> {
 class LoopTrigger : public Trigger<NoArg>, public Component {
  public:
   void loop() override;
+  float get_setup_priority() const override;
 };
 
 template<typename T>
@@ -130,6 +131,7 @@ class DelayAction : public Action<T>, public Component {
   void set_delay(uint32_t delay);
 
   void play(T x) override;
+  float get_setup_priority() const override;
  protected:
   TemplatableValue<uint32_t, T> delay_{0};
 };
@@ -278,6 +280,10 @@ void DelayAction<T>::set_delay(std::function<uint32_t(T)> &&delay) {
 template<typename T>
 void DelayAction<T>::set_delay(uint32_t delay) {
   this->delay_ = delay;
+}
+template<typename T>
+float DelayAction<T>::get_setup_priority() const {
+  return setup_priority::HARDWARE;
 }
 
 template<typename T>

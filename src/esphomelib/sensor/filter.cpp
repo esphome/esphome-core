@@ -215,6 +215,9 @@ DebounceFilter::DebounceFilter(uint32_t time_period)
     : time_period_(time_period) {
 
 }
+float DebounceFilter::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 HeartbeatFilter::HeartbeatFilter(uint32_t time_period)
     : time_period_(time_period), last_input_(NAN) {
@@ -233,6 +236,9 @@ void HeartbeatFilter::setup() {
   this->set_interval("heartbeat", this->time_period_, [this]() {
     this->output_(this->last_input_);
   });
+}
+float HeartbeatFilter::get_setup_priority() const {
+  return setup_priority::HARDWARE;
 }
 
 } // namespace sensor

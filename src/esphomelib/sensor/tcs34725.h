@@ -49,6 +49,8 @@ class TCS34725Component : public PollingComponent, public I2CDevice {
   void setup() override;
   float get_setup_priority() const override;
   void update() override;
+  void dump_config() override;
+
  protected:
   TCS35725ColorChannelSensor *clear_sensor_{nullptr};
   TCS35725ColorChannelSensor *red_sensor_{nullptr};

@@ -23,10 +23,6 @@ std::string MQTTFanComponent::component_type() const {
   return "fan";
 }
 void MQTTFanComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT fan '%s'...", this->state_->get_name().c_str());
-  ESP_LOGCONFIG(TAG, "    Supports speed: %s", this->state_->get_traits().supports_speed() ? "YES" : "NO");
-  ESP_LOGCONFIG(TAG, "    Supports oscillation: %s", this->state_->get_traits().supports_oscillation() ? "YES" : "NO");
-
   this->subscribe(this->get_command_topic(), [this](const std::string &payload) {
     auto val = parse_on_off(payload.c_str());
     switch (val) {

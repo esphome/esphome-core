@@ -11,9 +11,6 @@ namespace sensor {
 
 static const char *TAG = "sensor.cse7766";
 
-void CSE7766Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up CSE7766...");
-}
 void CSE7766Component::loop() {
   const uint32_t now = millis();
   if (now - this->last_transmission_ >= 500) {

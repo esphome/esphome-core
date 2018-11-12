@@ -36,9 +36,7 @@ SHT3XDComponent::SHT3XDComponent(I2CComponent *parent,
 
 void SHT3XDComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SHT3xD...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   if (!this->write_command(SHT3XD_COMMAND_READ_SERIAL_NUMBER)) {
-    ESP_LOGE(TAG, "Communication with SHT3xD failed!");
     this->mark_failed();
     return;
   }
@@ -49,10 +47,18 @@ void SHT3XDComponent::setup() {
     return;
   }
   uint32_t serial_number = (uint32_t(raw_serial_number[0]) << 16) | uint32_t(raw_serial_number[1]);
+  ESP_LOGV(TAG, "    Serial Number: 0x%08X", serial_number);
   std::string base = uint32_to_string(serial_number);
-  ESP_LOGCONFIG(TAG, "    Serial Number: 0x%08X", serial_number);
   this->temperature_sensor_->unique_id_ = base + "-temperature";
   this->humidity_sensor_->unique_id_ = base + "-humidity";
+}
+void SHT3XDComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "SHT3xD:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with SHT3xD failed!");
+  }
+  LOG_UPDATE_INTERVAL(this);
 }
 float SHT3XDComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

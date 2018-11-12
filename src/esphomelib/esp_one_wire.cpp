@@ -209,6 +209,9 @@ std::vector<uint64_t> ESPOneWire::search_vec() {
 void ESPOneWire::skip() {
   this->write8(0xCC); // skip ROM
 }
+GPIOPin *ESPOneWire::get_pin() {
+  return this->pin_;
+}
 
 ESPHOMELIB_NAMESPACE_END
 

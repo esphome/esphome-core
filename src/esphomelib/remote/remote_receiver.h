@@ -112,6 +112,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   explicit RemoteReceiverComponent(GPIOPin *pin);
 
   void setup() override;
+  void dump_config() override;
   void loop() override;
   float get_setup_priority() const override;
 

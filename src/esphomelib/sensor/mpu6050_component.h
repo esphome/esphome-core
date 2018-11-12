@@ -22,6 +22,7 @@ class MPU6050Component : public PollingComponent, public I2CDevice {
   explicit MPU6050Component(I2CComponent *parent, uint8_t address = 0x68, uint32_t update_interval = 15000);
 
   void setup() override;
+  void dump_config() override;
 
   void update() override;
 

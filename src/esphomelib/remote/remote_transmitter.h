@@ -71,6 +71,8 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
 
   void setup() override;
 
+  void dump_config() override;
+
   float get_setup_priority() const override;
 
   void set_carrier_duty_percent(uint8_t carrier_duty_percent);

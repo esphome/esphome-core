@@ -42,17 +42,17 @@ void Switch::toggle() {
   this->write_state(this->inverted_ == this->state);
 }
 optional<bool> Switch::get_initial_state() {
-  this->rtc_ = global_preferences.make_preference(4, 2704004739UL);
-  if (!this->rtc_.load())
+  this->rtc_ = global_preferences.make_preference<bool>(2704004739UL, this->name_);
+  bool initial_state;
+  if (!this->rtc_.load(&initial_state))
     return {};
-  bool initial_state = this->rtc_[0];
   return initial_state;
 }
 void Switch::publish_state(bool state) {
   this->state = state != this->inverted_;
 
-  this->rtc_[0] = this->state ? 1 : 0;
-  this->rtc_.save();
+  this->rtc_.save(&this->state);
+  ESP_LOGD(TAG, "'%s': Sending state %s", this->name_.c_str(), ONOFF(state));
   this->state_callback_.call(this->state);
 }
 bool Switch::optimistic() {

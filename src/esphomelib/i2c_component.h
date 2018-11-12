@@ -10,6 +10,8 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+#define LOG_I2C_DEVICE(this) ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->address_);
+
 /** The I2CComponent is the base of esphomelib's i2c communication.
  *
  * It handles setting up the bus (with pins, clock frequency) and provides nice helper functions to
@@ -122,8 +124,7 @@ class I2CComponent : public Component {
 
   /// Setup the i2c. bus
   void setup() override;
-  /// Do an address range scan if necessary.
-  void loop() override;
+  void dump_config() override;
   /// Set a very high setup priority to make sure it's loaded before all other hardware.
   float get_setup_priority() const override;
 

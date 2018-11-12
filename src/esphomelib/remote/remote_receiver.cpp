@@ -127,50 +127,57 @@ float RemoteReceiverComponent::get_setup_priority() const {
 
 #ifdef ARDUINO_ARCH_ESP32
 void RemoteReceiverComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up Remote Receiver...");
   rmt_config_t rmt{};
-  ESP_LOGCONFIG(TAG, "Configuring ESP32 RMT peripheral...");
-  ESP_LOGCONFIG(TAG, "    Channel: %u", this->channel_);
   rmt.channel = this->channel_;
-  ESP_LOGCONFIG(TAG, "    Pin: %u", this->pin_->get_pin());
   rmt.gpio_num = gpio_num_t(this->pin_->get_pin());
-  ESP_LOGCONFIG(TAG, "    Clock Divider: %u", this->clock_divider_);
   rmt.clk_div = this->clock_divider_;
   rmt.mem_block_num = 1;
   rmt.rmt_mode = RMT_MODE_RX;
   if (this->filter_us_ == 0) {
     rmt.rx_config.filter_en = false;
   } else {
-    ESP_LOGCONFIG(TAG, "    Filter: %u us (%u ticks)", this->filter_us_, this->from_microseconds(this->filter_us_));
     rmt.rx_config.filter_en = true;
     rmt.rx_config.filter_ticks_thresh = this->from_microseconds(this->filter_us_);
   }
-  ESP_LOGCONFIG(TAG, "    Idle threshold: %u us (%u ticks)", this->idle_us_, this->from_microseconds(this->idle_us_));
   rmt.rx_config.idle_threshold = this->from_microseconds(this->idle_us_);
 
   esp_err_t error = rmt_config(&rmt);
   if (error != ESP_OK) {
-    ESP_LOGE(TAG, "Configuring RMT remote failed: %s", esp_err_to_name(error));
+    this->error_code_ = error;
     this->mark_failed();
     return;
   }
 
   error = rmt_driver_install(this->channel_, this->buffer_size_, 0);
   if (error != ESP_OK) {
-    ESP_LOGE(TAG, "Installing RMT driver failed: %s", esp_err_to_name(error));
+    this->error_code_ = error;
     this->mark_failed();
     return;
   }
   error = rmt_get_ringbuf_handle(this->channel_, &this->ringbuf_);
   if (error != ESP_OK) {
-    ESP_LOGE(TAG, "Getting RMT ringbuf handle failed: %s", esp_err_to_name(error));
+    this->error_code_ = error;
     this->mark_failed();
     return;
   }
   error = rmt_rx_start(this->channel_, true);
   if (error != ESP_OK) {
-    ESP_LOGE(TAG, "Starting RMT for receiving failed: %s", esp_err_to_name(error));
+    this->error_code_ = error;
     this->mark_failed();
     return;
+  }
+}
+void RemoteReceiverComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Remote Receiver:");
+  LOG_PIN("  Pin: ", this->pin_);
+  ESP_LOGCONFIG(TAG, "  Channel: %d", this->channel_);
+  ESP_LOGCONFIG(TAG, "  Clock divider: %u", this->clock_divider_);
+  ESP_LOGCONFIG(TAG, "  Tolerance: %u%%", this->tolerance_);
+  ESP_LOGCONFIG(TAG, "  Filter out pulses shorter than: %u us", this->filter_us_);
+  ESP_LOGCONFIG(TAG, "  Signal is done after %u us of no changes", this->idle_us_);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Configuring RMT driver failed: %s", esp_err_to_name(this->error_code_));
   }
 }
 
@@ -295,8 +302,6 @@ void RemoteReceiverComponent::setup() {
   this->buffer_ = new uint32_t[this->buffer_size_];
   // First index is a space.
   if (this->pin_->digital_read()) {
-    ESP_LOGW(TAG, "Remote Receiver Signal starts with a HIGH value. Usually this means you have to "
-                  "invert the signal using 'inverted: True' !");
     this->buffer_write_at_ = this->buffer_read_at_ = 1;
     this->buffer_[1] = 0;
     this->buffer_[0] = 0;
@@ -306,6 +311,18 @@ void RemoteReceiverComponent::setup() {
   }
   auto intr = std::bind(&RemoteReceiverComponent::gpio_intr, this);
   attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
+}
+void RemoteReceiverComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Remote Receiver:");
+  LOG_PIN("  Pin: ", this->pin_);
+  if (this->pin_->digital_read()) {
+    ESP_LOGW(TAG, "Remote Receiver Signal starts with a HIGH value. Usually this means you have to "
+                  "invert the signal using 'inverted: True' !");
+  }
+  ESP_LOGCONFIG(TAG, "  Buffer Size: %u", this->buffer_size_);
+  ESP_LOGCONFIG(TAG, "  Tolerance: %u%%", this->tolerance_);
+  ESP_LOGCONFIG(TAG, "  Filter out pulses shorter than: %u us", this->filter_us_);
+  ESP_LOGCONFIG(TAG, "  Signal is done after %u us of no changes", this->idle_us_);
 }
 
 void RemoteReceiverComponent::loop() {

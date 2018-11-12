@@ -90,6 +90,7 @@ class CronTrigger : public Trigger<NoArg>, public Component {
   void add_days_of_week(const std::vector<uint8_t> &days_of_week);
   bool matches(const EsphomelibTime &time);
   void loop() override;
+  float get_setup_priority() const override;
 
  protected:
   std::bitset<61> seconds_;

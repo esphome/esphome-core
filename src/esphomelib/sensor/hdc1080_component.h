@@ -31,6 +31,7 @@ class HDC1080Component : public PollingComponent, public I2CDevice {
   // (In most use cases you won't need these)
   /// Setup the sensor and check for connection.
   void setup() override;
+  void dump_config() override;
   /// Retrieve the latest sensor values. This operation takes approximately 16ms.
   void update() override;
 

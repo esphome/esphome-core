@@ -22,6 +22,7 @@ class GPIOSwitch : public Switch, public Component {
   float get_setup_priority() const override;
 
   void setup() override;
+  void dump_config() override;
 
  protected:
   void write_state(bool state) override;

@@ -58,6 +58,7 @@ class DeepSleepComponent : public Component {
   void set_run_duration(uint32_t time_ms);
 
   void setup() override;
+  void dump_config() override;
   void loop() override;
   float get_loop_priority() const override;
   float get_setup_priority() const override;

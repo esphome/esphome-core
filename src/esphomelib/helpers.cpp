@@ -173,15 +173,45 @@ std::string uint32_to_string(uint32_t num) {
   snprintf(buffer, sizeof(buffer), "%04X%04X", address16[1], address16[0]);
   return std::string(buffer);
 }
-std::string build_json(const json_build_t &f) {
+static char *global_json_build_buffer = nullptr;
+static size_t global_json_build_buffer_size = 0;
+
+void reserve_global_json_build_buffer(size_t required_size) {
+  if (global_json_build_buffer_size == 0 || global_json_build_buffer_size < required_size) {
+    delete [] global_json_build_buffer;
+    global_json_build_buffer_size = std::max(required_size, global_json_build_buffer_size * 2);
+
+    size_t remainder = global_json_build_buffer_size % 16U;
+    if (remainder != 0)
+      global_json_build_buffer_size += 16 - remainder;
+
+    global_json_build_buffer = new char[global_json_build_buffer_size];
+  }
+}
+
+const char *build_json(const json_build_t &f, size_t *length) {
   global_json_buffer.clear();
   JsonObject &root = global_json_buffer.createObject();
 
   f(root);
 
-  std::string buffer;
-  root.printTo(buffer);
-  return buffer;
+  // The Json buffer size gives us a good estimate for the required size.
+  // Usually, it's a bit larger than the actual required string size
+  //             | JSON Buffer Size | String Size |
+  // Discovery   | 388              | 351         |
+  // Discovery   | 372              | 356         |
+  // Discovery   | 336              | 311         |
+  // Discovery   | 408              | 393         |
+  reserve_global_json_build_buffer(global_json_buffer.size());
+  size_t bytes_written = root.printTo(global_json_build_buffer, global_json_build_buffer_size);
+
+  if (bytes_written == global_json_build_buffer_size) {
+    reserve_global_json_build_buffer(root.measureLength() + 1);
+    bytes_written = root.printTo(global_json_build_buffer, global_json_build_buffer_size);
+  }
+
+  *length = bytes_written;
+  return global_json_build_buffer;
 }
 void parse_json(const std::string &data, const json_parse_t &f) {
   global_json_buffer.clear();
@@ -213,7 +243,7 @@ CallbackManager<void(const char *)> shutdown_hooks;
 CallbackManager<void(const char *)> safe_shutdown_hooks;
 
 void reboot(const char *cause) {
-  ESP_LOGI(TAG, "Forcing a reboot... Cause: '%s'", cause);
+  ESP_LOGI(TAG, "Forcing a reboot... Reason: '%s'", cause);
   run_shutdown_hooks(cause);
   ESP.restart();
   // restart() doesn't always end execution
@@ -225,7 +255,7 @@ void add_shutdown_hook(std::function<void(const char *)> &&f) {
   shutdown_hooks.add(std::move(f));
 }
 void safe_reboot(const char *cause) {
-  ESP_LOGI(TAG, "Rebooting safely... Cause: '%s'", cause);
+  ESP_LOGI(TAG, "Rebooting safely... Reason: '%s'", cause);
   run_safe_shutdown_hooks(cause);
   ESP.restart();
   // restart() doesn't always end execution
@@ -326,6 +356,11 @@ void ICACHE_RAM_ATTR HOT feed_wdt() {
   last_feed = now;
 #endif
 }
+std::string build_json(const json_build_t &f) {
+  size_t len;
+  const char *c_str = build_json(f, &len);
+  return std::string(c_str, len);
+}
 
 template<uint32_t>
 uint32_t reverse_bits(uint32_t x) {
@@ -393,6 +428,10 @@ void VectorJsonBuffer::reserve(size_t size) {
     memcpy(this->buffer_, old_buffer, this->capacity_);
   }
   this->capacity_ = target_capacity;
+}
+
+size_t VectorJsonBuffer::size() const {
+  return this->size_;
 }
 
 VectorJsonBuffer global_json_buffer;

@@ -22,7 +22,6 @@ class RDM6300Component : public Component, public UARTDevice {
 
   RDM6300BinarySensor *make_card(const std::string &name, uint32_t id);
 
-  void setup() override;
   float get_setup_priority() const override;
 
  protected:

@@ -18,6 +18,7 @@ class A4988 : public Stepper, public Component {
   A4988(GPIOPin *step_pin, GPIOPin *dir_pin);
   void set_sleep_pin(const GPIOOutputPin &sleep_pin);
   void setup() override;
+  void dump_config() override;
   void loop() override;
   float get_setup_priority() const override;
 

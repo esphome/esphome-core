@@ -71,7 +71,7 @@ class FanState : public Nameable, public Component {
     FanState::StateCall &set_speed(FanSpeed speed);
     FanState::StateCall &set_speed(const char *speed);
 
-    void perform();
+    void perform() const;
 
    protected:
     FanState *const state_;

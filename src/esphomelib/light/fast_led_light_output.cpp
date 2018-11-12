@@ -29,7 +29,6 @@ void FastLEDLightOutputComponent::write_state(LightState *state) {
 }
 void FastLEDLightOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up FastLED light...");
-  assert(this->controller_ != nullptr && "You need to add LEDs to this controller!");
   this->controller_->init();
   this->controller_->setLeds(this->leds_, this->num_leds_);
   this->controller_->setCorrection(this->correction_);
@@ -37,6 +36,14 @@ void FastLEDLightOutputComponent::setup() {
     this->set_max_refresh_rate(this->controller_->getMaxRefreshRate());
   }
   ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
+}
+void FastLEDLightOutputComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "FastLED light:");
+  ESP_LOGCONFIG(TAG, "    Num LEDs: %u", this->num_leds_);
+  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
+  ESP_LOGCONFIG(TAG, "    Color Correction: red=%.0f%% green=%.0f%% blue=%.0f%%",
+      this->correction_.red / 2.55f, this->correction_.green / 2.55f, this->correction_.blue / 2.55f);
+
 }
 void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_)

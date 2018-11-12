@@ -38,6 +38,10 @@ void PulseCounterSensorComponent::set_edge_mode(PulseCounterCountMode rising_edg
 
 const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
 
+GPIOPin *PulseCounterBase::get_pin() {
+  return this->pin_;
+}
+
 #ifdef ARDUINO_ARCH_ESP8266
 void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
   const uint32_t now = micros();
@@ -155,13 +159,19 @@ pulse_counter_t PulseCounterBase::read_raw_value_() {
 #endif
 
 void PulseCounterSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up pulse counter '%s'...", this->get_name().c_str());
-  ESP_LOGCONFIG(TAG, "    Rising Edge: %s", EDGE_MODE_TO_STRING[this->rising_edge_mode_]);
-  ESP_LOGCONFIG(TAG, "    Falling Edge: %s", EDGE_MODE_TO_STRING[this->falling_edge_mode_]);
+  ESP_LOGCONFIG(TAG, "Setting up pulse counter '%s'...", this->name_.c_str());
   if (!this->pulse_counter_setup_()) {
     this->mark_failed();
     return;
   }
+}
+
+void PulseCounterSensorComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Pulse Counter '%s':", this->name_.c_str());
+  LOG_PIN("  Pin: ", this->pin_);
+  ESP_LOGCONFIG(TAG, "  Rising Edge: %s", EDGE_MODE_TO_STRING[this->rising_edge_mode_]);
+  ESP_LOGCONFIG(TAG, "  Falling Edge: %s", EDGE_MODE_TO_STRING[this->falling_edge_mode_]);
+  ESP_LOGCONFIG(TAG, "  Filtering pulses shorter than %u µs", this->filter_us_);
 }
 
 void PulseCounterSensorComponent::update() {

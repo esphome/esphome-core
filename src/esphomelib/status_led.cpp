@@ -19,6 +19,10 @@ void StatusLEDComponent::setup() {
   this->pin_->setup();
   this->pin_->digital_write(false);
 }
+void StatusLEDComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Status LED:");
+  LOG_PIN("  Pin: ", this->pin_);
+}
 void StatusLEDComponent::loop() {
   if ((global_state & STATUS_LED_ERROR) != 0u) {
     this->pin_->digital_write(millis() % 250u < 150u);

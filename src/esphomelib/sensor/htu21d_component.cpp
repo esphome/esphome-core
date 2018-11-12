@@ -33,13 +33,20 @@ void HTU21DComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HTU21D...");
 
   if (!this->write_bytes(HTU21D_REGISTER_RESET, nullptr, 0)) {
-    ESP_LOGE(TAG, "Connection to HTU21D failed.");
     this->mark_failed();
     return;
   }
 
   // Wait for software reset to complete
   delay(15);
+}
+void HTU21DComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "HTU21D:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with HTU21D failed!");
+  }
+  LOG_UPDATE_INTERVAL(this);
 }
 void HTU21DComponent::update() {
   uint16_t raw_temperature;

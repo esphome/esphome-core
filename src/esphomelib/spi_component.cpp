@@ -101,6 +101,12 @@ void SPIComponent::setup() {
     this->mosi_->digital_write(false);
   }
 }
+void SPIComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "SPI bus:");
+  LOG_PIN("  CLK Pin: ", this->clk_);
+  LOG_PIN("  MISO Pin: ", this->miso_);
+  LOG_PIN("  MOSI Pin: ", this->mosi_);
+}
 float SPIComponent::get_setup_priority() const {
   return setup_priority::PRE_HARDWARE;
 }

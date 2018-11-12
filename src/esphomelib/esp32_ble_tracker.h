@@ -86,12 +86,14 @@ class ESP32BLETracker : public Component {
   /// Setup the FreeRTOS task and the Bluetooth stack.
   void setup() override;
 
+  void loop() override;
+
   uint32_t get_scan_interval() const;
 
  protected:
   static void ble_core_task(void *params);
   /// The FreeRTOS task managing the bluetooth interface.
-  static void ble_setup();
+  static bool ble_setup();
   /// Start a single scan by setting up the parameters and doing some esp-idf calls.
   void start_scan(bool first);
   /// Callback that will handle all GAP events and redistribute them to other callbacks.

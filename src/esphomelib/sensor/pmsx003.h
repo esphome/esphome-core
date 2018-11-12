@@ -51,7 +51,6 @@ class PMSX003Component : public UARTDevice, public Component {
  public:
   PMSX003Component(UARTComponent *parent, PMSX003Type type);
 
-  void setup() override;
   void loop() override;
   float get_setup_priority() const override;
 

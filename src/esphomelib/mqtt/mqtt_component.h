@@ -16,6 +16,11 @@ struct SendDiscoveryConfig {
   const char *platform{"mqtt"}; ///< The platform of this component. Defaults to "mqtt".
 };
 
+#define LOG_MQTT_COMPONENT(state_topic, command_topic) \
+    if (state_topic) { ESP_LOGCONFIG(TAG, "  State Topic: '%s'", this->get_state_topic().c_str()); } \
+    if (command_topic) { ESP_LOGCONFIG(TAG, "  Command Topic: '%s'", this->get_command_topic().c_str()); } \
+
+
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
  *

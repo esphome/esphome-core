@@ -188,6 +188,8 @@ class DebounceFilter : public Filter, public Component {
 
   optional<float> new_value(float value) override;
 
+  float get_setup_priority() const override;
+
  protected:
   uint32_t time_period_;
 };
@@ -201,6 +203,8 @@ class HeartbeatFilter : public Filter, public Component {
   optional<float> new_value(float value) override;
 
   uint32_t expected_interval(uint32_t input) override;
+
+  float get_setup_priority() const override;
 
  protected:
   uint32_t time_period_;

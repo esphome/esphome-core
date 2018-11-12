@@ -225,6 +225,19 @@ void SSD1306::init_reset_() {
     this->reset_pin_->digital_write(true);
   }
 }
+const char *SSD1306::model_str_() {
+  switch (this->model_) {
+    case SSD1306_MODEL_128_32: return "SSD1306 128x32";
+    case SSD1306_MODEL_128_64: return "SSD1306 128x64";
+    case SSD1306_MODEL_96_16: return "SSD1306 96x16";
+    case SSD1306_MODEL_64_48: return "SSD1306 64x48";
+    case SH1106_MODEL_128_32: return "SH1106 128x32";
+    case SH1106_MODEL_128_64: return "SH1106 128x64";
+    case SH1106_MODEL_96_16: return "SH1106 96x16";
+    case SH1106_MODEL_64_48: return "SH1106 64x48";
+    default: return "Unknown";
+  }
+}
 
 #ifdef USE_SPI
 bool SPISSD1306::msb_first() {
@@ -237,6 +250,16 @@ void SPISSD1306::setup() {
 
   this->init_reset_();
   SSD1306::setup();
+}
+void SPISSD1306::dump_config() {
+  ESP_LOGCONFIG(TAG, "SPI SSD1306:");
+  ESP_LOGCONFIG(TAG, "  Model: %s", this->model_str_());
+  LOG_PIN("  CS Pin: ", this->cs_);
+  LOG_PIN("  DC Pin: ", this->dc_pin_);
+  LOG_PIN("  Reset Pin: ", this->reset_pin_);
+  ESP_LOGCONFIG(TAG, "  External VCC: %s", YESNO(this->external_vcc_));
+  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
+  LOG_UPDATE_INTERVAL(this);
 }
 void SPISSD1306::command(uint8_t value) {
   this->dc_pin_->digital_write(false);
@@ -277,17 +300,29 @@ bool SPISSD1306::high_speed() {
 #ifdef USE_I2C
 void I2CSSD1306::setup() {
   ESP_LOGCONFIG(TAG, "Setting up I2C SSD1306...");
-
   this->init_reset_();
 
   this->parent_->begin_transmission_(this->address_);
   if (!this->parent_->end_transmission_(this->address_)) {
-    ESP_LOGE(TAG, "Communication with SSD1306 failed!");
+    this->error_code_ = COMMUNICATION_FAILED;
     this->mark_failed();
     return;
   }
 
   SSD1306::setup();
+}
+void I2CSSD1306::dump_config() {
+  ESP_LOGCONFIG(TAG, "I2C SSD1306:");
+  LOG_I2C_DEVICE(this);
+  ESP_LOGCONFIG(TAG, "  Model: %s", this->model_str_());
+  LOG_PIN("  Reset Pin: ", this->reset_pin_);
+  ESP_LOGCONFIG(TAG, "  External VCC: %s", YESNO(this->external_vcc_));
+  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
+  LOG_UPDATE_INTERVAL(this);
+
+  if (this->error_code_ == COMMUNICATION_FAILED) {
+    ESP_LOGE(TAG, "Communication with SSD1306 failed!");
+  }
 }
 void I2CSSD1306::command(uint8_t value) {
   this->write_byte(0x00, value);

@@ -20,6 +20,8 @@ class TemplateSensor : public PollingSensorComponent {
 
   void update() override;
 
+  void dump_config() override;
+
   float get_setup_priority() const override;
 
  protected:

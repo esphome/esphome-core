@@ -3,7 +3,6 @@
 #ifdef USE_I2C
 
 #include "esphomelib/i2c_component.h"
-#include "esphomelib/application.h"
 #include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -40,9 +39,12 @@ void I2CComponent::setup() {
   this->wire_->begin(this->sda_pin_, this->scl_pin_);
   this->wire_->setClock(this->frequency_);
 }
-void I2CComponent::loop() {
-  if (this->scan_ && App.is_fully_setup()) {
-    this->scan_ = false;
+void I2CComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "I2C Bus:");
+  ESP_LOGCONFIG(TAG, "  SDA Pin: GPIO%u", this->sda_pin_);
+  ESP_LOGCONFIG(TAG, "  SCL Pin: GPIO%u", this->scl_pin_);
+  ESP_LOGCONFIG(TAG, "  Frequency: %u Hz", this->frequency_);
+  if (this->scan_) {
     ESP_LOGI(TAG, "Scanning i2c bus for active devices...");
     uint8_t found = 0;
     for (uint8_t address = 8; address < 120; address++) {
@@ -187,7 +189,7 @@ bool I2CComponent::write_byte_16(uint8_t address, uint8_t register_, uint16_t da
 }
 
 I2CDevice::I2CDevice(I2CComponent *parent, uint8_t address) : address_(address), parent_(parent) {
-  assert(this->parent_ != nullptr && "You have to setup i2c first!");
+
 }
 
 void I2CDevice::set_address(uint8_t address) {
