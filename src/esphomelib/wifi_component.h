@@ -179,7 +179,7 @@ class WiFiComponent : public Component {
   uint8_t num_retried_{0};
   uint32_t last_connected_{0};
   uint32_t reboot_timeout_{60000};
-  optional<WiFiPowerSaveMode> power_save_{};
+  WiFiPowerSaveMode power_save_{WIFI_POWER_SAVE_NONE};
   optional<uint32_t> cooldown_reconnect_{};
 #ifdef ARDUINO_ARCH_ESP32
   bool error_from_callback_{false};
