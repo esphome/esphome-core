@@ -32,6 +32,34 @@ void ADCSensorComponent::setup() {
   analogSetPinAttenuation(this->pin_.get_pin(), this->attenuation_);
 #endif
 }
+void ADCSensorComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "ADC '%s':", this->get_name().c_str());
+#ifdef ARDUINO_ARCH_ESP8266
+  #ifdef USE_ADC_SENSOR_VCC
+    ESP_LOGCONFIG(TAG, "  Pin: VCC");
+  #else
+    LOG_PIN("  Pin: ", &this->pin_);
+  #endif
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  LOG_PIN("  Pin: ", &this->pin_);
+  switch (this->attenuation_) {
+    case ADC_0db:
+      ESP_LOGCONFIG(TAG, " Attenuation: 0db (max 1.1V)");
+      break;
+    case ADC_2_5db:
+      ESP_LOGCONFIG(TAG, " Attenuation: 2.5db (max 1.5V)");
+      break;
+    case ADC_6db:
+      ESP_LOGCONFIG(TAG, " Attenuation: 6db (max 2.2V)");
+      break;
+    case ADC_11db:
+      ESP_LOGCONFIG(TAG, " Attenuation: 11db (max 3.9V)");
+      break;
+  }
+#endif
+  LOG_UPDATE_INTERVAL(this);
+}
 float ADCSensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }

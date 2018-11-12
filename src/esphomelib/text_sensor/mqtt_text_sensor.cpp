@@ -25,15 +25,21 @@ void MQTTTextSensor::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig 
   config.command_topic = false;
 }
 void MQTTTextSensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT Text Sensor '%s'...", this->sensor_->get_name().c_str());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->sensor_->get_icon().c_str());
-  if (!this->sensor_->unique_id().empty()) {
-    ESP_LOGCONFIG(TAG, "    Unique ID: '%s'", this->sensor_->unique_id().c_str());
-  }
-
   auto f = std::bind(&MQTTTextSensor::publish_state, this, std::placeholders::_1);
   this->sensor_->add_on_state_callback(f);
 }
+
+void MQTTTextSensor::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Text Sensor '%s':", this->sensor_->get_name().c_str());
+  if (!this->sensor_->get_icon().empty()) {
+    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->sensor_->get_icon().c_str());
+  }
+  if (!this->sensor_->unique_id().empty()) {
+    ESP_LOGCONFIG(TAG, "  Unique ID: '%s'", this->sensor_->unique_id().c_str());
+  }
+  LOG_MQTT_COMPONENT(true, false);
+}
+
 void MQTTTextSensor::publish_state(const std::string &value) {
   this->send_message(this->get_state_topic(), value);
 }

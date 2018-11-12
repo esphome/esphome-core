@@ -62,7 +62,11 @@ class LogComponent : public Component {
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
   int global_log_level_{ESPHOMELIB_LOG_LEVEL};
-  std::unordered_map<std::string, int> log_levels_;
+  struct LogLevelOverride {
+    std::string tag;
+    int level;
+  };
+  std::vector<LogLevelOverride> log_levels_;
   CallbackManager<void(int, const char *)> log_callback_{};
 };
 

@@ -20,6 +20,7 @@ class INA3221Component : public PollingComponent, public I2CDevice {
  public:
   INA3221Component(I2CComponent *parent, uint8_t address = 0x40, uint32_t update_interval = 15000);
   void setup() override;
+  void dump_config() override;
   void update() override;
   float get_setup_priority() const override;
 

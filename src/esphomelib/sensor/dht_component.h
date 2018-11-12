@@ -54,6 +54,7 @@ class DHTComponent : public PollingComponent {
 
   /// Set up the pins and check connection.
   void setup() override;
+  void dump_config() override;
   /// Update sensor values and push them to the frontend.
   void update() override;
   /// HARDWARE_LATE setup priority.
@@ -64,6 +65,7 @@ class DHTComponent : public PollingComponent {
 
   GPIOPin *pin_;
   DHTModel model_{DHT_MODEL_AUTO_DETECT};
+  bool is_auto_detect_{false};
   DHTTemperatureSensor *temperature_sensor_;
   DHTHumiditySensor *humidity_sensor_;
 };

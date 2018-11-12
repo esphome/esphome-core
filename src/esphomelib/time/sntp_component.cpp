@@ -48,6 +48,13 @@ void SNTPComponent::setup() {
 #endif
   sntp_init();
 }
+void SNTPComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "SNTP Time:");
+  ESP_LOGCONFIG(TAG, "  Server 1: '%s'", this->server_1_.c_str());
+  ESP_LOGCONFIG(TAG, "  Server 2: '%s'", this->server_2_.c_str());
+  ESP_LOGCONFIG(TAG, "  Server 3: '%s'", this->server_3_.c_str());
+  ESP_LOGCONFIG(TAG, "  Timezone: '%s'", this->timezone_.c_str());
+}
 void SNTPComponent::set_servers(const std::string &server_1,
                                 const std::string &server_2,
                                 const std::string &server_3) {
@@ -68,7 +75,7 @@ void SNTPComponent::loop() {
 
   char buf[128];
   time.strftime(buf, sizeof(buf), "%c");
-  ESP_LOGD(TAG, "Got time: %s", buf);
+  ESP_LOGD(TAG, "Synchronized time: %s", buf);
   this->has_time_ = true;
 }
 

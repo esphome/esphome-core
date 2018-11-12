@@ -57,6 +57,8 @@ class WaveshareEPaperTypeA : public WaveshareEPaper {
 
   void setup() override;
 
+  void dump_config() override;
+
   void display() override;
 
   void set_full_update_every(uint32_t full_update_every);
@@ -86,6 +88,8 @@ class WaveshareEPaper2P7In : public WaveshareEPaper {
 
   void display() override;
 
+  void dump_config() override;
+
  protected:
   int get_width_internal_() override;
 
@@ -99,6 +103,8 @@ class WaveshareEPaper4P2In : public WaveshareEPaper {
 
   void display() override;
 
+  void dump_config() override;
+
  protected:
   int get_width_internal_() override;
 
@@ -111,6 +117,8 @@ class WaveshareEPaper7P5In : public WaveshareEPaper {
   void setup() override;
 
   void display() override;
+
+  void dump_config() override;
 
  protected:
   int get_width_internal_() override;

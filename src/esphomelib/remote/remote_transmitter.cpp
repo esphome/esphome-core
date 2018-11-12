@@ -96,17 +96,29 @@ void RemoteTransmitterComponent::setup() {
 
 }
 
+void RemoteTransmitterComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Remote Transmitter...");
+  ESP_LOGCONFIG(TAG, "  Channel: %d", this->channel_);
+  ESP_LOGCONFIG(TAG, "  Clock divider: %u", this->clock_divider_);
+  LOG_PIN("  Pin: ", this->pin_);
+
+  if (this->current_carrier_frequency_ != 0 && this->carrier_duty_percent_ != 100) {
+    ESP_LOGCONFIG(TAG, "    Carrier Frequency: %uHz", this->current_carrier_frequency_);
+    ESP_LOGCONFIG(TAG, "    Carrier Duty: %u%%", this->carrier_duty_percent_);
+  }
+
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Configuring RMT driver failed: %s", esp_err_to_name(this->error_code_));
+  }
+}
+
 void RemoteTransmitterComponent::configure_rmt() {
   rmt_config_t c{};
 
-  ESP_LOGCONFIG(TAG, "Configuring Remote Transmitter...");
   c.rmt_mode = RMT_MODE_TX;
   c.channel = this->channel_;
-  ESP_LOGCONFIG(TAG, "    Channel: %d", this->channel_);
   c.clk_div = this->clock_divider_;
-  ESP_LOGCONFIG(TAG, "    Clock divider: %u", this->clock_divider_);
   c.gpio_num = gpio_num_t(this->pin_->get_pin());
-  ESP_LOGCONFIG(TAG, "    GPIO Pin: %u", this->pin_->get_pin());
   c.mem_block_num = 1;
   c.tx_config.loop_en = false;
 
@@ -115,27 +127,21 @@ void RemoteTransmitterComponent::configure_rmt() {
   } else {
     c.tx_config.carrier_en = true;
     c.tx_config.carrier_freq_hz = this->current_carrier_frequency_;
-    ESP_LOGCONFIG(TAG, "    Carrier Frequency: %uHz", this->current_carrier_frequency_);
     c.tx_config.carrier_duty_percent = this->carrier_duty_percent_;
-    ESP_LOGCONFIG(TAG, "    Carrier Duty: %u%%", this->carrier_duty_percent_);
   }
 
   c.tx_config.idle_output_en = true;
   if (!this->pin_->is_inverted()) {
-    ESP_LOGV(TAG, "    Carrier level: HIGH");
     c.tx_config.carrier_level = RMT_CARRIER_LEVEL_HIGH;
-    ESP_LOGV(TAG, "    Idle level: LOW");
     c.tx_config.idle_level = RMT_IDLE_LEVEL_LOW;
   } else {
     c.tx_config.carrier_level = RMT_CARRIER_LEVEL_LOW;
-    ESP_LOGV(TAG, "    Carrier level: LOW");
     c.tx_config.idle_level = RMT_IDLE_LEVEL_HIGH;
-    ESP_LOGV(TAG, "    Idle level: HIGH");
   }
 
   esp_err_t error = rmt_config(&c);
   if (error != ESP_OK) {
-    ESP_LOGE(TAG, "Configuring RMT driver failed: %s", esp_err_to_name(error));
+    this->error_code_ = error;
     this->mark_failed();
     return;
   }
@@ -143,7 +149,7 @@ void RemoteTransmitterComponent::configure_rmt() {
   if (!this->initialized_) {
     error = rmt_driver_install(this->channel_, 0, 0);
     if (error != ESP_OK) {
-      ESP_LOGE(TAG, "Error while installing RMT driver: %s", esp_err_to_name(error));
+      this->error_code_ = error;
       this->mark_failed();
       return;
     }
@@ -213,6 +219,13 @@ void RemoteTransmitterComponent::setup() {
   this->pin_->setup();
   this->pin_->digital_write(false);
 }
+
+void RemoteTransmitterComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Remote Transmitter...");
+  ESP_LOGCONFIG(TAG, "  Carrier Duty: %u%%", this->carrier_duty_percent_);
+  LOG_PIN("  Pin: ", this->pin_);
+}
+
 void RemoteTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequency,
                                                         uint32_t *on_time_period,
                                                         uint32_t *off_time_period) {
@@ -231,7 +244,7 @@ void RemoteTransmitterComponent::send_(RemoteTransmitData *data, uint32_t send_t
   for (uint32_t i = 0; i < send_times; i++) {
     uint32_t on_time, off_time;
     this->calculate_on_off_time_(data->get_carrier_frequency(), &on_time, &off_time);
-    ESP_LOGD(TAG, "Sending...");
+    ESP_LOGD(TAG, "Sending remote code...");
 
     ESP.wdtFeed();
     disable_interrupts();

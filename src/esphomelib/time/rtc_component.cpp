@@ -237,6 +237,9 @@ void CronTrigger::add_days_of_week(const std::vector<uint8_t> &days_of_week) {
   for (uint8_t it : days_of_week)
     this->add_day_of_week(it);
 }
+float CronTrigger::get_setup_priority() const {
+  return setup_priority::HARDWARE;
+}
 
 } // namespace time
 

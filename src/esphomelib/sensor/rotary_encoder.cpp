@@ -83,22 +83,26 @@ RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a
   this->clear_filters();
 }
 void RotaryEncoderSensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder '%s'...", this->get_name().c_str());
+  ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder '%s'...", this->name_.c_str());
   int interrupt_a = digitalPinToInterrupt(this->pin_a_->get_pin());
-  ESP_LOGCONFIG(TAG, "    Pin A: %u (interrupt %d)", this->pin_a_->get_pin(), interrupt_a);
   this->pin_a_->setup();
   attachInterrupt(interrupt_a, RotaryEncoderSensor::encoder_isr_, CHANGE);
 
   int interrupt_b = digitalPinToInterrupt(this->pin_b_->get_pin());
-  ESP_LOGCONFIG(TAG, "    Pin B: %u (interrupt %d)", this->pin_b_->get_pin(), interrupt_b);
   this->pin_b_->setup();
   attachInterrupt(interrupt_b, RotaryEncoderSensor::encoder_isr_, CHANGE);
 
   if (this->pin_i_ != nullptr) {
-    ESP_LOGCONFIG(TAG, "  Pin I: %u", this->pin_i_->get_pin());
     this->pin_i_->setup();
   }
   global_rotary_encoders_.push_back(this);
+}
+
+void RotaryEncoderSensor::dump_config() {
+  ESP_LOGCONFIG(TAG, "Rotary Encoder '%s':", this->name_.c_str());
+  LOG_PIN("  Pin A: ", this->pin_a_);
+  LOG_PIN("  Pin B: ", this->pin_b_);
+  LOG_PIN("  Pin I: ", this->pin_i_);
 }
 void ICACHE_RAM_ATTR RotaryEncoderSensor::encoder_isr_() {
   for (auto *encoder : global_rotary_encoders_) {

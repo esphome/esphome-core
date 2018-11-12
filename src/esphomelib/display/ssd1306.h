@@ -53,6 +53,7 @@ class SSD1306 : public PollingComponent, public DisplayBuffer {
   int get_height_internal_() override;
   int get_width_internal_() override;
   size_t get_buffer_length_();
+  const char *model_str_();
 
   SSD1306Model model_{SSD1306_MODEL_128_64};
   GPIOPin *reset_pin_{nullptr};
@@ -65,6 +66,8 @@ class SPISSD1306 : public SSD1306, public SPIDevice {
   SPISSD1306(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval = 1000);
 
   void setup() override;
+
+  void dump_config() override;
 
  protected:
   void command(uint8_t value) override;
@@ -82,9 +85,15 @@ class I2CSSD1306 : public SSD1306, public I2CDevice {
  public:
   I2CSSD1306(I2CComponent *parent, uint32_t update_interval = 1000);
   void setup() override;
+  void dump_config() override;
  protected:
   void command(uint8_t value) override;
   void write_display_data() override;
+
+  enum ErrorCode {
+    NONE = 0,
+    COMMUNICATION_FAILED
+  } error_code_{NONE};
 };
 #endif
 

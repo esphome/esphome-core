@@ -20,9 +20,7 @@ class MHZ19Component : public PollingComponent, public UARTDevice {
  public:
   MHZ19Component(UARTComponent *parent, const std::string &name,
                  uint32_t update_interval = 15000);
-
-  void setup() override;
-
+  
   float get_setup_priority() const override;
 
   void update() override;

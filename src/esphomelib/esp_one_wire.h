@@ -64,6 +64,8 @@ class ESPOneWire {
   /// Helper that wraps search in a std::vector.
   std::vector<uint64_t> search_vec();
 
+  GPIOPin *get_pin();
+
  protected:
   /// Helper to get the internal 64-bit unsigned rom number as a 8-bit integer pointer.
   inline uint8_t *rom_number8_() { return reinterpret_cast<uint8_t *>(&this->rom_number); }

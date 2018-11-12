@@ -29,8 +29,6 @@ uint8_t OTA_VERSION_1_0 = 1;
 #endif
 
 void OTAComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up OTA...");
-  ESP_LOGCONFIG(TAG, "    port: %u", this->port_);
   this->server_ = new WiFiServer(this->port_);
   this->server_->begin();
 
@@ -40,10 +38,8 @@ void OTAComponent::setup() {
 
 #ifdef ARDUINO_ARCH_ESP32
   add_shutdown_hook([this](const char *cause) {
-    if (strcmp(cause, "ota") != 0) {
-      this->server_->close();
-      MDNS.end();
-    }
+    this->server_->close();
+    MDNS.end();
   });
 #endif
 #else
@@ -68,6 +64,9 @@ void OTAComponent::setup() {
     ESP_LOGI(TAG, "OTA starting...");
     this->ota_triggered_ = true;
     this->at_ota_progress_message_ = 0;
+#ifdef ARDUINO_ARCH_ESP8266
+    global_preferences.prevent_write(true);
+#endif
     this->status_set_warning();
 #ifdef USE_STATUS_LED
     global_state |= STATUS_LED_WARNING;
@@ -114,6 +113,9 @@ void OTAComponent::setup() {
     this->ota_triggered_ = false;
     this->status_clear_warning();
     this->status_momentary_error("onerror", 5000);
+#ifdef ARDUINO_ARCH_ESP8266
+    global_preferences.prevent_write(false);
+#endif
   });
   ArduinoOTA.begin();
 #endif
@@ -121,14 +123,21 @@ void OTAComponent::setup() {
 
   if (this->has_safe_mode_) {
     add_safe_shutdown_hook([this](const char *cause) {
-      if (strcmp(cause, "ota") != 0)
-        this->clean_rtc();
+      this->clean_rtc();
     });
+  }
 
-    if (this->safe_mode_rtc_value_ > 1) {
-      ESP_LOGW(TAG, "Last Boot was an unhandled reset, will proceed to safe mode in %d restarts",
-               this->safe_mode_num_attempts_ - this->safe_mode_rtc_value_);
-    }
+  this->dump_config();
+}
+void OTAComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Over-The-Air Updates:");
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", WiFi.localIP().toString().c_str(), this->port_);
+  if (!this->password_.empty()) {
+    ESP_LOGCONFIG(TAG, "  Using Password.");
+  }
+  if (this->has_safe_mode_ && this->safe_mode_rtc_value_ > 1) {
+    ESP_LOGW(TAG, "Last Boot was an unhandled reset, will proceed to safe mode in %d restarts",
+             this->safe_mode_num_attempts_ - this->safe_mode_rtc_value_);
   }
 }
 
@@ -147,7 +156,7 @@ void OTAComponent::loop() {
     this->has_safe_mode_ = false;
     // successful boot, reset counter
     ESP_LOGI(TAG, "Boot seems successful, resetting boot loop counter.");
-    this->write_rtc_(0);
+    this->clean_rtc();
   }
 }
 
@@ -273,6 +282,10 @@ void OTAComponent::handle_() {
   }
   ESP_LOGV(TAG, "OTA size is %u bytes", ota_size);
 
+#ifdef ARDUINO_ARCH_ESP8266
+  global_preferences.prevent_write(true);
+#endif
+
   if (!Update.begin(ota_size, U_FLASH)) {
 #ifdef ARDUINO_ARCH_ESP8266
     StreamString ss;
@@ -366,6 +379,9 @@ void OTAComponent::handle_() {
   }
 #endif
   this->status_momentary_error("onerror", 5000);
+#ifdef ARDUINO_ARCH_ESP8266
+  global_preferences.prevent_write(false);
+#endif
 }
 
 size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes) {
@@ -439,7 +455,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
   this->safe_mode_start_time_ = millis();
   this->safe_mode_enable_time_ = enable_time;
   this->safe_mode_num_attempts_ = num_attempts;
-  this->rtc_ = global_preferences.make_preference(4, 669657188UL);
+  this->rtc_ = global_preferences.make_preference<uint8_t>(669657188UL);
   this->safe_mode_rtc_value_ = this->read_rtc_();
 
   ESP_LOGCONFIG(TAG, "There have been %u suspected unsuccessful boot attempts.", this->safe_mode_rtc_value_);
@@ -478,13 +494,13 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
   }
 }
 void OTAComponent::write_rtc_(uint8_t val) {
-  this->rtc_[0] = val;
-  this->rtc_.save();
+  this->rtc_.save(&val);
 }
 uint8_t OTAComponent::read_rtc_() {
-  if (!this->rtc_.load())
+  uint8_t val;
+  if (!this->rtc_.load(&val))
     return 0;
-  return this->rtc_[0];
+  return val;
 }
 void OTAComponent::clean_rtc() {
   this->write_rtc_(0);

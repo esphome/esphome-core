@@ -49,6 +49,8 @@ class UARTComponent : public Component {
 
   void setup() override;
 
+  void dump_config() override;
+
   void write_byte(uint8_t data);
 
   void write_array(const uint8_t *data, size_t len);

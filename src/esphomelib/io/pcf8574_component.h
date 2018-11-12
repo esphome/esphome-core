@@ -65,6 +65,8 @@ class PCF8574Component : public Component, public I2CDevice {
 
   float get_setup_priority() const override;
 
+  void dump_config() override;
+
  protected:
   bool read_gpio_();
 

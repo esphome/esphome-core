@@ -22,6 +22,7 @@ class HX711Sensor : public PollingSensorComponent {
   HX711Sensor(const std::string &name, GPIOPin *dout, GPIOPin *sck, uint32_t update_interval = 15000);
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
 

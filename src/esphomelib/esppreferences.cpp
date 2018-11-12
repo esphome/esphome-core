@@ -10,110 +10,182 @@ ESPHOMELIB_NAMESPACE_BEGIN
 static const char *TAG = "preferences";
 
 ESPPreferenceObject::ESPPreferenceObject()
-    : rtc_offset_(0), length_(0), type_(0), data_(nullptr) {
+    : rtc_offset_(0), length_words_(0), type_(0), data_(nullptr) {
 
 }
 ESPPreferenceObject::ESPPreferenceObject(size_t rtc_offset, size_t length, uint32_t type)
-    : rtc_offset_(rtc_offset), length_(length), type_(type) {
-  this->length_ = ((this->length_ + 3) / 4) * 4;
-  this->data_ = new uint32_t[this->total_length_uint()];
-  for (uint32_t i = 0; i < this->total_length_uint(); i++)
+    : rtc_offset_(rtc_offset), length_words_(length), type_(type) {
+  this->data_ = new uint32_t[this->length_words_ + 1];
+  for (uint32_t i = 0; i < this->length_words_ + 1; i++)
     this->data_[i] = 0;
 }
-uint32_t &ESPPreferenceObject::operator[](int i) {
-  if (!this->is_initialized())
-    return this->type_;
-  return this->data()[i];
-}
-bool ESPPreferenceObject::load() {
+bool ESPPreferenceObject::load_() {
   if (!this->is_initialized()) {
     ESP_LOGV(TAG, "Load Pref Not initialized!");
     return false;
   }
-  this->load_internal_();
-  bool valid = this->data_[0] == this->type_ &&
-      this->data_[this->total_length_uint() - 1] == this->calculate_crc_();
+  if (!this->load_internal_())
+    return false;
 
-  ESP_LOGVV(TAG, "LOAD %u: valid=%d, 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
-            this->rtc_offset_, valid ? 1:0, this->data_[0], this->data_[1], this->data_[2],
+  bool valid = this->data_[this->length_words_] == this->calculate_crc_();
+
+  ESP_LOGVV(TAG, "LOAD %u: valid=%s, 0=%u 1=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, YESNO(valid), this->data_[0], this->data_[1],
             this->type_, this->calculate_crc_());
   return valid;
 }
-void ESPPreferenceObject::save() {
+bool ESPPreferenceObject::save_() {
   if (!this->is_initialized()) {
     ESP_LOGV(TAG, "Save Pref Not initialized!");
-    return;
+    return false;
   }
 
-  this->data_[0] = this->type_;
-  this->data_[this->total_length_uint() - 1] = this->calculate_crc_();
-  this->save_internal_();
-  ESP_LOGVV(TAG, "SAVE %u: 0=%u 1=%u 2=%u (Type=%u, CRC=%u)",
-            this->rtc_offset_, this->data_[0], this->data_[1], this->data_[2],
+  this->data_[this->length_words_] = this->calculate_crc_();
+  if (!this->save_internal_())
+    return false;
+  ESP_LOGVV(TAG, "SAVE %u: 0=%u 1=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, this->data_[0], this->data_[1],
             this->type_, this->calculate_crc_());
+  return true;
 }
 
 #ifdef ARDUINO_ARCH_ESP8266
-void ESPPreferenceObject::save_internal_() {
-  ESP.rtcUserMemoryWrite(this->rtc_offset_, this->data_, this->total_length_bytes());
+
+#define ESP_RTC_USER_MEM_START 0x60001200
+#define ESP_RTC_USER_MEM ((uint32_t *) ESP_RTC_USER_MEM_START)
+#define ESP_RTC_USER_MEM_SIZE_WORDS 128
+
+static inline bool esp_rtc_user_mem_read(uint32_t index, uint32_t *dest) {
+  if (index >= ESP_RTC_USER_MEM_SIZE_WORDS) {
+    return false;
+  }
+  *dest = ESP_RTC_USER_MEM[index];
+  return true;
 }
-void ESPPreferenceObject::load_internal_() {
-  ESP.rtcUserMemoryRead(this->rtc_offset_, this->data_, this->total_length_bytes());
+
+static inline bool esp_rtc_user_mem_write(uint32_t index, uint32_t value) {
+  if (index >= ESP_RTC_USER_MEM_SIZE_WORDS) {
+    return false;
+  }
+  if (index < 32 && global_preferences.is_prevent_write()) {
+    return false;
+  }
+
+  ESP_RTC_USER_MEM[index] = value;
+  return true;
 }
+
+bool ESPPreferenceObject::save_internal_() {
+  for (uint32_t i = 0; i <= this->length_words_; i++) {
+    if (!esp_rtc_user_mem_write(this->rtc_offset_ + i, this->data_[i]))
+      return false;
+  }
+  return true;
+}
+bool ESPPreferenceObject::load_internal_() {
+  for (uint32_t i = 0; i <= this->length_words_; i++) {
+    if (!esp_rtc_user_mem_read(this->rtc_offset_ + i, &this->data_[i]))
+      return false;
+  }
+  return true;
+}
+ESPPreferences::ESPPreferences()
+  // offset starts from start of user RTC mem (64 words before that are reserved for system),
+  // an additional 32 words at the start of user RTC are for eboot (OTA, see eboot_command.h),
+  // which will be reset each time OTA occurs
+    : current_offset_(0) {
+
+}
+
 void ESPPreferences::begin(const std::string &name) {
 
+}
+
+ESPPreferenceObject ESPPreferences::make_preference(size_t length, uint32_t type) {
+  uint32_t start = this->current_offset_;
+  uint32_t end = start + length + 1;
+  bool in_normal = start < 96;
+  // Normal: offset 0-95 maps to RTC offset 32 - 127,
+  // Eboot: offset 96-127 maps to RTC offset 0 - 31 words
+  if (in_normal && end > 96) {
+    // start is in normal but end is not -> switch to Eboot
+    this->current_offset_ = start = 96;
+    end = start + length + 1;
+    in_normal = false;
+  }
+
+  if (end > 128) {
+    // Doesn't fit in data, return uninitialized preference obj.
+    return ESPPreferenceObject();
+  }
+
+  uint32_t rtc_offset;
+  if (in_normal) {
+    rtc_offset = start + 32;
+  } else {
+    rtc_offset = start - 96;
+  }
+
+  auto pref = ESPPreferenceObject(rtc_offset, length, type);
+  this->current_offset_ += length + 1;
+  return pref;
+}
+void ESPPreferences::prevent_write(bool prevent) {
+  this->prevent_write_ = prevent;
+}
+bool ESPPreferences::is_prevent_write() {
+  return this->prevent_write_;
 }
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
-void ESPPreferenceObject::save_internal_() {
+bool ESPPreferenceObject::save_internal_() {
   char key[32];
   sprintf(key, "%u", this->rtc_offset_);
-  size_t ret = global_preferences.preferences_.putBytes(key, this->data_, this->total_length_bytes());
-  if (ret != this->total_length_bytes()) {
+  uint32_t len = (this->length_words_ + 1) * 4;
+  size_t ret = global_preferences.preferences_.putBytes(key, this->data_, len);
+  if (ret != len) {
     ESP_LOGV(TAG, "putBytes failed!");
+    return false;
   }
+  return true;
 }
-void ESPPreferenceObject::load_internal_() {
+bool ESPPreferenceObject::load_internal_() {
   char key[32];
   sprintf(key, "%u", this->rtc_offset_);
-  size_t ret = global_preferences.preferences_.getBytes(key, this->data_, this->total_length_bytes());
-  if (ret != this->total_length_bytes()) {
+  uint32_t len = (this->length_words_ + 1) * 4;
+  size_t ret = global_preferences.preferences_.getBytes(key, this->data_, len);
+  if (ret != len) {
     ESP_LOGV(TAG, "getBytes failed!");
+    return false;
   }
+  return true;
+}
+ESPPreferences::ESPPreferences()
+    : current_offset_(0) {
+
 }
 void ESPPreferences::begin(const std::string &name) {
   const std::string key = truncate_string(name, 15);
   ESP_LOGV(TAG, "Opening preferences with key '%s'", key.c_str());
   this->preferences_.begin(key.c_str());
 }
-#endif
 
-size_t ESPPreferenceObject::total_length_bytes() const {
-  // type + data + CRC
-  return this->length_ + 2 * sizeof(uint32_t);
+ESPPreferenceObject ESPPreferences::make_preference(size_t length, uint32_t type) {
+  auto pref = ESPPreferenceObject(this->current_offset_, length, type);
+  this->current_offset_++;
+  return pref;
 }
-size_t ESPPreferenceObject::total_length_uint() const {
-  return this->length_ / sizeof(uint32_t) + 2;
-}
-uint32_t *ESPPreferenceObject::data() const {
-  return &this->data_[1];
-}
+#endif
 uint32_t ESPPreferenceObject::calculate_crc_() const {
-  uint32_t crc = 42;
-  for (size_t i = 1; i < this->total_length_uint() - 1; i++) {
+  uint32_t crc = this->type_;
+  for (size_t i = 0; i < this->length_words_; i++) {
     crc ^= (this->data_[i] * 2654435769UL) >> 1;
   }
   return crc;
 }
 bool ESPPreferenceObject::is_initialized() const {
   return this->data_ != nullptr;
-}
-
-ESPPreferenceObject ESPPreferences::make_preference(size_t length, uint32_t type) {
-  auto pref = ESPPreferenceObject(this->current_offset_, length, type);
-  this->current_offset_ += pref.total_length_bytes();
-  return pref;
 }
 
 ESPPreferences global_preferences;

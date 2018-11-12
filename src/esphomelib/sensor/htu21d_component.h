@@ -37,6 +37,7 @@ class HTU21DComponent : public PollingComponent, public I2CDevice {
 
   /// Setup (reset) the sensor and check connection.
   void setup() override;
+  void dump_config() override;
   /// Update the sensor values (temperature+humidity).
   void update() override;
 

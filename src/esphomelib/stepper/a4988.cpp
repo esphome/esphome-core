@@ -12,7 +12,7 @@ namespace stepper {
 static const char *TAG = "stepper.a4988";
 
 void A4988::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up A4988 stepper driver...");
+  ESP_LOGCONFIG(TAG, "Setting up A4988...");
   if (this->sleep_pin_ != nullptr) {
     this->sleep_pin_->setup();
     this->sleep_pin_->digital_write(false);
@@ -21,6 +21,13 @@ void A4988::setup() {
   this->step_pin_->digital_write(false);
   this->dir_pin_->setup();
   this->dir_pin_->digital_write(false);
+}
+void A4988::dump_config() {
+  ESP_LOGCONFIG(TAG, "A4988:");
+  LOG_PIN("  Step Pin: ", this->step_pin_);
+  LOG_PIN("  Dir Pin: ", this->dir_pin_);
+  LOG_PIN("  Sleep Pin: ", this->sleep_pin_);
+  LOG_STEPPER(this);
 }
 void A4988::loop() {
   if (this->sleep_pin_ != nullptr) {

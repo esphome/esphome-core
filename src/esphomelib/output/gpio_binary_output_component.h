@@ -35,6 +35,7 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
 
   /// Set pin mode.
   void setup() override;
+  void dump_config() override;
   /// Hardware setup priority.
   float get_setup_priority() const override;
 

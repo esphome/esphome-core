@@ -20,19 +20,24 @@ MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
 }
 
 void MQTTSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT Sensor '%s'...", this->sensor_->get_name().c_str());
-  if (this->get_expire_after() > 0) {
-    ESP_LOGCONFIG(TAG, "    Expire After: %us", this->get_expire_after() / 1000);
-  }
-  ESP_LOGCONFIG(TAG, "    Unit of Measurement: '%s'", this->sensor_->get_unit_of_measurement().c_str());
-  ESP_LOGCONFIG(TAG, "    Accuracy Decimals: %i", this->sensor_->get_accuracy_decimals());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->sensor_->get_icon().c_str());
-  if (!this->sensor_->unique_id().empty()) {
-    ESP_LOGCONFIG(TAG, "    Unique ID: '%s'", this->sensor_->unique_id().c_str());
-  }
-
   auto f = std::bind(&MQTTSensorComponent::publish_state, this, std::placeholders::_1);
   this->sensor_->add_on_state_callback(f);
+}
+
+void MQTTSensorComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Sensor '%s':", this->sensor_->get_name().c_str());
+  if (this->get_expire_after() > 0) {
+    ESP_LOGCONFIG(TAG, "  Expire After: %us", this->get_expire_after() / 1000);
+  }
+  ESP_LOGCONFIG(TAG, "  Unit of Measurement: '%s'", this->sensor_->get_unit_of_measurement().c_str());
+  ESP_LOGCONFIG(TAG, "  Accuracy Decimals: %d", this->sensor_->get_accuracy_decimals());
+  if (!this->sensor_->get_icon().empty()) {
+    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->sensor_->get_icon().c_str());
+  }
+  if (!this->sensor_->unique_id().empty()) {
+    ESP_LOGCONFIG(TAG, "  Unique ID: '%s'", this->sensor_->unique_id().c_str());
+  }
+  LOG_MQTT_COMPONENT(true, false)
 }
 
 std::string MQTTSensorComponent::component_type() const {

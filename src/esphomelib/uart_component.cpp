@@ -50,6 +50,13 @@ void UARTComponent::setup() {
   this->hw_serial_->begin(this->baud_rate_, SERIAL_8N1, this->rx_pin_, this->tx_pin_);
 }
 
+void UARTComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "UART Bus:");
+  ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", this->tx_pin_);
+  ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", this->rx_pin_);
+  ESP_LOGCONFIG(TAG, "  Baud Rate: %u baud", this->baud_rate_);
+}
+
 void UARTComponent::write_byte(uint8_t data) {
   this->hw_serial_->write(data);
   ESP_LOGVV(TAG, "    Wrote 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(data), data);
@@ -111,16 +118,23 @@ void UARTComponent::flush() {
 
 #ifdef ARDUINO_ARCH_ESP8266
 void UARTComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up UART...");
-  ESP_LOGCONFIG(TAG, "    TX Pin: %d", this->tx_pin_);
-  ESP_LOGCONFIG(TAG, "    RX Pin: %d", this->rx_pin_);
-  ESP_LOGCONFIG(TAG, "    Baud Rate: %u", this->baud_rate_);
+  ESP_LOGCONFIG(TAG, "Setting up UART bus...");
   if (this->hw_serial_ != nullptr) {
-    ESP_LOGCONFIG(TAG, "    Using default serial interface.");
     this->hw_serial_->begin(this->baud_rate_);
   } else {
-    ESP_LOGCONFIG(TAG, "    Using software serial");
     this->sw_serial_->setup(this->tx_pin_, this->rx_pin_, this->baud_rate_);
+  }
+}
+
+void UARTComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "UART Bus:");
+  ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", this->tx_pin_);
+  ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", this->rx_pin_);
+  ESP_LOGCONFIG(TAG, "  Baud Rate: %u baud", this->baud_rate_);
+  if (this->hw_serial_ != nullptr) {
+    ESP_LOGCONFIG(TAG, "  Using hardware serial interface.");
+  } else {
+    ESP_LOGCONFIG(TAG, "  Using software serial");
   }
 }
 

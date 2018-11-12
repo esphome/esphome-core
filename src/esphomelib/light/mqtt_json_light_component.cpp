@@ -17,8 +17,6 @@ std::string MQTTJSONLightComponent::component_type() const {
 }
 
 void MQTTJSONLightComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT light...");
-
   this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
     this->state_->make_call().parse_json(root).perform();
   });
@@ -71,6 +69,10 @@ void MQTTJSONLightComponent::send_initial_state() {
 }
 bool MQTTJSONLightComponent::is_internal() {
   return this->state_->is_internal();
+}
+void MQTTJSONLightComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Light '%s':", this->state_->get_name().c_str());
+  LOG_MQTT_COMPONENT(true, true)
 }
 
 } // namespace light

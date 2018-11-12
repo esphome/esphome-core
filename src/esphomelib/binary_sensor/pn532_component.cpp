@@ -45,14 +45,14 @@ void PN532Component::setup() {
   this->buffer_[3] = 0x01; // use IRQ pin, actually we don't need it but can't hurt either
 
   if (!this->pn532_write_command_check_ack_(4)) {
-    ESP_LOGE(TAG, "Writing SAM command failed!");
+    this->error_code_ = WRITING_SAM_COMMAND_FAILED;
     this->mark_failed();
     return;
   }
 
   this->pn532_read_data_(8);
   if (this->buffer_[5] != 0x15) {
-    ESP_LOGE(TAG, "Reading SAM command result failed!");
+    this->error_code_ = READING_SAM_COMMAND_FAILED;
     this->mark_failed();
     return;
   }
@@ -248,6 +248,21 @@ PN532Component::PN532Component(SPIComponent *parent, GPIOPin *cs, uint32_t updat
 
 bool PN532Component::msb_first() {
   return false;
+}
+void PN532Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "PN532:");
+  switch (this->error_code_) {
+    case NONE:break;
+    case WRITING_SAM_COMMAND_FAILED:
+      ESP_LOGE(TAG, "Writing SAM command failed!");
+      break;
+    case READING_SAM_COMMAND_FAILED:
+      ESP_LOGE(TAG, "Reading SAM command result failed!");
+      break;
+  }
+
+  LOG_PIN("  CS Pin: ", this->cs_);
+  LOG_UPDATE_INTERVAL(this);
 }
 
 PN532BinarySensor::PN532BinarySensor(const std::string &name, const std::vector<uint8_t> &uid, uint32_t update_interval)

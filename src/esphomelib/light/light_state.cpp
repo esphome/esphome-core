@@ -156,7 +156,7 @@ struct LightStateRTCState {
 void LightState::setup() {
   ESP_LOGCONFIG(TAG, "Setting up light '%s'...", this->get_name().c_str());
 
-  this->rtc_ = global_preferences.make_preference<LightStateRTCState>(617215407UL);
+  this->rtc_ = global_preferences.make_preference<LightStateRTCState>(617215407UL, this->name_);
   LightStateRTCState recovered;
   if (!this->rtc_.load(&recovered))
     return;
@@ -390,7 +390,7 @@ LightState::StateCall &LightState::StateCall::parse_json(JsonObject &root) {
 
   return *this;
 }
-void LightState::StateCall::perform() {
+void LightState::StateCall::perform() const {
   // use remote values for fallback
   LightColorValues v = this->state_->get_remote_values();
   LightTraits traits = this->state_->get_traits();

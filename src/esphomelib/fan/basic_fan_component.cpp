@@ -38,8 +38,20 @@ void BasicFanComponent::set_state(FanState *state) {
   this->state_ = state;
 }
 void BasicFanComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up Basic Fan '%s'...", this->state_->get_name().c_str());
   this->state_->add_on_state_callback([this]() { this->next_update_ = true; });
+}
+void BasicFanComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Fan '%s':", this->state_->get_name().c_str());
+  if (this->oscillating_output_ != nullptr) {
+    ESP_LOGCONFIG(TAG, "  Oscillation: YES");
+  }
+  if (this->binary_output_ == nullptr) {
+    ESP_LOGCONFIG(TAG, "  Mode: Binary");
+  } else {
+    ESP_LOGCONFIG(TAG, "  Mode: Speed");
+    ESP_LOGCONFIG(TAG, "  Speeds: Low=%.0f%% Medium=%.0f%% High=%.0f%%",
+        this->low_speed_ * 100.0f, this->medium_speed_ * 100.0f, this->high_speed_ * 100.0f);
+  }
 }
 void BasicFanComponent::loop() {
   if (!this->next_update_) {

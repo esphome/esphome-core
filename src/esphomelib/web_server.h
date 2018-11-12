@@ -59,6 +59,8 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   /// Setup the internal web server and register handlers.
   void setup() override;
 
+  void dump_config() override;
+
   /// MQTT setup priority.
   float get_setup_priority() const override;
 

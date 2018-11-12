@@ -301,6 +301,12 @@ class Application {
   display::Nextion *make_nextion(UARTComponent *parent, uint32_t update_interval = 5000);
 #endif
 
+  template<typename T>
+  GlobalVariableComponent<T> *make_global_variable();
+
+  template<typename T>
+  GlobalVariableComponent<T> *make_global_variable(T initial_value);
+
 
 
 
@@ -1364,6 +1370,16 @@ C *Application::register_controller(C *c) {
 template<typename T>
 Automation<T> *Application::make_automation(Trigger<T> *trigger) {
   return new Automation<T>(trigger);
+}
+
+template<typename T>
+GlobalVariableComponent<T> *Application::make_global_variable() {
+  return this->register_component(new GlobalVariableComponent<T>());
+}
+
+template<typename T>
+GlobalVariableComponent<T> *Application::make_global_variable(T initial_value) {
+  return this->register_component(new GlobalVariableComponent<T>(initial_value));
 }
 
 ESPHOMELIB_NAMESPACE_END

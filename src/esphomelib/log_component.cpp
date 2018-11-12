@@ -10,14 +10,20 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
-static const char *TAG = "log_component";
+static const char *TAG = "logger";
 
 int LogComponent::log_vprintf_(int level, const char *tag,
                                const char *format, va_list args) {
-  auto it = this->log_levels_.find(tag);
+  // Uses std::vector<> for low memory footprint, though the vector
+  // could be sorted to minimize lookup times. This feature isn't used that
+  // much anyway so it doesn't matter too much.
   int max_level = this->global_log_level_;
-  if (it != this->log_levels_.end())
-     max_level = it->second;
+  for (auto &it : this->log_levels_) {
+    if (it.tag == tag) {
+      max_level = it.level;
+      break;
+    }
+  }
 
   if (level > max_level)
     return 0;
@@ -60,7 +66,7 @@ void LogComponent::set_global_log_level(int log_level) {
   this->global_log_level_ = log_level;
 }
 void LogComponent::set_log_level(const std::string &tag, int log_level) {
-  this->log_levels_[tag] = log_level;
+  this->log_levels_.push_back(LogLevelOverride{tag, log_level});
 }
 size_t LogComponent::get_tx_buffer_size() const {
   return this->tx_buffer_.capacity();

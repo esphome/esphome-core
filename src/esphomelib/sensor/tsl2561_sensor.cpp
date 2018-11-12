@@ -29,10 +29,8 @@ TSL2561Sensor::TSL2561Sensor(I2CComponent *parent, const std::string &name,
 
 void TSL2561Sensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up TSL2561...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t id;
   if (!this->tsl2561_read_byte(TSL2561_REGISTER_ID, &id)) {
-    ESP_LOGE(TAG, "Communication with TSL2561 on address 0x%02X failed!", this->address_);
     this->mark_failed();
     return;
   }
@@ -43,25 +41,27 @@ void TSL2561Sensor::setup() {
     return;
   }
 
-  if (this->gain_ == TSL2561_GAIN_1X) {
-    ESP_LOGCONFIG(TAG, "    Gain: 1x");
-  } else if (this->gain_ == TSL2561_GAIN_16X) {
-    ESP_LOGCONFIG(TAG, "    Gain: 16x");
-  }
   timing &= ~0b00010000;
   timing |= this->gain_ == TSL2561_GAIN_16X ? 0b00010000 : 0;
 
   timing &= ~0b00000011;
   timing |= this->integration_time_ & 0b11;
-  if (this->integration_time_ == TSL2561_INTEGRATION_14MS) {
-    ESP_LOGCONFIG(TAG, "    Integration time: 14ms");
-  } else if (this->integration_time_ == TSL2561_INTEGRATION_101MS) {
-    ESP_LOGCONFIG(TAG, "    Integration time: 101ms");
-  } else if (this->integration_time_ == TSL2561_INTEGRATION_402MS) {
-    ESP_LOGCONFIG(TAG, "    Integration time: 402ms");
-  }
 
   this->write_byte(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, timing);
+}
+void TSL2561Sensor::dump_config() {
+  ESP_LOGCONFIG(TAG, "TSL2561:");
+  LOG_I2C_DEVICE(this);
+
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with TSL2561 failed!");
+  }
+
+  int gain = this->gain_ == TSL2561_GAIN_1X ? 1 : 16;
+  ESP_LOGCONFIG(TAG, "  Gain: %dx", gain);
+  ESP_LOGCONFIG(TAG, "  Integration Time: %.1f ms", this->get_integration_time_ms_());
+
+  LOG_UPDATE_INTERVAL(this);
 }
 void TSL2561Sensor::update() {
   // Power on

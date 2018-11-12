@@ -38,6 +38,10 @@ float MQTTSubscribeSensor::get_setup_priority() const {
 void MQTTSubscribeSensor::set_qos(uint8_t qos) {
   this->qos_ = qos;
 }
+void MQTTSubscribeSensor::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Subscribe Sensor '%s':", this->name_.c_str());
+  ESP_LOGCONFIG(TAG, "  Topic: %s", this->topic_.c_str());
+}
 
 } // namespace sensor
 

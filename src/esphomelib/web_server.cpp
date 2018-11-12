@@ -79,7 +79,7 @@ void WebServer::set_port(uint16_t port) {
 }
 
 void WebServer::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up web server on port %u...", this->port_);
+  ESP_LOGCONFIG(TAG, "Setting up web server...");
   this->server_ = new AsyncWebServer(this->port_);
   MDNS.addService("http", "tcp", this->port_);
 
@@ -131,8 +131,12 @@ void WebServer::setup() {
     this->events_.send("", "ping", millis(), 30000);
   });
 }
+void WebServer::dump_config() {
+  ESP_LOGCONFIG(TAG, "Web Server:");
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", WiFi.localIP().toString().c_str(), this->port_);
+}
 float WebServer::get_setup_priority() const {
-  return setup_priority::MQTT_CLIENT;
+  return setup_priority::WIFI - 1.0f;
 }
 
 void WebServer::handle_update_request(AsyncWebServerRequest *request) {
@@ -357,13 +361,19 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
       std::string data = this->switch_json(obj, obj->state);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      obj->toggle();
+      this->defer([obj] () {
+        obj->toggle();
+      });
       request->send(200);
     } else if (match.method == "turn_on") {
-      obj->turn_on();
+      this->defer([obj] () {
+        obj->turn_on();
+      });
       request->send(200);
     } else if (match.method == "turn_off") {
-      obj->turn_off();
+      this->defer([obj] () {
+        obj->turn_off();
+      });
       request->send(200);
     } else {
       request->send(404);
@@ -439,7 +449,9 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
       std::string data = this->fan_json(obj);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      obj->toggle().perform();
+      this->defer([obj] () {
+        obj->toggle().perform();
+      });
       request->send(200);
     } else if (match.method == "turn_on") {
       auto call = obj->turn_on();
@@ -451,19 +463,28 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
         String speed = request->getParam("oscillation")->value();
         auto val = parse_on_off(speed.c_str());
         switch (val) {
-          case PARSE_ON:call.set_oscillating(true);
+          case PARSE_ON:
+            call.set_oscillating(true);
             break;
-          case PARSE_OFF:call.set_oscillating(false);
+          case PARSE_OFF:
+            call.set_oscillating(false);
             break;
-          case PARSE_TOGGLE:call.set_oscillating(!obj->oscillating);
+          case PARSE_TOGGLE:
+            call.set_oscillating(!obj->oscillating);
             break;
-          case PARSE_NONE:request->send(404);
+          case PARSE_NONE:
+            request->send(404);
             return;
         }
       }
+      this->defer([call] () {
+        call.perform();
+      });
       request->send(200);
     } else if (match.method == "turn_off") {
-      obj->turn_off().perform();
+      this->defer([obj] () {
+        obj->turn_off().perform();
+      });
       request->send(200);
     } else {
       request->send(404);
@@ -492,7 +513,9 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
       std::string data = this->light_json(obj);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      obj->toggle().perform();
+      this->defer([obj] () {
+        obj->toggle().perform();
+      });
       request->send(200);
     } else if (match.method == "turn_on") {
       auto call = obj->turn_on();
@@ -522,7 +545,9 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
         call.set_effect(effect);
       }
 
-      call.perform();
+      this->defer([call] () {
+        call.perform();
+      });
       request->send(200);
     } else if (match.method == "turn_off") {
       auto call = obj->turn_off();
@@ -530,7 +555,9 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
         uint32_t length = request->getParam("transition")->value().toFloat() * 1000;
         call.set_transition_length(length);
       }
-      call.perform();
+      this->defer([call] () {
+        call.perform();
+      });
       request->send(200);
     } else {
       request->send(404);

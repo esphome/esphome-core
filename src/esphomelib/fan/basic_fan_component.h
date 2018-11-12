@@ -43,6 +43,7 @@ class BasicFanComponent : public Component {
   FanState *get_state() const;
   void set_state(FanState *state);
   void setup() override;
+  void dump_config() override;
   void loop() override;
 
   float get_setup_priority() const override;
