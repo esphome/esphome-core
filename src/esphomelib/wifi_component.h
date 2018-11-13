@@ -161,6 +161,7 @@ class WiFiComponent : public Component {
 
  protected:
   void setup_ap_config();
+  void print_connect_params_();
 
 #ifdef ARDUINO_ARCH_ESP32
   /// Used for logging WiFi events.

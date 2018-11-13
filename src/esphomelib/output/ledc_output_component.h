@@ -37,6 +37,7 @@ class LEDCOutputComponent : public FloatOutput, public Component {
   // (In most use cases you won't need these)
   /// Setup LEDC.
   void setup() override;
+  void dump_config() override;
   /// HARDWARE setup priority
   float get_setup_priority() const override;
 

@@ -47,7 +47,7 @@ PCA9685OutputComponent::PCA9685OutputComponent(I2CComponent *parent, float frequ
 void PCA9685OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent...");
 
-  ESP_LOGV(TAG, "    Resetting devices...");
+  ESP_LOGV(TAG, "  Resetting devices...");
   if (!this->write_bytes(PCA9685_REGISTER_SOFTWARE_RESET, nullptr, 0)) {
     this->mark_failed();
     return;
@@ -66,7 +66,7 @@ void PCA9685OutputComponent::setup() {
   if (pre_scaler > 255) pre_scaler = 255;
   if (pre_scaler < 3) pre_scaler = 3;
 
-  ESP_LOGV(TAG, "     -> Prescaler: %d", pre_scaler);
+  ESP_LOGV(TAG, "  -> Prescaler: %d", pre_scaler);
 
   uint8_t mode1;
   if (!this->read_byte(PCA9685_REGISTER_MODE1, &mode1)) {
@@ -106,7 +106,7 @@ void PCA9685OutputComponent::loop() {
   if (this->min_channel_ == 0xFF || !this->update_)
     return;
 
-  uint8_t data[16*4];
+  uint8_t data[16 * 4];
   uint8_t len = 0;
   const uint16_t num_channels = this->max_channel_ - this->min_channel_ + 1;
   for (uint8_t channel = this->min_channel_; channel <= this->max_channel_; channel++) {
@@ -179,7 +179,8 @@ PCA9685OutputComponent::Channel::Channel(PCA9685OutputComponent *parent, uint8_t
 
 void PCA9685OutputComponent::Channel::write_state(float state) {
   const uint16_t max_duty = 4096;
-  auto duty = uint16_t(state * max_duty);
+  const float duty_rounded = roundf(state * max_duty);
+  auto duty = static_cast<uint16_t>(duty_rounded);
   this->parent_->set_channel_value(this->channel_, duty);
 }
 
