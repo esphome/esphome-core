@@ -111,7 +111,7 @@ class OTAComponent : public Component {
 
 #ifdef USE_NEW_OTA
   void handle_();
-  size_t wait_receive_(uint8_t *buf, size_t bytes);
+  size_t wait_receive_(uint8_t *buf, size_t bytes, bool check_disconnected = true);
 #else
   enum { OPEN, PLAINTEXT, HASH } auth_type_{OPEN};
 #endif

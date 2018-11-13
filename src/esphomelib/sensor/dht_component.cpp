@@ -70,7 +70,7 @@ void DHTComponent::update() {
     if (this->is_auto_detect_) {
       str = " and consider manually specifying the DHT model using the model option";
     }
-    ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin_ number)%s.", str);
+    ESP_LOGW(TAG, "Invalid readings! Please check your wiring (pull-up resistor, pin number)%s.", str);
     this->status_set_warning();
   }
 }
