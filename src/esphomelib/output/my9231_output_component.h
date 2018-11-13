@@ -1,5 +1,5 @@
 #ifndef ESPHOMELIB_OUTPUT_MY9231_OUTPUT_COMPONENT_H
-#define ESPHOMELIB_OUTPUTP_MY9231_OUTPUT_COMPONENT_H
+#define ESPHOMELIB_OUTPUT_MY9231_OUTPUT_COMPONENT_H
 
 #include "esphomelib/defines.h"
 
@@ -60,6 +60,7 @@ class MY9231OutputComponent : public Component {
 
   /// Setup the MY9231.
   void setup() override;
+  void dump_config() override;
   /// HARDWARE setup_priority
   float get_setup_priority() const override;
   /// Send new values if they were updated.

@@ -49,13 +49,9 @@ void MY9231OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MY9231OutputComponent.");
   this->pin_di_->setup();
   this->pin_di_->digital_write(false);
-  ESP_LOGCONFIG(TAG, "    DI Pin: GPIO%d", this->pin_di_->get_pin());
   this->pin_dcki_->setup();
   this->pin_dcki_->digital_write(false);
-  ESP_LOGCONFIG(TAG, "    DCKI Pin: GPIO%d", this->pin_dcki_->get_pin());
   this->pwm_amounts_.resize(this->num_channels_, 0);
-  ESP_LOGCONFIG(TAG, "    Total number of channels: %u", this->num_channels_);
-  ESP_LOGCONFIG(TAG, "    Number of chips: %u", this->num_chips_);
   uint8_t command = 0;
   if (this->bit_depth_ <= 8) {
     this->bit_depth_ = 8;
@@ -70,14 +66,21 @@ void MY9231OutputComponent::setup() {
     this->bit_depth_ = 16;
     command |= MY9231_CMD_BIT_WIDTH_16;
   }
-  ESP_LOGCONFIG(TAG, "    Bit depth: %u", this->bit_depth_);
   command |= MY9231_CMD_SCATTER_APDM | MY9231_CMD_FREQUENCY_DIVIDE_1 |
              MY9231_CMD_REACTION_FAST | MY9231_CMD_ONE_SHOT_DISABLE;
-  ESP_LOGCONFIG(TAG, "    Command: 0x%02X", command);
+  ESP_LOGV(TAG, "    Command: 0x%02X", command);
 
   this->init_chips(command);
   ESP_LOGV(TAG, "Chips initialized.");
   this->loop();
+}
+void MY9231OutputComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MY9231:");
+  LOG_PIN("  DI Pin: ", this->pin_di_);
+  LOG_PIN("  DCKI Pin: ", this->pin_dcki_);
+  ESP_LOGCONFIG(TAG, "  Total number of channels: %u", this->num_channels_);
+  ESP_LOGCONFIG(TAG, "  Number of chips: %u", this->num_chips_);
+  ESP_LOGCONFIG(TAG, "  Bit depth: %u", this->bit_depth_);
 }
 
 void MY9231OutputComponent::loop() {
