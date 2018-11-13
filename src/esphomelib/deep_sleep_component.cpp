@@ -58,6 +58,9 @@ void DeepSleepComponent::set_wakeup_pin(const GPIOInputPin &pin) {
 void DeepSleepComponent::set_wakeup_pin_mode(WakeupPinMode wakeup_pin_mode) {
   this->wakeup_pin_mode_ = wakeup_pin_mode;
 }
+void DeepSleepComponent::set_ext1_wakeup(Ext1Wakeup ext1_wakeup) {
+  this->ext1_wakeup_ = ext1_wakeup;
+}
 #endif
 void DeepSleepComponent::set_run_cycles(uint32_t cycles) {
   this->loop_cycles_ = cycles;
@@ -95,6 +98,9 @@ void DeepSleepComponent::begin_sleep_(bool manual) {
     if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_INVERT_WAKEUP && (*this->wakeup_pin_)->digital_read())
       level = !level;
     esp_sleep_enable_ext0_wakeup(gpio_num_t((*this->wakeup_pin_)->get_pin()), level);
+  }
+  if (this->ext1_wakeup_.has_value()) {
+    esp_sleep_enable_ext1_wakeup(this->ext1_wakeup_->mask, this->ext1_wakeup_->wakeup_mode);
   }
   esp_deep_sleep_start();
 #endif
