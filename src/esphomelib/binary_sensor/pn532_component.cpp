@@ -56,6 +56,19 @@ void PN532Component::setup() {
     this->mark_failed();
     return;
   }
+
+  // write register
+  this->buffer_[0] = 0x08;
+  //0x6316 - CIU_RFCfg
+  this->buffer_[1] = 0x63;
+  this->buffer_[2] = 0x16;
+  // RFLevelAmp ON - RxGain 0b100, RFLevel 0b1100
+  this->buffer_[3] = 0b11001100;
+  if (!this->pn532_write_command_check_ack_(4)) {
+    this->error_code_ = RF_CONFIG_REGISTER_FAILED;
+    this->mark_failed();
+    return;
+  }
 }
 
 void PN532Component::update() {

@@ -54,6 +54,7 @@ class PN532Component : public PollingComponent, public SPIDevice {
     NONE = 0,
     WRITING_SAM_COMMAND_FAILED,
     READING_SAM_COMMAND_FAILED,
+    RF_CONFIG_REGISTER_FAILED,
   } error_code_{NONE};
 };
 
