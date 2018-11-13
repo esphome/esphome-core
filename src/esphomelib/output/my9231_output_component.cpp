@@ -46,7 +46,7 @@ MY9231OutputComponent::MY9231OutputComponent(GPIOPin *pin_di, GPIOPin *pin_dcki,
       update_(update) {}
 
 void MY9231OutputComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MY9231OutputComponent.");
+  ESP_LOGCONFIG(TAG, "Setting up MY9231OutputComponent...");
   this->pin_di_->setup();
   this->pin_di_->digital_write(false);
   this->pin_dcki_->setup();
@@ -68,10 +68,10 @@ void MY9231OutputComponent::setup() {
   }
   command |= MY9231_CMD_SCATTER_APDM | MY9231_CMD_FREQUENCY_DIVIDE_1 |
              MY9231_CMD_REACTION_FAST | MY9231_CMD_ONE_SHOT_DISABLE;
-  ESP_LOGV(TAG, "    Command: 0x%02X", command);
+  ESP_LOGV(TAG, "  Command: 0x%02X", command);
 
   this->init_chips(command);
-  ESP_LOGV(TAG, "Chips initialized.");
+  ESP_LOGV(TAG, "  Chips initialized.");
   this->loop();
 }
 void MY9231OutputComponent::dump_config() {
