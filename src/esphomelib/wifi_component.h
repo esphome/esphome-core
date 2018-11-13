@@ -161,6 +161,7 @@ class WiFiComponent : public Component {
 
  protected:
   void setup_ap_config();
+  void print_connect_params_();
 
 #ifdef ARDUINO_ARCH_ESP32
   /// Used for logging WiFi events.
@@ -178,7 +179,7 @@ class WiFiComponent : public Component {
   uint32_t action_started_;
   uint8_t num_retried_{0};
   uint32_t last_connected_{0};
-  uint32_t reboot_timeout_{60000};
+  uint32_t reboot_timeout_{300000};
   WiFiPowerSaveMode power_save_{WIFI_POWER_SAVE_NONE};
   optional<uint32_t> cooldown_reconnect_{};
 #ifdef ARDUINO_ARCH_ESP32

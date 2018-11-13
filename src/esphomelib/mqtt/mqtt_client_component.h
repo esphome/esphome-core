@@ -257,7 +257,7 @@ class MQTTClientComponent : public Component {
   AsyncMqttClient mqtt_client_;
   MQTTClientState state_{MQTT_CLIENT_DISCONNECTED};
   std::vector<MQTTComponent *> children_;
-  uint32_t reboot_timeout_{60000};
+  uint32_t reboot_timeout_{300000};
   uint32_t connect_begin_;
   uint32_t last_connected_{0};
   optional<AsyncMqttClientDisconnectReason> disconnect_reason_{};

@@ -35,7 +35,6 @@ CronTrigger *RealTimeClockComponent::make_cron_trigger() {
 }
 void RealTimeClockComponent::setup_() {
   this->setup_internal();
-  ESP_LOGCONFIG(TAG, "Timezone: %s", this->timezone_.c_str());
   setenv("TZ", this->timezone_.c_str(), 1);
   tzset();
   this->setup();

@@ -173,12 +173,15 @@ void OTAComponent::handle_() {
 
   if (!this->client_.connected()) {
     this->client_ = this->server_->available();
+
+    if (!this->client_.connected())
+      return;
   }
 
-  if (!this->client_.connected())
-    return;
+  // enable nodelay for outgoing data
+  this->client_.setNoDelay(true);
 
-  ESP_LOGD(TAG, "Starting OTA process...");
+  ESP_LOGD(TAG, "Starting OTA Update from %s...", this->client_.remoteIP().toString().c_str());
   this->status_set_warning();
 #ifdef USE_STATUS_LED
   global_state |= STATUS_LED_WARNING;
@@ -350,10 +353,11 @@ void OTAComponent::handle_() {
   this->client_.write(OTA_RESPONSE_UPDATE_END_OK);
 
   // Read ACK
-  if (!this->wait_receive_(buf, 1) || buf[0] != OTA_RESPONSE_OK) {
+  if (!this->wait_receive_(buf, 1, false) || buf[0] != OTA_RESPONSE_OK) {
     ESP_LOGW(TAG, "Reading back acknowledgement failed!");
     // do not go to error, this is not fatal
   }
+
   this->client_.flush();
   this->client_.stop();
   delay(10);
@@ -384,12 +388,12 @@ void OTAComponent::handle_() {
 #endif
 }
 
-size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes) {
+size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes, bool check_disconnected) {
   size_t available = 0;
   uint32_t start = millis();
   do {
     tick_status_led();
-    if (!this->client_.connected()) {
+    if (check_disconnected && !this->client_.connected()) {
       ESP_LOGW(TAG, "Error client disconnected while receiving data!");
       return 0;
     }

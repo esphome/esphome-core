@@ -293,7 +293,6 @@ void WiFiComponent::start_connecting() {
   }
 
   if (!this->hostname_.empty()) {
-    ESP_LOGCONFIG(TAG, "    STA Hostname: '%s'", this->hostname_.c_str());
 #ifdef ARDUINO_ARCH_ESP32
     ret = WiFi.setHostname(this->hostname_.c_str());
 #endif
@@ -321,12 +320,15 @@ void WiFiComponent::start_connecting() {
   this->action_started_ = millis();
 }
 
-static void print_connect_params() {
+void WiFiComponent::print_connect_params_() {
   uint8_t *bssid = WiFi.BSSID();
   ESP_LOGCONFIG(TAG, "  SSID: '%s'", WiFi.SSID().c_str());
   ESP_LOGCONFIG(TAG, "  IP Address: %s", WiFi.localIP().toString().c_str());
   ESP_LOGCONFIG(TAG, "  BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
                 bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+  if (!this->hostname_.empty()) {
+    ESP_LOGCONFIG(TAG, "  Hostname: '%s'", this->hostname_.c_str());
+  }
   ESP_LOGCONFIG(TAG, "  Channel: %d", WiFi.channel());
   ESP_LOGCONFIG(TAG, "  Subnet: %s", WiFi.subnetMask().toString().c_str());
   ESP_LOGCONFIG(TAG, "  Gateway: %s", WiFi.gatewayIP().toString().c_str());
@@ -336,14 +338,14 @@ static void print_connect_params() {
 
 void WiFiComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "WiFi:");
-  print_connect_params();
+  this->print_connect_params_();
 }
 
 void WiFiComponent::check_connecting_finished() {
   wl_status_t status = WiFi.status();
   if (status == WL_CONNECTED) {
     ESP_LOGI(TAG, "WiFi connected!");
-    print_connect_params();
+    this->print_connect_params_();
     this->status_clear_warning();
     this->cooldown_reconnect_.reset();
 #ifdef ARDUINO_ARCH_ESP32
