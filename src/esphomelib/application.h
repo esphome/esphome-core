@@ -78,6 +78,7 @@
 #include "esphomelib/sensor/bmp085_component.h"
 #include "esphomelib/sensor/bmp280_component.h"
 #include "esphomelib/sensor/cse7766.h"
+#include "esphomelib/sensor/custom_sensor.h"
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht12_component.h"
 #include "esphomelib/sensor/dht_component.h"

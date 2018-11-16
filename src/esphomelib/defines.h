@@ -119,6 +119,7 @@
   #define USE_A4988
   #define USE_TOTAL_DAILY_ENERGY_SENSOR
   #define USE_MY9231_OUTPUT
+  #define USE_CUSTOM_SENSOR
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -580,6 +581,12 @@
 #ifdef USE_MY9231_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
+  #endif
+#endif
+
+#ifndef USE_CUSTOM_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
   #endif
 #endif
 

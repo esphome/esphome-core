@@ -45,6 +45,10 @@ Sensor::Sensor(const std::string &name)
   // By default, apply a smoothing over the last 15 values
   this->add_filter(new SlidingWindowMovingAverageFilter(15, 15));
 }
+Sensor::Sensor()
+    : Sensor("") {
+
+}
 
 void Sensor::set_unit_of_measurement(const std::string &unit_of_measurement) {
   this->unit_of_measurement_ = unit_of_measurement;

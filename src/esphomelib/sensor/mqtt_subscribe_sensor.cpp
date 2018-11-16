@@ -33,7 +33,7 @@ void MQTTSubscribeSensor::setup() {
 }
 
 float MQTTSubscribeSensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
+  return setup_priority::MQTT_CLIENT - 1.0f;
 }
 void MQTTSubscribeSensor::set_qos(uint8_t qos) {
   this->qos_ = qos;

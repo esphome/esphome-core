@@ -28,6 +28,8 @@ class ValueRangeTrigger;
  */
 class Sensor : public Nameable {
  public:
+  explicit Sensor();
+
   explicit Sensor(const std::string &name);
 
   /** Manually set the unit of measurement of this sensor. By default the sensor's default defined by
