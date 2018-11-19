@@ -361,7 +361,7 @@ class Application {
    *
    * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
    * @param pin The GPIO pin.
-   * @param device_class The Home Assistant <a href="https://home-assistant.io/components/binary_sensor/">device_class</a>.
+   * @param device_class The Home Assistant <a href="https://www.home-assistant.io/components/binary_sensor/">device_class</a>.
    */
   MakeGPIOBinarySensor make_gpio_binary_sensor(const std::string &friendly_name,
                                                const GPIOInputPin &pin,
