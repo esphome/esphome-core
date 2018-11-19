@@ -1,7 +1,7 @@
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
-#define ESPHOMELIB_VERSION "1.9.0"
+#define ESPHOMELIB_VERSION "1.9.1"
 
 #define HOT __attribute__ ((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
