@@ -36,6 +36,10 @@ BinarySensor::BinarySensor(const std::string &name)
   : Nameable(name), state(false) {
 
 }
+BinarySensor::BinarySensor()
+  : BinarySensor("") {
+
+}
 void BinarySensor::set_device_class(const std::string &device_class) {
   this->device_class_ = device_class;
 }

@@ -20,7 +20,7 @@ MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
 }
 
 void MQTTSwitchComponent::setup() {
-  this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
+  this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {
     switch (parse_on_off(payload.c_str())) {
       case PARSE_ON:
         this->switch_->turn_on();

@@ -120,6 +120,11 @@
   #define USE_TOTAL_DAILY_ENERGY_SENSOR
   #define USE_MY9231_OUTPUT
   #define USE_CUSTOM_SENSOR
+  #define USE_CUSTOM_BINARY_SENSOR
+  #define USE_CUSTOM_OUTPUT
+  #define USE_CUSTOM_SWITCH
+  #define USE_CUSTOM_TEXT_SENSOR
+  #define USE_CUSTOM_MQTT_COMPONENT
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -585,6 +590,12 @@
 #endif
 
 #ifndef USE_CUSTOM_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+
+#ifndef USE_CUSTOM_BINARY_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif

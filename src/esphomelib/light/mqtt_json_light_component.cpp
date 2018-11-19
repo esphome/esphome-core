@@ -17,7 +17,7 @@ std::string MQTTJSONLightComponent::component_type() const {
 }
 
 void MQTTJSONLightComponent::setup() {
-  this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
+  this->subscribe_json(this->get_command_topic(), [this](const std::string &topic, JsonObject &root) {
     this->state_->make_call().parse_json(root).perform();
   });
 
@@ -35,7 +35,7 @@ MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
 }
 
 void MQTTJSONLightComponent::publish_state() {
-  this->send_json_message(this->get_state_topic(), [&](JsonObject &root) {
+  this->send_json_message(this->get_state_topic(), [this](JsonObject &root) {
     this->state_->dump_json(root);
   });
 }

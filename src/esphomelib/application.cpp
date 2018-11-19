@@ -119,10 +119,21 @@ void HOT Application::loop() {
     feed_wdt();
   }
   global_state = new_global_state;
-  yield();
 
-  if (first_loop)
+  const uint32_t now = millis();
+  if (HighFrequencyLoopRequester::is_high_frequency()) {
+    yield();
+  } else {
+    uint32_t delay_time = this->loop_interval_;
+    if (now - this->last_loop_ < this->loop_interval_)
+      delay_time = this->loop_interval_ - (now - this->last_loop_);
+    delay(delay_time);
+  }
+  this->last_loop_  = now;
+
+  if (first_loop) {
     ESP_LOGI(TAG, "First loop finished successfully!");
+  }
 }
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
@@ -796,10 +807,6 @@ Application::MakeRotaryEncoderSensor Application::make_rotary_encoder_sensor(con
 }
 #endif
 
-mqtt::MQTTMessageTrigger *Application::make_mqtt_message_trigger(const std::string &topic, uint8_t qos) {
-  return global_mqtt_client->make_message_trigger(topic, qos);
-}
-
 StartupTrigger *Application::make_startup_trigger() {
   return this->register_component(new StartupTrigger());
 }
@@ -1247,6 +1254,10 @@ Application::MakeTotalDailyEnergySensor Application::make_total_daily_energy_sen
   };
 }
 #endif
+
+void Application::set_loop_interval(uint32_t loop_interval) {
+  this->loop_interval_ = loop_interval;
+}
 
 
 Application App; // NOLINT

@@ -21,7 +21,8 @@ namespace mqtt {
  *
  * First parameter is the topic, the second one is the payload.
  */
-using mqtt_callback_t = std::function<void(const std::string &)>;
+using mqtt_callback_t = std::function<void(const std::string &, const std::string &)>;
+using mqtt_json_callback_t = std::function<void(const std::string &, JsonObject &)>;
 
 /// internal struct for MQTT messages.
 struct MQTTMessage {
@@ -169,7 +170,7 @@ class MQTTClientComponent : public Component {
    * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
    * @param qos The QoS of this subscription.
    */
-  void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos = 0);
 
   /** Publish a MQTTMessage
    *
@@ -206,7 +207,7 @@ class MQTTClientComponent : public Component {
 
   void on_message(const std::string &topic, const std::string &payload);
 
-  MQTTMessageTrigger *make_message_trigger(const std::string &topic, uint8_t qos = 0);
+  MQTTMessageTrigger *make_message_trigger(const std::string &topic);
 
   MQTTJsonMessageTrigger *make_json_message_trigger(const std::string &topic, uint8_t qos = 0);
 
@@ -265,9 +266,20 @@ class MQTTClientComponent : public Component {
 
 extern MQTTClientComponent *global_mqtt_client;
 
-class MQTTMessageTrigger : public Trigger<std::string> {
+class MQTTMessageTrigger : public Trigger<std::string>, public Component {
  public:
-  explicit MQTTMessageTrigger(const std::string &topic, uint8_t qos = 0);
+  explicit MQTTMessageTrigger(const std::string &topic);
+
+  void set_qos(uint8_t qos);
+  void set_payload(const std::string &payload);
+  void setup() override;
+  void dump_config() override;
+  float get_setup_priority() const override;
+
+ protected:
+  std::string topic_;
+  uint8_t qos_{0};
+  optional<std::string> payload_;
 };
 
 class MQTTJsonMessageTrigger : public Trigger<const JsonObject &> {

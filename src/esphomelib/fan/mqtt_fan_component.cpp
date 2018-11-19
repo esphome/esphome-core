@@ -23,7 +23,7 @@ std::string MQTTFanComponent::component_type() const {
   return "fan";
 }
 void MQTTFanComponent::setup() {
-  this->subscribe(this->get_command_topic(), [this](const std::string &payload) {
+  this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {
     auto val = parse_on_off(payload.c_str());
     switch (val) {
       case PARSE_ON:
@@ -47,7 +47,7 @@ void MQTTFanComponent::setup() {
   });
 
   if (this->state_->get_traits().supports_oscillation()) {
-    this->subscribe(this->get_oscillation_command_topic(), [this](const std::string &payload) {
+    this->subscribe(this->get_oscillation_command_topic(), [this](const std::string &topic, const std::string &payload) {
       auto val = parse_on_off(payload.c_str(), "oscillate_on", "oscillate_off");
       switch (val) {
         case PARSE_ON:
@@ -70,7 +70,7 @@ void MQTTFanComponent::setup() {
   }
 
   if (this->state_->get_traits().supports_speed()) {
-    this->subscribe(this->get_speed_command_topic(), [this](const std::string &payload) {
+    this->subscribe(this->get_speed_command_topic(), [this](const std::string &topic, const std::string &payload) {
       this->state_->make_call().set_speed(payload.c_str()).perform();
     });
   }

@@ -210,9 +210,13 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
     this->mqtt_client_.subscribe(topic.c_str(), qos);
 }
 
-void MQTTClientComponent::subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos) {
+void MQTTClientComponent::subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos) {
   ESP_LOGV(TAG, "Subscribing to topic='%s' qos=%u with JSON...", topic.c_str(), qos);
-  auto f = std::bind(&parse_json, std::placeholders::_1, callback);
+  auto f = [callback](const std::string &topic, const std::string &payload) {
+    parse_json(payload, [topic, callback](JsonObject &root) {
+      callback(topic, root);
+    });
+  };
   MQTTSubscription subscription{
       .topic = topic,
       .qos = qos,
@@ -402,7 +406,7 @@ void MQTTClientComponent::on_message(const std::string &topic, const std::string
 #endif
     for (auto &subscription : this->subscriptions_)
       if (topic_match(topic.c_str(), subscription.topic.c_str()))
-        subscription.callback(payload);
+        subscription.callback(topic, payload);
 #ifdef ARDUINO_ARCH_ESP8266
   });
 #endif
@@ -413,8 +417,8 @@ void MQTTClientComponent::disable_log_message() {
 bool MQTTClientComponent::is_log_message_enabled() const {
   return !this->log_message_.topic.empty();
 }
-MQTTMessageTrigger *MQTTClientComponent::make_message_trigger(const std::string &topic, uint8_t qos) {
-  return new MQTTMessageTrigger(topic, qos);
+MQTTMessageTrigger *MQTTClientComponent::make_message_trigger(const std::string &topic) {
+  return new MQTTMessageTrigger(topic);
 }
 MQTTJsonMessageTrigger *MQTTClientComponent::make_json_message_trigger(const std::string &topic, uint8_t qos) {
   return new MQTTJsonMessageTrigger(topic, qos);
@@ -441,16 +445,38 @@ void MQTTClientComponent::add_ssl_fingerprint(const std::array<uint8_t, SHA1_SIZ
 
 MQTTClientComponent *global_mqtt_client = nullptr;
 
-MQTTMessageTrigger::MQTTMessageTrigger(const std::string &topic, uint8_t qos) {
-  global_mqtt_client->subscribe(topic, [this](const std::string &payload) {
-    this->trigger(payload);
+MQTTJsonMessageTrigger::MQTTJsonMessageTrigger(const std::string &topic, uint8_t qos) {
+  global_mqtt_client->subscribe_json(topic, [this](const std::string &topic, JsonObject &root) {
+    this->trigger(root);
   }, qos);
 }
 
-MQTTJsonMessageTrigger::MQTTJsonMessageTrigger(const std::string &topic, uint8_t qos) {
-  global_mqtt_client->subscribe_json(topic, [this](JsonObject &root) {
-    this->trigger(root);
-  }, qos);
+MQTTMessageTrigger::MQTTMessageTrigger(const std::string &topic)
+    : topic_(topic) {
+
+}
+void MQTTMessageTrigger::set_qos(uint8_t qos) {
+  this->qos_ = qos;
+}
+void MQTTMessageTrigger::set_payload(const std::string &payload) {
+  this->payload_ = payload;
+}
+void MQTTMessageTrigger::setup() {
+  global_mqtt_client->subscribe(this->topic_, [this](const std::string &topic, const std::string &payload) {
+    if (this->payload_.has_value() && payload != *this->payload_) {
+      return;
+    }
+
+    this->trigger(payload);
+  }, this->qos_);
+}
+void MQTTMessageTrigger::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Message Trigger:");
+  ESP_LOGCONFIG(TAG, "  Topic: '%s'", this->topic_.c_str());
+  ESP_LOGCONFIG(TAG, "  QoS: %u", this->qos_);
+}
+float MQTTMessageTrigger::get_setup_priority() const {
+  return setup_priority::MQTT_CLIENT;
 }
 
 } // namespace mqtt

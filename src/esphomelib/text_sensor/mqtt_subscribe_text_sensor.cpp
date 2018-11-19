@@ -16,7 +16,7 @@ MQTTSubscribeTextSensor::MQTTSubscribeTextSensor(const std::string &name, std::s
 
 }
 void MQTTSubscribeTextSensor::setup() {
-  mqtt::global_mqtt_client->subscribe(this->topic_, [this](std::string payload) {
+  mqtt::global_mqtt_client->subscribe(this->topic_, [this](const std::string &topic, std::string payload) {
     this->publish_state(payload);
   }, this->qos_);
 }

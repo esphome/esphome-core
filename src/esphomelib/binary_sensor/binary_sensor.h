@@ -42,6 +42,7 @@ class BinarySensor : public Nameable {
    * @param name Name of this binary sensor.
    */
   explicit BinarySensor(const std::string &name);
+  explicit BinarySensor();
 
   /** Add a callback to be notified of state changes.
    *

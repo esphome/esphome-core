@@ -37,6 +37,7 @@
     "flags": "-Wno-reorder"
   },
   "license": "GPL-3.0",
+  "libArchive": false,
   "frameworks": "arduino",
   "platforms": [
     "espressif32",

@@ -19,7 +19,7 @@ MQTTSubscribeSensor::MQTTSubscribeSensor(const std::string &name, std::string to
 
 }
 void MQTTSubscribeSensor::setup() {
-  mqtt::global_mqtt_client->subscribe(this->topic_, [this](std::string payload) {
+  mqtt::global_mqtt_client->subscribe(this->topic_, [this](const std::string &topic, std::string payload) {
     char *end;
     float value = ::strtof(payload.c_str(), &end);
     if (end == nullptr) {

@@ -16,7 +16,7 @@ void MQTTCoverComponent::setup() {
   this->cover_->add_on_publish_state_callback([this](CoverState state) {
     this->publish_state(state);
   });
-  this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
+  this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {
     if (strcasecmp(payload.c_str(), "OPEN") == 0) {
       ESP_LOGD(TAG, "'%s': Opening cover...", this->friendly_name().c_str());
       this->cover_->open();

@@ -24,6 +24,8 @@ class BaseFastLEDLightEffect : public LightEffect {
 
  protected:
   FastLEDLightOutputComponent *get_fastled_output_() const;
+
+  HighFrequencyLoopRequester high_freq_;
 };
 
 class FastLEDLambdaLightEffect : public BaseFastLEDLightEffect {

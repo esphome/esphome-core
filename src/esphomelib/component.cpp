@@ -39,7 +39,7 @@ float Component::get_loop_priority() const {
 }
 
 float Component::get_setup_priority() const {
-  return 0.0f;
+  return setup_priority::HARDWARE_LATE;
 }
 
 void Component::setup() {

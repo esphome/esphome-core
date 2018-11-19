@@ -24,6 +24,7 @@
 #include "esphomelib/web_server.h"
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/binary_sensor/custom_binary_sensor.h"
 #include "esphomelib/binary_sensor/esp32_touch_binary_sensor.h"
 #include "esphomelib/binary_sensor/filter.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
@@ -52,9 +53,11 @@
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/light_state.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/mqtt/custom_mqtt_component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/output/binary_output.h"
+#include "esphomelib/output/custom_output.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
 #include "esphomelib/output/float_output.h"
 #include "esphomelib/output/gpio_binary_output_component.h"
@@ -120,6 +123,7 @@
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/switch_/uart_switch.h"
+#include "esphomelib/text_sensor/custom_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/template_text_sensor.h"
@@ -326,8 +330,6 @@ class Application {
 
   template<typename T>
   Automation<T> *make_automation(Trigger<T> *trigger);
-
-  mqtt::MQTTMessageTrigger *make_mqtt_message_trigger(const std::string &topic, uint8_t qos = 0);
 
   StartupTrigger *make_startup_trigger();
 
@@ -1345,6 +1347,21 @@ class Application {
 
   const std::string &get_compilation_time() const;
 
+  /** Set the target interval with which to run the loop() calls.
+   * If the loop() method takes longer than the target interval, esphomelib won't
+   * sleep in loop(), but if the time spent in loop() is small than the target, esphomelib
+   * will delay at the end of the App.loop() method.
+   *
+   * This is done to conserve power: In most use-cases, high-speed loop() calls are not required
+   * and degrade power consumption.
+   *
+   * Each component can request a high frequency loop execution by using the HighFrequencyLoopRequester
+   * helper in helpers.h
+   *
+   * @param loop_interval The interval in milliseconds to run the core loop at. Defaults to 16 milliseconds.
+   */
+  void set_loop_interval(uint32_t loop_interval);
+
  protected:
   std::vector<Component *> components_{};
   std::vector<Controller *> controllers_{};
@@ -1354,6 +1371,8 @@ class Application {
   std::string name_;
   std::string compilation_time_;
   uint32_t application_state_{COMPONENT_STATE_CONSTRUCTION};
+  uint32_t last_loop_{0};
+  uint32_t loop_interval_{16};
 #ifdef USE_I2C
   I2CComponent *i2c_{nullptr};
 #endif
