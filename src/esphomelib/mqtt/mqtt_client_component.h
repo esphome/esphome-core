@@ -65,7 +65,7 @@ class MQTTPublishJsonAction;
 
 /** Internal struct for MQTT Home Assistant discovery
  *
- * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
+ * See <a href="https://www.home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
  */
 struct MQTTDiscoveryInfo {
   std::string prefix; ///< The Home Assistant discovery prefix. Empty means disabled.
@@ -102,7 +102,7 @@ class MQTTClientComponent : public Component {
 
   /** Set the Home Assistant discovery info
    *
-   * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
+   * See <a href="https://www.home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
    * @param prefix The Home Assistant discovery prefix.
    * @param retain Whether to retain discovery messages.
    */

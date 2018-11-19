@@ -85,7 +85,7 @@ class ESP32TouchComponent : public Component {
 
   /** Setup an infinite impulse response filter to improve accuracy of the touch readings.
    *
-   * See [Filtering Pulses](https://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/touch_pad.html#filtering-of-measurements
+   * See [Filtering Pulses](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/peripherals/touch_pad.html#filtering-of-measurements
    * for more information). Good values for this can be 20ms or so, but often the default of no filter works
    * just fine.
    *

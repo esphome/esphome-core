@@ -75,7 +75,7 @@ class MQTTComponent : public Component {
 
   /** Set the Home Assistant availability data.
    *
-   * See See <a href="https://home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
+   * See See <a href="https://www.home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
    */
   void set_availability(std::string topic, std::string payload_available, std::string payload_not_available);
   void disable_availability();
