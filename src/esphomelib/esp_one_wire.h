@@ -68,18 +68,19 @@ class ESPOneWire {
 
  protected:
   /// Helper to get the internal 64-bit unsigned rom number as a 8-bit integer pointer.
-  inline uint8_t *rom_number8_() { return reinterpret_cast<uint8_t *>(&this->rom_number); }
+  inline uint8_t *rom_number8_() {
+    return reinterpret_cast<uint8_t *>(&this->rom_number);
+  }
 
   GPIOPin *pin_;
   uint8_t last_discrepancy_{0};
   uint8_t last_family_discrepancy_{0};
   bool last_device_flag_{false};
   uint64_t rom_number{0};
-
 };
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_ONE_WIRE
+#endif  // USE_ONE_WIRE
 
-#endif //ESPHOMELIB_ONE_WIRE_H
+#endif  // ESPHOMELIB_ONE_WIRE_H

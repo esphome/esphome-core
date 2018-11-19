@@ -104,9 +104,7 @@ class StopAction : public Action<T> {
 // =============== TEMPLATE DEFINITIONS ===============
 
 template<typename T>
-OpenAction<T>::OpenAction(Cover *cover)
-    : cover_(cover) {
-
+OpenAction<T>::OpenAction(Cover *cover) : cover_(cover) {
 }
 template<typename T>
 void OpenAction<T>::play(T x) {
@@ -115,9 +113,7 @@ void OpenAction<T>::play(T x) {
 }
 
 template<typename T>
-CloseAction<T>::CloseAction(Cover *cover)
-    : cover_(cover) {
-
+CloseAction<T>::CloseAction(Cover *cover) : cover_(cover) {
 }
 template<typename T>
 void CloseAction<T>::play(T x) {
@@ -126,9 +122,7 @@ void CloseAction<T>::play(T x) {
 }
 
 template<typename T>
-StopAction<T>::StopAction(Cover *cover)
-    : cover_(cover) {
-
+StopAction<T>::StopAction(Cover *cover) : cover_(cover) {
 }
 
 template<typename T>
@@ -151,10 +145,10 @@ StopAction<T> *Cover::make_stop_action() {
   return new StopAction<T>(this);
 }
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_COVER
+#endif  // USE_COVER
 
-#endif //ESPHOMELIB_COVER_COVER_H
+#endif  // ESPHOMELIB_COVER_COVER_H

@@ -107,8 +107,7 @@ bool I2CComponent::request_from_(uint8_t address, uint8_t len) {
 }
 void HOT I2CComponent::write_(uint8_t address, const uint8_t *data, uint8_t len) {
   for (size_t i = 0; i < len; i++) {
-    ESP_LOGVV(TAG, "    Writing 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
-              BYTE_TO_BINARY(data[i]), data[i]);
+    ESP_LOGVV(TAG, "    Writing 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(data[i]), data[i]);
     this->wire_->write(data[i]);
     feed_wdt();
   }
@@ -128,8 +127,7 @@ bool I2CComponent::receive_(uint8_t address, uint8_t *data, uint8_t len) {
     return false;
   for (uint8_t i = 0; i < len; i++) {
     data[i] = this->wire_->read();
-    ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
-              BYTE_TO_BINARY(data[i]), data[i]);
+    ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(data[i]), data[i]);
     feed_wdt();
   }
   return true;
@@ -175,7 +173,6 @@ bool I2CComponent::write_bytes(uint8_t address, uint8_t register_, const uint8_t
   return this->end_transmission_(address);
 }
 bool I2CComponent::write_bytes_16(uint8_t address, uint8_t register_, const uint16_t *data, uint8_t len) {
-
   this->begin_transmission_(address);
   this->write_(address, &register_, 1);
   this->write_16_(address, data, len);
@@ -189,7 +186,6 @@ bool I2CComponent::write_byte_16(uint8_t address, uint8_t register_, uint16_t da
 }
 
 I2CDevice::I2CDevice(I2CComponent *parent, uint8_t address) : address_(address), parent_(parent) {
-
 }
 
 void I2CDevice::set_address(uint8_t address) {
@@ -224,9 +220,9 @@ void I2CDevice::set_parent(I2CComponent *parent) {
 }
 
 #ifdef ARDUINO_ARCH_ESP32
-  uint8_t next_i2c_bus_num_ = 0;
+uint8_t next_i2c_bus_num_ = 0;
 #endif
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_I2C
+#endif  // USE_I2C

@@ -9,9 +9,10 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace cover {
 
 TemplateCover::TemplateCover(const std::string &name)
-    : Cover(name), open_trigger_(new Trigger<NoArg>()), close_trigger_(new Trigger<NoArg>),
+    : Cover(name),
+      open_trigger_(new Trigger<NoArg>()),
+      close_trigger_(new Trigger<NoArg>),
       stop_trigger_(new Trigger<NoArg>()) {
-
 }
 void TemplateCover::loop() {
   if (this->f_.has_value()) {
@@ -62,8 +63,8 @@ void TemplateCover::write_command(CoverCommand command) {
   }
 }
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEMPLATE_COVER
+#endif  // USE_TEMPLATE_COVER

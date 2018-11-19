@@ -14,9 +14,7 @@ namespace sensor {
 
 static const char *TAG = "sensor.mqtt";
 
-MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
-    : MQTTComponent(), sensor_(sensor) {
-
+MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor) : MQTTComponent(), sensor_(sensor) {
 }
 
 void MQTTSensorComponent::setup() {
@@ -87,8 +85,8 @@ std::string MQTTSensorComponent::unique_id() {
   return this->sensor_->unique_id();
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif  // USE_SENSOR

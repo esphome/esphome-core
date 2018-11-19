@@ -49,8 +49,8 @@ float UptimeSensor::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_UPTIME_SENSOR
+#endif  // USE_UPTIME_SENSOR

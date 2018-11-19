@@ -35,47 +35,30 @@ static const uint16_t QEIx4_IS_DEC = 0x7000;
 
 static uint16_t state_lookup_table[32] = {
     // act state S0 in CCW direction
-    QEIx4_CCW | QEIx4_S0,
-    QEIx4_CW  | QEIx4_S1 | QEIx4_A  | QEIx4_4x_INC | QEIx4_DIR,
-    QEIx4_CCW | QEIx4_S0 | QEIx4_B,
+    QEIx4_CCW | QEIx4_S0, QEIx4_CW | QEIx4_S1 | QEIx4_A | QEIx4_4x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S0 | QEIx4_B,
     QEIx4_CCW | QEIx4_S3 | QEIx4_AB | QEIx4_1x_DEC,
     // act state S1 in CCW direction
-    QEIx4_CCW | QEIx4_S1,
-    QEIx4_CCW | QEIx4_S1 | QEIx4_A,
-    QEIx4_CCW | QEIx4_S0 | QEIx4_B  | QEIx4_4x_DEC,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC | QEIx4_DIR,
+    QEIx4_CCW | QEIx4_S1, QEIx4_CCW | QEIx4_S1 | QEIx4_A, QEIx4_CCW | QEIx4_S0 | QEIx4_B | QEIx4_4x_DEC,
+    QEIx4_CW | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC | QEIx4_DIR,
     // act state S2 in CCW direction
-    QEIx4_CCW | QEIx4_S1 |            QEIx4_2x_DEC,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_A,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_B  | QEIx4_4x_INC | QEIx4_DIR,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_AB,
+    QEIx4_CCW | QEIx4_S1 | QEIx4_2x_DEC, QEIx4_CCW | QEIx4_S2 | QEIx4_A,
+    QEIx4_CW | QEIx4_S3 | QEIx4_B | QEIx4_4x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S2 | QEIx4_AB,
     // act state S3 in CCW direction
-    QEIx4_CW  | QEIx4_S0 |            QEIx4_2x_INC | QEIx4_DIR,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_A  | QEIx4_4x_DEC,
-    QEIx4_CCW | QEIx4_S3 | QEIx4_B,
-    QEIx4_CCW | QEIx4_S3 | QEIx4_AB,
+    QEIx4_CW | QEIx4_S0 | QEIx4_2x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S2 | QEIx4_A | QEIx4_4x_DEC,
+    QEIx4_CCW | QEIx4_S3 | QEIx4_B, QEIx4_CCW | QEIx4_S3 | QEIx4_AB,
 
     // act state S0 in CW direction
-    QEIx4_CW  | QEIx4_S0,
-    QEIx4_CW  | QEIx4_S1 | QEIx4_A  | QEIx4_4x_INC,
-    QEIx4_CW  | QEIx4_S0 | QEIx4_B,
+    QEIx4_CW | QEIx4_S0, QEIx4_CW | QEIx4_S1 | QEIx4_A | QEIx4_4x_INC, QEIx4_CW | QEIx4_S0 | QEIx4_B,
     QEIx4_CCW | QEIx4_S3 | QEIx4_AB | QEIx4_1x_DEC | QEIx4_DIR,
     // act state S1 in CW direction
-    QEIx4_CW  | QEIx4_S1,
-    QEIx4_CW  | QEIx4_S1 | QEIx4_A,
-    QEIx4_CCW | QEIx4_S0 | QEIx4_B  | QEIx4_4x_DEC | QEIx4_DIR,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC,
+    QEIx4_CW | QEIx4_S1, QEIx4_CW | QEIx4_S1 | QEIx4_A, QEIx4_CCW | QEIx4_S0 | QEIx4_B | QEIx4_4x_DEC | QEIx4_DIR,
+    QEIx4_CW | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC,
     // act state S2 in CW direction
-    QEIx4_CCW | QEIx4_S1 |            QEIx4_2x_DEC | QEIx4_DIR,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_A,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_B  | QEIx4_4x_INC,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_AB,
+    QEIx4_CCW | QEIx4_S1 | QEIx4_2x_DEC | QEIx4_DIR, QEIx4_CW | QEIx4_S2 | QEIx4_A,
+    QEIx4_CW | QEIx4_S3 | QEIx4_B | QEIx4_4x_INC, QEIx4_CW | QEIx4_S2 | QEIx4_AB,
     // act state S3 in CW direction
-    QEIx4_CW  | QEIx4_S0 |            QEIx4_2x_INC,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_A  | QEIx4_4x_DEC | QEIx4_DIR,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_B,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_AB
-};
+    QEIx4_CW | QEIx4_S0 | QEIx4_2x_INC, QEIx4_CCW | QEIx4_S2 | QEIx4_A | QEIx4_4x_DEC | QEIx4_DIR,
+    QEIx4_CW | QEIx4_S3 | QEIx4_B, QEIx4_CW | QEIx4_S3 | QEIx4_AB};
 
 RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a, GPIOPin *pin_b)
     : Sensor(name), Component(), pin_a_(pin_a), pin_b_(pin_b) {
@@ -166,8 +149,8 @@ float RotaryEncoderSensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_ROTARY_ENCODER_SENSOR
+#endif  // USE_ROTARY_ENCODER_SENSOR

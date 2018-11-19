@@ -36,7 +36,7 @@ class Controller {
 #endif
 
 #ifdef USE_COVER
- virtual void register_cover(cover::Cover *cover);
+  virtual void register_cover(cover::Cover *cover);
 #endif
 
 #ifdef USE_TEXT_SENSOR
@@ -107,4 +107,4 @@ class StoringController : public Controller {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //ESPHOMELIB_CONTROLLER_H
+#endif  // ESPHOMELIB_CONTROLLER_H

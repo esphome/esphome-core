@@ -27,7 +27,7 @@ using mqtt_callback_t = std::function<void(const std::string &)>;
 struct MQTTMessage {
   std::string topic;
   std::string payload;
-  uint8_t qos; ///< QoS. Only for last will testaments.
+  uint8_t qos;  ///< QoS. Only for last will testaments.
   bool retain;
 };
 
@@ -40,16 +40,16 @@ struct MQTTSubscription {
 
 /// internal struct for MQTT credentials.
 struct MQTTCredentials {
-  std::string address; ///< The address of the server without port number
-  uint16_t port; ///< The port number of the server.
+  std::string address;  ///< The address of the server without port number
+  uint16_t port;        ///< The port number of the server.
   std::string username;
   std::string password;
-  std::string client_id; ///< The client ID. Will automatically be truncated to 23 characters.
+  std::string client_id;  ///< The client ID. Will automatically be truncated to 23 characters.
 };
 
 /// Simple data struct for Home Assistant component availability.
 struct Availability {
-  std::string topic; ///< Empty means disabled
+  std::string topic;  ///< Empty means disabled
   std::string payload_available;
   std::string payload_not_available;
 };
@@ -68,8 +68,8 @@ class MQTTPublishJsonAction;
  * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
  */
 struct MQTTDiscoveryInfo {
-  std::string prefix; ///< The Home Assistant discovery prefix. Empty means disabled.
-  bool retain; ///< Whether to retain discovery messages.
+  std::string prefix;  ///< The Home Assistant discovery prefix. Empty means disabled.
+  bool retain;         ///< Whether to retain discovery messages.
 };
 
 enum MQTTClientState {
@@ -166,7 +166,8 @@ class MQTTClientComponent : public Component {
    * If an invalid JSON payload is received, the callback will not be called.
    *
    * @param topic The topic. Wildcards are currently not supported.
-   * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
+   * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is
+   * received.
    * @param qos The QoS of this subscription.
    */
   void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
@@ -185,8 +186,8 @@ class MQTTClientComponent : public Component {
    */
   void publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
 
-  void publish(const std::string &topic, const char *payload, size_t payload_length,
-               uint8_t qos = 0, bool retain = false);
+  void publish(const std::string &topic, const char *payload, size_t payload_length, uint8_t qos = 0,
+               bool retain = false);
 
   /** Construct and send a JSON MQTT message.
    *
@@ -245,10 +246,7 @@ class MQTTClientComponent : public Component {
   Availability availability_{};
   /// The discovery info options for Home Assistant. Undefined optional means
   /// default and empty prefix means disabled.
-  MQTTDiscoveryInfo discovery_info_{
-      .prefix = "homeassistant",
-      .retain = true
-  };
+  MQTTDiscoveryInfo discovery_info_{.prefix = "homeassistant", .retain = true};
   std::string topic_prefix_{};
   MQTTMessage log_message_;
   int log_level_{ESPHOMELIB_LOG_LEVEL};
@@ -284,8 +282,8 @@ class MQTTPublishAction : public Action<T> {
   void set_topic(std::string topic);
   void set_payload(std::function<std::string(T)> payload);
   void set_payload(std::string payload);
-  void set_qos(std::function<uint8_t (T)> qos);
-  void set_qos(uint8_t  qos);
+  void set_qos(std::function<uint8_t(T)> qos);
+  void set_qos(uint8_t qos);
   void set_retain(std::function<bool(T)> retain);
   void set_retain(bool retain);
 
@@ -341,9 +339,7 @@ void MQTTPublishJsonAction<T>::set_retain(bool retain) {
 }
 template<typename T>
 void MQTTPublishJsonAction<T>::play(T x) {
-  auto f = [this, x](JsonObject &root) {
-    this->payload_(x, root);
-  };
+  auto f = [this, x](JsonObject &root) { this->payload_(x, root); };
   global_mqtt_client->publish_json(this->topic_.value(x), f, this->qos_, this->retain_);
   this->play_next(x);
 }
@@ -357,8 +353,8 @@ MQTTPublishJsonAction<T> *MQTTClientComponent::make_publish_json_action() {
 
 template<typename T>
 void MQTTPublishAction<T>::play(T x) {
-  global_mqtt_client->publish(this->topic_.value(x), this->payload_.value(x),
-                              this->qos_.value(x), this->retain_.value(x));
+  global_mqtt_client->publish(this->topic_.value(x), this->payload_.value(x), this->qos_.value(x),
+                              this->retain_.value(x));
   this->play_next(x);
 }
 template<typename T>
@@ -402,8 +398,8 @@ MQTTPublishAction<T> *MQTTClientComponent::make_publish_action() {
   return new MQTTPublishAction<T>();
 }
 
-} // namespace mqtt
+}  // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H
+#endif  // ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H

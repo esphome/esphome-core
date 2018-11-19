@@ -23,16 +23,17 @@ class OutputSwitch : public Switch, public Component {
 
   void setup() override;
   float get_setup_priority() const override;
+
  protected:
   void write_state(bool state) override;
 
   output::BinaryOutput *output_;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_OUTPUT_SWITCH
+#endif  // USE_OUTPUT_SWITCH
 
-#endif //ESPHOMELIB_SWITCH_OUTPUT_SWITCH
+#endif  // ESPHOMELIB_SWITCH_OUTPUT_SWITCH

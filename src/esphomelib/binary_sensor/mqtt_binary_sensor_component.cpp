@@ -29,7 +29,6 @@ void MQTTBinarySensorComponent::dump_config() {
 }
 MQTTBinarySensorComponent::MQTTBinarySensorComponent(BinarySensor *binary_sensor)
     : MQTTComponent(), binary_sensor_(binary_sensor) {
-
 }
 std::string MQTTBinarySensorComponent::friendly_name() const {
   return this->binary_sensor_->get_name();
@@ -62,8 +61,8 @@ void MQTTBinarySensorComponent::set_is_status(bool status) {
   this->is_status_ = status;
 }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_BINARY_SENSOR
+#endif  // USE_BINARY_SENSOR

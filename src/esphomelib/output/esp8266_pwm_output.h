@@ -48,10 +48,10 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
   float frequency_{1000.0};
 };
 
-} // namespace output
+}  // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_ESP8266_PWM_OUTPUT
+#endif  // USE_ESP8266_PWM_OUTPUT
 
-#endif //ESPHOMELIB_ESP_8266_PWM_OUTPUT_H
+#endif  // ESPHOMELIB_ESP_8266_PWM_OUTPUT_H

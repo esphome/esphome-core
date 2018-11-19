@@ -44,10 +44,10 @@ class CSE7766Component : public Component, public UARTDevice {
   CSE7766PowerSensor *power_{nullptr};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_CSE7766
+#endif  // USE_CSE7766
 
-#endif //ESPHOMELIB_SENSOR_CSE7766_H
+#endif  // ESPHOMELIB_SENSOR_CSE7766_H

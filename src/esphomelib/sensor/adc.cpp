@@ -13,7 +13,8 @@ namespace sensor {
 static const char *TAG = "sensor.adc";
 
 ADCSensorComponent::ADCSensorComponent(const std::string &name, GPIOInputPin pin, uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval), pin_(pin) { }
+    : PollingSensorComponent(name, update_interval), pin_(pin) {
+}
 
 #ifdef ARDUINO_ARCH_ESP32
 adc_attenuation_t ADCSensorComponent::get_attenuation() const {
@@ -35,11 +36,11 @@ void ADCSensorComponent::setup() {
 void ADCSensorComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "ADC '%s':", this->get_name().c_str());
 #ifdef ARDUINO_ARCH_ESP8266
-  #ifdef USE_ADC_SENSOR_VCC
-    ESP_LOGCONFIG(TAG, "  Pin: VCC");
-  #else
-    LOG_PIN("  Pin: ", &this->pin_);
-  #endif
+#ifdef USE_ADC_SENSOR_VCC
+  ESP_LOGCONFIG(TAG, "  Pin: VCC");
+#else
+  LOG_PIN("  Pin: ", &this->pin_);
+#endif
 #endif
 #ifdef ARDUINO_ARCH_ESP32
   LOG_PIN("  Pin: ", &this->pin_);
@@ -83,11 +84,11 @@ void ADCSensorComponent::update() {
 #endif
 
 #ifdef ARDUINO_ARCH_ESP8266
-  #ifdef USE_ADC_SENSOR_VCC
-    float value_v = ESP.getVcc() / 1024.0f;
-  #else
-    float value_v = analogRead(this->pin_.get_pin()) / 1024.0f;
-  #endif
+#ifdef USE_ADC_SENSOR_VCC
+  float value_v = ESP.getVcc() / 1024.0f;
+#else
+  float value_v = analogRead(this->pin_.get_pin()) / 1024.0f;
+#endif
 #endif
 
   ESP_LOGD(TAG, "'%s': Got voltage=%.2fV", this->get_name().c_str(), value_v);
@@ -109,8 +110,8 @@ std::string ADCSensorComponent::unique_id() {
 }
 #endif
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_ADC_SENSOR
+#endif  // USE_ADC_SENSOR

@@ -41,11 +41,8 @@ void encode_nec(RemoteTransmitData *data, uint16_t address, uint16_t command) {
 
   data->mark(BIT_HIGH_US);
 }
-NECTransmitter::NECTransmitter(const std::string &name,
-                               uint16_t address,
-                               uint16_t command)
-    : RemoteTransmitter(name),  address_(address), command_(command) {
-
+NECTransmitter::NECTransmitter(const std::string &name, uint16_t address, uint16_t command)
+    : RemoteTransmitter(name), address_(address), command_(command) {
 }
 void NECTransmitter::to_data(RemoteTransmitData *data) {
   encode_nec(data, this->address_, this->command_);
@@ -88,7 +85,6 @@ NECDecodeData decode_nec(RemoteReceiveData *data) {
 
 NECReceiver::NECReceiver(const std::string &name, uint16_t address, uint16_t command)
     : RemoteReceiver(name), address_(address), command_(command) {
-
 }
 bool NECReceiver::matches(RemoteReceiveData *data) {
   auto decode = decode_nec(data);
@@ -106,8 +102,8 @@ void NECDumper::dump(RemoteReceiveData *data) {
 }
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE

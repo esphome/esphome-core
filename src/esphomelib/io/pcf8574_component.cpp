@@ -16,7 +16,8 @@ namespace io {
 static const char *TAG = "io.pcf8574";
 
 PCF8574Component::PCF8574Component(I2CComponent *parent, uint8_t address, bool pcf8575)
-    : Component(), I2CDevice(parent, address), pcf8575_(pcf8575) {}
+    : Component(), I2CDevice(parent, address), pcf8575_(pcf8575) {
+}
 
 void PCF8574Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up PCF8574...");
@@ -134,7 +135,8 @@ void PCF8574GPIOInputPin::digital_write(bool value) {
   this->parent_->digital_write_(this->pin_, value != this->inverted_);
 }
 PCF8574GPIOInputPin::PCF8574GPIOInputPin(PCF8574Component *parent, uint8_t pin, uint8_t mode, bool inverted)
-    : GPIOInputPin(pin, mode, inverted), parent_(parent) {}
+    : GPIOInputPin(pin, mode, inverted), parent_(parent) {
+}
 GPIOPin *PCF8574GPIOInputPin::copy() const {
   return new PCF8574GPIOInputPin(*this);
 }
@@ -152,7 +154,8 @@ void PCF8574GPIOOutputPin::digital_write(bool value) {
   this->parent_->digital_write_(this->pin_, value != this->inverted_);
 }
 PCF8574GPIOOutputPin::PCF8574GPIOOutputPin(PCF8574Component *parent, uint8_t pin, uint8_t mode, bool inverted)
-    : GPIOOutputPin(pin, mode, inverted), parent_(parent) {}
+    : GPIOOutputPin(pin, mode, inverted), parent_(parent) {
+}
 GPIOPin *PCF8574GPIOOutputPin::copy() const {
   return new PCF8574GPIOOutputPin(*this);
 }
@@ -160,8 +163,8 @@ void PCF8574GPIOOutputPin::pin_mode(uint8_t mode) {
   this->parent_->pin_mode_(this->pin_, mode);
 }
 
-} // namespace io
+}  // namespace io
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_PCF8574
+#endif  // USE_PCF8574

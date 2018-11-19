@@ -17,8 +17,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
  * and the scenario occurs that the wakeup pin is already in the wakeup state.
  */
 enum WakeupPinMode {
-  WAKEUP_PIN_MODE_IGNORE = 0, ///< Ignore the fact that we will wake up when going into deep sleep.
-  WAKEUP_PIN_MODE_KEEP_AWAKE, ///< As long as the wakeup pin is still in the wakeup state, keep awake.
+  WAKEUP_PIN_MODE_IGNORE = 0,  ///< Ignore the fact that we will wake up when going into deep sleep.
+  WAKEUP_PIN_MODE_KEEP_AWAKE,  ///< As long as the wakeup pin is still in the wakeup state, keep awake.
 
   /** Automatically invert the wakeup level. For example if we were set up to wake up on HIGH, but the pin
    * is already high when attempting to enter deep sleep, re-configure deep sleep to wake up on LOW level.
@@ -85,7 +85,7 @@ class DeepSleepComponent : public Component {
   optional<uint64_t> sleep_duration_;
 #ifdef ARDUINO_ARCH_ESP32
   optional<GPIOPin *> wakeup_pin_;
-  WakeupPinMode  wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
+  WakeupPinMode wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
   optional<Ext1Wakeup> ext1_wakeup_;
 #endif
   optional<uint32_t> loop_cycles_;
@@ -101,6 +101,7 @@ class EnterDeepSleepAction : public Action<T> {
   EnterDeepSleepAction(DeepSleepComponent *deep_sleep);
 
   void play(T x) override;
+
  protected:
   DeepSleepComponent *deep_sleep_;
 };
@@ -111,12 +112,14 @@ class PreventDeepSleepAction : public Action<T> {
   PreventDeepSleepAction(DeepSleepComponent *deep_sleep);
 
   void play(T x) override;
+
  protected:
   DeepSleepComponent *deep_sleep_;
 };
 
 template<typename T>
-EnterDeepSleepAction<T>::EnterDeepSleepAction(DeepSleepComponent *deep_sleep) : deep_sleep_(deep_sleep) {}
+EnterDeepSleepAction<T>::EnterDeepSleepAction(DeepSleepComponent *deep_sleep) : deep_sleep_(deep_sleep) {
+}
 
 template<typename T>
 void EnterDeepSleepAction<T>::play(T x) {
@@ -130,9 +133,7 @@ EnterDeepSleepAction<T> *DeepSleepComponent::make_enter_deep_sleep_action() {
 }
 
 template<typename T>
-PreventDeepSleepAction<T>::PreventDeepSleepAction(DeepSleepComponent *deep_sleep)
-    : deep_sleep_(deep_sleep) {
-
+PreventDeepSleepAction<T>::PreventDeepSleepAction(DeepSleepComponent *deep_sleep) : deep_sleep_(deep_sleep) {
 }
 template<typename T>
 void PreventDeepSleepAction<T>::play(T x) {
@@ -147,6 +148,6 @@ PreventDeepSleepAction<T> *DeepSleepComponent::make_prevent_deep_sleep_action() 
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_DEEP_SLEEP
+#endif  // USE_DEEP_SLEEP
 
-#endif //ESPHOMELIB_DEEP_SLEEP_COMPONENT_H
+#endif  // ESPHOMELIB_DEEP_SLEEP_COMPONENT_H

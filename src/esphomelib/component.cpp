@@ -20,7 +20,7 @@ const float MQTT_CLIENT = 7.5f;
 const float MQTT_COMPONENT = -5.0f;
 const float LATE = -10.0f;
 
-} // namespace setup_priority
+}  // namespace setup_priority
 
 const uint32_t COMPONENT_STATE_MASK = 0xFF;
 const uint32_t COMPONENT_STATE_CONSTRUCTION = 0x00;
@@ -43,11 +43,9 @@ float Component::get_setup_priority() const {
 }
 
 void Component::setup() {
-
 }
 
 void Component::loop() {
-
 }
 
 void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {
@@ -122,14 +120,15 @@ void Component::loop_internal() {
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_LOOP;
 
-  for (unsigned int i = 0; i < this->time_functions_.size(); i++) { // NOLINT
+  for (unsigned int i = 0; i < this->time_functions_.size(); i++) {  // NOLINT
     const uint32_t now = millis();
     TimeFunction *tf = &this->time_functions_[i];
     if (tf->should_run(now)) {
 #ifdef ESPHOMELIB_LOG_HAS_VERY_VERBOSE
-      const char *type = tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
-      ESP_LOGVV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)",
-                type, tf->name.c_str(), i, tf->interval, tf->last_execution, now);
+      const char *type =
+          tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
+      ESP_LOGVV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)", type, tf->name.c_str(), i,
+                tf->interval, tf->last_execution, now);
 #endif
 
       tf->f();
@@ -145,13 +144,9 @@ void Component::loop_internal() {
     }
   }
 
-  this->time_functions_.erase(
-      std::remove_if(this->time_functions_.begin(), this->time_functions_.end(),
-                     [](const TimeFunction &tf) -> bool {
-                       return tf.remove;
-                     }),
-      this->time_functions_.end()
-  );
+  this->time_functions_.erase(std::remove_if(this->time_functions_.begin(), this->time_functions_.end(),
+                                             [](const TimeFunction &tf) -> bool { return tf.remove; }),
+                              this->time_functions_.end());
 }
 void Component::setup_internal() {
   this->component_state_ &= ~COMPONENT_STATE_MASK;
@@ -194,7 +189,7 @@ bool Component::can_proceed() {
   return true;
 }
 bool Component::status_has_warning() {
-  return this->component_state_ &  STATUS_LED_WARNING;
+  return this->component_state_ & STATUS_LED_WARNING;
 }
 bool Component::status_has_error() {
   return this->component_state_ & STATUS_LED_ERROR;
@@ -213,18 +208,13 @@ void Component::status_clear_error() {
 }
 void Component::status_momentary_warning(const std::string &name, uint32_t length) {
   this->status_set_warning();
-  this->set_timeout(name, length, [this]() {
-    this->status_clear_warning();
-  });
+  this->set_timeout(name, length, [this]() { this->status_clear_warning(); });
 }
 void Component::status_momentary_error(const std::string &name, uint32_t length) {
   this->status_set_error();
-  this->set_timeout(name, length, [this]() {
-    this->status_clear_error();
-  });
+  this->set_timeout(name, length, [this]() { this->status_clear_error(); });
 }
 void Component::dump_config() {
-
 }
 float Component::get_actual_setup_priority() const {
   return this->setup_priority_override_.value_or(this->get_setup_priority());
@@ -233,8 +223,8 @@ void Component::set_setup_priority(float priority) {
   this->setup_priority_override_ = priority;
 }
 
-PollingComponent::PollingComponent(uint32_t update_interval)
-    : Component(), update_interval_(update_interval) {}
+PollingComponent::PollingComponent(uint32_t update_interval) : Component(), update_interval_(update_interval) {
+}
 
 void PollingComponent::setup_() {
   // Call component internal setup.
@@ -260,8 +250,8 @@ const std::string &Nameable::get_name() const {
 void Nameable::set_name(const std::string &name) {
   this->name_ = name;
 }
-Nameable::Nameable(const std::string &name)
-    : name_(name) {}
+Nameable::Nameable(const std::string &name) : name_(name) {
+}
 
 std::string Nameable::get_name_id() {
   return sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);

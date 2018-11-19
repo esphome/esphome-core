@@ -99,8 +99,8 @@ bool CSE7766Component::check_byte_() {
 void CSE7766Component::parse_data_() {
   ESP_LOGVV(TAG, "CSE7766 Data: ");
   for (uint8_t i = 0; i < 23; i++) {
-    ESP_LOGVV(TAG, "  i=%u: 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
-        i, BYTE_TO_BINARY(this->raw_data_[i]), this->raw_data_[i]);
+    ESP_LOGVV(TAG, "  i=%u: 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", i, BYTE_TO_BINARY(this->raw_data_[i]),
+              this->raw_data_[i]);
   }
   uint32_t voltage_calib = this->get_24_bit_uint(2);
   uint32_t voltage_cycle = this->get_24_bit_uint(5);
@@ -136,13 +136,11 @@ void CSE7766Component::parse_data_() {
   }
 }
 uint32_t CSE7766Component::get_24_bit_uint(uint8_t start_index) {
-  return (uint32_t(this->raw_data_[start_index]) << 16) |
-      (uint32_t(this->raw_data_[start_index + 1]) << 8) |
-      uint32_t(this->raw_data_[start_index + 2]);
+  return (uint32_t(this->raw_data_[start_index]) << 16) | (uint32_t(this->raw_data_[start_index + 1]) << 8) |
+         uint32_t(this->raw_data_[start_index + 2]);
 }
 
 CSE7766Component::CSE7766Component(UARTComponent *parent) : UARTDevice(parent) {
-
 }
 CSE7766VoltageSensor *CSE7766Component::make_voltage_sensor(const std::string &name) {
   return this->voltage_ = new CSE7766VoltageSensor(name);
@@ -154,8 +152,8 @@ CSE7766PowerSensor *CSE7766Component::make_power_sensor(const std::string &name)
   return this->power_ = new CSE7766PowerSensor(name);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_CSE7766
+#endif  // USE_CSE7766

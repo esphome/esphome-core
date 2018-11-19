@@ -10,9 +10,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output)
-    : Switch(name), output_(output) {
-
+OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output) : Switch(name), output_(output) {
 }
 void OutputSwitch::write_state(bool state) {
   if (state) {
@@ -37,8 +35,8 @@ float OutputSwitch::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_OUTPUT_SWITCH
+#endif  // USE_OUTPUT_SWITCH

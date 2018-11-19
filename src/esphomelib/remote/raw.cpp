@@ -20,11 +20,8 @@ void RawTransmitter::to_data(RemoteTransmitData *data) {
   data->set_data(this->data_);
   data->set_carrier_frequency(this->carrier_frequency_);
 }
-RawTransmitter::RawTransmitter(const std::string &name,
-                               std::vector<int32_t> data,
-                               uint32_t carrier_frequency)
+RawTransmitter::RawTransmitter(const std::string &name, std::vector<int32_t> data, uint32_t carrier_frequency)
     : RemoteTransmitter(name), data_(std::move(data)), carrier_frequency_(carrier_frequency) {
-
 }
 #endif
 
@@ -78,11 +75,12 @@ bool RawReceiver::matches(RemoteReceiveData *data) {
 }
 
 RawReceiver::RawReceiver(const std::string &name, std::vector<int32_t> data)
-    : RemoteReceiver(name), data_(std::move(data)) {}
+    : RemoteReceiver(name), data_(std::move(data)) {
+}
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE

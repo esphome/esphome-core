@@ -29,8 +29,7 @@ class DallasComponent : public PollingComponent {
    * @param resolution The resolution for this sensor, 8-12.
    * @return A pointer to a DallasTemperatureSensor, use this to setup MQTT.
    */
-  DallasTemperatureSensor *get_sensor_by_address(const std::string &name, uint64_t address,
-                                                 uint8_t resolution = 12);
+  DallasTemperatureSensor *get_sensor_by_address(const std::string &name, uint64_t address, uint8_t resolution = 12);
   /** Get a DallasTemperatureSensor by index.
    *
    * Note: It is recommended to use sensors by address to avoid mixing up sensor values
@@ -40,8 +39,7 @@ class DallasComponent : public PollingComponent {
    * @param resolution The resolution for this sensor, 8-12.
    * @return A pointer to a DallasTemperatureSensor, use this to setup MQTT.
    */
-  DallasTemperatureSensor *get_sensor_by_index(const std::string &name, uint8_t index,
-                                               uint8_t resolution = 12);
+  DallasTemperatureSensor *get_sensor_by_index(const std::string &name, uint8_t index, uint8_t resolution = 12);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -104,19 +102,22 @@ class DallasTemperatureSensor : public EmptyPollingParentSensor<1, ICON_EMPTY, U
   float get_temp_c();
 
   std::string unique_id() override;
+
  protected:
   uint64_t address_;
   optional<uint8_t> index_;
 
   uint8_t resolution_;
   std::string address_name_;
-  uint8_t scratch_pad_[9] = {0,};
+  uint8_t scratch_pad_[9] = {
+      0,
+  };
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_DALLAS_SENSOR
+#endif  // USE_DALLAS_SENSOR
 
-#endif //ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H
+#endif  // ESPHOMELIB_SENSOR_DALLAS_COMPONENT_H

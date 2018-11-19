@@ -21,8 +21,10 @@ class TurnOffAction;
 template<typename T>
 class TurnOnAction;
 
-#define LOG_SWITCH(this) \
-  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); }
+#define LOG_SWITCH(this)                   \
+  if (this->inverted_) {                   \
+    ESP_LOGCONFIG(TAG, "  Inverted: YES"); \
+  }
 
 /** Base class for all switches.
  *
@@ -122,7 +124,7 @@ class Switch : public Nameable {
    */
   virtual std::string icon();
 
-  optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
+  optional<std::string> icon_{};  ///< The icon shown here. Not set means use default from switch. Empty means no icon.
 
   CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
@@ -165,7 +167,8 @@ class ToggleAction : public Action<T> {
 // =============== TEMPLATE DEFINITIONS ===============
 
 template<typename T>
-TurnOnAction<T>::TurnOnAction(Switch *a_switch) : switch_(a_switch) {}
+TurnOnAction<T>::TurnOnAction(Switch *a_switch) : switch_(a_switch) {
+}
 
 template<typename T>
 void TurnOnAction<T>::play(T x) {
@@ -174,7 +177,8 @@ void TurnOnAction<T>::play(T x) {
 }
 
 template<typename T>
-TurnOffAction<T>::TurnOffAction(Switch *a_switch) : switch_(a_switch) {}
+TurnOffAction<T>::TurnOffAction(Switch *a_switch) : switch_(a_switch) {
+}
 
 template<typename T>
 void TurnOffAction<T>::play(T x) {
@@ -183,7 +187,8 @@ void TurnOffAction<T>::play(T x) {
 }
 
 template<typename T>
-ToggleAction<T>::ToggleAction(Switch *a_switch) : switch_(a_switch) {}
+ToggleAction<T>::ToggleAction(Switch *a_switch) : switch_(a_switch) {
+}
 
 template<typename T>
 void ToggleAction<T>::play(T x) {
@@ -206,10 +211,10 @@ TurnOnAction<T> *Switch::make_turn_on_action() {
   return new TurnOnAction<T>(this);
 }
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SWITCH
+#endif  // USE_SWITCH
 
-#endif //ESPHOMELIB_SWITCH_SWITCH_H
+#endif  // ESPHOMELIB_SWITCH_SWITCH_H

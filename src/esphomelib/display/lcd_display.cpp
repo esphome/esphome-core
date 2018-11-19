@@ -49,11 +49,12 @@ void LCDDisplay::setup() {
 
   // Commands can only be sent 40ms after boot-up, so let's wait if we're close
   const uint8_t now = millis();
-  if (now < 40) delay(40u - now);
+  if (now < 40)
+    delay(40u - now);
 
   if (this->is_four_bit_mode_()) {
     this->write_n_bits(0x03, 4);
-    delay(5); // 4.1ms
+    delay(5);  // 4.1ms
     this->write_n_bits(0x03, 4);
     delay(5);
     this->write_n_bits(0x03, 4);
@@ -61,7 +62,7 @@ void LCDDisplay::setup() {
     this->write_n_bits(0x02, 4);
   } else {
     this->command(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
-    delay(5); // 4.1ms
+    delay(5);  // 4.1ms
     this->command(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
     delayMicroseconds(150);
     this->command(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
@@ -73,13 +74,13 @@ void LCDDisplay::setup() {
 
   // clear display, also sets DDRAM address to 0 (home)
   this->command(LCD_DISPLAY_COMMAND_CLEAR_DISPLAY);
-  delay(2); // 1.52ms
+  delay(2);  // 1.52ms
 
   uint8_t entry_mode = LCD_DISPLAY_ENTRY_LEFT;
-  this->command(LCD_DISPLAY_COMMAND_ENTRY_MODE_SET | entry_mode); // 37µs
+  this->command(LCD_DISPLAY_COMMAND_ENTRY_MODE_SET | entry_mode);  // 37µs
 
   this->command(LCD_DISPLAY_COMMAND_RETURN_HOME);
-  delay(2); // 1.52ms
+  delay(2);  // 1.52ms
 }
 
 float LCDDisplay::get_setup_priority() const {
@@ -162,7 +163,8 @@ void LCDDisplay::printf(const char *format, ...) {
     this->print(0, 0, buffer);
 }
 LCDDisplay::LCDDisplay(uint8_t columns, uint8_t rows, uint32_t update_interval)
-    : PollingComponent(update_interval), columns_(columns), rows_(rows) {}
+    : PollingComponent(update_interval), columns_(columns), rows_(rows) {
+}
 void LCDDisplay::set_writer(lcd_writer_t &&writer) {
   this->writer_ = std::move(writer);
 }
@@ -180,17 +182,17 @@ void LCDDisplay::strftime(const char *format, time::EsphomelibTime time) {
 
 void GPIOLCDDisplay::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO LCD Display...");
-  this->rs_pin_->setup(); // OUTPUT
+  this->rs_pin_->setup();  // OUTPUT
   this->rs_pin_->digital_write(false);
   if (this->rw_pin_ != nullptr) {
-    this->rw_pin_->setup(); // OUTPUT
+    this->rw_pin_->setup();  // OUTPUT
     this->rw_pin_->digital_write(false);
   }
-  this->enable_pin_->setup(); // OUTPUT
+  this->enable_pin_->setup();  // OUTPUT
   this->enable_pin_->digital_write(false);
 
   for (uint8_t i = 0; i < (this->is_four_bit_mode_() ? 4 : 8); i++) {
-    this->data_pins_[i]->setup(); // OUTPUT
+    this->data_pins_[i]->setup();  // OUTPUT
     this->data_pins_[i]->digital_write(false);
   }
   LCDDisplay::setup();
@@ -208,23 +210,16 @@ void GPIOLCDDisplay::dump_config() {
 
   LOG_UPDATE_INTERVAL(this);
 }
-void GPIOLCDDisplay::set_data_pins(const GPIOOutputPin &d0,
-                                   const GPIOOutputPin &d1,
-                                   const GPIOOutputPin &d2,
+void GPIOLCDDisplay::set_data_pins(const GPIOOutputPin &d0, const GPIOOutputPin &d1, const GPIOOutputPin &d2,
                                    const GPIOOutputPin &d3) {
   this->data_pins_[0] = d0.copy();
   this->data_pins_[1] = d1.copy();
   this->data_pins_[2] = d2.copy();
   this->data_pins_[3] = d3.copy();
 }
-void GPIOLCDDisplay::set_data_pins(const GPIOOutputPin &d0,
-                                   const GPIOOutputPin &d1,
-                                   const GPIOOutputPin &d2,
-                                   const GPIOOutputPin &d3,
-                                   const GPIOOutputPin &d4,
-                                   const GPIOOutputPin &d5,
-                                   const GPIOOutputPin &d6,
-                                   const GPIOOutputPin &d7) {
+void GPIOLCDDisplay::set_data_pins(const GPIOOutputPin &d0, const GPIOOutputPin &d1, const GPIOOutputPin &d2,
+                                   const GPIOOutputPin &d3, const GPIOOutputPin &d4, const GPIOOutputPin &d5,
+                                   const GPIOOutputPin &d6, const GPIOOutputPin &d7) {
   this->data_pins_[0] = d0.copy();
   this->data_pins_[1] = d1.copy();
   this->data_pins_[2] = d2.copy();
@@ -251,9 +246,9 @@ void GPIOLCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
     this->data_pins_[i]->digital_write(value & (1 << i));
 
   this->enable_pin_->digital_write(true);
-  delayMicroseconds(1); // >450ns
+  delayMicroseconds(1);  // >450ns
   this->enable_pin_->digital_write(false);
-  delayMicroseconds(40); // >37us
+  delayMicroseconds(40);  // >37us
 }
 void GPIOLCDDisplay::send(uint8_t value, bool rs) {
   this->rs_pin_->digital_write(rs);
@@ -265,9 +260,9 @@ void GPIOLCDDisplay::send(uint8_t value, bool rs) {
     this->write_n_bits(value, 8);
   }
 }
-GPIOLCDDisplay::GPIOLCDDisplay(uint8_t columns, uint8_t rows, uint32_t update_interval) : LCDDisplay(columns,
-                                                                                                     rows,
-                                                                                                     update_interval) {}
+GPIOLCDDisplay::GPIOLCDDisplay(uint8_t columns, uint8_t rows, uint32_t update_interval)
+    : LCDDisplay(columns, rows, update_interval) {
+}
 
 #ifdef USE_LCD_DISPLAY_PCF8574
 void PCF8574LCDDisplay::setup() {
@@ -296,27 +291,26 @@ void PCF8574LCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
     // Ugly fix: in the super setup() with n == 4 value needs to be shifted left
     value <<= 4;
   }
-  uint8_t data = value | 0x08; // Enable backlight
+  uint8_t data = value | 0x08;  // Enable backlight
   this->write_bytes(data, nullptr, 0);
   // Pulse ENABLE
   this->write_bytes(data | 0x04, nullptr, 0);
-  delayMicroseconds(1); // >450ns
+  delayMicroseconds(1);  // >450ns
   this->write_bytes(data, nullptr, 0);
-  delayMicroseconds(100); // >37us
+  delayMicroseconds(100);  // >37us
 }
 void PCF8574LCDDisplay::send(uint8_t value, bool rs) {
   this->write_n_bits((value & 0xF0) | rs, 0);
   this->write_n_bits(((value << 4) & 0xF0) | rs, 0);
 }
 PCF8574LCDDisplay::PCF8574LCDDisplay(I2CComponent *parent, uint8_t columns, uint8_t rows, uint8_t address,
-                                     uint32_t update_interval) : LCDDisplay(columns, rows, update_interval),
-                                                                 I2CDevice(parent, address) {
-
+                                     uint32_t update_interval)
+    : LCDDisplay(columns, rows, update_interval), I2CDevice(parent, address) {
 }
-#endif //USE_LCD_DISPLAY_PCF8574
+#endif  // USE_LCD_DISPLAY_PCF8574
 
-} // namespace display
+}  // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_LCD_DISPLAY
+#endif  // USE_LCD_DISPLAY

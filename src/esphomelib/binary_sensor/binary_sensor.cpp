@@ -21,7 +21,6 @@ void BinarySensor::publish_state(bool state) {
   } else {
     this->filter_list_->input(state);
   }
-
 }
 void BinarySensor::send_state_internal_(bool state) {
   ESP_LOGD(TAG, "'%s': Sending state %s", this->get_name().c_str(), state ? "ON" : "OFF");
@@ -32,9 +31,7 @@ void BinarySensor::send_state_internal_(bool state) {
 std::string BinarySensor::device_class() {
   return "";
 }
-BinarySensor::BinarySensor(const std::string &name)
-  : Nameable(name), state(false) {
-
+BinarySensor::BinarySensor(const std::string &name) : Nameable(name), state(false) {
 }
 void BinarySensor::set_device_class(const std::string &device_class) {
   this->device_class_ = device_class;
@@ -136,7 +133,6 @@ MultiClickTrigger *BinarySensor::make_multi_click_trigger(const std::vector<Mult
 
 MultiClickTrigger::MultiClickTrigger(BinarySensor *parent, const std::vector<MultiClickTriggerEvent> &timing)
     : parent_(parent), timing_(timing) {
-
 }
 void MultiClickTrigger::setup() {
   this->last_state_ = this->parent_->state;
@@ -198,9 +194,7 @@ void MultiClickTrigger::on_state_(bool state) {
     ESP_LOGV(TAG, "C i=%u min=%u", *this->at_index_, evt.min_length);
     this->is_valid_ = false;
     this->cancel_timeout("is_not_valid");
-    this->set_timeout("trigger", evt.min_length, [this]() {
-      this->trigger_();
-    });
+    this->set_timeout("trigger", evt.min_length, [this]() { this->trigger_(); });
   }
 
   *this->at_index_ = *this->at_index_ + 1;
@@ -243,8 +237,8 @@ void MultiClickTrigger::trigger_() {
   this->trigger();
 }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_BINARY_SENSOR
+#endif  // USE_BINARY_SENSOR

@@ -36,12 +36,11 @@ float GPIOBinarySensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GPIOPin *pin)
-  : BinarySensor(name), pin_(pin) {
-
+    : BinarySensor(name), pin_(pin) {
 }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_GPIO_BINARY_SENSOR
+#endif  // USE_GPIO_BINARY_SENSOR

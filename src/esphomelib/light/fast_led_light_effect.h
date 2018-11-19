@@ -28,11 +28,11 @@ class BaseFastLEDLightEffect : public LightEffect {
 
 class FastLEDLambdaLightEffect : public BaseFastLEDLightEffect {
  public:
-  FastLEDLambdaLightEffect(const std::string &name,
-                           const std::function<void(FastLEDLightOutputComponent &)> &f,
+  FastLEDLambdaLightEffect(const std::string &name, const std::function<void(FastLEDLightOutputComponent &)> &f,
                            uint32_t update_interval);
 
   void apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) override;
+
  protected:
   std::function<void(FastLEDLightOutputComponent &)> f_;
   uint32_t update_interval_;
@@ -86,6 +86,7 @@ class FastLEDScanEffect : public BaseFastLEDLightEffect {
   void set_move_interval(uint32_t move_interval);
 
   void apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) override;
+
  protected:
   uint32_t move_interval_{100};
   uint32_t last_move_{0};
@@ -113,6 +114,7 @@ class FastLEDRandomTwinkleEffect : public BaseFastLEDLightEffect {
   void apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) override;
   void set_twinkle_probability(float twinkle_probability);
   void set_progress_interval(uint32_t progress_interval);
+
  protected:
   float twinkle_probability_{0.05f};
   uint32_t progress_interval_{32};
@@ -129,6 +131,7 @@ class FastLEDFireworksEffect : public BaseFastLEDLightEffect {
   void set_spark_probability(float spark_probability);
   void set_use_random_color(bool random_color);
   void set_fade_out_rate(uint8_t fade_out_rate);
+
  protected:
   uint8_t fade_out_rate_{120};
   uint32_t update_interval_{32};
@@ -143,16 +146,17 @@ class FastLEDFlickerEffect : public BaseFastLEDLightEffect {
   void apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) override;
   void set_update_interval(uint32_t update_interval);
   void set_intensity(float intensity);
+
  protected:
   uint32_t update_interval_{16};
   uint32_t last_update_{0};
   float intensity_{0.05f};
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_FAST_LED_LIGHT
+#endif  // USE_FAST_LED_LIGHT
 
-#endif //ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H
+#endif  // ESPHOMELIB_FAST_LED_LIGHT_EFFECT_H

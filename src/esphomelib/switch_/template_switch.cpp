@@ -13,7 +13,6 @@ static const char *TAG = "switch.template";
 
 TemplateSwitch::TemplateSwitch(const std::string &name)
     : Switch(name), Component(), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
-
 }
 void TemplateSwitch::loop() {
   if (!this->f_.has_value())
@@ -79,8 +78,8 @@ void TemplateSwitch::set_restore_state(bool restore_state) {
   this->restore_state_ = restore_state;
 }
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEMPLATE_SWITCH
+#endif  // USE_TEMPLATE_SWITCH

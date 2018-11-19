@@ -90,10 +90,10 @@ class UniqueFilter : public Filter {
   optional<bool> last_value_{};
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_BINARY_SENSOR
+#endif  // USE_BINARY_SENSOR
 
-#endif //ESPHOMELIB_FILTER_H
+#endif  // ESPHOMELIB_FILTER_H

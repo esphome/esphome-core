@@ -10,7 +10,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 const uint8_t ONE_WIRE_ROM_SELECT = 0x55;
 const int ONE_WIRE_ROM_SEARCH = 0xF0;
 
-ESPOneWire::ESPOneWire(GPIOPin *pin) : pin_(pin) {}
+ESPOneWire::ESPOneWire(GPIOPin *pin) : pin_(pin) {
+}
 
 bool HOT ESPOneWire::reset() {
   uint8_t retries = 125;
@@ -178,7 +179,7 @@ uint64_t HOT ESPOneWire::search() {
       rom_byte_number++;
       rom_byte_mask = 1;
     }
-  } while (rom_byte_number < 8); // loop through all bytes
+  } while (rom_byte_number < 8);  // loop through all bytes
 
   if (id_bit_number >= 65) {
     this->last_discrepancy_ = last_zero;
@@ -207,7 +208,7 @@ std::vector<uint64_t> ESPOneWire::search_vec() {
   return res;
 }
 void ESPOneWire::skip() {
-  this->write8(0xCC); // skip ROM
+  this->write8(0xCC);  // skip ROM
 }
 GPIOPin *ESPOneWire::get_pin() {
   return this->pin_;
@@ -215,4 +216,4 @@ GPIOPin *ESPOneWire::get_pin() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_ONE_WIRE
+#endif  // USE_ONE_WIRE

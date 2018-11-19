@@ -38,14 +38,14 @@ void SSD1306::setup() {
 
   this->command(SSD1306_COMMAND_DISPLAY_OFF);
   this->command(SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV);
-  this->command(0x80); // suggested ratio
+  this->command(0x80);  // suggested ratio
 
   this->command(SSD1306_COMMAND_SET_MULTIPLEX);
   this->command(this->get_height_internal_() - 1);
 
   this->command(SSD1306_COMMAND_SET_DISPLAY_OFFSET);
-  this->command(0x00); // no offset
-  this->command(SSD1306_COMMAND_SET_START_LINE | 0x00); // start at line 0
+  this->command(0x00);                                   // no offset
+  this->command(SSD1306_COMMAND_SET_START_LINE | 0x00);  // start at line 0
   this->command(SSD1306_COMMAND_CHARGE_PUMP);
   if (this->external_vcc_)
     this->command(0x10);
@@ -126,7 +126,7 @@ void SSD1306::display() {
       this->command(0x20 + this->get_width_internal_() - 1);
       break;
     default:
-      this->command(0); // Page start address, 0
+      this->command(0);  // Page start address, 0
       this->command(this->get_width_internal_() - 1);
       break;
   }
@@ -140,7 +140,8 @@ void SSD1306::display() {
   this->write_display_data();
 }
 bool SSD1306::is_sh1106_() const {
-  return this->model_ == SH1106_MODEL_96_16 || this->model_ == SH1106_MODEL_128_32 || this->model_ == SH1106_MODEL_128_64;
+  return this->model_ == SH1106_MODEL_96_16 || this->model_ == SH1106_MODEL_128_32 ||
+         this->model_ == SH1106_MODEL_128_64;
 }
 void SSD1306::update() {
   this->do_update();
@@ -169,7 +170,8 @@ int SSD1306::get_height_internal_() {
     case SSD1306_MODEL_64_48:
     case SH1106_MODEL_64_48:
       return 48;
-    default: return 0;
+    default:
+      return 0;
   }
 }
 int SSD1306::get_width_internal_() {
@@ -185,13 +187,15 @@ int SSD1306::get_width_internal_() {
     case SSD1306_MODEL_64_48:
     case SH1106_MODEL_64_48:
       return 64;
-    default: return 0;
+    default:
+      return 0;
   }
 }
 size_t SSD1306::get_buffer_length_() {
   return size_t(this->get_width_internal_()) * size_t(this->get_height_internal_()) / 8u;
 }
-SSD1306::SSD1306(uint32_t update_interval) : PollingComponent(update_interval) {}
+SSD1306::SSD1306(uint32_t update_interval) : PollingComponent(update_interval) {
+}
 
 void HOT SSD1306::draw_absolute_pixel_internal_(int x, int y, int color) {
   if (x >= this->get_width_internal_() || x < 0 || y >= this->get_height_internal_() || y < 0)
@@ -227,15 +231,24 @@ void SSD1306::init_reset_() {
 }
 const char *SSD1306::model_str_() {
   switch (this->model_) {
-    case SSD1306_MODEL_128_32: return "SSD1306 128x32";
-    case SSD1306_MODEL_128_64: return "SSD1306 128x64";
-    case SSD1306_MODEL_96_16: return "SSD1306 96x16";
-    case SSD1306_MODEL_64_48: return "SSD1306 64x48";
-    case SH1106_MODEL_128_32: return "SH1106 128x32";
-    case SH1106_MODEL_128_64: return "SH1106 128x64";
-    case SH1106_MODEL_96_16: return "SH1106 96x16";
-    case SH1106_MODEL_64_48: return "SH1106 64x48";
-    default: return "Unknown";
+    case SSD1306_MODEL_128_32:
+      return "SSD1306 128x32";
+    case SSD1306_MODEL_128_64:
+      return "SSD1306 128x64";
+    case SSD1306_MODEL_96_16:
+      return "SSD1306 96x16";
+    case SSD1306_MODEL_64_48:
+      return "SSD1306 64x48";
+    case SH1106_MODEL_128_32:
+      return "SH1106 128x32";
+    case SH1106_MODEL_128_64:
+      return "SH1106 128x64";
+    case SH1106_MODEL_96_16:
+      return "SH1106 96x16";
+    case SH1106_MODEL_64_48:
+      return "SH1106 64x48";
+    default:
+      return "Unknown";
   }
 }
 
@@ -246,7 +259,7 @@ bool SPISSD1306::msb_first() {
 void SPISSD1306::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SPI SSD1306...");
   this->spi_setup();
-  this->dc_pin_->setup(); // OUTPUT
+  this->dc_pin_->setup();  // OUTPUT
 
   this->init_reset_();
   SSD1306::setup();
@@ -290,7 +303,6 @@ void HOT SPISSD1306::write_display_data() {
 }
 SPISSD1306::SPISSD1306(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : SSD1306(update_interval), SPIDevice(parent, cs), dc_pin_(dc_pin) {
-
 }
 bool SPISSD1306::high_speed() {
   return true;
@@ -330,9 +342,9 @@ void I2CSSD1306::command(uint8_t value) {
 void HOT I2CSSD1306::write_display_data() {
   if (this->is_sh1106_()) {
     for (uint8_t page = 0; page < this->get_height_internal_() / 8; page++) {
-      this->command(0xB0 + page); // row
-      this->command(0x02); // lower column
-      this->command(0x10); // higher column
+      this->command(0xB0 + page);  // row
+      this->command(0x02);         // lower column
+      this->command(0x10);         // higher column
 
       for (uint8_t x = 0; x < this->get_width_internal_();) {
         uint8_t data[16];
@@ -351,11 +363,12 @@ void HOT I2CSSD1306::write_display_data() {
   }
 }
 I2CSSD1306::I2CSSD1306(I2CComponent *parent, uint32_t update_interval)
-    : I2CDevice(parent, 0x3C), SSD1306(update_interval) {}
+    : I2CDevice(parent, 0x3C), SSD1306(update_interval) {
+}
 #endif
 
-} // namespace display
+}  // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SSD1306
+#endif  // USE_SSD1306

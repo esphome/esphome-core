@@ -18,9 +18,8 @@ using MHZ19CO2Sensor = sensor::EmptyPollingParentSensor<0, ICON_PERIODIC_TABLE_C
 
 class MHZ19Component : public PollingComponent, public UARTDevice {
  public:
-  MHZ19Component(UARTComponent *parent, const std::string &name,
-                 uint32_t update_interval = 15000);
-  
+  MHZ19Component(UARTComponent *parent, const std::string &name, uint32_t update_interval = 15000);
+
   float get_setup_priority() const override;
 
   void update() override;
@@ -35,10 +34,10 @@ class MHZ19Component : public PollingComponent, public UARTDevice {
   MHZ19CO2Sensor *co2_sensor_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_MHZ19
+#endif  // USE_MHZ19
 
-#endif //ESPHOMELIB_MHZ_19_COMPONENT_H
+#endif  // ESPHOMELIB_MHZ_19_COMPONENT_H

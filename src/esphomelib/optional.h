@@ -26,13 +26,13 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 struct nullopt_t {
   struct init {};
-  nullopt_t(init) {}
+  nullopt_t(init) {
+  }
 };
 
 // extra parenthesis to prevent the most vexing parse:
 
 const nullopt_t nullopt((nullopt_t::init()));
-
 
 // Simplistic optional: requires T to be default constructible, copyable.
 
@@ -44,18 +44,18 @@ class optional {
  public:
   typedef T value_type;
 
-  optional()
-      : has_value_(false) {}
+  optional() : has_value_(false) {
+  }
 
-  optional(nullopt_t)
-      : has_value_(false) {}
+  optional(nullopt_t) : has_value_(false) {
+  }
 
-  optional(T const &arg)
-      : has_value_(true), value_(arg) {}
+  optional(T const &arg) : has_value_(true), value_(arg) {
+  }
 
   template<class U>
-  optional(optional<U> const &other)
-      : has_value_(other.has_value()), value_(other.value()) {}
+  optional(optional<U> const &other) : has_value_(other.has_value()), value_(other.value()) {
+  }
 
   optional &operator=(nullopt_t) {
     reset();
@@ -71,12 +71,12 @@ class optional {
 
   void swap(optional &rhs) {
     using std::swap;
-    if (has_value() == true && rhs.has_value() == true) { swap(**this, *rhs); }
-    else if (has_value() == false && rhs.has_value() == true) {
+    if (has_value() == true && rhs.has_value() == true) {
+      swap(**this, *rhs);
+    } else if (has_value() == false && rhs.has_value() == true) {
       initialize(*rhs);
       rhs.reset();
-    }
-    else if (has_value() == true && rhs.has_value() == false) {
+    } else if (has_value() == true && rhs.has_value() == false) {
       rhs.initialize(**this);
       reset();
     }
@@ -118,7 +118,7 @@ class optional {
 
   template<class U>
   value_type value_or(U const &v) const {
-    return has_value() ? value() : static_cast<value_type>( v );
+    return has_value() ? value() : static_cast<value_type>(v);
   }
 
   // modifiers
@@ -128,7 +128,8 @@ class optional {
   }
 
  private:
-  void this_type_does_not_support_comparisons() const {}
+  void this_type_does_not_support_comparisons() const {
+  }
 
   template<typename V>
   void initialize(V const &value) {
@@ -313,4 +314,4 @@ inline optional<T> make_optional(T const &v) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //ESPHOMELIB_OPTIONAL_H
+#endif  // ESPHOMELIB_OPTIONAL_H

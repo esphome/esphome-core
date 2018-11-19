@@ -27,10 +27,10 @@ class MQTTSubscribeTextSensor : public TextSensor, public Component {
   uint8_t qos_{0};
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_MQTT_SUBSCRIBE_TEXT_SENSOR
+#endif  // USE_MQTT_SUBSCRIBE_TEXT_SENSOR
 
-#endif //ESPHOMELIB_MQTT_SUBSCRIBE_TEXT_SENSOR_H
+#endif  // ESPHOMELIB_MQTT_SUBSCRIBE_TEXT_SENSOR_H

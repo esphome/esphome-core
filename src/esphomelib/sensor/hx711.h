@@ -40,10 +40,10 @@ class HX711Sensor : public PollingSensorComponent {
   HX711Gain gain_{HX711_GAIN_128};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_HX711
+#endif  // USE_HX711
 
-#endif //ESPHOMELIB_SENSOR_HX711_H
+#endif  // ESPHOMELIB_SENSOR_HX711_H

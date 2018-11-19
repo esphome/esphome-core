@@ -63,9 +63,8 @@ void ADS1115Component::setup() {
     return;
   }
   for (auto *sensor : this->sensors_) {
-    this->set_interval(sensor->get_name(), sensor->update_interval(), [this, sensor]{
-      this->request_measurement_(sensor);
-    });
+    this->set_interval(sensor->get_name(), sensor->update_interval(),
+                       [this, sensor] { this->request_measurement_(sensor); });
   }
 }
 void ADS1115Component::dump_config() {
@@ -129,13 +128,26 @@ void ADS1115Component::request_measurement_(ADS1115Sensor *sensor) {
 
   float millivolts;
   switch (sensor->get_gain()) {
-    case ADS1115_GAIN_6P144: millivolts = signed_conversion * 0.187500f; break;
-    case ADS1115_GAIN_4P096: millivolts = signed_conversion * 0.125000f; break;
-    case ADS1115_GAIN_2P048: millivolts = signed_conversion * 0.062500f; break;
-    case ADS1115_GAIN_1P024: millivolts = signed_conversion * 0.031250f; break;
-    case ADS1115_GAIN_0P512: millivolts = signed_conversion * 0.015625f; break;
-    case ADS1115_GAIN_0P256: millivolts = signed_conversion * 0.007813f; break;
-    default: millivolts = NAN;
+    case ADS1115_GAIN_6P144:
+      millivolts = signed_conversion * 0.187500f;
+      break;
+    case ADS1115_GAIN_4P096:
+      millivolts = signed_conversion * 0.125000f;
+      break;
+    case ADS1115_GAIN_2P048:
+      millivolts = signed_conversion * 0.062500f;
+      break;
+    case ADS1115_GAIN_1P024:
+      millivolts = signed_conversion * 0.031250f;
+      break;
+    case ADS1115_GAIN_0P512:
+      millivolts = signed_conversion * 0.015625f;
+      break;
+    case ADS1115_GAIN_0P256:
+      millivolts = signed_conversion * 0.007813f;
+      break;
+    default:
+      millivolts = NAN;
   }
 
   float v = millivolts / 1000.0f;
@@ -150,7 +162,8 @@ ADS1115Sensor *ADS1115Component::get_sensor(const std::string &name, ADS1115Mult
   this->sensors_.push_back(s);
   return s;
 }
-ADS1115Component::ADS1115Component(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {}
+ADS1115Component::ADS1115Component(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {
+}
 
 uint8_t ADS1115Sensor::get_multiplexer() const {
   return this->multiplexer_;
@@ -166,13 +179,14 @@ void ADS1115Sensor::set_gain(ADS1115Gain gain) {
 }
 ADS1115Sensor::ADS1115Sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,
                              uint32_t update_interval)
-    : EmptySensor(name), multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {}
+    : EmptySensor(name), multiplexer_(multiplexer), gain_(gain), update_interval_(update_interval) {
+}
 uint32_t ADS1115Sensor::update_interval() {
   return this->update_interval_;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_ADS1115_SENSOR
+#endif  // USE_ADS1115_SENSOR

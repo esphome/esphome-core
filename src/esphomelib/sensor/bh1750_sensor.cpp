@@ -18,9 +18,9 @@ static const char *TAG = "sensor.bh1750";
 
 static const uint8_t BH1750_COMMAND_POWER_ON = 0b00000001;
 
-BH1750Sensor::BH1750Sensor(I2CComponent *parent, const std::string &name,
-                           uint8_t address, uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval), I2CDevice(parent, address) {}
+BH1750Sensor::BH1750Sensor(I2CComponent *parent, const std::string &name, uint8_t address, uint32_t update_interval)
+    : PollingSensorComponent(name, update_interval), I2CDevice(parent, address) {
+}
 
 void BH1750Sensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BH1750 '%s'...", this->name_.c_str());
@@ -38,10 +38,18 @@ void BH1750Sensor::dump_config() {
 
   const char *resolution_s;
   switch (this->resolution_) {
-    case BH1750_RESOLUTION_0P5_LX: resolution_s = "0.5"; break;
-    case BH1750_RESOLUTION_1P0_LX: resolution_s = "1"; break;
-    case BH1750_RESOLUTION_4P0_LX: resolution_s = "4"; break;
-    default: resolution_s = "Unknown"; break;
+    case BH1750_RESOLUTION_0P5_LX:
+      resolution_s = "0.5";
+      break;
+    case BH1750_RESOLUTION_1P0_LX:
+      resolution_s = "1";
+      break;
+    case BH1750_RESOLUTION_4P0_LX:
+      resolution_s = "4";
+      break;
+    default:
+      resolution_s = "Unknown";
+      break;
   }
   ESP_LOGCONFIG(TAG, "  Resolution: %s", resolution_s);
   LOG_UPDATE_INTERVAL(this);
@@ -63,9 +71,7 @@ void BH1750Sensor::update() {
       break;
   }
 
-  this->set_timeout("illuminance", wait, [this]() {
-    this->read_data_();
-  });
+  this->set_timeout("illuminance", wait, [this]() { this->read_data_(); });
 }
 std::string BH1750Sensor::unit_of_measurement() {
   return UNIT_LX;
@@ -95,8 +101,8 @@ void BH1750Sensor::set_resolution(BH1750Resolution resolution) {
   this->resolution_ = resolution;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_BH1750
+#endif  // USE_BH1750

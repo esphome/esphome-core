@@ -74,11 +74,9 @@ void LightColorValues::set_white(float white) {
 
 LightColorValues::LightColorValues()
     : state_(0.0f), brightness_(1.0f), red_(1.0f), green_(1.0f), blue_(1.0f), white_(1.0f) {
-
 }
 
-LightColorValues LightColorValues::lerp(const LightColorValues &start, const LightColorValues &end,
-                                        float completion) {
+LightColorValues LightColorValues::lerp(const LightColorValues &start, const LightColorValues &end, float completion) {
   LightColorValues v;
   v.set_state(esphomelib::lerp(start.get_state(), end.get_state(), completion));
   v.set_brightness(esphomelib::lerp(start.get_brightness(), end.get_brightness(), completion));
@@ -91,8 +89,8 @@ LightColorValues LightColorValues::lerp(const LightColorValues &start, const Lig
   return v;
 }
 
-LightColorValues::LightColorValues(float state, float brightness, float red, float green, float blue,
-                                   float white, float color_temperature) {
+LightColorValues::LightColorValues(float state, float brightness, float red, float green, float blue, float white,
+                                   float color_temperature) {
   this->set_state(state);
   this->set_brightness(brightness);
   this->set_red(red);
@@ -102,10 +100,9 @@ LightColorValues::LightColorValues(float state, float brightness, float red, flo
   this->set_color_temperature(color_temperature);
 }
 
-LightColorValues::LightColorValues(bool state, float brightness, float red, float green, float blue,
-                                   float white, float color_temperature)
-  : LightColorValues(state ? 1.0f : 0.0f, brightness, red, green, blue, white, color_temperature) {
-
+LightColorValues::LightColorValues(bool state, float brightness, float red, float green, float blue, float white,
+                                   float color_temperature)
+    : LightColorValues(state ? 1.0f : 0.0f, brightness, red, green, blue, white, color_temperature) {
 }
 
 void LightColorValues::normalize_color(const LightTraits &traits) {
@@ -138,13 +135,8 @@ void LightColorValues::dump_json(JsonObject &root, const LightTraits &traits) co
 }
 
 bool LightColorValues::operator==(const LightColorValues &rhs) const {
-  return state_ == rhs.state_ &&
-      brightness_ == rhs.brightness_ &&
-      red_ == rhs.red_ &&
-      green_ == rhs.green_ &&
-      blue_ == rhs.blue_ &&
-      white_ == rhs.white_ &&
-      color_temperature_ == rhs.color_temperature_;
+  return state_ == rhs.state_ && brightness_ == rhs.brightness_ && red_ == rhs.red_ && green_ == rhs.green_ &&
+         blue_ == rhs.blue_ && white_ == rhs.white_ && color_temperature_ == rhs.color_temperature_;
 }
 
 bool LightColorValues::operator!=(const LightColorValues &rhs) const {
@@ -155,13 +147,8 @@ void LightColorValues::as_rgbw(float *red, float *green, float *blue, float *whi
   *white = this->state_ * this->brightness_ * this->white_;
 }
 
-void LightColorValues::as_rgbww(float color_temperature_cw,
-                                float color_temperature_ww,
-                                float *red,
-                                float *green,
-                                float *blue,
-                                float *cold_white,
-                                float *warm_white) const {
+void LightColorValues::as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green,
+                                float *blue, float *cold_white, float *warm_white) const {
   this->as_rgb(red, green, blue);
   const float color_temp = clamp(color_temperature_cw, color_temperature_ww, this->color_temperature_);
   const float ww_fraction = (color_temp - color_temperature_cw) / (color_temperature_ww - color_temperature_cw);
@@ -169,9 +156,7 @@ void LightColorValues::as_rgbww(float color_temperature_cw,
   *cold_white = this->state_ * this->brightness_ * this->white_ * cw_fraction;
   *warm_white = this->state_ * this->brightness_ * this->white_ * ww_fraction;
 }
-void LightColorValues::as_cwww(float color_temperature_cw,
-                               float color_temperature_ww,
-                               float *cold_white,
+void LightColorValues::as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white,
                                float *warm_white) const {
   const float color_temp = clamp(color_temperature_cw, color_temperature_ww, this->color_temperature_);
   const float ww_fraction = (color_temp - color_temperature_cw) / (color_temperature_ww - color_temperature_cw);
@@ -222,8 +207,8 @@ void LightColorValues::set_color_temperature(float color_temperature) {
   this->color_temperature_ = std::max(0.000001f, color_temperature);
 }
 
-} // namespace light
+}  // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT

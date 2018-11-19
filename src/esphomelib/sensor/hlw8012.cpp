@@ -16,9 +16,10 @@ static const uint32_t HLW8012_CLOCK_FREQUENCY = 3579000;
 static const float HLW8012_REFERENCE_VOLTAGE = 2.43f;
 
 HLW8012Component::HLW8012Component(GPIOPin *sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval)
-  : PollingComponent(update_interval), sel_pin_(sel_pin),
-    cf_(GPIOInputPin(cf_pin, INPUT_PULLUP).copy()), cf1_(GPIOInputPin(cf1_pin, INPUT_PULLUP).copy()) {
-
+    : PollingComponent(update_interval),
+      sel_pin_(sel_pin),
+      cf_(GPIOInputPin(cf_pin, INPUT_PULLUP).copy()),
+      cf1_(GPIOInputPin(cf1_pin, INPUT_PULLUP).copy()) {
 }
 void HLW8012Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HLW8012...");
@@ -52,7 +53,8 @@ void HLW8012Component::update() {
   }
 
   const float v_ref_squared = HLW8012_REFERENCE_VOLTAGE * HLW8012_REFERENCE_VOLTAGE;
-  const float power_multiplier_micros = 64000000.0f * v_ref_squared * this->voltage_divider_ / this->current_resistor_ / 24.0f / HLW8012_CLOCK_FREQUENCY;
+  const float power_multiplier_micros =
+      64000000.0f * v_ref_squared * this->voltage_divider_ / this->current_resistor_ / 24.0f / HLW8012_CLOCK_FREQUENCY;
   float power = cf_hz * power_multiplier_micros / 1000000.0f;
 
   if (this->change_mode_at_ != 0) {
@@ -110,16 +112,18 @@ uint32_t HLW8012CurrentSensor::update_interval() {
   return this->parent_->get_update_interval() * this->parent_->change_mode_every_;
 }
 HLW8012CurrentSensor::HLW8012CurrentSensor(const std::string &name, HLW8012Component *parent)
-    : EmptySensor(name), parent_(parent) {}
+    : EmptySensor(name), parent_(parent) {
+}
 
 uint32_t HLW8012VoltageSensor::update_interval() {
   return this->parent_->get_update_interval() * this->parent_->change_mode_every_;
 }
 HLW8012VoltageSensor::HLW8012VoltageSensor(const std::string &name, HLW8012Component *parent)
-    : EmptySensor(name), parent_(parent) {}
+    : EmptySensor(name), parent_(parent) {
+}
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_HLW8012
+#endif  // USE_HLW8012

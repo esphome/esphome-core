@@ -4,9 +4,9 @@
 
 #include "esphomelib/sensor/wifi_signal_sensor.h"
 #ifdef ARDUINO_ARCH_ESP32
-  #include <WiFi.h>
+#include <WiFi.h>
 #else
-  #include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -15,7 +15,6 @@ namespace sensor {
 
 WiFiSignalSensor::WiFiSignalSensor(const std::string &name, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval) {
-
 }
 void WiFiSignalSensor::update() {
   this->publish_state(WiFi.RSSI());
@@ -36,8 +35,8 @@ float WiFiSignalSensor::get_setup_priority() const {
   return setup_priority::WIFI;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_WIFI_SIGNAL_SENSOR
+#endif  // USE_WIFI_SIGNAL_SENSOR

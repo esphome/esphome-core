@@ -11,7 +11,6 @@ namespace sensor {
 
 ESP32HallSensor::ESP32HallSensor(const std::string &name, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval) {
-
 }
 void ESP32HallSensor::update() {
   float value = hallRead() / 4095.0f;
@@ -30,8 +29,8 @@ std::string ESP32HallSensor::unique_id() {
   return get_mac_address() + "-hall";
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_ESP32_HALL_SENSOR
+#endif  // USE_ESP32_HALL_SENSOR

@@ -17,7 +17,8 @@ class TextSensorStateTrigger;
 
 class TextSensor : public Nameable {
  public:
-  explicit TextSensor(const std::string &name) : Nameable(name) {}
+  explicit TextSensor(const std::string &name) : Nameable(name) {
+  }
 
   void publish_state(std::string state);
 
@@ -50,10 +51,10 @@ class TextSensorStateTrigger : public Trigger<std::string> {
   explicit TextSensorStateTrigger(TextSensor *parent);
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEXT_SENSOR
+#endif  // USE_TEXT_SENSOR
 
-#endif //ESPHOMELIB_TEXT_SENSOR_TEXT_SENSOR_H
+#endif  // ESPHOMELIB_TEXT_SENSOR_TEXT_SENSOR_H

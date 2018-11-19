@@ -34,7 +34,9 @@ void Nextion::send_command_(const char *command) {
 }
 
 bool Nextion::ack_() {
-  uint8_t bytes[4] = {0x00, };
+  uint8_t bytes[4] = {
+      0x00,
+  };
   if (!this->read_array(bytes, 4)) {
     ESP_LOGW(TAG, "Nextion returned no ACK data!");
     return false;
@@ -46,23 +48,23 @@ bool Nextion::ack_() {
   }
 
   switch (bytes[0]) {
-    case 0x01: // successful execution of instruction
+    case 0x01:  // successful execution of instruction
       return true;
-    case 0x00: // invalid instruction
-    case 0x02: // component ID invalid
-    case 0x03: // page ID invalid
-    case 0x04: // picture ID invalid
-    case 0x05: // font ID invalid
-    case 0x11: // baud rate setting invalid
-    case 0x12: // curve control ID number or channel number is invalid
-    case 0x1A: // variable name invalid
-    case 0x1B: // variable operation invalid
-    case 0x1C: // failed to assign
-    case 0x1D: // operate EEPROM failed
-    case 0x1E: // parameter quantity invalid
-    case 0x1F: // IO operation failed
-    case 0x20: // undefined escape characters
-    case 0x23: // too long variable name
+    case 0x00:  // invalid instruction
+    case 0x02:  // component ID invalid
+    case 0x03:  // page ID invalid
+    case 0x04:  // picture ID invalid
+    case 0x05:  // font ID invalid
+    case 0x11:  // baud rate setting invalid
+    case 0x12:  // curve control ID number or channel number is invalid
+    case 0x1A:  // variable name invalid
+    case 0x1B:  // variable operation invalid
+    case 0x1C:  // failed to assign
+    case 0x1D:  // operate EEPROM failed
+    case 0x1E:  // parameter quantity invalid
+    case 0x1F:  // IO operation failed
+    case 0x20:  // undefined escape characters
+    case 0x23:  // too long variable name
     default:
       ESP_LOGW(TAG, "Nextion returned NACK with code 0x%02X", bytes[0]);
       return false;
@@ -176,45 +178,46 @@ void Nextion::loop() {
       continue;
     }
 
-    data_length -= 3; // remove filler bytes
+    data_length -= 3;  // remove filler bytes
 
     bool invalid_data_length = false;
     switch (event) {
-      case 0x65: { // touch event return data
+      case 0x65: {  // touch event return data
         if (data_length != 3) {
           invalid_data_length = true;
           break;
         }
         uint8_t page_id = data[0];
         uint8_t component_id = data[1];
-        uint8_t touch_event = data[2]; // 0 -> release, 1 -> press
-        ESP_LOGD(TAG, "Got touch page=%u component=%u type=%s", page_id, component_id, touch_event ? "PRESS" : "RELEASE");
+        uint8_t touch_event = data[2];  // 0 -> release, 1 -> press
+        ESP_LOGD(TAG, "Got touch page=%u component=%u type=%s", page_id, component_id,
+                 touch_event ? "PRESS" : "RELEASE");
         for (auto *touch : this->touch_) {
           touch->process(page_id, component_id, touch_event);
         }
         break;
       }
       case 0x67:
-      case 0x68: { // touch coordinate data
+      case 0x68: {  // touch coordinate data
         if (data_length != 5) {
           invalid_data_length = true;
           break;
         }
         uint16_t x = (uint16_t(data[0]) << 8) | data[1];
         uint16_t y = (uint16_t(data[2]) << 8) | data[3];
-        uint8_t touch_event = data[4]; // 0 -> release, 1 -> press
+        uint8_t touch_event = data[4];  // 0 -> release, 1 -> press
         ESP_LOGD(TAG, "Got touch at x=%u y=%u type=%s", x, y, touch_event ? "PRESS" : "RELEASE");
         break;
       }
-      case 0x66: // sendme page id
-      case 0x70: // string variable data return
-      case 0x71: // numeric variable data return
-      case 0x86: // device automatically enters into sleep mode
-      case 0x87: // device automatically wakes up
-      case 0x88: // system successful start up
-      case 0x89: // start SD card upgrade
-      case 0xFD: // data transparent transmit finished
-      case 0xFE: // data transparent transmit ready
+      case 0x66:  // sendme page id
+      case 0x70:  // string variable data return
+      case 0x71:  // numeric variable data return
+      case 0x86:  // device automatically enters into sleep mode
+      case 0x87:  // device automatically wakes up
+      case 0x88:  // system successful start up
+      case 0x89:  // start SD card upgrade
+      case 0xFD:  // data transparent transmit finished
+      case 0xFE:  // data transparent transmit ready
         break;
       default:
         ESP_LOGW(TAG, "Received unknown event from nextion: 0x%02X", event);
@@ -243,7 +246,6 @@ NextionTouchComponent *Nextion::make_touch_component(const std::string &name, ui
 }
 Nextion::Nextion(UARTComponent *parent, uint32_t update_interval)
     : PollingComponent(update_interval), UARTDevice(parent) {
-
 }
 void Nextion::set_writer(const nextion_writer_t &writer) {
   this->writer_ = writer;
@@ -259,17 +261,17 @@ void Nextion::set_component_text_printf(const char *component, const char *forma
 }
 
 void NextionTouchComponent::process(uint8_t page_id, uint8_t component_id, bool on) {
-  if (this->page_id_ == page_id && this->component_id_ == component_id &&
-      this->last_state_ != on) {
+  if (this->page_id_ == page_id && this->component_id_ == component_id && this->last_state_ != on) {
     this->last_state_ = on;
     this->publish_state(on);
   }
 }
 NextionTouchComponent::NextionTouchComponent(const std::string &name, uint8_t page_id, uint8_t component_id)
-    : BinarySensor(name), page_id_(page_id), component_id_(component_id) {}
+    : BinarySensor(name), page_id_(page_id), component_id_(component_id) {
+}
 
-} // namespace display
+}  // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_NEXTION
+#endif  // USE_NEXTION

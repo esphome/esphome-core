@@ -244,10 +244,10 @@ class UniqueFilter : public Filter {
   float last_value_{NAN};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif  // USE_SENSOR
 
-#endif //ESPHOMELIB_SENSOR_FILTER_H
+#endif  // ESPHOMELIB_SENSOR_FILTER_H

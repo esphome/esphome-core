@@ -8,9 +8,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
-TemplateBinarySensor::TemplateBinarySensor(const std::string &name)
-    : BinarySensor(name) {
-
+TemplateBinarySensor::TemplateBinarySensor(const std::string &name) : BinarySensor(name) {
 }
 void TemplateBinarySensor::loop() {
   auto s = this->f_();
@@ -30,9 +28,8 @@ void TemplateBinarySensor::set_template(std::function<optional<bool>()> &&f) {
   this->f_ = std::move(f);
 }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEMPLATE_BINARY_SENSOR
-
+#endif  // USE_TEMPLATE_BINARY_SENSOR

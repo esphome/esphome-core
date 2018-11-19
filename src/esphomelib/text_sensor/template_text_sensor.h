@@ -26,10 +26,10 @@ class TemplateTextSensor : public TextSensor, public PollingComponent {
   std::function<optional<std::string>()> f_{};
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEMPLATE_TEXT_SENSOR
+#endif  // USE_TEMPLATE_TEXT_SENSOR
 
-#endif //ESPHOMELIB_TEXT_SENSOR_TEMPLATE_TEXT_SENSOR_H
+#endif  // ESPHOMELIB_TEXT_SENSOR_TEMPLATE_TEXT_SENSOR_H

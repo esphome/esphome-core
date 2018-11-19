@@ -13,7 +13,6 @@ static const char *TAG = "sensor.template";
 
 TemplateSensor::TemplateSensor(const std::string &name, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval) {
-
 }
 void TemplateSensor::update() {
   auto val = this->f_();
@@ -32,8 +31,8 @@ void TemplateSensor::dump_config() {
   LOG_UPDATE_INTERVAL(this);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEMPLATE_SENSOR
+#endif  // USE_TEMPLATE_SENSOR

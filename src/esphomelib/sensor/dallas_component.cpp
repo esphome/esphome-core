@@ -27,10 +27,14 @@ static const uint8_t DALLAS_COMMAND_WRITE_SCRATCH_PAD = 0x4E;
 
 uint16_t DallasTemperatureSensor::millis_to_wait_for_conversion_() const {
   switch (this->resolution_) {
-    case 9:return 94;
-    case 10:return 188;
-    case 11:return 375;
-    default:return 750;
+    case 9:
+      return 94;
+    case 10:
+      return 188;
+    case 11:
+      return 375;
+    default:
+      return 750;
   }
 }
 
@@ -103,8 +107,8 @@ void DallasComponent::dump_config() {
   }
 }
 
-DallasTemperatureSensor *DallasComponent::get_sensor_by_address(const std::string &name,
-                                                                uint64_t address, uint8_t resolution) {
+DallasTemperatureSensor *DallasComponent::get_sensor_by_address(const std::string &name, uint64_t address,
+                                                                uint8_t resolution) {
   auto s = new DallasTemperatureSensor(name, address, resolution, this);
   this->sensors_.push_back(s);
   return s;
@@ -112,8 +116,8 @@ DallasTemperatureSensor *DallasComponent::get_sensor_by_address(const std::strin
 float DallasComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-DallasTemperatureSensor *DallasComponent::get_sensor_by_index(const std::string &name,
-                                                              uint8_t index, uint8_t resolution) {
+DallasTemperatureSensor *DallasComponent::get_sensor_by_index(const std::string &name, uint8_t index,
+                                                              uint8_t resolution) {
   auto s = this->get_sensor_by_address(name, 0, resolution);
   s->set_index(index);
   return s;
@@ -161,14 +165,12 @@ void DallasComponent::update() {
 }
 DallasComponent::DallasComponent(ESPOneWire *one_wire, uint32_t update_interval)
     : PollingComponent(update_interval), one_wire_(one_wire) {
-
 }
 ESPOneWire *DallasComponent::get_one_wire() const {
   return this->one_wire_;
 }
 
-DallasTemperatureSensor::DallasTemperatureSensor(const std::string &name,
-                                                 uint64_t address, uint8_t resolution,
+DallasTemperatureSensor::DallasTemperatureSensor(const std::string &name, uint64_t address, uint8_t resolution,
                                                  DallasComponent *parent)
     : EmptyPollingParentSensor(name, parent) {
   this->set_address(address);
@@ -238,14 +240,18 @@ bool DallasTemperatureSensor::setup_sensor_() {
   }
 
   switch (this->resolution_) {
-    case 12:this->scratch_pad_[4] = 0x7F;
+    case 12:
+      this->scratch_pad_[4] = 0x7F;
       break;
-    case 11:this->scratch_pad_[4] = 0x5F;
+    case 11:
+      this->scratch_pad_[4] = 0x5F;
       break;
-    case 10:this->scratch_pad_[4] = 0x3F;
+    case 10:
+      this->scratch_pad_[4] = 0x3F;
       break;
     case 9:
-    default:this->scratch_pad_[4] = 0x1F;
+    default:
+      this->scratch_pad_[4] = 0x1F;
       break;
   }
 
@@ -254,9 +260,9 @@ bool DallasTemperatureSensor::setup_sensor_() {
   if (wire->reset()) {
     wire->select(this->address_);
     wire->write8(DALLAS_COMMAND_WRITE_SCRATCH_PAD);
-    wire->write8(this->scratch_pad_[2]); // high alarm temp
-    wire->write8(this->scratch_pad_[3]); // low alarm temp
-    wire->write8(this->scratch_pad_[4]); // resolution
+    wire->write8(this->scratch_pad_[2]);  // high alarm temp
+    wire->write8(this->scratch_pad_[3]);  // low alarm temp
+    wire->write8(this->scratch_pad_[4]);  // resolution
     wire->reset();
 
     // write value to EEPROM
@@ -271,10 +277,9 @@ bool DallasTemperatureSensor::setup_sensor_() {
 }
 bool DallasTemperatureSensor::check_scratch_pad_() {
 #ifdef ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE
-  ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)",
-            this->scratch_pad_[0], this->scratch_pad_[1], this->scratch_pad_[2],
-            this->scratch_pad_[3], this->scratch_pad_[4], this->scratch_pad_[5],
-            this->scratch_pad_[6], this->scratch_pad_[7], this->scratch_pad_[8],
+  ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)", this->scratch_pad_[0],
+            this->scratch_pad_[1], this->scratch_pad_[2], this->scratch_pad_[3], this->scratch_pad_[4],
+            this->scratch_pad_[5], this->scratch_pad_[6], this->scratch_pad_[7], this->scratch_pad_[8],
             crc8(this->scratch_pad_, 8));
 #endif
   if (crc8(this->scratch_pad_, 8) != this->scratch_pad_[8]) {
@@ -296,8 +301,8 @@ std::string DallasTemperatureSensor::unique_id() {
   return "dallas-" + uint64_to_string(this->address_);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_DALLAS_SENSOR
+#endif  // USE_DALLAS_SENSOR

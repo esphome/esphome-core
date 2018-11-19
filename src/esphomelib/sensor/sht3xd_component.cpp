@@ -25,13 +25,12 @@ static const uint16_t SHT3XD_COMMAND_SOFT_RESET = 0x30A2;
 static const uint16_t SHT3XD_COMMAND_POLLING_H = 0x2400;
 static const uint16_t SHT3XD_COMMAND_FETCH_DATA = 0xE000;
 
-SHT3XDComponent::SHT3XDComponent(I2CComponent *parent,
-                                 const std::string &temperature_name, const std::string &humidity_name,
-                                 uint8_t address, uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, address),
+SHT3XDComponent::SHT3XDComponent(I2CComponent *parent, const std::string &temperature_name,
+                                 const std::string &humidity_name, uint8_t address, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, address),
       temperature_sensor_(new SHT3XDTemperatureSensor(temperature_name, this)),
       humidity_sensor_(new SHT3XDHumiditySensor(humidity_name, this)) {
-
 }
 
 void SHT3XDComponent::setup() {
@@ -67,7 +66,7 @@ void SHT3XDComponent::update() {
   if (!this->write_command(SHT3XD_COMMAND_POLLING_H))
     return;
 
-  this->set_timeout(50, [this](){
+  this->set_timeout(50, [this]() {
     uint16_t raw_data[2];
     if (!this->read_data(raw_data, 2)) {
       this->status_set_warning();
@@ -143,19 +142,21 @@ SHT3XDHumiditySensor *SHT3XDComponent::get_humidity_sensor() const {
 }
 
 SHT3XDTemperatureSensor::SHT3XDTemperatureSensor(const std::string &name, SHT3XDComponent *parent)
-    : EmptyPollingParentSensor(name, parent) {}
+    : EmptyPollingParentSensor(name, parent) {
+}
 std::string SHT3XDTemperatureSensor::unique_id() {
   return this->unique_id_;
 }
 
 SHT3XDHumiditySensor::SHT3XDHumiditySensor(const std::string &name, SHT3XDComponent *parent)
-    : EmptyPollingParentSensor(name, parent) {}
+    : EmptyPollingParentSensor(name, parent) {
+}
 std::string SHT3XDHumiditySensor::unique_id() {
   return this->unique_id_;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SHT3XD
+#endif  // USE_SHT3XD

@@ -43,7 +43,7 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 
   CRGB *leds() const;
   int size() const;
-  CRGB &operator [](int index) const;
+  CRGB &operator[](int index) const;
   CRGB *begin();
   CRGB *end();
   uint8_t *effect_data() const;
@@ -221,11 +221,20 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 #ifdef USE_OCTOWS2811
   template<OWS2811 CHIPSET, EOrder RGB_ORDER>
   CLEDController &add_leds(int num_leds) {
-    switch(CHIPSET) {
-      case OCTOWS2811: { static COctoWS2811Controller<RGB_ORDER,WS2811_800kHz> controller; return add_leds(&controller, num_leds); }
-      case OCTOWS2811_400: { static COctoWS2811Controller<RGB_ORDER,WS2811_400kHz> controller; return add_leds(&controller, num_leds); }
+    switch (CHIPSET) {
+      case OCTOWS2811: {
+        static COctoWS2811Controller<RGB_ORDER, WS2811_800kHz> controller;
+        return add_leds(&controller, num_leds);
+      }
+      case OCTOWS2811_400: {
+        static COctoWS2811Controller<RGB_ORDER, WS2811_400kHz> controller;
+        return add_leds(&controller, num_leds);
+      }
 #ifdef WS2813_800kHz
-        case OCTOWS2813: { static COctoWS2811Controller<RGB_ORDER,WS2813_800kHz> controller; return add_leds(&controller, num_leds); }
+      case OCTOWS2813: {
+        static COctoWS2811Controller<RGB_ORDER, WS2813_800kHz> controller;
+        return add_leds(&controller, num_leds);
+      }
 #endif
     }
   }
@@ -259,73 +268,119 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 #ifdef FASTLED_HAS_BLOCKLESS
   template<EBlockChipsets CHIPSET, int NUM_LANES, EOrder RGB_ORDER>
   CLEDController &add_leds(int num_leds) {
-      switch(CHIPSET) {
+    switch (CHIPSET) {
 #ifdef PORTA_FIRST_PIN
-        case WS2811_PORTA:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(), num_leds);
-        case WS2811_400_PORTA:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(), num_leds);
-        case WS2813_PORTA:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER, 0, false, 300>(), num_leds);
-        case TM1803_PORTA:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(), num_leds);
-        case UCS1903_PORTA:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(), num_leds);
+      case WS2811_PORTA:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(),
+            num_leds);
+      case WS2811_400_PORTA:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(),
+            num_leds);
+      case WS2813_PORTA:
+        return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(320), NS(320), NS(640),
+                                                           RGB_ORDER, 0, false, 300>(),
+                        num_leds);
+      case TM1803_PORTA:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(),
+            num_leds);
+      case UCS1903_PORTA:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTA_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(),
+            num_leds);
 #endif
 #ifdef PORTB_FIRST_PIN
-        case WS2811_PORTB:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(), num_leds);
-        case WS2811_400_PORTB:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(), num_leds);
-        case WS2813_PORTB:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER, 0, false, 300>(), num_leds);
-        case TM1803_PORTB:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(), num_leds);
-        case UCS1903_PORTB:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(), num_leds);
+      case WS2811_PORTB:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(),
+            num_leds);
+      case WS2811_400_PORTB:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(),
+            num_leds);
+      case WS2813_PORTB:
+        return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(320), NS(320), NS(640),
+                                                           RGB_ORDER, 0, false, 300>(),
+                        num_leds);
+      case TM1803_PORTB:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(),
+            num_leds);
+      case UCS1903_PORTB:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTB_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(),
+            num_leds);
 #endif
 #ifdef PORTC_FIRST_PIN
-        case WS2811_PORTC:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(), num_leds);
-        case WS2811_400_PORTC:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(), num_leds);
-        case WS2813_PORTC:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER, 0, false, 300>(), num_leds);
-        case TM1803_PORTC:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(), num_leds);
-        case UCS1903_PORTC:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(), num_leds);
+      case WS2811_PORTC:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(),
+            num_leds);
+      case WS2811_400_PORTC:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(),
+            num_leds);
+      case WS2813_PORTC:
+        return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(320), NS(320), NS(640),
+                                                           RGB_ORDER, 0, false, 300>(),
+                        num_leds);
+      case TM1803_PORTC:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(),
+            num_leds);
+      case UCS1903_PORTC:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTC_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(),
+            num_leds);
 #endif
 #ifdef PORTD_FIRST_PIN
-        case WS2811_PORTD:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(), num_leds);
-        case WS2811_400_PORTD:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(), num_leds);
-        case WS2813_PORTD:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER, 0, false, 300>(), num_leds);
-        case TM1803_PORTD:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(), num_leds);
-        case UCS1903_PORTD:
-          return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(), num_leds);
+      case WS2811_PORTD:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(320), NS(320), NS(640), RGB_ORDER>(),
+            num_leds);
+      case WS2811_400_PORTD:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(800), NS(800), NS(900), RGB_ORDER>(),
+            num_leds);
+      case WS2813_PORTD:
+        return add_leds(new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(320), NS(320), NS(640),
+                                                           RGB_ORDER, 0, false, 300>(),
+                        num_leds);
+      case TM1803_PORTD:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(700), NS(1100), NS(700), RGB_ORDER>(),
+            num_leds);
+      case UCS1903_PORTD:
+        return add_leds(
+            new InlineBlockClocklessController<NUM_LANES, PORTD_FIRST_PIN, NS(500), NS(1500), NS(500), RGB_ORDER>(),
+            num_leds);
 #endif
 #ifdef HAS_PORTDC
-        case WS2811_PORTDC:
-          return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES,NS(320), NS(320), NS(640), RGB_ORDER>(), num_leds);
-        case WS2811_400_PORTDC:
-          return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES,NS(800), NS(800), NS(900), RGB_ORDER>(), num_leds);
-        case WS2813_PORTDC:
-          return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(320), NS(320), NS(640), RGB_ORDER, 0, false, 300>(), num_leds);
-        case TM1803_PORTDC:
-          return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(700), NS(1100), NS(700), RGB_ORDER>(), num_leds);
-        case UCS1903_PORTDC:
-          return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(500), NS(1500), NS(500), RGB_ORDER>(), num_leds);
+      case WS2811_PORTDC:
+        return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(320), NS(320), NS(640), RGB_ORDER>(),
+                        num_leds);
+      case WS2811_400_PORTDC:
+        return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(800), NS(800), NS(900), RGB_ORDER>(),
+                        num_leds);
+      case WS2813_PORTDC:
+        return add_leds(new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(320), NS(320), NS(640), RGB_ORDER, 0,
+                                                                     false, 300>(),
+                        num_leds);
+      case TM1803_PORTDC:
+        return add_leds(
+            new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(700), NS(1100), NS(700), RGB_ORDER>(), num_leds);
+      case UCS1903_PORTDC:
+        return add_leds(
+            new SixteenWayInlineBlockClocklessController<NUM_LANES, NS(500), NS(1500), NS(500), RGB_ORDER>(), num_leds);
 #endif
-      }
+    }
   }
 
   template<EBlockChipsets CHIPSET, int NUM_LANES>
   CLEDController &add_leds(int num_leds) {
-      return add_leds<CHIPSET, NUM_LANES, GRB>(num_leds);
+    return add_leds<CHIPSET, NUM_LANES, GRB>(num_leds);
   }
 #endif
 
@@ -354,10 +409,10 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
 #endif
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_FAST_LED_LIGHT
+#endif  // USE_FAST_LED_LIGHT
 
-#endif //ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H
+#endif  // ESPHOMELIB_LIGHT_FAST_LED_LIGHT_OUTPUT_H

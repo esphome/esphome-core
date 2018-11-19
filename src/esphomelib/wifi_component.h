@@ -5,11 +5,11 @@
 #include <IPAddress.h>
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <esp_wifi.h>
-  #include <WiFiType.h>
+#include <esp_wifi.h>
+#include <WiFiType.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  #include <ESP8266WiFiType.h>
+#include <ESP8266WiFiType.h>
 #endif
 
 #include "esphomelib/component.h"
@@ -79,14 +79,14 @@ struct ManualIP {
   IPAddress static_ip;
   IPAddress gateway;
   IPAddress subnet;
-  IPAddress dns1; ///< The first DNS server. 0.0.0.0 for default.
-  IPAddress dns2; ///< The second DNS server. 0.0.0.0 for default.
+  IPAddress dns1;  ///< The first DNS server. 0.0.0.0 for default.
+  IPAddress dns2;  ///< The second DNS server. 0.0.0.0 for default.
 };
 
 struct WiFiAp {
   std::string ssid;
   std::string password;
-  int8_t channel; ///< only for AP-mode
+  int8_t channel;  ///< only for AP-mode
   optional<ManualIP> manual_ip;
 };
 
@@ -191,4 +191,4 @@ extern WiFiComponent *global_wifi_component;
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //ESPHOMELIB_WIFI_COMPONENT_H
+#endif  // ESPHOMELIB_WIFI_COMPONENT_H

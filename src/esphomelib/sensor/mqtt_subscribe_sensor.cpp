@@ -16,20 +16,21 @@ static const char *TAG = "sensor.mqtt_subscribe";
 
 MQTTSubscribeSensor::MQTTSubscribeSensor(const std::string &name, std::string topic)
     : Sensor(name), topic_(std::move(topic)) {
-
 }
 void MQTTSubscribeSensor::setup() {
-  mqtt::global_mqtt_client->subscribe(this->topic_, [this](std::string payload) {
-    char *end;
-    float value = ::strtof(payload.c_str(), &end);
-    if (end == nullptr) {
-      ESP_LOGW(TAG, "Can't convert '%s' to number!", payload.c_str());
-      this->publish_state(NAN);
-      return;
-    }
+  mqtt::global_mqtt_client->subscribe(this->topic_,
+                                      [this](std::string payload) {
+                                        char *end;
+                                        float value = ::strtof(payload.c_str(), &end);
+                                        if (end == nullptr) {
+                                          ESP_LOGW(TAG, "Can't convert '%s' to number!", payload.c_str());
+                                          this->publish_state(NAN);
+                                          return;
+                                        }
 
-    this->publish_state(value);
-  }, this->qos_);
+                                        this->publish_state(value);
+                                      },
+                                      this->qos_);
 }
 
 float MQTTSubscribeSensor::get_setup_priority() const {
@@ -43,8 +44,8 @@ void MQTTSubscribeSensor::dump_config() {
   ESP_LOGCONFIG(TAG, "  Topic: %s", this->topic_.c_str());
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_MQTT_SUBSCRIBE_SENSOR
+#endif  // USE_MQTT_SUBSCRIBE_SENSOR

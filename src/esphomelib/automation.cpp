@@ -16,15 +16,11 @@ float StartupTrigger::get_setup_priority() const {
   // Run after everything is set up
   return this->setup_priority_;
 }
-StartupTrigger::StartupTrigger(float setup_priority)
-    : setup_priority_(setup_priority) {
-
+StartupTrigger::StartupTrigger(float setup_priority) : setup_priority_(setup_priority) {
 }
 
 ShutdownTrigger::ShutdownTrigger() {
-  add_shutdown_hook([this](const char *cause){
-    this->trigger(cause);
-  });
+  add_shutdown_hook([this](const char *cause) { this->trigger(cause); });
 }
 
 void LoopTrigger::loop() {
@@ -65,4 +61,3 @@ void Script::execute() {
 }
 
 ESPHOMELIB_NAMESPACE_END
-

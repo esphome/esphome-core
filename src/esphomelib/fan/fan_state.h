@@ -16,9 +16,9 @@ namespace fan {
 
 /// Simple enum to represent the speed of a fan.
 enum FanSpeed {
-  FAN_SPEED_LOW = 0, ///< The fan is running on low speed.
-  FAN_SPEED_MEDIUM, ///< The fan is running on medium speed.
-  FAN_SPEED_HIGH  ///< The fan is running on high/full speed.
+  FAN_SPEED_LOW = 0,  ///< The fan is running on low speed.
+  FAN_SPEED_MEDIUM,   ///< The fan is running on medium speed.
+  FAN_SPEED_HIGH      ///< The fan is running on high/full speed.
 };
 
 template<typename T>
@@ -109,7 +109,7 @@ class TurnOnAction : public Action<T> {
  protected:
   FanState *state_;
   TemplatableValue<bool, T> oscillating_;
-  TemplatableValue<FanSpeed , T> speed_;
+  TemplatableValue<FanSpeed, T> speed_;
 };
 
 template<typename T>
@@ -118,6 +118,7 @@ class TurnOffAction : public Action<T> {
   explicit TurnOffAction(FanState *state);
 
   void play(T x) override;
+
  protected:
   FanState *state_;
 };
@@ -128,13 +129,13 @@ class ToggleAction : public Action<T> {
   explicit ToggleAction(FanState *state);
 
   void play(T x) override;
+
  protected:
   FanState *state_;
 };
 
 template<typename T>
 ToggleAction<T>::ToggleAction(FanState *state) : state_(state) {
-
 }
 template<typename T>
 void ToggleAction<T>::play(T x) {
@@ -144,7 +145,6 @@ void ToggleAction<T>::play(T x) {
 
 template<typename T>
 TurnOnAction<T>::TurnOnAction(FanState *state) : state_(state) {
-
 }
 template<typename T>
 void TurnOnAction<T>::set_oscillating(std::function<bool(T)> &&oscillating) {
@@ -177,7 +177,6 @@ void TurnOnAction<T>::play(T x) {
 
 template<typename T>
 TurnOffAction<T>::TurnOffAction(FanState *state) : state_(state) {
-
 }
 template<typename T>
 void TurnOffAction<T>::play(T x) {
@@ -198,10 +197,10 @@ ToggleAction<T> *FanState::make_toggle_action() {
   return new ToggleAction<T>(this);
 }
 
-} // namespace fan
+}  // namespace fan
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_FAN
+#endif  // USE_FAN
 
-#endif //ESPHOMELIB_FAN_FAN_STATE_H
+#endif  // ESPHOMELIB_FAN_FAN_STATE_H

@@ -94,10 +94,10 @@ class TSL2561Sensor : public PollingSensorComponent, public I2CDevice {
   bool package_cs_{false};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TSL2561
+#endif  // USE_TSL2561
 
-#endif //ESPHOMELIB_SENSOR_TSL2561_SENSOR_H
+#endif  // ESPHOMELIB_SENSOR_TSL2561_SENSOR_H

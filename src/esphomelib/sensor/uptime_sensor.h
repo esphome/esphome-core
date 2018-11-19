@@ -28,10 +28,10 @@ class UptimeSensor : public PollingSensorComponent {
   uint64_t uptime_{0};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_UPTIME_SENSOR
+#endif  // USE_UPTIME_SENSOR
 
-#endif //ESPHOMELIB_UPTIME_SENSOR_H
+#endif  // ESPHOMELIB_UPTIME_SENSOR_H

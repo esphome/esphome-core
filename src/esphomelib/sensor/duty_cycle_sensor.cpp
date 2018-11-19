@@ -13,7 +13,6 @@ static const char *TAG = "sensor.duty_cycle";
 
 DutyCycleSensor::DutyCycleSensor(const std::string &name, GPIOPin *pin, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), pin_(pin) {
-
 }
 
 DutyCycleSensor *duty_cycle_sensors = nullptr;
@@ -93,8 +92,8 @@ float DutyCycleSensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_DUTY_CYCLE_SENSOR
+#endif  // USE_DUTY_CYCLE_SENSOR

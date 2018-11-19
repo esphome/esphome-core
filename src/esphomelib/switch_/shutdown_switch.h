@@ -16,15 +16,15 @@ class ShutdownSwitch : public Switch {
   explicit ShutdownSwitch(const std::string &name);
 
   std::string icon() override;
+
  protected:
   void write_state(bool state) override;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_RESTART_SWITCH
+#endif  // USE_RESTART_SWITCH
 
-
-#endif //ESPHOMELIB_SWITCH_SHUTDOWN_SWITCH_H
+#endif  // ESPHOMELIB_SWITCH_SHUTDOWN_SWITCH_H

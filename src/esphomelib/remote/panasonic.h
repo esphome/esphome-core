@@ -47,10 +47,10 @@ class PanasonicDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOMELIB_REMOTE_PANASONIC_H
+#endif  // ESPHOMELIB_REMOTE_PANASONIC_H

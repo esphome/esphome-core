@@ -10,7 +10,7 @@
 #include "esphomelib/esphal.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <driver/rmt.h>
+#include <driver/rmt.h>
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -40,10 +40,10 @@ class RemoteControlComponentBase {
 #endif
 };
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOMELIB_REMOTE_REMOTE_PROTOCOL_H
+#endif  // ESPHOMELIB_REMOTE_REMOTE_PROTOCOL_H

@@ -4,7 +4,7 @@
 #include <string>
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <Preferences.h>
+#include <Preferences.h>
 #endif
 
 #include "esphomelib/espmath.h"
@@ -105,4 +105,4 @@ bool ESPPreferenceObject::load(T *dest) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //ESPHOMELIB_ESPPREFERENCES_H
+#endif  // ESPHOMELIB_ESPPREFERENCES_H

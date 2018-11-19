@@ -44,10 +44,10 @@ class INA3221Component : public PollingComponent, public I2CDevice {
   } channels[3];
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_INA3221
+#endif  // USE_INA3221
 
-#endif //ESPHOMELIB_INA3221_H
+#endif  // ESPHOMELIB_INA3221_H

@@ -18,8 +18,7 @@ class SHT3XDHumiditySensor;
 /// This class implements support for the SHT3x-DIS family of temperature+humidity i2c sensors.
 class SHT3XDComponent : public PollingComponent, public I2CDevice {
  public:
-  SHT3XDComponent(I2CComponent *parent,
-                  const std::string &temperature_name, const std::string &humidity_name,
+  SHT3XDComponent(I2CComponent *parent, const std::string &temperature_name, const std::string &humidity_name,
                   uint8_t address = 0x44, uint32_t update_interval = 15000);
 
   // ========== INTERNAL METHODS ==========
@@ -66,10 +65,10 @@ class SHT3XDHumiditySensor : public EmptyPollingParentSensor<1, ICON_WATER_PERCE
   std::string unique_id_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SHT3XD
+#endif  // USE_SHT3XD
 
-#endif //ESPHOMELIB_SENSOR_SHT3XD_COMPONENT_H
+#endif  // ESPHOMELIB_SENSOR_SHT3XD_COMPONENT_H

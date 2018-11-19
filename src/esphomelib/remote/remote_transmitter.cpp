@@ -13,7 +13,7 @@
 #include "esphomelib/remote/sony.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <soc/rmt_struct.h>
+#include <soc/rmt_struct.h>
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -60,9 +60,7 @@ void RemoteTransmitData::reset() {
   this->data_.clear();
 }
 
-RemoteTransmitter::RemoteTransmitter(const std::string &name)
-    : Switch(name) {
-
+RemoteTransmitter::RemoteTransmitter(const std::string &name) : Switch(name) {
 }
 void RemoteTransmitter::set_parent(RemoteTransmitterComponent *parent) {
   this->parent_ = parent;
@@ -84,16 +82,13 @@ void RemoteTransmitter::write_state(bool state) {
   this->publish_state(false);
 }
 
-RemoteTransmitterComponent::RemoteTransmitterComponent(GPIOPin *pin)
-    : RemoteControlComponentBase(pin) {
-
+RemoteTransmitterComponent::RemoteTransmitterComponent(GPIOPin *pin) : RemoteControlComponentBase(pin) {
 }
 float RemoteTransmitterComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 #ifdef ARDUINO_ARCH_ESP32
 void RemoteTransmitterComponent::setup() {
-
 }
 
 void RemoteTransmitterComponent::dump_config() {
@@ -212,7 +207,7 @@ void RemoteTransmitterComponent::send_(RemoteTransmitData *data, uint32_t send_t
     }
   }
 }
-#endif //ARDUINO_ARCH_ESP32
+#endif  // ARDUINO_ARCH_ESP32
 
 #ifdef ARDUINO_ARCH_ESP8266
 void RemoteTransmitterComponent::setup() {
@@ -226,15 +221,14 @@ void RemoteTransmitterComponent::dump_config() {
   LOG_PIN("  Pin: ", this->pin_);
 }
 
-void RemoteTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequency,
-                                                        uint32_t *on_time_period,
+void RemoteTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequency, uint32_t *on_time_period,
                                                         uint32_t *off_time_period) {
   if (carrier_frequency == 0) {
     *on_time_period = 0;
     *off_time_period = 0;
     return;
   }
-  uint32_t period = (1000000UL + carrier_frequency / 2) / carrier_frequency; // round(1000000/freq)
+  uint32_t period = (1000000UL + carrier_frequency / 2) / carrier_frequency;  // round(1000000/freq)
   period = std::max(uint32_t(1), period);
   *on_time_period = (period * this->carrier_duty_percent_) / 100;
   *off_time_period = period - *on_time_period;
@@ -295,7 +289,7 @@ void RemoteTransmitterComponent::space_(uint32_t usec) {
   this->pin_->digital_write(false);
   delay_microseconds_accurate(usec);
 }
-#endif //ARDUINO_ARCH_ESP8266
+#endif  // ARDUINO_ARCH_ESP8266
 
 RemoteTransmitter *RemoteTransmitterComponent::add_transmitter(RemoteTransmitter *transmitter) {
   transmitter->set_parent(this);
@@ -312,8 +306,7 @@ RemoteTransmitterComponent::TransmitCall RemoteTransmitterComponent::transmit() 
 void RemoteTransmitterComponent::TransmitCall::perform() {
   this->parent_->send_(&this->parent_->temp_, this->send_times_, this->send_wait_);
 }
-RemoteTransmitterComponent::TransmitCall::TransmitCall(RemoteTransmitterComponent *parent)
-  : parent_(parent) {
+RemoteTransmitterComponent::TransmitCall::TransmitCall(RemoteTransmitterComponent *parent) : parent_(parent) {
   this->get_data()->reset();
 }
 RemoteTransmitData *RemoteTransmitterComponent::TransmitCall::get_data() {
@@ -331,8 +324,7 @@ void RemoteTransmitterComponent::TransmitCall::set_panasonic(uint16_t address, u
 void RemoteTransmitterComponent::TransmitCall::set_raw(std::vector<int32_t> data) {
   this->get_data()->set_data(data);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_raw(uint32_t code,
-                                                                 uint8_t nbits,
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_raw(uint32_t code, uint8_t nbits,
                                                                  RCSwitchProtocol protocol) {
   encode_rc_switch_raw(this->get_data(), code, nbits, protocol);
 }
@@ -342,47 +334,31 @@ void RemoteTransmitterComponent::TransmitCall::set_rc_switch_raw(const char *cod
 void RemoteTransmitterComponent::TransmitCall::set_rc_switch_raw_tristate(const char *code, RCSwitchProtocol protocol) {
   encode_rc_switch_raw_tristate(this->get_data(), code, protocol);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_a(uint8_t switch_group,
-                                                                    uint8_t switch_device,
-                                                                    bool state,
-                                                                    RCSwitchProtocol protocol) {
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_a(uint8_t switch_group, uint8_t switch_device,
+                                                                    bool state, RCSwitchProtocol protocol) {
   encode_rc_switch_type_a(this->get_data(), switch_group, switch_device, state, protocol);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_a(const char *switch_group,
-                                                                    const char *switch_device,
-                                                                    bool state,
-                                                                    RCSwitchProtocol protocol) {
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_a(const char *switch_group, const char *switch_device,
+                                                                    bool state, RCSwitchProtocol protocol) {
   encode_rc_switch_type_a(this->get_data(), switch_group, switch_device, state, protocol);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_b(uint8_t address,
-                                                                    uint8_t channel,
-                                                                    bool state,
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_b(uint8_t address, uint8_t channel, bool state,
                                                                     RCSwitchProtocol protocol) {
   encode_rc_switch_type_b(this->get_data(), address, channel, state, protocol);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_c(uint8_t family,
-                                                                    uint8_t group,
-                                                                    uint8_t device,
-                                                                    bool state,
-                                                                    RCSwitchProtocol protocol) {
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_c(uint8_t family, uint8_t group, uint8_t device,
+                                                                    bool state, RCSwitchProtocol protocol) {
   encode_rc_switch_type_c(this->get_data(), family, group, device, state, protocol);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_c(char family,
-                                                                    uint8_t group,
-                                                                    uint8_t device,
-                                                                    bool state,
-                                                                    RCSwitchProtocol protocol) {
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_c(char family, uint8_t group, uint8_t device,
+                                                                    bool state, RCSwitchProtocol protocol) {
   encode_rc_switch_type_c(this->get_data(), family, group, device, state, protocol);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_d(uint8_t group,
-                                                                    uint8_t device,
-                                                                    bool state,
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_d(uint8_t group, uint8_t device, bool state,
                                                                     RCSwitchProtocol protocol) {
   encode_rc_switch_type_d(this->get_data(), group, device, state, protocol);
 }
-void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_d(char group,
-                                                                    uint8_t device,
-                                                                    bool state,
+void RemoteTransmitterComponent::TransmitCall::set_rc_switch_type_d(char group, uint8_t device, bool state,
                                                                     RCSwitchProtocol protocol) {
   encode_rc_switch_type_d(this->get_data(), group, device, state, protocol);
 }
@@ -393,8 +369,8 @@ void RemoteTransmitterComponent::TransmitCall::set_sony(uint32_t data, uint8_t n
   encode_sony(this->get_data(), data, nbits);
 }
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_REMOTE_TRANSMITTER
+#endif  // USE_REMOTE_TRANSMITTER

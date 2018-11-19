@@ -15,8 +15,7 @@ namespace remote {
 #ifdef USE_REMOTE_TRANSMITTER
 class RawTransmitter : public RemoteTransmitter {
  public:
-  RawTransmitter(const std::string &name, std::vector<int32_t> data,
-                 uint32_t carrier_frequency = 0);
+  RawTransmitter(const std::string &name, std::vector<int32_t> data, uint32_t carrier_frequency = 0);
 
   void to_data(RemoteTransmitData *data) override;
 
@@ -43,10 +42,10 @@ class RawDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOMELIB_REMOTE_RAW_H
+#endif  // ESPHOMELIB_REMOTE_RAW_H

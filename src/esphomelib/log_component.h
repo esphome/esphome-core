@@ -74,4 +74,4 @@ extern LogComponent *global_log_component;
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //ESPHOMELIB_LOG_COMPONENT_H
+#endif  // ESPHOMELIB_LOG_COMPONENT_H

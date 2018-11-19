@@ -15,9 +15,7 @@ static const char *TAG = "switch.restart";
 std::string RestartSwitch::icon() {
   return "mdi:restart";
 }
-RestartSwitch::RestartSwitch(const std::string &name)
-  : Switch(name) {
-
+RestartSwitch::RestartSwitch(const std::string &name) : Switch(name) {
 }
 void RestartSwitch::write_state(bool state) {
   // Acknowledge
@@ -26,13 +24,13 @@ void RestartSwitch::write_state(bool state) {
   if (state) {
     ESP_LOGI(TAG, "Restarting device...");
     // then execute
-    delay(100); // Let MQTT settle a bit
+    delay(100);  // Let MQTT settle a bit
     safe_reboot("restart");
   }
 }
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_RESTART_SWITCH
+#endif  // USE_RESTART_SWITCH

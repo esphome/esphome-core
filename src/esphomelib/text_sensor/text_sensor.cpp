@@ -42,13 +42,11 @@ bool TextSensor::has_state() {
 }
 
 TextSensorStateTrigger::TextSensorStateTrigger(TextSensor *parent) {
-  parent->add_on_state_callback([this](std::string value) {
-    this->trigger(value);
-  });
+  parent->add_on_state_callback([this](std::string value) { this->trigger(value); });
 }
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEXT_SENSOR
+#endif  // USE_TEXT_SENSOR

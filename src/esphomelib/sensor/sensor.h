@@ -38,9 +38,9 @@ class Sensor : public Nameable {
   void set_unit_of_measurement(const std::string &unit_of_measurement);
 
   /** Manually set the icon of this sensor. By default the sensor's default defined by icon() is used.
-  *
-  * @param icon The icon, for example "mdi:flash". "" to disable.
-  */
+   *
+   * @param icon The icon, for example "mdi:flash". "" to disable.
+   */
   void set_icon(const std::string &icon);
 
   /** Manually set the accuracy in decimals for this sensor. By default, the sensor's default defined by
@@ -63,10 +63,10 @@ class Sensor : public Nameable {
    *   SlidingWindowMovingAverageFilter(15, 15), // average over last 15 values
    * });
    */
-  void add_filters(const std::list<Filter *> & filters);
+  void add_filters(const std::list<Filter *> &filters);
 
   /// Clear the filters and replace them by filters.
-  void set_filters(const std::list<Filter *> & filters);
+  void set_filters(const std::list<Filter *> &filters);
 
   /// Clear the entire filter chain.
   void clear_filters();
@@ -177,12 +177,14 @@ class Sensor : public Nameable {
 
   void send_state_to_frontend_internal_(float state);
 
-  CallbackManager<void(float)> raw_callback_; ///< Storage for raw state callbacks.
-  CallbackManager<void(float)> callback_; ///< Storage for filtered state callbacks.
-  optional<std::string> unit_of_measurement_; ///< Override the unit of measurement
-  optional<std::string> icon_; /// Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
-  optional<int8_t> accuracy_decimals_; ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
-  Filter *filter_list_{nullptr}; ///< Store all active filters.
+  CallbackManager<void(float)> raw_callback_;  ///< Storage for raw state callbacks.
+  CallbackManager<void(float)> callback_;      ///< Storage for filtered state callbacks.
+  optional<std::string> unit_of_measurement_;  ///< Override the unit of measurement
+  optional<std::string>
+      icon_;  /// Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
+  optional<int8_t>
+      accuracy_decimals_;         ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
+  Filter *filter_list_{nullptr};  ///< Store all active filters.
   bool has_state_{false};
 };
 
@@ -199,9 +201,7 @@ class EmptySensor;
 template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement>
 class EmptySensor : public Sensor {
  public:
-  explicit EmptySensor(const std::string &name)
-      : Sensor(name) {
-
+  explicit EmptySensor(const std::string &name) : Sensor(name) {
   }
 
   std::string unit_of_measurement() override {
@@ -216,17 +216,16 @@ class EmptySensor : public Sensor {
 };
 
 template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement,
-    class ParentType = PollingComponent>
+         class ParentType = PollingComponent>
 class EmptyPollingParentSensor;
 
 template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement,
-    class ParentType>
+         class ParentType>
 class EmptyPollingParentSensor
     : public EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement> {
  public:
   EmptyPollingParentSensor(const std::string &name, ParentType *parent)
-    : EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement>(name), parent_(parent) {
-
+      : EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement>(name), parent_(parent) {
   }
 
   uint32_t update_interval() override {
@@ -295,10 +294,10 @@ extern const char UNIT_K[];
 extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 extern const char UNIT_MICROGRAMS_PER_CUBIC_METER[];
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif  // USE_SENSOR
 
-#endif //ESPHOMELIB_SENSOR_SENSOR_H
+#endif  // ESPHOMELIB_SENSOR_SENSOR_H

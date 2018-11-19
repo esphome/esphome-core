@@ -128,14 +128,15 @@ class RealTimeClockComponent : public Component {
   CronTrigger *make_cron_trigger();
 
   void setup_() override;
+
  protected:
   std::string timezone_{};
 };
 
-} // namespace time
+}  // namespace time
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TIME
+#endif  // USE_TIME
 
-#endif //ESPHOMELIB_TIME_RTC_COMPONENT_H
+#endif  // ESPHOMELIB_TIME_RTC_COMPONENT_H

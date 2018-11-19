@@ -15,9 +15,7 @@ static const char *TAG = "deep_sleep";
 void DeepSleepComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Deep Sleep...");
   if (this->run_duration_.has_value())
-    this->set_timeout(*this->run_duration_, [this](){
-      this->begin_sleep_();
-    });
+    this->set_timeout(*this->run_duration_, [this]() { this->begin_sleep_(); });
 }
 void DeepSleepComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Setting up Deep Sleep...");
@@ -46,7 +44,7 @@ void DeepSleepComponent::loop() {
     this->begin_sleep_();
 }
 float DeepSleepComponent::get_loop_priority() const {
-  return -100.0f; // run after everything else is ready
+  return -100.0f;  // run after everything else is ready
 }
 void DeepSleepComponent::set_sleep_duration(uint32_t time_ms) {
   this->sleep_duration_ = uint64_t(time_ms) * 1000;
@@ -74,8 +72,8 @@ void DeepSleepComponent::begin_sleep_(bool manual) {
     return;
   }
 #ifdef ARDUINO_ARCH_ESP32
-  if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_KEEP_AWAKE &&
-      this->wakeup_pin_.has_value() && !this->sleep_duration_.has_value() && (*this->wakeup_pin_)->digital_read()) {
+  if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_KEEP_AWAKE && this->wakeup_pin_.has_value() &&
+      !this->sleep_duration_.has_value() && (*this->wakeup_pin_)->digital_read()) {
     // Defer deep sleep until inactive
     if (!this->next_enter_deep_sleep_) {
       this->status_set_warning();
@@ -118,4 +116,4 @@ void DeepSleepComponent::prevent_deep_sleep() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_DEEP_SLEEP
+#endif  // USE_DEEP_SLEEP

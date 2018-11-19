@@ -50,39 +50,53 @@ static const uint8_t BME280_REGISTER_HUMIDDATA = 0xFD;
 
 static const uint8_t BME280_MODE_FORCED = 0b01;
 
-inline uint16_t combine_bytes(uint8_t msb, uint8_t lsb) { return ((msb & 0xFF) << 8) | (lsb & 0xFF); }
+inline uint16_t combine_bytes(uint8_t msb, uint8_t lsb) {
+  return ((msb & 0xFF) << 8) | (lsb & 0xFF);
+}
 
-BME280Component::BME280Component(I2CComponent *parent,
-                                 const std::string &temperature_name, const std::string &pressure_name,
-                                 const std::string &humidity_name,
-                                 uint8_t address, uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, address),
+BME280Component::BME280Component(I2CComponent *parent, const std::string &temperature_name,
+                                 const std::string &pressure_name, const std::string &humidity_name, uint8_t address,
+                                 uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, address),
       temperature_sensor_(new BME280TemperatureSensor(temperature_name, this)),
       pressure_sensor_(new BME280PressureSensor(pressure_name, this)),
       humidity_sensor_(new BME280HumiditySensor(humidity_name, this)) {
-
 }
 
-static const char* oversampling_to_str(BME280Oversampling oversampling) {
+static const char *oversampling_to_str(BME280Oversampling oversampling) {
   switch (oversampling) {
-    case BME280_OVERSAMPLING_NONE: return "None";
-    case BME280_OVERSAMPLING_1X: return "1x";
-    case BME280_OVERSAMPLING_2X: return "2x";
-    case BME280_OVERSAMPLING_4X: return "4x";
-    case BME280_OVERSAMPLING_8X: return "8x";
-    case BME280_OVERSAMPLING_16X: return "16x";
-    default: return "UNKNOWN";
+    case BME280_OVERSAMPLING_NONE:
+      return "None";
+    case BME280_OVERSAMPLING_1X:
+      return "1x";
+    case BME280_OVERSAMPLING_2X:
+      return "2x";
+    case BME280_OVERSAMPLING_4X:
+      return "4x";
+    case BME280_OVERSAMPLING_8X:
+      return "8x";
+    case BME280_OVERSAMPLING_16X:
+      return "16x";
+    default:
+      return "UNKNOWN";
   }
 }
 
-static const char* iir_filter_to_str(BME280IIRFilter filter) {
+static const char *iir_filter_to_str(BME280IIRFilter filter) {
   switch (filter) {
-    case BME280_IIR_FILTER_OFF: return "OFF";
-    case BME280_IIR_FILTER_2X: return "2x";
-    case BME280_IIR_FILTER_4X: return "4x";
-    case BME280_IIR_FILTER_8X: return "8x";
-    case BME280_IIR_FILTER_16X: return "16x";
-    default: return "UNKNOWN";
+    case BME280_IIR_FILTER_OFF:
+      return "OFF";
+    case BME280_IIR_FILTER_2X:
+      return "2x";
+    case BME280_IIR_FILTER_4X:
+      return "4x";
+    case BME280_IIR_FILTER_8X:
+      return "8x";
+    case BME280_IIR_FILTER_16X:
+      return "16x";
+    default:
+      return "UNKNOWN";
   }
 }
 
@@ -140,7 +154,7 @@ void BME280Component::setup() {
     return;
   }
   config_register &= ~0b11111100;
-  config_register |= 0b000 << 5; // 0.5 ms standby time
+  config_register |= 0b000 << 5;  // 0.5 ms standby time
   config_register |= (this->iir_filter_ & 0b111) << 2;
   if (!this->write_byte(BME280_REGISTER_CONFIG, config_register)) {
     this->mark_failed();
@@ -182,7 +196,7 @@ void BME280Component::update() {
   uint8_t meas_register = 0;
   meas_register |= (this->temperature_oversampling_ & 0b111) << 5;
   meas_register |= (this->pressure_oversampling_ & 0b111) << 2;
-  meas_register |= 0b01; // Forced mode
+  meas_register |= 0b01;  // Forced mode
   if (!this->write_byte(BME280_REGISTER_CONTROL, meas_register)) {
     this->status_set_warning();
     return;
@@ -204,8 +218,7 @@ void BME280Component::update() {
     float pressure = this->read_pressure_(t_fine);
     float humidity = this->read_humidity_(t_fine);
 
-    ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%%",
-             temperature, pressure, humidity);
+    ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%%", temperature, pressure, humidity);
     this->temperature_sensor_->publish_state(temperature);
     this->pressure_sensor_->publish_state(pressure);
     this->humidity_sensor_->publish_state(humidity);
@@ -289,9 +302,8 @@ float BME280Component::read_humidity_(int32_t t_fine) {
 
   int32_t v_x1_u32r = t_fine - 76800;
 
-  v_x1_u32r = ((((adc << 14) - (h4 << 20) -
-      (h5 * v_x1_u32r)) + 16384) >> 15) *
-      (((((((v_x1_u32r * h6) >> 10) * (((v_x1_u32r * h3) >> 11) + 32768)) >> 10) + 2097152) * h2 + 8192) >> 14);
+  v_x1_u32r = ((((adc << 14) - (h4 << 20) - (h5 * v_x1_u32r)) + 16384) >> 15) *
+              (((((((v_x1_u32r * h6) >> 10) * (((v_x1_u32r * h3) >> 11) + 32768)) >> 10) + 2097152) * h2 + 8192) >> 14);
 
   v_x1_u32r = v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * h1) >> 4);
 
@@ -336,8 +348,8 @@ int16_t BME280Component::read_s16_le(uint8_t register_) {
   return this->read_u16_le(register_);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_BME280
+#endif  // USE_BME280

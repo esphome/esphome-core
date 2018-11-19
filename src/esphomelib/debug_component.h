@@ -15,12 +15,13 @@ class DebugComponent : public Component {
   void setup() override;
   void loop() override;
   float get_setup_priority() const override;
+
  protected:
   uint32_t free_heap_{};
 };
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_DEBUG_COMPONENT
+#endif  // USE_DEBUG_COMPONENT
 
-#endif //ESPHOMELIB_DEBUG_COMPONENT_H
+#endif  // ESPHOMELIB_DEBUG_COMPONENT_H

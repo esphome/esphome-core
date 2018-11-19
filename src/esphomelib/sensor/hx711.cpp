@@ -76,16 +76,15 @@ int8_t HX711Sensor::accuracy_decimals() {
   return 0;
 }
 HX711Sensor::HX711Sensor(const std::string &name, GPIOPin *dout, GPIOPin *sck, uint32_t update_interval)
-: PollingSensorComponent(name, update_interval), dout_pin_(dout), sck_pin_(sck) {
-
+    : PollingSensorComponent(name, update_interval), dout_pin_(dout), sck_pin_(sck) {
 }
 
 void HX711Sensor::set_gain(HX711Gain gain) {
   this->gain_ = gain;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_HX711
+#endif  // USE_HX711

@@ -41,9 +41,8 @@ void FastLEDLightOutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "FastLED light:");
   ESP_LOGCONFIG(TAG, "    Num LEDs: %u", this->num_leds_);
   ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
-  ESP_LOGCONFIG(TAG, "    Color Correction: red=%.0f%% green=%.0f%% blue=%.0f%%",
-      this->correction_.red / 2.55f, this->correction_.green / 2.55f, this->correction_.blue / 2.55f);
-
+  ESP_LOGCONFIG(TAG, "    Color Correction: red=%.0f%% green=%.0f%% blue=%.0f%%", this->correction_.red / 2.55f,
+                this->correction_.green / 2.55f, this->correction_.blue / 2.55f);
 }
 void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_)
@@ -124,9 +123,15 @@ float FastLEDLightOutputComponent::get_setup_priority() const {
 void FastLEDLightOutputComponent::set_power_supply(PowerSupplyComponent *power_supply) {
   this->power_supply_ = power_supply;
 }
-CRGB &FastLEDLightOutputComponent::operator[](int index) const { return this->leds()[index]; }
-CRGB *FastLEDLightOutputComponent::begin() { return &this->leds()[0]; }
-CRGB *FastLEDLightOutputComponent::end() { return &this->leds()[this->size()]; }
+CRGB &FastLEDLightOutputComponent::operator[](int index) const {
+  return this->leds()[index];
+}
+CRGB *FastLEDLightOutputComponent::begin() {
+  return &this->leds()[0];
+}
+CRGB *FastLEDLightOutputComponent::end() {
+  return &this->leds()[this->size()];
+}
 uint8_t *FastLEDLightOutputComponent::effect_data() const {
   return this->effect_data_;
 }
@@ -136,8 +141,8 @@ void FastLEDLightOutputComponent::set_correction(float red, float green, float b
 
 #endif
 
-} // namespace light
+}  // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_FAST_LED_LIGHT
+#endif  // USE_FAST_LED_LIGHT

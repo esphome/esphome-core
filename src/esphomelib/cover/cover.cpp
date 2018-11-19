@@ -9,7 +9,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace cover {
 
 Cover::Cover(const std::string &name) : Nameable(name) {
-
 }
 
 void Cover::add_on_publish_state_callback(std::function<void(CoverState)> &&f) {
@@ -37,8 +36,8 @@ void Cover::stop() {
   this->write_command(COVER_COMMAND_STOP);
 }
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_COVER
+#endif  // USE_COVER

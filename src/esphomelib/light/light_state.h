@@ -77,17 +77,10 @@ class LightState : public Nameable, public Component {
 
   void current_values_as_rgbw(float *red, float *green, float *blue, float *white);
 
-  void current_values_as_rgbww(float color_temperature_cw,
-                               float color_temperature_ww,
-                               float *red,
-                               float *green,
-                               float *blue,
-                               float *cold_white,
-                               float *warm_white);
+  void current_values_as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green,
+                               float *blue, float *cold_white, float *warm_white);
 
-  void current_values_as_cwww(float color_temperature_cw,
-                              float color_temperature_ww,
-                              float *cold_white,
+  void current_values_as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white,
                               float *warm_white);
 
   LightTraits get_traits();
@@ -208,7 +201,7 @@ class LightState : public Nameable, public Component {
   LightColorValues values_{};
   LightColorValues remote_values_{};
   CallbackManager<void()> remote_values_callback_{};
-  LightOutput *output_; ///< Store the output to allow effects to have more access.
+  LightOutput *output_;  ///< Store the output to allow effects to have more access.
   bool next_write_{true};
   float gamma_correct_{2.8f};
   std::vector<LightEffect *> effects_;
@@ -256,7 +249,8 @@ class TurnOffAction : public Action<T> {
 template<typename T>
 class TurnOnAction : public Action<T> {
  public:
-  explicit TurnOnAction(LightState *state) : state_(state) {}
+  explicit TurnOnAction(LightState *state) : state_(state) {
+  }
 
   void set_transition_length(std::function<uint32_t(T)> &&transition_length);
   void set_transition_length(uint32_t transition_length);
@@ -307,7 +301,8 @@ TurnOnAction<T> *LightState::make_turn_on_action() {
 }
 
 template<typename T>
-ToggleAction<T>::ToggleAction(LightState *state) : state_(state) {}
+ToggleAction<T>::ToggleAction(LightState *state) : state_(state) {
+}
 
 template<typename T>
 void ToggleAction<T>::play(T x) {
@@ -327,7 +322,8 @@ void ToggleAction<T>::set_transition_length(uint32_t transition_length) {
   this->transition_length_ = transition_length;
 }
 template<typename T>
-TurnOffAction<T>::TurnOffAction(LightState *state) : state_(state) {}
+TurnOffAction<T>::TurnOffAction(LightState *state) : state_(state) {
+}
 template<typename T>
 void TurnOffAction<T>::play(T x) {
   auto call = this->state_->turn_off();
@@ -451,10 +447,10 @@ void TurnOnAction<T>::set_effect(std::string effect) {
   this->effect_ = effect;
 }
 
-} // namespace light
+}  // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOMELIB_LIGHT_LIGHT_STATE_H
+#endif  // ESPHOMELIB_LIGHT_LIGHT_STATE_H

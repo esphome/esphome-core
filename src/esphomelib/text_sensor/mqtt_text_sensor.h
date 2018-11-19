@@ -37,10 +37,10 @@ class MQTTTextSensor : public mqtt::MQTTComponent {
   TextSensor *sensor_;
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEXT_SENSOR
+#endif  // USE_TEXT_SENSOR
 
-#endif //ESPHOMELIB_MQTT_TEXT_SENSOR_H
+#endif  // ESPHOMELIB_MQTT_TEXT_SENSOR_H

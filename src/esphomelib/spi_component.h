@@ -72,10 +72,8 @@ class SPIDevice {
   GPIOPin *cs_;
 };
 
-
-
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SPI
+#endif  // USE_SPI
 
-#endif //ESPHOMELIB_SPI_COMPONENT_H
+#endif  // ESPHOMELIB_SPI_COMPONENT_H
