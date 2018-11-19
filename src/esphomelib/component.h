@@ -34,7 +34,7 @@ extern const uint32_t STATUS_LED_ERROR;
 
 extern uint32_t global_state;
 
-#define LOG_UPDATE_INTERVAL(this) ESP_LOGCONFIG(TAG, "  Update Interval: %u", this->get_update_interval());
+#define LOG_UPDATE_INTERVAL(this) ESP_LOGCONFIG(TAG, "  Update Interval: %u ms", this->get_update_interval());
 
 /** The base class for all esphomelib components.
  *
