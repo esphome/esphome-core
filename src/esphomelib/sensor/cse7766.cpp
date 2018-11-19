@@ -46,23 +46,26 @@ bool CSE7766Component::check_byte_() {
   uint8_t byte = this->raw_data_[index];
   if (index == 0) {
     // Header - 0x55
+    // These messages are verbose because the CSE7766
+    // reports these when no load is attached. If the checksum doesn't match
+    // though, then we should print a warning.
     if (byte == 0xAA) {
-      ESP_LOGW(TAG, "CSE7766 not calibrated!");
+      ESP_LOGV(TAG, "CSE7766 not calibrated!");
       return false;
     }
     if ((byte & 0xF0) == 0xF0) {
-      ESP_LOGW(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
+      ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
       if ((byte >> 3) & 1) {
-        ESP_LOGW(TAG, "  Voltage cycle exceeds range.");
+        ESP_LOGV(TAG, "  Voltage cycle exceeds range.");
       }
       if ((byte >> 2) & 1) {
-        ESP_LOGW(TAG, "  Current cycle exceeds range.");
+        ESP_LOGV(TAG, "  Current cycle exceeds range.");
       }
       if ((byte >> 1) & 1) {
-        ESP_LOGW(TAG, "  Power cycle exceeds range.");
+        ESP_LOGV(TAG, "  Power cycle exceeds range.");
       }
       if ((byte >> 0) & 1) {
-        ESP_LOGW(TAG, "  Coefficient storage area is abnormal.");
+        ESP_LOGV(TAG, "  Coefficient storage area is abnormal.");
       }
       return false;
     }
@@ -75,7 +78,7 @@ bool CSE7766Component::check_byte_() {
 
   if (index == 1) {
     if (byte != 0x5A) {
-      ESP_LOGW(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
+      ESP_LOGV(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
       return false;
     }
 
