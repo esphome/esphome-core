@@ -72,7 +72,9 @@ void RDM6300Component::loop() {
   }
 }
 RDM6300BinarySensor *RDM6300Component::make_card(const std::string &name, uint32_t id) {
-  return new RDM6300BinarySensor(name, id);
+  auto *card = new RDM6300BinarySensor(name, id);
+  this->cards_.push_back(card);
+  return card;
 }
 float RDM6300Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
