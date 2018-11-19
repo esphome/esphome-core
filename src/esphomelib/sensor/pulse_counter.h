@@ -60,7 +60,7 @@ class PulseCounterBase {
  * Also allows for some simple filtering of short pulses using set_filter(), any pulse shorter than
  * the value provided to that function will be discarded. The time is given in APB clock cycles,
  * which usually amount to 12.5 ns per clock. Defaults to the max possible (about 13 ms).
- * See http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html for more information.
+ * See https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/peripherals/pcnt.html for more information.
  *
  * The pulse counter defaults to reporting a value of the measurement unit "pulses/min". To
  * modify this behavior, use filters in MQTTSensor.

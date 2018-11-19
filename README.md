@@ -248,7 +248,7 @@ That's it.
 #### Binary Sensor
 
 To create a simple GPIO binary sensor, that reports the state of a GPIO pin, use `make_gpio_binary_sensor()` 
-with the friendly name of the binary sensor, a [device class](https://home-assistant.io/components/binary_sensor/), 
+with the friendly name of the binary sensor, a [device class](https://www.home-assistant.io/components/binary_sensor/), 
 and the GPIO pin like this:
 
 ```cpp
@@ -262,7 +262,7 @@ to set the output channels. See [`examples/fan-example.cpp`](examples/fan-exampl
 
 ## Home Assistant Configuration
 
-To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://home-assistant.io/docs/mqtt/discovery/)
+To use an **esphomelib** component with Home Assistant, [MQTT discovery](https://www.home-assistant.io/docs/mqtt/discovery/)
 must be enabled with the topic `homeassistant/` (the default).
 
 ```yaml
