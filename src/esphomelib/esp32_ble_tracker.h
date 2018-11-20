@@ -123,6 +123,11 @@ class ESP32BLETracker : public Component {
   esp_ble_scan_params_t scan_params_;
   /// The interval in seconds to perform scans.
   uint32_t scan_interval_{300};
+  SemaphoreHandle_t scan_result_lock_;
+  size_t scan_result_index_{0};
+  esp_ble_gap_cb_param_t::ble_scan_result_evt_param scan_result_buffer_[16];
+  esp_bt_status_t scan_start_failed_{ESP_BT_STATUS_SUCCESS};
+  esp_bt_status_t scan_set_param_failed_{ESP_BT_STATUS_SUCCESS};
 };
 
 /// Simple helper class to expose an BLE device as a binary sensor.
