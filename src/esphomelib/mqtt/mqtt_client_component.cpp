@@ -2,7 +2,7 @@
 
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
-#include "esphomelib/wifi_component.h"
+#include "esphomelib/util.h"
 
 static const char *TAG = "mqtt.client";
 
@@ -72,7 +72,7 @@ bool MQTTClientComponent::can_proceed() {
 }
 
 void MQTTClientComponent::start_connect() {
-  if (!global_wifi_component->is_connected())
+  if (!network_is_connected())
     return;
 
   this->status_set_warning();
@@ -158,7 +158,7 @@ void MQTTClientComponent::loop() {
         reason_s = "Unknown";
         break;
     }
-    if (!global_wifi_component->is_connected()) {
+    if (!network_is_connected()) {
       reason_s = "WiFi disconnected";
     }
     ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);

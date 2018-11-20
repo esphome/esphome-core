@@ -186,8 +186,8 @@ void WiFiComponent::on_wifi_event(system_event_id_t event, system_event_info_t i
       break;
     case SYSTEM_EVENT_AP_PROBEREQRECVED: event_name = "AP Probe Request received";
       break;
-    default: event_name = "UNKNOWN";
-      break;
+    default:
+      return;
   }
 
   ESP_LOGV(TAG, "[WiFi event] %s (num=%d status=%u)", event_name, event, WiFi.status());

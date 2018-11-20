@@ -82,6 +82,7 @@
   #define USE_TEMPLATE_COVER
   #ifdef ARDUINO_ARCH_ESP32
     #define USE_ESP32_HALL_SENSOR
+    #define USE_ETHERNET
   #endif
   #define USE_DUTY_CYCLE_SENSOR
   #define USE_STATUS_LED

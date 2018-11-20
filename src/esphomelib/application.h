@@ -13,6 +13,7 @@
 #include "esphomelib/esp_one_wire.h"
 #include "esphomelib/esphal.h"
 #include "esphomelib/esppreferences.h"
+#include "esphomelib/ethernet_component.h"
 #include "esphomelib/i2c_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
@@ -161,6 +162,10 @@ class Application {
 
   /// Initialize the WiFi engine with no initial mode. Use this if you just want an Access Point.
   WiFiComponent *init_wifi();
+
+#ifdef USE_ETHERNET
+  EthernetComponent *init_ethernet();
+#endif
 
 #ifdef USE_OTA
   /** Initialize Over-the-Air updates.

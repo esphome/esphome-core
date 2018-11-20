@@ -6,8 +6,8 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esppreferences.h"
 #include "esphomelib/helpers.h"
-#include "esphomelib/wifi_component.h"
 #include "esphomelib/status_led.h"
+#include "esphomelib/util.h"
 
 #include <cstdio>
 #include <ArduinoOTA.h>
@@ -33,7 +33,7 @@ void OTAComponent::setup() {
   this->server_->begin();
 
 #ifdef USE_NEW_OTA
-  MDNS.begin(global_wifi_component->get_hostname().c_str());
+  MDNS.begin(network_get_hostname().c_str());
   MDNS.enableArduino(this->port_, !this->password_.empty());
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -475,19 +475,14 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     }
 #endif
     global_state = STATUS_LED_ERROR;
-    global_wifi_component->setup_();
-    while (!global_wifi_component->can_proceed()) {
-      yield();
-      global_wifi_component->loop_();
-      tick_status_led();
-    }
+    network_setup();
     this->setup_();
 
     ESP_LOGI(TAG, "Waiting for OTA attempt.");
     uint32_t begin = millis();
     while ((millis() - begin) < enable_time) {
       this->loop_();
-      global_wifi_component->loop_();
+      network_tick();
       yield();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");

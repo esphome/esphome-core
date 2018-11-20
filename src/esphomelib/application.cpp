@@ -6,6 +6,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
 #include "esphomelib/esppreferences.h"
+#include "application.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -135,6 +136,14 @@ WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string
   });
   return wifi;
 }
+
+#ifdef USE_ETHERNET
+EthernetComponent *Application::init_ethernet() {
+  auto *eth = new EthernetComponent();
+  eth->set_hostname(sanitize_hostname(this->name_));
+  return this->register_component(eth);
+}
+#endif
 
 void Application::set_name(const std::string &name) {
   this->name_ = to_lowercase_underscore(name);
