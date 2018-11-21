@@ -134,6 +134,7 @@
   #define USE_APDS9960
   #define USE_MPR121
   #define USE_MQTT
+  #define USE_SDS011
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -218,6 +219,15 @@
 #ifdef USE_MPR121
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
+  #endif
+#endif
+
+#ifdef USE_SDS011
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_UART
+    #define USE_UART
   #endif
 #endif
 

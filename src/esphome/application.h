@@ -124,6 +124,7 @@
 #include "esphome/sensor/ultrasonic_sensor.h"
 #include "esphome/sensor/uptime_sensor.h"
 #include "esphome/sensor/wifi_signal_sensor.h"
+#include "esphome/sensor/sds011_component.h"
 #include "esphome/stepper/a4988.h"
 #include "esphome/stepper/stepper.h"
 #include "esphome/stepper/uln2003.h"
@@ -850,6 +851,9 @@ class Application {
   sensor::CustomSensorConstructor *make_custom_sensor(const std::function<std::vector<sensor::Sensor *>()> &init);
 #endif
 
+#ifdef USE_SDS011
+  sensor::SDS011Component *make_sds011(UARTComponent *parent);
+#endif
 
 
 

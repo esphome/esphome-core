@@ -1297,6 +1297,12 @@ Application::MakePartitionLight Application::make_partition_light(
 }
 #endif
 
+#ifdef USE_SDS011
+sensor::SDS011Component *Application::make_sds011(UARTComponent *parent) {
+  return this->register_component(new SDS011Component(parent));
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOME_NAMESPACE_END
