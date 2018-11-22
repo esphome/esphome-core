@@ -65,8 +65,10 @@ class GPIOPin {
  protected:
   const uint8_t pin_;
   const uint8_t mode_;
+#ifdef ARDUINO_ARCH_ESP32
   volatile uint32_t *const gpio_clear_;
   volatile uint32_t *const gpio_set_;
+#endif
   volatile uint32_t *const gpio_read_;
   const uint32_t gpio_mask_;
   const bool inverted_;
