@@ -1357,6 +1357,12 @@ switch_::CustomSwitchConstructor *Application::make_custom_switch(const std::fun
 }
 #endif
 
+#ifdef USE_APDS9960
+sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
+  return this->register_component(new APDS9960(this->i2c_, update_interval));
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
