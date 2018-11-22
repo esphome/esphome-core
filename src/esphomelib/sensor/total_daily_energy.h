@@ -25,8 +25,9 @@ class TotalDailyEnergy : public Sensor, public Component {
   int8_t accuracy_decimals() override;
   void loop() override;
 
- protected:
   void publish_state_and_save_(float state);
+
+ protected:
   void process_new_state_(float state);
 
   ESPPreferenceObject pref_;

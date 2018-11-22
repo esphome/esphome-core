@@ -94,12 +94,12 @@ void Sensor::add_filter(Filter *filter) {
     this->send_state_to_frontend_internal_(value);
   });
 }
-void Sensor::add_filters(const std::list<Filter *> &filters) {
+void Sensor::add_filters(const std::vector<Filter *> &filters) {
   for (Filter *filter : filters) {
     this->add_filter(filter);
   }
 }
-void Sensor::set_filters(const std::list<Filter *> &filters) {
+void Sensor::set_filters(const std::vector<Filter *> &filters) {
   this->clear_filters();
   this->add_filters(filters);
 }
@@ -130,8 +130,9 @@ std::string Sensor::unique_id() { return ""; }
 void Sensor::send_state_to_frontend_internal_(float state) {
   this->has_state_ = true;
   this->state = state;
-  ESP_LOGD(TAG, "'%s': Sending state %.5f with %d decimals of accuracy",
-           this->get_name().c_str(), state, this->get_accuracy_decimals());
+  ESP_LOGD(TAG, "'%s': Sending state %.5f%s with %d decimals of accuracy",
+           this->get_name().c_str(), state, this->get_unit_of_measurement().c_str(),
+           this->get_accuracy_decimals());
   this->callback_.call(state);
 }
 SensorStateTrigger *Sensor::make_state_trigger() {
