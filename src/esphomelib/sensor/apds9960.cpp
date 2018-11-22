@@ -125,8 +125,22 @@ bool APDS9960::is_color_enabled_() const {
 
 void APDS9960::dump_config() {
   ESP_LOGCONFIG(TAG, "APDS9960:");
+  LOG_I2C_DEVICE(this);
 
   LOG_UPDATE_INTERVAL(this);
+  if (this->is_failed()) {
+    switch (this->error_code_) {
+      case COMMUNICATION_FAILED:
+        ESP_LOGE(TAG, "Communication with APDS9960 failed!");
+        break;
+      case WRONG_ID:
+        ESP_LOGE(TAG, "APDS9960 has invalid id!");
+        break;
+      default:
+        ESP_LOGE(TAG, "Setting up APDS9960 registers failed!");
+        break;
+    }
+  }
 }
 
 #define APDS9960_WARNING_CHECK(func, warning) \

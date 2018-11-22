@@ -15,7 +15,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace sensor {
 
 using APDS9960ColorChannelSensor = sensor::EmptyPollingParentSensor<1, ICON_LIGHTBULB, UNIT_PERCENT>;
-// TODO: Icons
 using APDS9960ProximitySensor = sensor::EmptyPollingParentSensor<1, ICON_LIGHTBULB, UNIT_PERCENT>;
 class APDS9960GestureDirectionBinarySensor;
 
