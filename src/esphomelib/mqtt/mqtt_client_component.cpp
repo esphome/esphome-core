@@ -29,7 +29,7 @@ void MQTTClientComponent::setup() {
     this->state_ = MQTT_CLIENT_DISCONNECTED;
     this->disconnect_reason_ = reason;
   });
-  if (this->is_log_message_enabled()) {
+  if (this->is_log_message_enabled() && global_log_component != nullptr) {
     global_log_component->add_on_log_callback([this](int level, const char *message) {
       if (level <= this->log_level_ && this->is_connected()) {
         this->publish(this->log_message_.topic, message, strlen(message),
