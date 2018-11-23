@@ -43,7 +43,7 @@ void OTAComponent::setup() {
   });
 #endif
 #else
-  ArduinoOTA.setHostname(global_wifi_component->get_hostname().c_str());
+  ArduinoOTA.setHostname(network_get_hostname().c_str());
   ArduinoOTA.setPort(this->port_);
   switch (this->auth_type_) {
     case PLAINTEXT: {
