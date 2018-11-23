@@ -11,7 +11,9 @@ namespace switch_ {
 
 static const char *TAG = "switch.gpio";
 
-GPIOSwitch::GPIOSwitch(const std::string &name, GPIOPin *pin) : Switch(name), Component(), pin_(pin) {
+GPIOSwitch::GPIOSwitch(const std::string &name, GPIOPin *pin)
+    : Switch(name), Component(), pin_(pin) {
+
 }
 
 float GPIOSwitch::get_setup_priority() const {
@@ -38,8 +40,8 @@ void GPIOSwitch::write_state(bool state) {
   this->publish_state(state);
 }
 
-}  // namespace switch_
+} // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_GPIO_SWITCH
+#endif //USE_GPIO_SWITCH

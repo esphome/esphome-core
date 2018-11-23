@@ -75,7 +75,7 @@ class PCF8574Component : public Component, public I2CDevice {
   uint16_t ddr_mask_{0x00};
   uint16_t input_mask_{0x00};
   uint16_t port_mask_{0x00};
-  bool pcf8575_;  ///< TRUE->16-channel PCF8575, FALSE->8-channel PCF8574
+  bool pcf8575_; ///< TRUE->16-channel PCF8575, FALSE->8-channel PCF8574
 };
 
 /// Helper class to expose a PCF8574 pin as an internal input GPIO pin.
@@ -110,10 +110,10 @@ class PCF8574GPIOOutputPin : public GPIOOutputPin {
   PCF8574Component *parent_;
 };
 
-}  // namespace io
+} // namespace io
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_PCF8574
+#endif //USE_PCF8574
 
-#endif  // ESPHOMELIB_PCF_8574_COMPONENT_H
+#endif //ESPHOMELIB_PCF_8574_COMPONENT_H

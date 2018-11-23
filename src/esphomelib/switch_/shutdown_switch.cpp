@@ -13,8 +13,7 @@ namespace switch_ {
 
 static const char *TAG = "switch.shutdown";
 
-ShutdownSwitch::ShutdownSwitch(const std::string &name) : Switch(name) {
-}
+ShutdownSwitch::ShutdownSwitch(const std::string &name) : Switch(name) {}
 
 std::string ShutdownSwitch::icon() {
   return "mdi:power";
@@ -25,7 +24,7 @@ void ShutdownSwitch::write_state(bool state) {
 
   if (state) {
     ESP_LOGI(TAG, "Shutting down...");
-    delay(100);  // Let MQTT settle a bit
+    delay(100); // Let MQTT settle a bit
 
     run_safe_shutdown_hooks("shutdown");
 #ifdef ARDUINO_ARCH_ESP8266
@@ -37,8 +36,8 @@ void ShutdownSwitch::write_state(bool state) {
   }
 }
 
-}  // namespace switch_
+} // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SHUTDOWN_SWITCH
+#endif //USE_SHUTDOWN_SWITCH

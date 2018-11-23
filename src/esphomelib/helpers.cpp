@@ -2,9 +2,9 @@
 #include <algorithm>
 
 #ifdef ARDUINO_ARCH_ESP8266
-#include <ESP8266WiFi.h>
+  #include <ESP8266WiFi.h>
 #else
-#include <Esp.h>
+  #include <Esp.h>
 #endif
 
 #include "esphomelib/espmath.h"
@@ -71,9 +71,9 @@ std::string to_lowercase_underscore(std::string s) {
 
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist) {
   std::string out(s);
-  out.erase(std::remove_if(out.begin(), out.end(),
-                           [&out, &whitelist](const char &c) { return whitelist.find(c) == std::string::npos; }),
-            out.end());
+  out.erase(std::remove_if(out.begin(), out.end(), [&out, &whitelist](const char &c) {
+    return whitelist.find(c) == std::string::npos;
+  }), out.end());
   return out;
 }
 
@@ -88,8 +88,7 @@ std::string truncate_string(const std::string &s, size_t length) {
   return s;
 }
 
-ExponentialMovingAverage::ExponentialMovingAverage(float alpha) : alpha_(alpha), accumulator_(0) {
-}
+ExponentialMovingAverage::ExponentialMovingAverage(float alpha) : alpha_(alpha), accumulator_(0) {}
 
 float ExponentialMovingAverage::get_alpha() const {
   return this->alpha_;
@@ -118,6 +117,7 @@ float ExponentialMovingAverage::next_value(float value) {
 }
 
 SlidingWindowMovingAverage::SlidingWindowMovingAverage(size_t max_size) : max_size_(max_size), sum_(0) {
+
 }
 
 float SlidingWindowMovingAverage::next_value(float value) {
@@ -156,14 +156,15 @@ void SlidingWindowMovingAverage::set_max_size(size_t max_size) {
 std::string value_accuracy_to_string(float value, int8_t accuracy_decimals) {
   auto multiplier = float(pow10(accuracy_decimals));
   float value_rounded = roundf(value * multiplier) / multiplier;
-  char tmp[32];  // should be enough, but we should maybe improve this at some point.
+  char tmp[32]; // should be enough, but we should maybe improve this at some point.
   dtostrf(value_rounded, 0, uint8_t(std::max(0, int(accuracy_decimals))), tmp);
   return std::string(tmp);
 }
 std::string uint64_to_string(uint64_t num) {
   char buffer[17];
   auto *address16 = reinterpret_cast<uint16_t *>(&num);
-  snprintf(buffer, sizeof(buffer), "%04X%04X%04X%04X", address16[3], address16[2], address16[1], address16[0]);
+  snprintf(buffer, sizeof(buffer), "%04X%04X%04X%04X",
+           address16[3], address16[2], address16[1], address16[0]);
   return std::string(buffer);
 }
 std::string uint32_to_string(uint32_t num) {
@@ -177,7 +178,7 @@ static size_t global_json_build_buffer_size = 0;
 
 void reserve_global_json_build_buffer(size_t required_size) {
   if (global_json_build_buffer_size == 0 || global_json_build_buffer_size < required_size) {
-    delete[] global_json_build_buffer;
+    delete [] global_json_build_buffer;
     global_json_build_buffer_size = std::max(required_size, global_json_build_buffer_size * 2);
 
     size_t remainder = global_json_build_buffer_size % 16U;
@@ -324,7 +325,7 @@ rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 
 rmt_channel_t select_next_rmt_channel() {
   rmt_channel_t value = next_rmt_channel;
-  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1);  // NOLINT
+  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
   return value;
 }
 #endif
@@ -366,10 +367,12 @@ uint32_t reverse_bits(uint32_t x) {
   return uint32_t(reverse_bits_16(x & 0xFFFF) << 16) | uint32_t(reverse_bits_16(x >> 16));
 }
 
-VectorJsonBuffer::String::String(VectorJsonBuffer *parent) : parent_(parent), start_(parent->size_) {
+VectorJsonBuffer::String::String(VectorJsonBuffer *parent)
+    : parent_(parent), start_(parent->size_) {
+
 }
 void VectorJsonBuffer::String::append(char c) const {
-  char *last = static_cast<char *>(this->parent_->do_alloc(1));
+  char* last = static_cast<char*>(this->parent_->do_alloc(1));
   *last = c;
 }
 const char *VectorJsonBuffer::String::c_str() const {

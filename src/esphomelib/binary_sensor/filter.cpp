@@ -9,10 +9,13 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace binary_sensor {
 
 DelayedOnFilter::DelayedOnFilter(uint32_t delay) : delay_(delay) {
+
 }
 optional<bool> DelayedOnFilter::new_value(bool value) {
   if (value) {
-    this->set_timeout("ON", this->delay_, [this]() { this->output(true); });
+    this->set_timeout("ON", this->delay_, [this](){
+      this->output(true);
+    });
     return {};
   } else {
     this->cancel_timeout("ON");
@@ -38,10 +41,13 @@ void Filter::input(bool value) {
 }
 
 DelayedOffFilter::DelayedOffFilter(uint32_t delay) : delay_(delay) {
+
 }
 optional<bool> DelayedOffFilter::new_value(bool value) {
   if (!value) {
-    this->set_timeout("OFF", this->delay_, [this]() { this->output(false); });
+    this->set_timeout("OFF", this->delay_, [this](){
+      this->output(false);
+    });
     return {};
   } else {
     this->cancel_timeout("OFF");
@@ -56,8 +62,7 @@ optional<bool> InvertFilter::new_value(bool value) {
   return !value;
 }
 
-LambdaFilter::LambdaFilter(const std::function<optional<bool>(bool)> &f) : f_(f) {
-}
+LambdaFilter::LambdaFilter(const std::function<optional<bool>(bool)> &f) : f_(f) {}
 
 optional<bool> LambdaFilter::new_value(bool value) {
   return this->f_(value);
@@ -72,8 +77,7 @@ optional<bool> UniqueFilter::new_value(bool value) {
   }
 }
 
-HeartbeatFilter::HeartbeatFilter(uint32_t interval) : interval_(interval) {
-}
+HeartbeatFilter::HeartbeatFilter(uint32_t interval) : interval_(interval) {}
 optional<bool> HeartbeatFilter::new_value(bool value) {
   this->value_ = value;
   return value;
@@ -87,8 +91,8 @@ void HeartbeatFilter::setup() {
 float HeartbeatFilter::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_BINARY_SENSOR
+#endif //USE_BINARY_SENSOR

@@ -36,15 +36,14 @@ class RDM6300BinarySensor : public BinarySensor {
   RDM6300BinarySensor(const std::string &name, uint32_t id);
 
   bool process(uint32_t id);
-
  protected:
   uint32_t id_;
 };
 
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_RDM6300
+#endif //USE_RDM6300
 
-#endif  // ESPHOMELIB_RDM_6300_H
+#endif //ESPHOMELIB_RDM_6300_H

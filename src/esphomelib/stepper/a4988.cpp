@@ -46,14 +46,16 @@ void A4988::loop() {
 float A4988::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-A4988::A4988(GPIOPin *step_pin, GPIOPin *dir_pin) : step_pin_(step_pin), dir_pin_(dir_pin) {
+A4988::A4988(GPIOPin *step_pin, GPIOPin *dir_pin)
+    : step_pin_(step_pin), dir_pin_(dir_pin) {
+
 }
 void A4988::set_sleep_pin(const GPIOOutputPin &sleep_pin) {
   this->sleep_pin_ = sleep_pin.copy();
 }
 
-}  // namespace stepper
+} // namespace stepper
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_A4988
+#endif //USE_A4988

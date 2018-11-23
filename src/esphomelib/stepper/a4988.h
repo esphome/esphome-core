@@ -28,10 +28,10 @@ class A4988 : public Stepper, public Component {
   GPIOPin *sleep_pin_{nullptr};
 };
 
-}  // namespace stepper
+} // namespace stepper
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_A4988
+#endif //USE_A4988
 
-#endif  // ESPHOMELIB_STEPPER_A4988_H
+#endif //ESPHOMELIB_STEPPER_A4988_H

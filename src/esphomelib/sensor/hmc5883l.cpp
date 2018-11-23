@@ -98,32 +98,15 @@ void HMC5883LComponent::update() {
 
   float mg_per_bit;
   switch (this->range_) {
-    case HMC5883L_RANGE_88_UT:
-      mg_per_bit = 0.073f;
-      break;
-    case HMC5883L_RANGE_130_UT:
-      mg_per_bit = 0.92f;
-      break;
-    case HMC5883L_RANGE_190_UT:
-      mg_per_bit = 1.22f;
-      break;
-    case HMC5883L_RANGE_250_UT:
-      mg_per_bit = 1.52f;
-      break;
-    case HMC5883L_RANGE_400_UT:
-      mg_per_bit = 2.27f;
-      break;
-    case HMC5883L_RANGE_470_UT:
-      mg_per_bit = 2.56f;
-      break;
-    case HMC5883L_RANGE_560_UT:
-      mg_per_bit = 3.03f;
-      break;
-    case HMC5883L_RANGE_810_UT:
-      mg_per_bit = 4.35f;
-      break;
-    default:
-      mg_per_bit = NAN;
+    case HMC5883L_RANGE_88_UT: mg_per_bit = 0.073f; break;
+    case HMC5883L_RANGE_130_UT: mg_per_bit = 0.92f; break;
+    case HMC5883L_RANGE_190_UT: mg_per_bit = 1.22f; break;
+    case HMC5883L_RANGE_250_UT: mg_per_bit = 1.52f; break;
+    case HMC5883L_RANGE_400_UT: mg_per_bit = 2.27f; break;
+    case HMC5883L_RANGE_470_UT: mg_per_bit = 2.56f; break;
+    case HMC5883L_RANGE_560_UT: mg_per_bit = 3.03f; break;
+    case HMC5883L_RANGE_810_UT: mg_per_bit = 4.35f; break;
+    default: mg_per_bit = NAN;
   }
 
   // in µT
@@ -132,7 +115,8 @@ void HMC5883LComponent::update() {
   const float z = int16_t(raw_z) * mg_per_bit * 0.1f;
 
   float heading = atan2f(0.0f - x, y) * 180.0f / M_PI;
-  ESP_LOGD(TAG, "Got x=%0.02fµT y=%0.02fµT z=%0.02fµT heading=%0.01f°", x, y, z, heading);
+  ESP_LOGD(TAG, "Got x=%0.02fµT y=%0.02fµT z=%0.02fµT heading=%0.01f°",
+      x, y, z, heading);
 
   if (this->x_sensor_ != nullptr)
     this->x_sensor_->publish_state(x);
@@ -144,8 +128,7 @@ void HMC5883LComponent::update() {
     this->heading_sensor_->publish_state(heading);
 }
 HMC5883LComponent::HMC5883LComponent(I2CComponent *parent, uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, HMC5883L_ADDRESS) {
-}
+    : PollingComponent(update_interval), I2CDevice(parent, HMC5883L_ADDRESS) {}
 HMC5883LFieldStrengthSensor *HMC5883LComponent::make_x_sensor(const std::string &name) {
   return this->x_sensor_ = new HMC5883LFieldStrengthSensor(name, this);
 }
@@ -162,8 +145,8 @@ void HMC5883LComponent::set_range(HMC5883LRange range) {
   this->range_ = range;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_HMC5883L
+#endif //USE_HMC5883L

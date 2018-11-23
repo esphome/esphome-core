@@ -23,8 +23,8 @@ static const uint32_t FOOTER_HIGH_US = 560;
 static const uint32_t FOOTER_LOW_US = 560;
 
 #ifdef USE_REMOTE_TRANSMITTER
-SamsungTransmitter::SamsungTransmitter(const std::string &name, uint32_t data) : RemoteTransmitter(name), data_(data) {
-}
+SamsungTransmitter::SamsungTransmitter(const std::string &name, uint32_t data)
+    : RemoteTransmitter(name), data_(data) {}
 
 void SamsungTransmitter::to_data(RemoteTransmitData *data) {
   encode_samsung(data, this->data_);
@@ -70,8 +70,8 @@ SamsungDecodeData decode_samsung(RemoteReceiveData *data) {
   return out;
 }
 
-SamsungReceiver::SamsungReceiver(const std::string &name, uint32_t data) : RemoteReceiver(name), data_(data) {
-}
+SamsungReceiver::SamsungReceiver(const std::string &name, uint32_t data)
+    : RemoteReceiver(name), data_(data) {}
 
 bool SamsungReceiver::matches(RemoteReceiveData *data) {
   auto decode = decode_samsung(data);
@@ -90,8 +90,8 @@ void SamsungDumper::dump(RemoteReceiveData *data) {
 }
 #endif
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE
+#endif //USE_REMOTE

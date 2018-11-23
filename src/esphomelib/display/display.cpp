@@ -58,8 +58,7 @@ void DisplayBuffer::set_rotation(DisplayRotation rotation) {
 }
 void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
   switch (this->rotation_) {
-    case DISPLAY_ROTATION_0_DEGREES:
-      break;
+    case DISPLAY_ROTATION_0_DEGREES:break;
     case DISPLAY_ROTATION_90_DEGREES:
       std::swap(x, y);
       x = this->get_width_internal_() - x - 1;
@@ -223,8 +222,9 @@ void DisplayBuffer::image(int x, int y, Image *image) {
     }
   }
 }
-void DisplayBuffer::get_text_bounds(int x, int y, const char *text, Font *font, TextAlign align, int *x1, int *y1,
-                                    int *width, int *height) {
+void DisplayBuffer::get_text_bounds(int x, int y,
+                                    const char *text, Font *font, TextAlign align,
+                                    int *x1, int *y1, int *width, int *height) {
   int x_offset, baseline;
   font->measure(text, width, &x_offset, &baseline, height);
 
@@ -236,7 +236,7 @@ void DisplayBuffer::get_text_bounds(int x, int y, const char *text, Font *font, 
       *x1 = x - *width;
       break;
     case TextAlign::CENTER_HORIZONTAL:
-      *x1 = x - (*width) / 2;
+      *x1 = x - (*width)/2;
       break;
     case TextAlign::LEFT:
     default:
@@ -253,7 +253,7 @@ void DisplayBuffer::get_text_bounds(int x, int y, const char *text, Font *font, 
       *y1 = y - baseline;
       break;
     case TextAlign::CENTER_VERTICAL:
-      *y1 = y - (*height) / 2;
+      *y1 = y - (*height)/2;
       break;
     case TextAlign::TOP:
     default:
@@ -335,9 +335,9 @@ void DisplayBuffer::strftime(int x, int y, Font *font, const char *format, time:
 }
 #endif
 
-Glyph::Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width,
-             int height)
+Glyph::Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width, int height)
     : char_(aChar), data_(data_start + offset), offset_x(offset_x), offset_y(offset_y), width_(width), height_(height) {
+
 }
 bool Glyph::get_pixel(int x, int y) const {
   const int x_data = x - this->offset_x;
@@ -433,8 +433,7 @@ const std::vector<Glyph> &Font::get_glyphs() const {
   return this->glyphs_;
 }
 Font::Font(std::vector<Glyph> &&glyphs, int baseline, int bottom)
-    : glyphs_(std::move(glyphs)), baseline_(baseline), bottom_(bottom) {
-}
+    : glyphs_(std::move(glyphs)), baseline_(baseline), bottom_(bottom) {}
 
 bool Image::get_pixel(int x, int y) const {
   if (x < 0 || x >= this->width_ || y < 0 || y >= this->height_)
@@ -450,11 +449,10 @@ int Image::get_height() const {
   return this->height_;
 }
 Image::Image(const uint8_t *data_start, int width, int height)
-    : width_(width), height_(height), data_start_(data_start) {
-}
+    : width_(width), height_(height), data_start_(data_start) {}
 
-}  // namespace display
+} // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_DISPLAY
+#endif //USE_DISPLAY

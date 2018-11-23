@@ -18,10 +18,8 @@ class TurnOffAction;
 template<typename T>
 class TurnOnAction;
 
-#define LOG_BINARY_OUTPUT(this)            \
-  if (this->inverted_) {                   \
-    ESP_LOGCONFIG(TAG, "  Inverted: YES"); \
-  }
+#define LOG_BINARY_OUTPUT(this) \
+  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); } \
 
 /** The base class for all binary outputs i.e. outputs that can only be switched on/off.
  *
@@ -82,7 +80,6 @@ class TurnOffAction : public Action<T> {
   TurnOffAction(BinaryOutput *output);
 
   void play(T x) override;
-
  protected:
   BinaryOutput *output_;
 };
@@ -92,22 +89,19 @@ class TurnOnAction : public Action<T> {
   TurnOnAction(BinaryOutput *output);
 
   void play(T x) override;
-
  protected:
   BinaryOutput *output_;
 };
 
 template<typename T>
-TurnOffAction<T>::TurnOffAction(BinaryOutput *output) : output_(output) {
-}
+TurnOffAction<T>::TurnOffAction(BinaryOutput *output) : output_(output) {}
 template<typename T>
 void TurnOffAction<T>::play(T x) {
   this->output_->turn_off();
   this->play_next(x);
 }
 template<typename T>
-TurnOnAction<T>::TurnOnAction(BinaryOutput *output) : output_(output) {
-}
+TurnOnAction<T>::TurnOnAction(BinaryOutput *output) : output_(output) {}
 template<typename T>
 void TurnOnAction<T>::play(T x) {
   this->output_->turn_on();
@@ -122,10 +116,10 @@ TurnOnAction<T> *BinaryOutput::make_turn_on_action() {
   return new TurnOnAction<T>(this);
 }
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_OUTPUT
+#endif //USE_OUTPUT
 
-#endif  // ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H
+#endif //ESPHOMELIB_OUTPUT_BINARY_OUTPUT_H

@@ -19,7 +19,6 @@ class RCSwitchRawTransmitter : public RemoteTransmitter {
   RCSwitchRawTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint32_t code, uint8_t nbits);
 
   void to_data(RemoteTransmitData *data) override;
-
  protected:
   RCSwitchProtocol protocol_;
   uint32_t code_;
@@ -37,8 +36,7 @@ void encode_rc_switch_raw_tristate(RemoteTransmitData *data, const char *code,
 
 class RCSwitchTypeATransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeATransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t switch_group,
-                           uint8_t switch_device, bool state);
+  RCSwitchTypeATransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t switch_group, uint8_t switch_device, bool state);
 };
 
 void encode_rc_switch_type_a(RemoteTransmitData *data, uint8_t switch_group, uint8_t switch_device, bool state,
@@ -49,8 +47,7 @@ void encode_rc_switch_type_a(RemoteTransmitData *data, const char *switch_group,
 
 class RCSwitchTypeBTransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeBTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t address_code,
-                           uint8_t channel_code, bool state);
+  RCSwitchTypeBTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t address_code, uint8_t channel_code, bool state);
 };
 
 void encode_rc_switch_type_b(RemoteTransmitData *data, uint8_t address, uint8_t channel, bool state,
@@ -58,8 +55,7 @@ void encode_rc_switch_type_b(RemoteTransmitData *data, uint8_t address, uint8_t 
 
 class RCSwitchTypeCTransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeCTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t family, uint8_t group,
-                           uint8_t device, bool state);
+  RCSwitchTypeCTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t family, uint8_t group, uint8_t device, bool state);
 };
 
 void encode_rc_switch_type_c(RemoteTransmitData *data, uint8_t family, uint8_t group, uint8_t device, bool state,
@@ -70,8 +66,7 @@ void encode_rc_switch_type_c(RemoteTransmitData *data, char family, uint8_t grou
 
 class RCSwitchTypeDTransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeDTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t group, uint8_t device,
-                           bool state);
+  RCSwitchTypeDTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t group, uint8_t device, bool state);
 };
 
 void encode_rc_switch_type_d(RemoteTransmitData *data, uint8_t group, uint8_t device, bool state,
@@ -97,20 +92,17 @@ class RCSwitchRawReceiver : public RemoteReceiver {
 
 class RCSwitchTypeAReceiver : public RCSwitchRawReceiver {
  public:
-  RCSwitchTypeAReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t switch_group,
-                        uint8_t switch_device, bool state);
+  RCSwitchTypeAReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t switch_group, uint8_t switch_device, bool state);
 };
 
 class RCSwitchTypeBReceiver : public RCSwitchRawReceiver {
  public:
-  RCSwitchTypeBReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t address_code, uint8_t channel_code,
-                        bool state);
+  RCSwitchTypeBReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t address_code, uint8_t channel_code, bool state);
 };
 
 class RCSwitchTypeCReceiver : public RCSwitchRawReceiver {
  public:
-  RCSwitchTypeCReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t family, uint8_t group,
-                        uint8_t device, bool state);
+  RCSwitchTypeCReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t family, uint8_t group, uint8_t device, bool state);
 };
 
 class RCSwitchTypeDReceiver : public RCSwitchRawReceiver {
@@ -124,10 +116,10 @@ class RCSwitchDumper : public RemoteReceiveDumper {
 };
 #endif
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_
+#endif //USE_
 
-#endif  // ESPHOMELIB_REMOTE_RC_SWITCH_H
+#endif //ESPHOMELIB_REMOTE_RC_SWITCH_H

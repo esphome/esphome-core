@@ -28,10 +28,10 @@ class TemplateBinarySensor : public Component, public BinarySensor {
   bool is_first_state_{true};
 };
 
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_TEMPLATE_BINARY_SENSOR
+#endif //USE_TEMPLATE_BINARY_SENSOR
 
-#endif  // ESPHOMELIB_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H
+#endif //ESPHOMELIB_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H

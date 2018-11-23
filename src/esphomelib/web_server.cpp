@@ -8,12 +8,12 @@
 #include "StreamString.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <ESPmDNS.h>
+  #include <ESPmDNS.h>
 #include <Update.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-#include <ESP8266mDNS.h>
-#include <Updater.h>
+  #include <ESP8266mDNS.h>
+  #include <Updater.h>
 #endif
 
 #include <cstdlib>
@@ -22,7 +22,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "web_server";
 
-void write_row(AsyncResponseStream *stream, Nameable *obj, const std::string &klass, const std::string &action) {
+void write_row(AsyncResponseStream *stream, Nameable *obj,
+               const std::string &klass, const std::string &action) {
   stream->print("<tr class=\"");
   stream->print(klass.c_str());
   stream->print("\" id=\"");
@@ -62,7 +63,9 @@ UrlMatch match_url(const std::string &url, bool only_domain = false) {
   return match;
 }
 
-WebServer::WebServer(uint16_t port) : port_(port) {
+WebServer::WebServer(uint16_t port)
+    : port_(port) {
+
 }
 
 void WebServer::set_css_url(const char *css_url) {
@@ -116,14 +119,17 @@ void WebServer::setup() {
   });
 
   if (global_log_component != nullptr)
-    global_log_component->add_on_log_callback(
-        [this](int level, const char *message) { this->events_.send(message, "log", millis()); });
+    global_log_component->add_on_log_callback([this](int level, const char *message) {
+      this->events_.send(message, "log", millis());
+    });
   this->server_->addHandler(this);
   this->server_->addHandler(&this->events_);
 
   this->server_->begin();
 
-  this->set_interval(10000, [this]() { this->events_.send("", "ping", millis(), 30000); });
+  this->set_interval(10000, [this]() {
+    this->events_.send("", "ping", millis(), 30000);
+  });
 }
 void WebServer::dump_config() {
   ESP_LOGCONFIG(TAG, "Web Server:");
@@ -153,8 +159,12 @@ void report_ota_error() {
   ESP_LOGW(TAG, "OTA Update failed! Error: %s", ss.c_str());
 }
 
-void WebServer::handleUpload(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data,
-                             size_t len, bool final) {
+void WebServer::handleUpload(AsyncWebServerRequest *request,
+                             const String &filename,
+                             size_t index,
+                             uint8_t *data,
+                             size_t len,
+                             bool final) {
   bool success;
   if (index == 0) {
     ESP_LOGI(TAG, "OTA Update Start: %s", filename.c_str());
@@ -198,7 +208,9 @@ void WebServer::handleUpload(AsyncWebServerRequest *request, const String &filen
   if (final) {
     if (Update.end(true)) {
       ESP_LOGI(TAG, "OTA update successful!");
-      this->set_timeout(100, []() { safe_reboot("ota"); });
+      this->set_timeout(100, []() {
+        safe_reboot("ota");
+      });
     } else {
       report_ota_error();
     }
@@ -251,12 +263,11 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
 #endif
 
   stream->print(
-      F("</tbody></table><p>See <a href=\"https://esphomelib.com/web-api/index.html\">esphomelib Web API</a> for REST "
-        "API documentation.</p>"
-        "<h2>OTA Update</h2><form method='POST' action=\"/update\" enctype=\"multipart/form-data\"><input "
-        "type=\"file\" name=\"update\"><input type=\"submit\" value=\"Update\"></form>"
+      F("</tbody></table><p>See <a href=\"https://esphomelib.com/web-api/index.html\">esphomelib Web API</a> for REST API documentation.</p>"
+        "<h2>OTA Update</h2><form method='POST' action=\"/update\" enctype=\"multipart/form-data\"><input type=\"file\" name=\"update\"><input type=\"submit\" value=\"Update\"></form>"
         "<h2>Debug Log</h2><pre id=\"log\"></pre>"
-        "<script src=\""));
+        "<script src=\"")
+  );
   if (this->js_url_ != nullptr) {
     stream->print(this->js_url_);
   } else {
@@ -271,7 +282,9 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
 void WebServer::register_sensor(sensor::Sensor *obj) {
   StoringController::register_sensor(obj);
   obj->add_on_state_callback([this, obj](float value) {
-    this->defer([this, obj, value] { this->events_.send(this->sensor_json(obj, value).c_str(), "state"); });
+    this->defer([this, obj, value] {
+      this->events_.send(this->sensor_json(obj, value).c_str(), "state");
+    });
   });
 }
 void WebServer::handle_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
@@ -300,7 +313,9 @@ std::string WebServer::sensor_json(sensor::Sensor *obj, float value) {
 void WebServer::register_text_sensor(text_sensor::TextSensor *obj) {
   StoringController::register_text_sensor(obj);
   obj->add_on_state_callback([this, obj](std::string value) {
-    this->defer([this, obj, value] { this->events_.send(this->text_sensor_json(obj, value).c_str(), "state"); });
+    this->defer([this, obj, value] {
+      this->events_.send(this->text_sensor_json(obj, value).c_str(), "state");
+    });
   });
 }
 void WebServer::handle_text_sensor_request(AsyncWebServerRequest *request, UrlMatch match) {
@@ -325,7 +340,9 @@ std::string WebServer::text_sensor_json(text_sensor::TextSensor *obj, const std:
 void WebServer::register_switch(switch_::Switch *obj) {
   StoringController::register_switch(obj);
   obj->add_on_state_callback([this, obj](bool value) {
-    this->defer([this, obj, value] { this->events_.send(this->switch_json(obj, value).c_str(), "state"); });
+    this->defer([this, obj, value] {
+      this->events_.send(this->switch_json(obj, value).c_str(), "state");
+    });
   });
 }
 std::string WebServer::switch_json(switch_::Switch *obj, bool value) {
@@ -344,13 +361,19 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
       std::string data = this->switch_json(obj, obj->state);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      this->defer([obj]() { obj->toggle(); });
+      this->defer([obj] () {
+        obj->toggle();
+      });
       request->send(200);
     } else if (match.method == "turn_on") {
-      this->defer([obj]() { obj->turn_on(); });
+      this->defer([obj] () {
+        obj->turn_on();
+      });
       request->send(200);
     } else if (match.method == "turn_off") {
-      this->defer([obj]() { obj->turn_off(); });
+      this->defer([obj] () {
+        obj->turn_off();
+      });
       request->send(200);
     } else {
       request->send(404);
@@ -365,7 +388,9 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
 void WebServer::register_binary_sensor(binary_sensor::BinarySensor *obj) {
   StoringController::register_binary_sensor(obj);
   obj->add_on_state_callback([this, obj](bool value) {
-    this->defer([this, obj, value] { this->events_.send(this->binary_sensor_json(obj, value).c_str(), "state"); });
+    this->defer([this, obj, value] {
+      this->events_.send(this->binary_sensor_json(obj, value).c_str(), "state");
+    });
   });
 }
 std::string WebServer::binary_sensor_json(binary_sensor::BinarySensor *obj, bool value) {
@@ -390,8 +415,11 @@ void WebServer::handle_binary_sensor_request(AsyncWebServerRequest *request, Url
 #ifdef USE_FAN
 void WebServer::register_fan(fan::FanState *obj) {
   StoringController::register_fan(obj);
-  obj->add_on_state_callback(
-      [this, obj]() { this->defer([this, obj] { this->events_.send(this->fan_json(obj).c_str(), "state"); }); });
+  obj->add_on_state_callback([this, obj]() {
+    this->defer([this, obj] {
+      this->events_.send(this->fan_json(obj).c_str(), "state");
+    });
+  });
 }
 std::string WebServer::fan_json(fan::FanState *obj) {
   return build_json([obj](JsonObject &root) {
@@ -400,14 +428,11 @@ std::string WebServer::fan_json(fan::FanState *obj) {
     root["value"] = obj->state;
     if (obj->get_traits().supports_speed()) {
       switch (obj->speed) {
-        case fan::FAN_SPEED_LOW:
-          root["speed"] = "low";
+        case fan::FAN_SPEED_LOW: root["speed"] = "low";
           break;
-        case fan::FAN_SPEED_MEDIUM:
-          root["speed"] = "medium";
+        case fan::FAN_SPEED_MEDIUM: root["speed"] = "medium";
           break;
-        case fan::FAN_SPEED_HIGH:
-          root["speed"] = "high";
+        case fan::FAN_SPEED_HIGH: root["speed"] = "high";
           break;
       }
     }
@@ -424,7 +449,9 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
       std::string data = this->fan_json(obj);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      this->defer([obj]() { obj->toggle().perform(); });
+      this->defer([obj] () {
+        obj->toggle().perform();
+      });
       request->send(200);
     } else if (match.method == "turn_on") {
       auto call = obj->turn_on();
@@ -450,10 +477,14 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
             return;
         }
       }
-      this->defer([call]() { call.perform(); });
+      this->defer([call] () {
+        call.perform();
+      });
       request->send(200);
     } else if (match.method == "turn_off") {
-      this->defer([obj]() { obj->turn_off().perform(); });
+      this->defer([obj] () {
+        obj->turn_off().perform();
+      });
       request->send(200);
     } else {
       request->send(404);
@@ -467,8 +498,11 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
 #ifdef USE_LIGHT
 void WebServer::register_light(light::LightState *obj) {
   StoringController::register_light(obj);
-  obj->add_new_remote_values_callback(
-      [this, obj]() { this->defer([this, obj] { this->events_.send(this->light_json(obj).c_str(), "state"); }); });
+  obj->add_new_remote_values_callback([this, obj]() {
+    this->defer([this, obj] {
+      this->events_.send(this->light_json(obj).c_str(), "state");
+    });
+  });
 }
 void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch match) {
   for (light::LightState *obj : this->lights_) {
@@ -479,7 +513,9 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
       std::string data = this->light_json(obj);
       request->send(200, "text/json", data.c_str());
     } else if (match.method == "toggle") {
-      this->defer([obj]() { obj->toggle().perform(); });
+      this->defer([obj] () {
+        obj->toggle().perform();
+      });
       request->send(200);
     } else if (match.method == "turn_on") {
       auto call = obj->turn_on();
@@ -509,7 +545,9 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
         call.set_effect(effect);
       }
 
-      this->defer([call]() { call.perform(); });
+      this->defer([call] () {
+        call.perform();
+      });
       request->send(200);
     } else if (match.method == "turn_off") {
       auto call = obj->turn_off();
@@ -517,7 +555,9 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
         uint32_t length = request->getParam("transition")->value().toFloat() * 1000;
         call.set_transition_length(length);
       }
-      this->defer([call]() { call.perform(); });
+      this->defer([call] () {
+        call.perform();
+      });
       request->send(200);
     } else {
       request->send(404);
@@ -551,7 +591,8 @@ bool WebServer::canHandle(AsyncWebServerRequest *request) {
 #endif
 
 #ifdef USE_SWITCH
-  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) && match.domain == "switch")
+  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
+      match.domain == "switch")
     return true;
 #endif
 
@@ -561,12 +602,14 @@ bool WebServer::canHandle(AsyncWebServerRequest *request) {
 #endif
 
 #ifdef USE_FAN
-  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) && match.domain == "fan")
+  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
+      match.domain == "fan")
     return true;
 #endif
 
 #ifdef USE_LIGHT
-  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) && match.domain == "light")
+  if ((request->method() == HTTP_POST || request->method() == HTTP_GET) &&
+      match.domain == "light")
     return true;
 #endif
 
@@ -638,4 +681,4 @@ bool WebServer::isRequestHandlerTrivial() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_WEB_SERVER
+#endif //USE_WEB_SERVER

@@ -97,16 +97,15 @@ class FlickerLightEffect : public LightEffect {
 
   void set_alpha(float alpha);
   void set_intensity(float intensity);
-
  protected:
   float intensity_{0.015f};
   float alpha_{0.95f};
 };
 
-}  // namespace light
+} // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_LIGHT
+#endif //USE_LIGHT
 
-#endif  // ESPHOMELIB_LIGHT_LIGHT_EFFECT_H
+#endif //ESPHOMELIB_LIGHT_LIGHT_EFFECT_H

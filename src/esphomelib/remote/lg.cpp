@@ -21,8 +21,7 @@ static const uint32_t BIT_ZERO_LOW_US = 550;
 
 #ifdef USE_REMOTE_TRANSMITTER
 LGTransmitter::LGTransmitter(const std::string &name, uint32_t data, uint8_t nbits)
-    : RemoteTransmitter(name), data_(data), nbits_(nbits) {
-}
+    : RemoteTransmitter(name), data_(data), nbits_(nbits) {}
 
 void LGTransmitter::to_data(RemoteTransmitData *data) {
   data->set_carrier_frequency(38000);
@@ -83,8 +82,7 @@ LGDecodeData decode_lg(RemoteReceiveData *data) {
 }
 
 LGReceiver::LGReceiver(const std::string &name, uint32_t data, uint8_t nbits)
-    : RemoteReceiver(name), data_(data), nbits_(nbits) {
-}
+    : RemoteReceiver(name), data_(data), nbits_(nbits) {}
 
 bool LGReceiver::matches(RemoteReceiveData *data) {
   auto res = decode_lg(data);
@@ -103,8 +101,8 @@ void LGDumper::dump(RemoteReceiveData *data) {
 }
 #endif
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE
+#endif //USE_REMOTE

@@ -31,10 +31,10 @@ class LightTraits {
   bool fast_led_{false};
 };
 
-}  // namespace light
+} // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_LIGHT
+#endif //USE_LIGHT
 
-#endif  // ESPHOMELIB_LIGHT_LIGHT_TRAITS_H
+#endif //ESPHOMELIB_LIGHT_LIGHT_TRAITS_H

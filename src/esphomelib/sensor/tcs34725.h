@@ -62,10 +62,10 @@ class TCS34725Component : public PollingComponent, public I2CDevice {
   TCS34725Gain gain_{TCS34725_GAIN_1X};
 };
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_TCS34725
+#endif //USE_TCS34725
 
-#endif  // ESPHOMELIB_SENSOR_TCS34725_H
+#endif //ESPHOMELIB_SENSOR_TCS34725_H

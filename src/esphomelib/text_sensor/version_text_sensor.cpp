@@ -19,8 +19,7 @@ void VersionTextSensor::setup() {
 float VersionTextSensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-VersionTextSensor::VersionTextSensor(const std::string &name) : TextSensor(name) {
-}
+VersionTextSensor::VersionTextSensor(const std::string &name) : TextSensor(name) {}
 
 std::string VersionTextSensor::icon() {
   return "mdi:new-box";
@@ -29,8 +28,8 @@ std::string VersionTextSensor::unique_id() {
   return get_mac_address() + "-version";
 }
 
-}  // namespace text_sensor
+} // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_VERSION_TEXT_SENSOR
+#endif //USE_VERSION_TEXT_SENSOR

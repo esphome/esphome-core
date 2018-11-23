@@ -18,8 +18,11 @@ static const uint32_t BIT_ZERO_HIGH_US = 600;
 static const uint32_t BIT_LOW_US = 600;
 
 #ifdef USE_REMOTE_TRANSMITTER
-SonyTransmitter::SonyTransmitter(const std::string &name, uint32_t data, uint8_t nbits)
+SonyTransmitter::SonyTransmitter(const std::string &name,
+                                 uint32_t data,
+                                 uint8_t nbits)
     : RemoteTransmitter(name), data_(data), nbits_(nbits) {
+
 }
 void SonyTransmitter::to_data(RemoteTransmitData *data) {
   encode_sony(data, this->data_, this->nbits_);
@@ -77,8 +80,7 @@ SonyDecodeData decode_sony(RemoteReceiveData *data) {
 }
 
 SonyReceiver::SonyReceiver(const std::string &name, uint32_t data, uint8_t nbits)
-    : RemoteReceiver(name), data_(data), nbits_(nbits) {
-}
+    : RemoteReceiver(name), data_(data), nbits_(nbits) {}
 
 bool SonyReceiver::matches(RemoteReceiveData *data) {
   auto decode = decode_sony(data);
@@ -94,8 +96,8 @@ void SonyDumper::dump(RemoteReceiveData *data) {
 }
 #endif
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE
+#endif //USE_REMOTE

@@ -40,7 +40,8 @@ uint32_t Sensor::update_interval() {
 int8_t Sensor::accuracy_decimals() {
   return 0;
 }
-Sensor::Sensor(const std::string &name) : Nameable(name), state(NAN), raw_state(NAN) {
+Sensor::Sensor(const std::string &name)
+    : Nameable(name), state(NAN), raw_state(NAN) {
   // By default, apply a smoothing over the last 15 values
   this->add_filter(new SlidingWindowMovingAverageFilter(15, 15));
 }
@@ -85,9 +86,13 @@ void Sensor::add_filter(Filter *filter) {
     while (last_filter->next_ != nullptr)
       last_filter = last_filter->next_;
     last_filter->next_ = filter;
-    last_filter->output_ = [filter](float value) { filter->input(value); };
+    last_filter->output_ = [filter] (float value) {
+      filter->input(value);
+    };
   }
-  filter->initialize([this](float value) { this->send_state_to_frontend_internal_(value); });
+  filter->initialize([this](float value) {
+    this->send_state_to_frontend_internal_(value);
+  });
 }
 void Sensor::add_filters(const std::list<Filter *> &filters) {
   for (Filter *filter : filters) {
@@ -120,15 +125,13 @@ float Sensor::get_raw_value() const {
 float Sensor::get_raw_state() const {
   return this->raw_state;
 }
-std::string Sensor::unique_id() {
-  return "";
-}
+std::string Sensor::unique_id() { return ""; }
 
 void Sensor::send_state_to_frontend_internal_(float state) {
   this->has_state_ = true;
   this->state = state;
-  ESP_LOGD(TAG, "'%s': Sending state %.5f with %d decimals of accuracy", this->get_name().c_str(), state,
-           this->get_accuracy_decimals());
+  ESP_LOGD(TAG, "'%s': Sending state %.5f with %d decimals of accuracy",
+           this->get_name().c_str(), state, this->get_accuracy_decimals());
   this->callback_.call(state);
 }
 SensorStateTrigger *Sensor::make_state_trigger() {
@@ -157,8 +160,7 @@ uint32_t Sensor::calculate_expected_filter_update_interval() {
 }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
-    : PollingComponent(update_interval), Sensor(name) {
-}
+    : PollingComponent(update_interval), Sensor(name) {}
 
 uint32_t PollingSensorComponent::update_interval() {
   return this->get_update_interval();
@@ -197,11 +199,15 @@ const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m^3";
 const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
 
 SensorStateTrigger::SensorStateTrigger(Sensor *parent) {
-  parent->add_on_state_callback([this](float value) { this->trigger(value); });
+  parent->add_on_state_callback([this](float value) {
+    this->trigger(value);
+  });
 }
 
 SensorRawStateTrigger::SensorRawStateTrigger(Sensor *parent) {
-  parent->add_on_raw_state_callback([this](float value) { this->trigger(value); });
+  parent->add_on_raw_state_callback([this](float value) {
+    this->trigger(value);
+  });
 }
 
 ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) {
@@ -212,8 +218,8 @@ ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) {
     float local_min = this->min_.value(value);
     float local_max = this->max_.value(value);
 
-    bool in_range = (isnan(local_min) && value <= local_max) || (isnan(local_max) && value >= local_min) ||
-                    (!isnan(local_min) && !isnan(local_max) && local_min <= value && value <= local_max);
+    bool in_range = (isnan(local_min) && value <= local_max) || (isnan(local_max) && value >= local_min)
+        || (!isnan(local_min) && !isnan(local_max) && local_min <= value && value <= local_max);
 
     if (in_range != this->previous_in_range_ && in_range) {
       this->trigger(value);
@@ -235,8 +241,8 @@ void ValueRangeTrigger::set_max(float max) {
   this->max_ = max;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SENSOR
+#endif //USE_SENSOR

@@ -2,30 +2,27 @@
 #define ESPHOMELIB_ESPHAL_H
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <esp32-hal.h>
+  #include <esp32-hal.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-#include "Arduino.h"
+  #include "Arduino.h"
 #endif
 #include "esphomelib/espmath.h"
 #include "esphomelib/defines.h"
 
 #ifdef bool
-#undef bool
+  #undef bool
 #endif
 #ifdef true
-#undef true
+  #undef true
 #endif
 #ifdef false
-#undef false
+  #undef false
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
-#define LOG_PIN(prefix, pin)                                       \
-  if (pin != nullptr) {                                            \
-    ESP_LOGCONFIG(TAG, prefix LOG_PIN_PATTERN, LOG_PIN_ARGS(pin)); \
-  }
+#define LOG_PIN(prefix, pin) if (pin != nullptr) {ESP_LOGCONFIG(TAG, prefix LOG_PIN_PATTERN, LOG_PIN_ARGS(pin));}
 #define LOG_PIN_PATTERN "GPIO%u (Mode: %s%s)"
 #define LOG_PIN_ARGS(pin) (pin)->get_pin(), (pin)->get_pin_mode_name(), ((pin)->is_inverted() ? ", INVERTED" : "")
 
@@ -83,7 +80,7 @@ class GPIOPin {
  */
 class GPIOOutputPin : public GPIOPin {
  public:
-  GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false);  // NOLINT
+  GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false); // NOLINT
 };
 
 /** Basically just a GPIOPin, but defaults to INPUT pinMode.
@@ -94,9 +91,9 @@ class GPIOOutputPin : public GPIOPin {
  */
 class GPIOInputPin : public GPIOPin {
  public:
-  GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false);  // NOLINT
+  GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false); // NOLINT
 };
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // ESPHOMELIB_ESPHAL_H
+#endif //ESPHOMELIB_ESPHAL_H

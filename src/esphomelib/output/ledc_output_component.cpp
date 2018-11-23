@@ -25,7 +25,7 @@ void LEDCOutputComponent::setup() {
   ledcSetup(this->channel_, this->frequency_, this->bit_depth_);
   ledcAttachPin(this->pin_, this->channel_);
 
-  this->turn_off();  // initialize off
+  this->turn_off(); // initialize off
 }
 
 void LEDCOutputComponent::dump_config() {
@@ -40,7 +40,10 @@ float LEDCOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 
-LEDCOutputComponent::LEDCOutputComponent(uint8_t pin, float frequency, uint8_t bit_depth) : Component(), FloatOutput() {
+LEDCOutputComponent::LEDCOutputComponent(uint8_t pin,
+                                         float frequency,
+                                         uint8_t bit_depth)
+    : Component(), FloatOutput() {
   this->set_channel(next_ledc_channel++);
   this->set_frequency(frequency);
   this->set_pin(pin);
@@ -74,8 +77,8 @@ void LEDCOutputComponent::set_frequency(float frequency) {
 
 uint8_t next_ledc_channel = 0;
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_LEDC_OUTPUT
+#endif //USE_LEDC_OUTPUT

@@ -90,7 +90,7 @@ class BinarySensor : public Nameable {
   virtual std::string device_class();
 
   CallbackManager<void(bool)> state_callback_{};
-  optional<std::string> device_class_{};  ///< Stores the override of the device class
+  optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
   bool has_state_{false};
 };
@@ -110,9 +110,9 @@ class ClickTrigger : public Trigger<NoArg> {
   explicit ClickTrigger(BinarySensor *parent, uint32_t min_length, uint32_t max_length);
 
  protected:
-  uint32_t start_time_{0};  /// The millis() time when the click started.
-  uint32_t min_length_;     /// Minimum length of click. 0 means no minimum.
-  uint32_t max_length_;     /// Maximum length of click. 0 means no maximum.
+  uint32_t start_time_{0}; /// The millis() time when the click started.
+  uint32_t min_length_; /// Minimum length of click. 0 means no minimum.
+  uint32_t max_length_; /// Maximum length of click. 0 means no maximum.
 };
 
 class DoubleClickTrigger : public Trigger<NoArg> {
@@ -122,8 +122,8 @@ class DoubleClickTrigger : public Trigger<NoArg> {
  protected:
   uint32_t start_time_{0};
   uint32_t end_time_{0};
-  uint32_t min_length_;  /// Minimum length of click. 0 means no minimum.
-  uint32_t max_length_;  /// Maximum length of click. 0 means no maximum.
+  uint32_t min_length_; /// Minimum length of click. 0 means no minimum.
+  uint32_t max_length_; /// Maximum length of click. 0 means no maximum.
 };
 
 class MultiClickTrigger : public Trigger<NoArg>, public Component {
@@ -152,10 +152,10 @@ class MultiClickTrigger : public Trigger<NoArg>, public Component {
   bool is_valid_{false};
 };
 
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_BINARY_SENSOR
+#endif //USE_BINARY_SENSOR
 
-#endif  // ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H
+#endif //ESPHOMELIB_BINARY_SENSOR_BINARY_SENSOR_H

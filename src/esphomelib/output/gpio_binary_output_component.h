@@ -46,10 +46,10 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
   GPIOPin *pin_;
 };
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_GPIO_OUTPUT
+#endif //USE_GPIO_OUTPUT
 
-#endif  // ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H
+#endif //ESPHOMELIB_OUTPUT_GPIO_BINARY_OUTPUT_COMPONENT_H

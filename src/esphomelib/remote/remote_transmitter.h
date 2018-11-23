@@ -45,7 +45,7 @@ class RemoteTransmitData {
 
 class RemoteTransmitterComponent;
 
-class RemoteTransmitter : public switch_::Switch {
+ class RemoteTransmitter : public switch_::Switch {
  public:
   explicit RemoteTransmitter(const std::string &name);
 
@@ -59,8 +59,8 @@ class RemoteTransmitter : public switch_::Switch {
   void write_state(bool state) override;
 
   RemoteTransmitterComponent *parent_;
-  uint32_t send_times_{1};  ///< How many times to send the data
-  uint32_t send_wait_{0};   ///< How many microseconds to wait between repeats.
+  uint32_t send_times_{1}; ///< How many times to send the data
+  uint32_t send_wait_{0}; ///< How many microseconds to wait between repeats.
 };
 
 class RemoteTransmitterComponent : public RemoteControlComponentBase, public Component {
@@ -84,9 +84,12 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
     void set_nec(uint16_t address, uint16_t command);
     void set_panasonic(uint16_t address, uint32_t command);
     void set_raw(std::vector<int32_t> data);
-    void set_rc_switch_raw(uint32_t code, uint8_t nbits, RCSwitchProtocol protocol = rc_switch_protocols[1]);
-    void set_rc_switch_raw(const char *code, RCSwitchProtocol protocol = rc_switch_protocols[1]);
-    void set_rc_switch_raw_tristate(const char *code, RCSwitchProtocol protocol = rc_switch_protocols[1]);
+    void set_rc_switch_raw(uint32_t code, uint8_t nbits,
+                           RCSwitchProtocol protocol = rc_switch_protocols[1]);
+    void set_rc_switch_raw(const char *code,
+                           RCSwitchProtocol protocol = rc_switch_protocols[1]);
+    void set_rc_switch_raw_tristate(const char *code,
+                                    RCSwitchProtocol protocol = rc_switch_protocols[1]);
     void set_rc_switch_type_a(uint8_t switch_group, uint8_t switch_device, bool state,
                               RCSwitchProtocol protocol = rc_switch_protocols[1]);
     void set_rc_switch_type_a(const char *switch_group, const char *switch_device, bool state,
@@ -107,7 +110,6 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
     void perform();
 
     RemoteTransmitData *get_data();
-
    protected:
     RemoteTransmitterComponent *parent_;
     uint32_t send_times_{1};
@@ -122,7 +124,9 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   void send_(RemoteTransmitData *data, uint32_t send_times, uint32_t send_wait);
 
 #ifdef ARDUINO_ARCH_ESP8266
-  void calculate_on_off_time_(uint32_t carrier_frequency, uint32_t *on_time_period, uint32_t *off_time_period);
+  void calculate_on_off_time_(uint32_t carrier_frequency,
+                              uint32_t *on_time_period,
+                              uint32_t *off_time_period);
 
   void mark_(uint32_t on_time, uint32_t off_time, uint32_t usec);
 
@@ -140,10 +144,10 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   RemoteTransmitData temp_;
 };
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE_TRANSMITTER
+#endif //USE_REMOTE_TRANSMITTER
 
-#endif  // ESPHOMELIB_REMOTE_TRANSMITTER_H
+#endif //ESPHOMELIB_REMOTE_TRANSMITTER_H

@@ -12,7 +12,9 @@ namespace binary_sensor {
 std::string StatusBinarySensor::device_class() {
   return "connectivity";
 }
-StatusBinarySensor::StatusBinarySensor(const std::string &name) : BinarySensor(name) {
+StatusBinarySensor::StatusBinarySensor(const std::string &name)
+    : BinarySensor(name) {
+
 }
 void StatusBinarySensor::loop() {
   bool status = mqtt::global_mqtt_client->is_connected();
@@ -28,8 +30,8 @@ float StatusBinarySensor::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_STATUS_BINARY_SENSOR
+#endif //USE_STATUS_BINARY_SENSOR

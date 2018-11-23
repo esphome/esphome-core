@@ -11,7 +11,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
-RemoteControlComponentBase::RemoteControlComponentBase(GPIOPin *pin) : pin_(pin) {
+RemoteControlComponentBase::RemoteControlComponentBase(GPIOPin *pin)
+    : pin_(pin) {
 #ifdef ARDUINO_ARCH_ESP32
   this->channel_ = select_next_rmt_channel();
 #endif
@@ -33,8 +34,8 @@ void RemoteControlComponentBase::set_clock_divider(uint8_t clock_divider) {
 }
 #endif
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE
+#endif //USE_REMOTE

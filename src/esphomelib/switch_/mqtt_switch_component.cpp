@@ -14,7 +14,9 @@ namespace switch_ {
 
 static const char *TAG = "switch.mqtt";
 
-MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_) : MQTTComponent(), switch_(switch_) {
+MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
+    : MQTTComponent(), switch_(switch_) {
+
 }
 
 void MQTTSwitchComponent::setup() {
@@ -36,8 +38,11 @@ void MQTTSwitchComponent::setup() {
         break;
     }
   });
-  this->switch_->add_on_state_callback(
-      [this](bool enabled) { this->defer([this, enabled]() { this->publish_state(enabled); }); });
+  this->switch_->add_on_state_callback([this](bool enabled){
+    this->defer([this, enabled]() {
+      this->publish_state(enabled);
+    });
+  });
 }
 void MQTTSwitchComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT switch '%s': ", this->switch_->get_name().c_str());
@@ -73,8 +78,8 @@ void MQTTSwitchComponent::publish_state(bool state) {
   this->send_message(this->get_state_topic(), state_s);
 }
 
-}  // namespace switch_
+} // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SWITCH
+#endif //USE_SWITCH

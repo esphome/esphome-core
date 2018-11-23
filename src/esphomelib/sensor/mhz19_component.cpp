@@ -14,8 +14,11 @@ static const uint8_t MHZ19_REQUEST_LENGTH = 8;
 static const uint8_t MHZ19_RESPONSE_LENGTH = 9;
 static const uint8_t MHZ19_COMMAND_GET_PPM[] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-MHZ19Component::MHZ19Component(UARTComponent *parent, const std::string &co2_name, uint32_t update_interval)
-    : PollingComponent(update_interval), UARTDevice(parent), co2_sensor_(new MHZ19CO2Sensor(co2_name, this)) {
+MHZ19Component::MHZ19Component(UARTComponent *parent, const std::string &co2_name,
+                               uint32_t update_interval)
+    : PollingComponent(update_interval), UARTDevice(parent),
+      co2_sensor_(new MHZ19CO2Sensor(co2_name, this)) {
+
 }
 uint8_t mhz19_checksum_(const uint8_t *command) {
   uint8_t sum = 0;
@@ -79,8 +82,8 @@ float MHZ19Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_MHZ19
+#endif //USE_MHZ19

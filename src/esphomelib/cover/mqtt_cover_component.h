@@ -33,10 +33,10 @@ class MQTTCoverComponent : public mqtt::MQTTComponent {
   Cover *cover_;
 };
 
-}  // namespace cover
+} // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_COVER
+#endif //USE_COVER
 
-#endif  // ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H
+#endif //ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H

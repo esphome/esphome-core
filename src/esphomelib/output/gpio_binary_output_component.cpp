@@ -31,11 +31,13 @@ void GPIOBinaryOutputComponent::dump_config() {
 float GPIOBinaryOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin) : pin_(pin) {
+GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin)
+  : pin_(pin) {
+
 }
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_GPIO_OUTPUT
+#endif //USE_GPIO_OUTPUT

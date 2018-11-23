@@ -17,20 +17,27 @@ std::string MQTTJSONLightComponent::component_type() const {
 }
 
 void MQTTJSONLightComponent::setup() {
-  this->subscribe_json(this->get_command_topic(),
-                       [&](JsonObject &root) { this->state_->make_call().parse_json(root).perform(); });
+  this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
+    this->state_->make_call().parse_json(root).perform();
+  });
 
   auto f = std::bind(&MQTTJSONLightComponent::publish_state, this);
-  this->state_->add_new_remote_values_callback([this, f]() { this->defer("send", f); });
+  this->state_->add_new_remote_values_callback([this, f]() {
+    this->defer("send", f);
+  });
 
   this->publish_state();
 }
 
-MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state) : MQTTComponent(), state_(state) {
+MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
+    : MQTTComponent(), state_(state) {
+
 }
 
 void MQTTJSONLightComponent::publish_state() {
-  this->send_json_message(this->get_state_topic(), [&](JsonObject &root) { this->state_->dump_json(root); });
+  this->send_json_message(this->get_state_topic(), [&](JsonObject &root) {
+    this->state_->dump_json(root);
+  });
 }
 LightState *MQTTJSONLightComponent::get_state() const {
   return this->state_;
@@ -68,8 +75,8 @@ void MQTTJSONLightComponent::dump_config() {
   LOG_MQTT_COMPONENT(true, true)
 }
 
-}  // namespace light
+} // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_LIGHT
+#endif //USE_LIGHT

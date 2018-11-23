@@ -36,8 +36,7 @@ float PowerSupplyComponent::get_setup_priority() const {
 }
 
 PowerSupplyComponent::PowerSupplyComponent(GPIOPin *pin, uint32_t enable_time, uint32_t keep_on_time)
-    : pin_(pin), enable_time_(enable_time), keep_on_time_(keep_on_time) {
-}
+    : pin_(pin), enable_time_(enable_time), keep_on_time_(keep_on_time) {}
 
 bool PowerSupplyComponent::is_enabled() const {
   return this->enabled_;
@@ -68,6 +67,7 @@ void PowerSupplyComponent::request_high_power() {
   this->enabled_ = true;
   // increase active requests
   this->active_requests_++;
+
 }
 
 void PowerSupplyComponent::unrequest_high_power() {
@@ -79,7 +79,7 @@ void PowerSupplyComponent::unrequest_high_power() {
 
   if (this->active_requests_ == 0) {
     // set timeout for power supply off
-    this->set_timeout("power-supply-off", this->keep_on_time_, [this]() {
+    this->set_timeout("power-supply-off", this->keep_on_time_, [this](){
       ESP_LOGD(TAG, "Disabling power supply.");
       this->pin_->digital_write(false);
       this->enabled_ = false;
@@ -89,4 +89,4 @@ void PowerSupplyComponent::unrequest_high_power() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_OUTPUT
+#endif //USE_OUTPUT

@@ -19,7 +19,7 @@ static const char *TAG = "sensor.bmp085";
 static const uint8_t BMP085_ADDRESS = 0x77;
 static const uint8_t BMP085_REGISTER_AC1_H = 0xAA;
 static const uint8_t BMP085_REGISTER_CONTROL = 0xF4;
-static const uint8_t BMP085_REGISTER_DATA_MSB = 0xF6;
+static const uint8_t BMP085_REGISTER_DATA_MSB  = 0xF6;
 static const uint8_t BMP085_CONTROL_MODE_TEMPERATURE = 0x2E;
 static const uint8_t BMP085_CONTROL_MODE_PRESSURE_3 = 0xF4;
 
@@ -58,12 +58,13 @@ void BMP085Component::dump_config() {
   }
   LOG_UPDATE_INTERVAL(this);
 }
-BMP085Component::BMP085Component(I2CComponent *parent, const std::string &temperature_name,
-                                 const std::string &pressure_name, uint32_t update_interval)
-    : PollingComponent(update_interval),
-      I2CDevice(parent, BMP085_ADDRESS),
+BMP085Component::BMP085Component(I2CComponent *parent,
+                                 const std::string &temperature_name, const std::string &pressure_name,
+                                 uint32_t update_interval)
+    : PollingComponent(update_interval), I2CDevice(parent, BMP085_ADDRESS),
       temperature_(new BMP085TemperatureSensor(temperature_name, this)),
       pressure_(new BMP085PressureSensor(pressure_name, this)) {
+
 }
 
 void BMP085Component::read_temperature_() {
@@ -80,9 +81,9 @@ void BMP085Component::read_temperature_() {
     return;
   }
 
-  int32_t x1 = ((ut - int32_t(this->calibration_.ac6)) * int32_t(this->calibration_.ac5)) >> 15;
+  int32_t x1 = ((ut - int32_t(this->calibration_.ac6)) * int32_t(this->calibration_.ac5)) >>15;
   int32_t x2 = int32_t(this->calibration_.mc << 11) / (x1 + this->calibration_.md);
-  this->calibration_.b5 = x1 + x2;
+  this->calibration_.b5 =  x1 + x2;
   float temperature = (this->calibration_.b5 >> 4) / 10.0f;
   ESP_LOGD(TAG, "Got Temperature=%.1f°C", temperature);
   this->temperature_->publish_state(temperature);
@@ -121,11 +122,9 @@ void BMP085Component::read_pressure_() {
   x2 = (int32_t(this->calibration_.b1) * ((b6 * b6) >> 12)) >> 16;
   x3 = ((x1 + x2) + 2) >> 2;
   uint32_t b4 = (uint32_t(this->calibration_.ac4) * uint32_t(x3 + 32768)) >> 15;
-  uint32_t b7 = ((uint32_t)value - b3) * (uint32_t)(50000UL >> oss);
-  if (b7 < 0x80000000)
-    p = (b7 << 1) / b4;
-  else
-    p = (b7 / b4) << 1;
+  uint32_t b7 = ((uint32_t) value - b3) * (uint32_t) (50000UL >> oss);
+  if (b7 < 0x80000000) p = (b7 << 1) / b4;
+  else p = (b7 / b4) << 1;
 
   x1 = (p >> 8) * (p >> 8);
   x1 = (x1 * 3038) >> 16;
@@ -151,8 +150,8 @@ float BMP085Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_BMP085_SENSOR
+#endif //USE_BMP085_SENSOR

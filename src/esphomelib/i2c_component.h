@@ -137,7 +137,7 @@ class I2CComponent : public Component {
 };
 
 #ifdef ARDUINO_ARCH_ESP32
-extern uint8_t next_i2c_bus_num_;
+  extern uint8_t next_i2c_bus_num_;
 #endif
 
 /** All components doing communication on the I2C bus should subclass I2CDevice.
@@ -216,6 +216,6 @@ class I2CDevice {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_I2C
+#endif //USE_I2C
 
-#endif  // ESPHOMELIB_I2C_COMPONENT_H
+#endif //ESPHOMELIB_I2C_COMPONENT_H

@@ -52,8 +52,8 @@ enum WaveshareEPaperTypeAModel {
 
 class WaveshareEPaperTypeA : public WaveshareEPaper {
  public:
-  WaveshareEPaperTypeA(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, WaveshareEPaperTypeAModel model,
-                       uint32_t update_interval);
+  WaveshareEPaperTypeA(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin,
+                       WaveshareEPaperTypeAModel model, uint32_t update_interval);
 
   void setup() override;
 
@@ -126,10 +126,10 @@ class WaveshareEPaper7P5In : public WaveshareEPaper {
   int get_height_internal_() override;
 };
 
-}  // namespace display
+} // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_WAVESHARE_EPAPER
+#endif //USE_WAVESHARE_EPAPER
 
-#endif  // ESPHOMELIB_WAVESHARE_E_PAPER_H
+#endif //ESPHOMELIB_WAVESHARE_E_PAPER_H

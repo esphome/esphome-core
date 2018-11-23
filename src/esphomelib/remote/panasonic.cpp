@@ -24,8 +24,11 @@ void PanasonicTransmitter::to_data(RemoteTransmitData *data) {
   encode_panasonic(data, this->address_, this->command_);
 }
 
-PanasonicTransmitter::PanasonicTransmitter(const std::string &name, uint16_t address, uint32_t command)
+PanasonicTransmitter::PanasonicTransmitter(const std::string &name,
+                                           uint16_t address,
+                                           uint32_t command)
     : RemoteTransmitter(name), address_(address), command_(command) {
+
 }
 
 void encode_panasonic(RemoteTransmitData *data, uint16_t address, uint32_t command) {
@@ -69,6 +72,7 @@ PanasonicDecodeData decode_panasonic(RemoteReceiveData *data) {
     } else {
       return out;
     }
+
   }
 
   for (mask = 1UL << 31; mask != 0; mask >>= 1) {
@@ -92,6 +96,7 @@ bool PanasonicReceiver::matches(RemoteReceiveData *data) {
 }
 PanasonicReceiver::PanasonicReceiver(const std::string &name, uint16_t address, uint32_t command)
     : RemoteReceiver(name), address_(address), command_(command) {
+
 }
 
 void PanasonicDumper::dump(RemoteReceiveData *data) {
@@ -103,8 +108,8 @@ void PanasonicDumper::dump(RemoteReceiveData *data) {
 }
 #endif
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE
+#endif //USE_REMOTE

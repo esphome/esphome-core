@@ -13,10 +13,10 @@
 #include "esphomelib/remote/sony.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <soc/rmt_struct.h>
+  #include <soc/rmt_struct.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-#include "FunctionalInterrupt.h"
+  #include "FunctionalInterrupt.h"
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -26,8 +26,7 @@ namespace remote {
 static const char *TAG = "remote.receiver";
 
 RemoteReceiveData::RemoteReceiveData(RemoteReceiverComponent *parent, std::vector<int32_t> *data)
-    : parent_(parent), data_(data) {
-}
+    : parent_(parent), data_(data) {}
 
 uint32_t RemoteReceiveData::lower_bound_(uint32_t length) {
   return uint32_t(100 - this->parent_->tolerance_) * length / 100U;
@@ -117,7 +116,9 @@ SonyDecodeData RemoteReceiveData::decode_sony() {
   return remote::decode_sony(this);
 }
 
-RemoteReceiverComponent::RemoteReceiverComponent(GPIOPin *pin) : RemoteControlComponentBase(pin) {
+RemoteReceiverComponent::RemoteReceiverComponent(GPIOPin *pin)
+    : RemoteControlComponentBase(pin) {
+
 }
 
 float RemoteReceiverComponent::get_setup_priority() const {
@@ -182,7 +183,7 @@ void RemoteReceiverComponent::dump_config() {
 
 void RemoteReceiverComponent::loop() {
   size_t len = 0;
-  auto *item = (rmt_item32_t *)xRingbufferReceive(this->ringbuf_, &len, 0);
+  auto *item = (rmt_item32_t *) xRingbufferReceive(this->ringbuf_, &len, 0);
   if (item != nullptr) {
     this->decode_rmt_(item, len);
     vRingbufferReturnItem(this->ringbuf_, item);
@@ -203,7 +204,7 @@ void RemoteReceiverComponent::loop() {
     }
   }
 }
-void RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
+void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
   bool prev_level = false;
   uint32_t prev_length = 0;
   this->temp_.clear();
@@ -315,9 +316,8 @@ void RemoteReceiverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Receiver:");
   LOG_PIN("  Pin: ", this->pin_);
   if (this->pin_->digital_read()) {
-    ESP_LOGW(TAG,
-             "Remote Receiver Signal starts with a HIGH value. Usually this means you have to "
-             "invert the signal using 'inverted: True' !");
+    ESP_LOGW(TAG, "Remote Receiver Signal starts with a HIGH value. Usually this means you have to "
+                  "invert the signal using 'inverted: True' !");
   }
   ESP_LOGCONFIG(TAG, "  Buffer Size: %u", this->buffer_size_);
   ESP_LOGCONFIG(TAG, "  Tolerance: %u%%", this->tolerance_);
@@ -338,8 +338,8 @@ void RemoteReceiverComponent::loop() {
     // TODO: Handle case when loop() is not called quickly enough to catch idle
     return;
 
-  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u", this->buffer_read_at_, write_at, dist, now,
-            this->buffer_[write_at]);
+  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u",
+      this->buffer_read_at_, write_at, dist, now, this->buffer_[write_at]);
 
   // Skip first value, it's from the previous idle level
   this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
@@ -351,15 +351,15 @@ void RemoteReceiverComponent::loop() {
   int32_t multiplier = this->buffer_read_at_ % 2 == 0 ? 1 : -1;
 
   for (uint32_t i = 0; prev != write_at; i++) {
-    int32_t delta = this->buffer_[this->buffer_read_at_] - this->buffer_[prev];
+    int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
 
     if (uint32_t(delta) >= this->idle_us_) {
       ESP_LOGW(TAG, "Data is coming in too fast!");
       break;
     }
 
-    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d", i, this->buffer_read_at_,
-              this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
+    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d",
+        i, this->buffer_read_at_, this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
     this->temp_.push_back(multiplier * delta);
     prev = this->buffer_read_at_;
     this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
@@ -403,7 +403,9 @@ void RemoteReceiverComponent::set_idle_us(uint32_t idle_us) {
   this->idle_us_ = idle_us;
 }
 
-RemoteReceiver::RemoteReceiver(const std::string &name) : BinarySensor(name) {
+RemoteReceiver::RemoteReceiver(const std::string &name)
+    : BinarySensor(name) {
+
 }
 
 bool RemoteReceiver::process_(RemoteReceiveData *data) {
@@ -422,8 +424,8 @@ void RemoteReceiveDumper::process_(RemoteReceiveData *data) {
   this->dump(data);
 }
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE_RECEIVER
+#endif //USE_REMOTE_RECEIVER

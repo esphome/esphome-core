@@ -21,8 +21,7 @@ void FanState::set_traits(const FanTraits &traits) {
 void FanState::add_on_state_callback(std::function<void()> &&callback) {
   this->state_callback_.add(std::move(callback));
 }
-FanState::FanState(const std::string &name) : Nameable(name) {
-}
+FanState::FanState(const std::string &name) : Nameable(name) {}
 
 FanState::StateCall FanState::turn_on() {
   return this->make_call().set_state(true);
@@ -59,7 +58,9 @@ float FanState::get_setup_priority() const {
   return setup_priority::HARDWARE - 1.0f;
 }
 
-FanState::StateCall::StateCall(FanState *state) : state_(state) {
+FanState::StateCall::StateCall(FanState *state)
+    : state_(state) {
+
 }
 FanState::StateCall &FanState::StateCall::set_state(bool state) {
   this->binary_state_ = state;
@@ -91,6 +92,7 @@ void FanState::StateCall::perform() const {
         // protect from invalid input
         break;
     }
+
   }
 
   FanStateRTCState saved;
@@ -112,8 +114,8 @@ FanState::StateCall &FanState::StateCall::set_speed(const char *speed) {
   return *this;
 }
 
-}  // namespace fan
+} // namespace fan
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_FAN
+#endif //USE_FAN

@@ -85,8 +85,7 @@ class ESP32TouchComponent : public Component {
 
   /** Setup an infinite impulse response filter to improve accuracy of the touch readings.
    *
-   * See [Filtering
-   * Pulses](https://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/touch_pad.html#filtering-of-measurements
+   * See [Filtering Pulses](https://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/touch_pad.html#filtering-of-measurements
    * for more information). Good values for this can be 20ms or so, but often the default of no filter works
    * just fine.
    *
@@ -202,10 +201,10 @@ class ESP32TouchBinarySensor : public BinarySensor {
   bool is_first_state_{true};
 };
 
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_ESP32_TOUCH_BINARY_SENSOR
+#endif //USE_ESP32_TOUCH_BINARY_SENSOR
 
-#endif  // ESPHOMELIB_BINARY_SENSOR_ESP32_TOUCH_BINARY_SENSOR_H
+#endif //ESPHOMELIB_BINARY_SENSOR_ESP32_TOUCH_BINARY_SENSOR_H

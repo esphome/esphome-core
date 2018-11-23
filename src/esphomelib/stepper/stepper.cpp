@@ -71,8 +71,8 @@ bool Stepper::has_reached_target() {
   return this->current_position == this->target_position;
 }
 
-}  // namespace stepper
+} // namespace stepper
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_STEPPER
+#endif //USE_STEPPER

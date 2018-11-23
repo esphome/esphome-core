@@ -32,10 +32,10 @@ class StatusBinarySensor : public BinarySensor, public Component {
   bool last_status_{false};
 };
 
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_STATUS_BINARY_SENSOR
+#endif //USE_STATUS_BINARY_SENSOR
 
-#endif  // ESPHOMELIB_STATUS_BINARY_SENSOR_H
+#endif //ESPHOMELIB_STATUS_BINARY_SENSOR_H

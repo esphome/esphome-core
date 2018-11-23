@@ -13,7 +13,11 @@ inline CRGB random_crgb_slow() {
   const float gF = random_float();
   const float bF = random_float();
   const float maxRGB = std::max(rF, std::max(gF, bF));
-  return CRGB(uint8_t((255 * rF / maxRGB)), uint8_t((255 * gF / maxRGB)), uint8_t((255 * bF / maxRGB)));
+  return CRGB(
+      uint8_t((255 * rF / maxRGB)),
+      uint8_t((255 * gF / maxRGB)),
+      uint8_t((255 * bF / maxRGB))
+  );
 }
 
 void BaseFastLEDLightEffect::start_() {
@@ -28,10 +32,11 @@ void BaseFastLEDLightEffect::stop() {
   this->get_fastled_output_()->unprevent_writing_leds();
 }
 FastLEDLightOutputComponent *BaseFastLEDLightEffect::get_fastled_output_() const {
-  return (FastLEDLightOutputComponent *)this->state_->get_output();
+  return (FastLEDLightOutputComponent *) this->state_->get_output();
 }
 
 BaseFastLEDLightEffect::BaseFastLEDLightEffect(const std::string &name) : LightEffect(name) {
+
 }
 void BaseFastLEDLightEffect::apply() {
   float brightness_f, r_f, g_f, b_f;
@@ -46,6 +51,7 @@ void BaseFastLEDLightEffect::apply() {
 }
 
 FastLEDRainbowLightEffect::FastLEDRainbowLightEffect(const std::string &name) : BaseFastLEDLightEffect(name) {
+
 }
 void FastLEDRainbowLightEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) {
   CHSV hsv;
@@ -70,6 +76,7 @@ FastLEDLambdaLightEffect::FastLEDLambdaLightEffect(const std::string &name,
                                                    const std::function<void(FastLEDLightOutputComponent &)> &f,
                                                    uint32_t update_interval)
     : BaseFastLEDLightEffect(name), f_(f), update_interval_(update_interval) {
+
 }
 void FastLEDLambdaLightEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) {
   const uint32_t now = millis();
@@ -96,7 +103,11 @@ void FastLEDTwinkleEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t b
   for (int i = 0; i < fastled.size(); i++) {
     if (fastled.effect_data()[i] != 0) {
       const uint16_t sine = half_sin8(fastled.effect_data()[i]);
-      fastled[i] = CRGB((sine * rgb.r) / 255, (sine * rgb.g) / 255, (sine * rgb.b) / 255);
+      fastled[i] = CRGB(
+          (sine * rgb.r) / 255,
+          (sine * rgb.g) / 255,
+          (sine * rgb.b) / 255
+      );
       const uint8_t new_pos = fastled.effect_data()[i] + pos_add;
       if (new_pos < fastled.effect_data()[i])
         fastled.effect_data()[i] = 0;
@@ -116,8 +127,7 @@ void FastLEDTwinkleEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t b
 
   fastled.schedule_show();
 }
-FastLEDTwinkleEffect::FastLEDTwinkleEffect(const std::string &name) : BaseFastLEDLightEffect(name) {
-}
+FastLEDTwinkleEffect::FastLEDTwinkleEffect(const std::string &name) : BaseFastLEDLightEffect(name) {}
 void FastLEDTwinkleEffect::set_twinkle_probability(float twinkle_probability) {
   this->twinkle_probability_ = twinkle_probability;
 }
@@ -141,11 +151,18 @@ void FastLEDRandomTwinkleEffect::apply(FastLEDLightOutputComponent &fastled, uin
       const uint8_t color = fastled.effect_data()[i] & 0b111;
       const uint16_t sine = half_sin8((x << 3) | subsine);
       if (color == 0) {
-        fastled[i] =
-            CRGB((uint16_t(rgb.r) * sine) / 255u, (uint16_t(rgb.g) * sine) / 255u, (uint16_t(rgb.b) * sine) / 255u);
+        fastled[i] = CRGB(
+            (uint16_t(rgb.r) * sine) / 255u,
+            (uint16_t(rgb.g) * sine) / 255u,
+            (uint16_t(rgb.b) * sine) / 255u
+        );
       } else {
         const uint8_t mult = (sine * uint16_t(brightness)) / 255u;
-        fastled[i] = CRGB(((color >> 2) & 1) * mult, ((color >> 1) & 1) * mult, ((color >> 0) & 1) * mult);
+        fastled[i] = CRGB(
+            ((color >> 2) & 1) * mult,
+            ((color >> 1) & 1) * mult,
+            ((color >> 0) & 1) * mult
+        );
       }
       const uint8_t new_x = x + pos_add;
       if (new_x > 0b11111)
@@ -168,8 +185,7 @@ void FastLEDRandomTwinkleEffect::apply(FastLEDLightOutputComponent &fastled, uin
 
   fastled.schedule_show();
 }
-FastLEDRandomTwinkleEffect::FastLEDRandomTwinkleEffect(const std::string &name) : BaseFastLEDLightEffect(name) {
-}
+FastLEDRandomTwinkleEffect::FastLEDRandomTwinkleEffect(const std::string &name) : BaseFastLEDLightEffect(name) {}
 void FastLEDRandomTwinkleEffect::set_twinkle_probability(float twinkle_probability) {
   this->twinkle_probability_ = twinkle_probability;
 }
@@ -233,8 +249,7 @@ void FastLEDFireworksEffect::set_spark_probability(float spark_probability) {
 void FastLEDFireworksEffect::set_use_random_color(bool random_color) {
   this->use_random_color_ = random_color;
 }
-FastLEDFireworksEffect::FastLEDFireworksEffect(const std::string &name) : BaseFastLEDLightEffect(name) {
-}
+FastLEDFireworksEffect::FastLEDFireworksEffect(const std::string &name) : BaseFastLEDLightEffect(name) {}
 
 void FastLEDFireworksEffect::init() {
   for (auto &pix : *this->get_fastled_output_())
@@ -253,17 +268,14 @@ void FastLEDFlickerEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t b
     const uint8_t flicker = random8() % max_flicker;
     for (uint8_t i = 0; i < 3; i++) {
       pix[i] = (15u * uint16_t(pix[i])) / 16 + rgb[i] / 16u;
-      if (flicker > pix[i])
-        pix[i] = 0;
-      else
-        pix[i] = pix[i] - flicker;
+      if (flicker > pix[i]) pix[i] = 0;
+      else pix[i] = pix[i] - flicker;
     }
   }
 
   fastled.schedule_show();
 }
-FastLEDFlickerEffect::FastLEDFlickerEffect(const std::string &name) : BaseFastLEDLightEffect(name) {
-}
+FastLEDFlickerEffect::FastLEDFlickerEffect(const std::string &name) : BaseFastLEDLightEffect(name) {}
 void FastLEDFlickerEffect::set_update_interval(uint32_t update_interval) {
   this->update_interval_ = update_interval;
 }
@@ -272,7 +284,13 @@ void FastLEDFlickerEffect::set_intensity(float intensity) {
 }
 FastLEDColorWipeEffect::FastLEDColorWipeEffect(const std::string &name) : BaseFastLEDLightEffect(name) {
   this->colors_.reserve(1);
-  this->colors_.push_back(FastLEDColorWipeEffectColor{.r = 1.0f, .g = 1.0f, .b = 1.0f, .random = true, .num_leds = 1});
+  this->colors_.push_back(FastLEDColorWipeEffectColor {
+      .r = 1.0f,
+      .g = 1.0f,
+      .b = 1.0f,
+      .random = true,
+      .num_leds = 1
+  });
 }
 void FastLEDColorWipeEffect::set_colors(const std::vector<FastLEDColorWipeEffectColor> &colors) {
   this->colors_ = colors;
@@ -298,7 +316,11 @@ void FastLEDColorWipeEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t
   }
 
   FastLEDColorWipeEffectColor &color = this->colors_[this->at_color_];
-  const CRGB crgb = CRGB(uint8_t(color.r * brightness), uint8_t(color.g * brightness), uint8_t(color.b * brightness));
+  const CRGB crgb = CRGB(
+      uint8_t(color.r * brightness),
+      uint8_t(color.g * brightness),
+      uint8_t(color.b * brightness)
+  );
   if (!this->reverse_) {
     fastled[fastled.size() - 1] = crgb;
   } else {
@@ -319,8 +341,7 @@ void FastLEDColorWipeEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t
 
   fastled.schedule_show();
 }
-FastLEDScanEffect::FastLEDScanEffect(const std::string &name) : BaseFastLEDLightEffect(name) {
-}
+FastLEDScanEffect::FastLEDScanEffect(const std::string &name) : BaseFastLEDLightEffect(name) {}
 void FastLEDScanEffect::set_move_interval(uint32_t move_interval) {
   this->move_interval_ = move_interval;
 }
@@ -349,8 +370,8 @@ void FastLEDScanEffect::apply(FastLEDLightOutputComponent &fastled, uint8_t brig
   fastled.schedule_show();
 }
 
-}  // namespace light
+} // namespace light
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_FAST_LED_LIGHT
+#endif //USE_FAST_LED_LIGHT

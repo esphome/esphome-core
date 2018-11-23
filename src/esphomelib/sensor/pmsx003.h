@@ -78,10 +78,10 @@ class PMSX003Component : public UARTDevice, public Component {
   PMSX003Sensor *formaldehyde_sensor_{nullptr};
 };
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_PMSX003
+#endif //USE_PMSX003
 
-#endif  // ESPHOMELIB_SENSOR_PMSX003_H
+#endif //ESPHOMELIB_SENSOR_PMSX003_H

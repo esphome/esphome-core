@@ -12,11 +12,10 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-SlidingWindowMovingAverageFilter::SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every,
-                                                                   size_t send_first_at)
-    : send_every_(send_every),
-      send_at_(send_every - send_first_at),
+SlidingWindowMovingAverageFilter::SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every, size_t send_first_at)
+    : send_every_(send_every), send_at_(send_every - send_first_at),
       value_average_(SlidingWindowMovingAverage(window_size)) {
+
 }
 size_t SlidingWindowMovingAverageFilter::get_send_every() const {
   return this->send_every_;
@@ -44,8 +43,7 @@ uint32_t SlidingWindowMovingAverageFilter::expected_interval(uint32_t input) {
 }
 
 ExponentialMovingAverageFilter::ExponentialMovingAverageFilter(float alpha, size_t send_every)
-    : send_every_(send_every),
-      send_at_(send_every - 1),
+    : send_every_(send_every), send_at_(send_every - 1),
       value_average_(ExponentialMovingAverage(alpha)),
       accuracy_average_(ExponentialMovingAverage(alpha)) {
 }
@@ -74,7 +72,9 @@ void ExponentialMovingAverageFilter::set_alpha(float alpha) {
 uint32_t ExponentialMovingAverageFilter::expected_interval(uint32_t input) {
   return input * this->send_every_;
 }
-LambdaFilter::LambdaFilter(lambda_filter_t lambda_filter) : lambda_filter_(std::move(lambda_filter)) {
+LambdaFilter::LambdaFilter(lambda_filter_t lambda_filter)
+    : lambda_filter_(std::move(lambda_filter)) {
+
 }
 const lambda_filter_t &LambdaFilter::get_lambda_filter() const {
   return this->lambda_filter_;
@@ -90,17 +90,19 @@ optional<float> OffsetFilter::new_value(float value) {
   return value + this->offset_;
 }
 
-OffsetFilter::OffsetFilter(float offset) : offset_(offset) {
-}
+OffsetFilter::OffsetFilter(float offset)
+    : offset_(offset) { }
 
-MultiplyFilter::MultiplyFilter(float multiplier) : multiplier_(multiplier) {
-}
+MultiplyFilter::MultiplyFilter(float multiplier)
+    : multiplier_(multiplier) { }
 
 optional<float> MultiplyFilter::new_value(float value) {
   return value * this->multiplier_;
 }
 
-FilterOutValueFilter::FilterOutValueFilter(float value_to_filter_out) : value_to_filter_out_(value_to_filter_out) {
+FilterOutValueFilter::FilterOutValueFilter(float value_to_filter_out)
+    : value_to_filter_out_(value_to_filter_out) {
+
 }
 optional<float> FilterOutValueFilter::new_value(float value) {
   if (value == this->value_to_filter_out_)
@@ -132,6 +134,7 @@ Filter::~Filter() {
 
 ThrottleFilter::ThrottleFilter(uint32_t min_time_between_inputs)
     : min_time_between_inputs_(min_time_between_inputs), Filter() {
+
 }
 optional<float> ThrottleFilter::new_value(float value) {
   const uint32_t now = millis();
@@ -142,7 +145,9 @@ optional<float> ThrottleFilter::new_value(float value) {
   this->last_input_ = now;
   return {};
 }
-DeltaFilter::DeltaFilter(float min_delta) : min_delta_(min_delta), last_value_(NAN) {
+DeltaFilter::DeltaFilter(float min_delta)
+    : min_delta_(min_delta), last_value_(NAN) {
+
 }
 optional<float> DeltaFilter::new_value(float value) {
   if (isnan(value))
@@ -155,7 +160,9 @@ optional<float> DeltaFilter::new_value(float value) {
   }
   return {};
 }
-OrFilter::OrFilter(std::list<Filter *> filters) : filters_(std::move(filters)) {
+OrFilter::OrFilter(std::list<Filter *> filters)
+    : filters_(std::move(filters)) {
+
 }
 optional<float> OrFilter::new_value(float value) {
   for (Filter *filter : this->filters_)
@@ -173,7 +180,9 @@ OrFilter::~OrFilter() {
 void OrFilter::initialize(std::function<void(float)> &&output) {
   Filter::initialize(std::move(output));
   for (Filter *filter : this->filters_) {
-    filter->initialize([this](float value) { this->output_(value); });
+    filter->initialize([this](float value) {
+      this->output_(value);
+    });
   }
 }
 
@@ -195,18 +204,24 @@ optional<float> UniqueFilter::new_value(float value) {
 }
 
 optional<float> DebounceFilter::new_value(float value) {
-  this->set_timeout("debounce", this->time_period_, [this, value]() { this->output_(value); });
+  this->set_timeout("debounce", this->time_period_, [this, value](){
+    this->output_(value);
+  });
 
   return {};
 }
 
-DebounceFilter::DebounceFilter(uint32_t time_period) : time_period_(time_period) {
+DebounceFilter::DebounceFilter(uint32_t time_period)
+    : time_period_(time_period) {
+
 }
 float DebounceFilter::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 
-HeartbeatFilter::HeartbeatFilter(uint32_t time_period) : time_period_(time_period), last_input_(NAN) {
+HeartbeatFilter::HeartbeatFilter(uint32_t time_period)
+    : time_period_(time_period), last_input_(NAN) {
+
 }
 
 optional<float> HeartbeatFilter::new_value(float value) {
@@ -218,14 +233,16 @@ uint32_t HeartbeatFilter::expected_interval(uint32_t input) {
   return this->time_period_;
 }
 void HeartbeatFilter::setup() {
-  this->set_interval("heartbeat", this->time_period_, [this]() { this->output_(this->last_input_); });
+  this->set_interval("heartbeat", this->time_period_, [this]() {
+    this->output_(this->last_input_);
+  });
 }
 float HeartbeatFilter::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SENSOR
+#endif //USE_SENSOR

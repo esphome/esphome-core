@@ -28,6 +28,6 @@ extern StatusLEDComponent *global_status_led;
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_STATUS_LED
+#endif //USE_STATUS_LED
 
-#endif  // ESPHOMELIB_STATUS_LED_H
+#endif //ESPHOMELIB_STATUS_LED_H

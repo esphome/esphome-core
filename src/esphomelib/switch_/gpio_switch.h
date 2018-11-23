@@ -30,10 +30,10 @@ class GPIOSwitch : public Switch, public Component {
   GPIOPin *const pin_;
 };
 
-}  // namespace switch_
+} // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_GPIO_SWITCH
+#endif //USE_GPIO_SWITCH
 
-#endif  // ESPHOMELIB_SWITCH_GPIO_SWITCH_H
+#endif //ESPHOMELIB_SWITCH_GPIO_SWITCH_H

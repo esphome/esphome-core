@@ -14,7 +14,9 @@ namespace output {
 
 static const char *TAG = "output.esp8266_pwm";
 
-ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin) : pin_(pin) {
+ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin)
+    : pin_(pin) {
+
 }
 
 void ESP8266PWMOutput::setup() {
@@ -55,8 +57,8 @@ void ESP8266PWMOutput::set_frequency(float frequency) {
   this->frequency_ = frequency;
 }
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_ESP8266_PWM_OUTPUT
+#endif //USE_ESP8266_PWM_OUTPUT

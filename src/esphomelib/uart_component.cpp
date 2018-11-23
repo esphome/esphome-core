@@ -7,7 +7,7 @@
 #include "esphomelib/log.h"
 
 #ifdef ARDUINO_ARCH_ESP8266
-#include "FunctionalInterrupt.h"
+  #include "FunctionalInterrupt.h"
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -114,7 +114,7 @@ void UARTComponent::flush() {
   ESP_LOGVV(TAG, "    Flushing...");
   this->hw_serial_->flush();
 }
-#endif  // ESP32
+#endif //ESP32
 
 #ifdef ARDUINO_ARCH_ESP8266
 void UARTComponent::setup() {
@@ -250,7 +250,7 @@ void ESP8266SoftwareSerial::setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_ra
 }
 
 void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::gpio_intr_() {
-  uint32_t wait = this->bit_time_ + this->bit_time_ / 3 - 500;
+  uint32_t wait = this->bit_time_ + this->bit_time_/3 - 500;
   const uint32_t start = ESP.getCycleCount();
   uint8_t rec = 0;
   // Manually unroll the loop
@@ -294,8 +294,7 @@ void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
   enable_interrupts();
 }
 void ESP8266SoftwareSerial::wait_(uint32_t &wait, const uint32_t &start) {
-  while (ESP.getCycleCount() - start < wait)
-    ;
+  while (ESP.getCycleCount() - start < wait);
   wait += this->bit_time_;
 }
 uint8_t ESP8266SoftwareSerial::read_bit_(uint32_t &wait, const uint32_t &start) {
@@ -337,7 +336,7 @@ size_t ESP8266SoftwareSerial::available() {
     return avail + this->rx_buffer_size_;
   return static_cast<size_t>(avail);
 }
-#endif  // ESP8266
+#endif //ESP8266
 
 void UARTDevice::write_byte(uint8_t data) {
   this->parent_->write_byte(data);
@@ -363,9 +362,8 @@ size_t UARTDevice::available() {
 void UARTDevice::flush() {
   return this->parent_->flush();
 }
-UARTDevice::UARTDevice(UARTComponent *parent) : parent_(parent) {
-}
+UARTDevice::UARTDevice(UARTComponent *parent) : parent_(parent) {}
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_UART
+#endif //USE_UART

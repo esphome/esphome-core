@@ -11,10 +11,11 @@ namespace cover {
 
 static const char *TAG = "cover.mqtt";
 
-MQTTCoverComponent::MQTTCoverComponent(Cover *cover) : cover_(cover) {
-}
+MQTTCoverComponent::MQTTCoverComponent(Cover *cover) : cover_(cover) {}
 void MQTTCoverComponent::setup() {
-  this->cover_->add_on_publish_state_callback([this](CoverState state) { this->publish_state(state); });
+  this->cover_->add_on_publish_state_callback([this](CoverState state) {
+    this->publish_state(state);
+  });
   this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
     if (strcasecmp(payload.c_str(), "OPEN") == 0) {
       ESP_LOGD(TAG, "'%s': Opening cover...", this->friendly_name().c_str());
@@ -59,12 +60,8 @@ bool MQTTCoverComponent::is_internal() {
 void MQTTCoverComponent::publish_state(cover::CoverState state) {
   const char *state_s;
   switch (state) {
-    case COVER_OPEN:
-      state_s = "open";
-      break;
-    case COVER_CLOSED:
-      state_s = "closed";
-      break;
+    case COVER_OPEN: state_s = "open"; break;
+    case COVER_CLOSED: state_s = "closed"; break;
     default: {
       ESP_LOGW(TAG, "Unknown cover state.");
       return;
@@ -74,8 +71,8 @@ void MQTTCoverComponent::publish_state(cover::CoverState state) {
   this->send_message(this->get_state_topic(), state_s);
 }
 
-}  // namespace cover
+} // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_COVER
+#endif //USE_COVER

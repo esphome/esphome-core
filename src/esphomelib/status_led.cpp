@@ -41,4 +41,4 @@ float StatusLEDComponent::get_loop_priority() const {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_STATUS_LED
+#endif //USE_STATUS_LED

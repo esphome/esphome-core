@@ -16,15 +16,14 @@ class RestartSwitch : public Switch {
   explicit RestartSwitch(const std::string &name);
 
   std::string icon() override;
-
  protected:
   void write_state(bool state) override;
 };
 
-}  // namespace switch_
+} // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_RESTART_SWITCH
+#endif //USE_RESTART_SWITCH
 
-#endif  // ESPHOMELIB_RESTART_SWITCH_H
+#endif //ESPHOMELIB_RESTART_SWITCH_H

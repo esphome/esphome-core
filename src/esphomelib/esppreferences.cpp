@@ -9,7 +9,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "preferences";
 
-ESPPreferenceObject::ESPPreferenceObject() : rtc_offset_(0), length_words_(0), type_(0), data_(nullptr) {
+ESPPreferenceObject::ESPPreferenceObject()
+    : rtc_offset_(0), length_words_(0), type_(0), data_(nullptr) {
+
 }
 ESPPreferenceObject::ESPPreferenceObject(size_t rtc_offset, size_t length, uint32_t type)
     : rtc_offset_(rtc_offset), length_words_(length), type_(type) {
@@ -27,8 +29,9 @@ bool ESPPreferenceObject::load_() {
 
   bool valid = this->data_[this->length_words_] == this->calculate_crc_();
 
-  ESP_LOGVV(TAG, "LOAD %u: valid=%s, 0=%u 1=%u (Type=%u, CRC=%u)", this->rtc_offset_, YESNO(valid), this->data_[0],
-            this->data_[1], this->type_, this->calculate_crc_());
+  ESP_LOGVV(TAG, "LOAD %u: valid=%s, 0=%u 1=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, YESNO(valid), this->data_[0], this->data_[1],
+            this->type_, this->calculate_crc_());
   return valid;
 }
 bool ESPPreferenceObject::save_() {
@@ -40,15 +43,16 @@ bool ESPPreferenceObject::save_() {
   this->data_[this->length_words_] = this->calculate_crc_();
   if (!this->save_internal_())
     return false;
-  ESP_LOGVV(TAG, "SAVE %u: 0=%u 1=%u (Type=%u, CRC=%u)", this->rtc_offset_, this->data_[0], this->data_[1], this->type_,
-            this->calculate_crc_());
+  ESP_LOGVV(TAG, "SAVE %u: 0=%u 1=%u (Type=%u, CRC=%u)",
+            this->rtc_offset_, this->data_[0], this->data_[1],
+            this->type_, this->calculate_crc_());
   return true;
 }
 
 #ifdef ARDUINO_ARCH_ESP8266
 
 #define ESP_RTC_USER_MEM_START 0x60001200
-#define ESP_RTC_USER_MEM ((uint32_t *)ESP_RTC_USER_MEM_START)
+#define ESP_RTC_USER_MEM ((uint32_t *) ESP_RTC_USER_MEM_START)
 #define ESP_RTC_USER_MEM_SIZE_WORDS 128
 
 static inline bool esp_rtc_user_mem_read(uint32_t index, uint32_t *dest) {
@@ -86,13 +90,15 @@ bool ESPPreferenceObject::load_internal_() {
   return true;
 }
 ESPPreferences::ESPPreferences()
-    // offset starts from start of user RTC mem (64 words before that are reserved for system),
-    // an additional 32 words at the start of user RTC are for eboot (OTA, see eboot_command.h),
-    // which will be reset each time OTA occurs
+  // offset starts from start of user RTC mem (64 words before that are reserved for system),
+  // an additional 32 words at the start of user RTC are for eboot (OTA, see eboot_command.h),
+  // which will be reset each time OTA occurs
     : current_offset_(0) {
+
 }
 
 void ESPPreferences::begin(const std::string &name) {
+
 }
 
 ESPPreferenceObject ESPPreferences::make_preference(size_t length, uint32_t type) {
@@ -155,7 +161,9 @@ bool ESPPreferenceObject::load_internal_() {
   }
   return true;
 }
-ESPPreferences::ESPPreferences() : current_offset_(0) {
+ESPPreferences::ESPPreferences()
+    : current_offset_(0) {
+
 }
 void ESPPreferences::begin(const std::string &name) {
   const std::string key = truncate_string(name, 15);

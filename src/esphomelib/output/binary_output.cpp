@@ -35,8 +35,8 @@ void BinaryOutput::turn_off() {
   this->write_state(this->inverted_);
 }
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_OUTPUT
+#endif //USE_OUTPUT

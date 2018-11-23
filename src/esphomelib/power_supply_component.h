@@ -70,6 +70,7 @@ class PowerSupplyComponent : public Component {
   uint32_t get_enable_time() const;
 
  protected:
+
   GPIOPin *pin_;
   bool enabled_{false};
   uint32_t enable_time_;
@@ -79,6 +80,6 @@ class PowerSupplyComponent : public Component {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_OUTPUT
+#endif //USE_OUTPUT
 
-#endif  // ESPHOMELIB_POWER_SUPPLY_COMPONENT_H
+#endif //ESPHOMELIB_POWER_SUPPLY_COMPONENT_H

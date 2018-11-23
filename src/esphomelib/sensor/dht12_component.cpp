@@ -17,12 +17,13 @@ static const char *TAG = "sensor.dht12";
 
 static const uint8_t DHT12_I2C_ADDRESS = 0x5C;
 
-DHT12Component::DHT12Component(I2CComponent *parent, const std::string &temperature_name,
-                               const std::string &humidity_name, uint32_t update_interval)
-    : PollingComponent(update_interval),
-      I2CDevice(parent, DHT12_I2C_ADDRESS),
+DHT12Component::DHT12Component(I2CComponent *parent,
+                               const std::string &temperature_name, const std::string &humidity_name,
+                               uint32_t update_interval)
+    : PollingComponent(update_interval), I2CDevice(parent, DHT12_I2C_ADDRESS),
       temperature_sensor_(new DHT12TemperatureSensor(temperature_name, this)),
       humidity_sensor_(new DHT12HumiditySensor(humidity_name, this)) {
+
 }
 
 void DHT12Component::update() {
@@ -85,8 +86,8 @@ DHT12HumiditySensor *DHT12Component::get_humidity_sensor() const {
   return this->humidity_sensor_;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_DHT12_SENSOR
+#endif //USE_DHT12_SENSOR

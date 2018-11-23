@@ -15,11 +15,9 @@ namespace output {
 template<typename T>
 class SetLevelAction;
 
-#define LOG_FLOAT_OUTPUT(this)                                            \
-  LOG_BINARY_OUTPUT(this)                                                 \
-  if (this->max_power_ != 1.0f) {                                         \
-    ESP_LOGCONFIG(TAG, "  Max Power: %.1f%%", this->max_power_ * 100.0f); \
-  }
+#define LOG_FLOAT_OUTPUT(this) \
+  LOG_BINARY_OUTPUT(this) \
+  if (this->max_power_ != 1.0f) { ESP_LOGCONFIG(TAG, "  Max Power: %.1f%%", this->max_power_ * 100.0f); }
 
 /** Base class for all output components that can output a variable level, like PWM.
  *
@@ -80,8 +78,7 @@ class SetLevelAction : public Action<T> {
 };
 
 template<typename T>
-SetLevelAction<T>::SetLevelAction(FloatOutput *output) : output_(output) {
-}
+SetLevelAction<T>::SetLevelAction(FloatOutput *output) : output_(output) {}
 
 template<typename T>
 void SetLevelAction<T>::set_level(std::function<float(T)> &&level) {
@@ -102,10 +99,10 @@ SetLevelAction<T> *FloatOutput::make_set_level_action() {
   return new SetLevelAction<T>(this);
 }
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_OUTPUT
+#endif //USE_OUTPUT
 
-#endif  // ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H
+#endif //ESPHOMELIB_OUTPUT_FLOAT_OUTPUT_H

@@ -11,7 +11,9 @@ namespace text_sensor {
 
 static const char *TAG = "text_sensor.mqtt";
 
-MQTTTextSensor::MQTTTextSensor(TextSensor *sensor) : MQTTComponent(), sensor_(sensor) {
+MQTTTextSensor::MQTTTextSensor(TextSensor *sensor)
+    : MQTTComponent(), sensor_(sensor) {
+
 }
 void MQTTTextSensor::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->sensor_->get_icon().empty())
@@ -55,8 +57,8 @@ std::string MQTTTextSensor::friendly_name() const {
   return this->sensor_->get_name();
 }
 
-}  // namespace text_sensor
+} // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_TEXT_SENSOR
+#endif //USE_TEXT_SENSOR

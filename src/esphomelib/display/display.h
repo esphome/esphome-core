@@ -107,8 +107,7 @@ class DisplayBuffer {
   /// Draw a vertical line from the point [x,y] to [x,y+width] with the given color.
   void vertical_line(int x, int y, int height, int color = COLOR_ON);
 
-  /// Draw the outline of a rectangle with the top left point at [x1,y1] and the bottom right point at
-  /// [x1+width,y1+height].
+  /// Draw the outline of a rectangle with the top left point at [x1,y1] and the bottom right point at [x1+width,y1+height].
   void rectangle(int x1, int y1, int width, int height, int color = COLOR_ON);
 
   /// Fill a rectangle with the top left point at [x1,y1] and the bottom right point at [x1+width,y1+height].
@@ -151,6 +150,7 @@ class DisplayBuffer {
    */
   void print(int x, int y, Font *font, TextAlign align, const char *text);
 
+
   /** Print `text` with the top left at [x,y] with `font`.
    *
    * @param x The x coordinate of the upper left corner.
@@ -170,8 +170,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, int color, TextAlign align, const char *format, ...)
-      __attribute__((format(printf, 7, 8)));
+  void printf(int x, int y, Font *font, int color, TextAlign align, const char *format, ...) __attribute__ ((format (printf, 7, 8)));
 
   /** Evaluate the printf-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -182,7 +181,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, int color, const char *format, ...) __attribute__((format(printf, 6, 7)));
+  void printf(int x, int y, Font *font, int color, const char *format, ...) __attribute__ ((format (printf, 6, 7)));
 
   /** Evaluate the printf-format `format` and print the result with the anchor point at [x,y] with `font`.
    *
@@ -193,7 +192,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, TextAlign align, const char *format, ...) __attribute__((format(printf, 6, 7)));
+  void printf(int x, int y, Font *font, TextAlign align, const char *format, ...) __attribute__ ((format (printf, 6, 7)));
 
   /** Evaluate the printf-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -203,7 +202,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, const char *format, ...) __attribute__((format(printf, 5, 6)));
+  void printf(int x, int y, Font *font, const char *format, ...) __attribute__ ((format (printf, 5, 6)));
 
 #ifdef USE_TIME
 
@@ -217,8 +216,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, int color, TextAlign align, const char *format, time::EsphomelibTime time)
-      __attribute__((format(strftime, 7, 0)));
+  void strftime(int x, int y, Font *font, int color, TextAlign align, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 7, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -229,8 +227,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, int color, const char *format, time::EsphomelibTime time)
-      __attribute__((format(strftime, 6, 0)));
+  void strftime(int x, int y, Font *font, int color, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 6, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the anchor point at [x,y] with `font`.
    *
@@ -241,8 +238,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, TextAlign align, const char *format, time::EsphomelibTime time)
-      __attribute__((format(strftime, 6, 0)));
+  void strftime(int x, int y, Font *font, TextAlign align, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 6, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -252,8 +248,7 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, const char *format, time::EsphomelibTime time)
-      __attribute__((format(strftime, 5, 0)));
+  void strftime(int x, int y, Font *font, const char *format, time::EsphomelibTime time) __attribute__ ((format (strftime, 5, 0)));
 #endif
 
   /// Draw the `image` with the top-left corner at [x,y] to the screen.
@@ -271,8 +266,7 @@ class DisplayBuffer {
    * @param width A pointer to store the returned text width in.
    * @param height A pointer to store the returned text height in.
    */
-  void get_text_bounds(int x, int y, const char *text, Font *font, TextAlign align, int *x1, int *y1, int *width,
-                       int *height);
+  void get_text_bounds(int x, int y, const char *text, Font *font, TextAlign align, int *x1, int *y1, int *width, int *height);
 
   /// Internal method to set the display writer lambda.
   void set_writer(display_writer_t &&writer);
@@ -302,8 +296,7 @@ class DisplayBuffer {
 
 class Glyph {
  public:
-  Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width,
-        int height);
+  Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width, int height);
 
   bool get_pixel(int x, int y) const;
 
@@ -362,10 +355,10 @@ class Image {
   const uint8_t *data_start_;
 };
 
-}  // namespace display
+} // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_DISPLAY
+#endif //USE_DISPLAY
 
-#endif  // ESPHOMELIB_DISPLAY_H
+#endif //ESPHOMELIB_DISPLAY_H

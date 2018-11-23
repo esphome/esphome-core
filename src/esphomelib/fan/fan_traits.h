@@ -31,10 +31,10 @@ class FanTraits {
   bool speed_;
 };
 
-}  // namespace fan
+} // namespace fan
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_FAN
+#endif //USE_FAN
 
-#endif  // ESPHOMELIB_FAN_FAN_TRAITS_H
+#endif //ESPHOMELIB_FAN_FAN_TRAITS_H

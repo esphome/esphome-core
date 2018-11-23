@@ -10,7 +10,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "spi";
 
-SPIComponent::SPIComponent(GPIOPin *clk, GPIOPin *miso, GPIOPin *mosi) : clk_(clk), miso_(miso), mosi_(mosi) {
+SPIComponent::SPIComponent(GPIOPin *clk, GPIOPin *miso, GPIOPin *mosi)
+    : clk_(clk), miso_(miso), mosi_(mosi){
+
 }
 
 void ICACHE_RAM_ATTR HOT SPIComponent::write_byte(uint8_t data) {
@@ -34,7 +36,8 @@ void ICACHE_RAM_ATTR HOT SPIComponent::write_byte(uint8_t data) {
     this->clk_->digital_write(true);
   }
 
-  ESP_LOGVV(TAG, "    Wrote 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(data), data);
+  ESP_LOGVV(TAG, "    Wrote 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
+            BYTE_TO_BINARY(data), data);
 }
 
 uint8_t ICACHE_RAM_ATTR HOT SPIComponent::read_byte() {
@@ -55,7 +58,8 @@ uint8_t ICACHE_RAM_ATTR HOT SPIComponent::read_byte() {
     data = reverse_bits_8(data);
   }
 
-  ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(data), data);
+  ESP_LOGVV(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
+      BYTE_TO_BINARY(data), data);
 
   return data;
 }
@@ -113,8 +117,8 @@ void SPIComponent::set_mosi(const GPIOOutputPin &mosi) {
   this->mosi_ = mosi.copy();
 }
 
-SPIDevice::SPIDevice(SPIComponent *parent, GPIOPin *cs) : parent_(parent), cs_(cs) {
-}
+SPIDevice::SPIDevice(SPIComponent *parent, GPIOPin *cs)
+    : parent_(parent), cs_(cs) {}
 void HOT SPIDevice::enable() {
   this->parent_->enable(this->cs_, this->msb_first(), this->high_speed());
 }
@@ -143,4 +147,4 @@ bool HOT SPIDevice::high_speed() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SPI
+#endif //USE_SPI

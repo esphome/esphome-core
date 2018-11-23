@@ -1,7 +1,7 @@
 #include "esphomelib/log_component.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <esp_log.h>
+  #include <esp_log.h>
 #endif
 #include <HardwareSerial.h>
 
@@ -12,7 +12,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "logger";
 
-int LogComponent::log_vprintf_(int level, const char *tag, const char *format, va_list args) {
+int LogComponent::log_vprintf_(int level, const char *tag,
+                               const char *format, va_list args) {
   // Uses std::vector<> for low memory footprint, though the vector
   // could be sorted to minimize lookup times. This feature isn't used that
   // much anyway so it doesn't matter too much.
@@ -27,7 +28,8 @@ int LogComponent::log_vprintf_(int level, const char *tag, const char *format, v
   if (level > max_level)
     return 0;
 
-  int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(), format, args);
+  int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(),
+                      format, args);
   if (ret <= 0)
     return ret;
 
@@ -38,7 +40,8 @@ int LogComponent::log_vprintf_(int level, const char *tag, const char *format, v
   return ret;
 }
 
-LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size) : baud_rate_(baud_rate) {
+LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size)
+    : baud_rate_(baud_rate) {
   this->set_tx_buffer_size(tx_buffer_size);
 }
 

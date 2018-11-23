@@ -72,8 +72,8 @@ TotalDailyEnergy::TotalDailyEnergy(const std::string &name, time::RealTimeClockC
   this->clear_filters();
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_TOTAL_DAILY_ENERGY_SENSOR
+#endif //USE_TOTAL_DAILY_ENERGY_SENSOR

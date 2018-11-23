@@ -15,6 +15,7 @@ static const uint8_t RDM6300_START_BYTE = 0x02;
 static const uint8_t RDM6300_END_BYTE = 0x03;
 static const int8_t RDM6300_STATE_WAITING_FOR_START = -1;
 
+
 void RDM6300Component::loop() {
   while (this->available() > 0) {
     uint8_t data;
@@ -51,8 +52,11 @@ void RDM6300Component::loop() {
       } else {
         // Valid data
         this->status_clear_warning();
-        const uint32_t result = (uint32_t(this->buffer_[1]) << 24) | (uint32_t(this->buffer_[2]) << 16) |
-                                (uint32_t(this->buffer_[3]) << 8) | this->buffer_[4];
+        const uint32_t result =
+              (uint32_t(this->buffer_[1]) << 24)
+            | (uint32_t(this->buffer_[2]) << 16)
+            | (uint32_t(this->buffer_[3]) << 8)
+            | this->buffer_[4];
         bool report = result != last_id_;
         for (auto *card : this->cards_) {
           if (card->process(result)) {
@@ -73,10 +77,14 @@ RDM6300BinarySensor *RDM6300Component::make_card(const std::string &name, uint32
 float RDM6300Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-RDM6300Component::RDM6300Component(UARTComponent *parent) : Component(), UARTDevice(parent) {
+RDM6300Component::RDM6300Component(UARTComponent *parent)
+    : Component(), UARTDevice(parent) {
+
 }
 
-RDM6300BinarySensor::RDM6300BinarySensor(const std::string &name, uint32_t id) : BinarySensor(name), id_(id) {
+RDM6300BinarySensor::RDM6300BinarySensor(const std::string &name, uint32_t id)
+    : BinarySensor(name), id_(id) {
+
 }
 bool RDM6300BinarySensor::process(uint32_t id) {
   if (this->id_ == id) {
@@ -88,8 +96,8 @@ bool RDM6300BinarySensor::process(uint32_t id) {
   return false;
 }
 
-}  // namespace binary_sensor
+} // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_RDM6300
+#endif //USE_RDM6300

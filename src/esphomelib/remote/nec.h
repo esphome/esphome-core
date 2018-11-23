@@ -47,10 +47,10 @@ class NECDumper : public RemoteReceiveDumper {
 };
 #endif
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE
+#endif //USE_REMOTE
 
-#endif  // ESPHOMELIB_REMOTE_NEC_H
+#endif //ESPHOMELIB_REMOTE_NEC_H

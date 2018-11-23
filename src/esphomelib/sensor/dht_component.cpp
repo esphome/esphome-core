@@ -18,12 +18,12 @@ namespace sensor {
 
 static const char *TAG = "sensor.dht";
 
-DHTComponent::DHTComponent(const std::string &temperature_name, const std::string &humidity_name, GPIOPin *pin,
-                           uint32_t update_interval)
-    : PollingComponent(update_interval),
-      pin_(pin),
+DHTComponent::DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
+                           GPIOPin *pin, uint32_t update_interval)
+    : PollingComponent(update_interval), pin_(pin),
       temperature_sensor_(new DHTTemperatureSensor(temperature_name, this)),
       humidity_sensor_(new DHTHumiditySensor(humidity_name, this)) {
+
 }
 
 void DHTComponent::setup() {
@@ -153,15 +153,14 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
     if (bit == 0) {
       bit = 7;
       byte++;
-    } else
-      bit--;
+    }
+    else bit--;
   }
   enable_interrupts();
 
-  ESP_LOGVV(TAG,
-            "Data: Hum=0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN
-            ", Temp=0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN ", Checksum=0b" BYTE_TO_BINARY_PATTERN,
-            BYTE_TO_BINARY(data[0]), BYTE_TO_BINARY(data[1]), BYTE_TO_BINARY(data[2]), BYTE_TO_BINARY(data[3]),
+  ESP_LOGVV(TAG, "Data: Hum=0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN ", Temp=0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN ", Checksum=0b" BYTE_TO_BINARY_PATTERN,
+            BYTE_TO_BINARY(data[0]), BYTE_TO_BINARY(data[1]),
+            BYTE_TO_BINARY(data[2]), BYTE_TO_BINARY(data[3]),
             BYTE_TO_BINARY(data[4]));
 
   uint8_t checksum_a = data[0] + data[1] + data[2] + data[3];
@@ -198,8 +197,8 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
   return true;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_DHT_SENSOR
+#endif //USE_DHT_SENSOR

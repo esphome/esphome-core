@@ -49,8 +49,8 @@ void BasicFanComponent::dump_config() {
     ESP_LOGCONFIG(TAG, "  Mode: Binary");
   } else {
     ESP_LOGCONFIG(TAG, "  Mode: Speed");
-    ESP_LOGCONFIG(TAG, "  Speeds: Low=%.0f%% Medium=%.0f%% High=%.0f%%", this->low_speed_ * 100.0f,
-                  this->medium_speed_ * 100.0f, this->high_speed_ * 100.0f);
+    ESP_LOGCONFIG(TAG, "  Speeds: Low=%.0f%% Medium=%.0f%% High=%.0f%%",
+        this->low_speed_ * 100.0f, this->medium_speed_ * 100.0f, this->high_speed_ * 100.0f);
   }
 }
 void BasicFanComponent::loop() {
@@ -95,8 +95,8 @@ float BasicFanComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 
-}  // namespace fan
+} // namespace fan
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_FAN
+#endif //USE_FAN

@@ -20,8 +20,7 @@ void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT...");
   if (this->credentials_.client_id.empty())
     this->credentials_.client_id = generate_hostname(this->topic_prefix_);
-  this->mqtt_client_.onMessage([this](char *topic, char *payload, AsyncMqttClientMessageProperties properties,
-                                      size_t len, size_t index, size_t total) {
+  this->mqtt_client_.onMessage([this](char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total){
     std::string payload_s(payload, len);
     std::string topic_s(topic);
     this->on_message(topic_s, payload_s);
@@ -33,13 +32,13 @@ void MQTTClientComponent::setup() {
   if (this->is_log_message_enabled()) {
     global_log_component->add_on_log_callback([this](int level, const char *message) {
       if (level <= this->log_level_ && this->is_connected()) {
-        this->publish(this->log_message_.topic, message, strlen(message), this->log_message_.qos,
-                      this->log_message_.retain);
+        this->publish(this->log_message_.topic, message, strlen(message),
+            this->log_message_.qos, this->log_message_.retain);
       }
     });
   }
 
-  add_shutdown_hook([this](const char *cause) {
+  add_shutdown_hook([this](const char *cause){
     if (!this->shutdown_message_.topic.empty()) {
       yield();
       this->publish(this->shutdown_message_);
@@ -229,8 +228,8 @@ void MQTTClientComponent::publish(const std::string &topic, const std::string &p
   this->publish(topic, payload.data(), payload.size(), qos, retain);
 }
 
-void MQTTClientComponent::publish(const std::string &topic, const char *payload, size_t payload_length, uint8_t qos,
-                                  bool retain) {
+void MQTTClientComponent::publish(const std::string &topic, const char *payload, size_t payload_length,
+    uint8_t qos, bool retain) {
   if (!this->is_connected()) {
     // critical components will re-transmit their messages
     return;
@@ -282,7 +281,10 @@ void MQTTClientComponent::disable_last_will() {
 }
 
 void MQTTClientComponent::disable_discovery() {
-  this->discovery_info_ = MQTTDiscoveryInfo{.prefix = "", .retain = false};
+  this->discovery_info_ = MQTTDiscoveryInfo{
+      .prefix = "",
+      .retain = false
+  };
 }
 float MQTTClientComponent::get_setup_priority() const {
   return setup_priority::MQTT_CLIENT;
@@ -440,13 +442,17 @@ void MQTTClientComponent::add_ssl_fingerprint(const std::array<uint8_t, SHA1_SIZ
 MQTTClientComponent *global_mqtt_client = nullptr;
 
 MQTTMessageTrigger::MQTTMessageTrigger(const std::string &topic, uint8_t qos) {
-  global_mqtt_client->subscribe(topic, [this](const std::string &payload) { this->trigger(payload); }, qos);
+  global_mqtt_client->subscribe(topic, [this](const std::string &payload) {
+    this->trigger(payload);
+  }, qos);
 }
 
 MQTTJsonMessageTrigger::MQTTJsonMessageTrigger(const std::string &topic, uint8_t qos) {
-  global_mqtt_client->subscribe_json(topic, [this](JsonObject &root) { this->trigger(root); }, qos);
+  global_mqtt_client->subscribe_json(topic, [this](JsonObject &root) {
+    this->trigger(root);
+  }, qos);
 }
 
-}  // namespace mqtt
+} // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END

@@ -22,7 +22,6 @@ class AndCondition : public Condition<T> {
  public:
   explicit AndCondition(const std::vector<Condition<T> *> &conditions);
   bool check(T x) override;
-
  protected:
   std::vector<Condition<T> *> conditions_;
 };
@@ -32,7 +31,6 @@ class OrCondition : public Condition<T> {
  public:
   explicit OrCondition(const std::vector<Condition<T> *> &conditions);
   bool check(T x) override;
-
  protected:
   std::vector<Condition<T> *> conditions_;
 };
@@ -42,7 +40,6 @@ class LambdaCondition : public Condition<T> {
  public:
   explicit LambdaCondition(std::function<bool(T)> &&f);
   bool check(T x) override;
-
  protected:
   std::function<bool(T)> f_;
 };
@@ -67,7 +64,6 @@ class Trigger {
  public:
   void add_on_trigger_callback(std::function<void(T)> &&f);
   void trigger(T x);
-
  protected:
   CallbackManager<void(T)> on_trigger_;
 };
@@ -77,7 +73,6 @@ class Trigger<NoArg> {
  public:
   void add_on_trigger_callback(std::function<void(NoArg)> &&f);
   void trigger();
-
  protected:
   CallbackManager<void(NoArg)> on_trigger_;
 };
@@ -122,7 +117,6 @@ class Action {
  public:
   virtual void play(T x) = 0;
   void play_next(T x);
-
  protected:
   friend ActionList<T>;
 
@@ -139,7 +133,6 @@ class DelayAction : public Action<T>, public Component {
 
   void play(T x) override;
   float get_setup_priority() const override;
-
  protected:
   TemplatableValue<uint32_t, T> delay_{0};
 };
@@ -149,7 +142,6 @@ class LambdaAction : public Action<T> {
  public:
   explicit LambdaAction(std::function<void(T)> &&f);
   void play(T x) override;
-
  protected:
   std::function<void(T)> f_;
 };
@@ -176,7 +168,6 @@ class UpdateComponentAction : public Action<T> {
  public:
   UpdateComponentAction(PollingComponent *component);
   void play(T x) override;
-
  protected:
   PollingComponent *component_;
 };
@@ -187,7 +178,6 @@ class ScriptExecuteAction : public Action<T> {
   ScriptExecuteAction(Script *script);
 
   void play(T x) override;
-
  protected:
   Script *script_;
 };
@@ -261,7 +251,9 @@ bool AndCondition<T>::check(T x) {
 }
 
 template<typename T>
-AndCondition<T>::AndCondition(const std::vector<Condition<T> *> &conditions) : conditions_(conditions) {
+AndCondition<T>::AndCondition(const std::vector<Condition<T> *> &conditions)
+    : conditions_(conditions) {
+
 }
 
 template<typename T>
@@ -275,7 +267,9 @@ bool OrCondition<T>::check(T x) {
 }
 
 template<typename T>
-OrCondition<T>::OrCondition(const std::vector<Condition<T> *> &conditions) : conditions_(conditions) {
+OrCondition<T>::OrCondition(const std::vector<Condition<T> *> &conditions)
+    : conditions_(conditions) {
+
 }
 
 template<typename T>
@@ -299,7 +293,9 @@ DelayAction<T>::DelayAction() = default;
 
 template<typename T>
 void DelayAction<T>::play(T x) {
-  this->set_timeout(this->delay_.value(x), [this, x]() { this->play_next(x); });
+  this->set_timeout(this->delay_.value(x), [this, x](){
+    this->play_next(x);
+  });
 }
 template<typename T>
 void DelayAction<T>::set_delay(std::function<uint32_t(T)> &&delay) {
@@ -327,7 +323,9 @@ void Automation<T>::add_conditions(const std::vector<Condition<T> *> &conditions
 }
 template<typename T>
 Automation<T>::Automation(Trigger<T> *trigger) : trigger_(trigger) {
-  this->trigger_->add_on_trigger_callback([this](T x) { this->process_trigger_(x); });
+  this->trigger_->add_on_trigger_callback([this](T x) {
+    this->process_trigger_(x);
+  });
 }
 template<typename T>
 Action<T> *Automation<T>::add_action(Action<T> *action) {
@@ -347,7 +345,9 @@ void Automation<T>::process_trigger_(T x) {
   this->actions_.play(x);
 }
 template<typename T>
-LambdaCondition<T>::LambdaCondition(std::function<bool(T)> &&f) : f_(std::move(f)) {
+LambdaCondition<T>::LambdaCondition(std::function<bool(T)> &&f)
+    : f_(std::move(f)) {
+
 }
 template<typename T>
 bool LambdaCondition<T>::check(T x) {
@@ -355,8 +355,7 @@ bool LambdaCondition<T>::check(T x) {
 }
 
 template<typename T>
-LambdaAction<T>::LambdaAction(std::function<void(T)> &&f) : f_(std::move(f)) {
-}
+LambdaAction<T>::LambdaAction(std::function<void(T)> &&f) : f_(std::move(f)) {}
 template<typename T>
 void LambdaAction<T>::play(T x) {
   this->f_(x);
@@ -389,6 +388,7 @@ bool ActionList<T>::empty() const {
 }
 template<typename T>
 IfAction<T>::IfAction(const std::vector<Condition<T> *> conditions) : conditions_(conditions) {
+
 }
 template<typename T>
 void IfAction<T>::play(T x) {
@@ -416,12 +416,16 @@ void IfAction<T>::play(T x) {
 template<typename T>
 void IfAction<T>::add_then(const std::vector<Action<T> *> &actions) {
   this->then_.add_actions(actions);
-  this->then_.add_action(new LambdaAction<T>([this](T x) { this->play_next(x); }));
+  this->then_.add_action(new LambdaAction<T>([this](T x) {
+    this->play_next(x);
+  }));
 }
 template<typename T>
 void IfAction<T>::add_else(const std::vector<Action<T> *> &actions) {
   this->else_.add_actions(actions);
-  this->else_.add_action(new LambdaAction<T>([this](T x) { this->play_next(x); }));
+  this->else_.add_action(new LambdaAction<T>([this](T x) {
+    this->play_next(x);
+  }));
 }
 
 template<typename T>
@@ -431,11 +435,15 @@ void UpdateComponentAction<T>::play(T x) {
 }
 
 template<typename T>
-UpdateComponentAction<T>::UpdateComponentAction(PollingComponent *component) : component_(component) {
+UpdateComponentAction<T>::UpdateComponentAction(PollingComponent *component)
+  : component_(component) {
+
 }
 
 template<typename T>
-ScriptExecuteAction<T>::ScriptExecuteAction(Script *script) : script_(script) {
+ScriptExecuteAction<T>::ScriptExecuteAction(Script *script)
+  : script_(script) {
+
 }
 
 template<typename T>
@@ -451,9 +459,12 @@ ScriptExecuteAction<T> *Script::make_execute_action() {
 
 template<typename T>
 GlobalVariableComponent<T>::GlobalVariableComponent() {
+
 }
 template<typename T>
-GlobalVariableComponent<T>::GlobalVariableComponent(T initial_value) : value_(initial_value) {
+GlobalVariableComponent<T>::GlobalVariableComponent(T initial_value)
+    : value_(initial_value) {
+
 }
 template<typename T>
 T &GlobalVariableComponent<T>::value() {
@@ -489,4 +500,4 @@ void GlobalVariableComponent<T>::set_restore_value(uint32_t name_hash) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // ESPHOMELIB_AUTOMATION_H
+#endif //ESPHOMELIB_AUTOMATION_H

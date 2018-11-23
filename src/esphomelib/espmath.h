@@ -21,4 +21,4 @@
 
 #include "math.h"
 
-#endif  // ESPHOMELIB_ESPMATH_H
+#endif //ESPHOMELIB_ESPMATH_H

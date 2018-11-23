@@ -22,7 +22,7 @@ using nextion_writer_t = std::function<void(Nextion &)>;
 class Nextion : public PollingComponent, public UARTDevice {
  public:
   void set_component_text(const char *component, const char *text);
-  void set_component_text_printf(const char *component, const char *format, ...) __attribute__((format(printf, 3, 4)));
+  void set_component_text_printf(const char *component, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
   void set_component_value(const char *component, int value);
   void set_component_background_color(const char *component, const char *color);
   void set_component_pressed_background_color(const char *component, const char *color);
@@ -59,7 +59,7 @@ class Nextion : public PollingComponent, public UARTDevice {
 
  protected:
   void send_command_(const char *command);
-  bool send_command_printf_(const char *format, ...) __attribute__((format(printf, 2, 3)));
+  bool send_command_printf_(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
   bool ack_();
   std::vector<NextionTouchComponent *> touch_;
@@ -70,17 +70,16 @@ class NextionTouchComponent : public binary_sensor::BinarySensor {
  public:
   NextionTouchComponent(const std::string &name, uint8_t page_id, uint8_t component_id);
   void process(uint8_t page_id, uint8_t component_id, bool on);
-
  protected:
   uint8_t page_id_;
   uint8_t component_id_;
   bool last_state_{false};
 };
 
-}  // namespace display
+} // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_NEXTION
+#endif //USE_NEXTION
 
-#endif  // ESPHOMELIB_DISPLAY_NEXTION_H
+#endif //ESPHOMELIB_DISPLAY_NEXTION_H

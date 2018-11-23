@@ -86,19 +86,21 @@ class I2CSSD1306 : public SSD1306, public I2CDevice {
   I2CSSD1306(I2CComponent *parent, uint32_t update_interval = 1000);
   void setup() override;
   void dump_config() override;
-
  protected:
   void command(uint8_t value) override;
   void write_display_data() override;
 
-  enum ErrorCode { NONE = 0, COMMUNICATION_FAILED } error_code_{NONE};
+  enum ErrorCode {
+    NONE = 0,
+    COMMUNICATION_FAILED
+  } error_code_{NONE};
 };
 #endif
 
-}  // namespace display
+} // namespace display
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SSD1306
+#endif //USE_SSD1306
 
-#endif  // ESPHOMELIB_SSD_1306_H
+#endif //ESPHOMELIB_SSD_1306_H

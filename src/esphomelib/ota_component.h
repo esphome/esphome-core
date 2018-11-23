@@ -11,10 +11,10 @@
 #include <WiFiClient.h>
 
 #ifdef ARDUINO_ARCH_ESP32
-#define OTA_DEFAULT_PORT 3232
+  #define OTA_DEFAULT_PORT 3232
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-#define OTA_DEFAULT_PORT 8266
+  #define OTA_DEFAULT_PORT 8266
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -127,17 +127,17 @@ class OTAComponent : public Component {
   bool ota_triggered_{false};
 #endif
 
-  bool has_safe_mode_{false};              ///< stores whether safe mode can be enabled.
-  uint32_t safe_mode_start_time_;          ///< stores when safe mode was enabled.
-  uint32_t safe_mode_enable_time_{60000};  ///< The time safe mode should be on for.
+  bool has_safe_mode_{false}; ///< stores whether safe mode can be enabled.
+  uint32_t safe_mode_start_time_; ///<stores when safe mode was enabled.
+  uint32_t safe_mode_enable_time_{60000}; ///< The time safe mode should be on for.
   uint8_t safe_mode_rtc_value_;
   uint8_t safe_mode_num_attempts_;
-  uint8_t at_ota_progress_message_{0};  ///< store OTA progress message index so that we don't spam logs
+  uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
   ESPPreferenceObject rtc_;
 };
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_OTA
+#endif //USE_OTA
 
-#endif  // ESPHOMELIB_OTA_COMPONENT_H
+#endif //ESPHOMELIB_OTA_COMPONENT_H

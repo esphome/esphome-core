@@ -42,10 +42,10 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
   Switch *switch_;
 };
 
-}  // namespace switch_
+} // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SWITCH
+#endif //USE_SWITCH
 
-#endif  // ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
+#endif //ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H

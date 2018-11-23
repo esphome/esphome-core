@@ -56,10 +56,8 @@ void OTAComponent::setup() {
       break;
     }
 #endif
-    case OPEN: {
-    }
-    default:
-      break;
+    case OPEN: {}
+    default: break;
   }
 
   ArduinoOTA.onStart([this]() {
@@ -83,7 +81,7 @@ void OTAComponent::setup() {
   ArduinoOTA.onProgress([this](uint progress, uint total) {
     tick_status_led();
     if (this->at_ota_progress_message_++ % 8 != 0)
-      return;  // only print every 8th message
+      return; // only print every 8th message
     float percentage = float(progress) * 100 / float(total);
     ESP_LOGD(TAG, "OTA in progress: %0.1f%%", percentage);
   });
@@ -110,8 +108,7 @@ void OTAComponent::setup() {
         ESP_LOGE(TAG, "  End Failed");
         break;
       }
-      default:
-        ESP_LOGE(TAG, "  Unknown Error");
+      default:ESP_LOGE(TAG, "  Unknown Error");
     }
     this->ota_triggered_ = false;
     this->status_clear_warning();
@@ -123,8 +120,11 @@ void OTAComponent::setup() {
   ArduinoOTA.begin();
 #endif
 
+
   if (this->has_safe_mode_) {
-    add_safe_shutdown_hook([this](const char *cause) { this->clean_rtc(); });
+    add_safe_shutdown_hook([this](const char *cause) {
+      this->clean_rtc();
+    });
   }
 
   this->dump_config();
@@ -193,8 +193,8 @@ void OTAComponent::handle_() {
   }
   // 0x6C, 0x26, 0xF7, 0x5C, 0x45
   if (buf[0] != 0x6C || buf[1] != 0x26 || buf[2] != 0xF7 || buf[3] != 0x5C || buf[4] != 0x45) {
-    ESP_LOGW(TAG, "Magic bytes do not match! 0x%02X-0x%02X-0x%02X-0x%02X-0x%02X", buf[0], buf[1], buf[2], buf[3],
-             buf[4]);
+    ESP_LOGW(TAG, "Magic bytes do not match! 0x%02X-0x%02X-0x%02X-0x%02X-0x%02X",
+             buf[0], buf[1], buf[2], buf[3], buf[4]);
     error_code = OTA_RESPONSE_ERROR_MAGIC;
     goto error;
   }
@@ -366,7 +366,7 @@ void OTAComponent::handle_() {
   delay(100);
   safe_reboot("ota");
 
-error:
+  error:
   if (update_started) {
     StreamString ss;
     Update.printError(ss);
@@ -425,7 +425,9 @@ size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes, bool check_discon
 }
 #endif
 
-OTAComponent::OTAComponent(uint16_t port) : port_(port) {
+OTAComponent::OTAComponent(uint16_t port)
+    : port_(port) {
+
 }
 
 #ifdef USE_NEW_OTA
@@ -510,4 +512,4 @@ void OTAComponent::clean_rtc() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_OTA
+#endif //USE_OTA

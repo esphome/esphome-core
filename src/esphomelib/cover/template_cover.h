@@ -37,10 +37,10 @@ class TemplateCover : public Cover, public Component {
   Trigger<NoArg> *stop_trigger_;
 };
 
-}  // namespace cover
+} // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_TEMPLATE_COVER
+#endif //USE_TEMPLATE_COVER
 
-#endif  // ESPHOMELIB_COVER_TEMPLATE_COVER_H
+#endif //ESPHOMELIB_COVER_TEMPLATE_COVER_H

@@ -32,10 +32,10 @@ class MAX6675Sensor : public PollingSensorComponent, public SPIDevice {
   void read_data_();
 };
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_MAX6675_SENSOR
+#endif //USE_MAX6675_SENSOR
 
-#endif  // ESPHOMELIB_SENSOR_MAX6675_H
+#endif //ESPHOMELIB_SENSOR_MAX6675_H

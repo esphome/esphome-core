@@ -36,13 +36,10 @@ static const uint16_t PCA9685_PWM_FULL = 4096;
 
 static const uint8_t PCA9685_ADDRESS = 0x40;
 
-PCA9685OutputComponent::PCA9685OutputComponent(I2CComponent *parent, float frequency, uint8_t mode)
-    : I2CDevice(parent, PCA9685_ADDRESS),
-      frequency_(frequency),
-      mode_(mode),
-      min_channel_(0xFF),
-      max_channel_(0x00),
-      update_(true) {
+PCA9685OutputComponent::PCA9685OutputComponent(I2CComponent *parent, float frequency,
+                                               uint8_t mode)
+    : I2CDevice(parent, PCA9685_ADDRESS), frequency_(frequency),
+      mode_(mode), min_channel_(0xFF), max_channel_(0x00), update_(true) {
   for (uint16_t &pwm_amount : this->pwm_amounts_)
     pwm_amount = 0;
 }
@@ -66,10 +63,8 @@ void PCA9685OutputComponent::setup() {
   }
 
   int pre_scaler = (25000000 / (4096 * this->frequency_)) - 1;
-  if (pre_scaler > 255)
-    pre_scaler = 255;
-  if (pre_scaler < 3)
-    pre_scaler = 3;
+  if (pre_scaler > 255) pre_scaler = 255;
+  if (pre_scaler < 3) pre_scaler = 3;
 
   ESP_LOGV(TAG, "  -> Prescaler: %d", pre_scaler);
 
@@ -115,7 +110,7 @@ void PCA9685OutputComponent::loop() {
   uint8_t len = 0;
   const uint16_t num_channels = this->max_channel_ - this->min_channel_ + 1;
   for (uint8_t channel = this->min_channel_; channel <= this->max_channel_; channel++) {
-    uint16_t phase_begin = uint16_t(channel - this->min_channel_) / num_channels * 4096;
+    uint16_t phase_begin = uint16_t(channel - this->min_channel_) / num_channels * 4096 ;
     uint16_t phase_end;
     uint16_t amount = this->pwm_amounts_[channel];
     if (amount == 0) {
@@ -129,8 +124,7 @@ void PCA9685OutputComponent::loop() {
         phase_end -= 4096;
     }
 
-    ESP_LOGVV(TAG, "Channel %02u: amount=%04u phase_begin=%04u phase_end=%04u", channel, amount, phase_begin,
-              phase_end);
+    ESP_LOGVV(TAG, "Channel %02u: amount=%04u phase_begin=%04u phase_end=%04u", channel, amount, phase_begin, phase_end);
 
     data[len++] = phase_begin & 0xFF;
     data[len++] = (phase_begin >> 8) & 0xFF;
@@ -181,8 +175,7 @@ void PCA9685OutputComponent::set_mode(uint8_t mode) {
 }
 
 PCA9685OutputComponent::Channel::Channel(PCA9685OutputComponent *parent, uint8_t channel)
-    : FloatOutput(), parent_(parent), channel_(channel) {
-}
+    : FloatOutput(), parent_(parent), channel_(channel) {}
 
 void PCA9685OutputComponent::Channel::write_state(float state) {
   const uint16_t max_duty = 4096;
@@ -191,8 +184,8 @@ void PCA9685OutputComponent::Channel::write_state(float state) {
   this->parent_->set_channel_value(this->channel_, duty);
 }
 
-}  // namespace output
+} // namespace output
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_PCA9685_OUTPUT
+#endif //USE_PCA9685_OUTPUT

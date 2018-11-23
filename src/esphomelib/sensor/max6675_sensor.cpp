@@ -67,15 +67,14 @@ void MAX6675Sensor::read_data_() {
 }
 
 MAX6675Sensor::MAX6675Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval), SPIDevice(parent, cs) {
-}
+    : PollingSensorComponent(name, update_interval), SPIDevice(parent, cs) {}
 
 bool MAX6675Sensor::msb_first() {
   return true;
 }
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_MAX6675_SENSOR
+#endif //USE_MAX6675_SENSOR

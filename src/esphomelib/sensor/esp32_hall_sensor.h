@@ -23,10 +23,10 @@ class ESP32HallSensor : public PollingSensorComponent {
   std::string unique_id() override;
 };
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_ESP32_HALL_SENSOR
+#endif //USE_ESP32_HALL_SENSOR
 
-#endif  // ESPHOMELIB_SENSOR_ESP32_HALL_SENSOR_H
+#endif //ESPHOMELIB_SENSOR_ESP32_HALL_SENSOR_H

@@ -71,7 +71,7 @@ class RemoteReceiveData {
 
   int32_t pos(uint32_t index) const;
 
-  int32_t operator[](uint32_t index) const;
+  int32_t operator [](uint32_t index) const;
 
   int32_t size() const;
 
@@ -161,10 +161,10 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   std::vector<int32_t> temp_;
 };
 
-}  // namespace remote
+} // namespace remote
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_REMOTE_RECEIVER
+#endif //USE_REMOTE_RECEIVER
 
-#endif  // ESPHOMELIB_REMOTE_REMOTE_RECEIVER_H
+#endif //ESPHOMELIB_REMOTE_REMOTE_RECEIVER_H

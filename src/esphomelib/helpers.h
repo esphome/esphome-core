@@ -13,11 +13,11 @@
 #include "esphomelib/optional.h"
 
 #ifndef JSON_BUFFER_SIZE
-#define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(16))
+  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(16))
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <driver/rmt.h>
+  #include <driver/rmt.h>
 #endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -51,13 +51,13 @@ std::string truncate_string(const std::string &s, size_t length);
 bool is_empty(const IPAddress &address);
 
 /// Force a shutdown (and reboot) of the ESP, calling any registered shutdown hooks.
-void reboot(const char *cause) __attribute__((noreturn));
+void reboot(const char *cause) __attribute__ ((noreturn));
 
 /// Add a shutdown callback.
 void add_shutdown_hook(std::function<void(const char *)> &&f);
 
 /// Create a safe shutdown (and reboot) of the ESP, calling any registered shutdown and safe shutdown hooks.
-void safe_reboot(const char *cause) __attribute__((noreturn));
+void safe_reboot(const char *cause) __attribute__ ((noreturn));
 
 /// Run shutdown hooks.
 void run_shutdown_hooks(const char *cause);
@@ -102,8 +102,8 @@ template<typename T>
 T lerp(T start, T end, T completion);
 
 /// std::make_unique
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args &&... args);
+template<typename T, typename ...Args>
+std::unique_ptr<T> make_unique(Args &&...args);
 
 /// Return a random 32 bit unsigned integer.
 uint32_t random_uint32();
@@ -205,8 +205,8 @@ class ExponentialMovingAverage {
   float accumulator_;
 };
 
-template<typename... X>
-class CallbackManager;
+template<typename... X> class CallbackManager;
+
 
 /** Simple helper class to allow having multiple subscribers to a signal.
  *
@@ -229,12 +229,15 @@ template<typename T, typename X>
 class TemplatableValue {
  public:
   TemplatableValue() : type_(EMPTY) {
+
   }
 
   TemplatableValue(T const &value) : type_(VALUE), value_(value) {
+
   }
 
   TemplatableValue(std::function<T(X)> f) : type_(LAMBDA), f_(f) {
+
   }
 
   bool has_value() {
@@ -265,9 +268,9 @@ extern CallbackManager<void(const char *)> shutdown_hooks;
 extern CallbackManager<void(const char *)> safe_shutdown_hooks;
 
 #ifdef ARDUINO_ARCH_ESP32
-extern rmt_channel_t next_rmt_channel;
+  extern rmt_channel_t next_rmt_channel;
 
-rmt_channel_t select_next_rmt_channel();
+  rmt_channel_t select_next_rmt_channel();
 #endif
 
 void delay_microseconds_accurate(uint32_t usec);
@@ -276,18 +279,18 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
  public:
   class String {
    public:
-    String(VectorJsonBuffer *parent);
+    String(VectorJsonBuffer* parent);
 
     void append(char c) const;
 
-    const char *c_str() const;
+    const char* c_str() const;
 
    private:
-    VectorJsonBuffer *parent_;
+    VectorJsonBuffer* parent_;
     uint32_t start_;
   };
 
-  void *alloc(size_t bytes) override;
+  void* alloc(size_t bytes) override;
 
   size_t size() const;
 
@@ -316,12 +319,9 @@ extern VectorJsonBuffer global_json_buffer;
 
 template<typename T>
 T clamp(T min, T max, T val) {
-  if (min > max)
-    std::swap(min, max);
-  if (val < min)
-    return min;
-  if (val > max)
-    return max;
+  if (min > max) std::swap(min, max);
+  if (val < min) return min;
+  if (val > max) return max;
   return val;
 }
 
@@ -330,8 +330,8 @@ T lerp(T start, T end, T completion) {
   return start + (end - start) * completion;
 }
 
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args &&... args) {
+template<typename T, typename ...Args>
+std::unique_ptr<T> make_unique(Args &&...args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
@@ -347,4 +347,4 @@ void CallbackManager<void(Ts...)>::call(Ts... args) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // ESPHOMELIB_HELPERS_H
+#endif //ESPHOMELIB_HELPERS_H

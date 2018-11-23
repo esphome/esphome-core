@@ -126,7 +126,7 @@ void WiFiComponent::loop() {
           this->handle_error_from_callback();
         } else
 #endif
-            if (WiFi.status() != WL_CONNECTED) {
+        if (WiFi.status() != WL_CONNECTED) {
           ESP_LOGW(TAG, "WiFi Connection lost... Reconnecting...");
           this->status_set_warning();
           this->retry_connect();
@@ -135,8 +135,7 @@ void WiFiComponent::loop() {
         }
         break;
       }
-      default:
-        break;
+      default: break;
     }
 
     if (!this->has_ap() && this->reboot_timeout_ != 0) {
@@ -157,53 +156,37 @@ void WiFiComponent::on_wifi_event(system_event_id_t event, system_event_info_t i
 #ifdef ESPHOMELIB_LOG_HAS_VERBOSE
   const char *event_name;
   switch (event) {
-    case SYSTEM_EVENT_WIFI_READY:
-      event_name = "WiFi ready";
+    case SYSTEM_EVENT_WIFI_READY: event_name = "WiFi ready";
       break;
-    case SYSTEM_EVENT_SCAN_DONE:
-      event_name = "Scan done";
+    case SYSTEM_EVENT_SCAN_DONE: event_name = "Scan done";
       break;
-    case SYSTEM_EVENT_STA_START:
-      event_name = "STA start";
+    case SYSTEM_EVENT_STA_START: event_name = "STA start";
       break;
-    case SYSTEM_EVENT_STA_STOP:
-      event_name = "STA stop";
+    case SYSTEM_EVENT_STA_STOP: event_name = "STA stop";
       break;
-    case SYSTEM_EVENT_STA_CONNECTED:
-      event_name = "STA connected";
+    case SYSTEM_EVENT_STA_CONNECTED: event_name = "STA connected";
       break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-      event_name = "STA disconnected";
+    case SYSTEM_EVENT_STA_DISCONNECTED: event_name = "STA disconnected";
       break;
-    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
-      event_name = "STA auth mode change";
+    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE: event_name = "STA auth mode change";
       break;
-    case SYSTEM_EVENT_STA_GOT_IP:
-      event_name = "STA got IP";
+    case SYSTEM_EVENT_STA_GOT_IP: event_name = "STA got IP";
       break;
-    case SYSTEM_EVENT_STA_LOST_IP:
-      event_name = "STA lost IP";
+    case SYSTEM_EVENT_STA_LOST_IP: event_name = "STA lost IP";
       break;
-    case SYSTEM_EVENT_AP_START:
-      event_name = "AP start";
+    case SYSTEM_EVENT_AP_START: event_name = "AP start";
       break;
-    case SYSTEM_EVENT_AP_STOP:
-      event_name = "AP stop";
+    case SYSTEM_EVENT_AP_STOP: event_name = "AP stop";
       break;
-    case SYSTEM_EVENT_AP_STACONNECTED:
-      event_name = "AP STA connected";
+    case SYSTEM_EVENT_AP_STACONNECTED: event_name = "AP STA connected";
       break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-      event_name = "AP STA disconnected";
+    case SYSTEM_EVENT_AP_STADISCONNECTED: event_name = "AP STA disconnected";
       break;
-    case SYSTEM_EVENT_AP_STAIPASSIGNED:
-      event_name = "AP STA IP assigned";
+    case SYSTEM_EVENT_AP_STAIPASSIGNED: event_name = "AP STA IP assigned";
       break;
-    case SYSTEM_EVENT_AP_PROBEREQRECVED:
-      event_name = "AP Probe Request received";
+    case SYSTEM_EVENT_AP_PROBEREQRECVED: event_name = "AP Probe Request received";
       break;
-    default:
-      event_name = "UNKNOWN";
+    default: event_name = "UNKNOWN";
       break;
   }
 
@@ -240,7 +223,8 @@ void WiFiComponent::setup_ap_config() {
     ESP_LOGCONFIG(TAG, "  AP Gateway: '%s'", this->ap_.manual_ip->gateway.toString().c_str());
     ESP_LOGCONFIG(TAG, "  AP Subnet: '%s'", this->ap_.manual_ip->subnet.toString().c_str());
 
-    ret = WiFi.softAPConfig(this->ap_.manual_ip->static_ip, this->ap_.manual_ip->gateway, this->ap_.manual_ip->subnet);
+    ret = WiFi.softAPConfig(this->ap_.manual_ip->static_ip, this->ap_.manual_ip->gateway,
+                            this->ap_.manual_ip->subnet);
     if (!ret) {
       ESP_LOGE(TAG, "WiFi.softAPConfig() failed!");
       this->status_set_error();
@@ -282,7 +266,7 @@ const std::string &WiFiComponent::get_hostname() {
   return this->hostname_;
 }
 float WiFiComponent::get_loop_priority() const {
-  return 10.0f;  // before other loop components
+  return 10.0f; // before other loop components
 }
 void WiFiComponent::set_ap(const WiFiAp &ap) {
   this->ap_ = ap;
@@ -340,8 +324,8 @@ void WiFiComponent::print_connect_params_() {
   uint8_t *bssid = WiFi.BSSID();
   ESP_LOGCONFIG(TAG, "  SSID: '%s'", WiFi.SSID().c_str());
   ESP_LOGCONFIG(TAG, "  IP Address: %s", WiFi.localIP().toString().c_str());
-  ESP_LOGCONFIG(TAG, "  BSSID: %02X:%02X:%02X:%02X:%02X:%02X", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4],
-                bssid[5]);
+  ESP_LOGCONFIG(TAG, "  BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
+                bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
   if (!this->hostname_.empty()) {
     ESP_LOGCONFIG(TAG, "  Hostname: '%s'", this->hostname_.c_str());
   }

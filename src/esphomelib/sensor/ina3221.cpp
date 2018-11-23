@@ -129,12 +129,10 @@ INA3221VoltageSensor *INA3221Component::make_bus_voltage_sensor(int channel, con
   return this->channels[channel].bus_voltage_sensor_ = new INA3221VoltageSensor(name, this);
 }
 INA3221Component::INA3221Component(I2CComponent *parent, uint8_t address, uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, address) {
-}
+    : PollingComponent(update_interval), I2CDevice(parent, address) {}
 
 bool INA3221Component::INA3221Channel::exists() {
-  return this->bus_voltage_sensor_ != nullptr || this->shunt_voltage_sensor_ != nullptr ||
-         this->current_sensor_ != nullptr || this->power_sensor_ != nullptr;
+  return this->bus_voltage_sensor_ != nullptr || this->shunt_voltage_sensor_ != nullptr || this->current_sensor_ != nullptr || this->power_sensor_ != nullptr;
 }
 bool INA3221Component::INA3221Channel::should_measure_shunt_voltage() {
   return this->shunt_voltage_sensor_ != nullptr || this->current_sensor_ != nullptr || this->power_sensor_ != nullptr;
@@ -142,8 +140,8 @@ bool INA3221Component::INA3221Channel::should_measure_shunt_voltage() {
 bool INA3221Component::INA3221Channel::should_measure_bus_voltage() {
   return this->bus_voltage_sensor_ != nullptr || this->power_sensor_ != nullptr;
 }
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_INA3221
+#endif //USE_INA3221

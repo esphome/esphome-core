@@ -15,7 +15,9 @@ static const char *TAG = "switch";
 std::string Switch::icon() {
   return "";
 }
-Switch::Switch(const std::string &name) : Nameable(name), state(false) {
+Switch::Switch(const std::string &name)
+  : Nameable(name), state(false) {
+
 }
 
 std::string Switch::get_icon() {
@@ -64,8 +66,8 @@ void Switch::set_inverted(bool inverted) {
   this->inverted_ = inverted;
 }
 
-}  // namespace switch_
+} // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_SWITCH
+#endif //USE_SWITCH

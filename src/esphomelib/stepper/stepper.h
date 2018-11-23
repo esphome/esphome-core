@@ -18,10 +18,10 @@ class SetTargetAction;
 template<typename T>
 class ReportPositionAction;
 
-#define LOG_STEPPER(this)                                                    \
-  ESP_LOGCONFIG(TAG, "  Acceleration: %.0f steps/s^2", this->acceleration_); \
-  ESP_LOGCONFIG(TAG, "  Deceleration: %.0f steps/s^2", this->deceleration_); \
-  ESP_LOGCONFIG(TAG, "  Max Speed: %.0f steps/s", this->max_speed_);
+#define LOG_STEPPER(this) \
+    ESP_LOGCONFIG(TAG, "  Acceleration: %.0f steps/s^2", this->acceleration_); \
+    ESP_LOGCONFIG(TAG, "  Deceleration: %.0f steps/s^2", this->deceleration_); \
+    ESP_LOGCONFIG(TAG, "  Max Speed: %.0f steps/s", this->max_speed_);
 
 class Stepper {
  public:
@@ -90,7 +90,9 @@ void ReportPositionAction<T>::set_position(int32_t pos) {
   this->target_ = pos;
 }
 template<typename T>
-ReportPositionAction<T>::ReportPositionAction(Stepper *parent) : parent_(parent) {
+ReportPositionAction<T>::ReportPositionAction(Stepper *parent)
+    : parent_(parent) {
+
 }
 template<typename T>
 void ReportPositionAction<T>::play(T x) {
@@ -115,7 +117,9 @@ void SetTargetAction<T>::set_target(int32_t target) {
   this->target_ = target;
 }
 template<typename T>
-SetTargetAction<T>::SetTargetAction(Stepper *parent) : parent_(parent) {
+SetTargetAction<T>::SetTargetAction(Stepper *parent)
+    : parent_(parent) {
+
 }
 template<typename T>
 void SetTargetAction<T>::play(T x) {
@@ -123,10 +127,10 @@ void SetTargetAction<T>::play(T x) {
   this->play_next(x);
 }
 
-}  // namespace stepper
+} // namespace stepper
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_STEPPER
+#endif //USE_STEPPER
 
-#endif  // ESPHOMELIB_STEPPER_STEPPER_H
+#endif //ESPHOMELIB_STEPPER_STEPPER_H

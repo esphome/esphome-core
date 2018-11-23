@@ -38,10 +38,10 @@ class MS5611Component : public PollingComponent, public I2CDevice {
   uint16_t prom[6];
 };
 
-}  // namespace sensor
+} // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_MS5611
+#endif //USE_MS5611
 
-#endif  // ESPHOMELIB_SENSOR_MS5611_H
+#endif //ESPHOMELIB_SENSOR_MS5611_H

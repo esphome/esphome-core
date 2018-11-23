@@ -11,7 +11,9 @@ namespace fan {
 
 static const char *TAG = "fan.mqtt";
 
-MQTTFanComponent::MQTTFanComponent(FanState *state) : MQTTComponent(), state_(state) {
+MQTTFanComponent::MQTTFanComponent(FanState *state)
+    : MQTTComponent(), state_(state) {
+
 }
 
 FanState *MQTTFanComponent::get_state() const {
@@ -74,7 +76,9 @@ void MQTTFanComponent::setup() {
   }
 
   auto f = std::bind(&MQTTFanComponent::publish_state, this);
-  this->state_->add_on_state_callback([this, f]() { this->defer("send", f); });
+  this->state_->add_on_state_callback([this, f]() {
+    this->defer("send", f);
+  });
 }
 void MQTTFanComponent::set_custom_oscillation_command_topic(const std::string &topic) {
   this->custom_oscillation_command_topic_ = topic;
@@ -155,8 +159,8 @@ void MQTTFanComponent::publish_state() {
   }
 }
 
-}  // namespace fan
+} // namespace fan
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif  // USE_FAN
+#endif //USE_FAN
