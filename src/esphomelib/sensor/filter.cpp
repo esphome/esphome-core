@@ -160,7 +160,7 @@ optional<float> DeltaFilter::new_value(float value) {
   }
   return {};
 }
-OrFilter::OrFilter(std::list<Filter *> filters)
+OrFilter::OrFilter(std::vector<Filter *> filters)
     : filters_(std::move(filters)) {
 
 }

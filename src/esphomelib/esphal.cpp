@@ -9,8 +9,6 @@ static const char *TAG = "esphal";
 GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
   : pin_(pin), mode_(mode), inverted_(inverted),
 #ifdef ARDUINO_ARCH_ESP8266
-    gpio_set_(pin < 16 ? &GPOS : nullptr),
-    gpio_clear_(pin < 16 ? &GPOC : nullptr),
     gpio_read_(pin < 16 ? &GPI : &GP16I),
     gpio_mask_(pin < 16 ? (1UL << pin) : 1)
 #endif
@@ -77,21 +75,27 @@ bool ICACHE_RAM_ATTR HOT GPIOPin::digital_read() {
 }
 void ICACHE_RAM_ATTR HOT GPIOPin::digital_write(bool value) {
 #ifdef ARDUINO_ARCH_ESP8266
-  if (this->gpio_set_ == nullptr) {
+  if (this->pin_ != 16) {
+    if (value != this->inverted_) {
+      GPOS = this->gpio_mask_;
+    } else {
+      GPOC = this->gpio_mask_;
+    }
+  } else {
     if (value != this->inverted_) {
       GP16O |= 1;
     } else {
       GP16O &= ~1;
     }
-
-    return;
   }
 #endif
+#ifdef ARDUINO_ARCH_ESP32
   if (value != this->inverted_) {
     (*this->gpio_set_) = this->gpio_mask_;
   } else {
     (*this->gpio_clear_) = this->gpio_mask_;
   }
+#endif
 }
 GPIOPin *GPIOPin::copy() const { return new GPIOPin(*this); }
 

@@ -63,10 +63,10 @@ class Sensor : public Nameable {
    *   SlidingWindowMovingAverageFilter(15, 15), // average over last 15 values
    * });
    */
-  void add_filters(const std::list<Filter *> & filters);
+  void add_filters(const std::vector<Filter *> & filters);
 
   /// Clear the filters and replace them by filters.
-  void set_filters(const std::list<Filter *> & filters);
+  void set_filters(const std::vector<Filter *> & filters);
 
   /// Clear the entire filter chain.
   void clear_filters();

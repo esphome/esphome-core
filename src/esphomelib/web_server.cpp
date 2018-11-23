@@ -282,6 +282,9 @@ void WebServer::handle_index_request(AsyncWebServerRequest *request) {
 void WebServer::register_sensor(sensor::Sensor *obj) {
   StoringController::register_sensor(obj);
   obj->add_on_state_callback([this, obj](float value) {
+    if (this->events_.count() == 0)
+      return;
+
     this->defer([this, obj, value] {
       this->events_.send(this->sensor_json(obj, value).c_str(), "state");
     });
@@ -313,6 +316,9 @@ std::string WebServer::sensor_json(sensor::Sensor *obj, float value) {
 void WebServer::register_text_sensor(text_sensor::TextSensor *obj) {
   StoringController::register_text_sensor(obj);
   obj->add_on_state_callback([this, obj](std::string value) {
+    if (this->events_.count() == 0)
+      return;
+
     this->defer([this, obj, value] {
       this->events_.send(this->text_sensor_json(obj, value).c_str(), "state");
     });
@@ -340,6 +346,9 @@ std::string WebServer::text_sensor_json(text_sensor::TextSensor *obj, const std:
 void WebServer::register_switch(switch_::Switch *obj) {
   StoringController::register_switch(obj);
   obj->add_on_state_callback([this, obj](bool value) {
+    if (this->events_.count() == 0)
+      return;
+
     this->defer([this, obj, value] {
       this->events_.send(this->switch_json(obj, value).c_str(), "state");
     });
@@ -388,6 +397,9 @@ void WebServer::handle_switch_request(AsyncWebServerRequest *request, UrlMatch m
 void WebServer::register_binary_sensor(binary_sensor::BinarySensor *obj) {
   StoringController::register_binary_sensor(obj);
   obj->add_on_state_callback([this, obj](bool value) {
+    if (this->events_.count() == 0)
+      return;
+
     this->defer([this, obj, value] {
       this->events_.send(this->binary_sensor_json(obj, value).c_str(), "state");
     });
@@ -416,6 +428,9 @@ void WebServer::handle_binary_sensor_request(AsyncWebServerRequest *request, Url
 void WebServer::register_fan(fan::FanState *obj) {
   StoringController::register_fan(obj);
   obj->add_on_state_callback([this, obj]() {
+    if (this->events_.count() == 0)
+      return;
+
     this->defer([this, obj] {
       this->events_.send(this->fan_json(obj).c_str(), "state");
     });
@@ -499,6 +514,9 @@ void WebServer::handle_fan_request(AsyncWebServerRequest *request, UrlMatch matc
 void WebServer::register_light(light::LightState *obj) {
   StoringController::register_light(obj);
   obj->add_new_remote_values_callback([this, obj]() {
+    if (this->events_.count() == 0)
+      return;
+
     this->defer([this, obj] {
       this->events_.send(this->light_json(obj).c_str(), "state");
     });

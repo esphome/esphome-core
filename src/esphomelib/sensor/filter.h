@@ -224,7 +224,7 @@ class DeltaFilter : public Filter {
 
 class OrFilter : public Filter {
  public:
-  explicit OrFilter(std::list<Filter *> filters);
+  explicit OrFilter(std::vector<Filter *> filters);
 
   ~OrFilter() override;
   void initialize(std::function<void(float)> &&output) override;
@@ -233,7 +233,7 @@ class OrFilter : public Filter {
   optional<float> new_value(float value) override;
 
  protected:
-  std::list<Filter *> filters_;
+  std::vector<Filter *> filters_;
 };
 
 class UniqueFilter : public Filter {
