@@ -22,7 +22,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 static const char *TAG = "esp32_ble_tracker";
 
 ESP32BLETracker *global_esp32_ble_tracker = nullptr;
-SemaphoreHandle_t semaphore_scan_end;
 
 uint64_t ble_addr_to_uint64(const esp_bd_addr_t address) {
   uint64_t u = 0;
@@ -59,6 +58,7 @@ XiaomiDevice *ESP32BLETracker::make_xiaomi_device(std::array<uint8_t, 6> address
 void ESP32BLETracker::setup() {
   global_esp32_ble_tracker = this;
   this->scan_result_lock_ = xSemaphoreCreateMutex();
+  this->scan_end_lock_ = xSemaphoreCreateMutex();
 
   if (!ESP32BLETracker::ble_setup()) {
     this->mark_failed();
@@ -69,17 +69,19 @@ void ESP32BLETracker::setup() {
 }
 
 void ESP32BLETracker::loop() {
-  auto ret = xSemaphoreTake(semaphore_scan_end, 0L);
-  if (ret) {
-    xSemaphoreGive(semaphore_scan_end);
+  if (xSemaphoreTake(this->scan_end_lock_, 0L)) {
+    xSemaphoreGive(this->scan_end_lock_);
     global_esp32_ble_tracker->start_scan(false);
   }
 
-  if (xSemaphoreTake(this->scan_result_lock_, 0L)) {
-    if (this->scan_result_index_ >= 16) {
+  if (xSemaphoreTake(this->scan_result_lock_, 5L / portTICK_PERIOD_MS)) {
+    uint32_t index = this->scan_result_index_;
+    xSemaphoreGive(this->scan_result_lock_);
+
+    if (index >= 16) {
       ESP_LOGW(TAG, "Too many BLE events to process. Some devices may not show up.");
     }
-    for (size_t i = 0; i < this->scan_result_index_; i++) {
+    for (size_t i = 0; i < index; i++) {
       ESPBTDevice device;
       device.parse_scan_rst(this->scan_result_buffer_[i]);
 
@@ -90,9 +92,11 @@ void ESP32BLETracker::loop() {
         continue;
       this->parse_presence_sensors_(device);
     }
-    this->scan_result_index_ = 0;
 
-    xSemaphoreGive(this->scan_result_lock_);
+    if (xSemaphoreTake(this->scan_result_lock_, 10L / portTICK_PERIOD_MS)) {
+      this->scan_result_index_ = 0;
+      xSemaphoreGive(this->scan_result_lock_);
+    }
   }
 
   if (this->scan_set_param_failed_) {
@@ -106,17 +110,7 @@ void ESP32BLETracker::loop() {
   }
 }
 
-void ESP32BLETracker::ble_core_task(void *params) {
-  ble_setup();
-
-  while (true) {
-    delay(1000);
-  }
-}
-
 bool ESP32BLETracker::ble_setup() {
-  semaphore_scan_end = xSemaphoreCreateMutex();
-
   // Initialize non-volatile storage for the bluetooth controller
   esp_err_t err = nvs_flash_init();
   if (err != ESP_OK) {
@@ -165,7 +159,10 @@ bool ESP32BLETracker::ble_setup() {
 }
 
 void ESP32BLETracker::start_scan(bool first) {
-  xSemaphoreTake(semaphore_scan_end, portMAX_DELAY);
+  if (!xSemaphoreTake(this->scan_end_lock_, 0L)) {
+    ESP_LOGW("Cannot start scan!");
+    return;
+  }
 
   ESP_LOGD(TAG, "Starting scan...");
   if (!first) {
@@ -225,7 +222,7 @@ void ESP32BLETracker::gap_scan_result(const esp_ble_gap_cb_param_t::ble_scan_res
       xSemaphoreGive(this->scan_result_lock_);
     }
   } else if (param.search_evt == ESP_GAP_SEARCH_INQ_CMPL_EVT) {
-    xSemaphoreGive(semaphore_scan_end);
+    xSemaphoreGive(this->scan_end_lock_);
   }
 }
 
