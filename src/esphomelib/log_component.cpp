@@ -12,7 +12,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "logger";
 
-int LogComponent::log_vprintf_(int level, const char *tag,
+int HOT LogComponent::log_vprintf_(int level, const char *tag,
                                const char *format, va_list args) {
   // Uses std::vector<> for low memory footprint, though the vector
   // could be sorted to minimize lookup times. This feature isn't used that
