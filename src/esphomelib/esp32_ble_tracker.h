@@ -91,7 +91,6 @@ class ESP32BLETracker : public Component {
   uint32_t get_scan_interval() const;
 
  protected:
-  static void ble_core_task(void *params);
   /// The FreeRTOS task managing the bluetooth interface.
   static bool ble_setup();
   /// Start a single scan by setting up the parameters and doing some esp-idf calls.
@@ -123,6 +122,12 @@ class ESP32BLETracker : public Component {
   esp_ble_scan_params_t scan_params_;
   /// The interval in seconds to perform scans.
   uint32_t scan_interval_{300};
+  SemaphoreHandle_t scan_result_lock_;
+  SemaphoreHandle_t scan_end_lock_;
+  size_t scan_result_index_{0};
+  esp_ble_gap_cb_param_t::ble_scan_result_evt_param scan_result_buffer_[16];
+  esp_bt_status_t scan_start_failed_{ESP_BT_STATUS_SUCCESS};
+  esp_bt_status_t scan_set_param_failed_{ESP_BT_STATUS_SUCCESS};
 };
 
 /// Simple helper class to expose an BLE device as a binary sensor.
@@ -266,7 +271,6 @@ class ESPBTDevice {
 };
 
 extern ESP32BLETracker *global_esp32_ble_tracker;
-extern SemaphoreHandle_t semaphore_scan_end;
 
 ESPHOMELIB_NAMESPACE_END
 
