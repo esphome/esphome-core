@@ -36,21 +36,24 @@ class Filter {
    */
   virtual optional<float> new_value(float value) = 0;
 
-  virtual ~Filter();
-
-  virtual void initialize(std::function<void(float)> &&output);
+  /// Initialize this filter, please note this can be called more than once.
+  virtual void initialize(Sensor *parent, Filter *next);
 
   void input(float value);
 
   /// Return the amount of time that this filter is expected to take based on the input time interval.
   virtual uint32_t expected_interval(uint32_t input);
 
+  uint32_t calculate_remaining_interval(uint32_t input);
+
+  void output(float value);
+
  protected:
   friend Sensor;
   friend MQTTSensorComponent;
 
-  std::function<void(float)> output_;
   Filter *next_{nullptr};
+  Sensor *parent_{nullptr};
 };
 
 /** Simple sliding window moving average filter.
@@ -80,7 +83,7 @@ class SlidingWindowMovingAverageFilter : public Filter {
   uint32_t expected_interval(uint32_t input) override;
 
  protected:
-  SlidingWindowMovingAverage value_average_;
+  SlidingWindowMovingAverage average_;
   size_t send_every_;
   size_t send_at_;
 };
@@ -104,8 +107,7 @@ class ExponentialMovingAverageFilter : public Filter {
   uint32_t expected_interval(uint32_t input) override;
 
  protected:
-  ExponentialMovingAverage value_average_;
-  ExponentialMovingAverage accuracy_average_;
+  ExponentialMovingAverage average_;
   size_t send_every_;
   size_t send_at_;
 };
@@ -209,6 +211,7 @@ class HeartbeatFilter : public Filter, public Component {
  protected:
   uint32_t time_period_;
   float last_input_;
+  bool has_value_{false};
 };
 
 class DeltaFilter : public Filter {
@@ -224,16 +227,25 @@ class DeltaFilter : public Filter {
 
 class OrFilter : public Filter {
  public:
-  explicit OrFilter(std::list<Filter *> filters);
+  explicit OrFilter(std::vector<Filter *> filters);
 
-  ~OrFilter() override;
-  void initialize(std::function<void(float)> &&output) override;
+  void initialize(Sensor *parent, Filter *next) override;
+
   uint32_t expected_interval(uint32_t input) override;
 
   optional<float> new_value(float value) override;
 
  protected:
-  std::list<Filter *> filters_;
+  class PhiNode : public Filter {
+   public:
+    PhiNode(OrFilter *parent);
+    optional<float> new_value(float value) override;
+   protected:
+    OrFilter *parent_;
+  };
+
+  std::vector<Filter *> filters_;
+  PhiNode phi_;
 };
 
 class UniqueFilter : public Filter {
