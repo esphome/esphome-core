@@ -7,9 +7,11 @@
 #ifdef ARDUINO_ARCH_ESP32
   #include <esp_wifi.h>
   #include <WiFiType.h>
+  #include <WiFi.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
   #include <ESP8266WiFiType.h>
+  #include <ESP8266WiFi.h>
 #endif
 
 #include "esphomelib/component.h"

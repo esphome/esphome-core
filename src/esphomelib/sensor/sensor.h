@@ -155,6 +155,8 @@ class Sensor : public Nameable {
   /// Calculate the expected update interval for values that pass through all filters.
   uint32_t calculate_expected_filter_update_interval();
 
+  void send_state_to_frontend_internal_(float state);
+
  protected:
   /** Override this to set the Home Assistant unit of measurement for this sensor.
    *
@@ -174,8 +176,6 @@ class Sensor : public Nameable {
 
   /// Return the accuracy in decimals for this sensor.
   virtual int8_t accuracy_decimals();
-
-  void send_state_to_frontend_internal_(float state);
 
   CallbackManager<void(float)> raw_callback_; ///< Storage for raw state callbacks.
   CallbackManager<void(float)> callback_; ///< Storage for filtered state callbacks.
