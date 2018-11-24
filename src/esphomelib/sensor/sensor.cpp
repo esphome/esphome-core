@@ -85,14 +85,9 @@ void Sensor::add_filter(Filter *filter) {
     Filter *last_filter = this->filter_list_;
     while (last_filter->next_ != nullptr)
       last_filter = last_filter->next_;
-    last_filter->next_ = filter;
-    last_filter->output_ = [filter] (float value) {
-      filter->input(value);
-    };
+    last_filter->initialize(this, filter);
   }
-  filter->initialize([this](float value) {
-    this->send_state_to_frontend_internal_(value);
-  });
+  filter->initialize(this, nullptr);
 }
 void Sensor::add_filters(const std::vector<Filter *> &filters) {
   for (Filter *filter : filters) {
@@ -104,13 +99,8 @@ void Sensor::set_filters(const std::vector<Filter *> &filters) {
   this->add_filters(filters);
 }
 void Sensor::clear_filters() {
-  Filter *filter = this->filter_list_;
-  while (filter != nullptr) {
-    Filter *next_filter = filter->next_;
-    delete filter;
-    filter = next_filter;
-  }
-
+  // note: not deallocating here, it makes the code faster (no virtual destructor)
+  // plus this is not called too often.
   this->filter_list_ = nullptr;
 }
 float Sensor::get_value() const {
@@ -152,12 +142,12 @@ uint32_t Sensor::calculate_expected_filter_update_interval() {
   if (interval == 4294967295UL)
     // update_interval: never
     return 0;
-  Filter *filter = this->filter_list_;
-  while (filter != nullptr) {
-    interval = filter->expected_interval(interval);
-    filter = filter->next_;
+
+  if (this->filter_list_ == nullptr) {
+    return interval;
   }
-  return interval;
+
+  return this->filter_list_->calculate_remaining_interval(interval);
 }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
