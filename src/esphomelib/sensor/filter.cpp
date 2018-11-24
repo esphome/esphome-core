@@ -120,7 +120,7 @@ uint32_t Filter::expected_interval(uint32_t input) {
 void Filter::input(float value) {
   optional<float> out = this->new_value(value);
   if (out.has_value())
-    this->output_(*out);
+    this->output(*out);
 }
 void Filter::output(float value) {
   if (this->next_ == nullptr) {
@@ -132,6 +132,14 @@ void Filter::output(float value) {
 void Filter::initialize(Sensor *parent, Filter *next) {
   this->parent_ = parent;
   this->next_ = next;
+}
+uint32_t Filter::calculate_remaining_interval(uint32_t input) {
+  uint32_t this_interval = this->expected_interval(input);
+  if (this->next_ == nullptr) {
+    return this_interval;
+  } else {
+    return this->next_->calculate_remaining_interval(this_interval);
+  }
 }
 
 ThrottleFilter::ThrottleFilter(uint32_t min_time_between_inputs)
@@ -170,6 +178,8 @@ OrFilter::PhiNode::PhiNode(OrFilter *parent) : parent_(parent) {}
 
 optional<float> OrFilter::PhiNode::new_value(float value) {
   this->parent_->output(value);
+
+  return {};
 }
 optional<float> OrFilter::new_value(float value) {
   for (Filter *filter : this->filters_)
@@ -182,12 +192,13 @@ void OrFilter::initialize(Sensor *parent, Filter *next) {
   for (Filter *filter : this->filters_) {
     filter->initialize(parent, &this->phi_);
   }
+  this->phi_.initialize(parent, nullptr);
 }
 
 uint32_t OrFilter::expected_interval(uint32_t input) {
   uint32_t min_interval = UINT32_MAX;
   for (Filter *filter : this->filters_) {
-    min_interval = std::min(min_interval, filter->expected_interval(input));
+    min_interval = std::min(min_interval, filter->calculate_remaining_interval(input));
   }
 
   return min_interval;
@@ -203,7 +214,7 @@ optional<float> UniqueFilter::new_value(float value) {
 
 optional<float> DebounceFilter::new_value(float value) {
   this->set_timeout("debounce", this->time_period_, [this, value](){
-    this->output_(value);
+    this->output(value);
   });
 
   return {};
@@ -224,6 +235,7 @@ HeartbeatFilter::HeartbeatFilter(uint32_t time_period)
 
 optional<float> HeartbeatFilter::new_value(float value) {
   this->last_input_ = value;
+  this->has_value_ = true;
 
   return {};
 }
@@ -232,7 +244,10 @@ uint32_t HeartbeatFilter::expected_interval(uint32_t input) {
 }
 void HeartbeatFilter::setup() {
   this->set_interval("heartbeat", this->time_period_, [this]() {
-    this->output_(this->last_input_);
+    if (!this->has_value_)
+      return;
+
+    this->output(this->last_input_);
   });
 }
 float HeartbeatFilter::get_setup_priority() const {

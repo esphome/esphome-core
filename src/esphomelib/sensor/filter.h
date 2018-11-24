@@ -44,13 +44,14 @@ class Filter {
   /// Return the amount of time that this filter is expected to take based on the input time interval.
   virtual uint32_t expected_interval(uint32_t input);
 
+  uint32_t calculate_remaining_interval(uint32_t input);
+
   void output(float value);
 
  protected:
   friend Sensor;
   friend MQTTSensorComponent;
 
-  std::function<void(float)> output_;
   Filter *next_{nullptr};
   Sensor *parent_{nullptr};
 };
@@ -210,6 +211,7 @@ class HeartbeatFilter : public Filter, public Component {
  protected:
   uint32_t time_period_;
   float last_input_;
+  bool has_value_{false};
 };
 
 class DeltaFilter : public Filter {
@@ -228,6 +230,7 @@ class OrFilter : public Filter {
   explicit OrFilter(std::vector<Filter *> filters);
 
   void initialize(Sensor *parent, Filter *next) override;
+
   uint32_t expected_interval(uint32_t input) override;
 
   optional<float> new_value(float value) override;

@@ -142,12 +142,12 @@ uint32_t Sensor::calculate_expected_filter_update_interval() {
   if (interval == 4294967295UL)
     // update_interval: never
     return 0;
-  Filter *filter = this->filter_list_;
-  while (filter != nullptr) {
-    interval = filter->expected_interval(interval);
-    filter = filter->next_;
+
+  if (this->filter_list_ == nullptr) {
+    return interval;
   }
-  return interval;
+
+  return this->filter_list_->calculate_remaining_interval(interval);
 }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
