@@ -11,14 +11,14 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+namespace io {
+
 /// Modes for PCF8574 pins
 enum PCF8574GPIOMode {
   PCF8574_INPUT = INPUT,
   PCF8574_INPUT_PULLUP = INPUT_PULLUP,
   PCF8574_OUTPUT = OUTPUT,
 };
-
-namespace io {
 
 class PCF8574GPIOInputPin;
 class PCF8574GPIOOutputPin;
