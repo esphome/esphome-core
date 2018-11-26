@@ -79,6 +79,7 @@ int8_t Sensor::get_accuracy_decimals() {
 void Sensor::add_filter(Filter *filter) {
   // inefficient, but only happens once on every sensor setup and nobody's going to have massive amounts of
   // filters
+  ESP_LOGVV(TAG, "Sensor(%p)::add_filter(%p)", this, filter);
   if (this->filter_list_ == nullptr) {
     this->filter_list_ = filter;
   } else {
@@ -99,6 +100,7 @@ void Sensor::set_filters(const std::vector<Filter *> &filters) {
   this->add_filters(filters);
 }
 void Sensor::clear_filters() {
+  ESP_LOGVV(TAG, "Sensor(%p)::clear_filters()", this);
   // note: not deallocating here, it makes the code faster (no virtual destructor)
   // plus this is not called too often.
   this->filter_list_ = nullptr;
