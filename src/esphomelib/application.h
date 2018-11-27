@@ -6,6 +6,7 @@
 #include "esphomelib/automation.h"
 #include "esphomelib/component.h"
 #include "esphomelib/controller.h"
+#include "esphomelib/custom_component.h"
 #include "esphomelib/debug_component.h"
 #include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/esp32_ble_beacon.h"
@@ -53,7 +54,7 @@
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/light_state.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
-#include "esphomelib/mqtt/custom_mqtt_component.h"
+#include "esphomelib/mqtt/custom_mqtt_device.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/output/binary_output.h"
@@ -113,8 +114,9 @@
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/uptime_sensor.h"
 #include "esphomelib/sensor/wifi_signal_sensor.h"
-#include "esphomelib/stepper/stepper.h"
 #include "esphomelib/stepper/a4988.h"
+#include "esphomelib/stepper/stepper.h"
+#include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/output_switch.h"
@@ -137,6 +139,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 /// This is the class that combines all components.
 class Application {
  public:
+  Application();
+
   /** Set the name of the item that is running this app.
    *
    * Note: This will automatically be converted to lowercase_underscore.
@@ -1363,6 +1367,8 @@ class Application {
   void set_loop_interval(uint32_t loop_interval);
 
  protected:
+  void register_component_(Component *comp);
+
   std::vector<Component *> components_{};
   std::vector<Controller *> controllers_{};
   mqtt::MQTTClientComponent *mqtt_client_{nullptr};
@@ -1384,9 +1390,7 @@ extern Application App;
 template<class C>
 C *Application::register_component(C *c) {
   static_assert(std::is_base_of<Component, C>::value, "Only Component subclasses can be registered");
-  Component *component = c;
-  if (c != nullptr)
-    this->components_.push_back(component);
+  this->register_component((Component *) c);
   return c;
 }
 

@@ -1259,6 +1259,25 @@ void Application::set_loop_interval(uint32_t loop_interval) {
   this->loop_interval_ = loop_interval;
 }
 
+void Application::register_component_(Component *comp) {
+  if (comp == nullptr) {
+    ESP_LOGW(TAG, "Tried to register null component!");
+    return;
+  }
+
+  for (auto *c : this->components_) {
+    if (comp == c) {
+      ESP_LOGW(TAG, "Component already registered! (%p)", c);
+      return;
+    }
+  }
+  this->components_.push_back(comp);
+}
+
+Application::Application() {
+  this->components_.reserve(20);
+}
+
 
 Application App; // NOLINT
 

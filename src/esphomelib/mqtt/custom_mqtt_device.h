@@ -1,9 +1,9 @@
-#ifndef ESPHOMELIB_MQTT_CUSTOM_MQTT_COMPONENT_H
-#define ESPHOMELIB_MQTT_CUSTOM_MQTT_COMPONENT_H
+#ifndef ESPHOMELIB_MQTT_CUSTOM_MQTT_DEVICE_H
+#define ESPHOMELIB_MQTT_CUSTOM_MQTT_DEVICE_H
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_CUSTOM_MQTT_COMPONENT
+#ifdef USE_CUSTOM_COMPONENT
 
 #include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
@@ -12,7 +12,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace mqtt {
 
-class CustomMQTTComponent : public PollingComponent {
+class CustomMQTTDevice {
  public:
   template<typename T>
   void subscribe(const std::string &topic, uint8_t qos, T &&method);
@@ -42,21 +42,21 @@ class CustomMQTTComponent : public PollingComponent {
 };
 
 template<typename T>
-void CustomMQTTComponent::subscribe(const std::string &topic, uint8_t qos, T &&method) {
+void CustomMQTTDevice::subscribe(const std::string &topic, uint8_t qos, T &&method) {
   auto f = std::bind(method, this, std::placeholders::_1, std::placeholders::_2);
   global_mqtt_client->subscribe(topic, f, qos);
 }
 template<typename T>
-void CustomMQTTComponent::subscribe(const std::string &topic, T &&method) {
+void CustomMQTTDevice::subscribe(const std::string &topic, T &&method) {
   this->subscribe(topic, 0, method);
 }
 template<typename T>
-void CustomMQTTComponent::subscribe_json(const std::string &topic, uint8_t qos, T &&method) {
+void CustomMQTTDevice::subscribe_json(const std::string &topic, uint8_t qos, T &&method) {
   auto f = std::bind(method, this, std::placeholders::_1, std::placeholders::_2);
   global_mqtt_client->subscribe_json(topic, f, qos);
 }
 template<typename T>
-void CustomMQTTComponent::subscribe_json(const std::string &topic, T &&method) {
+void CustomMQTTDevice::subscribe_json(const std::string &topic, T &&method) {
   this->subscribe_json(topic, 0, method);
 }
 
@@ -64,6 +64,6 @@ void CustomMQTTComponent::subscribe_json(const std::string &topic, T &&method) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_CUSTOM_MQTT_COMPONENT
+#endif //USE_CUSTOM_COMPONENT
 
-#endif //ESPHOMELIB_MQTT_CUSTOM_MQTT_COMPONENT_H
+#endif //ESPHOMELIB_MQTT_CUSTOM_MQTT_DEVICE_H
