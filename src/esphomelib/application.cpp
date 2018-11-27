@@ -1219,8 +1219,8 @@ Application::MakeTemplateTextSensor Application::make_template_text_sensor(const
 #endif
 
 #ifdef USE_CSE7766
-sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent) {
-  return this->register_component(new sensor::CSE7766Component(parent));
+sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent, uint32_t update_interval) {
+  return this->register_component(new sensor::CSE7766Component(parent, update_interval));
 }
 #endif
 
