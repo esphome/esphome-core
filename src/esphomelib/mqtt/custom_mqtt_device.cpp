@@ -11,9 +11,6 @@ namespace mqtt {
 void CustomMQTTDevice::publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain) {
   global_mqtt_client->publish(topic, payload, qos, retain);
 }
-void CustomMQTTDevice::publish(const std::string &topic, const std::string &payload) {
-  this->publish(topic, payload, 0, false);
-}
 void CustomMQTTDevice::publish(const std::string &topic, float value, int8_t number_decimals) {
   auto str = value_accuracy_to_string(value, number_decimals);
   this->publish(topic, str);

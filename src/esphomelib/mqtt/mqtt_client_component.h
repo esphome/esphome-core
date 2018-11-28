@@ -234,6 +234,8 @@ class MQTTClientComponent : public Component {
   /// Re-calculate the availability property.
   void recalculate_availability();
 
+  void subscribe_(const char* topic, uint8_t qos);
+
   MQTTCredentials credentials_;
   /// The last will message. Disabled optional denotes it being default and
   /// an empty topic denotes the the feature being disabled.

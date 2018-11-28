@@ -15,6 +15,11 @@ CustomComponentConstructor::CustomComponentConstructor(const std::function<std::
   }
 }
 
+Component *CustomComponentConstructor::get_component(int i) {
+  return this->components_[i];
+}
+
 ESPHOMELIB_NAMESPACE_END
 
 #endif //USE_CUSTOM_COMPONENT
+

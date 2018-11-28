@@ -21,6 +21,8 @@ class ReleaseTrigger;
 class ClickTrigger;
 class DoubleClickTrigger;
 class MultiClickTrigger;
+template<typename T>
+class BinarySensorCondition;
 class Filter;
 
 struct MultiClickTriggerEvent {
@@ -73,6 +75,10 @@ class BinarySensor : public Nameable {
   ClickTrigger *make_click_trigger(uint32_t min_length, uint32_t max_length);
   DoubleClickTrigger *make_double_click_trigger(uint32_t min_length, uint32_t max_length);
   MultiClickTrigger *make_multi_click_trigger(const std::vector<MultiClickTriggerEvent> &timing);
+  template<typename T>
+  BinarySensorCondition<T> *make_binary_sensor_is_on_condition();
+  template<typename T>
+  BinarySensorCondition<T> *make_binary_sensor_is_off_condition();
 
   void add_filter(Filter *filter);
   void add_filters(std::vector<Filter *> filters);
@@ -152,6 +158,34 @@ class MultiClickTrigger : public Trigger<NoArg>, public Component {
   bool is_in_cooldown_{false};
   bool is_valid_{false};
 };
+
+template<typename T>
+class BinarySensorCondition : public Condition<T> {
+ public:
+  BinarySensorCondition(BinarySensor *parent, bool state);
+  bool check(T x) override;
+ protected:
+  BinarySensor *parent_;
+  bool state_;
+};
+
+template<typename T>
+BinarySensorCondition<T>::BinarySensorCondition(BinarySensor *parent, bool state) : parent_(parent), state_(state) {
+
+}
+template<typename T>
+bool BinarySensorCondition<T>::check(T x) {
+  return this->parent_->state == this->state_;
+}
+
+template<typename T>
+BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_on_condition() {
+  return new BinarySensorCondition<T>(this, true);
+}
+template<typename T>
+BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_off_condition() {
+  return new BinarySensorCondition<T>(this, false);
+}
 
 } // namespace binary_sensor
 

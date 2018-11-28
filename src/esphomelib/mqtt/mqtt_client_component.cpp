@@ -120,7 +120,7 @@ void MQTTClientComponent::check_connected() {
     this->publish(this->birth_message_);
 
   for (MQTTSubscription &subscription : this->subscriptions_)
-    this->mqtt_client_.subscribe(subscription.topic.c_str(), subscription.qos);
+    this->subscribe_(subscription.topic.c_str(), subscription.qos);
 
   for (MQTTComponent *component : this->children_)
     component->schedule_resend_state();
@@ -197,6 +197,23 @@ void MQTTClientComponent::set_keep_alive(uint16_t keep_alive_s) {
   this->mqtt_client_.setKeepAlive(keep_alive_s);
 }
 
+void MQTTClientComponent::subscribe_(const char *topic, uint8_t qos) {
+  if (!this->is_connected())
+    return;
+
+  uint16_t ret = this->mqtt_client_.subscribe(topic, qos);
+  yield();
+  if (ret == 0 && this->is_connected()) {
+    delay(10);
+    ret = this->mqtt_client_.subscribe(topic, qos);
+    if (ret == 0) {
+      ESP_LOGW(TAG, "Subscribe failed for '%s'!", topic);
+      this->status_momentary_warning("subscribe", 5000);
+    }
+    delay(5);
+  }
+}
+
 void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
   ESP_LOGV(TAG, "Subscribing to topic='%s' qos=%u...", topic.c_str(), qos);
   MQTTSubscription subscription{
@@ -206,8 +223,7 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
   };
   this->subscriptions_.push_back(subscription);
 
-  if (this->mqtt_client_.connected())
-    this->mqtt_client_.subscribe(topic.c_str(), qos);
+  this->subscribe_(topic.c_str(), qos);
 }
 
 void MQTTClientComponent::subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos) {
@@ -224,8 +240,7 @@ void MQTTClientComponent::subscribe_json(const std::string &topic, mqtt_json_cal
   };
   this->subscriptions_.push_back(subscription);
 
-  if (this->mqtt_client_.connected())
-    this->mqtt_client_.subscribe(topic.c_str(), qos);
+  this->subscribe_(topic.c_str(), qos);
 }
 
 void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain) {
@@ -247,13 +262,13 @@ void MQTTClientComponent::publish(const std::string &topic, const char *payload,
   uint16_t ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload, payload_length);
   yield();
   if (ret == 0 && !logging_topic && this->is_connected()) {
-    delay(5);
+    delay(10);
     ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload, payload_length);
     if (ret == 0) {
       ESP_LOGW(TAG, "Publish failed!");
       this->status_momentary_warning("publish", 5000);
     }
-    delay(1);
+    delay(5);
   }
 }
 

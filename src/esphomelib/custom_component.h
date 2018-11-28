@@ -13,6 +13,8 @@ class CustomComponentConstructor {
  public:
   CustomComponentConstructor(const std::function<std::vector<Component *>()> &init);
 
+  Component *get_component(int i);
+
  protected:
   std::vector<Component *> components_;
 };

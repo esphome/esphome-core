@@ -20,6 +20,8 @@ template<typename T>
 class TurnOffAction;
 template<typename T>
 class TurnOnAction;
+template<typename T>
+class SwitchCondition;
 
 #define LOG_SWITCH(this) \
   if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); }
@@ -87,6 +89,10 @@ class Switch : public Nameable {
   TurnOffAction<T> *make_turn_off_action();
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
+  template<typename T>
+  SwitchCondition<T> *make_switch_is_on_condition();
+  template<typename T>
+  SwitchCondition<T> *make_switch_is_off_condition();
 
   /** Set callback for state changes.
    *
@@ -162,6 +168,16 @@ class ToggleAction : public Action<T> {
   Switch *switch_;
 };
 
+template<typename T>
+class SwitchCondition : public Condition<T> {
+ public:
+  SwitchCondition(Switch *parent, bool state);
+  bool check(T x) override;
+ protected:
+  Switch *parent_;
+  bool state_;
+};
+
 // =============== TEMPLATE DEFINITIONS ===============
 
 template<typename T>
@@ -204,6 +220,24 @@ TurnOffAction<T> *Switch::make_turn_off_action() {
 template<typename T>
 TurnOnAction<T> *Switch::make_turn_on_action() {
   return new TurnOnAction<T>(this);
+}
+
+template<typename T>
+SwitchCondition<T>::SwitchCondition(Switch *parent, bool state) : parent_(parent), state_(state) {
+
+}
+template<typename T>
+bool SwitchCondition<T>::check(T x) {
+  return this->parent_->state == this->state_;
+}
+
+template<typename T>
+SwitchCondition<T> *Switch::make_switch_is_on_condition() {
+  return new SwitchCondition<T>(this, true);
+}
+template<typename T>
+SwitchCondition<T> *Switch::make_switch_is_off_condition() {
+  return new SwitchCondition<T>(this, false);
 }
 
 } // namespace switch_

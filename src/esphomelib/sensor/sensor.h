@@ -21,6 +21,8 @@ class MQTTSensorComponent;
 class SensorStateTrigger;
 class SensorRawStateTrigger;
 class ValueRangeTrigger;
+template<typename T>
+class SensorInRangeCondition;
 
 /** Base-class for all sensors.
  *
@@ -116,6 +118,8 @@ class Sensor : public Nameable {
   SensorStateTrigger *make_state_trigger();
   SensorRawStateTrigger *make_raw_state_trigger();
   ValueRangeTrigger *make_value_range_trigger();
+  template<typename T>
+  SensorInRangeCondition<T> *make_sensor_in_range_condition();
 
   union {
     /** This member variable stores the last state that has passed through all filters.
@@ -249,7 +253,7 @@ class SensorRawStateTrigger : public Trigger<float> {
   explicit SensorRawStateTrigger(Sensor *parent);
 };
 
-class ValueRangeTrigger : public Trigger<float> {
+class ValueRangeTrigger : public Trigger<float>, public Component {
  public:
   explicit ValueRangeTrigger(Sensor *parent);
 
@@ -258,10 +262,31 @@ class ValueRangeTrigger : public Trigger<float> {
   void set_max(std::function<float(float)> &&max);
   void set_max(float max);
 
+  void setup() override;
+  float get_setup_priority() const override;
+
  protected:
+  void on_state_(float state);
+
+  Sensor *parent_;
+  ESPPreferenceObject rtc_;
   bool previous_in_range_{false};
   TemplatableValue<float, float> min_{NAN};
   TemplatableValue<float, float> max_{NAN};
+};
+
+template<typename T>
+class SensorInRangeCondition : public Condition<T> {
+ public:
+  SensorInRangeCondition(Sensor *parent);
+
+  void set_min(float min);
+  void set_max(float max);
+  bool check(T x) override;
+ protected:
+  Sensor *parent_;
+  float min_{NAN};
+  float max_{NAN};
 };
 
 extern const char ICON_EMPTY[];
@@ -296,6 +321,32 @@ extern const char UNIT_DEGREES[];
 extern const char UNIT_K[];
 extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 extern const char UNIT_MICROGRAMS_PER_CUBIC_METER[];
+
+template<typename T>
+SensorInRangeCondition<T> *Sensor::make_sensor_in_range_condition() {
+  return new SensorInRangeCondition<T>(this);
+}
+template<typename T>
+SensorInRangeCondition<T>::SensorInRangeCondition(Sensor *parent) : parent_(parent) {}
+template<typename T>
+void SensorInRangeCondition<T>::set_min(float min) {
+  this->min_ = min;
+}
+template<typename T>
+void SensorInRangeCondition<T>::set_max(float max) {
+  this->max_ = max;
+}
+template<typename T>
+bool SensorInRangeCondition<T>::check(T x) {
+  const float state = this->parent_->state;
+  if (isnan(this->min_)) {
+    return state <= this->max_;
+  } else if (isnan(this->max_)) {
+    return state >= this->min_;
+  } else {
+    return this->min_ <= state && state <= this->max_;
+  }
+}
 
 } // namespace sensor
 
