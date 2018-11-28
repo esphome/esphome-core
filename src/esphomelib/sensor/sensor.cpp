@@ -6,7 +6,6 @@
 #include "esphomelib/sensor/sensor.h"
 
 #include "esphomelib/log.h"
-#include "sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
