@@ -39,6 +39,7 @@ struct MQTTSubscription {
   uint8_t qos;
   mqtt_callback_t callback;
   bool subscribed;
+  uint32_t resubscribe_timeout;
 };
 
 /// internal struct for MQTT credentials.
@@ -235,12 +236,18 @@ class MQTTClientComponent : public Component {
   void start_connect();
   void start_dnslookup();
   void check_dnslookup();
+#if defined(ARDUINO_ARCH_ESP8266) && LWIP_VERSION_MAJOR == 1
+  static void dns_found_callback_(const char *name, ip_addr_t *ipaddr, void *callback_arg);
+#else
   static void dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+#endif
 
   /// Re-calculate the availability property.
   void recalculate_availability();
 
   bool subscribe_(const char* topic, uint8_t qos);
+  void resubscribe_subscription_(MQTTSubscription *sub);
+  void resubscribe_subscriptions_();
 
   MQTTCredentials credentials_;
   /// The last will message. Disabled optional denotes it being default and
@@ -267,6 +274,7 @@ class MQTTClientComponent : public Component {
   MQTTClientState state_{MQTT_CLIENT_DISCONNECTED};
   IPAddress ip_;
   bool dns_resolved_{false};
+  bool dns_resolve_error_{false};
   std::vector<MQTTComponent *> children_;
   uint32_t reboot_timeout_{300000};
   uint32_t connect_begin_;

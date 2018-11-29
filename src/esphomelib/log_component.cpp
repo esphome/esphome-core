@@ -33,6 +33,11 @@ int HOT LogComponent::log_vprintf_(int level, const char *tag,
   if (ret <= 0)
     return ret;
 
+  // remove trailing newline
+  if (this->tx_buffer_[ret - 1] == '\n') {
+    this->tx_buffer_[ret - 1] = '\0';
+  }
+
   if (this->baud_rate_ > 0)
     Serial.println(this->tx_buffer_.data());
 
@@ -53,29 +58,9 @@ void LogComponent::pre_setup() {
 #ifdef ARDUINO_ARCH_ESP32
   esp_log_set_vprintf(esp_idf_log_vprintf_);
   esp_log_level_t log_level;
-  switch (this->global_log_level_) {
-    case ESPHOMELIB_LOG_LEVEL_ERROR:
-      log_level = ESP_LOG_ERROR;
-      break;
-    case ESPHOMELIB_LOG_LEVEL_WARN:
-      log_level = ESP_LOG_WARN;
-      break;
-    case ESPHOMELIB_LOG_LEVEL_INFO:
-      log_level = ESP_LOG_INFO;
-      break;
-    case ESPHOMELIB_LOG_LEVEL_DEBUG:
-      log_level = ESP_LOG_DEBUG;
-      break;
-    case ESPHOMELIB_LOG_LEVEL_VERBOSE:
-    case ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE:
-      log_level = ESP_LOG_VERBOSE;
-      break;
-    case ESPHOMELIB_LOG_LEVEL_NONE:
-    default:
-      log_level = ESP_LOG_NONE;
-      break;
+  if (this->global_log_level_ >= ESPHOMELIB_LOG_LEVEL_VERBOSE) {
+    esp_log_level_set("*", ESP_LOG_VERBOSE);
   }
-  // esp_log_level_set("*", log_level);
 #endif
 
   ESP_LOGI(TAG, "Log initialized");

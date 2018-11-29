@@ -206,9 +206,7 @@ SensorRawStateTrigger::SensorRawStateTrigger(Sensor *parent) {
 }
 
 ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) : parent_(parent) {
-  parent->add_on_state_callback([this](float value) {
 
-  });
 }
 void ValueRangeTrigger::set_min(std::function<float(float)> &&min) {
   this->min_ = std::move(min);
@@ -245,6 +243,7 @@ void ValueRangeTrigger::on_state_(float state) {
   }
 
   this->previous_in_range_ = in_range;
+  this->rtc_.save(&in_range);
 }
 void ValueRangeTrigger::setup() {
   this->rtc_ = global_preferences.make_preference<bool>(3030147977UL, this->parent_->get_name());
