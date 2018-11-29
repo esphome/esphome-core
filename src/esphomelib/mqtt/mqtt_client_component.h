@@ -12,6 +12,7 @@
 #include "esphomelib/automation.h"
 #include "esphomelib/log.h"
 #include "esphomelib/defines.h"
+#include "lwip/ip_addr.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -37,6 +38,7 @@ struct MQTTSubscription {
   std::string topic;
   uint8_t qos;
   mqtt_callback_t callback;
+  bool subscribed;
 };
 
 /// internal struct for MQTT credentials.
@@ -75,6 +77,7 @@ struct MQTTDiscoveryInfo {
 
 enum MQTTClientState {
   MQTT_CLIENT_DISCONNECTED = 0,
+  MQTT_CLIENT_RESOLVING_ADDRESS,
   MQTT_CLIENT_CONNECTING,
   MQTT_CLIENT_CONNECTED,
 };
@@ -176,7 +179,7 @@ class MQTTClientComponent : public Component {
    *
    * @param message The message.
    */
-  void publish(const MQTTMessage &message);
+  bool publish(const MQTTMessage &message);
 
   /** Publish a MQTT message
    *
@@ -184,9 +187,9 @@ class MQTTClientComponent : public Component {
    * @param payload The payload.
    * @param retain Whether to retain the message.
    */
-  void publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
+  bool publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
 
-  void publish(const std::string &topic, const char *payload, size_t payload_length,
+  bool publish(const std::string &topic, const char *payload, size_t payload_length,
                uint8_t qos = 0, bool retain = false);
 
   /** Construct and send a JSON MQTT message.
@@ -195,7 +198,7 @@ class MQTTClientComponent : public Component {
    * @param f The Json Message builder.
    * @param retain Whether to retain the message.
    */
-  void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos = 0, bool retain = false);
+  bool publish_json(const std::string &topic, const json_build_t &f, uint8_t qos = 0, bool retain = false);
 
   /// Setup the MQTT client, registering a bunch of callbacks and attempting to connect.
   void setup() override;
@@ -230,11 +233,14 @@ class MQTTClientComponent : public Component {
  protected:
   /// Reconnect to the MQTT broker if not already connected.
   void start_connect();
+  void start_dnslookup();
+  void check_dnslookup();
+  static void dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
 
   /// Re-calculate the availability property.
   void recalculate_availability();
 
-  void subscribe_(const char* topic, uint8_t qos);
+  bool subscribe_(const char* topic, uint8_t qos);
 
   MQTTCredentials credentials_;
   /// The last will message. Disabled optional denotes it being default and
@@ -259,6 +265,8 @@ class MQTTClientComponent : public Component {
   std::vector<MQTTSubscription> subscriptions_;
   AsyncMqttClient mqtt_client_;
   MQTTClientState state_{MQTT_CLIENT_DISCONNECTED};
+  IPAddress ip_;
+  bool dns_resolved_{false};
   std::vector<MQTTComponent *> children_;
   uint32_t reboot_timeout_{300000};
   uint32_t connect_begin_;

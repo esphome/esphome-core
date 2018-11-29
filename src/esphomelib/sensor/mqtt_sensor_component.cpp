@@ -20,8 +20,9 @@ MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
 }
 
 void MQTTSensorComponent::setup() {
-  auto f = std::bind(&MQTTSensorComponent::publish_state, this, std::placeholders::_1);
-  this->sensor_->add_on_state_callback(f);
+  this->sensor_->add_on_state_callback([this](float state) {
+    this->publish_state(state);
+  });
 }
 
 void MQTTSensorComponent::dump_config() {
@@ -72,16 +73,19 @@ void MQTTSensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
 
   config.command_topic = false;
 }
-void MQTTSensorComponent::send_initial_state() {
-  if (this->sensor_->has_state())
-    this->publish_state(this->sensor_->state);
+bool MQTTSensorComponent::send_initial_state() {
+  if (this->sensor_->has_state()) {
+    return this->publish_state(this->sensor_->state);
+  } else {
+    return true;
+  }
 }
 bool MQTTSensorComponent::is_internal() {
   return this->sensor_->is_internal();
 }
-void MQTTSensorComponent::publish_state(float value) {
+bool MQTTSensorComponent::publish_state(float value) {
   int8_t accuracy = this->sensor_->get_accuracy_decimals();
-  this->send_message(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
+  return this->publish(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
 }
 std::string MQTTSensorComponent::unique_id() {
   return this->sensor_->unique_id();

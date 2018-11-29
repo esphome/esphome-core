@@ -39,7 +39,7 @@ void MQTTSwitchComponent::setup() {
     }
   });
   this->switch_->add_on_state_callback([this](bool enabled){
-    this->defer([this, enabled]() {
+    this->defer("send", [this, enabled]() {
       this->publish_state(enabled);
     });
   });
@@ -64,8 +64,8 @@ void MQTTSwitchComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
   if (this->switch_->optimistic())
     root["optimistic"] = true;
 }
-void MQTTSwitchComponent::send_initial_state() {
-  this->publish_state(this->switch_->state);
+bool MQTTSwitchComponent::send_initial_state() {
+  return this->publish_state(this->switch_->state);
 }
 bool MQTTSwitchComponent::is_internal() {
   return this->switch_->is_internal();
@@ -73,9 +73,9 @@ bool MQTTSwitchComponent::is_internal() {
 std::string MQTTSwitchComponent::friendly_name() const {
   return this->switch_->get_name();
 }
-void MQTTSwitchComponent::publish_state(bool state) {
+bool MQTTSwitchComponent::publish_state(bool state) {
   const char *state_s = state ? "ON" : "OFF";
-  this->send_message(this->get_state_topic(), state_s);
+  return this->publish(this->get_state_topic(), state_s);
 }
 
 } // namespace switch_

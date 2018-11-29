@@ -3,6 +3,8 @@
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
 #include "esphomelib/wifi_component.h"
+#include "lwip/err.h"
+#include "lwip/dns.h"
 
 static const char *TAG = "mqtt.client";
 
@@ -48,11 +50,12 @@ void MQTTClientComponent::setup() {
   });
 
   this->last_connected_ = millis();
-  this->start_connect();
+  this->start_dnslookup();
 }
 void MQTTClientComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT:");
-  ESP_LOGCONFIG(TAG, "  Server Address: %s:%u", this->credentials_.address.c_str(), this->credentials_.port);
+  ESP_LOGCONFIG(TAG, "  Server Address: %s:%u (%s)",
+                this->credentials_.address.c_str(), this->credentials_.port, this->ip_.toString().c_str());
   ESP_LOGCONFIG(TAG, "  Username: '%s'", this->credentials_.username.c_str());
   ESP_LOGCONFIG(TAG, "  Client ID: '%s'", this->credentials_.client_id.c_str());
   if (!this->discovery_info_.prefix.empty()) {
@@ -71,11 +74,60 @@ bool MQTTClientComponent::can_proceed() {
   return this->is_connected();
 }
 
+void MQTTClientComponent::start_dnslookup() {
+  this->dns_resolved_ = false;
+  for (auto &sub : this->subscriptions_) {
+    sub.subscribed = false;
+  }
+
+  this->status_set_warning();
+  ESP_LOGD(TAG, "Resolving MQTT broker IP address...");
+  ip_addr_t addr;
+  // err_t err = dns_gethostbyname(this->credentials_.address.c_str(), &addr, this->dns_found_callback_, this);
+  err_t err = ERR_OK;
+  switch (err) {
+    case ERR_OK: {
+      // Got IP immediately
+      this->dns_resolved_ = true;
+      this->ip_ = IPAddress(addr.u_addr.ip4.addr);
+      break;
+    }
+    case ERR_INPROGRESS: {
+      // wait for callback
+      break;
+    }
+    default:
+    case ERR_ARG: {
+      // error
+      ESP_LOGW(TAG, "Error resolving MQTT broker IP address: %d", err);
+      break;
+    }
+  }
+
+  this->state_ = MQTT_CLIENT_RESOLVING_ADDRESS;
+  this->connect_begin_ = millis();
+}
+void MQTTClientComponent::check_dnslookup() {
+  if (!this->dns_resolved_) {
+    if (millis() - this->connect_begin_ > 15000) {
+      ESP_LOGW(TAG, "Resolving MQTT broker IP address failed!");
+      this->state_ = MQTT_CLIENT_DISCONNECTED;
+    }
+    return;
+  }
+
+  ESP_LOGD(TAG, "Resolved broker IP address to %s", this->ip_.toString().c_str());
+  this->start_connect();
+}
+void MQTTClientComponent::dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
+  global_mqtt_client->dns_resolved_ = true;
+  global_mqtt_client->ip_ = IPAddress(ipaddr->u_addr.ip4.addr);
+}
+
 void MQTTClientComponent::start_connect() {
   if (!global_wifi_component->is_connected())
     return;
 
-  this->status_set_warning();
   ESP_LOGI(TAG, "Connecting to MQTT...");
   // Force disconnect first
   this->mqtt_client_.disconnect(true);
@@ -90,7 +142,7 @@ void MQTTClientComponent::start_connect() {
 
   this->mqtt_client_.setCredentials(username, password);
 
-  this->mqtt_client_.setServer(this->credentials_.address.c_str(), this->credentials_.port);
+  this->mqtt_client_.setServer(this->ip_, this->credentials_.port);
   if (!this->last_will_.topic.empty()) {
     this->mqtt_client_.setWill(this->last_will_.topic.c_str(), this->last_will_.qos, this->last_will_.retain,
                                this->last_will_.payload.c_str(), this->last_will_.payload.length());
@@ -105,7 +157,7 @@ void MQTTClientComponent::check_connected() {
   if (!this->mqtt_client_.connected()) {
     if (millis() - this->connect_begin_ > 15000) {
       this->state_ = MQTT_CLIENT_DISCONNECTED;
-      this->start_connect();
+      this->start_dnslookup();
     }
     return;
   }
@@ -170,8 +222,11 @@ void MQTTClientComponent::loop() {
   switch (this->state_) {
     case MQTT_CLIENT_DISCONNECTED:
       if (now - this->connect_begin_ > 5000) {
-        this->start_connect();
+        this->start_dnslookup();
       }
+      break;
+    case MQTT_CLIENT_RESOLVING_ADDRESS:
+      this->check_dnslookup();
       break;
     case MQTT_CLIENT_CONNECTING:
       this->check_connected();
@@ -180,9 +235,15 @@ void MQTTClientComponent::loop() {
       if (!this->mqtt_client_.connected()) {
         this->state_ = MQTT_CLIENT_DISCONNECTED;
         ESP_LOGW(TAG, "Lost MQTT Client connection!");
-        this->start_connect();
+        this->start_dnslookup();
       } else {
         this->last_connected_ = now;
+
+        for (auto &sub : this->subscriptions_) {
+          if (!sub.subscribed) {
+            sub.subscribed = this->subscribe_(sub.topic.c_str(), sub.qos);
+          }
+        }
       }
       break;
   }
@@ -197,9 +258,9 @@ void MQTTClientComponent::set_keep_alive(uint16_t keep_alive_s) {
   this->mqtt_client_.setKeepAlive(keep_alive_s);
 }
 
-void MQTTClientComponent::subscribe_(const char *topic, uint8_t qos) {
+bool MQTTClientComponent::subscribe_(const char *topic, uint8_t qos) {
   if (!this->is_connected())
-    return;
+    return false;
 
   uint16_t ret = this->mqtt_client_.subscribe(topic, qos);
   yield();
@@ -212,6 +273,7 @@ void MQTTClientComponent::subscribe_(const char *topic, uint8_t qos) {
     }
     delay(5);
   }
+  return ret != 0;
 }
 
 void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
@@ -220,10 +282,10 @@ void MQTTClientComponent::subscribe(const std::string &topic, mqtt_callback_t ca
       .topic = topic,
       .qos = qos,
       .callback = std::move(callback),
+      .subscribed = false,
   };
+  subscription.subscribed = this->subscribe_(topic.c_str(), qos);
   this->subscriptions_.push_back(subscription);
-
-  this->subscribe_(topic.c_str(), qos);
 }
 
 void MQTTClientComponent::subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos) {
@@ -237,27 +299,23 @@ void MQTTClientComponent::subscribe_json(const std::string &topic, mqtt_json_cal
       .topic = topic,
       .qos = qos,
       .callback = f,
+      .subscribed = false,
   };
+  subscription.subscribed = this->subscribe_(topic.c_str(), qos);
   this->subscriptions_.push_back(subscription);
-
-  this->subscribe_(topic.c_str(), qos);
 }
 
-void MQTTClientComponent::publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain) {
-  this->publish(topic, payload.data(), payload.size(), qos, retain);
+bool MQTTClientComponent::publish(const std::string &topic, const std::string &payload, uint8_t qos, bool retain) {
+  return this->publish(topic, payload.data(), payload.size(), qos, retain);
 }
 
-void MQTTClientComponent::publish(const std::string &topic, const char *payload, size_t payload_length,
-    uint8_t qos, bool retain) {
+bool MQTTClientComponent::publish(const std::string &topic, const char *payload, size_t payload_length,
+                                  uint8_t qos, bool retain) {
   if (!this->is_connected()) {
     // critical components will re-transmit their messages
-    return;
+    return false;
   }
   bool logging_topic = topic == this->log_message_.topic;
-  if (!logging_topic) {
-    ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload, retain);
-  }
-
   this->loop();
   uint16_t ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload, payload_length);
   yield();
@@ -265,15 +323,23 @@ void MQTTClientComponent::publish(const std::string &topic, const char *payload,
     delay(10);
     ret = this->mqtt_client_.publish(topic.c_str(), qos, retain, payload, payload_length);
     if (ret == 0) {
-      ESP_LOGW(TAG, "Publish failed!");
       this->status_momentary_warning("publish", 5000);
     }
     delay(5);
   }
+
+  if (!logging_topic) {
+    if (ret != 0) {
+      ESP_LOGV(TAG, "Publish(topic='%s' payload='%s' retain=%d)", topic.c_str(), payload, retain);
+    } else {
+      ESP_LOGW(TAG, "Publish failed for topic='%s'", topic.c_str());
+    }
+  }
+  return ret != 0;
 }
 
-void MQTTClientComponent::publish(const MQTTMessage &message) {
-  this->publish(message.topic, message.payload, message.qos, message.retain);
+bool MQTTClientComponent::publish(const MQTTMessage &message) {
+  return this->publish(message.topic, message.payload, message.qos, message.retain);
 }
 
 void MQTTClientComponent::set_last_will(MQTTMessage &&message) {
@@ -359,10 +425,10 @@ void MQTTClientComponent::recalculate_availability() {
   this->availability_.payload_available = this->birth_message_.payload;
   this->availability_.payload_not_available = this->last_will_.payload;
 }
-void MQTTClientComponent::publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain) {
+bool MQTTClientComponent::publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain) {
   size_t len;
   const char *message = build_json(f, &len);
-  this->publish(topic, message, len, qos, retain);
+  return this->publish(topic, message, len, qos, retain);
 }
 void MQTTClientComponent::set_log_message_template(MQTTMessage &&message) {
   this->log_message_ = std::move(message);

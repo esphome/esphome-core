@@ -52,6 +52,30 @@ void LogComponent::pre_setup() {
   global_log_component = this;
 #ifdef ARDUINO_ARCH_ESP32
   esp_log_set_vprintf(esp_idf_log_vprintf_);
+  esp_log_level_t log_level;
+  switch (this->global_log_level_) {
+    case ESPHOMELIB_LOG_LEVEL_ERROR:
+      log_level = ESP_LOG_ERROR;
+      break;
+    case ESPHOMELIB_LOG_LEVEL_WARN:
+      log_level = ESP_LOG_WARN;
+      break;
+    case ESPHOMELIB_LOG_LEVEL_INFO:
+      log_level = ESP_LOG_INFO;
+      break;
+    case ESPHOMELIB_LOG_LEVEL_DEBUG:
+      log_level = ESP_LOG_DEBUG;
+      break;
+    case ESPHOMELIB_LOG_LEVEL_VERBOSE:
+    case ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE:
+      log_level = ESP_LOG_VERBOSE;
+      break;
+    case ESPHOMELIB_LOG_LEVEL_NONE:
+    default:
+      log_level = ESP_LOG_NONE;
+      break;
+  }
+  // esp_log_level_set("*", log_level);
 #endif
 
   ESP_LOGI(TAG, "Log initialized");
@@ -79,6 +103,18 @@ void LogComponent::add_on_log_callback(std::function<void(int, const char *)> &&
 }
 float LogComponent::get_setup_priority() const {
   return setup_priority::HARDWARE - 1.0f;
+}
+const char *LOG_LEVELS[] = {"NONE", "ERROR", "WARN", "INFO", "DEBUG", "VERBOSE", "VERY_VERBOSE"};
+void LogComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Logger:");
+  ESP_LOGCONFIG(TAG, "  Level: %s", LOG_LEVELS[this->global_log_level_]);
+  ESP_LOGCONFIG(TAG, "  Log Baud Rate: %u", this->baud_rate_);
+  for (auto &it : this->log_levels_) {
+    ESP_LOGCONFIG(TAG, "  Level for '%s': %s", it.tag.c_str(), LOG_LEVELS[it.level]);
+  }
+}
+int LogComponent::get_global_log_level() const {
+  return this->global_log_level_;
 }
 
 LogComponent *global_log_component = nullptr;

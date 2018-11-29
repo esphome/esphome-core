@@ -117,7 +117,7 @@ class CustomMQTTDevice {
    * @param qos The Quality of Service to publish with. Defaults to 0
    * @param retain Whether to retain the message. Defaults to false.
    */
-  void publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
+  bool publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
 
   /** Publish an MQTT message with the given floating point number and number of decimals.
    *
@@ -135,7 +135,7 @@ class CustomMQTTDevice {
    * @param payload The payload to publish.
    * @param number_decimals The number of digits after the decimal point to round to, defaults to 3 digits.
    */
-  void publish(const std::string &topic, float value, int8_t number_decimals = 3);
+  bool publish(const std::string &topic, float value, int8_t number_decimals = 3);
 
   /** Publish an MQTT message with the given integer as payload.
    *
@@ -150,7 +150,7 @@ class CustomMQTTDevice {
    * @param topic The topic to publish to.
    * @param payload The payload to publish.
    */
-  void publish(const std::string &topic, int value);
+  bool publish(const std::string &topic, int value);
 
   /** Publish a JSON-encoded MQTT message with the given Quality of Service and retain settings.
    *
@@ -169,7 +169,7 @@ class CustomMQTTDevice {
    * @param qos The Quality of Service to publish with.
    * @param retain Whether to retain the message.
    */
-  void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain);
+  bool publish_json(const std::string &topic, const json_build_t &f, uint8_t qos, bool retain);
 
   /** Publish a JSON-encoded MQTT message.
    *
@@ -186,7 +186,7 @@ class CustomMQTTDevice {
    * @param topic The topic to publish to.
    * @param payload The payload to publish.
    */
-  void publish_json(const std::string &topic, const json_build_t &f);
+  bool publish_json(const std::string &topic, const json_build_t &f);
 
   /// Check whether the MQTT client is currently connected and messages can be published.
   bool is_connected();

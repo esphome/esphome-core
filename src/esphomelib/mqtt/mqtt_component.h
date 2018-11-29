@@ -50,7 +50,7 @@ class MQTTComponent : public Component {
   /// Send discovery info the Home Assistant, override this.
   virtual void send_discovery(JsonObject &root, SendDiscoveryConfig &config) = 0;
 
-  virtual void send_initial_state() = 0;
+  virtual bool send_initial_state() = 0;
 
   virtual bool is_internal() = 0;
 
@@ -110,8 +110,10 @@ class MQTTComponent : public Component {
   /// Get the MQTT topic for listening to commands.
   const std::string get_command_topic() const;
 
+  bool is_connected() const;
+
   /// Internal method to start sending discovery info, this will call send_discovery().
-  void send_discovery_();
+  bool send_discovery_();
 
   /** Send a MQTT message.
    *
@@ -119,10 +121,10 @@ class MQTTComponent : public Component {
    * @param payload The payload.
    * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  void send_message(const std::string &topic,
-                    const std::string &payload,
-                    const optional<uint8_t> &qos = {},
-                    const optional<bool> &retain = {});
+  bool publish(const std::string &topic,
+               const std::string &payload,
+               const optional<uint8_t> &qos = {},
+               const optional<bool> &retain = {});
 
   /** Construct and send a JSON MQTT message.
    *
@@ -130,10 +132,10 @@ class MQTTComponent : public Component {
    * @param f The Json Message builder.
    * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  void send_json_message(const std::string &topic,
-                         const json_build_t &f,
-                         const optional<uint8_t> &qos = {},
-                         const optional<bool> &retain = {});
+  bool publish_json(const std::string &topic,
+                    const json_build_t &f,
+                    const optional<uint8_t> &qos = {},
+                    const optional<bool> &retain = {});
 
   /** Subscribe to a MQTT topic.
    *
