@@ -1274,10 +1274,6 @@ void Application::register_component_(Component *comp) {
   this->components_.push_back(comp);
 }
 
-Application::Application() {
-  this->components_.reserve(20);
-}
-
 
 Application App; // NOLINT
 

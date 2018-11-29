@@ -89,10 +89,6 @@ class HighFrequencyLoopRequester {
   bool started_{false};
 };
 
-void request_high_frequency_loop();
-
-void unrequest_high_frequency_loop();
-
 /** Clamp the value between min and max.
  *
  * @tparam T The input/output typename.

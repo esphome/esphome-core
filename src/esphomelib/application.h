@@ -139,8 +139,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 /// This is the class that combines all components.
 class Application {
  public:
-  Application();
-
   /** Set the name of the item that is running this app.
    *
    * Note: This will automatically be converted to lowercase_underscore.
@@ -1390,7 +1388,7 @@ extern Application App;
 template<class C>
 C *Application::register_component(C *c) {
   static_assert(std::is_base_of<Component, C>::value, "Only Component subclasses can be registered");
-  this->register_component((Component *) c);
+  this->register_component_((Component *) c);
   return c;
 }
 
