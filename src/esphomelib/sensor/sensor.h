@@ -289,6 +289,7 @@ extern const char UNIT_OHM[];
 extern const char UNIT_PPM[];
 extern const char UNIT_A[];
 extern const char UNIT_W[];
+extern const char UNIT_WH[];
 extern const char UNIT_UT[];
 extern const char UNIT_DEGREES[];
 extern const char UNIT_K[];

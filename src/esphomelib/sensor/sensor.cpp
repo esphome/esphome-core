@@ -177,6 +177,7 @@ const char ICON_PERIODIC_TABLE_CO2[] = "mdi:periodic-table-co2";
 const char UNIT_PPM[] = "ppm";
 const char UNIT_A[] = "A";
 const char UNIT_W[] = "W";
+const char UNIT_WH[] = "Wh";
 const char ICON_MAGNET[] = "mdi:magnet";
 const char ICON_THERMOMETER[] = "mdi:thermometer";
 const char ICON_LIGHTBULB[] = "mdi:lightbulb";
