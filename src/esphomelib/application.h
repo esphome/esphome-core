@@ -918,7 +918,7 @@ class Application {
 #endif
 
 #ifdef USE_CSE7766
-  sensor::CSE7766Component *make_cse7766(UARTComponent *parent);
+  sensor::CSE7766Component *make_cse7766(UARTComponent *parent, uint32_t update_interval = 15000);
 #endif
 
 
