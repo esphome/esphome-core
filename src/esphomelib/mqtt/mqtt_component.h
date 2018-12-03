@@ -119,23 +119,15 @@ class MQTTComponent : public Component {
    *
    * @param topic The topic.
    * @param payload The payload.
-   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  bool publish(const std::string &topic,
-               const std::string &payload,
-               const optional<uint8_t> &qos = {},
-               const optional<bool> &retain = {});
+  bool publish(const std::string &topic, const std::string &payload);
 
   /** Construct and send a JSON MQTT message.
    *
    * @param topic The topic.
    * @param f The Json Message builder.
-   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  bool publish_json(const std::string &topic,
-                    const json_build_t &f,
-                    const optional<uint8_t> &qos = {},
-                    const optional<bool> &retain = {});
+  bool publish_json(const std::string &topic, const json_build_t &f);
 
   /** Subscribe to a MQTT topic.
    *

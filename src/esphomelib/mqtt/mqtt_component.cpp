@@ -43,22 +43,16 @@ const std::string MQTTComponent::get_command_topic() const {
   return this->custom_command_topic_;
 }
 
-bool MQTTComponent::publish(const std::string &topic, const std::string &payload,
-                            const optional<uint8_t> &qos, const optional<bool> &retain) {
+bool MQTTComponent::publish(const std::string &topic, const std::string &payload) {
   if (topic.empty())
     return false;
-  bool actual_retain = retain.value_or(this->retain_);
-  uint8_t actual_qos = qos.value_or(0);
-  return global_mqtt_client->publish(topic, payload, actual_qos, actual_retain);
+  return global_mqtt_client->publish(topic, payload, 0, this->retain_);
 }
 
-bool MQTTComponent::publish_json(const std::string &topic, const json_build_t &f,
-                                 const optional<uint8_t> &qos, const optional<bool> &retain) {
+bool MQTTComponent::publish_json(const std::string &topic, const json_build_t &f) {
   if (topic.empty())
     return false;
-  bool actual_retain = retain.value_or(this->retain_);
-  uint8_t actual_qos = qos.value_or(0);
-  return global_mqtt_client->publish_json(topic, f, actual_qos, actual_retain);
+  return global_mqtt_client->publish_json(topic, f, 0, this->retain_);
 }
 
 bool MQTTComponent::send_discovery_() {
@@ -66,7 +60,7 @@ bool MQTTComponent::send_discovery_() {
 
   ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
 
-  return this->publish_json(this->get_discovery_topic(discovery_info), [this](JsonObject &root) {
+  return global_mqtt_client->publish_json(this->get_discovery_topic(discovery_info), [this](JsonObject &root) {
     SendDiscoveryConfig config;
     config.state_topic = true;
     config.command_topic = true;
