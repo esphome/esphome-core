@@ -396,7 +396,17 @@ bool MQTTClientComponent::publish_json(const std::string &topic, const json_buil
   return this->publish(topic, message, len, qos, retain);
 }
 
-// INFO: MQTT spec mandates that topics must not be empty and must be valid NULL-terminated UTF-8 strings.
+/** Check if the message topic matches the given subscription topic
+ *
+ * INFO: MQTT spec mandates that topics must not be empty and must be valid NULL-terminated UTF-8 strings.
+ *
+ * @param message The message topic that was received from the MQTT server. Note: this must not contain
+ *                wildcard characters as mandated by the MQTT spec.
+ * @param subscription The subscription topic we are matching against.
+ * @param is_normal Is this a "normal" topic - Does the message topic not begin with a "$".
+ * @param past_separator Are we past the first '/' topic separator.
+ * @return true if the subscription topic matches the message topic, false otherwise.
+ */
 static bool topic_match_(const char *message, const char *subscription, bool is_normal, bool past_separator) {
   // Reached end of both strings at the same time, this means we have a successful match
   if (*message == '\0' && *subscription == '\0')
@@ -445,6 +455,8 @@ static bool topic_match(const char *message, const char *subscription) {
 
 void MQTTClientComponent::on_message(const std::string &topic, const std::string &payload) {
 #ifdef ARDUINO_ARCH_ESP8266
+  // on ESP8266, this is called in LWiP thread; some components do not like running
+  // in an ISR.
   this->defer([this, topic, payload]() {
 #endif
     for (auto &subscription : this->subscriptions_)
