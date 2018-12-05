@@ -353,7 +353,6 @@ void RemoteReceiverComponent::loop() {
 
   for (uint32_t i = 0; prev != write_at; i++) {
     int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
-
     if (uint32_t(delta) >= this->idle_us_) {
       ESP_LOGW(TAG, "Data is coming in too fast!");
       break;
