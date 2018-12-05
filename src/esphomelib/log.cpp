@@ -19,5 +19,9 @@ int HOT esp_log_vprintf_(int level, const char *tag, const char *format, va_list
 }
 
 int HOT esp_idf_log_vprintf_(const char *format, va_list args) {
-  return esp_log_vprintf_(ESPHOMELIB_LOG_LEVEL_INFO, "", format, args);
+  auto *log = esphomelib::global_log_component;
+  if (log == nullptr)
+    return 0;
+
+  return log->log_vprintf_(log->get_global_log_level(), "", format, args);
 }

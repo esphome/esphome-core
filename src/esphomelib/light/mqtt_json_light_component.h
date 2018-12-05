@@ -24,7 +24,7 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
 
   void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
-  void send_initial_state() override;
+  bool send_initial_state() override;
 
   bool is_internal() override;
 
@@ -32,7 +32,7 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
   std::string friendly_name() const override;
   std::string component_type() const override;
 
-  void publish_state();
+  bool publish_state();
 
   LightState *state_;
 };

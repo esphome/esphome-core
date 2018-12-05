@@ -33,6 +33,11 @@ int HOT LogComponent::log_vprintf_(int level, const char *tag,
   if (ret <= 0)
     return ret;
 
+  // remove trailing newline
+  if (this->tx_buffer_[ret - 1] == '\n') {
+    this->tx_buffer_[ret - 1] = '\0';
+  }
+
   if (this->baud_rate_ > 0)
     Serial.println(this->tx_buffer_.data());
 
@@ -52,6 +57,10 @@ void LogComponent::pre_setup() {
   global_log_component = this;
 #ifdef ARDUINO_ARCH_ESP32
   esp_log_set_vprintf(esp_idf_log_vprintf_);
+  esp_log_level_t log_level;
+  if (this->global_log_level_ >= ESPHOMELIB_LOG_LEVEL_VERBOSE) {
+    esp_log_level_set("*", ESP_LOG_VERBOSE);
+  }
 #endif
 
   ESP_LOGI(TAG, "Log initialized");
@@ -79,6 +88,18 @@ void LogComponent::add_on_log_callback(std::function<void(int, const char *)> &&
 }
 float LogComponent::get_setup_priority() const {
   return setup_priority::HARDWARE - 1.0f;
+}
+const char *LOG_LEVELS[] = {"NONE", "ERROR", "WARN", "INFO", "DEBUG", "VERBOSE", "VERY_VERBOSE"};
+void LogComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Logger:");
+  ESP_LOGCONFIG(TAG, "  Level: %s", LOG_LEVELS[this->global_log_level_]);
+  ESP_LOGCONFIG(TAG, "  Log Baud Rate: %u", this->baud_rate_);
+  for (auto &it : this->log_levels_) {
+    ESP_LOGCONFIG(TAG, "  Level for '%s': %s", it.tag.c_str(), LOG_LEVELS[it.level]);
+  }
+}
+int LogComponent::get_global_log_level() const {
+  return this->global_log_level_;
 }
 
 LogComponent *global_log_component = nullptr;

@@ -348,13 +348,17 @@ void tick_status_led() {
 #endif
 }
 void ICACHE_RAM_ATTR HOT feed_wdt() {
-#ifdef ARDUINO_ARCH_ESP8266
   static uint32_t last_feed = 0;
   uint32_t now = millis();
-  if (now - last_feed > 3)
+  if (now - last_feed > 3) {
+#ifdef ARDUINO_ARCH_ESP8266
     ESP.wdtFeed();
-  last_feed = now;
 #endif
+#ifdef ARDUINO_ARCH_ESP32
+    yield();
+#endif
+  }
+  last_feed = now;
 }
 std::string build_json(const json_build_t &f) {
   size_t len;
@@ -435,5 +439,23 @@ size_t VectorJsonBuffer::size() const {
 }
 
 VectorJsonBuffer global_json_buffer;
+
+static int high_freq_num_requests = 0;
+
+void HighFrequencyLoopRequester::start() {
+  if (this->started_)
+    return;
+  high_freq_num_requests++;
+  this->started_ = true;
+}
+void HighFrequencyLoopRequester::stop() {
+  if (!this->started_)
+    return;
+  high_freq_num_requests--;
+  this->started_ = false;
+}
+bool HighFrequencyLoopRequester::is_high_frequency() {
+  return high_freq_num_requests > 0;
+}
 
 ESPHOMELIB_NAMESPACE_END

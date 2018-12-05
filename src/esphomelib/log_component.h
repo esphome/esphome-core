@@ -39,6 +39,7 @@ class LogComponent : public Component {
 
   /// Set the global log level. Note: Use the ESPHOMELIB_LOG_LEVEL define to also remove the logs from the build.
   void set_global_log_level(int log_level);
+  int get_global_log_level() const;
 
   /// Set the log level of the specified tag.
   void set_log_level(const std::string &tag, int log_level);
@@ -48,6 +49,7 @@ class LogComponent : public Component {
   /// Set up this component.
   void pre_setup();
   uint32_t get_baud_rate() const;
+  void dump_config() override;
 
   size_t get_tx_buffer_size() const;
 

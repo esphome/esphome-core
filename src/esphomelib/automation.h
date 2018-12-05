@@ -60,21 +60,24 @@ class RangeCondition : public Condition<float> {
 };
 
 template<typename T>
+class Automation;
+
+template<typename T>
 class Trigger {
  public:
-  void add_on_trigger_callback(std::function<void(T)> &&f);
   void trigger(T x);
+  void set_parent(Automation<T> *parent);
  protected:
-  CallbackManager<void(T)> on_trigger_;
+  Automation<T> *parent_;
 };
 
 template<>
 class Trigger<NoArg> {
  public:
-  void add_on_trigger_callback(std::function<void(NoArg)> &&f);
   void trigger();
+  void set_parent(Automation<NoArg> *parent);
  protected:
-  CallbackManager<void(NoArg)> on_trigger_;
+  Automation<NoArg> *parent_;
 };
 
 class StartupTrigger : public Trigger<NoArg>, public Component {
@@ -100,13 +103,23 @@ class LoopTrigger : public Trigger<NoArg>, public Component {
 
 template<typename T>
 class ScriptExecuteAction;
+template<typename T>
+class ScriptStopAction;
+
+template<typename T>
+class ScriptStopAction;
 
 class Script : public Trigger<NoArg> {
  public:
   void execute();
 
+  void stop();
+
   template<typename T>
   ScriptExecuteAction<T> *make_execute_action();
+
+  template<typename T>
+  ScriptStopAction<T> *make_stop_action();
 };
 
 template<typename T>
@@ -117,6 +130,8 @@ class Action {
  public:
   virtual void play(T x) = 0;
   void play_next(T x);
+  virtual void stop();
+  void stop_next();
  protected:
   friend ActionList<T>;
 
@@ -130,6 +145,7 @@ class DelayAction : public Action<T>, public Component {
 
   void set_delay(std::function<uint32_t(T)> &&delay);
   void set_delay(uint32_t delay);
+  void stop() override;
 
   void play(T x) override;
   float get_setup_priority() const override;
@@ -157,10 +173,29 @@ class IfAction : public Action<T> {
 
   void play(T x) override;
 
+  void stop() override;
+
  protected:
   std::vector<Condition<T> *> conditions_;
   ActionList<T> then_;
   ActionList<T> else_;
+};
+
+template<typename T>
+class WhileAction : public Action<T> {
+ public:
+  WhileAction(const std::vector<Condition<T> *> &conditions);
+
+  void add_then(const std::vector<Action<T> *> &actions);
+
+  void play(T x) override;
+
+  void stop() override;
+
+ protected:
+  std::vector<Condition<T> *> conditions_;
+  ActionList<T> then_;
+  bool is_running_{false};
 };
 
 template<typename T>
@@ -183,11 +218,22 @@ class ScriptExecuteAction : public Action<T> {
 };
 
 template<typename T>
+class ScriptStopAction : public Action<T> {
+ public:
+  ScriptStopAction(Script *script);
+
+  void play(T x) override;
+ protected:
+  Script *script_;
+};
+
+template<typename T>
 class ActionList {
  public:
   Action<T> *add_action(Action<T> *action);
   void add_actions(const std::vector<Action<T> *> &actions);
   void play(T x);
+  void stop();
   bool empty() const;
 
  protected:
@@ -206,9 +252,11 @@ class Automation {
   Action<T> *add_action(Action<T> *action);
   void add_actions(const std::vector<Action<T> *> &actions);
 
- protected:
   void process_trigger_(T x);
 
+  void stop();
+
+ protected:
   Trigger<T> *trigger_;
   std::vector<Condition<T> *> conditions_;
   ActionList<T> actions_;
@@ -271,21 +319,31 @@ OrCondition<T>::OrCondition(const std::vector<Condition<T> *> &conditions)
     : conditions_(conditions) {
 
 }
-
 template<typename T>
-void Trigger<T>::add_on_trigger_callback(std::function<void(T)> &&f) {
-  this->on_trigger_.add(std::move(f));
+void Trigger<T>::set_parent(Automation<T> *parent) {
+  this->parent_ = parent;
 }
 
 template<typename T>
 void Trigger<T>::trigger(T x) {
-  this->on_trigger_.call(x);
+  this->parent_->process_trigger_(x);
 }
 
 template<typename T>
 void Action<T>::play_next(T x) {
-  if (this->next_ != nullptr)
+  if (this->next_ != nullptr) {
     this->next_->play(x);
+  }
+}
+template<typename T>
+void Action<T>::stop() {
+  this->stop_next();
+}
+template<typename T>
+void Action<T>::stop_next() {
+  if (this->next_ != nullptr) {
+    this->next_->stop();
+  }
 }
 
 template<typename T>
@@ -308,6 +366,11 @@ void DelayAction<T>::set_delay(uint32_t delay) {
 template<typename T>
 float DelayAction<T>::get_setup_priority() const {
   return setup_priority::HARDWARE;
+}
+template<typename T>
+void DelayAction<T>::stop() {
+  this->cancel_timeout("");
+  this->stop_next();
 }
 
 template<typename T>
@@ -343,6 +406,10 @@ void Automation<T>::process_trigger_(T x) {
   }
 
   this->actions_.play(x);
+}
+template<typename T>
+void Automation<T>::stop() {
+  this->actions_.stop();
 }
 template<typename T>
 LambdaCondition<T>::LambdaCondition(std::function<bool(T)> &&f)
@@ -381,6 +448,11 @@ template<typename T>
 void ActionList<T>::play(T x) {
   if (this->actions_begin_ != nullptr)
     this->actions_begin_->play(x);
+}
+template<typename T>
+void ActionList<T>::stop() {
+  if (this->actions_begin_ != nullptr)
+    this->actions_begin_->stop();
 }
 template<typename T>
 bool ActionList<T>::empty() const {
@@ -427,6 +499,12 @@ void IfAction<T>::add_else(const std::vector<Action<T> *> &actions) {
     this->play_next(x);
   }));
 }
+template<typename T>
+void IfAction<T>::stop() {
+  this->then_.stop();
+  this->else_.stop();
+  this->stop_next();
+}
 
 template<typename T>
 void UpdateComponentAction<T>::play(T x) {
@@ -455,6 +533,23 @@ void ScriptExecuteAction<T>::play(T x) {
 template<typename T>
 ScriptExecuteAction<T> *Script::make_execute_action() {
   return new ScriptExecuteAction<T>(this);
+}
+
+template<typename T>
+ScriptStopAction<T>::ScriptStopAction(Script *script)
+  : script_(script) {
+
+}
+
+template<typename T>
+void ScriptStopAction<T>::play(T x) {
+  this->script_->stop();
+  this->play_next(x);
+}
+
+template<typename T>
+ScriptStopAction<T> *Script::make_stop_action() {
+  return new ScriptStopAction<T>(this);
 }
 
 template<typename T>
@@ -496,6 +591,37 @@ template<typename T>
 void GlobalVariableComponent<T>::set_restore_value(uint32_t name_hash) {
   this->restore_value_ = true;
   this->name_hash_ = name_hash;
+}
+template<typename T>
+WhileAction<T>::WhileAction(const std::vector<Condition<T> *> &conditions) : conditions_(conditions) {
+
+}
+template<typename T>
+void WhileAction<T>::add_then(const std::vector<Action<T> *> &actions) {
+  this->then_.add_actions(actions);
+  this->then_.add_action(new LambdaAction<T>([this](T x) {
+    this->is_running_ = false;
+    this->play(x);
+  }));
+}
+template<typename T>
+void WhileAction<T>::play(T x) {
+  if (this->is_running_)
+    return;
+
+  for (auto *condition : this->conditions_) {
+    if (!condition->check(x)) {
+      this->play_next(x);
+      return;
+    }
+  }
+  this->is_running_ = true;
+  this->then_.play(x);
+}
+template<typename T>
+void WhileAction<T>::stop() {
+  this->then_.stop();
+  this->stop_next();
 }
 
 ESPHOMELIB_NAMESPACE_END
