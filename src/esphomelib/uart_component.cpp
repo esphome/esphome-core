@@ -114,22 +114,6 @@ void UARTComponent::flush() {
   ESP_LOGVV(TAG, "    Flushing...");
   this->hw_serial_->flush();
 }
-size_t UARTComponent::write(uint8_t data) {
-  this->write_byte(data);
-  return 1;
-}
-int UARTComponent::read() {
-  uint8_t data;
-  if (!this->read_byte(&data))
-    return -1;
-  return data;
-}
-int UARTComponent::peek() {
-  uint8_t data;
-  if (!this->peek_byte(&data))
-    return -1;
-  return data;
-}
 #endif //ESP32
 
 #ifdef ARDUINO_ARCH_ESP8266
@@ -353,6 +337,23 @@ int ESP8266SoftwareSerial::available() {
   return avail;
 }
 #endif //ESP8266
+
+size_t UARTComponent::write(uint8_t data) {
+  this->write_byte(data);
+  return 1;
+}
+int UARTComponent::read() {
+  uint8_t data;
+  if (!this->read_byte(&data))
+    return -1;
+  return data;
+}
+int UARTComponent::peek() {
+  uint8_t data;
+  if (!this->peek_byte(&data))
+    return -1;
+  return data;
+}
 
 void UARTDevice::write_byte(uint8_t data) {
   this->parent_->write_byte(data);
