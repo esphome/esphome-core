@@ -10,7 +10,14 @@
 #include "esphomelib/status_led.h"
 
 #include <cstdio>
-#include <ArduinoOTA.h>
+#ifndef USE_NEW_OTA
+  #include <ArduinoOTA.h>
+#else
+#include <MD5Builder.h>
+#ifdef ARDUINO_ARCH_ESP32
+  #include <Update.h>
+#endif
+#endif
 #include <StreamString.h>
 
 #ifdef ARDUINO_ARCH_ESP32
