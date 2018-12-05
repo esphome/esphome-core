@@ -295,6 +295,7 @@ void ICACHE_RAM_ATTR RemoteReceiverComponent::gpio_intr() {
 void RemoteReceiverComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Remote Receiver...");
   this->pin_->setup();
+  this->high_freq_.start();
   if (this->buffer_size_ % 2 != 0) {
     // Make sure divisible by two. This way, we know that every 0bxxx0 index is a space and every 0bxxx1 index is a mark
     this->buffer_size_++;
