@@ -829,9 +829,9 @@ Application::MakeTemplateSensor Application::make_template_sensor(const std::str
 
 #ifdef USE_MAX31855_SENSOR
 Application::MakeMAX31855Sensor Application::make_max31855_sensor(const std::string &name,
-                                                                SPIComponent *spi_bus,
-                                                                const GPIOOutputPin &cs,
-                                                                uint32_t update_interval) {
+                                                                  SPIComponent *spi_bus,
+                                                                  const GPIOOutputPin &cs,
+                                                                  uint32_t update_interval) {
   auto *sensor = this->register_component(
       new MAX31855Sensor(name, spi_bus, cs.copy(), update_interval)
   );
