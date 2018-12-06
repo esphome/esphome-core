@@ -386,7 +386,7 @@ void Automation<T>::add_conditions(const std::vector<Condition<T> *> &conditions
 }
 template<typename T>
 Automation<T>::Automation(Trigger<T> *trigger) : trigger_(trigger) {
-  
+  this->trigger_->set_parent(this);
 }
 template<typename T>
 Action<T> *Automation<T>::add_action(Action<T> *action) {

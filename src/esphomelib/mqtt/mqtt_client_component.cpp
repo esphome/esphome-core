@@ -113,7 +113,7 @@ void MQTTClientComponent::start_dnslookup() {
     default:
     case ERR_ARG: {
       // error
-#if defined(ARDUINO_ARCH_ESP8266) && LWIP_VERSION_MAJOR == 1
+#if defined(ARDUINO_ARCH_ESP8266)
       ESP_LOGW(TAG, "Error resolving MQTT broker IP address: %ld", err);
 #else
       ESP_LOGW(TAG, "Error resolving MQTT broker IP address: %d", err);
