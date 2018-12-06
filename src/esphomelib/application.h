@@ -827,7 +827,7 @@ class Application {
   };
 
   MakeMAX31855Sensor make_max31855_sensor(const std::string &name, SPIComponent *spi_bus, const GPIOOutputPin &cs,
-                                        uint32_t update_interval = 15000);
+                                          uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_MAX6675_SENSOR
