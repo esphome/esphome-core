@@ -43,7 +43,7 @@ class LGReceiver : public RemoteReceiver {
 
 class LGDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData *data) override;
+  bool dump(RemoteReceiveData *data) override;
 };
 #endif
 

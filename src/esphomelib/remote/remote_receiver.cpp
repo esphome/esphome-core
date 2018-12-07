@@ -192,16 +192,7 @@ void RemoteReceiverComponent::loop() {
       return;
 
     RemoteReceiveData data(this, &this->temp_);
-    bool found_decoder = false;
-    for (auto *decoder : this->decoders_) {
-      if (decoder->process_(&data))
-        found_decoder = true;
-    }
-
-    if (!found_decoder) {
-      for (auto *dumper : this->dumpers_)
-        dumper->process_(&data);
-    }
+    this->process_(&data);
   }
 }
 void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
@@ -290,6 +281,10 @@ void ICACHE_RAM_ATTR RemoteReceiverComponent::gpio_intr() {
     return;
 
   this->buffer_[this->buffer_write_at_ = next] = now;
+
+  if (next == this->buffer_read_at_) {
+    this->overflow_ = true;
+  }
 }
 
 void RemoteReceiverComponent::setup() {
@@ -327,6 +322,13 @@ void RemoteReceiverComponent::dump_config() {
 }
 
 void RemoteReceiverComponent::loop() {
+  if (this->overflow_) {
+    this->buffer_read_at_ = this->buffer_write_at_;
+    this->overflow_ = false;
+    ESP_LOGW(TAG, "Data is coming in too fast!");
+    return;
+  }
+
   // copy write at to local variables, as it's volatile
   const uint32_t write_at = this->buffer_write_at_;
   const uint32_t dist = (this->buffer_size_ + write_at - this->buffer_read_at_) % this->buffer_size_;
@@ -354,7 +356,7 @@ void RemoteReceiverComponent::loop() {
   for (uint32_t i = 0; prev != write_at; i++) {
     int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
     if (uint32_t(delta) >= this->idle_us_) {
-      ESP_LOGW(TAG, "Data is coming in too fast!");
+      // already found a space longer than idle. There must have been two pulses
       break;
     }
 
@@ -369,16 +371,7 @@ void RemoteReceiverComponent::loop() {
   this->temp_.push_back(this->idle_us_ * multiplier);
 
   RemoteReceiveData data(this, &this->temp_);
-  bool found_decoder = false;
-  for (auto *decoder : this->decoders_) {
-    if (decoder->process_(&data))
-      found_decoder = true;
-  }
-
-  if (!found_decoder) {
-    for (auto *dumper : this->dumpers_)
-      dumper->process_(&data);
-  }
+  this->process_(&data);
 }
 
 #endif
@@ -402,6 +395,31 @@ void RemoteReceiverComponent::set_filter_us(uint8_t filter_us) {
 void RemoteReceiverComponent::set_idle_us(uint32_t idle_us) {
   this->idle_us_ = idle_us;
 }
+void RemoteReceiverComponent::process_(RemoteReceiveData *data) {
+  bool found_decoder = false;
+  for (auto *decoder : this->decoders_) {
+    if (decoder->process_(data))
+      found_decoder = true;
+  }
+
+  if (!found_decoder) {
+    bool found = false;
+
+    for (auto *dumper : this->dumpers_) {
+      if (!dumper->secondary_()) {
+        if (dumper->process_(data)) {
+          found = true;
+        }
+      }
+    }
+
+    for (auto *dumper : this->dumpers_) {
+      if (!found && dumper->secondary_()) {
+        dumper->process_(data);
+      }
+    }
+  }
+}
 
 RemoteReceiver::RemoteReceiver(const std::string &name)
     : BinarySensor(name) {
@@ -418,10 +436,13 @@ bool RemoteReceiver::process_(RemoteReceiveData *data) {
   }
   return false;
 }
+bool RemoteReceiveDumper::secondary_() {
+  return false;
+}
 
-void RemoteReceiveDumper::process_(RemoteReceiveData *data) {
+bool RemoteReceiveDumper::process_(RemoteReceiveData *data) {
   data->reset_index();
-  this->dump(data);
+  return this->dump(data);
 }
 
 } // namespace remote

@@ -102,9 +102,11 @@ class RemoteReceiver : public binary_sensor::BinarySensor {
 
 class RemoteReceiveDumper {
  public:
-  virtual void dump(RemoteReceiveData *data) = 0;
+  virtual bool dump(RemoteReceiveData *data) = 0;
 
-  void process_(RemoteReceiveData *data);
+  bool process_(RemoteReceiveData *data);
+
+  virtual bool secondary_();
 };
 
 class RemoteReceiverComponent : public RemoteControlComponentBase, public Component {
@@ -123,6 +125,8 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   void set_tolerance(uint8_t tolerance);
   void set_filter_us(uint8_t filter_us);
   void set_idle_us(uint32_t idle_us);
+
+  void process_(RemoteReceiveData *data);
 
  protected:
   friend RemoteReceiveData;
@@ -143,6 +147,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   volatile uint32_t buffer_write_at_;
   /// The position last read from
   uint32_t buffer_read_at_{0};
+  bool overflow_{false};
   void gpio_intr();
 #endif
 
