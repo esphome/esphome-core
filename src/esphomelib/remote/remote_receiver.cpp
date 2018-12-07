@@ -270,7 +270,7 @@ void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-void ICACHE_RAM_ATTR RemoteReceiverComponent::gpio_intr() {
+void ICACHE_RAM_ATTR HOT RemoteReceiverComponent::gpio_intr() {
   const uint32_t now = micros();
   // If the lhs is 1 (rising edge) we should write to an uneven index and vice versa
   const uint32_t next = (this->buffer_write_at_ + 1) % this->buffer_size_;
@@ -313,7 +313,7 @@ void RemoteReceiverComponent::dump_config() {
   LOG_PIN("  Pin: ", this->pin_);
   if (this->pin_->digital_read()) {
     ESP_LOGW(TAG, "Remote Receiver Signal starts with a HIGH value. Usually this means you have to "
-                  "invert the signal using 'inverted: True' !");
+                  "invert the signal using 'inverted: True' in the pin schema!");
   }
   ESP_LOGCONFIG(TAG, "  Buffer Size: %u", this->buffer_size_);
   ESP_LOGCONFIG(TAG, "  Tolerance: %u%%", this->tolerance_);
@@ -325,7 +325,7 @@ void RemoteReceiverComponent::loop() {
   if (this->overflow_) {
     this->buffer_read_at_ = this->buffer_write_at_;
     this->overflow_ = false;
-    ESP_LOGW(TAG, "Data is coming in too fast!");
+    ESP_LOGW(TAG, "Data is coming in too fast! Try increasing the buffer size.");
     return;
   }
 
@@ -373,7 +373,6 @@ void RemoteReceiverComponent::loop() {
   RemoteReceiveData data(this, &this->temp_);
   this->process_(&data);
 }
-
 #endif
 
 RemoteReceiver *RemoteReceiverComponent::add_decoder(RemoteReceiver *decoder) {

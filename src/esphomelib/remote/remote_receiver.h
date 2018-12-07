@@ -154,7 +154,6 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
 #ifdef ARDUINO_ARCH_ESP32
   uint32_t buffer_size_{10000};
 #endif
-  // On ESP8266, we can
 #ifdef ARDUINO_ARCH_ESP8266
   uint32_t buffer_size_{1000};
   HighFrequencyLoopRequester high_freq_;
