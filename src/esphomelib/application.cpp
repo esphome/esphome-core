@@ -138,12 +138,10 @@ void HOT Application::loop() {
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
   WiFiComponent *wifi = this->init_wifi();
-  wifi->set_sta(WiFiAp{
-      .ssid = ssid,
-      .password = password,
-      .channel = -1,
-      .manual_ip = {},
-  });
+  WiFiAP ap;
+  ap.set_ssid(ssid);
+  ap.set_password(password);
+  wifi->add_sta(ap);
   return wifi;
 }
 
@@ -532,9 +530,11 @@ I2CComponent *Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, bool scan)
 Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const std::string &friendly_name) {
   auto *binary_sensor = this->register_component(new StatusBinarySensor(friendly_name));
   auto *mqtt = this->register_binary_sensor(binary_sensor);
-  mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
-  mqtt->disable_availability();
-  mqtt->set_is_status(true);
+  if (mqtt != nullptr) {
+    mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
+    mqtt->disable_availability();
+    mqtt->set_is_status(true);
+  }
   return MakeStatusBinarySensor{
       .status = binary_sensor,
       .mqtt = mqtt,
@@ -1274,6 +1274,14 @@ void Application::register_component_(Component *comp) {
   this->components_.push_back(comp);
 }
 
+#ifdef USE_API
+api::APIServer *Application::init_api_server() {
+  auto *server = new api::APIServer();
+  this->register_component(server);
+  this->register_controller(server);
+  return server;
+}
+#endif
 
 Application App; // NOLINT
 

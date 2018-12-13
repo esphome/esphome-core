@@ -12,8 +12,12 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "deep_sleep";
 
+bool global_has_deep_sleep = false;
+
 void DeepSleepComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Deep Sleep...");
+  global_has_deep_sleep = true;
+
   if (this->run_duration_.has_value())
     this->set_timeout(*this->run_duration_, [this](){
       this->begin_sleep_();

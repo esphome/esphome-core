@@ -155,6 +155,9 @@ uint32_t Sensor::calculate_expected_filter_update_interval() {
 
   return this->filter_list_->calculate_remaining_interval(interval);
 }
+uint32_t Sensor::hash_base_() {
+  return 2455723294UL;
+}
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
     : PollingComponent(update_interval), Sensor(name) {}
@@ -248,7 +251,7 @@ void ValueRangeTrigger::on_state_(float state) {
   this->rtc_.save(&in_range);
 }
 void ValueRangeTrigger::setup() {
-  this->rtc_ = global_preferences.make_preference<bool>(3030147977UL, this->parent_->get_name());
+  this->rtc_ = global_preferences.make_preference<bool>(this->parent_->get_object_id_hash());
   bool initial_state;
   if (this->rtc_.load(&initial_state)) {
     this->previous_in_range_ = initial_state;

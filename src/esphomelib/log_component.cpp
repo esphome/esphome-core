@@ -13,7 +13,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 static const char *TAG = "logger";
 
 int HOT LogComponent::log_vprintf_(int level, const char *tag,
-                               const char *format, va_list args) {
+                                   const char *format, va_list args) {
   // Uses std::vector<> for low memory footprint, though the vector
   // could be sorted to minimize lookup times. This feature isn't used that
   // much anyway so it doesn't matter too much.
@@ -41,7 +41,7 @@ int HOT LogComponent::log_vprintf_(int level, const char *tag,
   if (this->baud_rate_ > 0)
     Serial.println(this->tx_buffer_.data());
 
-  this->log_callback_.call(level, this->tx_buffer_.data());
+  this->log_callback_.call(level, tag, this->tx_buffer_.data());
   return ret;
 }
 
@@ -83,7 +83,7 @@ size_t LogComponent::get_tx_buffer_size() const {
 void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) {
   this->tx_buffer_.reserve(tx_buffer_size);
 }
-void LogComponent::add_on_log_callback(std::function<void(int, const char *)> &&callback) {
+void LogComponent::add_on_log_callback(std::function<void(int, const char *, const char *)> &&callback) {
   this->log_callback_.add(std::move(callback));
 }
 float LogComponent::get_setup_priority() const {

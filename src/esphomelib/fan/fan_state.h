@@ -17,8 +17,8 @@ namespace fan {
 /// Simple enum to represent the speed of a fan.
 enum FanSpeed {
   FAN_SPEED_LOW = 0, ///< The fan is running on low speed.
-  FAN_SPEED_MEDIUM, ///< The fan is running on medium speed.
-  FAN_SPEED_HIGH  ///< The fan is running on high/full speed.
+  FAN_SPEED_MEDIUM = 1, ///< The fan is running on medium speed.
+  FAN_SPEED_HIGH = 2  ///< The fan is running on high/full speed.
 };
 
 template<typename T>
@@ -67,8 +67,11 @@ class FanState : public Nameable, public Component {
     explicit StateCall(FanState *state);
 
     FanState::StateCall &set_state(bool state);
+    FanState::StateCall &set_state(optional<bool> state);
     FanState::StateCall &set_oscillating(bool oscillating);
+    FanState::StateCall &set_oscillating(optional<bool> oscillating);
     FanState::StateCall &set_speed(FanSpeed speed);
+    FanState::StateCall &set_speed(optional<FanSpeed> speed);
     FanState::StateCall &set_speed(const char *speed);
 
     void perform() const;
@@ -89,6 +92,8 @@ class FanState : public Nameable, public Component {
   float get_setup_priority() const override;
 
  protected:
+  uint32_t hash_base_() override;
+
   FanTraits traits_{};
   CallbackManager<void()> state_callback_{};
   ESPPreferenceObject rtc_;

@@ -31,8 +31,10 @@ using json_build_t = std::function<void(JsonObject &)>;
 /// The characters that are allowed in a hostname.
 extern const char *HOSTNAME_CHARACTER_WHITELIST;
 
-/// Gets the MAC address as a string, this can be used as way to identify this ESP32.
+/// Gets the MAC address as a string, this can be used as way to identify this ESP.
 std::string get_mac_address();
+
+std::string get_mac_address_pretty();
 
 void tick_status_led();
 

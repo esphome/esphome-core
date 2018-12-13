@@ -88,6 +88,7 @@ class LightColorValues {
   bool operator!=(const LightColorValues &rhs) const;
 
   float get_state() const;
+  bool is_on() const;
   void set_state(float state);
   void set_state(bool state);
 

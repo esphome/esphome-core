@@ -1,9 +1,13 @@
 #include "esphomelib/automation.h"
+#include "esphomelib/espmath.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 void Trigger<NoArg>::trigger() {
   this->parent_->process_trigger_(false);
+}
+void Trigger<NoArg>::trigger(bool arg) {
+  this->parent_->process_trigger_(arg);
 }
 void Trigger<NoArg>::set_parent(Automation<NoArg> *parent) {
   this->parent_ = parent;

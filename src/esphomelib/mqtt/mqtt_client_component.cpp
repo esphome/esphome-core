@@ -34,7 +34,7 @@ void MQTTClientComponent::setup() {
     this->disconnect_reason_ = reason;
   });
   if (this->is_log_message_enabled() && global_log_component != nullptr) {
-    global_log_component->add_on_log_callback([this](int level, const char *message) {
+    global_log_component->add_on_log_callback([this](int level, const char *tag, const char *message) {
       if (level <= this->log_level_ && this->is_connected()) {
         this->publish(this->log_message_.topic, message, strlen(message),
             this->log_message_.qos, this->log_message_.retain);
@@ -168,7 +168,7 @@ void MQTTClientComponent::start_connect() {
     return;
 
   ESP_LOGI(TAG, "Connecting to MQTT...");
-  // Force disconnect first
+  // Force disconnect_client_ first
   this->mqtt_client_.disconnect(true);
 
   this->mqtt_client_.setClientId(this->credentials_.client_id.c_str());

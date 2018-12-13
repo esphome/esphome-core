@@ -2,6 +2,7 @@
 #define ESPHOMELIB_AUTOMATION_H
 
 #include <vector>
+#include "esphomelib/espmath.h"
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
@@ -75,6 +76,7 @@ template<>
 class Trigger<NoArg> {
  public:
   void trigger();
+  void trigger(bool arg);
   void set_parent(Automation<NoArg> *parent);
  protected:
   Automation<NoArg> *parent_;

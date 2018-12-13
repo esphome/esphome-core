@@ -20,13 +20,6 @@
 #endif
 #include <StreamString.h>
 
-#ifdef ARDUINO_ARCH_ESP32
-#include <ESPmDNS.h>
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-#include <ESP8266mDNS.h>
-#endif
-
 ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "ota";
@@ -40,13 +33,10 @@ void OTAComponent::setup() {
   this->server_->begin();
 
 #ifdef USE_NEW_OTA
-  MDNS.begin(global_wifi_component->get_hostname().c_str());
-  MDNS.enableArduino(this->port_, !this->password_.empty());
 
 #ifdef ARDUINO_ARCH_ESP32
   add_shutdown_hook([this](const char *cause) {
     this->server_->close();
-    MDNS.end();
   });
 #endif
 #else
@@ -483,7 +473,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
 #endif
     global_state = STATUS_LED_ERROR;
     global_wifi_component->setup_();
-    while (!global_wifi_component->can_proceed()) {
+    while (!global_wifi_component->ready_for_ota()) {
       yield();
       global_wifi_component->loop_();
       tick_status_led();

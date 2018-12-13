@@ -126,6 +126,7 @@
   #define USE_CUSTOM_SWITCH
   #define USE_CUSTOM_TEXT_SENSOR
   #define USE_CUSTOM_COMPONENT
+  #define USE_API
 #endif
 
 #ifdef USE_REMOTE_RECEIVER

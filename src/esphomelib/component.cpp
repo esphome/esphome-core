@@ -263,18 +263,34 @@ const std::string &Nameable::get_name() const {
 }
 void Nameable::set_name(const std::string &name) {
   this->name_ = name;
+  this->calc_object_id_();
 }
 Nameable::Nameable(const std::string &name)
-    : name_(name) {}
+    : name_(name) {
+  this->calc_object_id_();
+}
 
-std::string Nameable::get_name_id() {
-  return sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+const std::string &Nameable::get_object_id() {
+  return this->object_id_;
 }
 bool Nameable::is_internal() const {
   return this->internal_;
 }
 void Nameable::set_internal(bool internal) {
   this->internal_ = internal;
+}
+void Nameable::calc_object_id_() {
+  this->object_id_ = sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+  // FNV-1 hash
+  uint32_t hash = 2166136261UL;
+  for (char c : this->object_id_) {
+    hash *= 16777619UL;
+    hash ^= c;
+  }
+  this->object_id_hash_ = hash;
+}
+uint32_t Nameable::get_object_id_hash() {
+  return this->object_id_hash_;
 }
 
 bool Component::TimeFunction::should_run(uint32_t now) const {

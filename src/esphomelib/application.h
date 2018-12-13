@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "esphomelib/defines.h"
+#include "esphomelib/api/api_server.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/component.h"
 #include "esphomelib/controller.h"
@@ -230,6 +231,10 @@ class Application {
    * @return The WebServer object, use this for advanced settings.
    */
   WebServer *init_web_server(uint16_t port = 80);
+#endif
+
+#ifdef USE_API
+  api::APIServer *init_api_server();
 #endif
 
 #ifdef USE_ESP32_BLE_TRACKER

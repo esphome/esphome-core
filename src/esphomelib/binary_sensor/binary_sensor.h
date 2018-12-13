@@ -21,6 +21,7 @@ class ReleaseTrigger;
 class ClickTrigger;
 class DoubleClickTrigger;
 class MultiClickTrigger;
+class StateTrigger;
 template<typename T>
 class BinarySensorCondition;
 class Filter;
@@ -75,6 +76,7 @@ class BinarySensor : public Nameable {
   ClickTrigger *make_click_trigger(uint32_t min_length, uint32_t max_length);
   DoubleClickTrigger *make_double_click_trigger(uint32_t min_length, uint32_t max_length);
   MultiClickTrigger *make_multi_click_trigger(const std::vector<MultiClickTriggerEvent> &timing);
+  StateTrigger *make_state_trigger();
   template<typename T>
   BinarySensorCondition<T> *make_binary_sensor_is_on_condition();
   template<typename T>
@@ -90,11 +92,15 @@ class BinarySensor : public Nameable {
   /// Return whether this binary sensor has outputted a state.
   bool has_state() const;
 
+  virtual bool is_status_binary_sensor() const;
+
  protected:
   // ========== OVERRIDE METHODS ==========
   // (You'll only need this when creating your own custom binary sensor)
   /// Get the default device class for this sensor, or empty string for no default.
   virtual std::string device_class();
+
+  uint32_t hash_base_() override;
 
   CallbackManager<void(bool)> state_callback_{};
   optional<std::string> device_class_{}; ///< Stores the override of the device class
@@ -157,6 +163,11 @@ class MultiClickTrigger : public Trigger<NoArg>, public Component {
   bool last_state_{false};
   bool is_in_cooldown_{false};
   bool is_valid_{false};
+};
+
+class StateTrigger : public Trigger<bool> {
+ public:
+  explicit StateTrigger(BinarySensor *parent);
 };
 
 template<typename T>

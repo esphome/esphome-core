@@ -183,6 +183,8 @@ class Sensor : public Nameable {
   /// Return the accuracy in decimals for this sensor.
   virtual int8_t accuracy_decimals();
 
+  uint32_t hash_base_() override;
+
   CallbackManager<void(float)> raw_callback_; ///< Storage for raw state callbacks.
   CallbackManager<void(float)> callback_; ///< Storage for filtered state callbacks.
   optional<std::string> unit_of_measurement_; ///< Override the unit of measurement
