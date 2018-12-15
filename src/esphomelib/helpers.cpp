@@ -205,7 +205,7 @@ const char *build_json(const json_build_t &f, size_t *length) {
   reserve_global_json_build_buffer(global_json_buffer.size());
   size_t bytes_written = root.printTo(global_json_build_buffer, global_json_build_buffer_size);
 
-  if (bytes_written == global_json_build_buffer_size) {
+  if (bytes_written >= global_json_build_buffer_size - 1) {
     reserve_global_json_build_buffer(root.measureLength() + 1);
     bytes_written = root.printTo(global_json_build_buffer, global_json_build_buffer_size);
   }
