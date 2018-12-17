@@ -1155,6 +1155,12 @@ SNTPComponent *Application::make_sntp_component() {
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_TIME
+HomeAssistantTime *Application::make_homeassistant_time_component() {
+  return this->register_component(new HomeAssistantTime());
+}
+#endif
+
 #ifdef USE_HLW8012
 sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin,
                                            uint8_t cf_pin,

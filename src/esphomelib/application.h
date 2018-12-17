@@ -134,6 +134,7 @@
 #include "esphomelib/text_sensor/version_text_sensor.h"
 #include "esphomelib/time/rtc_component.h"
 #include "esphomelib/time/sntp_component.h"
+#include "esphomelib/time/homeassistant_time.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -912,6 +913,10 @@ class Application {
 
 #ifdef USE_SNTP_COMPONENT
   time::SNTPComponent *make_sntp_component();
+#endif
+
+#ifdef USE_HOMEASSISTANT_TIME
+  time::HomeAssistantTime *make_homeassistant_time_component();
 #endif
 
 #ifdef USE_HLW8012

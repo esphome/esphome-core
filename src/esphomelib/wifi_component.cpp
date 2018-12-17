@@ -15,6 +15,7 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
+#include "esphomelib/api/api_server.h"
 
 #ifdef ARDUINO_ARCH_ESP32
 #include <ESPmDNS.h>
@@ -55,8 +56,20 @@ void WiFiComponent::setup() {
   }
 
   MDNS.begin(this->hostname_.c_str());
-  // TODO
-  MDNS.addService("_esphomelib", "_tcp", 6053);
+#ifdef USE_API
+  if (api::global_api_server_port != 0) {
+    MDNS.addService("esphomelib", "tcp", api::global_api_server_port);
+  } else {
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+    MDNS.addService("arduino", "tcp", 3232);
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+    MDNS.addService("arduino", "tcp", 8266);
+#endif
+#ifdef USE_API
+  }
+#endif
 }
 
 void WiFiComponent::loop() {
@@ -599,6 +612,14 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
 
   return true;
 }
+
+class WiFiMockClass : public ESP8266WiFiGenericClass {
+ public:
+  static void _event_callback(void *event) {
+    ESP8266WiFiGenericClass::_eventCallback(event);
+  }
+};
+
 void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
 #ifdef ESPHOMELIB_LOG_HAS_VERBOSE
   static const char *EVENT_TO_STR[] = {
@@ -615,8 +636,9 @@ void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
 
   if (event->event == EVENT_STAMODE_DISCONNECTED) {
     global_wifi_component->error_from_callback_ = true;
-    WiFiClient::stopAll();
   }
+
+  WiFiMockClass::_event_callback(event);
 }
 void WiFiComponent::wifi_register_callbacks_() {
   wifi_set_event_handler_cb(&WiFiComponent::wifi_event_callback_);

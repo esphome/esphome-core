@@ -32,6 +32,18 @@ bool LightTraits::has_fast_led() const {
 bool LightTraits::has_color_temperature() const {
   return this->color_temperature_;
 }
+float LightTraits::get_min_mireds() const {
+  return this->min_mireds_;
+}
+float LightTraits::get_max_mireds() const {
+  return this->max_mireds_;
+}
+void LightTraits::set_min_mireds(float min_mireds) {
+  this->min_mireds_ = min_mireds;
+}
+void LightTraits::set_max_mireds(float max_mireds) {
+  this->max_mireds_ = max_mireds;
+}
 
 } // namespace light
 

@@ -9,8 +9,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace api {
 
-static const char *TAG = "api.subscribe_logs";
-
 APIMessageType SubscribeLogsRequest::message_type() const {
   return APIMessageType::SUBSCRIBE_LOGS_REQUEST;
 }

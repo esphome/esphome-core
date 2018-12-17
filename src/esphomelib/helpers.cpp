@@ -378,6 +378,54 @@ std::string build_json(const json_build_t &f) {
   const char *c_str = build_json(f, &len);
   return std::string(c_str, len);
 }
+std::string to_string(std::string val) {
+  return val;
+}
+std::string to_string(int val) {
+  char buf[64];
+  sprintf(buf, "%d", val);
+  return buf;
+}
+std::string to_string(long val) {
+  char buf[64];
+  sprintf(buf, "%ld", val);
+  return buf;
+}
+std::string to_string(long long val) {
+  char buf[64];
+  sprintf(buf, "%lld", val);
+  return buf;
+}
+std::string to_string(unsigned val) {
+  char buf[64];
+  sprintf(buf, "%u", val);
+  return buf;
+}
+std::string to_string(unsigned long val) {
+  char buf[64];
+  sprintf(buf, "%lu", val);
+  return buf;
+}
+std::string to_string(unsigned long long val) {
+  char buf[64];
+  sprintf(buf, "%llu", val);
+  return buf;
+}
+std::string to_string(float val) {
+  char buf[64];
+  sprintf(buf, "%f", val);
+  return buf;
+}
+std::string to_string(double val) {
+  char buf[64];
+  sprintf(buf, "%f", val);
+  return buf;
+}
+std::string to_string(long double val) {
+  char buf[64];
+  sprintf(buf, "%Lf", val);
+  return buf;
+}
 
 template<uint32_t>
 uint32_t reverse_bits(uint32_t x) {

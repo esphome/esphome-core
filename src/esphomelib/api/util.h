@@ -31,8 +31,12 @@ class APIBuffer {
   void encode_float(uint32_t field, float value);
   void encode_nameable(Nameable *nameable);
 
+  size_t begin_nested(uint32_t field);
+  void end_nested(size_t begin_index);
+
   void encode_field_(uint32_t field, uint32_t type);
   void encode_varint_(uint32_t value);
+  uint32_t varint_length_(uint32_t value);
 
  protected:
   uint8_t *buffer_;

@@ -9,8 +9,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace api {
 
-static const char *TAG = "api.subscribe_state";
-
 #ifdef USE_BINARY_SENSOR
 bool InitialStateIterator::on_binary_sensor(binary_sensor::BinarySensor *binary_sensor) {
   if (!binary_sensor->has_state())

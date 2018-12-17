@@ -14,6 +14,7 @@
 #include "esphomelib/api/subscribe_state.h"
 #include "esphomelib/api/subscribe_logs.h"
 #include "esphomelib/api/command_messages.h"
+#include "esphomelib/api/service_call_message.h"
 #include "esphomelib/log.h"
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -39,6 +40,7 @@ class APIConnection {
   template<typename T>
   bool send_buffer(T func, APIMessageType type);
   bool send_message(APIMessage &msg);
+  bool send_message_resize(APIMessage &msg);
   bool send_empty_message(APIMessageType type);
   void loop();
 
@@ -66,6 +68,7 @@ class APIConnection {
   bool send_log_message(int level, const char *tag, const char *line);
   bool send_disconnect_request(const char *reason);
   bool send_ping_request();
+  void send_service_call(ServiceCallResponse &call);
 
  protected:
   void on_error_(int8_t error);
@@ -99,6 +102,9 @@ class APIConnection {
 #ifdef USE_SWITCH
   void on_switch_command_request_(const SwitchCommandRequest &req);
 #endif
+  void on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req);
+
+  void resize_buffer_();
 
   enum class ConnectionState {
     WAITING_FOR_HELLO,
@@ -110,6 +116,7 @@ class APIConnection {
   APIServer *parent_;
 
   uint8_t *buffer_;
+  size_t buffer_size_;
   enum class ParseMessageState {
     PREAMBLE,
     LENGTH_FIELD,
@@ -129,15 +136,19 @@ class APIConnection {
   int log_subscription_{ESPHOMELIB_LOG_LEVEL_NONE};
   uint32_t last_traffic_;
   bool sent_ping_{false};
+  bool service_call_subscription_{false};
 };
+
+template<typename T>
+class HomeAssistantServiceCallAction;
 
 class APIServer : public Component, public StoringUpdateListenerController {
  public:
+  APIServer();
   void setup() override;
   float get_setup_priority() const override;
   void loop() override;
   void dump_config() override;
-  size_t get_buffer_size() const;
   bool check_password(const std::string &password) const;
   bool uses_password() const;
   void set_port(uint16_t port);
@@ -164,21 +175,63 @@ class APIServer : public Component, public StoringUpdateListenerController {
 #ifdef USE_TEXT_SENSOR
   void on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) override;
 #endif
-  uint32_t get_keepalive() const;
-  void set_keepalive(uint32_t keepalive);
+  void send_service_call(ServiceCallResponse &call);
+  template<typename T>
+  HomeAssistantServiceCallAction<T> *make_home_assistant_service_call_action();
 
  protected:
   AsyncServer server_{0};
   uint16_t port_{6053};
   std::vector<APIConnection *> clients_;
-  size_t buffer_size_{256};
   std::string password_;
-  uint32_t keepalive_{60000};
+};
+
+extern uint16_t global_api_server_port;
+
+template<typename T>
+class HomeAssistantServiceCallAction : public Action<T> {
+ public:
+  HomeAssistantServiceCallAction(APIServer *parent) : parent_(parent) {}
+  void set_service(const std::string &service);
+  void set_data(const std::vector<KeyValuePair> &data);
+  void set_data_template(const std::vector<KeyValuePair> &data_template);
+  void set_variables(const std::vector<TemplatableKeyValuePair> &variables);
+  void play(T x) override;
+ protected:
+  APIServer *parent_;
+  ServiceCallResponse resp_;
 };
 
 template<typename T>
+HomeAssistantServiceCallAction<T> *APIServer::make_home_assistant_service_call_action() {
+  return new HomeAssistantServiceCallAction<T>(this);
+}
+
+template<typename T>
+void HomeAssistantServiceCallAction<T>::set_service(const std::string &service) {
+  this->resp_.set_service(service);
+}
+template<typename T>
+void HomeAssistantServiceCallAction<T>::set_data(const std::vector<KeyValuePair> &data) {
+  this->resp_.set_data(data);
+}
+template<typename T>
+void HomeAssistantServiceCallAction<T>::set_data_template(const std::vector<KeyValuePair> &data_template) {
+  this->resp_.set_data_template(data_template);
+}
+template<typename T>
+void HomeAssistantServiceCallAction<T>::set_variables(const std::vector<TemplatableKeyValuePair> &variables) {
+  this->resp_.set_variables(variables);
+}
+template<typename T>
+void HomeAssistantServiceCallAction<T>::play(T x) {
+  this->parent_->send_service_call(this->resp_);
+  this->play_next(x);
+}
+
+template<typename T>
 bool APIConnection::send_buffer(T func, APIMessageType type) {
-  APIBuffer buf(this->buffer_, this->parent_->get_buffer_size());
+  APIBuffer buf(this->buffer_, this->buffer_size_);
   func(buf);
   return this->send_buffer(type, buf);
 }

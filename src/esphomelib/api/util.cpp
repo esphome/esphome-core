@@ -9,8 +9,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace api {
 
-static const char *TAG = "api.util";
-
 APIBuffer::APIBuffer(uint8_t *buffer, size_t max_len) : buffer_(buffer), max_len_(max_len) {
 
 }
@@ -111,6 +109,39 @@ void APIBuffer::encode_nameable(Nameable *nameable) {
   this->encode_fixed32(2, nameable->get_object_id_hash());
   // string name = 3;
   this->encode_string(3, nameable->get_name());
+}
+uint32_t APIBuffer::varint_length_(uint32_t value) {
+  if (value <= 0x7F) {
+    return 1;
+  }
+
+  uint32_t bytes = 0;
+  while (value) {
+    value >>= 7;
+    bytes++;
+  }
+
+  return bytes;
+}
+size_t APIBuffer::begin_nested(uint32_t field) {
+  this->encode_field_(field, 2);
+  return this->at_;
+}
+void APIBuffer::end_nested(size_t begin_index) {
+  if (this->overflow_)
+    return;
+
+  uint32_t nested_length = this->at_ - begin_index;
+  uint32_t required = this->varint_length_(nested_length);
+  if (this->at_ + required >= this->max_len_) {
+    this->overflow_ = true;
+    return;
+  }
+
+  memmove(this->buffer_ + begin_index + required, this->buffer_ + begin_index, nested_length);
+  this->at_ = begin_index;
+  this->encode_varint_(nested_length);
+  this->at_ = begin_index + required + nested_length;
 }
 
 optional<uint32_t> proto_decode_varuint32(uint8_t *buf, size_t len, uint32_t *consumed) {

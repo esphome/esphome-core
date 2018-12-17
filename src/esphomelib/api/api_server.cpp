@@ -7,6 +7,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
 #include "esphomelib/deep_sleep_component.h"
+#include "esphomelib/time/homeassistant_time.h"
 
 #include <algorithm>
 
@@ -54,9 +55,6 @@ void APIServer::loop() {
 }
 void APIServer::dump_config() {
 
-}
-size_t APIServer::get_buffer_size() const {
-  return this->buffer_size_;
 }
 bool APIServer::uses_password() const {
   return !this->password_.empty();
@@ -155,20 +153,25 @@ void APIServer::on_text_sensor_update(text_sensor::TextSensor *obj, std::string 
     c->send_text_sensor_state(obj, state);
 }
 #endif
-uint32_t APIServer::get_keepalive() const {
-  return this->keepalive_;
-}
-void APIServer::set_keepalive(uint32_t keepalive) {
-  this->keepalive_ = keepalive;
-}
 float APIServer::get_setup_priority() const {
   return setup_priority::WIFI - 1.0f;
 }
 void APIServer::set_port(uint16_t port) {
   this->port_ = port;
+  global_api_server_port = port;
 }
+uint16_t global_api_server_port = 0;
+
 void APIServer::set_password(const std::string &password) {
   this->password_ = password;
+}
+void APIServer::send_service_call(ServiceCallResponse &call) {
+  for (auto *client : this->clients_) {
+    client->send_service_call(call);
+  }
+}
+APIServer::APIServer() {
+  global_api_server_port = 6053;
 }
 
 // APIConnection
@@ -188,7 +191,8 @@ APIConnection::APIConnection(AsyncClient *client, APIServer *parent)
     ((APIConnection *) s)->on_data_(reinterpret_cast<uint8_t *>(buf), len);
   }, this);
 
-  this->buffer_ = new uint8_t[this->parent_->get_buffer_size()];
+  this->buffer_size_ = 128;
+  this->buffer_ = new uint8_t[this->buffer_size_];
   this->client_info_ = this->client_->remoteIP().toString().c_str();
   this->last_traffic_ = millis();
 }
@@ -209,13 +213,18 @@ void APIConnection::on_timeout_(uint32_t time) {
   ESP_LOGV(TAG, "Timeout from client");
   this->disconnect_client_();
 }
+void APIConnection::resize_buffer_() {
+  delete [] this->buffer_;
+  this->buffer_size_ *= 2;
+  this->buffer_ = new uint8_t[this->buffer_size_];
+}
 void APIConnection::on_data_(uint8_t *buf, size_t len) {
   if (len == 0 || buf == nullptr)
     return;
 
   for (size_t i = 0; i < len; i++) {
     uint8_t val = buf[i];
-    const uint32_t buffer_size = this->parent_->get_buffer_size();
+    const uint32_t buffer_size = this->buffer_size_;
     const uint32_t buffer_at = this->rx_buffer_at_;
 
     if (buffer_at >= buffer_size && this->parse_state_ != ParseMessageState::SKIP_MESSAGE_FIELD) {
@@ -417,6 +426,25 @@ void APIConnection::read_message_() {
 #endif
       break;
     }
+    case APIMessageType::SUBSCRIBE_SERVICE_CALLS_REQUEST: {
+      SubscribeServiceCallsRequest req;
+      req.decode(this->buffer_, this->message_length_);
+      this->on_subscribe_service_calls_request(req);
+      break;
+    }
+    case APIMessageType::SERVICE_CALL_RESPONSE:
+      // Invalid
+      break;
+    case APIMessageType::GET_TIME_REQUEST:
+      // Invalid
+      break;
+    case APIMessageType::GET_TIME_RESPONSE: {
+#ifdef USE_HOMEASSISTANT_TIME
+      time::GetTimeResponse req;
+      req.decode(this->buffer_, this->message_length_);
+#endif
+      break;
+    }
   }
 }
 void APIConnection::on_hello_request_(const HelloRequest &req) {
@@ -456,6 +484,12 @@ void APIConnection::on_connect_request_(const ConnectRequest &req) {
   if (correct) {
     ESP_LOGD(TAG, "Client '%s' connected successfully!", this->client_info_.c_str());
     this->connection_state_ = ConnectionState::CONNECTED;
+
+#ifdef USE_HOMEASSISTANT_TIME
+    if (time::global_homeassistant_time != nullptr) {
+      this->send_empty_message(APIMessageType::GET_TIME_REQUEST);
+    }
+#endif
   }
 }
 void APIConnection::on_disconnect_request_(const DisconnectRequest &req) {
@@ -545,15 +579,25 @@ bool APIConnection::valid_rx_message_type_() {
   }
 }
 bool APIConnection::send_message(APIMessage &msg) {
-  APIBuffer buf(this->buffer_, this->parent_->get_buffer_size());
+  APIBuffer buf(this->buffer_, this->buffer_size_);
   msg.encode(buf);
   return this->send_buffer(msg.message_type(), buf);
 }
+bool APIConnection::send_message_resize(APIMessage &msg) {
+  while (true) {
+    APIBuffer buf(this->buffer_, this->buffer_size_);
+    msg.encode(buf);
+    if (buf.get_overflow()) {
+      this->resize_buffer_();
+    } else {
+      return this->send_buffer(msg.message_type(), buf);
+    }
+  }
+}
 bool APIConnection::send_empty_message(APIMessageType type) {
-  APIBuffer buf(this->buffer_, this->parent_->get_buffer_size());
+  APIBuffer buf(this->buffer_, this->buffer_size_);
   return this->send_buffer(type, buf);
 }
-
 
 void APIConnection::disconnect_client_() {
   this->client_->close();
@@ -596,13 +640,14 @@ void APIConnection::loop() {
 
   this->list_entities_iterator_.advance();
   this->initial_state_iterator_.advance();
+  const uint32_t keepalive = 60000;
   if (this->sent_ping_) {
-    if (millis() - this->last_traffic_ > this->parent_->get_keepalive() * 1.5f) {
+    if (millis() - this->last_traffic_ > (keepalive * 3) / 2) {
       ESP_LOGW(TAG, "'%s' didn't respond to ping request in time. Disconnecting...",
                this->client_info_.c_str());
       this->disconnect_client_();
     }
-  } else if (millis() - this->last_traffic_ > this->parent_->get_keepalive()) {
+  } else if (millis() - this->last_traffic_ > keepalive) {
     this->sent_ping_ = true;
     this->send_ping_request();
   }
@@ -853,6 +898,16 @@ void APIConnection::on_switch_command_request_(const SwitchCommandRequest &req) 
   }
 }
 #endif
+
+void APIConnection::on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req) {
+  this->service_call_subscription_ = true;
+}
+void APIConnection::send_service_call(ServiceCallResponse &call) {
+  if (!this->service_call_subscription_)
+    return;
+
+  this->send_message_resize(call);
+}
 
 } // namespace api
 

@@ -127,6 +127,7 @@
   #define USE_CUSTOM_TEXT_SENSOR
   #define USE_CUSTOM_COMPONENT
   #define USE_API
+  #define USE_HOMEASSISTANT_TIME
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
