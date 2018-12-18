@@ -5,6 +5,9 @@
 #include "esphomelib/time/homeassistant_time.h"
 #include "esphomelib/log.h"
 #include "lwip/opt.h"
+#ifdef ARDUINO_ARCH_ESP8266
+  #include "sys/time.h"
+#endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
