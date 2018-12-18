@@ -180,6 +180,49 @@ void WiFiComponent::start_connecting(const WiFiAP &ap) {
   this->action_started_ = millis();
 }
 
+void print_signal_bars(int8_t rssi, char *buf) {
+  // LOWER ONE QUARTER BLOCK
+  // Unicode: U+2582, UTF-8: E2 96 82
+  // LOWER HALF BLOCK
+  // Unicode: U+2584, UTF-8: E2 96 84
+  // LOWER THREE QUARTERS BLOCK
+  // Unicode: U+2586, UTF-8: E2 96 86
+  // FULL BLOCK
+  // Unicode: U+2588, UTF-8: E2 96 88
+  if (rssi >= -50) {
+    sprintf(buf, "\033[0;32m" // green
+                 "\xe2\x96\x82"
+                 "\xe2\x96\x84"
+                 "\xe2\x96\x86"
+                 "\xe2\x96\x88"
+                 "\033[0m");
+  } else if (rssi >= -65) {
+    sprintf(buf, "\033[0;33m" // yellow
+                 "\xe2\x96\x82"
+                 "\xe2\x96\x84"
+                 "\xe2\x96\x86"
+                 "\033[0;37m"
+                 "\xe2\x96\x88"
+                 "\033[0m");
+  } else if (rssi >= -85) {
+    sprintf(buf, "\033[0;33m" // yellow
+                 "\xe2\x96\x82"
+                 "\xe2\x96\x84"
+                 "\033[0;37m"
+                 "\xe2\x96\x86"
+                 "\xe2\x96\x88"
+                 "\033[0m");
+  } else {
+    sprintf(buf, "\033[0;31m" // red
+                 "\xe2\x96\x82"
+                 "\033[0;37m"
+                 "\xe2\x96\x84"
+                 "\xe2\x96\x86"
+                 "\xe2\x96\x88"
+                 "\033[0m");
+  }
+}
+
 void WiFiComponent::print_connect_params_() {
   uint8_t *bssid = WiFi.BSSID();
   ESP_LOGCONFIG(TAG, "  SSID: '%s'", WiFi.SSID().c_str());
@@ -189,6 +232,10 @@ void WiFiComponent::print_connect_params_() {
   if (!this->hostname_.empty()) {
     ESP_LOGCONFIG(TAG, "  Hostname: '%s'", this->hostname_.c_str());
   }
+  char signal_bars[50];
+  int8_t rssi = WiFi.RSSI();
+  print_signal_bars(rssi, signal_bars);
+  ESP_LOGCONFIG(TAG, "  Signal strength: %d dB %s", rssi, signal_bars);
   ESP_LOGCONFIG(TAG, "  Channel: %d", WiFi.channel());
   ESP_LOGCONFIG(TAG, "  Subnet: %s", WiFi.subnetMask().toString().c_str());
   ESP_LOGCONFIG(TAG, "  Gateway: %s", WiFi.gatewayIP().toString().c_str());
@@ -241,48 +288,8 @@ void WiFiComponent::check_scanning_finished() {
     char bssid_s[18];
     auto bssid = res.get_bssid();
     sprintf(bssid_s, "%02X:%02X:%02X:%02X:%02X:%02X", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-    const char *signal_bars;
-    // LOWER ONE QUARTER BLOCK
-    // Unicode: U+2582, UTF-8: E2 96 82
-    // LOWER HALF BLOCK
-    // Unicode: U+2584, UTF-8: E2 96 84
-    // LOWER THREE QUARTERS BLOCK
-    // Unicode: U+2586, UTF-8: E2 96 86
-    // FULL BLOCK
-    // Unicode: U+2588, UTF-8: E2 96 88
-    int8_t rssi = res.get_rssi();
-    if (rssi >= -50) {
-      signal_bars = "\033[0;32m" // green
-                    "\xe2\x96\x82"
-                    "\xe2\x96\x84"
-                    "\xe2\x96\x86"
-                    "\xe2\x96\x88"
-                    "\033[0m";
-    } else if (rssi >= -65) {
-      signal_bars = "\033[0;33m" // yellow
-                    "\xe2\x96\x82"
-                    "\xe2\x96\x84"
-                    "\xe2\x96\x86"
-                    "\033[0;37m"
-                    "\xe2\x96\x88"
-                    "\033[0m";
-    } else if (rssi >= -85) {
-      signal_bars = "\033[0;33m" // yellow
-                    "\xe2\x96\x82"
-                    "\xe2\x96\x84"
-                    "\033[0;37m"
-                    "\xe2\x96\x86"
-                    "\xe2\x96\x88"
-                    "\033[0m";
-    } else {
-      signal_bars = "\033[0;31m" // red
-                    "\xe2\x96\x82"
-                    "\033[0;37m"
-                    "\xe2\x96\x84"
-                    "\xe2\x96\x86"
-                    "\xe2\x96\x88"
-                    "\033[0m";
-    }
+    char signal_bars[50];
+    print_signal_bars(res.get_rssi(), signal_bars);
 
     if (res.get_matches()) {
       ESP_LOGI(TAG, "- '%s' (%s) %s", res.get_ssid().c_str(), bssid_s, signal_bars);

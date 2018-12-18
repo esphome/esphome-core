@@ -17,6 +17,9 @@ bool SubscribeLogsRequest::decode_varint(uint32_t field_id, uint32_t value) {
     case 1: // LogLevel level = 1;
       this->level_ = value;
       return true;
+    case 2: // bool dump_config = 2;
+      this->dump_config_ = value;
+      return true;
     default:
       return false;
   }
@@ -26,6 +29,12 @@ uint32_t SubscribeLogsRequest::get_level() const {
 }
 void SubscribeLogsRequest::set_level(uint32_t level) {
   this->level_ = level;
+}
+bool SubscribeLogsRequest::get_dump_config() const {
+  return this->dump_config_;
+}
+void SubscribeLogsRequest::set_dump_config(bool dump_config) {
+  this->dump_config_ = dump_config;
 }
 } // namespace api
 

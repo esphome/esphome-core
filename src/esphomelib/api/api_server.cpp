@@ -551,6 +551,9 @@ void APIConnection::on_subscribe_states_request_(const SubscribeStatesRequest &r
 void APIConnection::on_subscribe_logs_request_(const SubscribeLogsRequest &req) {
   ESP_LOGVV(TAG, "on_subscribe_logs_request_");
   this->log_subscription_ = req.get_level();
+  if (req.get_dump_config()) {
+    App.schedule_dump_config();
+  }
 }
 
 

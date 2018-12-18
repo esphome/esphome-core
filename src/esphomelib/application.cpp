@@ -87,7 +87,10 @@ void Application::setup() {
   this->application_state_ = COMPONENT_STATE_SETUP;
 
   ESP_LOGI(TAG, "setup() finished successfully!");
+  this->dump_config();
+}
 
+void Application::dump_config() {
   if (this->compilation_time_.empty()) {
     ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION);
   } else {
@@ -98,6 +101,9 @@ void Application::setup() {
     Component *component = this->components_[i];
     component->dump_config();
   }
+}
+void Application::schedule_dump_config() {
+  this->dump_config_scheduled_ = true;
 }
 
 void HOT Application::loop() {
@@ -133,6 +139,11 @@ void HOT Application::loop() {
 
   if (first_loop) {
     ESP_LOGI(TAG, "First loop finished successfully!");
+  }
+
+  if (this->dump_config_scheduled_) {
+    this->dump_config();
+    this->dump_config_scheduled_ = false;
   }
 }
 

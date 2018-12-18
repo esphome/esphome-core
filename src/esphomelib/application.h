@@ -1374,6 +1374,9 @@ class Application {
    */
   void set_loop_interval(uint32_t loop_interval);
 
+  void dump_config();
+  void schedule_dump_config();
+
  protected:
   void register_component_(Component *comp);
 
@@ -1390,6 +1393,7 @@ class Application {
 #ifdef USE_I2C
   I2CComponent *i2c_{nullptr};
 #endif
+  bool dump_config_scheduled_{false};
 };
 
 /// Global storage of Application pointer - only one Application can exist.
