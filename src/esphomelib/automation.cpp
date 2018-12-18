@@ -38,6 +38,13 @@ float LoopTrigger::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
+void IntervalTrigger::loop() {
+  this->trigger();
+}
+float IntervalTrigger::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
+
 RangeCondition::RangeCondition() = default;
 
 bool RangeCondition::check(float x) {

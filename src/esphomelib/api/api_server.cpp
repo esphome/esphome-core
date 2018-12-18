@@ -158,9 +158,8 @@ float APIServer::get_setup_priority() const {
 }
 void APIServer::set_port(uint16_t port) {
   this->port_ = port;
-  global_api_server_port = port;
 }
-uint16_t global_api_server_port = 0;
+APIServer *global_api_server = nullptr;
 
 void APIServer::set_password(const std::string &password) {
   this->password_ = password;
@@ -171,7 +170,19 @@ void APIServer::send_service_call(ServiceCallResponse &call) {
   }
 }
 APIServer::APIServer() {
-  global_api_server_port = 6053;
+  global_api_server = this;
+}
+void APIServer::subscribe_home_assistant_state(std::string entity_id, std::function<void(std::string)> f) {
+  this->state_subs_.push_back(HomeAssistantStateSubscription{
+      .entity_id = entity_id,
+      .callback = f,
+  });
+}
+const std::vector<APIServer::HomeAssistantStateSubscription> &APIServer::get_state_subs() const {
+  return this->state_subs_;
+}
+uint16_t APIServer::get_port() const {
+  return this->port_;
 }
 
 // APIConnection
@@ -443,6 +454,21 @@ void APIConnection::read_message_() {
       time::GetTimeResponse req;
       req.decode(this->buffer_, this->message_length_);
 #endif
+      break;
+    }
+    case APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATES_REQUEST: {
+      SubscribeHomeAssistantStatesRequest req;
+      req.decode(this->buffer_, this->message_length_);
+      this->on_subscribe_home_assistant_states_request(req);
+      break;
+    }
+    case APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE:
+      // Invalid
+      break;
+    case APIMessageType::HOME_ASSISTANT_STATE_RESPONSE: {
+      HomeAssistantStateResponse req;
+      req.decode(this->buffer_, this->message_length_);
+      this->on_home_assistant_state_response(req);
       break;
     }
   }
@@ -910,6 +936,21 @@ void APIConnection::send_service_call(ServiceCallResponse &call) {
     return;
 
   this->send_message_resize(call);
+}
+void APIConnection::on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req) {
+  for (auto &it : this->parent_->get_state_subs()) {
+    this->send_buffer([it](APIBuffer &buffer) {
+      // string entity_id = 1;
+      buffer.encode_string(1, it.entity_id);
+    }, APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE);
+  }
+}
+void APIConnection::on_home_assistant_state_response(const HomeAssistantStateResponse &req) {
+  for (auto &it : this->parent_->get_state_subs()) {
+    if (it.entity_id == req.get_entity_id()) {
+      it.callback(req.get_state());
+    }
+  }
 }
 
 } // namespace api

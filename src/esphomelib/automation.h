@@ -103,6 +103,12 @@ class LoopTrigger : public Trigger<NoArg>, public Component {
   float get_setup_priority() const override;
 };
 
+class IntervalTrigger : public Trigger<NoArg>, public PollingComponent {
+ public:
+  void loop() override;
+  float get_setup_priority() const override;
+};
+
 template<typename T>
 class ScriptExecuteAction;
 template<typename T>

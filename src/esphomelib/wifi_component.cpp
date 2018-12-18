@@ -57,8 +57,8 @@ void WiFiComponent::setup() {
 
   MDNS.begin(this->hostname_.c_str());
 #ifdef USE_API
-  if (api::global_api_server_port != 0) {
-    MDNS.addService("esphomelib", "tcp", api::global_api_server_port);
+  if (api::global_api_server != nullptr) {
+    MDNS.addService("esphomelib", "tcp", api::global_api_server->get_port());
   } else {
 #endif
 #ifdef ARDUINO_ARCH_ESP32

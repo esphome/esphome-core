@@ -49,6 +49,22 @@ class InitialStateIterator : public ComponentIterator {
   APIConnection *client_;
 };
 
+class SubscribeHomeAssistantStatesRequest : public APIMessage {
+ public:
+  APIMessageType message_type() const override;
+};
+
+class HomeAssistantStateResponse : public APIMessage {
+ public:
+  bool decode_length_delimited(uint32_t field_id, const uint8_t *value, size_t len) override;
+  APIMessageType message_type() const override;
+  const std::string &get_entity_id() const;
+  const std::string &get_state() const;
+ protected:
+  std::string entity_id_;
+  std::string state_;
+};
+
 } // namespace api
 
 ESPHOMELIB_NAMESPACE_END

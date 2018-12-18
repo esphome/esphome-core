@@ -1209,6 +1209,17 @@ Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_s
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_TEXT_SENSOR
+Application::MakeHomeassistantTextSensor Application::make_homeassistant_text_sensor(const std::string &name,
+                                                                                     std::string entity_id) {
+  auto *sensor = new HomeassistantTextSensor(name, std::move(entity_id));
+  return MakeHomeassistantTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
 #ifdef USE_VERSION_TEXT_SENSOR
 Application::MakeVersionTextSensor Application::make_version_text_sensor(const std::string &name) {
   auto *sensor = this->register_component(new VersionTextSensor(name));
@@ -1224,6 +1235,18 @@ Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(con
   auto *sensor = this->register_component(new sensor::MQTTSubscribeSensor(name, std::move(topic)));
 
   return MakeMQTTSubscribeSensor {
+      .sensor = sensor,
+      .mqtt = this->register_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_HOMEASSISTANT_SENSOR
+Application::MakeHomeassistantSensor Application::make_homeassistant_sensor(const std::string &name,
+                                                                                     std::string entity_id) {
+  auto *sensor = new sensor::HomeassistantSensor(name, std::move(entity_id));
+
+  return MakeHomeassistantSensor {
       .sensor = sensor,
       .mqtt = this->register_sensor(sensor),
   };

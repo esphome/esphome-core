@@ -93,6 +93,7 @@
 #include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/hlw8012.h"
 #include "esphomelib/sensor/hmc5883l.h"
+#include "esphomelib/sensor/homeassistant_sensor.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hx711.h"
 #include "esphomelib/sensor/ina219.h"
@@ -127,6 +128,7 @@
 #include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/switch_/uart_switch.h"
 #include "esphomelib/text_sensor/custom_text_sensor.h"
+#include "esphomelib/text_sensor/homeassistant_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/template_text_sensor.h"
@@ -932,6 +934,15 @@ class Application {
   MakeMQTTSubscribeSensor make_mqtt_subscribe_sensor(const std::string &name, std::string topic);
 #endif
 
+#ifdef USE_HOMEASSISTANT_SENSOR
+  struct MakeHomeassistantSensor {
+    sensor::HomeassistantSensor *sensor;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeHomeassistantSensor make_homeassistant_sensor(const std::string &name, std::string entity_id);
+#endif
+
 #ifdef USE_CSE7766
   sensor::CSE7766Component *make_cse7766(UARTComponent *parent, uint32_t update_interval = 15000);
 #endif
@@ -944,6 +955,15 @@ class Application {
   };
 
   MakeMQTTSubscribeTextSensor make_mqtt_subscribe_text_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_HOMEASSISTANT_TEXT_SENSOR
+  struct MakeHomeassistantTextSensor {
+    text_sensor::HomeassistantTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeHomeassistantTextSensor make_homeassistant_text_sensor(const std::string &name, std::string entity_id);
 #endif
 
 #ifdef USE_VERSION_TEXT_SENSOR

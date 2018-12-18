@@ -103,6 +103,8 @@ class APIConnection {
   void on_switch_command_request_(const SwitchCommandRequest &req);
 #endif
   void on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req);
+  void on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req);
+  void on_home_assistant_state_response(const HomeAssistantStateResponse &req);
 
   void resize_buffer_();
 
@@ -146,6 +148,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
  public:
   APIServer();
   void setup() override;
+  uint16_t get_port() const;
   float get_setup_priority() const override;
   void loop() override;
   void dump_config() override;
@@ -179,14 +182,23 @@ class APIServer : public Component, public StoringUpdateListenerController {
   template<typename T>
   HomeAssistantServiceCallAction<T> *make_home_assistant_service_call_action();
 
+  struct HomeAssistantStateSubscription {
+    std::string entity_id;
+    std::function<void(std::string)> callback;
+  };
+
+  void subscribe_home_assistant_state(std::string entity_id, std::function<void(std::string)> f);
+  const std::vector<HomeAssistantStateSubscription> &get_state_subs() const;
+
  protected:
   AsyncServer server_{0};
   uint16_t port_{6053};
   std::vector<APIConnection *> clients_;
   std::string password_;
+  std::vector<HomeAssistantStateSubscription> state_subs_;
 };
 
-extern uint16_t global_api_server_port;
+extern APIServer *global_api_server;
 
 template<typename T>
 class HomeAssistantServiceCallAction : public Action<T> {
