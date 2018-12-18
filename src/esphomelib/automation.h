@@ -2,6 +2,7 @@
 #define ESPHOMELIB_AUTOMATION_H
 
 #include <vector>
+#include "esphomelib/espmath.h"
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
@@ -75,6 +76,7 @@ template<>
 class Trigger<NoArg> {
  public:
   void trigger();
+  void trigger(bool arg);
   void set_parent(Automation<NoArg> *parent);
  protected:
   Automation<NoArg> *parent_;
@@ -96,6 +98,12 @@ class ShutdownTrigger : public Trigger<const char *> {
 };
 
 class LoopTrigger : public Trigger<NoArg>, public Component {
+ public:
+  void loop() override;
+  float get_setup_priority() const override;
+};
+
+class IntervalTrigger : public Trigger<NoArg>, public PollingComponent {
  public:
   void loop() override;
   float get_setup_priority() const override;

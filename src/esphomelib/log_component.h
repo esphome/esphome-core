@@ -56,7 +56,7 @@ class LogComponent : public Component {
   int log_vprintf_(int level, const char *tag, const char *format, va_list args);
 
   /// Register a callback that will be called for every log message sent
-  void add_on_log_callback(std::function<void(int, const char *)> &&callback);
+  void add_on_log_callback(std::function<void(int, const char *, const char *)> &&callback);
 
   float get_setup_priority() const override;
 
@@ -69,7 +69,7 @@ class LogComponent : public Component {
     int level;
   };
   std::vector<LogLevelOverride> log_levels_;
-  CallbackManager<void(int, const char *)> log_callback_{};
+  CallbackManager<void(int, const char *, const char *)> log_callback_{};
 };
 
 extern LogComponent *global_log_component;

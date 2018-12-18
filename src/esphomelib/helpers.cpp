@@ -31,6 +31,19 @@ std::string get_mac_address() {
   return std::string(tmp);
 }
 
+std::string get_mac_address_pretty() {
+  char tmp[20];
+  uint8_t mac[6];
+#ifdef ARDUINO_ARCH_ESP32
+  esp_efuse_mac_get_default(mac);
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  WiFi.macAddress(mac);
+#endif
+  sprintf(tmp, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return std::string(tmp);
+}
+
 bool is_empty(const IPAddress &address) {
   return address == IPAddress(0, 0, 0, 0);
 }
@@ -364,6 +377,54 @@ std::string build_json(const json_build_t &f) {
   size_t len;
   const char *c_str = build_json(f, &len);
   return std::string(c_str, len);
+}
+std::string to_string(std::string val) {
+  return val;
+}
+std::string to_string(int val) {
+  char buf[64];
+  sprintf(buf, "%d", val);
+  return buf;
+}
+std::string to_string(long val) {
+  char buf[64];
+  sprintf(buf, "%ld", val);
+  return buf;
+}
+std::string to_string(long long val) {
+  char buf[64];
+  sprintf(buf, "%lld", val);
+  return buf;
+}
+std::string to_string(unsigned val) {
+  char buf[64];
+  sprintf(buf, "%u", val);
+  return buf;
+}
+std::string to_string(unsigned long val) {
+  char buf[64];
+  sprintf(buf, "%lu", val);
+  return buf;
+}
+std::string to_string(unsigned long long val) {
+  char buf[64];
+  sprintf(buf, "%llu", val);
+  return buf;
+}
+std::string to_string(float val) {
+  char buf[64];
+  sprintf(buf, "%f", val);
+  return buf;
+}
+std::string to_string(double val) {
+  char buf[64];
+  sprintf(buf, "%f", val);
+  return buf;
+}
+std::string to_string(long double val) {
+  char buf[64];
+  sprintf(buf, "%Lf", val);
+  return buf;
 }
 
 template<uint32_t>

@@ -9,16 +9,15 @@ void setup() {
   auto *wifi = App.init_wifi();
   // *all* parameters have to be declared in *exact order*, as defined in declared structures.
   // otherwise, compiler will complain with "sorry, unimplemented: non-trivial designated initializers not supported"
-  wifi->set_sta(WiFiAp{
-      .ssid = "MySSID",
-      .password = "MyPassword",
-      .channel = 0,
-      .manual_ip = ManualIP{
-          .static_ip = IPAddress(192, 168, 178, 42),
-          .gateway = IPAddress(192, 168, 178, 1),
-          .subnet = IPAddress(255, 255, 255, 0)
-      }
+  auto ap = WiFiAP();
+  ap.set_ssid("MySSID");
+  ap.set_password("MyPassword");
+  ap.set_manual_ip(ManualIP{
+      .static_ip = IPAddress(192, 168, 178, 42),
+      .gateway = IPAddress(192, 168, 178, 1),
+      .subnet = IPAddress(255, 255, 255, 0)
   });
+  wifi->add_sta(ap);
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
   auto *ota = App.init_ota();
   ota->set_auth_plaintext_password("PASSWORD"); // set an optional password

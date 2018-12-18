@@ -1,9 +1,13 @@
 #include "esphomelib/automation.h"
+#include "esphomelib/espmath.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 void Trigger<NoArg>::trigger() {
   this->parent_->process_trigger_(false);
+}
+void Trigger<NoArg>::trigger(bool arg) {
+  this->parent_->process_trigger_(arg);
 }
 void Trigger<NoArg>::set_parent(Automation<NoArg> *parent) {
   this->parent_ = parent;
@@ -31,6 +35,13 @@ void LoopTrigger::loop() {
   this->trigger();
 }
 float LoopTrigger::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
+
+void IntervalTrigger::loop() {
+  this->trigger();
+}
+float IntervalTrigger::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 

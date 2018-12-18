@@ -41,7 +41,10 @@ MonochromaticLightOutput::MonochromaticLightOutput(FloatOutput *output)
 }
 
 LightTraits CWWWLightOutput::get_traits() {
-  return {true, false, false, false, true};
+  LightTraits traits{true, false, false, false, true};
+  traits.set_min_mireds(this->cold_white_mireds_);
+  traits.set_max_mireds(this->warm_white_mireds_);
+  return traits;
 }
 void CWWWLightOutput::write_state(LightState *state) {
   float cold_white, warm_white;
@@ -91,7 +94,10 @@ RGBWLightOutput::RGBWLightOutput(FloatOutput *red, FloatOutput *green, FloatOutp
 }
 
 LightTraits RGBWWLightOutput::get_traits() {
-  return {true, true, true, false, true};
+  LightTraits traits{true, true, true, false, true};
+  traits.set_min_mireds(this->cold_white_mireds_);
+  traits.set_max_mireds(this->warm_white_mireds_);
+  return traits;
 }
 void RGBWWLightOutput::write_state(LightState *state) {
   float red, green, blue, cold_white, warm_white;

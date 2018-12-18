@@ -87,7 +87,10 @@ void Application::setup() {
   this->application_state_ = COMPONENT_STATE_SETUP;
 
   ESP_LOGI(TAG, "setup() finished successfully!");
+  this->dump_config();
+}
 
+void Application::dump_config() {
   if (this->compilation_time_.empty()) {
     ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION);
   } else {
@@ -98,6 +101,9 @@ void Application::setup() {
     Component *component = this->components_[i];
     component->dump_config();
   }
+}
+void Application::schedule_dump_config() {
+  this->dump_config_scheduled_ = true;
 }
 
 void HOT Application::loop() {
@@ -134,16 +140,19 @@ void HOT Application::loop() {
   if (first_loop) {
     ESP_LOGI(TAG, "First loop finished successfully!");
   }
+
+  if (this->dump_config_scheduled_) {
+    this->dump_config();
+    this->dump_config_scheduled_ = false;
+  }
 }
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
   WiFiComponent *wifi = this->init_wifi();
-  wifi->set_sta(WiFiAp{
-      .ssid = ssid,
-      .password = password,
-      .channel = -1,
-      .manual_ip = {},
-  });
+  WiFiAP ap;
+  ap.set_ssid(ssid);
+  ap.set_password(password);
+  wifi->add_sta(ap);
   return wifi;
 }
 
@@ -532,9 +541,11 @@ I2CComponent *Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, bool scan)
 Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const std::string &friendly_name) {
   auto *binary_sensor = this->register_component(new StatusBinarySensor(friendly_name));
   auto *mqtt = this->register_binary_sensor(binary_sensor);
-  mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
-  mqtt->disable_availability();
-  mqtt->set_is_status(true);
+  if (mqtt != nullptr) {
+    mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
+    mqtt->disable_availability();
+    mqtt->set_is_status(true);
+  }
   return MakeStatusBinarySensor{
       .status = binary_sensor,
       .mqtt = mqtt,
@@ -1155,6 +1166,12 @@ SNTPComponent *Application::make_sntp_component() {
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_TIME
+HomeAssistantTime *Application::make_homeassistant_time_component() {
+  return this->register_component(new HomeAssistantTime());
+}
+#endif
+
 #ifdef USE_HLW8012
 sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin,
                                            uint8_t cf_pin,
@@ -1192,6 +1209,17 @@ Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_s
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_TEXT_SENSOR
+Application::MakeHomeassistantTextSensor Application::make_homeassistant_text_sensor(const std::string &name,
+                                                                                     std::string entity_id) {
+  auto *sensor = new HomeassistantTextSensor(name, std::move(entity_id));
+  return MakeHomeassistantTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
 #ifdef USE_VERSION_TEXT_SENSOR
 Application::MakeVersionTextSensor Application::make_version_text_sensor(const std::string &name) {
   auto *sensor = this->register_component(new VersionTextSensor(name));
@@ -1207,6 +1235,18 @@ Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(con
   auto *sensor = this->register_component(new sensor::MQTTSubscribeSensor(name, std::move(topic)));
 
   return MakeMQTTSubscribeSensor {
+      .sensor = sensor,
+      .mqtt = this->register_sensor(sensor),
+  };
+}
+#endif
+
+#ifdef USE_HOMEASSISTANT_SENSOR
+Application::MakeHomeassistantSensor Application::make_homeassistant_sensor(const std::string &name,
+                                                                                     std::string entity_id) {
+  auto *sensor = new sensor::HomeassistantSensor(name, std::move(entity_id));
+
+  return MakeHomeassistantSensor {
       .sensor = sensor,
       .mqtt = this->register_sensor(sensor),
   };
@@ -1274,6 +1314,14 @@ void Application::register_component_(Component *comp) {
   this->components_.push_back(comp);
 }
 
+#ifdef USE_API
+api::APIServer *Application::init_api_server() {
+  auto *server = new api::APIServer();
+  this->register_component(server);
+  this->register_controller(server);
+  return server;
+}
+#endif
 
 Application App; // NOLINT
 

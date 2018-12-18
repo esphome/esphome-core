@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "esphomelib/defines.h"
+#include "esphomelib/api/api_server.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/component.h"
 #include "esphomelib/controller.h"
@@ -92,6 +93,7 @@
 #include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/hlw8012.h"
 #include "esphomelib/sensor/hmc5883l.h"
+#include "esphomelib/sensor/homeassistant_sensor.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hx711.h"
 #include "esphomelib/sensor/ina219.h"
@@ -126,6 +128,7 @@
 #include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/switch_/uart_switch.h"
 #include "esphomelib/text_sensor/custom_text_sensor.h"
+#include "esphomelib/text_sensor/homeassistant_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/template_text_sensor.h"
@@ -133,6 +136,7 @@
 #include "esphomelib/text_sensor/version_text_sensor.h"
 #include "esphomelib/time/rtc_component.h"
 #include "esphomelib/time/sntp_component.h"
+#include "esphomelib/time/homeassistant_time.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -230,6 +234,10 @@ class Application {
    * @return The WebServer object, use this for advanced settings.
    */
   WebServer *init_web_server(uint16_t port = 80);
+#endif
+
+#ifdef USE_API
+  api::APIServer *init_api_server();
 #endif
 
 #ifdef USE_ESP32_BLE_TRACKER
@@ -909,6 +917,10 @@ class Application {
   time::SNTPComponent *make_sntp_component();
 #endif
 
+#ifdef USE_HOMEASSISTANT_TIME
+  time::HomeAssistantTime *make_homeassistant_time_component();
+#endif
+
 #ifdef USE_HLW8012
   sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 15000);
 #endif
@@ -920,6 +932,15 @@ class Application {
   };
 
   MakeMQTTSubscribeSensor make_mqtt_subscribe_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_HOMEASSISTANT_SENSOR
+  struct MakeHomeassistantSensor {
+    sensor::HomeassistantSensor *sensor;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeHomeassistantSensor make_homeassistant_sensor(const std::string &name, std::string entity_id);
 #endif
 
 #ifdef USE_CSE7766
@@ -934,6 +955,15 @@ class Application {
   };
 
   MakeMQTTSubscribeTextSensor make_mqtt_subscribe_text_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_HOMEASSISTANT_TEXT_SENSOR
+  struct MakeHomeassistantTextSensor {
+    text_sensor::HomeassistantTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeHomeassistantTextSensor make_homeassistant_text_sensor(const std::string &name, std::string entity_id);
 #endif
 
 #ifdef USE_VERSION_TEXT_SENSOR
@@ -1364,6 +1394,9 @@ class Application {
    */
   void set_loop_interval(uint32_t loop_interval);
 
+  void dump_config();
+  void schedule_dump_config();
+
  protected:
   void register_component_(Component *comp);
 
@@ -1380,6 +1413,7 @@ class Application {
 #ifdef USE_I2C
   I2CComponent *i2c_{nullptr};
 #endif
+  bool dump_config_scheduled_{false};
 };
 
 /// Global storage of Application pointer - only one Application can exist.

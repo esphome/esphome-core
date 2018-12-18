@@ -26,6 +26,8 @@ class StatusBinarySensor : public BinarySensor, public Component {
 
   float get_setup_priority() const override;
 
+  bool is_status_binary_sensor() const override;
+
  protected:
   /// "connectivity" device class.
   std::string device_class() override;
