@@ -30,11 +30,14 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
   /// Construct the Software PWM output.
   explicit ESP8266PWMOutput(const GPIOOutputPin &pin);
 
+  void set_frequency(float frequency);
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
 
   /// Initialize pin
   void setup() override;
+  void dump_config() override;
   /// HARDWARE setup_priority
   float get_setup_priority() const override;
   /// Override FloatOutput's write_state for analogWrite
@@ -42,6 +45,7 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
 
  protected:
   GPIOOutputPin pin_;
+  float frequency_{1000.0};
 };
 
 } // namespace output

@@ -26,6 +26,11 @@ enum WakeupPinMode {
   WAKEUP_PIN_MODE_INVERT_WAKEUP,
 };
 
+struct Ext1Wakeup {
+  uint64_t mask;
+  esp_sleep_ext1_wakeup_mode_t wakeup_mode;
+};
+
 #endif
 
 template<typename T>
@@ -51,6 +56,8 @@ class DeepSleepComponent : public Component {
   void set_wakeup_pin(const GPIOInputPin &pin);
 
   void set_wakeup_pin_mode(WakeupPinMode wakeup_pin_mode);
+
+  void set_ext1_wakeup(Ext1Wakeup ext1_wakeup);
 #endif
   /// Set the number of loop cycles after which the node should go into deep sleep mode.
   void set_run_cycles(uint32_t cycles);
@@ -58,6 +65,7 @@ class DeepSleepComponent : public Component {
   void set_run_duration(uint32_t time_ms);
 
   void setup() override;
+  void dump_config() override;
   void loop() override;
   float get_loop_priority() const override;
   float get_setup_priority() const override;
@@ -78,6 +86,7 @@ class DeepSleepComponent : public Component {
 #ifdef ARDUINO_ARCH_ESP32
   optional<GPIOPin *> wakeup_pin_;
   WakeupPinMode  wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
+  optional<Ext1Wakeup> ext1_wakeup_;
 #endif
   optional<uint32_t> loop_cycles_;
   uint32_t at_loop_cycle_{0};
@@ -85,6 +94,8 @@ class DeepSleepComponent : public Component {
   bool next_enter_deep_sleep_{false};
   bool prevent_{false};
 };
+
+extern bool global_has_deep_sleep;
 
 template<typename T>
 class EnterDeepSleepAction : public Action<T> {

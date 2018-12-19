@@ -16,56 +16,54 @@ std::string MQTTBinarySensorComponent::component_type() const {
 }
 
 void MQTTBinarySensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT binary sensor '%s'...", this->binary_sensor_->get_name().c_str());
-  if (!this->binary_sensor_->get_device_class().empty()) {
-    ESP_LOGCONFIG(TAG, "    Device Class: '%s'", this->binary_sensor_->get_device_class().c_str());
-  }
-
-  this->binary_sensor_->add_on_state_callback([this](bool value) {
-    this->publish_state(value);
+  this->binary_sensor_->add_on_state_callback([this](bool state) {
+    this->publish_state(state);
   });
 }
 
+void MQTTBinarySensorComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Binary Sensor '%s':", this->binary_sensor_->get_name().c_str());
+  if (!this->binary_sensor_->get_device_class().empty()) {
+    ESP_LOGCONFIG(TAG, "  Device Class: '%s'", this->binary_sensor_->get_device_class().c_str());
+  }
+  LOG_MQTT_COMPONENT(true, false)
+}
 MQTTBinarySensorComponent::MQTTBinarySensorComponent(BinarySensor *binary_sensor)
     : MQTTComponent(), binary_sensor_(binary_sensor) {
 
 }
-const std::string &MQTTBinarySensorComponent::get_payload_on() const {
-  return this->payload_on_;
-}
-void MQTTBinarySensorComponent::set_payload_on(std::string payload_on) {
-  this->payload_on_ = std::move(payload_on);
-}
-const std::string &MQTTBinarySensorComponent::get_payload_off() const {
-  return this->payload_off_;
-}
-void MQTTBinarySensorComponent::set_payload_off(std::string payload_off) {
-  this->payload_off_ = std::move(payload_off);
-}
 std::string MQTTBinarySensorComponent::friendly_name() const {
   return this->binary_sensor_->get_name();
 }
+
 void MQTTBinarySensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->binary_sensor_->get_device_class().empty())
     root["device_class"] = this->binary_sensor_->get_device_class();
-  if (this->payload_on_ != "ON")
-    root["payload_on"] = this->payload_on_;
-  if (this->payload_off_ != "OFF")
-    root["payload_off"] = this->payload_off_;
+  if (this->is_status_)
+    root["payload_on"] = mqtt::global_mqtt_client->get_availability().payload_available;
+  if (this->is_status_)
+    root["payload_off"] = mqtt::global_mqtt_client->get_availability().payload_not_available;
   config.command_topic = false;
 }
-
-void MQTTBinarySensorComponent::send_initial_state() {
-  if (this->binary_sensor_->has_state())
-    this->publish_state(this->binary_sensor_->state);
+bool MQTTBinarySensorComponent::send_initial_state() {
+  if (this->binary_sensor_->has_state()) {
+    return this->publish_state(this->binary_sensor_->state);
+  } else {
+    return true;
+  }
 }
 bool MQTTBinarySensorComponent::is_internal() {
   return this->binary_sensor_->is_internal();
 }
-void MQTTBinarySensorComponent::publish_state(bool state) {
-  std::string state_s = state ? this->get_payload_on() : this->get_payload_off();
-  ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s.c_str());
-  this->send_message(this->get_state_topic(), state_s);
+bool MQTTBinarySensorComponent::publish_state(bool state) {
+  if (this->is_status_)
+    return true;
+
+  const char *state_s = state ? "ON" : "OFF";
+  return this->publish(this->get_state_topic(), state_s);
+}
+void MQTTBinarySensorComponent::set_is_status(bool status) {
+  this->is_status_ = status;
 }
 
 } // namespace binary_sensor

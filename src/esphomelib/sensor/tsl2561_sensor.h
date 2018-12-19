@@ -73,6 +73,7 @@ class TSL2561Sensor : public PollingSensorComponent, public I2CDevice {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   void setup() override;
+  void dump_config() override;
   void update() override;
   std::string unit_of_measurement() override;
   std::string icon() override;

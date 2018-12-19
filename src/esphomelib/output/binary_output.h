@@ -18,6 +18,9 @@ class TurnOffAction;
 template<typename T>
 class TurnOnAction;
 
+#define LOG_BINARY_OUTPUT(this) \
+  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); } \
+
 /** The base class for all binary outputs i.e. outputs that can only be switched on/off.
  *
  * This interface class provides one method you need to override in order to create a binary output

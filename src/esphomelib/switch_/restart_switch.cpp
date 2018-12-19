@@ -16,7 +16,7 @@ std::string RestartSwitch::icon() {
   return "mdi:restart";
 }
 RestartSwitch::RestartSwitch(const std::string &name)
-: Switch(name) {
+  : Switch(name) {
 
 }
 void RestartSwitch::write_state(bool state) {

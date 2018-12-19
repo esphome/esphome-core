@@ -12,7 +12,7 @@ namespace switch_ {
 static const char *TAG = "switch.gpio";
 
 GPIOSwitch::GPIOSwitch(const std::string &name, GPIOPin *pin)
-    : Switch(name), pin_(pin) {
+    : Switch(name), Component(), pin_(pin) {
 
 }
 
@@ -20,14 +20,20 @@ float GPIOSwitch::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 void GPIOSwitch::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up GPIO Switch...");
+  ESP_LOGCONFIG(TAG, "Setting up GPIO Switch '%s'...", this->name_.c_str());
   this->pin_->setup();
-  ESP_LOGCONFIG(TAG, "  Power On Value: %s", this->power_on_value_ ? "ON" : "OFF");
-  this->pin_->digital_write(this->power_on_value_);
-  this->publish_state(this->power_on_value_);
+  bool restored = this->get_initial_state().value_or(false);
+  ESP_LOGD(TAG, "  Restored state %s", ONOFF(restored));
+  if (restored) {
+    this->turn_on();
+  } else {
+    this->turn_off();
+  }
 }
-void GPIOSwitch::set_power_on_value(bool power_on_value) {
-  this->power_on_value_ = power_on_value;
+void GPIOSwitch::dump_config() {
+  ESP_LOGCONFIG(TAG, "GPIO Switch '%s':", this->name_.c_str());
+  LOG_PIN("  Pin: ", this->pin_);
+  LOG_SWITCH(this);
 }
 void GPIOSwitch::write_state(bool state) {
   this->pin_->digital_write(state);

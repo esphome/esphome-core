@@ -31,6 +31,19 @@ std::string get_mac_address() {
   return std::string(tmp);
 }
 
+std::string get_mac_address_pretty() {
+  char tmp[20];
+  uint8_t mac[6];
+#ifdef ARDUINO_ARCH_ESP32
+  esp_efuse_mac_get_default(mac);
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  WiFi.macAddress(mac);
+#endif
+  sprintf(tmp, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return std::string(tmp);
+}
+
 bool is_empty(const IPAddress &address) {
   return address == IPAddress(0, 0, 0, 0);
 }
@@ -191,15 +204,45 @@ std::string uint32_to_string(uint32_t num) {
   snprintf(buffer, sizeof(buffer), "%04X%04X", address16[1], address16[0]);
   return std::string(buffer);
 }
-std::string build_json(const json_build_t &f) {
+static char *global_json_build_buffer = nullptr;
+static size_t global_json_build_buffer_size = 0;
+
+void reserve_global_json_build_buffer(size_t required_size) {
+  if (global_json_build_buffer_size == 0 || global_json_build_buffer_size < required_size) {
+    delete [] global_json_build_buffer;
+    global_json_build_buffer_size = std::max(required_size, global_json_build_buffer_size * 2);
+
+    size_t remainder = global_json_build_buffer_size % 16U;
+    if (remainder != 0)
+      global_json_build_buffer_size += 16 - remainder;
+
+    global_json_build_buffer = new char[global_json_build_buffer_size];
+  }
+}
+
+const char *build_json(const json_build_t &f, size_t *length) {
   global_json_buffer.clear();
   JsonObject &root = global_json_buffer.createObject();
 
   f(root);
 
-  std::string buffer;
-  root.printTo(buffer);
-  return buffer;
+  // The Json buffer size gives us a good estimate for the required size.
+  // Usually, it's a bit larger than the actual required string size
+  //             | JSON Buffer Size | String Size |
+  // Discovery   | 388              | 351         |
+  // Discovery   | 372              | 356         |
+  // Discovery   | 336              | 311         |
+  // Discovery   | 408              | 393         |
+  reserve_global_json_build_buffer(global_json_buffer.size());
+  size_t bytes_written = root.printTo(global_json_build_buffer, global_json_build_buffer_size);
+
+  if (bytes_written >= global_json_build_buffer_size - 1) {
+    reserve_global_json_build_buffer(root.measureLength() + 1);
+    bytes_written = root.printTo(global_json_build_buffer, global_json_build_buffer_size);
+  }
+
+  *length = bytes_written;
+  return global_json_build_buffer;
 }
 void parse_json(const std::string &data, const json_parse_t &f) {
   global_json_buffer.clear();
@@ -231,7 +274,7 @@ CallbackManager<void(const char *)> shutdown_hooks;
 CallbackManager<void(const char *)> safe_shutdown_hooks;
 
 void reboot(const char *cause) {
-  ESP_LOGI(TAG, "Forcing a reboot... Cause: '%s'", cause);
+  ESP_LOGI(TAG, "Forcing a reboot... Reason: '%s'", cause);
   run_shutdown_hooks(cause);
   ESP.restart();
   // restart() doesn't always end execution
@@ -243,7 +286,7 @@ void add_shutdown_hook(std::function<void(const char *)> &&f) {
   shutdown_hooks.add(std::move(f));
 }
 void safe_reboot(const char *cause) {
-  ESP_LOGI(TAG, "Rebooting safely... Cause: '%s'", cause);
+  ESP_LOGI(TAG, "Rebooting safely... Reason: '%s'", cause);
   run_safe_shutdown_hooks(cause);
   ESP.restart();
   // restart() doesn't always end execution
@@ -335,6 +378,72 @@ void tick_status_led() {
   }
 #endif
 }
+void ICACHE_RAM_ATTR HOT feed_wdt() {
+  static uint32_t last_feed = 0;
+  uint32_t now = millis();
+  if (now - last_feed > 3) {
+#ifdef ARDUINO_ARCH_ESP8266
+    ESP.wdtFeed();
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+    yield();
+#endif
+  }
+  last_feed = now;
+}
+std::string build_json(const json_build_t &f) {
+  size_t len;
+  const char *c_str = build_json(f, &len);
+  return std::string(c_str, len);
+}
+std::string to_string(std::string val) {
+  return val;
+}
+std::string to_string(int val) {
+  char buf[64];
+  sprintf(buf, "%d", val);
+  return buf;
+}
+std::string to_string(long val) {
+  char buf[64];
+  sprintf(buf, "%ld", val);
+  return buf;
+}
+std::string to_string(long long val) {
+  char buf[64];
+  sprintf(buf, "%lld", val);
+  return buf;
+}
+std::string to_string(unsigned val) {
+  char buf[64];
+  sprintf(buf, "%u", val);
+  return buf;
+}
+std::string to_string(unsigned long val) {
+  char buf[64];
+  sprintf(buf, "%lu", val);
+  return buf;
+}
+std::string to_string(unsigned long long val) {
+  char buf[64];
+  sprintf(buf, "%llu", val);
+  return buf;
+}
+std::string to_string(float val) {
+  char buf[64];
+  sprintf(buf, "%f", val);
+  return buf;
+}
+std::string to_string(double val) {
+  char buf[64];
+  sprintf(buf, "%f", val);
+  return buf;
+}
+std::string to_string(long double val) {
+  char buf[64];
+  sprintf(buf, "%Lf", val);
+  return buf;
+}
 
 template<uint32_t>
 uint32_t reverse_bits(uint32_t x) {
@@ -404,6 +513,28 @@ void VectorJsonBuffer::reserve(size_t size) {
   this->capacity_ = target_capacity;
 }
 
+size_t VectorJsonBuffer::size() const {
+  return this->size_;
+}
+
 VectorJsonBuffer global_json_buffer;
+
+static int high_freq_num_requests = 0;
+
+void HighFrequencyLoopRequester::start() {
+  if (this->started_)
+    return;
+  high_freq_num_requests++;
+  this->started_ = true;
+}
+void HighFrequencyLoopRequester::stop() {
+  if (!this->started_)
+    return;
+  high_freq_num_requests--;
+  this->started_ = false;
+}
+bool HighFrequencyLoopRequester::is_high_frequency() {
+  return high_freq_num_requests > 0;
+}
 
 ESPHOMELIB_NAMESPACE_END

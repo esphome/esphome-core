@@ -57,6 +57,8 @@ struct EsphomelibTime {
 
   bool is_valid() const;
 
+  bool in_range() const;
+
   static EsphomelibTime from_tm(struct tm *c_tm, time_t c_time);
 
   struct tm to_c_tm();
@@ -69,19 +71,26 @@ struct EsphomelibTime {
   bool operator>(EsphomelibTime other);
 };
 
-class RTCComponent;
+class RealTimeClockComponent;
 
 class CronTrigger : public Trigger<NoArg>, public Component {
  public:
-  explicit CronTrigger(RTCComponent *rtc);
+  explicit CronTrigger(RealTimeClockComponent *rtc);
   void add_second(uint8_t second);
+  void add_seconds(const std::vector<uint8_t> &seconds);
   void add_minute(uint8_t minute);
+  void add_minutes(const std::vector<uint8_t> &minutes);
   void add_hour(uint8_t hour);
+  void add_hours(const std::vector<uint8_t> &hours);
   void add_day_of_month(uint8_t day_of_month);
+  void add_days_of_month(const std::vector<uint8_t> &days_of_month);
   void add_month(uint8_t month);
+  void add_months(const std::vector<uint8_t> &months);
   void add_day_of_week(uint8_t day_of_week);
+  void add_days_of_week(const std::vector<uint8_t> &days_of_week);
   bool matches(const EsphomelibTime &time);
   void loop() override;
+  float get_setup_priority() const override;
 
  protected:
   std::bitset<61> seconds_;
@@ -90,23 +99,21 @@ class CronTrigger : public Trigger<NoArg>, public Component {
   std::bitset<32> days_of_month_;
   std::bitset<13> months_;
   std::bitset<8> days_of_week_;
-  RTCComponent *rtc_;
+  RealTimeClockComponent *rtc_;
   optional<EsphomelibTime> last_check_;
 };
 
-/// The RTC component exposes common timekeeping functions via the device's local real-time clock.
+/// The RealTimeClock class exposes common timekeeping functions via the device's local real-time clock.
 ///
 /// \note
 /// The C library (newlib) available on ESPs only supports TZ strings that specify an offset and DST info;
 /// you cannot specify zone names or paths to zoneinfo files.
 /// \see https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
-class RTCComponent : public Component {
+class RealTimeClockComponent : public Component {
  public:
-  explicit RTCComponent(const std::string &tz);
+  explicit RealTimeClockComponent();
 
-  void setup() override;
-
-  // Set the time zone.
+  /// Set the time zone.
   void set_timezone(const std::string &tz);
 
   /// Get the time zone currently in use.
@@ -119,6 +126,10 @@ class RTCComponent : public Component {
   EsphomelibTime utcnow();
 
   CronTrigger *make_cron_trigger();
+
+  void setup_() override;
+ protected:
+  std::string timezone_{};
 };
 
 } // namespace time

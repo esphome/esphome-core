@@ -31,6 +31,14 @@ void PCF8574Component::setup() {
   this->write_gpio_();
   this->read_gpio_();
 }
+void PCF8574Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "PCF8574:");
+  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
+  ESP_LOGCONFIG(TAG, "    Is PCF8575: %s", YESNO(this->pcf8575_));
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with PCF8574 failed!");
+  }
+}
 bool PCF8574Component::digital_read_(uint8_t pin) {
   this->read_gpio_();
   return this->input_mask_ & (1 << pin);
@@ -59,7 +67,7 @@ void PCF8574Component::pin_mode_(uint8_t pin, uint8_t mode) {
       this->port_mask_ &= ~(1 << pin);
       break;
     default:
-      assert(false);
+      break;
   }
 
   this->write_gpio_();
@@ -107,14 +115,9 @@ bool PCF8574Component::write_gpio_() {
   return true;
 }
 PCF8574GPIOInputPin PCF8574Component::make_input_pin(uint8_t pin, uint8_t mode, bool inverted) {
-  assert(mode == PCF8574_INPUT || mode == PCF8574_INPUT_PULLUP);
-  if (this->pcf8575_) { assert(pin < 16); }
-  else { assert(pin < 8); }
   return {this, pin, mode, inverted};
 }
 PCF8574GPIOOutputPin PCF8574Component::make_output_pin(uint8_t pin, bool inverted) {
-  if (this->pcf8575_) { assert(pin < 16); }
-  else { assert(pin < 8); }
   return {this, pin, PCF8574_OUTPUT, inverted};
 }
 float PCF8574Component::get_setup_priority() const {

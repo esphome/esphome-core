@@ -30,12 +30,26 @@ void HLW8012Component::setup() {
     return;
   }
 }
+void HLW8012Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "HLW8012:");
+  LOG_PIN("  SEL Pin: ", this->sel_pin_);
+  LOG_PIN("  CF Pin: ", this->cf_.get_pin());
+  LOG_PIN("  CF1 Pin: ", this->cf1_.get_pin());
+  ESP_LOGCONFIG(TAG, "  Change measurement mode every %u", this->change_mode_every_);
+  ESP_LOGCONFIG(TAG, "  Current resistor: %.1f mΩ", this->current_resistor_ * 1000.0f);
+  ESP_LOGCONFIG(TAG, "  Voltage Divider: %.1f", this->voltage_divider_);
+  LOG_UPDATE_INTERVAL(this);
+}
 float HLW8012Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 void HLW8012Component::update() {
   float cf_hz = this->cf_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
   float cf1_hz = this->cf1_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
+
+  if (this->nth_value_++ < 2) {
+    return;
+  }
 
   const float v_ref_squared = HLW8012_REFERENCE_VOLTAGE * HLW8012_REFERENCE_VOLTAGE;
   const float power_multiplier_micros = 64000000.0f * v_ref_squared * this->voltage_divider_ / this->current_resistor_ / 24.0f / HLW8012_CLOCK_FREQUENCY;

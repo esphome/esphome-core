@@ -9,6 +9,7 @@
 #include "esphomelib/esphal.h"
 #include "esphomelib/light/light_transformer.h"
 #include "esphomelib/light/light_effect.h"
+#include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -105,21 +106,15 @@ std::string LightState::get_effect_name() {
     return "None";
 }
 
-void LightState::start_effect(const std::string &name) {
-  if (strcasecmp(name.c_str(), "none") == 0) {
-    this->stop_effect();
+void LightState::start_effect(uint32_t effect_index) {
+  this->stop_effect();
+  if (effect_index == 0)
     return;
-  }
-  for (auto *effect : this->effects_) {
-    if (strcasecmp(name.c_str(), effect->get_name().c_str()) == 0) {
-      this->stop_effect();
 
-      this->active_effect_ = effect;
-      this->active_effect_->start_();
-      this->send_values();
-      break;
-    }
-  }
+  this->active_effect_ = this->effects_[effect_index - 1];
+  this->active_effect_index_ = effect_index;
+  this->active_effect_->start_();
+  this->send_values();
 }
 
 bool LightState::supports_effects() {
@@ -132,6 +127,7 @@ void LightState::stop_effect() {
   if (this->active_effect_ != nullptr)
     this->active_effect_->stop();
   this->active_effect_ = nullptr;
+  this->active_effect_index_ = 0;
 }
 
 void LightState::set_default_transition_length(uint32_t default_transition_length) {
@@ -145,11 +141,36 @@ void LightState::dump_json(JsonObject &root) {
     root["effect"] = this->get_effect_name();
   this->get_remote_values().dump_json(root, this->output_->get_traits());
 }
+
+struct LightStateRTCState {
+  bool state;
+  float brightness;
+  float red;
+  float green;
+  float blue;
+  float white;
+  float color_temp;
+  uint32_t effect;
+};
+
 void LightState::setup() {
   ESP_LOGCONFIG(TAG, "Setting up light '%s'...", this->get_name().c_str());
-  LightColorValues recovered_values;
-  recovered_values.load_from_preferences(this->get_name(), this->get_traits());
-  this->set_immediately(recovered_values);
+
+  this->rtc_ = global_preferences.make_preference<LightStateRTCState>(this->get_object_id_hash());
+  LightStateRTCState recovered;
+  if (!this->rtc_.load(&recovered))
+    return;
+
+  auto call = this->make_call();
+  call.set_state(recovered.state);
+  call.set_brightness(recovered.brightness);
+  call.set_red(recovered.red);
+  call.set_green(recovered.green);
+  call.set_blue(recovered.blue);
+  call.set_white(recovered.white);
+  call.set_color_temperature(recovered.color_temp);
+  call.set_effect(recovered.effect);
+  call.perform();
 }
 float LightState::get_setup_priority() const {
   return setup_priority::HARDWARE - 1.0f;
@@ -241,8 +262,15 @@ LightState::StateCall LightState::toggle() {
 LightState::StateCall LightState::make_call() {
   return LightState::StateCall(this);
 }
+uint32_t LightState::hash_base_() {
+  return 1114400283;
+}
 
 LightState::StateCall &LightState::StateCall::set_state(bool state) {
+  this->binary_state_ = state;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_state(optional<bool> state) {
   this->binary_state_ = state;
   return *this;
 }
@@ -250,11 +278,23 @@ LightState::StateCall &LightState::StateCall::set_transition_length(uint32_t tra
   this->transition_length_ = transition_length;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_transition_length(optional<uint32_t> transition_length) {
+  this->transition_length_ = transition_length;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_flash_length(uint32_t flash_length) {
   this->flash_length_ = flash_length;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_flash_length(optional<uint32_t> flash_length) {
+  this->flash_length_ = flash_length;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_brightness(float brightness) {
+  this->brightness_ = brightness;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_brightness(optional<float> brightness) {
   this->brightness_ = brightness;
   return *this;
 }
@@ -273,7 +313,15 @@ LightState::StateCall &LightState::StateCall::set_red(float red) {
   this->red_ = red;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_red(optional<float> red) {
+  this->red_ = red;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_green(float green) {
+  this->green_ = green;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_green(optional<float> green) {
   this->green_ = green;
   return *this;
 }
@@ -281,7 +329,15 @@ LightState::StateCall &LightState::StateCall::set_blue(float blue) {
   this->blue_ = blue;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_blue(optional<float> blue) {
+  this->blue_ = blue;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_white(float white) {
+  this->white_ = white;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_white(optional<float> white) {
   this->white_ = white;
   return *this;
 }
@@ -289,8 +345,34 @@ LightState::StateCall &LightState::StateCall::set_color_temperature(float color_
   this->color_temperature_ = color_temperature;
   return *this;
 }
-LightState::StateCall &LightState::StateCall::set_effect(std::string effect) {
-  this->effect_ = effect;
+LightState::StateCall &LightState::StateCall::set_color_temperature(optional<float> color_temperature) {
+  this->color_temperature_ = color_temperature;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_effect(const std::string &effect) {
+  if (strcasecmp(effect.c_str(), "none") == 0) {
+    this->effect_ = 0;
+    return *this;
+  }
+
+  for (uint32_t i = 0; i < this->state_->effects_.size(); i++) {
+    LightEffect *e = this->state_->effects_[i];
+
+    if (strcasecmp(effect.c_str(), e->get_name().c_str()) == 0) {
+      this->effect_ = i + 1;
+      break;
+    }
+  }
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_effect(optional<std::string > effect) {
+  if (effect.has_value()) {
+    this->set_effect(*effect);
+  }
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_effect(uint32_t effect_index) {
+  this->effect_ = effect_index;
   return *this;
 }
 LightState::StateCall &LightState::StateCall::parse_color_json(JsonObject &root) {
@@ -328,7 +410,8 @@ LightState::StateCall &LightState::StateCall::parse_color_json(JsonObject &root)
   }
 
   if (root.containsKey("color_temp")) {
-    this->set_color_temperature(root["color_temp"]);
+    float color_temp = root["color_temp"];
+    this->set_color_temperature(color_temp);
   }
 
   return *this;
@@ -353,7 +436,7 @@ LightState::StateCall &LightState::StateCall::parse_json(JsonObject &root) {
 
   return *this;
 }
-void LightState::StateCall::perform() {
+void LightState::StateCall::perform() const {
   // use remote values for fallback
   LightColorValues v = this->state_->get_remote_values();
   LightTraits traits = this->state_->get_traits();
@@ -363,7 +446,7 @@ void LightState::StateCall::perform() {
     ESP_LOGD(TAG, "'%s' Turning %s", this->state_->get_name().c_str(), state_s);
     v.set_state(*this->binary_state_);
   } else {
-    ESP_LOGD(TAG, "'%s' Seeting", this->state_->get_name().c_str());
+    ESP_LOGD(TAG, "'%s' Setting", this->state_->get_name().c_str());
   }
   if (traits.has_brightness() && this->brightness_.has_value()) {
     v.set_brightness(*this->brightness_);
@@ -401,16 +484,29 @@ void LightState::StateCall::perform() {
     this->state_->start_flash(v, *this->flash_length_);
   } else {
     uint32_t length = this->transition_length_.value_or(this->state_->default_transition_length_);
-    if (traits.has_brightness()) {
-      ESP_LOGD(TAG, "  Transition Length: %u ms", *this->transition_length_);
+    if (traits.has_brightness() && length != 0) {
+      ESP_LOGD(TAG, "  Transition Length: %u ms", length);
     }
     this->state_->start_transition(v, length);
   }
 
-  if (this->effect_.has_value()) {
-    ESP_LOGD(TAG, "  Effect: '%s'", this->effect_->c_str());
+  if (this->effect_.has_value() && *this->effect_ <= this->state_->effects_.size()) {
+    if (*this->effect_ != 0) {
+      ESP_LOGD(TAG, "  Effect: '%s'", this->state_->effects_[*this->effect_ - 1]->get_name().c_str());
+    }
     this->state_->start_effect(*this->effect_);
   }
+
+  LightStateRTCState saved;
+  saved.state = v.get_state() != 0.0f;
+  saved.brightness = v.get_brightness();
+  saved.red = v.get_red();
+  saved.green = v.get_green();
+  saved.blue = v.get_blue();
+  saved.white = v.get_white();
+  saved.color_temp = v.get_color_temperature();
+  saved.effect = *this->state_->active_effect_index_;
+  this->state_->rtc_.save(&saved);
 }
 LightState::StateCall::StateCall(LightState *state)
     : state_(state) {

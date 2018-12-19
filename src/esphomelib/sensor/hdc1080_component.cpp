@@ -37,10 +37,17 @@ void HDC1080Component::setup() {
   };
 
   if (this->write_bytes(HDC1080_CMD_CONFIGURATION, data, 2)) {
-    ESP_LOGE(TAG, "Connection to HDC1080 failed");
     this->mark_failed();
     return;
   }
+}
+void HDC1080Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "HDC1080:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with HDC1080 failed!");
+  }
+  LOG_UPDATE_INTERVAL(this);
 }
 void HDC1080Component::update() {
   uint16_t raw_temp;

@@ -11,14 +11,14 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+namespace io {
+
 /// Modes for PCF8574 pins
 enum PCF8574GPIOMode {
   PCF8574_INPUT = INPUT,
   PCF8574_INPUT_PULLUP = INPUT_PULLUP,
   PCF8574_OUTPUT = OUTPUT,
 };
-
-namespace io {
 
 class PCF8574GPIOInputPin;
 class PCF8574GPIOOutputPin;
@@ -64,6 +64,8 @@ class PCF8574Component : public Component, public I2CDevice {
   void pin_mode_(uint8_t pin, uint8_t mode);
 
   float get_setup_priority() const override;
+
+  void dump_config() override;
 
  protected:
   bool read_gpio_();

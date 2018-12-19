@@ -7,6 +7,7 @@
 
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
+#include "esphomelib/esppreferences.h"
 #include "esphomelib/fan/fan_traits.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -16,8 +17,8 @@ namespace fan {
 /// Simple enum to represent the speed of a fan.
 enum FanSpeed {
   FAN_SPEED_LOW = 0, ///< The fan is running on low speed.
-  FAN_SPEED_MEDIUM, ///< The fan is running on medium speed.
-  FAN_SPEED_HIGH  ///< The fan is running on high/full speed.
+  FAN_SPEED_MEDIUM = 1, ///< The fan is running on medium speed.
+  FAN_SPEED_HIGH = 2  ///< The fan is running on high/full speed.
 };
 
 template<typename T>
@@ -34,7 +35,7 @@ class ToggleAction;
  * Both the frontend and the backend can register callbacks whenever a state is changed from the
  * frontend and whenever a state is actually changed and should be pushed to the frontend
  */
-class FanState : public Nameable {
+class FanState : public Nameable, public Component {
  public:
   /// Construct the fan state with name.
   explicit FanState(const std::string &name);
@@ -46,11 +47,6 @@ class FanState : public Nameable {
   const FanTraits &get_traits() const;
   /// Set the traits of this fan (i.e. what features it supports).
   void set_traits(const FanTraits &traits);
-
-  /// Load a fan state from the preferences into this object.
-  void load_from_preferences();
-  /// Save the fan state from this object into the preferences.
-  void save_to_preferences();
 
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
@@ -71,11 +67,14 @@ class FanState : public Nameable {
     explicit StateCall(FanState *state);
 
     FanState::StateCall &set_state(bool state);
+    FanState::StateCall &set_state(optional<bool> state);
     FanState::StateCall &set_oscillating(bool oscillating);
+    FanState::StateCall &set_oscillating(optional<bool> oscillating);
     FanState::StateCall &set_speed(FanSpeed speed);
+    FanState::StateCall &set_speed(optional<FanSpeed> speed);
     FanState::StateCall &set_speed(const char *speed);
 
-    void perform();
+    void perform() const;
 
    protected:
     FanState *const state_;
@@ -89,9 +88,15 @@ class FanState : public Nameable {
   FanState::StateCall toggle();
   FanState::StateCall make_call();
 
+  void setup() override;
+  float get_setup_priority() const override;
+
  protected:
+  uint32_t hash_base_() override;
+
   FanTraits traits_{};
   CallbackManager<void()> state_callback_{};
+  ESPPreferenceObject rtc_;
 };
 
 template<typename T>

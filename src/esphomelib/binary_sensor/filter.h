@@ -34,6 +34,8 @@ class DelayedOnFilter : public Filter, public Component {
 
   optional<bool> new_value(bool value) override;
 
+  float get_setup_priority() const override;
+
  protected:
   uint32_t delay_;
 };
@@ -43,6 +45,8 @@ class DelayedOffFilter : public Filter, public Component {
   explicit DelayedOffFilter(uint32_t delay);
 
   optional<bool> new_value(bool value) override;
+
+  float get_setup_priority() const override;
 
  protected:
   uint32_t delay_;
@@ -55,6 +59,8 @@ class HeartbeatFilter : public Filter, public Component {
   optional<bool> new_value(bool value) override;
 
   void setup();
+
+  float get_setup_priority() const override;
 
  protected:
   uint32_t interval_;

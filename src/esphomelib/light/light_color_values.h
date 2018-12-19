@@ -55,20 +55,6 @@ class LightColorValues {
    */
   static LightColorValues lerp(const LightColorValues &start, const LightColorValues &end, float completion);
 
-  /** Load the color values from the non-volatile storage container preferences into the this object.
-   *
-   * @param friendly_name The friendly name of the component that's calling this.
-   * @see save_to_preferences()
-   */
-  void load_from_preferences(const std::string &friendly_name, const LightTraits &traits);
-
-  /** Store these LightColorValues in the preferences object.
-   *
-   * @param friendly_name The friendly name of the component that's calling this.
-   * @see load_from_preferences()
-   */
-  void save_to_preferences(const std::string &friendly_name, const LightTraits &traits) const;
-
   /** Dump this color into a JsonObject. Only dumps values if the corresponding traits are marked supported by traits.
    *
    * @param root The json root object.
@@ -102,6 +88,7 @@ class LightColorValues {
   bool operator!=(const LightColorValues &rhs) const;
 
   float get_state() const;
+  bool is_on() const;
   void set_state(float state);
   void set_state(bool state);
 

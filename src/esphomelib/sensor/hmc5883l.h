@@ -31,6 +31,7 @@ class HMC5883LComponent : public PollingComponent, public I2CDevice {
   HMC5883LComponent(I2CComponent *parent, uint32_t update_interval = 15000);
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
 
@@ -47,6 +48,11 @@ class HMC5883LComponent : public PollingComponent, public I2CDevice {
   HMC5883LFieldStrengthSensor *y_sensor_;
   HMC5883LFieldStrengthSensor *z_sensor_;
   HMC5883LHeadingSensor *heading_sensor_;
+  enum ErrorCode {
+    NONE = 0,
+    COMMUNICATION_FAILED,
+    ID_REGISTERS,
+  } error_code_;
 };
 
 } // namespace sensor

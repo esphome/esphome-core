@@ -3,13 +3,16 @@
 #ifdef USE_TEMPLATE_SWITCH
 
 #include "esphomelib/switch_/template_switch.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
+static const char *TAG = "switch.template";
+
 TemplateSwitch::TemplateSwitch(const std::string &name)
-    : Switch(name), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
+    : Switch(name), Component(), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
 
 }
 void TemplateSwitch::loop() {
@@ -53,8 +56,27 @@ Trigger<NoArg> *TemplateSwitch::get_turn_on_trigger() const {
 Trigger<NoArg> *TemplateSwitch::get_turn_off_trigger() const {
   return this->turn_off_trigger_;
 }
-bool TemplateSwitch::do_restore_state() {
-  return false;
+void TemplateSwitch::setup() {
+  if (!this->restore_state_)
+    return;
+
+  auto restored = this->get_initial_state();
+  if (!restored.has_value())
+    return;
+
+  ESP_LOGD(TAG, "  Restored state %s", ONOFF(*restored));
+  if (*restored) {
+    this->turn_on();
+  } else {
+    this->turn_off();
+  }
+}
+void TemplateSwitch::dump_config() {
+  ESP_LOGCONFIG(TAG, "Template Switch '%s':", this->name_.c_str());
+  LOG_SWITCH(this);
+}
+void TemplateSwitch::set_restore_state(bool restore_state) {
+  this->restore_state_ = restore_state;
 }
 
 } // namespace switch_

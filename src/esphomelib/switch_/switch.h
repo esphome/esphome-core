@@ -8,6 +8,7 @@
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
+#include "esphomelib/esppreferences.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -19,13 +20,18 @@ template<typename T>
 class TurnOffAction;
 template<typename T>
 class TurnOnAction;
+template<typename T>
+class SwitchCondition;
+
+#define LOG_SWITCH(this) \
+  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); }
 
 /** Base class for all switches.
  *
  * A switch is basically just a combination of a binary sensor (for reporting switch values)
  * and a write_state method that writes a state to the hardware.
  */
-class Switch : public Component, public Nameable {
+class Switch : public Nameable {
  public:
   explicit Switch(const std::string &name);
 
@@ -83,6 +89,10 @@ class Switch : public Component, public Nameable {
   TurnOffAction<T> *make_turn_off_action();
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
+  template<typename T>
+  SwitchCondition<T> *make_switch_is_on_condition();
+  template<typename T>
+  SwitchCondition<T> *make_switch_is_off_condition();
 
   /** Set callback for state changes.
    *
@@ -90,9 +100,7 @@ class Switch : public Component, public Nameable {
    */
   void add_on_state_callback(std::function<void(bool)> &&callback);
 
-  float get_setup_priority() const override;
-
-  void setup_() override;
+  optional<bool> get_initial_state();
 
   /** Return whether this switch is optimistic - i.e. if both the ON/OFF actions should be displayed in Home Assistant
    * because the real state is unknown.
@@ -100,9 +108,6 @@ class Switch : public Component, public Nameable {
    * Defaults to false.
    */
   virtual bool optimistic();
-
-  /// Subclasses can override this to prevent the switch from automatically restoring the state.
-  virtual bool do_restore_state();
 
  protected:
   /** Write the given state to hardware. You should implement this
@@ -123,10 +128,13 @@ class Switch : public Component, public Nameable {
    */
   virtual std::string icon();
 
+  uint32_t hash_base_() override;
+
   optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
 
   CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
+  ESPPreferenceObject rtc_;
 };
 
 template<typename T>
@@ -160,6 +168,16 @@ class ToggleAction : public Action<T> {
 
  protected:
   Switch *switch_;
+};
+
+template<typename T>
+class SwitchCondition : public Condition<T> {
+ public:
+  SwitchCondition(Switch *parent, bool state);
+  bool check(T x) override;
+ protected:
+  Switch *parent_;
+  bool state_;
 };
 
 // =============== TEMPLATE DEFINITIONS ===============
@@ -204,6 +222,24 @@ TurnOffAction<T> *Switch::make_turn_off_action() {
 template<typename T>
 TurnOnAction<T> *Switch::make_turn_on_action() {
   return new TurnOnAction<T>(this);
+}
+
+template<typename T>
+SwitchCondition<T>::SwitchCondition(Switch *parent, bool state) : parent_(parent), state_(state) {
+
+}
+template<typename T>
+bool SwitchCondition<T>::check(T x) {
+  return this->parent_->state == this->state_;
+}
+
+template<typename T>
+SwitchCondition<T> *Switch::make_switch_is_on_condition() {
+  return new SwitchCondition<T>(this, true);
+}
+template<typename T>
+SwitchCondition<T> *Switch::make_switch_is_off_condition() {
+  return new SwitchCondition<T>(this, false);
 }
 
 } // namespace switch_

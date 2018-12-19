@@ -15,6 +15,7 @@ class StatusLEDComponent : public Component {
   explicit StatusLEDComponent(GPIOPin *pin);
 
   void setup() override;
+  void dump_config() override;
   void loop() override;
   float get_setup_priority() const override;
   float get_loop_priority() const override;

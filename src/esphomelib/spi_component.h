@@ -16,6 +16,8 @@ class SPIComponent : public Component {
 
   void setup() override;
 
+  void dump_config() override;
+
   uint8_t read_byte();
 
   void read_array(uint8_t *data, size_t length);

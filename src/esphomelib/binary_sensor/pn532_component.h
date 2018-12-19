@@ -23,6 +23,8 @@ class PN532Component : public PollingComponent, public SPIDevice {
 
   void setup() override;
 
+  void dump_config() override;
+
   void update() override;
   float get_setup_priority() const override;
 
@@ -48,6 +50,11 @@ class PN532Component : public PollingComponent, public SPIDevice {
   std::vector<PN532BinarySensor *> binary_sensors_;
   std::vector<PN532Trigger *> triggers_;
   std::vector<uint8_t> last_uid_;
+  enum PN532Error {
+    NONE = 0,
+    WRITING_SAM_COMMAND_FAILED,
+    READING_SAM_COMMAND_FAILED,
+  } error_code_{NONE};
 };
 
 class PN532BinarySensor : public binary_sensor::BinarySensor {

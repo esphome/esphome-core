@@ -21,6 +21,8 @@ class MQTTSensorComponent;
 class SensorStateTrigger;
 class SensorRawStateTrigger;
 class ValueRangeTrigger;
+template<typename T>
+class SensorInRangeCondition;
 
 /** Base-class for all sensors.
  *
@@ -28,6 +30,8 @@ class ValueRangeTrigger;
  */
 class Sensor : public Nameable {
  public:
+  explicit Sensor();
+
   explicit Sensor(const std::string &name);
 
   /** Manually set the unit of measurement of this sensor. By default the sensor's default defined by
@@ -63,10 +67,10 @@ class Sensor : public Nameable {
    *   SlidingWindowMovingAverageFilter(15, 15), // average over last 15 values
    * });
    */
-  void add_filters(const std::list<Filter *> & filters);
+  void add_filters(const std::vector<Filter *> & filters);
 
   /// Clear the filters and replace them by filters.
-  void set_filters(const std::list<Filter *> & filters);
+  void set_filters(const std::vector<Filter *> & filters);
 
   /// Clear the entire filter chain.
   void clear_filters();
@@ -114,6 +118,8 @@ class Sensor : public Nameable {
   SensorStateTrigger *make_state_trigger();
   SensorRawStateTrigger *make_raw_state_trigger();
   ValueRangeTrigger *make_value_range_trigger();
+  template<typename T>
+  SensorInRangeCondition<T> *make_sensor_in_range_condition();
 
   union {
     /** This member variable stores the last state that has passed through all filters.
@@ -155,6 +161,8 @@ class Sensor : public Nameable {
   /// Calculate the expected update interval for values that pass through all filters.
   uint32_t calculate_expected_filter_update_interval();
 
+  void send_state_to_frontend_internal_(float state);
+
  protected:
   /** Override this to set the Home Assistant unit of measurement for this sensor.
    *
@@ -175,7 +183,7 @@ class Sensor : public Nameable {
   /// Return the accuracy in decimals for this sensor.
   virtual int8_t accuracy_decimals();
 
-  void send_state_to_frontend_internal_(float state);
+  uint32_t hash_base_() override;
 
   CallbackManager<void(float)> raw_callback_; ///< Storage for raw state callbacks.
   CallbackManager<void(float)> callback_; ///< Storage for filtered state callbacks.
@@ -247,7 +255,7 @@ class SensorRawStateTrigger : public Trigger<float> {
   explicit SensorRawStateTrigger(Sensor *parent);
 };
 
-class ValueRangeTrigger : public Trigger<float> {
+class ValueRangeTrigger : public Trigger<float>, public Component {
  public:
   explicit ValueRangeTrigger(Sensor *parent);
 
@@ -256,10 +264,31 @@ class ValueRangeTrigger : public Trigger<float> {
   void set_max(std::function<float(float)> &&max);
   void set_max(float max);
 
+  void setup() override;
+  float get_setup_priority() const override;
+
  protected:
+  void on_state_(float state);
+
+  Sensor *parent_;
+  ESPPreferenceObject rtc_;
   bool previous_in_range_{false};
   TemplatableValue<float, float> min_{NAN};
   TemplatableValue<float, float> max_{NAN};
+};
+
+template<typename T>
+class SensorInRangeCondition : public Condition<T> {
+ public:
+  SensorInRangeCondition(Sensor *parent);
+
+  void set_min(float min);
+  void set_max(float max);
+  bool check(T x) override;
+ protected:
+  Sensor *parent_;
+  float min_{NAN};
+  float max_{NAN};
 };
 
 extern const char ICON_EMPTY[];
@@ -294,6 +323,32 @@ extern const char UNIT_DEGREES[];
 extern const char UNIT_K[];
 extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 extern const char UNIT_MICROGRAMS_PER_CUBIC_METER[];
+
+template<typename T>
+SensorInRangeCondition<T> *Sensor::make_sensor_in_range_condition() {
+  return new SensorInRangeCondition<T>(this);
+}
+template<typename T>
+SensorInRangeCondition<T>::SensorInRangeCondition(Sensor *parent) : parent_(parent) {}
+template<typename T>
+void SensorInRangeCondition<T>::set_min(float min) {
+  this->min_ = min;
+}
+template<typename T>
+void SensorInRangeCondition<T>::set_max(float max) {
+  this->max_ = max;
+}
+template<typename T>
+bool SensorInRangeCondition<T>::check(T x) {
+  const float state = this->parent_->state;
+  if (isnan(this->min_)) {
+    return state <= this->max_;
+  } else if (isnan(this->max_)) {
+    return state >= this->min_;
+  } else {
+    return this->min_ <= state && state <= this->max_;
+  }
+}
 
 } // namespace sensor
 

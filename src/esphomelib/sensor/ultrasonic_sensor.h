@@ -58,6 +58,7 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
 
   /// Set up pins and register interval.
   void setup() override;
+  void dump_config() override;
 
   void update() override;
 

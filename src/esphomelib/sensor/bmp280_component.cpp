@@ -61,10 +61,14 @@ static const char* iir_filter_to_str(BMP280IIRFilter filter) {
 
 void BMP280Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BMP280...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
   uint8_t chip_id = 0;
-  if (!this->read_byte(0xD0, &chip_id) || chip_id != 0x58) {
-    ESP_LOGE(TAG, "Communication with BMP280 failed! Chip ID: %02X", chip_id);
+  if (!this->read_byte(0xD0, &chip_id)) {
+    this->error_code_ = COMMUNICATION_FAILED;
+    this->mark_failed();
+    return;
+  }
+  if (chip_id != 0x58) {
+    this->error_code_ = WRONG_CHIP_ID;
     this->mark_failed();
     return;
   }
@@ -84,10 +88,6 @@ void BMP280Component::setup() {
   this->calibration_.p8 = read_s16_le(0x9C);
   this->calibration_.p9 = read_s16_le(0x9E);
 
-  ESP_LOGCONFIG(TAG, "    Temperature Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
-  ESP_LOGCONFIG(TAG, "    Pressure Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
-  ESP_LOGCONFIG(TAG, "    IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
-
   uint8_t config_register = 0;
   if (!this->read_byte(BMP280_REGISTER_CONFIG, &config_register)) {
     this->mark_failed();
@@ -101,8 +101,27 @@ void BMP280Component::setup() {
     return;
   }
 }
+void BMP280Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "BMP280:");
+  LOG_I2C_DEVICE(this);
+  switch (this->error_code_) {
+    case COMMUNICATION_FAILED:
+      ESP_LOGE(TAG, "Communication with BMP280 failed!");
+      break;
+    case WRONG_CHIP_ID:
+      ESP_LOGE(TAG, "BMP280 has wrong chip ID! Is it a BME280?");
+      break;
+    case NONE:
+    default:
+      break;
+  }
+
+  ESP_LOGCONFIG(TAG, "    Temperature Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
+  ESP_LOGCONFIG(TAG, "    Pressure Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
+  ESP_LOGCONFIG(TAG, "    IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
+}
 float BMP280Component::get_setup_priority() const {
-  return Component::get_setup_priority();
+  return setup_priority::HARDWARE_LATE;
 }
 
 inline uint8_t oversampling_to_time(BMP280Oversampling over_sampling) {

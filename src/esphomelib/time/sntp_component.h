@@ -18,23 +18,25 @@ namespace time {
 /// The C library (newlib) available on ESPs only supports TZ strings that specify an offset and DST info;
 /// you cannot specify zone names or paths to zoneinfo files.
 /// \see https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
-class SNTPComponent : public RTCComponent {
+class SNTPComponent : public RealTimeClockComponent {
  public:
-  SNTPComponent(const std::string &server_1 = "0.pool.ntp.org",
-                const std::string &server_2 = "1.pool.ntp.org",
-                const std::string &server_3 = "2.pool.ntp.org",
-                const std::string &tz = "UTC");
+  SNTPComponent();
+
   void setup() override;
+  void dump_config() override;
   /// Change the servers used by SNTP for timekeeping
   void set_servers(const std::string &server_1,
                    const std::string &server_2,
                    const std::string &server_3);
   float get_setup_priority() const override;
+
+  void loop() override;
+
  protected:
-  void setup_sntp_();
   std::string server_1_;
   std::string server_2_;
   std::string server_3_;
+  bool has_time_{false};
 };
 
 } // namespace time

@@ -50,6 +50,13 @@ void UARTComponent::setup() {
   this->hw_serial_->begin(this->baud_rate_, SERIAL_8N1, this->rx_pin_, this->tx_pin_);
 }
 
+void UARTComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "UART Bus:");
+  ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", this->tx_pin_);
+  ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", this->rx_pin_);
+  ESP_LOGCONFIG(TAG, "  Baud Rate: %u baud", this->baud_rate_);
+}
+
 void UARTComponent::write_byte(uint8_t data) {
   this->hw_serial_->write(data);
   ESP_LOGVV(TAG, "    Wrote 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(data), data);
@@ -100,8 +107,8 @@ bool UARTComponent::check_read_timeout_(size_t len) {
   }
   return true;
 }
-size_t UARTComponent::available() {
-  return static_cast<size_t>(this->hw_serial_->available());
+int UARTComponent::available() {
+  return this->hw_serial_->available();
 }
 void UARTComponent::flush() {
   ESP_LOGVV(TAG, "    Flushing...");
@@ -111,16 +118,23 @@ void UARTComponent::flush() {
 
 #ifdef ARDUINO_ARCH_ESP8266
 void UARTComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up UART...");
-  ESP_LOGCONFIG(TAG, "    TX Pin: %d", this->tx_pin_);
-  ESP_LOGCONFIG(TAG, "    RX Pin: %d", this->rx_pin_);
-  ESP_LOGCONFIG(TAG, "    Baud Rate: %u", this->baud_rate_);
+  ESP_LOGCONFIG(TAG, "Setting up UART bus...");
   if (this->hw_serial_ != nullptr) {
-    ESP_LOGCONFIG(TAG, "    Using default serial interface.");
     this->hw_serial_->begin(this->baud_rate_);
   } else {
-    ESP_LOGCONFIG(TAG, "    Using software serial");
     this->sw_serial_->setup(this->tx_pin_, this->rx_pin_, this->baud_rate_);
+  }
+}
+
+void UARTComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "UART Bus:");
+  ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", this->tx_pin_);
+  ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", this->rx_pin_);
+  ESP_LOGCONFIG(TAG, "  Baud Rate: %u baud", this->baud_rate_);
+  if (this->hw_serial_ != nullptr) {
+    ESP_LOGCONFIG(TAG, "  Using hardware serial interface.");
+  } else {
+    ESP_LOGCONFIG(TAG, "  Using software serial");
   }
 }
 
@@ -203,9 +217,9 @@ bool UARTComponent::check_read_timeout_(size_t len) {
   }
   return true;
 }
-size_t UARTComponent::available() {
+int UARTComponent::available() {
   if (this->hw_serial_ != nullptr) {
-    return static_cast<size_t>(this->hw_serial_->available());
+    return this->hw_serial_->available();
   } else {
     return this->sw_serial_->available();
   }
@@ -316,13 +330,30 @@ uint8_t ESP8266SoftwareSerial::peek_byte() {
 void ESP8266SoftwareSerial::flush() {
   this->rx_in_pos_ = this->rx_out_pos_ = 0;
 }
-size_t ESP8266SoftwareSerial::available() {
+int ESP8266SoftwareSerial::available() {
   int avail = int(this->rx_in_pos_) - int(this->rx_out_pos_);
   if (avail < 0)
     return avail + this->rx_buffer_size_;
-  return static_cast<size_t>(avail);
+  return avail;
 }
 #endif //ESP8266
+
+size_t UARTComponent::write(uint8_t data) {
+  this->write_byte(data);
+  return 1;
+}
+int UARTComponent::read() {
+  uint8_t data;
+  if (!this->read_byte(&data))
+    return -1;
+  return data;
+}
+int UARTComponent::peek() {
+  uint8_t data;
+  if (!this->peek_byte(&data))
+    return -1;
+  return data;
+}
 
 void UARTDevice::write_byte(uint8_t data) {
   this->parent_->write_byte(data);
@@ -342,13 +373,24 @@ bool UARTDevice::peek_byte(uint8_t *data) {
 bool UARTDevice::read_array(uint8_t *data, size_t len) {
   return this->parent_->read_array(data, len);
 }
-size_t UARTDevice::available() {
+int UARTDevice::available() {
   return this->parent_->available();
 }
 void UARTDevice::flush() {
   return this->parent_->flush();
 }
-UARTDevice::UARTDevice(UARTComponent *parent) : parent_(parent) {}
+UARTDevice::UARTDevice(UARTComponent *parent) : parent_(parent) {
+
+}
+size_t UARTDevice::write(uint8_t data) {
+  return this->parent_->write(data);
+}
+int UARTDevice::read() {
+  return this->parent_->read();
+}
+int UARTDevice::peek() {
+  return this->parent_->peek();
+}
 
 ESPHOMELIB_NAMESPACE_END
 

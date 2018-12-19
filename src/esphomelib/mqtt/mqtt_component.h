@@ -16,6 +16,11 @@ struct SendDiscoveryConfig {
   const char *platform{"mqtt"}; ///< The platform of this component. Defaults to "mqtt".
 };
 
+#define LOG_MQTT_COMPONENT(state_topic, command_topic) \
+    if (state_topic) { ESP_LOGCONFIG(TAG, "  State Topic: '%s'", this->get_state_topic().c_str()); } \
+    if (command_topic) { ESP_LOGCONFIG(TAG, "  Command Topic: '%s'", this->get_command_topic().c_str()); } \
+
+
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
  *
@@ -45,7 +50,7 @@ class MQTTComponent : public Component {
   /// Send discovery info the Home Assistant, override this.
   virtual void send_discovery(JsonObject &root, SendDiscoveryConfig &config) = 0;
 
-  virtual void send_initial_state() = 0;
+  virtual bool send_initial_state() = 0;
 
   virtual bool is_internal() = 0;
 
@@ -70,7 +75,7 @@ class MQTTComponent : public Component {
 
   /** Set the Home Assistant availability data.
    *
-   * See See <a href="https://home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
+   * See See <a href="https://www.home-assistant.io/components/binary_sensor.mqtt/">Home Assistant</a> for more info.
    */
   void set_availability(std::string topic, std::string payload_available, std::string payload_not_available);
   void disable_availability();
@@ -105,30 +110,24 @@ class MQTTComponent : public Component {
   /// Get the MQTT topic for listening to commands.
   const std::string get_command_topic() const;
 
+  bool is_connected() const;
+
   /// Internal method to start sending discovery info, this will call send_discovery().
-  void send_discovery_();
+  bool send_discovery_();
 
   /** Send a MQTT message.
    *
    * @param topic The topic.
    * @param payload The payload.
-   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  void send_message(const std::string &topic,
-                    const std::string &payload,
-                    const optional<uint8_t> &qos = {},
-                    const optional<bool> &retain = {});
+  bool publish(const std::string &topic, const std::string &payload);
 
   /** Construct and send a JSON MQTT message.
    *
    * @param topic The topic.
    * @param f The Json Message builder.
-   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  void send_json_message(const std::string &topic,
-                         const json_build_t &f,
-                         const optional<uint8_t> &qos = {},
-                         const optional<bool> &retain = {});
+  bool publish_json(const std::string &topic, const json_build_t &f);
 
   /** Subscribe to a MQTT topic.
    *
@@ -146,7 +145,7 @@ class MQTTComponent : public Component {
    * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
    * @param qos The MQTT quality of service. Defaults to 0.
    */
-  void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos = 0);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

@@ -25,21 +25,31 @@ void MQTTTextSensor::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig 
   config.command_topic = false;
 }
 void MQTTTextSensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT Text Sensor '%s'...", this->sensor_->get_name().c_str());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->sensor_->get_icon().c_str());
-  if (!this->sensor_->unique_id().empty()) {
-    ESP_LOGCONFIG(TAG, "    Unique ID: '%s'", this->sensor_->unique_id().c_str());
-  }
+  this->sensor_->add_on_state_callback([this](const std::string &state) {
+    this->publish_state(state);
+  });
+}
 
-  auto f = std::bind(&MQTTTextSensor::publish_state, this, std::placeholders::_1);
-  this->sensor_->add_on_state_callback(f);
+void MQTTTextSensor::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Text Sensor '%s':", this->sensor_->get_name().c_str());
+  if (!this->sensor_->get_icon().empty()) {
+    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->sensor_->get_icon().c_str());
+  }
+  if (!this->sensor_->unique_id().empty()) {
+    ESP_LOGCONFIG(TAG, "  Unique ID: '%s'", this->sensor_->unique_id().c_str());
+  }
+  LOG_MQTT_COMPONENT(true, false);
 }
-void MQTTTextSensor::publish_state(const std::string &value) {
-  this->send_message(this->get_state_topic(), value);
+
+bool MQTTTextSensor::publish_state(const std::string &value) {
+  return this->publish(this->get_state_topic(), value);
 }
-void MQTTTextSensor::send_initial_state() {
-  if (this->sensor_->has_state())
-    this->publish_state(this->sensor_->state);
+bool MQTTTextSensor::send_initial_state() {
+  if (this->sensor_->has_state()) {
+    return this->publish_state(this->sensor_->state);
+  } else {
+    return true;
+  }
 }
 bool MQTTTextSensor::is_internal() {
   return this->sensor_->is_internal();

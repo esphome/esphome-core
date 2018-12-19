@@ -11,8 +11,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace remote {
 
-static const char *TAG = "remote.base";
-
 RemoteControlComponentBase::RemoteControlComponentBase(GPIOPin *pin)
     : pin_(pin) {
 #ifdef ARDUINO_ARCH_ESP32

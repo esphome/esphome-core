@@ -38,15 +38,17 @@ class BMP085Component : public PollingComponent, public I2CDevice {
   void update() override;
   /// Setup the sensor and test for a connection.
   void setup() override;
+  void dump_config() override;
 
   float get_setup_priority() const override;
 
  protected:
   struct CalibrationData {
-    int16_t ac1, ac2, ac3, ac4, ac5, ac6;
+    int16_t ac1, ac2, ac3;
+    uint16_t ac4, ac5, ac6;
     int16_t b1, b2;
     int16_t mb, mc, md;
-    int32_t b5;
+    float temp;
   };
 
   /// Internal method to read the temperature from the component after it has been scheduled.

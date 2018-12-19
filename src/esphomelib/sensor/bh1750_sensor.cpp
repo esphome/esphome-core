@@ -23,15 +23,19 @@ BH1750Sensor::BH1750Sensor(I2CComponent *parent, const std::string &name,
     : PollingSensorComponent(name, update_interval), I2CDevice(parent, address) {}
 
 void BH1750Sensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up BS1750...");
-  ESP_LOGCONFIG(TAG, "    Address: 0x%02X", this->address_);
+  ESP_LOGCONFIG(TAG, "Setting up BH1750 '%s'...", this->name_.c_str());
   if (!this->write_bytes(BH1750_COMMAND_POWER_ON, nullptr, 0)) {
-    ESP_LOGE(TAG, "Communication with BH1750 failed!");
     this->mark_failed();
     return;
   }
+}
+void BH1750Sensor::dump_config() {
+  ESP_LOGCONFIG(TAG, "BH1750 '%s':", this->name_.c_str());
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with BH1750 failed!");
+  }
 
-#ifdef ESPHOMELIB_LOG_HAS_CONFIG
   const char *resolution_s;
   switch (this->resolution_) {
     case BH1750_RESOLUTION_0P5_LX: resolution_s = "0.5"; break;
@@ -39,8 +43,8 @@ void BH1750Sensor::setup() {
     case BH1750_RESOLUTION_4P0_LX: resolution_s = "4"; break;
     default: resolution_s = "Unknown"; break;
   }
-  ESP_LOGCONFIG(TAG, "    Resolution: %s", resolution_s);
-#endif
+  ESP_LOGCONFIG(TAG, "  Resolution: %s", resolution_s);
+  LOG_UPDATE_INTERVAL(this);
 }
 
 void BH1750Sensor::update() {

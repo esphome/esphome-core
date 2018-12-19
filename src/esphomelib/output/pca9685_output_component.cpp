@@ -45,10 +45,9 @@ PCA9685OutputComponent::PCA9685OutputComponent(I2CComponent *parent, float frequ
 }
 
 void PCA9685OutputComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent.");
-  ESP_LOGCONFIG(TAG, "    Mode: 0x%02X", this->mode_);
+  ESP_LOGCONFIG(TAG, "Setting up PCA9685OutputComponent...");
 
-  ESP_LOGV(TAG, "    Resetting devices...");
+  ESP_LOGV(TAG, "  Resetting devices...");
   if (!this->write_bytes(PCA9685_REGISTER_SOFTWARE_RESET, nullptr, 0)) {
     this->mark_failed();
     return;
@@ -63,13 +62,11 @@ void PCA9685OutputComponent::setup() {
     return;
   }
 
-  ESP_LOGCONFIG(TAG, "    Frequency: %.0f", this->frequency_);
-
   int pre_scaler = (25000000 / (4096 * this->frequency_)) - 1;
   if (pre_scaler > 255) pre_scaler = 255;
   if (pre_scaler < 3) pre_scaler = 3;
 
-  ESP_LOGV(TAG, "     -> Prescaler: %d", pre_scaler);
+  ESP_LOGV(TAG, "  -> Prescaler: %d", pre_scaler);
 
   uint8_t mode1;
   if (!this->read_byte(PCA9685_REGISTER_MODE1, &mode1)) {
@@ -96,12 +93,19 @@ void PCA9685OutputComponent::setup() {
   this->loop();
 }
 
+void PCA9685OutputComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "PCA9685:");
+  ESP_LOGCONFIG(TAG, "  Mode: 0x%02X", this->mode_);
+  ESP_LOGCONFIG(TAG, "  Frequency: %.0f Hz", this->frequency_);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Setting up PCA9685 failed!");
+  }
+}
+
 void PCA9685OutputComponent::loop() {
   if (this->min_channel_ == 0xFF || !this->update_)
     return;
 
-  uint8_t data[16*4];
-  uint8_t len = 0;
   const uint16_t num_channels = this->max_channel_ - this->min_channel_ + 1;
   for (uint8_t channel = this->min_channel_; channel <= this->max_channel_; channel++) {
     uint16_t phase_begin = uint16_t(channel - this->min_channel_) / num_channels * 4096 ;
@@ -120,17 +124,20 @@ void PCA9685OutputComponent::loop() {
 
     ESP_LOGVV(TAG, "Channel %02u: amount=%04u phase_begin=%04u phase_end=%04u", channel, amount, phase_begin, phase_end);
 
-    data[len++] = phase_begin & 0xFF;
-    data[len++] = (phase_begin >> 8) & 0xFF;
-    data[len++] = phase_end & 0xFF;
-    data[len++] = (phase_end >> 8) & 0xFF;
-  }
-  if (!this->write_bytes(PCA9685_REGISTER_LED0 + 4 * this->min_channel_, data, len)) {
-    this->status_set_warning();
-  } else {
-    this->status_clear_warning();
+    uint8_t data[4];
+    data[0] = phase_begin & 0xFF;
+    data[1] = (phase_begin >> 8) & 0xFF;
+    data[2] = phase_end & 0xFF;
+    data[3] = (phase_end >> 8) & 0xFF;
+
+    uint8_t reg = PCA9685_REGISTER_LED0 + 4 * channel;
+    if (!this->write_bytes(reg, data, 4)) {
+      this->status_set_warning();
+      return;
+    }
   }
 
+  this->status_clear_warning();
   this->update_ = false;
 }
 
@@ -147,7 +154,6 @@ void PCA9685OutputComponent::set_channel_value(uint8_t channel, uint16_t value) 
 PCA9685OutputComponent::Channel *PCA9685OutputComponent::create_channel(uint8_t channel,
                                                                         PowerSupplyComponent *power_supply,
                                                                         float max_power) {
-  ESP_LOGV(TAG, "Getting channel %d...", channel);
   this->min_channel_ = std::min(this->min_channel_, channel);
   this->max_channel_ = std::max(this->max_channel_, channel);
   auto *c = new Channel(this, channel);
@@ -174,7 +180,8 @@ PCA9685OutputComponent::Channel::Channel(PCA9685OutputComponent *parent, uint8_t
 
 void PCA9685OutputComponent::Channel::write_state(float state) {
   const uint16_t max_duty = 4096;
-  auto duty = uint16_t(state * max_duty);
+  const float duty_rounded = roundf(state * max_duty);
+  auto duty = static_cast<uint16_t>(duty_rounded);
   this->parent_->set_channel_value(this->channel_, duty);
 }
 

@@ -48,12 +48,18 @@ void DHT12Component::update() {
   this->status_clear_warning();
 }
 void DHT12Component::setup() {
-  ESP_LOGD(TAG, "Setting up DHT12...");
+  ESP_LOGCONFIG(TAG, "Setting up DHT12...");
   uint8_t data[5];
   if (!this->read_data_(data)) {
-    ESP_LOGE(TAG, "Communication with DHT12 on 0x%02X failed!", this->address_);
     this->mark_failed();
     return;
+  }
+}
+void DHT12Component::dump_config() {
+  ESP_LOGD(TAG, "DHT12:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with DHT12 failed!");
   }
 }
 float DHT12Component::get_setup_priority() const {

@@ -20,19 +20,25 @@ MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
 }
 
 void MQTTSensorComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT Sensor '%s'...", this->sensor_->get_name().c_str());
-  if (this->get_expire_after() > 0) {
-    ESP_LOGCONFIG(TAG, "    Expire After: %us", this->get_expire_after() / 1000);
-  }
-  ESP_LOGCONFIG(TAG, "    Unit of Measurement: '%s'", this->sensor_->get_unit_of_measurement().c_str());
-  ESP_LOGCONFIG(TAG, "    Accuracy Decimals: %i", this->sensor_->get_accuracy_decimals());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->sensor_->get_icon().c_str());
-  if (!this->sensor_->unique_id().empty()) {
-    ESP_LOGCONFIG(TAG, "    Unique ID: '%s'", this->sensor_->unique_id().c_str());
-  }
+  this->sensor_->add_on_state_callback([this](float state) {
+    this->publish_state(state);
+  });
+}
 
-  auto f = std::bind(&MQTTSensorComponent::publish_state, this, std::placeholders::_1);
-  this->sensor_->add_on_state_callback(f);
+void MQTTSensorComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Sensor '%s':", this->sensor_->get_name().c_str());
+  if (this->get_expire_after() > 0) {
+    ESP_LOGCONFIG(TAG, "  Expire After: %us", this->get_expire_after() / 1000);
+  }
+  ESP_LOGCONFIG(TAG, "  Unit of Measurement: '%s'", this->sensor_->get_unit_of_measurement().c_str());
+  ESP_LOGCONFIG(TAG, "  Accuracy Decimals: %d", this->sensor_->get_accuracy_decimals());
+  if (!this->sensor_->get_icon().empty()) {
+    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->sensor_->get_icon().c_str());
+  }
+  if (!this->sensor_->unique_id().empty()) {
+    ESP_LOGCONFIG(TAG, "  Unique ID: '%s'", this->sensor_->unique_id().c_str());
+  }
+  LOG_MQTT_COMPONENT(true, false)
 }
 
 std::string MQTTSensorComponent::component_type() const {
@@ -67,18 +73,19 @@ void MQTTSensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
 
   config.command_topic = false;
 }
-void MQTTSensorComponent::send_initial_state() {
-  if (this->sensor_->has_state())
-    this->publish_state(this->sensor_->state);
+bool MQTTSensorComponent::send_initial_state() {
+  if (this->sensor_->has_state()) {
+    return this->publish_state(this->sensor_->state);
+  } else {
+    return true;
+  }
 }
 bool MQTTSensorComponent::is_internal() {
   return this->sensor_->is_internal();
 }
-void MQTTSensorComponent::publish_state(float value) {
+bool MQTTSensorComponent::publish_state(float value) {
   int8_t accuracy = this->sensor_->get_accuracy_decimals();
-  ESP_LOGD(TAG, "'%s': Pushing out value %f with %d decimals of accuracy",
-           this->sensor_->get_name().c_str(), value, accuracy);
-  this->send_message(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
+  return this->publish(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
 }
 std::string MQTTSensorComponent::unique_id() {
   return this->sensor_->unique_id();

@@ -36,6 +36,7 @@ class RemoteControlComponentBase {
 #ifdef ARDUINO_ARCH_ESP32
   rmt_channel_t channel_{RMT_CHANNEL_0};
   uint8_t clock_divider_{80};
+  esp_err_t error_code_{ESP_OK};
 #endif
 };
 

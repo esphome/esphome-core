@@ -35,10 +35,12 @@ class PulseCounterBase {
   bool pulse_counter_setup_();
   pulse_counter_t read_raw_value_();
 
+  GPIOPin *get_pin();
+
  protected:
 #ifdef ARDUINO_ARCH_ESP8266
   void gpio_intr();
-  volatile int16_t counter_{0};
+  volatile pulse_counter_t counter_{0};
   volatile uint32_t last_pulse_{0};
 #endif
 
@@ -58,7 +60,7 @@ class PulseCounterBase {
  * Also allows for some simple filtering of short pulses using set_filter(), any pulse shorter than
  * the value provided to that function will be discarded. The time is given in APB clock cycles,
  * which usually amount to 12.5 ns per clock. Defaults to the max possible (about 13 ms).
- * See http://esp-idf.readthedocs.io/en/latest/api-reference/peripherals/pcnt.html for more information.
+ * See https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/peripherals/pcnt.html for more information.
  *
  * The pulse counter defaults to reporting a value of the measurement unit "pulses/min". To
  * modify this behavior, use filters in MQTTSensor.
@@ -89,6 +91,7 @@ class PulseCounterSensorComponent : public PollingSensorComponent, public PulseC
   void setup() override;
   void update() override;
   float get_setup_priority() const override;
+  void dump_config() override;
 };
 
 #ifdef ARDUINO_ARCH_ESP32

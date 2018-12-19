@@ -14,9 +14,9 @@ namespace setup_priority {
 const float PRE_HARDWARE = 110.0f;
 const float HARDWARE = 100.0f;
 const float POST_HARDWARE = 90.0f;
+const float HARDWARE_LATE = 50.0f;
 const float WIFI = 10.0f;
 const float MQTT_CLIENT = 7.5f;
-const float HARDWARE_LATE = 0.0f;
 const float MQTT_COMPONENT = -5.0f;
 const float LATE = -10.0f;
 
@@ -39,7 +39,7 @@ float Component::get_loop_priority() const {
 }
 
 float Component::get_setup_priority() const {
-  return 0.0f;
+  return setup_priority::HARDWARE_LATE;
 }
 
 void Component::setup() {
@@ -51,18 +51,21 @@ void Component::loop() {
 }
 
 void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {
+  const uint32_t now = millis();
   // only put offset in lower half
   uint32_t offset = 0;
   if (interval != 0)
     offset = (random_uint32() % interval) / 2;
-  ESP_LOGV(TAG, "set_interval(name='%s', interval=%u, offset=%u)", name.c_str(), interval, offset);
+  ESP_LOGVV(TAG, "set_interval(name='%s', interval=%u, offset=%u)", name.c_str(), interval, offset);
 
-  this->cancel_interval(name);
+  if (!name.empty()) {
+    this->cancel_interval(name);
+  }
   struct TimeFunction function = {
       .name = name,
       .type = TimeFunction::INTERVAL,
       .interval = interval,
-      .last_execution = millis() - interval - offset,
+      .last_execution = now - interval - offset,
       .f = std::move(f),
       .remove = false,
   };
@@ -74,14 +77,17 @@ bool Component::cancel_interval(const std::string &name) {
 }
 
 void Component::set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f) {
-  ESP_LOGV(TAG, "set_timeout(name='%s', timeout=%u)", name.c_str(), timeout);
+  const uint32_t now = millis();
+  ESP_LOGVV(TAG, "set_timeout(name='%s', timeout=%u)", name.c_str(), timeout);
 
-  this->cancel_timeout(name);
+  if (!name.empty()) {
+    this->cancel_timeout(name);
+  }
   struct TimeFunction function = {
       .name = name,
       .type = TimeFunction::TIMEOUT,
       .interval = timeout,
-      .last_execution = millis(),
+      .last_execution = now,
       .f = std::move(f),
       .remove = false,
   };
@@ -98,11 +104,9 @@ void Component::loop_() {
 }
 
 bool Component::cancel_time_function(const std::string &name, TimeFunction::Type type) {
-  if (name.empty())
-    return false;
   for (auto iter = this->time_functions_.begin(); iter != this->time_functions_.end(); iter++) {
     if (!iter->remove && iter->name == name && iter->type == type) {
-      ESP_LOGV(TAG, "Removing old time function %s.", iter->name.c_str());
+      ESP_LOGVV(TAG, "Removing old time function %s.", iter->name.c_str());
       iter->remove = true;
       return true;
     }
@@ -117,8 +121,6 @@ uint32_t Component::get_component_state() const {
   return this->component_state_;
 }
 void Component::loop_internal() {
-  assert((this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_SETUP ||
-         (this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_LOOP);
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_LOOP;
 
@@ -154,7 +156,6 @@ void Component::loop_internal() {
   );
 }
 void Component::setup_internal() {
-  assert((this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_CONSTRUCTION);
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_SETUP;
 }
@@ -171,7 +172,9 @@ bool Component::cancel_defer(const std::string &name) {
   return this->cancel_time_function(name, TimeFunction::DEFER);
 }
 void Component::defer(const std::string &name, std::function<void()> &&f) {
-  this->cancel_defer(name);
+  if (!name.empty()) {
+    this->cancel_defer(name);
+  }
   struct TimeFunction function = {
       .name = name,
       .type = TimeFunction::DEFER,
@@ -224,6 +227,15 @@ void Component::status_momentary_error(const std::string &name, uint32_t length)
     this->status_clear_error();
   });
 }
+void Component::dump_config() {
+
+}
+float Component::get_actual_setup_priority() const {
+  return this->setup_priority_override_.value_or(this->get_setup_priority());
+}
+void Component::set_setup_priority(float priority) {
+  this->setup_priority_override_ = priority;
+}
 
 PollingComponent::PollingComponent(uint32_t update_interval)
     : Component(), update_interval_(update_interval) {}
@@ -236,7 +248,6 @@ void PollingComponent::setup_() {
   this->setup();
 
   // Register interval.
-  ESP_LOGCONFIG(TAG, "    Update interval: %ums", this->get_update_interval());
   this->set_interval("update", this->get_update_interval(), [this]() { this->update(); });
 }
 
@@ -252,18 +263,34 @@ const std::string &Nameable::get_name() const {
 }
 void Nameable::set_name(const std::string &name) {
   this->name_ = name;
+  this->calc_object_id_();
 }
 Nameable::Nameable(const std::string &name)
-    : name_(name) {}
+    : name_(name) {
+  this->calc_object_id_();
+}
 
-std::string Nameable::get_name_id() {
-  return sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+const std::string &Nameable::get_object_id() {
+  return this->object_id_;
 }
 bool Nameable::is_internal() const {
   return this->internal_;
 }
 void Nameable::set_internal(bool internal) {
   this->internal_ = internal;
+}
+void Nameable::calc_object_id_() {
+  this->object_id_ = sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+  // FNV-1 hash
+  uint32_t hash = 2166136261UL;
+  for (char c : this->object_id_) {
+    hash *= 16777619UL;
+    hash ^= c;
+  }
+  this->object_id_hash_ = hash;
+}
+uint32_t Nameable::get_object_id_hash() {
+  return this->object_id_hash_;
 }
 
 bool Component::TimeFunction::should_run(uint32_t now) const {

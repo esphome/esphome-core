@@ -14,11 +14,16 @@ TemplateCover::TemplateCover(const std::string &name)
 
 }
 void TemplateCover::loop() {
-  if (this->f_.has_value()) {
-    auto s = (*this->f_)();
-    if (s.has_value())
-      this->publish_state(*s);
-  }
+  if (!this->f_.has_value())
+    return;
+  auto s = (*this->f_)();
+  if (!s.has_value())
+    return;
+  if (this->last_state_.has_value() && *this->last_state_ == *s)
+    return;
+
+  this->publish_state(*s);
+  this->last_state_ = *s;
 }
 void TemplateCover::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;

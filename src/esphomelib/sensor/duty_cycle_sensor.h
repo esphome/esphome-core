@@ -16,6 +16,8 @@ class DutyCycleSensor : public PollingSensorComponent {
   DutyCycleSensor(const std::string &name, GPIOPin *pin, uint32_t update_interval = 15000);
 
   void setup() override;
+  float get_setup_priority() const override;
+  void dump_config() override;
   void update() override;
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -31,9 +33,6 @@ class DutyCycleSensor : public PollingSensorComponent {
   volatile uint32_t on_time_{0};
   volatile bool last_level_{false};
   DutyCycleSensor *next_;
-  // Store the pin number locally, due to IRAM_ATTR
-  uint8_t pin_number_;
-  bool pin_inverted_;
 };
 
 extern DutyCycleSensor *duty_cycle_sensors;

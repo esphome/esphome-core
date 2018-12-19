@@ -31,13 +31,13 @@ void HMC5883LComponent::setup() {
   if (!this->read_byte(HMC5883L_REGISTER_IDENTIFICATION_A, &id[0]) ||
       !this->read_byte(HMC5883L_REGISTER_IDENTIFICATION_B, &id[1]) ||
       !this->read_byte(HMC5883L_REGISTER_IDENTIFICATION_C, &id[2])) {
-    ESP_LOGE(TAG, "Communication with HMC5883L failed!");
+    this->error_code_ = COMMUNICATION_FAILED;
     this->mark_failed();
     return;
   }
 
   if (id[0] != 0x48 || id[1] != 0x34 || id[2] != 0x33) {
-    ESP_LOGE(TAG, "The ID registers don't match - Is this really an HMC5883L?");
+    this->error_code_ = ID_REGISTERS;
     this->mark_failed();
     return;
   }
@@ -50,6 +50,7 @@ void HMC5883LComponent::setup() {
   // 0b000000xx << 0 Measurement Mode - 0b00=high impedance on load
   config_a |= 0b00000000;
   if (!this->write_byte(HMC5883L_REGISTER_CONFIG_A, config_a)) {
+    this->error_code_ = COMMUNICATION_FAILED;
     this->mark_failed();
     return;
   }
@@ -57,6 +58,7 @@ void HMC5883LComponent::setup() {
   uint8_t config_b = 0;
   config_b |= this->range_ << 5;
   if (!this->write_byte(HMC5883L_REGISTER_CONFIG_B, config_b)) {
+    this->error_code_ = COMMUNICATION_FAILED;
     this->mark_failed();
     return;
   }
@@ -66,9 +68,21 @@ void HMC5883LComponent::setup() {
   mode |= 0b00;
 
   if (!this->write_byte(HMC5883L_REGISTER_MODE, mode)) {
+    this->error_code_ = COMMUNICATION_FAILED;
     this->mark_failed();
     return;
   }
+}
+void HMC5883LComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "HMC5883L:");
+  LOG_I2C_DEVICE(this);
+  if (this->error_code_ == COMMUNICATION_FAILED) {
+    ESP_LOGE(TAG, "Communication with HMC5883L failed!");
+  } else if (this->error_code_ == ID_REGISTERS) {
+    ESP_LOGE(TAG, "The ID registers don't match - Is this really an HMC5883L?");
+  }
+
+  LOG_UPDATE_INTERVAL(this);
 }
 float HMC5883LComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

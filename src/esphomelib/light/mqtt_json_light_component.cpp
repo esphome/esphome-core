@@ -17,9 +17,7 @@ std::string MQTTJSONLightComponent::component_type() const {
 }
 
 void MQTTJSONLightComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT light...");
-
-  this->subscribe_json(this->get_command_topic(), [&](JsonObject &root) {
+  this->subscribe_json(this->get_command_topic(), [this](const std::string &topic, JsonObject &root) {
     this->state_->make_call().parse_json(root).perform();
   });
 
@@ -27,8 +25,6 @@ void MQTTJSONLightComponent::setup() {
   this->state_->add_new_remote_values_callback([this, f]() {
     this->defer("send", f);
   });
-
-  this->publish_state();
 }
 
 MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
@@ -36,10 +32,8 @@ MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state)
 
 }
 
-void MQTTJSONLightComponent::publish_state() {
-  LightColorValues remote_values = this->state_->get_remote_values();
-  remote_values.save_to_preferences(this->state_->get_name(), this->state_->get_traits());
-  this->send_json_message(this->get_state_topic(), [&](JsonObject &root) {
+bool MQTTJSONLightComponent::publish_state() {
+  return this->publish_json(this->get_state_topic(), [this](JsonObject &root) {
     this->state_->dump_json(root);
   });
 }
@@ -68,11 +62,15 @@ void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscover
   }
   config.platform = "mqtt_json";
 }
-void MQTTJSONLightComponent::send_initial_state() {
-  this->publish_state();
+bool MQTTJSONLightComponent::send_initial_state() {
+  return this->publish_state();
 }
 bool MQTTJSONLightComponent::is_internal() {
   return this->state_->is_internal();
+}
+void MQTTJSONLightComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT Light '%s':", this->state_->get_name().c_str());
+  LOG_MQTT_COMPONENT(true, true)
 }
 
 } // namespace light

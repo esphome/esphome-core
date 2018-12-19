@@ -22,6 +22,11 @@ void GPIOBinaryOutputComponent::setup() {
   this->pin_->setup();
   this->pin_->digital_write(false);
 }
+void GPIOBinaryOutputComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "GPIO Binary Output:");
+  LOG_PIN("  Pin: ", this->pin_);
+  LOG_BINARY_OUTPUT(this);
+}
 
 float GPIOBinaryOutputComponent::get_setup_priority() const {
   return setup_priority::HARDWARE;

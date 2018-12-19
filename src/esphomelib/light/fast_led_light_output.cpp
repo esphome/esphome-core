@@ -41,6 +41,14 @@ void FastLEDLightOutputComponent::setup() {
   }
   ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
 }
+void FastLEDLightOutputComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "FastLED light:");
+  ESP_LOGCONFIG(TAG, "    Num LEDs: %u", this->num_leds_);
+  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
+  ESP_LOGCONFIG(TAG, "    Color Correction: red=%.0f%% green=%.0f%% blue=%.0f%%",
+      this->correction_.red / 2.55f, this->correction_.green / 2.55f, this->correction_.blue / 2.55f);
+
+}
 void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_ && !this->is_effect_active())
     return;

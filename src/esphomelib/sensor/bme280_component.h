@@ -90,6 +90,7 @@ class BME280Component : public PollingComponent, public I2CDevice {
   BME280HumiditySensor *get_humidity_sensor() const;
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
 
@@ -112,6 +113,11 @@ class BME280Component : public PollingComponent, public I2CDevice {
   BME280TemperatureSensor *temperature_sensor_;
   BME280PressureSensor *pressure_sensor_;
   BME280HumiditySensor *humidity_sensor_;
+  enum ErrorCode {
+    NONE = 0,
+    COMMUNICATION_FAILED,
+    WRONG_CHIP_ID,
+  } error_code_{NONE};
 };
 
 } // namespace sensor

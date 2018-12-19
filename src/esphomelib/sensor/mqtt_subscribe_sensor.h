@@ -17,6 +17,7 @@ class MQTTSubscribeSensor : public Sensor, public Component {
   MQTTSubscribeSensor(const std::string &name, std::string topic);
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
 
   void set_qos(uint8_t qos);

@@ -6,6 +6,7 @@
 #ifdef USE_OTA
 
 #include "esphomelib/component.h"
+#include "esphomelib/esppreferences.h"
 #include <WiFiServer.h>
 #include <WiFiClient.h>
 
@@ -96,6 +97,7 @@ class OTAComponent : public Component {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void loop() override;
 
@@ -109,7 +111,7 @@ class OTAComponent : public Component {
 
 #ifdef USE_NEW_OTA
   void handle_();
-  size_t wait_receive_(uint8_t *buf, size_t bytes);
+  size_t wait_receive_(uint8_t *buf, size_t bytes, bool check_disconnected = true);
 #else
   enum { OPEN, PLAINTEXT, HASH } auth_type_{OPEN};
 #endif
@@ -131,6 +133,7 @@ class OTAComponent : public Component {
   uint8_t safe_mode_rtc_value_;
   uint8_t safe_mode_num_attempts_;
   uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
+  ESPPreferenceObject rtc_;
 };
 
 ESPHOMELIB_NAMESPACE_END

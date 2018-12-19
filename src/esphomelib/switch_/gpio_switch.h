@@ -13,7 +13,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-class GPIOSwitch : public Switch {
+class GPIOSwitch : public Switch, public Component {
  public:
   GPIOSwitch(const std::string &name, GPIOPin *pin);
 
@@ -22,14 +22,12 @@ class GPIOSwitch : public Switch {
   float get_setup_priority() const override;
 
   void setup() override;
-
-  void set_power_on_value(bool power_on_value);
+  void dump_config() override;
 
  protected:
   void write_state(bool state) override;
 
   GPIOPin *const pin_;
-  bool power_on_value_{false};
 };
 
 } // namespace switch_

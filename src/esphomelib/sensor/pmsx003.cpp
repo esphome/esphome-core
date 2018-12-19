@@ -11,9 +11,6 @@ namespace sensor {
 
 static const char *TAG = "sensor.pmsx003";
 
-void PMSX003Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up PMS5003...");
-}
 void PMSX003Component::loop() {
   const uint32_t now = millis();
   if (now - this->last_transmission_ >= 500) {
@@ -26,18 +23,28 @@ void PMSX003Component::loop() {
 
   this->last_transmission_ = now;
   while (this->available() != 0) {
-    uint8_t data;
-    if (!this->read_byte(&data) || !this->check_byte_(data, this->data_index_)) {
+    this->read_byte(&this->data_[this->data_index_]);
+    auto check = this->check_byte_();
+    if (!check.has_value()) {
+      // finished
+      this->parse_data_();
       this->data_index_ = 0;
-      this->status_set_warning();
-      continue;
+    } else if (!*check) {
+      // wrong data
+      this->data_index_ = 0;
+    } else {
+      // next byte
+      this->data_index_++;
     }
   }
 }
 float PMSX003Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
-bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
+optional<bool> PMSX003Component::check_byte_() {
+  uint8_t index = this->data_index_;
+  uint8_t byte = this->data_[index];
+
   if (index == 0)
     return byte == 0x42;
 
@@ -47,23 +54,24 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
   if (index == 2)
     return true;
 
-  uint16_t payload_length = this->get_16_bit_uint(2);
+  uint16_t payload_length = this->get_16_bit_uint_(2);
   if (index == 3) {
     bool length_matches = false;
     switch (this->type_) {
       case PMSX003_TYPE_X003:
-        length_matches = payload_length == 13 || payload_length == 9;
+        length_matches = payload_length == 28 || payload_length == 20;
         break;
       case PMSX003_TYPE_5003T:
-        length_matches = payload_length == 13;
+        length_matches = payload_length == 28;
         break;
       case PMSX003_TYPE_5003ST:
-        length_matches = payload_length == 17;
+        length_matches = payload_length == 36;
         break;
     }
 
     if (!length_matches) {
-      ESP_LOGW(TAG, "PMSX003 length doesn't match. Are you using the correct PMSX003 type?");
+      ESP_LOGW(TAG, "PMSX003 length %u doesn't match. Are you using the correct PMSX003 type?",
+               payload_length);
       return false;
     }
     return true;
@@ -80,17 +88,21 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
   for (uint8_t i = 0; i < total_size - 2; i++)
     checksum += this->data_[i];
 
-  uint16_t check = this->get_16_bit_uint(total_size - 2);
+  uint16_t check = this->get_16_bit_uint_(total_size - 2);
   if (checksum != check) {
     ESP_LOGW(TAG, "PMSX003 checksum mismatch! 0x%02X!=0x%02X", checksum, check);
     return false;
   }
 
+  return {};
+}
+
+void PMSX003Component::parse_data_() {
   switch (this->type_) {
     case PMSX003_TYPE_X003: {
-      uint16_t pm_1_0_concentration = this->get_16_bit_uint(10);
-      uint16_t pm_2_5_concentration = this->get_16_bit_uint(12);
-      uint16_t pm_10_0_concentration = this->get_16_bit_uint(14);
+      uint16_t pm_1_0_concentration = this->get_16_bit_uint_(10);
+      uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
+      uint16_t pm_10_0_concentration = this->get_16_bit_uint_(14);
       ESP_LOGD(TAG, "Got PM1.0 Concentration: %u µg/m^3, PM2.5 Concentration %u µg/m^3, PM10.0 Concentration: %u µg/m^3",
           pm_1_0_concentration, pm_2_5_concentration, pm_10_0_concentration);
       if (this->pm_1_0_sensor_ != nullptr)
@@ -102,9 +114,9 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
       break;
     }
     case PMSX003_TYPE_5003T: {
-      uint16_t pm_2_5_concentration = this->get_16_bit_uint(12);
-      float temperature = this->get_16_bit_uint(24) / 10.0f;
-      float humidity = this->get_16_bit_uint(26) / 10.0f;
+      uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
+      float temperature = this->get_16_bit_uint_(24) / 10.0f;
+      float humidity = this->get_16_bit_uint_(26) / 10.0f;
       ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%%",
           pm_2_5_concentration, temperature, humidity);
       if (this->pm_2_5_sensor_ != nullptr)
@@ -116,10 +128,10 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
       break;
     }
     case PMSX003_TYPE_5003ST: {
-      uint16_t pm_2_5_concentration = this->get_16_bit_uint(12);
-      uint16_t formaldehyde = this->get_16_bit_uint(28);
-      float temperature = this->get_16_bit_uint(30) / 10.0f;
-      float humidity = this->get_16_bit_uint(32) / 10.0f;
+      uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
+      uint16_t formaldehyde = this->get_16_bit_uint_(28);
+      float temperature = this->get_16_bit_uint_(30) / 10.0f;
+      float humidity = this->get_16_bit_uint_(32) / 10.0f;
       ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%% Formaldehyde: %u µg/m^3",
                pm_2_5_concentration, temperature, humidity, formaldehyde);
       if (this->pm_2_5_sensor_ != nullptr)
@@ -134,11 +146,9 @@ bool PMSX003Component::check_byte_(uint8_t byte, uint8_t index) {
     }
   }
 
-  this->data_index_ = 0;
   this->status_clear_warning();
-  return true;
 }
-uint16_t PMSX003Component::get_16_bit_uint(uint8_t start_index) {
+uint16_t PMSX003Component::get_16_bit_uint_(uint8_t start_index) {
   return (uint16_t(this->data_[start_index]) << 8) | uint16_t(this->data_[start_index + 1]);
 }
 PMSX003Sensor *PMSX003Component::make_pm_1_0_sensor(const std::string &name) {

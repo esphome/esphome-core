@@ -327,6 +327,7 @@ class FastLEDLightOutputComponent : public LightOutput, public Component, public
   LightTraits get_traits() override;
   void write_state(LightState *state) override;
   void setup() override;
+  void dump_config() override;
   void loop() override;
   float get_setup_priority() const override;
 

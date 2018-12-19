@@ -51,6 +51,7 @@ class DallasComponent : public PollingComponent {
 
   /// Set up individual sensors and update intervals.
   void setup() override;
+  void dump_config() override;
   /// HARDWARE_LATE setup priority.
   float get_setup_priority() const override;
 
@@ -61,6 +62,7 @@ class DallasComponent : public PollingComponent {
  protected:
   ESPOneWire *one_wire_;
   std::vector<DallasTemperatureSensor *> sensors_;
+  std::vector<uint64_t> found_sensors_;
 };
 
 /// Internal class that helps us create multiple sensors for one Dallas hub.
@@ -84,7 +86,7 @@ class DallasTemperatureSensor : public EmptyPollingParentSensor<1, ICON_EMPTY, U
   /// Set the 64-bit unsigned address for this sensor.
   void set_address(uint64_t address);
   /// Get the index of this sensor. (0 if using address.)
-  uint8_t get_index() const;
+  optional<uint8_t> get_index() const;
   /// Set the index of this sensor. If using index, address will be set after setup.
   void set_index(uint8_t index);
   /// Get the set resolution for this sensor.
@@ -104,7 +106,7 @@ class DallasTemperatureSensor : public EmptyPollingParentSensor<1, ICON_EMPTY, U
   std::string unique_id() override;
  protected:
   uint64_t address_;
-  uint8_t index_;
+  optional<uint8_t> index_;
 
   uint8_t resolution_;
   std::string address_name_;

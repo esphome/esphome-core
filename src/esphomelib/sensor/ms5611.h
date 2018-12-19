@@ -21,6 +21,7 @@ class MS5611Component : public PollingComponent, public I2CDevice {
                   uint32_t update_interval = 15000);
 
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
 

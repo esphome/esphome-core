@@ -78,6 +78,7 @@ class GPIOLCDDisplay : public LCDDisplay {
   void set_enable_pin(const GPIOOutputPin &enable);
   void set_rs_pin(const GPIOOutputPin &rs);
   void set_rw_pin(const GPIOOutputPin &rw);
+  void dump_config() override;
  protected:
   bool is_four_bit_mode_() override;
   void write_n_bits(uint8_t value, uint8_t n) override;
@@ -93,6 +94,7 @@ class PCF8574LCDDisplay : public LCDDisplay, public I2CDevice {
  public:
   PCF8574LCDDisplay(I2CComponent *parent, uint8_t columns, uint8_t rows, uint8_t address = 0x3F, uint32_t update_interval = 1000);
   void setup() override;
+  void dump_config() override;
  protected:
   bool is_four_bit_mode_() override;
   void write_n_bits(uint8_t value, uint8_t n) override;

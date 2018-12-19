@@ -85,7 +85,7 @@ void LCDDisplay::setup() {
 float LCDDisplay::get_setup_priority() const {
   return setup_priority::POST_HARDWARE;
 }
-void LCDDisplay::display() {
+void HOT LCDDisplay::display() {
   this->command(LCD_DISPLAY_COMMAND_SET_DDRAM_ADDR | 0);
 
   for (uint8_t i = 0; i < this->columns_; i++)
@@ -195,6 +195,19 @@ void GPIOLCDDisplay::setup() {
   }
   LCDDisplay::setup();
 }
+void GPIOLCDDisplay::dump_config() {
+  ESP_LOGCONFIG(TAG, "GPIO LCD Display:");
+  ESP_LOGCONFIG(TAG, "  Columns: %u, Rows: %u", this->columns_, this->rows_);
+  LOG_PIN("  RS Pin: ", this->rs_pin_);
+  LOG_PIN("  RW Pin: ", this->rw_pin_);
+  LOG_PIN("  Enable Pin: ", this->enable_pin_);
+
+  for (uint8_t i = 0; i < (this->is_four_bit_mode_() ? 4 : 8); i++) {
+    ESP_LOGCONFIG(TAG, "  Data Pin %u" LOG_PIN_PATTERN, i, LOG_PIN_ARGS(this->data_pins_[i]));
+  }
+
+  LOG_UPDATE_INTERVAL(this);
+}
 void GPIOLCDDisplay::set_data_pins(const GPIOOutputPin &d0,
                                    const GPIOOutputPin &d1,
                                    const GPIOOutputPin &d2,
@@ -258,14 +271,22 @@ GPIOLCDDisplay::GPIOLCDDisplay(uint8_t columns, uint8_t rows, uint32_t update_in
 
 #ifdef USE_LCD_DISPLAY_PCF8574
 void PCF8574LCDDisplay::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up PCF8574 LCD Display with address=0x%02X...", this->address_);
+  ESP_LOGCONFIG(TAG, "Setting up PCF8574 LCD Display...");
   if (!this->write_bytes(0x08, nullptr, 0)) {
-    ESP_LOGE(TAG, "Communication with PCF6574 LCD Display failed!");
     this->mark_failed();
     return;
   }
 
   LCDDisplay::setup();
+}
+void PCF8574LCDDisplay::dump_config() {
+  ESP_LOGCONFIG(TAG, "PCF8574 LCD Display:");
+  ESP_LOGCONFIG(TAG, "  Columns: %u, Rows: %u", this->columns_, this->rows_);
+  LOG_I2C_DEVICE(this);
+  LOG_UPDATE_INTERVAL(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with LCD Display failed!");
+  }
 }
 bool PCF8574LCDDisplay::is_four_bit_mode_() {
   return true;

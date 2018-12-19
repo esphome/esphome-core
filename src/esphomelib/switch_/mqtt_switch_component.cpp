@@ -20,24 +20,15 @@ MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_)
 }
 
 void MQTTSwitchComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MQTT switch '%s'", this->switch_->get_name().c_str());
-  ESP_LOGCONFIG(TAG, "    Icon: '%s'", this->switch_->get_icon().c_str());
-  if (this->switch_->optimistic()) {
-    ESP_LOGCONFIG(TAG, "    Optimistic: YES");
-  }
-
-  this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
+  this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {
     switch (parse_on_off(payload.c_str())) {
       case PARSE_ON:
-        ESP_LOGD(TAG, "'%s' Turning ON.", this->friendly_name().c_str());
         this->switch_->turn_on();
         break;
       case PARSE_OFF:
-        ESP_LOGD(TAG, "'%s' Turning OFF.", this->friendly_name().c_str());
         this->switch_->turn_off();
         break;
       case PARSE_TOGGLE:
-        ESP_LOGD(TAG, "'%s' Toggling.", this->friendly_name().c_str());
         this->switch_->toggle();
         break;
       case PARSE_NONE:
@@ -48,10 +39,20 @@ void MQTTSwitchComponent::setup() {
     }
   });
   this->switch_->add_on_state_callback([this](bool enabled){
-    this->defer([this, enabled]() {
+    this->defer("send", [this, enabled]() {
       this->publish_state(enabled);
     });
   });
+}
+void MQTTSwitchComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "MQTT switch '%s': ", this->switch_->get_name().c_str());
+  if (!this->switch_->get_icon().empty()) {
+    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->switch_->get_icon().c_str());
+  }
+  if (this->switch_->optimistic()) {
+    ESP_LOGCONFIG(TAG, "  Optimistic: YES");
+  }
+  LOG_MQTT_COMPONENT(true, true);
 }
 
 std::string MQTTSwitchComponent::component_type() const {
@@ -63,8 +64,8 @@ void MQTTSwitchComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
   if (this->switch_->optimistic())
     root["optimistic"] = true;
 }
-void MQTTSwitchComponent::send_initial_state() {
-  this->publish_state(this->switch_->state);
+bool MQTTSwitchComponent::send_initial_state() {
+  return this->publish_state(this->switch_->state);
 }
 bool MQTTSwitchComponent::is_internal() {
   return this->switch_->is_internal();
@@ -72,10 +73,9 @@ bool MQTTSwitchComponent::is_internal() {
 std::string MQTTSwitchComponent::friendly_name() const {
   return this->switch_->get_name();
 }
-void MQTTSwitchComponent::publish_state(bool state) {
+bool MQTTSwitchComponent::publish_state(bool state) {
   const char *state_s = state ? "ON" : "OFF";
-  ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s);
-  this->send_message(this->get_state_topic(), state_s);
+  return this->publish(this->get_state_topic(), state_s);
 }
 
 } // namespace switch_

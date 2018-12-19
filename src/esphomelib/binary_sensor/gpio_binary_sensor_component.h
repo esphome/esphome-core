@@ -29,6 +29,7 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
   // (In most use cases you won't need these)
   /// Setup pin
   void setup() override;
+  void dump_config() override;
   /// Hardware priority
   float get_setup_priority() const override;
   /// Check sensor

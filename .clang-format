@@ -1,0 +1,16 @@
+BasedOnStyle: Google
+Language: Cpp
+ColumnLimit: 120
+AccessModifierOffset: -1
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+FixNamespaceComments: true
+PenaltyReturnTypeOnItsOwnLine: 2000
+PointerAlignment: Right
+SortIncludes: false
+TabWidth: 2
+UseTab: Never
+SpaceAfterTemplateKeyword: false
+SpacesBeforeTrailingComments: 2
+IndentPPDirectives: None

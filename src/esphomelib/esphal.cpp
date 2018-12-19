@@ -9,8 +9,6 @@ static const char *TAG = "esphal";
 GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
   : pin_(pin), mode_(mode), inverted_(inverted),
 #ifdef ARDUINO_ARCH_ESP8266
-    gpio_set_(pin < 16 ? &GPOS : nullptr),
-    gpio_clear_(pin < 16 ? &GPOC : nullptr),
     gpio_read_(pin < 16 ? &GPI : &GP16I),
     gpio_mask_(pin < 16 ? (1UL << pin) : 1)
 #endif
@@ -24,10 +22,9 @@ GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
 
 }
 
-void print_pin_mode(uint8_t pin, uint8_t mode) {
-#ifdef ESPHOMELIB_LOG_HAS_CONFIG
+const char *GPIOPin::get_pin_mode_name() const {
   const char *mode_s;
-  switch (mode) {
+  switch (this->mode_) {
     case INPUT: mode_s = "INPUT"; break;
     case OUTPUT: mode_s = "OUTPUT"; break;
     case INPUT_PULLUP: mode_s = "INPUT_PULLUP"; break;
@@ -56,8 +53,8 @@ void print_pin_mode(uint8_t pin, uint8_t mode) {
 
     default: mode_s = "UNKNOWN"; break;
   }
-  ESP_LOGCONFIG(TAG, "    GPIO Pin %u with mode %s", pin, mode_s);
-#endif
+
+  return mode_s;
 }
 
 unsigned char GPIOPin::get_pin() const {
@@ -71,7 +68,6 @@ bool GPIOPin::is_inverted() const {
   return this->inverted_;
 }
 void GPIOPin::setup() {
-  print_pin_mode(this->pin_, this->mode_);
   this->pin_mode(this->mode_);
 }
 bool ICACHE_RAM_ATTR HOT GPIOPin::digital_read() {
@@ -79,21 +75,27 @@ bool ICACHE_RAM_ATTR HOT GPIOPin::digital_read() {
 }
 void ICACHE_RAM_ATTR HOT GPIOPin::digital_write(bool value) {
 #ifdef ARDUINO_ARCH_ESP8266
-  if (this->gpio_set_ == nullptr) {
+  if (this->pin_ != 16) {
+    if (value != this->inverted_) {
+      GPOS = this->gpio_mask_;
+    } else {
+      GPOC = this->gpio_mask_;
+    }
+  } else {
     if (value != this->inverted_) {
       GP16O |= 1;
     } else {
       GP16O &= ~1;
     }
-
-    return;
   }
 #endif
+#ifdef ARDUINO_ARCH_ESP32
   if (value != this->inverted_) {
     (*this->gpio_set_) = this->gpio_mask_;
   } else {
     (*this->gpio_clear_) = this->gpio_mask_;
   }
+#endif
 }
 GPIOPin *GPIOPin::copy() const { return new GPIOPin(*this); }
 

@@ -30,20 +30,15 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   /// Send discovery.
   void setup() override;
 
+  void dump_config() override;
+
   /// Send Home Assistant discovery info
   void send_discovery(JsonObject &obj, mqtt::SendDiscoveryConfig &config) override;
 
-  /// Get the payload this binary sensor uses for an ON value.
-  const std::string &get_payload_on() const;
-  /// Set the custom payload this binary sensor uses for an ON value.
-  void set_payload_on(std::string payload_on);
-  /// Get the payload this binary sensor uses for an OFF value.
-  const std::string &get_payload_off() const;
-  /// Set the custom payload this binary sensor uses for an OFF value.
-  void set_payload_off(std::string payload_off);
+  void set_is_status(bool status);
 
-  void send_initial_state() override;
-  void publish_state(bool state);
+  bool send_initial_state() override;
+  bool publish_state(bool state);
   bool is_internal() override;
 
  protected:
@@ -53,8 +48,7 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   std::string component_type() const override;
 
   BinarySensor *binary_sensor_;
-  std::string payload_on_{"ON"};
-  std::string payload_off_{"OFF"};
+  bool is_status_{false};
 };
 
 } // namespace binary_sensor

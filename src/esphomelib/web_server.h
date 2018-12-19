@@ -29,10 +29,8 @@ struct UrlMatch {
  * all state updates in real time + the debug log. Lastly, there's an REST API available
  * under the '/light/...', '/sensor/...', ... URLs. A full documentation for this API
  * can be found under https://esphomelib.com/web-api/index.html.
- *
- * Additionally, the web server is advertised via mDNS.
  */
-class WebServer : public StoringController, public Component, public AsyncWebHandler {
+class WebServer : public StoringUpdateListenerController, public Component, public AsyncWebHandler {
  public:
   /// Initialize the web server with the specified port
   explicit WebServer(uint16_t port);
@@ -59,16 +57,18 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   /// Setup the internal web server and register handlers.
   void setup() override;
 
+  void dump_config() override;
+
   /// MQTT setup priority.
   float get_setup_priority() const override;
 
   /// Handle an index request under '/'.
   void handle_index_request(AsyncWebServerRequest *request);
 
-#ifdef USE_SENSOR
-  /// Internally register a sensor and set a callback on state changes.
-  void register_sensor(sensor::Sensor *obj) override;
+  void handle_update_request(AsyncWebServerRequest *request);
 
+#ifdef USE_SENSOR
+  void on_sensor_update(sensor::Sensor *obj, float state) override;
   /// Handle a sensor request under '/sensor/<id>'.
   void handle_sensor_request(AsyncWebServerRequest *request, UrlMatch match);
 
@@ -77,8 +77,7 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
 #endif
 
 #ifdef USE_SWITCH
-  /// Internally register a switch and set a callback on state changes.
-  void register_switch(switch_::Switch *obj) override;
+  void on_switch_update(switch_::Switch *obj, bool state) override;
 
   /// Handle a switch request under '/switch/<id>/</turn_on/turn_off/toggle>'.
   void handle_switch_request(AsyncWebServerRequest *request, UrlMatch match);
@@ -88,8 +87,7 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
 #endif
 
 #ifdef USE_BINARY_SENSOR
-  /// Internally register a binary sensor and set a callback on state changes.
-  void register_binary_sensor(binary_sensor::BinarySensor *obj) override;
+  void on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool state) override;
 
   /// Handle a binary sensor request under '/binary_sensor/<id>'.
   void handle_binary_sensor_request(AsyncWebServerRequest *request, UrlMatch match);
@@ -99,8 +97,7 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
 #endif
 
 #ifdef USE_FAN
-  /// Internally register a fan and set a callback on state changes.
-  void register_fan(fan::FanState *obj) override;
+  void on_fan_update(fan::FanState *obj) override;
 
   /// Handle a fan request under '/fan/<id>/</turn_on/turn_off/toggle>'.
   void handle_fan_request(AsyncWebServerRequest *request, UrlMatch match);
@@ -110,8 +107,7 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
 #endif
 
 #ifdef USE_LIGHT
-  /// Internally register a light and set a callback on state changes.
-  void register_light(light::LightState *obj) override;
+  void on_light_update(light::LightState *obj) override;
 
   /// Handle a light request under '/light/<id>/</turn_on/turn_off/toggle>'.
   void handle_light_request(AsyncWebServerRequest *request, UrlMatch match);
@@ -121,8 +117,7 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
 #endif
 
 #ifdef USE_TEXT_SENSOR
-  /// Internally register a text sensor and set a callback on state changes.
-  void register_text_sensor(text_sensor::TextSensor *obj) override;
+  void on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) override;
 
   /// Handle a text sensor request under '/text_sensor/<id>'.
   void handle_text_sensor_request(AsyncWebServerRequest *request, UrlMatch match);
@@ -135,6 +130,9 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   bool canHandle(AsyncWebServerRequest *request) override;
   /// Override the web handler's handleRequest method.
   void handleRequest(AsyncWebServerRequest *request) override;
+  void handleUpload(AsyncWebServerRequest *request,
+                    const String &filename, size_t index, uint8_t *data, size_t len,
+                    bool final) override;
   /// This web handle is not trivial.
   bool isRequestHandlerTrivial() override;
 
@@ -144,6 +142,8 @@ class WebServer : public StoringController, public Component, public AsyncWebHan
   AsyncEventSource events_{"/events"};
   const char *css_url_{nullptr};
   const char *js_url_{nullptr};
+  uint32_t last_ota_progress_{0};
+  uint32_t ota_read_length_{0};
 };
 
 ESPHOMELIB_NAMESPACE_END
