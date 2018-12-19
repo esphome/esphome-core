@@ -16,7 +16,7 @@ void MQTTCoverComponent::setup() {
   this->cover_->add_on_publish_state_callback([this](CoverState state) {
     this->publish_state(state);
   });
-  this->subscribe(this->get_command_topic(), [&](const std::string &payload) {
+  this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {
     if (strcasecmp(payload.c_str(), "OPEN") == 0) {
       ESP_LOGD(TAG, "'%s': Opening cover...", this->friendly_name().c_str());
       this->cover_->open();
@@ -50,25 +50,28 @@ std::string MQTTCoverComponent::component_type() const {
 std::string MQTTCoverComponent::friendly_name() const {
   return this->cover_->get_name();
 }
-void MQTTCoverComponent::send_initial_state() {
-  if (this->cover_->has_state())
-    this->publish_state(this->cover_->state);
+bool MQTTCoverComponent::send_initial_state() {
+  if (this->cover_->has_state()) {
+    return this->publish_state(this->cover_->state);
+  } else {
+    return true;
+  }
 }
 bool MQTTCoverComponent::is_internal() {
   return this->cover_->is_internal();
 }
-void MQTTCoverComponent::publish_state(cover::CoverState state) {
+bool MQTTCoverComponent::publish_state(cover::CoverState state) {
   const char *state_s;
   switch (state) {
     case COVER_OPEN: state_s = "open"; break;
     case COVER_CLOSED: state_s = "closed"; break;
     default: {
       ESP_LOGW(TAG, "Unknown cover state.");
-      return;
+      return true;
     }
   }
   ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s);
-  this->send_message(this->get_state_topic(), state_s);
+  return this->publish(this->get_state_topic(), state_s);
 }
 
 } // namespace cover

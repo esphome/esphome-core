@@ -36,9 +36,9 @@ class MonochromaticLightOutput : public LightOutput {
 class CWWWLightOutput : public LightOutput {
  public:
   CWWWLightOutput(float cold_white_mireds,
-                   float warm_white_mireds,
-                   output::FloatOutput *cold_white,
-                   output::FloatOutput *warm_white);
+                  float warm_white_mireds,
+                  output::FloatOutput *cold_white,
+                  output::FloatOutput *warm_white);
 
   LightTraits get_traits() override;
   void write_state(LightState *state) override;

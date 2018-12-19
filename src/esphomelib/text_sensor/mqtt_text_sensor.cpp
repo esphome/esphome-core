@@ -25,8 +25,9 @@ void MQTTTextSensor::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig 
   config.command_topic = false;
 }
 void MQTTTextSensor::setup() {
-  auto f = std::bind(&MQTTTextSensor::publish_state, this, std::placeholders::_1);
-  this->sensor_->add_on_state_callback(f);
+  this->sensor_->add_on_state_callback([this](const std::string &state) {
+    this->publish_state(state);
+  });
 }
 
 void MQTTTextSensor::dump_config() {
@@ -40,12 +41,15 @@ void MQTTTextSensor::dump_config() {
   LOG_MQTT_COMPONENT(true, false);
 }
 
-void MQTTTextSensor::publish_state(const std::string &value) {
-  this->send_message(this->get_state_topic(), value);
+bool MQTTTextSensor::publish_state(const std::string &value) {
+  return this->publish(this->get_state_topic(), value);
 }
-void MQTTTextSensor::send_initial_state() {
-  if (this->sensor_->has_state())
-    this->publish_state(this->sensor_->state);
+bool MQTTTextSensor::send_initial_state() {
+  if (this->sensor_->has_state()) {
+    return this->publish_state(this->sensor_->state);
+  } else {
+    return true;
+  }
 }
 bool MQTTTextSensor::is_internal() {
   return this->sensor_->is_internal();

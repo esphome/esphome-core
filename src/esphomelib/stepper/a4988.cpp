@@ -30,8 +30,14 @@ void A4988::dump_config() {
   LOG_STEPPER(this);
 }
 void A4988::loop() {
+  bool at_target = this->has_reached_target();
   if (this->sleep_pin_ != nullptr) {
-    this->sleep_pin_->digital_write(!this->has_reached_target());
+    this->sleep_pin_->digital_write(!at_target);
+  }
+  if (at_target) {
+    this->high_freq_.stop();
+  } else {
+    this->high_freq_.start();
   }
 
   int32_t dir = this->should_step_();

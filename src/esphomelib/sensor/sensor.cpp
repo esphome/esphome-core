@@ -45,6 +45,10 @@ Sensor::Sensor(const std::string &name)
   // By default, apply a smoothing over the last 15 values
   this->add_filter(new SlidingWindowMovingAverageFilter(15, 15));
 }
+Sensor::Sensor()
+    : Sensor("") {
+
+}
 
 void Sensor::set_unit_of_measurement(const std::string &unit_of_measurement) {
   this->unit_of_measurement_ = unit_of_measurement;
@@ -79,6 +83,7 @@ int8_t Sensor::get_accuracy_decimals() {
 void Sensor::add_filter(Filter *filter) {
   // inefficient, but only happens once on every sensor setup and nobody's going to have massive amounts of
   // filters
+  ESP_LOGVV(TAG, "Sensor(%p)::add_filter(%p)", this, filter);
   if (this->filter_list_ == nullptr) {
     this->filter_list_ = filter;
   } else {
@@ -99,6 +104,7 @@ void Sensor::set_filters(const std::vector<Filter *> &filters) {
   this->add_filters(filters);
 }
 void Sensor::clear_filters() {
+  ESP_LOGVV(TAG, "Sensor(%p)::clear_filters()", this);
   // note: not deallocating here, it makes the code faster (no virtual destructor)
   // plus this is not called too often.
   this->filter_list_ = nullptr;
@@ -148,6 +154,9 @@ uint32_t Sensor::calculate_expected_filter_update_interval() {
   }
 
   return this->filter_list_->calculate_remaining_interval(interval);
+}
+uint32_t Sensor::hash_base_() {
+  return 2455723294UL;
 }
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
@@ -202,23 +211,8 @@ SensorRawStateTrigger::SensorRawStateTrigger(Sensor *parent) {
   });
 }
 
-ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) {
-  parent->add_on_state_callback([this](float value) {
-    if (isnan(value))
-      return;
+ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) : parent_(parent) {
 
-    float local_min = this->min_.value(value);
-    float local_max = this->max_.value(value);
-
-    bool in_range = (isnan(local_min) && value <= local_max) || (isnan(local_max) && value >= local_min)
-        || (!isnan(local_min) && !isnan(local_max) && local_min <= value && value <= local_max);
-
-    if (in_range != this->previous_in_range_ && in_range) {
-      this->trigger(value);
-    }
-
-    this->previous_in_range_ = in_range;
-  });
 }
 void ValueRangeTrigger::set_min(std::function<float(float)> &&min) {
   this->min_ = std::move(min);
@@ -231,6 +225,45 @@ void ValueRangeTrigger::set_max(std::function<float(float)> &&max) {
 }
 void ValueRangeTrigger::set_max(float max) {
   this->max_ = max;
+}
+void ValueRangeTrigger::on_state_(float state) {
+  if (isnan(state))
+    return;
+
+  float local_min = this->min_.value(state);
+  float local_max = this->max_.value(state);
+
+  bool in_range;
+  if (isnan(local_min) && isnan(local_max)) {
+    in_range = this->previous_in_range_;
+  } else if (isnan(local_min)) {
+    in_range = state <= local_max;
+  } else if (isnan(local_max)) {
+    in_range = state >= local_min;
+  } else {
+    in_range = local_min <= state && state <= local_max;
+  }
+
+  if (in_range != this->previous_in_range_ && in_range) {
+    this->trigger(state);
+  }
+
+  this->previous_in_range_ = in_range;
+  this->rtc_.save(&in_range);
+}
+void ValueRangeTrigger::setup() {
+  this->rtc_ = global_preferences.make_preference<bool>(this->parent_->get_object_id_hash());
+  bool initial_state;
+  if (this->rtc_.load(&initial_state)) {
+    this->previous_in_range_ = initial_state;
+  }
+
+  this->parent_->add_on_state_callback([this](float state) {
+    this->on_state_(state);
+  });
+}
+float ValueRangeTrigger::get_setup_priority() const {
+  return setup_priority::HARDWARE;
 }
 
 } // namespace sensor

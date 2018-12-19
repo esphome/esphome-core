@@ -156,7 +156,7 @@ struct LightStateRTCState {
 void LightState::setup() {
   ESP_LOGCONFIG(TAG, "Setting up light '%s'...", this->get_name().c_str());
 
-  this->rtc_ = global_preferences.make_preference<LightStateRTCState>(617215407UL, this->name_);
+  this->rtc_ = global_preferences.make_preference<LightStateRTCState>(this->get_object_id_hash());
   LightStateRTCState recovered;
   if (!this->rtc_.load(&recovered))
     return;
@@ -262,8 +262,15 @@ LightState::StateCall LightState::toggle() {
 LightState::StateCall LightState::make_call() {
   return LightState::StateCall(this);
 }
+uint32_t LightState::hash_base_() {
+  return 1114400283;
+}
 
 LightState::StateCall &LightState::StateCall::set_state(bool state) {
+  this->binary_state_ = state;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_state(optional<bool> state) {
   this->binary_state_ = state;
   return *this;
 }
@@ -271,11 +278,23 @@ LightState::StateCall &LightState::StateCall::set_transition_length(uint32_t tra
   this->transition_length_ = transition_length;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_transition_length(optional<uint32_t> transition_length) {
+  this->transition_length_ = transition_length;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_flash_length(uint32_t flash_length) {
   this->flash_length_ = flash_length;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_flash_length(optional<uint32_t> flash_length) {
+  this->flash_length_ = flash_length;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_brightness(float brightness) {
+  this->brightness_ = brightness;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_brightness(optional<float> brightness) {
   this->brightness_ = brightness;
   return *this;
 }
@@ -294,7 +313,15 @@ LightState::StateCall &LightState::StateCall::set_red(float red) {
   this->red_ = red;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_red(optional<float> red) {
+  this->red_ = red;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_green(float green) {
+  this->green_ = green;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_green(optional<float> green) {
   this->green_ = green;
   return *this;
 }
@@ -302,11 +329,23 @@ LightState::StateCall &LightState::StateCall::set_blue(float blue) {
   this->blue_ = blue;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_blue(optional<float> blue) {
+  this->blue_ = blue;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_white(float white) {
   this->white_ = white;
   return *this;
 }
+LightState::StateCall &LightState::StateCall::set_white(optional<float> white) {
+  this->white_ = white;
+  return *this;
+}
 LightState::StateCall &LightState::StateCall::set_color_temperature(float color_temperature) {
+  this->color_temperature_ = color_temperature;
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_color_temperature(optional<float> color_temperature) {
   this->color_temperature_ = color_temperature;
   return *this;
 }
@@ -323,6 +362,12 @@ LightState::StateCall &LightState::StateCall::set_effect(const std::string &effe
       this->effect_ = i + 1;
       break;
     }
+  }
+  return *this;
+}
+LightState::StateCall &LightState::StateCall::set_effect(optional<std::string > effect) {
+  if (effect.has_value()) {
+    this->set_effect(*effect);
   }
   return *this;
 }
@@ -365,7 +410,8 @@ LightState::StateCall &LightState::StateCall::parse_color_json(JsonObject &root)
   }
 
   if (root.containsKey("color_temp")) {
-    this->set_color_temperature(root["color_temp"]);
+    float color_temp = root["color_temp"];
+    this->set_color_temperature(color_temp);
   }
 
   return *this;

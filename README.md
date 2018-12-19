@@ -316,23 +316,6 @@ mqtt:
 
 ## Advanced Options
 
-### Static IPs
-
-After `init_wifi()`, call:
-
-```cpp
-auto *wifi = App.init_wifi();
-wifi->set_sta(WiFiAp{
-  .ssid = "MySSID",
-  .password = "MyPassword",
-  .manual_ip = ManualIP{
-      .static_ip = IPAddress(192, 168, 178, 42),
-      .gateway = IPAddress(192, 168, 178, 1),
-      .subnet = IPAddress(255, 255, 255, 0)
-  }
-});
-```
-
 ### Disable MQTT Logging
 
 The second argument to `init_log()` denotes the MQTT topic that logs will be written to, providing a disabled Optional

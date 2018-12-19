@@ -42,7 +42,7 @@ void Switch::toggle() {
   this->write_state(this->inverted_ == this->state);
 }
 optional<bool> Switch::get_initial_state() {
-  this->rtc_ = global_preferences.make_preference<bool>(2704004739UL, this->name_);
+  this->rtc_ = global_preferences.make_preference<bool>(this->get_object_id_hash());
   bool initial_state;
   if (!this->rtc_.load(&initial_state))
     return {};
@@ -64,6 +64,9 @@ void Switch::add_on_state_callback(std::function<void(bool)> &&callback) {
 }
 void Switch::set_inverted(bool inverted) {
   this->inverted_ = inverted;
+}
+uint32_t Switch::hash_base_() {
+  return 3129890955UL;
 }
 
 } // namespace switch_
