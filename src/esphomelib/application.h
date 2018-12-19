@@ -98,6 +98,7 @@
 #include "esphomelib/sensor/hx711.h"
 #include "esphomelib/sensor/ina219.h"
 #include "esphomelib/sensor/ina3221.h"
+#include "esphomelib/sensor/max31855_sensor.h"
 #include "esphomelib/sensor/max6675_sensor.h"
 #include "esphomelib/sensor/mhz19_component.h"
 #include "esphomelib/sensor/mpu6050_component.h"
@@ -825,6 +826,16 @@ class Application {
   };
 
   MakeTemplateSensor make_template_sensor(const std::string &name, uint32_t update_interval = 15000);
+#endif
+
+#ifdef USE_MAX31855_SENSOR
+  struct MakeMAX31855Sensor {
+    sensor::MAX31855Sensor *max31855;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeMAX31855Sensor make_max31855_sensor(const std::string &name, SPIComponent *spi_bus, const GPIOOutputPin &cs,
+                                          uint32_t update_interval = 15000);
 #endif
 
 #ifdef USE_MAX6675_SENSOR

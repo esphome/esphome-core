@@ -75,6 +75,7 @@
   #endif
   #define USE_FAST_LED_LIGHT
   #define USE_ROTARY_ENCODER_SENSOR
+  #define USE_MAX31855_SENSOR
   #define USE_MAX6675_SENSOR
   #define USE_TEMPLATE_BINARY_SENSOR
   #define USE_TEMPLATE_SWITCH
@@ -348,6 +349,11 @@
   #endif
 #endif
 #ifdef USE_ESP32_HALL_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_MAX31855_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif
