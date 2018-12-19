@@ -1,6 +1,7 @@
 // Based on:
 //   - https://www.sparkfun.com/datasheets/Components/General/BST-BMP085-DS000-05.pdf
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/BMP085
+//   - http://wmrx00.sourceforge.net/Arduino/BMP085-Calcs.pdf
 
 #include "esphomelib/defines.h"
 
@@ -19,7 +20,7 @@ static const char *TAG = "sensor.bmp085";
 static const uint8_t BMP085_ADDRESS = 0x77;
 static const uint8_t BMP085_REGISTER_AC1_H = 0xAA;
 static const uint8_t BMP085_REGISTER_CONTROL = 0xF4;
-static const uint8_t BMP085_REGISTER_DATA_MSB  = 0xF6;
+static const uint8_t BMP085_REGISTER_DATA_MSB = 0xF6;
 static const uint8_t BMP085_CONTROL_MODE_TEMPERATURE = 0x2E;
 static const uint8_t BMP085_CONTROL_MODE_PRESSURE_3 = 0xF4;
 
@@ -69,6 +70,7 @@ BMP085Component::BMP085Component(I2CComponent *parent,
 
 void BMP085Component::read_temperature_() {
   uint8_t buffer[2];
+  // 0xF6
   if (!this->read_bytes(BMP085_REGISTER_DATA_MSB, buffer, 2)) {
     this->status_set_warning();
     return;
@@ -81,12 +83,17 @@ void BMP085Component::read_temperature_() {
     return;
   }
 
-  int32_t x1 = ((ut - int32_t(this->calibration_.ac6)) * int32_t(this->calibration_.ac5)) >>15;
-  int32_t x2 = int32_t(this->calibration_.mc << 11) / (x1 + this->calibration_.md);
-  this->calibration_.b5 =  x1 + x2;
-  float temperature = (this->calibration_.b5 >> 4) / 10.0f;
-  ESP_LOGD(TAG, "Got Temperature=%.1f°C", temperature);
-  this->temperature_->publish_state(temperature);
+  double c5 = (pow(2, -15) / 160) * this->calibration_.ac5;
+  double c6 = this->calibration_.ac6;
+  double mc = (2048.0 / 25600.0) * this->calibration_.mc;
+  double md = this->calibration_.md / 160.0;
+
+  double a = c5 * (ut - c6);
+  float temp = a + (mc / (a + md));
+
+  this->calibration_.temp = temp;
+  ESP_LOGD(TAG, "Got Temperature=%.1f °C", temp);
+  this->temperature_->publish_state(temp);
   this->status_clear_warning();
 
   if (!this->set_mode_(BMP085_CONTROL_MODE_PRESSURE_3)) {
@@ -104,34 +111,33 @@ void BMP085Component::read_pressure_() {
   }
 
   uint32_t value = (uint32_t(buffer[0]) << 16) | (uint32_t(buffer[1]) << 8) | uint32_t(buffer[0]);
-  value = value >> 5;
-  if (value == 0) {
-    this->status_set_warning();
+  if ((value >> 5) == 0) {
     ESP_LOGW(TAG, "Invalid pressure!");
+    this->status_set_warning();
     return;
   }
 
-  uint8_t oss = 3;
-  int32_t p;
-  int32_t b6 = this->calibration_.b5 - 4000;
-  int32_t x1 = (int32_t(this->calibration_.b2) * ((b6 * b6) >> 12)) >> 11;
-  int32_t x2 = (int32_t(this->calibration_.ac2) * b6) >> 11;
-  int32_t x3 = x1 + x2;
-  int32_t b3 = (((int32_t(this->calibration_.ac1) * 4 + x3) << oss) + 2) >> 2;
-  x1 = (int32_t(this->calibration_.ac3) * b6) >> 13;
-  x2 = (int32_t(this->calibration_.b1) * ((b6 * b6) >> 12)) >> 16;
-  x3 = ((x1 + x2) + 2) >> 2;
-  uint32_t b4 = (uint32_t(this->calibration_.ac4) * uint32_t(x3 + 32768)) >> 15;
-  uint32_t b7 = ((uint32_t) value - b3) * (uint32_t) (50000UL >> oss);
-  if (b7 < 0x80000000) p = (b7 << 1) / b4;
-  else p = (b7 / b4) << 1;
+  double c3 = 160.0 * pow(2.0, -15.0) * this->calibration_.ac3;
+  double c4 = pow(10.0, -3) * pow(2.0, -15.0) * this->calibration_.ac4;
+  double b1 = pow(160.0, 2.0) * pow(2.0, -30.0) * this->calibration_.b1;
+  double x0 = this->calibration_.ac1;
+  double x1 = 160.0 * pow(2.0, -13.0) * this->calibration_.ac2;
+  double x2 = pow(160.0, 2.0) * pow(2.0, -25.0) * this->calibration_.b2;
+  double y0 = c4 * pow(2.0, 15.0);
+  double y1 = c4 * c3;
+  double y2 = c4 * b1;
+  double p0 = (3791.0 - 8.0) / 1600.0;
+  double p1 = 1.0 - 7357.0 * pow(2, -20);
+  double p2 = 3038.0 * 100.0 * pow(2, -36);
 
-  x1 = (p >> 8) * (p >> 8);
-  x1 = (x1 * 3038) >> 16;
-  x2 = (-7357 * p) >> 16;
-  float pressure = (p + ((x1 + x2 + 3791) >> 4)) / 100.0f;
+  double p = value / 256.0;
+  double s = this->calibration_.temp - 25.0;
+  double x = (x2 * s * s) + (x1 * s) + x0;
+  double y = (y2 * s * s) + (y1 * s) + y0;
+  double z = (p - x) / y;
+  float pressure = (p2 * z * z) + (p1 * z) + p0;
 
-  ESP_LOGD(TAG, "Got Pressure=%.1fhPa", pressure);
+  ESP_LOGD(TAG, "Got Pressure=%.1f hPa", pressure);
 
   this->pressure_->publish_state(pressure);
   this->status_clear_warning();

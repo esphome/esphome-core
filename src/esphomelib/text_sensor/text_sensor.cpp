@@ -40,6 +40,9 @@ TextSensorStateTrigger *TextSensor::make_state_trigger() {
 bool TextSensor::has_state() {
   return this->has_state_;
 }
+uint32_t TextSensor::hash_base_() {
+  return 334300109UL;
+}
 
 TextSensorStateTrigger::TextSensorStateTrigger(TextSensor *parent) {
   parent->add_on_state_callback([this](std::string value) {

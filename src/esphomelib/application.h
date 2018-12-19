@@ -3,9 +3,11 @@
 
 #include <vector>
 #include "esphomelib/defines.h"
+#include "esphomelib/api/api_server.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/component.h"
 #include "esphomelib/controller.h"
+#include "esphomelib/custom_component.h"
 #include "esphomelib/debug_component.h"
 #include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/esp32_ble_beacon.h"
@@ -24,6 +26,7 @@
 #include "esphomelib/web_server.h"
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
+#include "esphomelib/binary_sensor/custom_binary_sensor.h"
 #include "esphomelib/binary_sensor/esp32_touch_binary_sensor.h"
 #include "esphomelib/binary_sensor/filter.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
@@ -52,9 +55,11 @@
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/light_state.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/mqtt/custom_mqtt_device.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/output/binary_output.h"
+#include "esphomelib/output/custom_output.h"
 #include "esphomelib/output/esp8266_pwm_output.h"
 #include "esphomelib/output/float_output.h"
 #include "esphomelib/output/gpio_binary_output_component.h"
@@ -78,6 +83,7 @@
 #include "esphomelib/sensor/bmp085_component.h"
 #include "esphomelib/sensor/bmp280_component.h"
 #include "esphomelib/sensor/cse7766.h"
+#include "esphomelib/sensor/custom_sensor.h"
 #include "esphomelib/sensor/dallas_component.h"
 #include "esphomelib/sensor/dht12_component.h"
 #include "esphomelib/sensor/dht_component.h"
@@ -87,10 +93,12 @@
 #include "esphomelib/sensor/hdc1080_component.h"
 #include "esphomelib/sensor/hlw8012.h"
 #include "esphomelib/sensor/hmc5883l.h"
+#include "esphomelib/sensor/homeassistant_sensor.h"
 #include "esphomelib/sensor/htu21d_component.h"
 #include "esphomelib/sensor/hx711.h"
 #include "esphomelib/sensor/ina219.h"
 #include "esphomelib/sensor/ina3221.h"
+#include "esphomelib/sensor/max31855_sensor.h"
 #include "esphomelib/sensor/max6675_sensor.h"
 #include "esphomelib/sensor/mhz19_component.h"
 #include "esphomelib/sensor/mpu6050_component.h"
@@ -109,9 +117,10 @@
 #include "esphomelib/sensor/ultrasonic_sensor.h"
 #include "esphomelib/sensor/uptime_sensor.h"
 #include "esphomelib/sensor/wifi_signal_sensor.h"
-#include "esphomelib/stepper/stepper.h"
 #include "esphomelib/stepper/a4988.h"
+#include "esphomelib/stepper/stepper.h"
 #include "esphomelib/stepper/uln2003.h"
+#include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
 #include "esphomelib/switch_/output_switch.h"
@@ -120,6 +129,8 @@
 #include "esphomelib/switch_/switch.h"
 #include "esphomelib/switch_/template_switch.h"
 #include "esphomelib/switch_/uart_switch.h"
+#include "esphomelib/text_sensor/custom_text_sensor.h"
+#include "esphomelib/text_sensor/homeassistant_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_subscribe_text_sensor.h"
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/text_sensor/template_text_sensor.h"
@@ -127,6 +138,7 @@
 #include "esphomelib/text_sensor/version_text_sensor.h"
 #include "esphomelib/time/rtc_component.h"
 #include "esphomelib/time/sntp_component.h"
+#include "esphomelib/time/homeassistant_time.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -224,6 +236,10 @@ class Application {
    * @return The WebServer object, use this for advanced settings.
    */
   WebServer *init_web_server(uint16_t port = 80);
+#endif
+
+#ifdef USE_API
+  api::APIServer *init_api_server();
 #endif
 
 #ifdef USE_ESP32_BLE_TRACKER
@@ -326,8 +342,6 @@ class Application {
 
   template<typename T>
   Automation<T> *make_automation(Trigger<T> *trigger);
-
-  mqtt::MQTTMessageTrigger *make_mqtt_message_trigger(const std::string &topic, uint8_t qos = 0);
 
   StartupTrigger *make_startup_trigger();
 
@@ -815,6 +829,16 @@ class Application {
   MakeTemplateSensor make_template_sensor(const std::string &name, uint32_t update_interval = 15000);
 #endif
 
+#ifdef USE_MAX31855_SENSOR
+  struct MakeMAX31855Sensor {
+    sensor::MAX31855Sensor *max31855;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeMAX31855Sensor make_max31855_sensor(const std::string &name, SPIComponent *spi_bus, const GPIOOutputPin &cs,
+                                          uint32_t update_interval = 15000);
+#endif
+
 #ifdef USE_MAX6675_SENSOR
   struct MakeMAX6675Sensor {
     sensor::MAX6675Sensor *max6675;
@@ -905,6 +929,10 @@ class Application {
   time::SNTPComponent *make_sntp_component();
 #endif
 
+#ifdef USE_HOMEASSISTANT_TIME
+  time::HomeAssistantTime *make_homeassistant_time_component();
+#endif
+
 #ifdef USE_HLW8012
   sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 15000);
 #endif
@@ -918,8 +946,17 @@ class Application {
   MakeMQTTSubscribeSensor make_mqtt_subscribe_sensor(const std::string &name, std::string topic);
 #endif
 
+#ifdef USE_HOMEASSISTANT_SENSOR
+  struct MakeHomeassistantSensor {
+    sensor::HomeassistantSensor *sensor;
+    sensor::MQTTSensorComponent *mqtt;
+  };
+
+  MakeHomeassistantSensor make_homeassistant_sensor(const std::string &name, std::string entity_id);
+#endif
+
 #ifdef USE_CSE7766
-  sensor::CSE7766Component *make_cse7766(UARTComponent *parent);
+  sensor::CSE7766Component *make_cse7766(UARTComponent *parent, uint32_t update_interval = 15000);
 #endif
 
 
@@ -930,6 +967,15 @@ class Application {
   };
 
   MakeMQTTSubscribeTextSensor make_mqtt_subscribe_text_sensor(const std::string &name, std::string topic);
+#endif
+
+#ifdef USE_HOMEASSISTANT_TEXT_SENSOR
+  struct MakeHomeassistantTextSensor {
+    text_sensor::HomeassistantTextSensor *sensor;
+    text_sensor::MQTTTextSensor *mqtt;
+  };
+
+  MakeHomeassistantTextSensor make_homeassistant_text_sensor(const std::string &name, std::string entity_id);
 #endif
 
 #ifdef USE_VERSION_TEXT_SENSOR
@@ -1350,7 +1396,27 @@ class Application {
 
   const std::string &get_compilation_time() const;
 
+  /** Set the target interval with which to run the loop() calls.
+   * If the loop() method takes longer than the target interval, esphomelib won't
+   * sleep in loop(), but if the time spent in loop() is small than the target, esphomelib
+   * will delay at the end of the App.loop() method.
+   *
+   * This is done to conserve power: In most use-cases, high-speed loop() calls are not required
+   * and degrade power consumption.
+   *
+   * Each component can request a high frequency loop execution by using the HighFrequencyLoopRequester
+   * helper in helpers.h
+   *
+   * @param loop_interval The interval in milliseconds to run the core loop at. Defaults to 16 milliseconds.
+   */
+  void set_loop_interval(uint32_t loop_interval);
+
+  void dump_config();
+  void schedule_dump_config();
+
  protected:
+  void register_component_(Component *comp);
+
   std::vector<Component *> components_{};
   std::vector<Controller *> controllers_{};
   mqtt::MQTTClientComponent *mqtt_client_{nullptr};
@@ -1359,9 +1425,12 @@ class Application {
   std::string name_;
   std::string compilation_time_;
   uint32_t application_state_{COMPONENT_STATE_CONSTRUCTION};
+  uint32_t last_loop_{0};
+  uint32_t loop_interval_{16};
 #ifdef USE_I2C
   I2CComponent *i2c_{nullptr};
 #endif
+  bool dump_config_scheduled_{false};
 };
 
 /// Global storage of Application pointer - only one Application can exist.
@@ -1370,9 +1439,7 @@ extern Application App;
 template<class C>
 C *Application::register_component(C *c) {
   static_assert(std::is_base_of<Component, C>::value, "Only Component subclasses can be registered");
-  Component *component = c;
-  if (c != nullptr)
-    this->components_.push_back(component);
+  this->register_component_((Component *) c);
   return c;
 }
 

@@ -295,6 +295,7 @@ void ICACHE_RAM_ATTR RemoteReceiverComponent::gpio_intr() {
 void RemoteReceiverComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Remote Receiver...");
   this->pin_->setup();
+  this->high_freq_.start();
   if (this->buffer_size_ % 2 != 0) {
     // Make sure divisible by two. This way, we know that every 0bxxx0 index is a space and every 0bxxx1 index is a mark
     this->buffer_size_++;
@@ -352,7 +353,6 @@ void RemoteReceiverComponent::loop() {
 
   for (uint32_t i = 0; prev != write_at; i++) {
     int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
-
     if (uint32_t(delta) >= this->idle_us_) {
       ESP_LOGW(TAG, "Data is coming in too fast!");
       break;

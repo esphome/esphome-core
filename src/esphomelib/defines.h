@@ -75,6 +75,7 @@
   #endif
   #define USE_FAST_LED_LIGHT
   #define USE_ROTARY_ENCODER_SENSOR
+  #define USE_MAX31855_SENSOR
   #define USE_MAX6675_SENSOR
   #define USE_TEMPLATE_BINARY_SENSOR
   #define USE_TEMPLATE_SWITCH
@@ -117,8 +118,19 @@
   #define USE_PMSX003
   #define USE_STEPPER
   #define USE_A4988
+  #define USE_ULN2003
   #define USE_TOTAL_DAILY_ENERGY_SENSOR
   #define USE_MY9231_OUTPUT
+  #define USE_CUSTOM_SENSOR
+  #define USE_CUSTOM_BINARY_SENSOR
+  #define USE_CUSTOM_OUTPUT
+  #define USE_CUSTOM_SWITCH
+  #define USE_CUSTOM_TEXT_SENSOR
+  #define USE_CUSTOM_COMPONENT
+  #define USE_API
+  #define USE_HOMEASSISTANT_TIME
+  #define USE_HOMEASSISTANT_SENSOR
+  #define USE_HOMEASSISTANT_TEXT_SENSOR
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -337,6 +349,11 @@
   #endif
 #endif
 #ifdef USE_ESP32_HALL_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+#ifdef USE_MAX31855_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif
@@ -580,6 +597,18 @@
 #ifdef USE_MY9231_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
+  #endif
+#endif
+
+#ifndef USE_CUSTOM_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+#endif
+
+#ifndef USE_CUSTOM_BINARY_SENSOR
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
   #endif
 #endif
 

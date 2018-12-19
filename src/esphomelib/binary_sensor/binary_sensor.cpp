@@ -4,6 +4,7 @@
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/log.h"
+#include "binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -34,6 +35,10 @@ std::string BinarySensor::device_class() {
 }
 BinarySensor::BinarySensor(const std::string &name)
   : Nameable(name), state(false) {
+
+}
+BinarySensor::BinarySensor()
+  : BinarySensor("") {
 
 }
 void BinarySensor::set_device_class(const std::string &device_class) {
@@ -133,6 +138,15 @@ DoubleClickTrigger::DoubleClickTrigger(BinarySensor *parent, uint32_t min_length
 MultiClickTrigger *BinarySensor::make_multi_click_trigger(const std::vector<MultiClickTriggerEvent> &timing) {
   return new MultiClickTrigger(this, timing);
 }
+uint32_t BinarySensor::hash_base_() {
+  return 1210250844UL;
+}
+StateTrigger *BinarySensor::make_state_trigger() {
+  return new StateTrigger(this);
+}
+bool BinarySensor::is_status_binary_sensor() const {
+  return false;
+}
 
 MultiClickTrigger::MultiClickTrigger(BinarySensor *parent, const std::vector<MultiClickTriggerEvent> &timing)
     : parent_(parent), timing_(timing) {
@@ -165,8 +179,14 @@ void MultiClickTrigger::on_state_(bool state) {
       ESP_LOGV(TAG, "START min=%u max=%u", evt.min_length, evt.max_length);
       ESP_LOGV(TAG, "Multi Click: Starting multi click action!");
       this->at_index_ = 1;
-      this->schedule_is_valid_(evt.min_length);
-      this->schedule_is_not_valid_(evt.max_length);
+      if (this->timing_.size() == 1 && evt.max_length == 4294967294UL) {
+        this->set_timeout("trigger", evt.min_length, [this]() {
+          this->trigger_();
+        });
+      } else {
+        this->schedule_is_valid_(evt.min_length);
+        this->schedule_is_not_valid_(evt.max_length);
+      }
     } else {
       ESP_LOGV(TAG, "Multi Click: action not started because first level does not match!");
     }
@@ -241,6 +261,12 @@ void MultiClickTrigger::trigger_() {
   this->cancel_timeout("is_valid");
   this->cancel_timeout("is_not_valid");
   this->trigger();
+}
+
+StateTrigger::StateTrigger(BinarySensor *parent) {
+  parent->add_on_state_callback([this](bool state) {
+    this->trigger(state);
+  });
 }
 
 } // namespace binary_sensor

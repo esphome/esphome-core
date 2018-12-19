@@ -40,6 +40,8 @@ class TextSensor : public Nameable {
   bool has_state();
 
  protected:
+  uint32_t hash_base_() override;
+
   CallbackManager<void(std::string)> callback_;
   optional<std::string> icon_;
   bool has_state_{false};

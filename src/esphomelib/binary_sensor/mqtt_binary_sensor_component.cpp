@@ -16,8 +16,9 @@ std::string MQTTBinarySensorComponent::component_type() const {
 }
 
 void MQTTBinarySensorComponent::setup() {
-  auto f = std::bind(&MQTTBinarySensorComponent::publish_state, this, std::placeholders::_1);
-  this->binary_sensor_->add_on_state_callback(f);
+  this->binary_sensor_->add_on_state_callback([this](bool state) {
+    this->publish_state(state);
+  });
 }
 
 void MQTTBinarySensorComponent::dump_config() {
@@ -44,19 +45,22 @@ void MQTTBinarySensorComponent::send_discovery(JsonObject &root, mqtt::SendDisco
     root["payload_off"] = mqtt::global_mqtt_client->get_availability().payload_not_available;
   config.command_topic = false;
 }
-void MQTTBinarySensorComponent::send_initial_state() {
-  if (this->binary_sensor_->has_state())
-    this->publish_state(this->binary_sensor_->state);
+bool MQTTBinarySensorComponent::send_initial_state() {
+  if (this->binary_sensor_->has_state()) {
+    return this->publish_state(this->binary_sensor_->state);
+  } else {
+    return true;
+  }
 }
 bool MQTTBinarySensorComponent::is_internal() {
   return this->binary_sensor_->is_internal();
 }
-void MQTTBinarySensorComponent::publish_state(bool state) {
+bool MQTTBinarySensorComponent::publish_state(bool state) {
   if (this->is_status_)
-    return;
+    return true;
 
   const char *state_s = state ? "ON" : "OFF";
-  this->send_message(this->get_state_topic(), state_s);
+  return this->publish(this->get_state_topic(), state_s);
 }
 void MQTTBinarySensorComponent::set_is_status(bool status) {
   this->is_status_ = status;

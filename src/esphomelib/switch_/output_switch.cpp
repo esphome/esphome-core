@@ -20,7 +20,7 @@ void OutputSwitch::write_state(bool state) {
   } else {
     this->output_->turn_off();
   }
-  this->publish_state(true);
+  this->publish_state(state);
 }
 void OutputSwitch::setup() {
   auto restored = this->get_initial_state();

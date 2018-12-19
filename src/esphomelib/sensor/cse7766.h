@@ -18,9 +18,9 @@ using CSE7766VoltageSensor = EmptySensor<1, ICON_FLASH, UNIT_V>;
 using CSE7766CurrentSensor = EmptySensor<1, ICON_FLASH, UNIT_A>;
 using CSE7766PowerSensor = EmptySensor<1, ICON_FLASH, UNIT_W>;
 
-class CSE7766Component : public Component, public UARTDevice {
+class CSE7766Component : public PollingComponent, public UARTDevice {
  public:
-  CSE7766Component(UARTComponent *parent);
+  CSE7766Component(UARTComponent *parent, uint32_t update_interval = 15000);
 
   CSE7766VoltageSensor *make_voltage_sensor(const std::string &name);
 
@@ -30,6 +30,9 @@ class CSE7766Component : public Component, public UARTDevice {
 
   void loop() override;
   float get_setup_priority() const override;
+  void update() override;
+  void setup() override;
+  void dump_config() override;
 
  protected:
   bool check_byte_();
@@ -42,6 +45,11 @@ class CSE7766Component : public Component, public UARTDevice {
   CSE7766VoltageSensor *voltage_{nullptr};
   CSE7766CurrentSensor *current_{nullptr};
   CSE7766PowerSensor *power_{nullptr};
+  float voltage_acc_{0.0};
+  float current_acc_{0.0};
+  float power_acc_{0.0};
+  uint32_t last_reading_{0};
+  uint32_t last_update_{0};
 };
 
 } // namespace sensor

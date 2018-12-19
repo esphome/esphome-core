@@ -25,11 +25,13 @@ void BaseFastLEDLightEffect::start_() {
   for (int i = 0; i < this->get_fastled_output_()->size(); i++) {
     this->get_fastled_output_()->effect_data()[i] = 0;
   }
+  this->high_freq_.start();
   this->start();
 }
 
 void BaseFastLEDLightEffect::stop() {
   this->get_fastled_output_()->unprevent_writing_leds();
+  this->high_freq_.stop();
 }
 FastLEDLightOutputComponent *BaseFastLEDLightEffect::get_fastled_output_() const {
   return (FastLEDLightOutputComponent *) this->state_->get_output();
