@@ -64,6 +64,8 @@ class Cover : public Nameable {
  protected:
   virtual void write_command(CoverCommand command) = 0;
 
+  uint32_t hash_base_() override;
+
   bool has_state_{false};
   CallbackManager<void(CoverState)> state_callback_{};
 };

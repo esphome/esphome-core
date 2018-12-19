@@ -221,6 +221,9 @@ float LightColorValues::get_color_temperature() const {
 void LightColorValues::set_color_temperature(float color_temperature) {
   this->color_temperature_ = std::max(0.000001f, color_temperature);
 }
+bool LightColorValues::is_on() const {
+  return this->get_state() != 0.0f;
+}
 
 } // namespace light
 

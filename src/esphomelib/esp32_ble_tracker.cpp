@@ -22,7 +22,6 @@ ESPHOMELIB_NAMESPACE_BEGIN
 static const char *TAG = "esp32_ble_tracker";
 
 ESP32BLETracker *global_esp32_ble_tracker = nullptr;
-SemaphoreHandle_t semaphore_scan_end;
 
 uint64_t ble_addr_to_uint64(const esp_bd_addr_t address) {
   uint64_t u = 0;
@@ -58,6 +57,8 @@ XiaomiDevice *ESP32BLETracker::make_xiaomi_device(std::array<uint8_t, 6> address
 
 void ESP32BLETracker::setup() {
   global_esp32_ble_tracker = this;
+  this->scan_result_lock_ = xSemaphoreCreateMutex();
+  this->scan_end_lock_ = xSemaphoreCreateMutex();
 
   if (!ESP32BLETracker::ble_setup()) {
     this->mark_failed();
@@ -68,24 +69,48 @@ void ESP32BLETracker::setup() {
 }
 
 void ESP32BLETracker::loop() {
-  auto ret = xSemaphoreTake(semaphore_scan_end, 0L);
-  if (ret) {
-    xSemaphoreGive(semaphore_scan_end);
+  if (xSemaphoreTake(this->scan_end_lock_, 0L)) {
+    xSemaphoreGive(this->scan_end_lock_);
     global_esp32_ble_tracker->start_scan(false);
   }
-}
 
-void ESP32BLETracker::ble_core_task(void *params) {
-  ble_setup();
+  if (xSemaphoreTake(this->scan_result_lock_, 5L / portTICK_PERIOD_MS)) {
+    uint32_t index = this->scan_result_index_;
+    xSemaphoreGive(this->scan_result_lock_);
 
-  while (true) {
-    delay(1000);
+    if (index >= 16) {
+      ESP_LOGW(TAG, "Too many BLE events to process. Some devices may not show up.");
+    }
+    for (size_t i = 0; i < index; i++) {
+      ESPBTDevice device;
+      device.parse_scan_rst(this->scan_result_buffer_[i]);
+
+      this->parse_rssi_sensors_(device);
+      this->parse_xiaomi_sensors_(device);
+
+      if (this->parse_already_discovered_(device))
+        continue;
+      this->parse_presence_sensors_(device);
+    }
+
+    if (xSemaphoreTake(this->scan_result_lock_, 10L / portTICK_PERIOD_MS)) {
+      this->scan_result_index_ = 0;
+      xSemaphoreGive(this->scan_result_lock_);
+    }
+  }
+
+  if (this->scan_set_param_failed_) {
+    ESP_LOGE(TAG, "Scan set param failed: %d", this->scan_set_param_failed_);
+    this->scan_set_param_failed_ = ESP_BT_STATUS_SUCCESS;
+  }
+
+  if (this->scan_start_failed_) {
+    ESP_LOGE(TAG, "Scan start failed: %d", this->scan_start_failed_);
+    this->scan_start_failed_ = ESP_BT_STATUS_SUCCESS;
   }
 }
 
 bool ESP32BLETracker::ble_setup() {
-  semaphore_scan_end = xSemaphoreCreateMutex();
-
   // Initialize non-volatile storage for the bluetooth controller
   esp_err_t err = nvs_flash_init();
   if (err != ESP_OK) {
@@ -134,18 +159,17 @@ bool ESP32BLETracker::ble_setup() {
 }
 
 void ESP32BLETracker::start_scan(bool first) {
-  xSemaphoreTake(semaphore_scan_end, portMAX_DELAY);
+  if (!xSemaphoreTake(this->scan_end_lock_, 0L)) {
+    ESP_LOGW("Cannot start scan!");
+    return;
+  }
 
-  this->defer([]() {
-    ESP_LOGD(TAG, "Starting scan...");
-  });
+  ESP_LOGD(TAG, "Starting scan...");
   if (!first) {
     // also O(N^2), but will only be called once every minute or so
     for (auto *device : this->presence_sensors_) {
       if (!this->has_already_discovered_(device->address_))
-        this->defer([device]() {
-          device->publish_state(false);
-        });
+        device->publish_state(false);
     }
   }
   this->already_discovered_.clear();
@@ -153,8 +177,13 @@ void ESP32BLETracker::start_scan(bool first) {
   this->scan_params_.scan_type = BLE_SCAN_TYPE_ACTIVE;
   this->scan_params_.own_addr_type = BLE_ADDR_TYPE_PUBLIC;
   this->scan_params_.scan_filter_policy = BLE_SCAN_FILTER_ALLOW_ALL;
-  this->scan_params_.scan_interval = 1600; // 1 second
-  this->scan_params_.scan_window = 1600;
+  // Values determined empirically, higher scan intervals and lower scan windows make the ESP more stable
+  // Ideally, these values should both be quite low, especially scan window. 0x10/0x10 is the esp-idf
+  // default and works quite well. 0x100/0x50 discovers a few less BLE broadcast packets but is a lot
+  // more stable (order of several hours). The old esphomelib default (1600/1600) was terrible with
+  // crashes every few minutes
+  this->scan_params_.scan_interval = 0x100;
+  this->scan_params_.scan_window = 0x50;
 
   esp_ble_gap_set_scan_params(&this->scan_params_);
   esp_ble_gap_start_scanning(this->scan_interval_);
@@ -162,44 +191,38 @@ void ESP32BLETracker::start_scan(bool first) {
 
 void ESP32BLETracker::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
   switch (event) {
-    case ESP_GAP_BLE_SCAN_RESULT_EVT:global_esp32_ble_tracker->gap_scan_result(param->scan_rst);
+    case ESP_GAP_BLE_SCAN_RESULT_EVT:
+      global_esp32_ble_tracker->gap_scan_result(param->scan_rst);
       break;
-    case ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT:global_esp32_ble_tracker->gap_scan_set_param_complete(param->scan_param_cmpl);
+    case ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT:
+      global_esp32_ble_tracker->gap_scan_set_param_complete(param->scan_param_cmpl);
       break;
-    case ESP_GAP_BLE_SCAN_START_COMPLETE_EVT:global_esp32_ble_tracker->gap_scan_start_complete(param->scan_start_cmpl);
+    case ESP_GAP_BLE_SCAN_START_COMPLETE_EVT:
+      global_esp32_ble_tracker->gap_scan_start_complete(param->scan_start_cmpl);
       break;
-    default: break;
+    default:
+      break;
   }
 }
 
 void ESP32BLETracker::gap_scan_set_param_complete(const esp_ble_gap_cb_param_t::ble_scan_param_cmpl_evt_param &param) {
-  if (param.status != ESP_BT_STATUS_SUCCESS) {
-    ESP_LOGE(TAG, "Scan set_param failed: %d", param.status);
-  }
+  this->scan_set_param_failed_ = param.status;
 }
 
 void ESP32BLETracker::gap_scan_start_complete(const esp_ble_gap_cb_param_t::ble_scan_start_cmpl_evt_param &param) {
-  if (param.status != ESP_BT_STATUS_SUCCESS) {
-    ESP_LOGE(TAG, "Scan start failed: %d", param.status);
-  }
+  this->scan_start_failed_ = param.status;
 }
 
 void ESP32BLETracker::gap_scan_result(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param) {
   if (param.search_evt == ESP_GAP_SEARCH_INQ_RES_EVT) {
-    ESPBTDevice device;
-    device.parse_scan_rst(param);
-
-    this->parse_rssi_sensors_(device);
-    this->parse_xiaomi_sensors_(device);
-
-    if (this->parse_already_discovered_(device))
-      return;
-    this->parse_presence_sensors_(device);
+    if (xSemaphoreTake(this->scan_result_lock_, 0L)) {
+      if (this->scan_result_index_ < 16) {
+        this->scan_result_buffer_[this->scan_result_index_++] = param;
+      }
+      xSemaphoreGive(this->scan_result_lock_);
+    }
   } else if (param.search_evt == ESP_GAP_SEARCH_INQ_CMPL_EVT) {
-    this->defer([]() {
-      ESP_LOGD(TAG, "Scan complete.");
-    });
-    xSemaphoreGive(semaphore_scan_end);
+    xSemaphoreGive(this->scan_end_lock_);
   }
 }
 
@@ -217,9 +240,7 @@ void ESP32BLETracker::parse_rssi_sensors_(const ESPBTDevice &device) {
   int rssi = device.get_rssi();
   for (auto *dev : this->rssi_sensors_) {
     if (dev->address_ == address)
-      this->defer([dev, rssi]() {
-        dev->publish_state(rssi);
-      });
+      dev->publish_state(rssi);
   }
 }
 
@@ -285,7 +306,8 @@ XiaomiDataType parse_xiaomi(uint8_t data_type, const uint8_t *data, uint8_t data
       *data1 = data[0];
       return XIAOMI_MOISTURE;
     }
-    default:return XIAOMI_NO_DATA;
+    default:
+      return XIAOMI_NO_DATA;
   }
 }
 
@@ -335,79 +357,77 @@ void ESP32BLETracker::parse_xiaomi_sensors_(const ESPBTDevice &device) {
     return;
 
   std::string address_str = device.address_str();
-  this->defer([this, address_str, data_type, type, data1, data2, address]() {
-    switch (data_type) {
-      case XIAOMI_TEMPERATURE_HUMIDITY:
-        ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C, humidity=%.1f%%",
-                 type, address_str.c_str(), data1, data2);
-        break;
-      case XIAOMI_TEMPERATURE:
-        ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C",
-                 type, address_str.c_str(), data1);
-        break;
-      case XIAOMI_HUMIDITY:
-        ESP_LOGD(TAG, "Xiaomi %s %s Got humidity=%.1f%%",
-                 type, address_str.c_str(), data1);
-        break;
-      case XIAOMI_BATTERY_LEVEL:
-        ESP_LOGD(TAG, "Xiaomi %s %s Got battery level=%.0f%%",
-                 type, address_str.c_str(), data1);
-        break;
-      case XIAOMI_MOISTURE:
-        ESP_LOGD(TAG, "Xiaomi %s %s Got moisture=%.0f%%",
-                 type, address_str.c_str(), data1);
-        break;
-      case XIAOMI_ILLUMINANCE:
-        ESP_LOGD(TAG, "Xiaomi %s %s Got illuminance=%.0flx",
-                 type, address_str.c_str(), data1);
-        break;
-      case XIAOMI_CONDUCTIVITY:
-        ESP_LOGD(TAG, "Xiaomi %s %s Got soil conductivity=%.0fµS/cm",
-                 type, address_str.c_str(), data1);
-        break;
-      default:
-        break;
-    }
+  switch (data_type) {
+    case XIAOMI_TEMPERATURE_HUMIDITY:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C, humidity=%.1f%%",
+               type, address_str.c_str(), data1, data2);
+      break;
+    case XIAOMI_TEMPERATURE:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got temperature=%.1f°C",
+               type, address_str.c_str(), data1);
+      break;
+    case XIAOMI_HUMIDITY:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got humidity=%.1f%%",
+               type, address_str.c_str(), data1);
+      break;
+    case XIAOMI_BATTERY_LEVEL:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got battery level=%.0f%%",
+               type, address_str.c_str(), data1);
+      break;
+    case XIAOMI_MOISTURE:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got moisture=%.0f%%",
+               type, address_str.c_str(), data1);
+      break;
+    case XIAOMI_ILLUMINANCE:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got illuminance=%.0flx",
+               type, address_str.c_str(), data1);
+      break;
+    case XIAOMI_CONDUCTIVITY:
+      ESP_LOGD(TAG, "Xiaomi %s %s Got soil conductivity=%.0fµS/cm",
+               type, address_str.c_str(), data1);
+      break;
+    default:
+      break;
+  }
 
-    for (auto *dev : this->xiaomi_devices_) {
-      if (dev->address_ == address) {
-        switch (data_type) {
-          case XIAOMI_TEMPERATURE_HUMIDITY:
-            if (dev->get_temperature_sensor() != nullptr)
-              dev->get_temperature_sensor()->publish_state(data1);
-            if (dev->get_humidity_sensor() != nullptr)
-              dev->get_humidity_sensor()->publish_state(data2);
-            break;
-          case XIAOMI_HUMIDITY:
-            if (dev->get_humidity_sensor() != nullptr)
-              dev->get_humidity_sensor()->publish_state(data1);
-            break;
-          case XIAOMI_BATTERY_LEVEL:
-            if (dev->get_battery_level_sensor() != nullptr)
-              dev->get_battery_level_sensor()->publish_state(data1);
-            break;
-          case XIAOMI_TEMPERATURE:
-            if (dev->get_temperature_sensor() != nullptr)
-              dev->get_temperature_sensor()->publish_state(data1);
-            break;
-          case XIAOMI_MOISTURE:
-            if (dev->get_moisture_sensor() != nullptr)
-              dev->get_moisture_sensor()->publish_state(data1);
-            break;
-          case XIAOMI_ILLUMINANCE:
-            if (dev->get_illuminance_sensor() != nullptr)
-              dev->get_illuminance_sensor()->publish_state(data1);
-            break;
-          case XIAOMI_CONDUCTIVITY:
-            if (dev->get_conductivity_sensor() != nullptr)
-              dev->get_conductivity_sensor()->publish_state(data1);
-            break;
-          default:
-            break;
-        }
+  for (auto *dev : this->xiaomi_devices_) {
+    if (dev->address_ == address) {
+      switch (data_type) {
+        case XIAOMI_TEMPERATURE_HUMIDITY:
+          if (dev->get_temperature_sensor() != nullptr)
+            dev->get_temperature_sensor()->publish_state(data1);
+          if (dev->get_humidity_sensor() != nullptr)
+            dev->get_humidity_sensor()->publish_state(data2);
+          break;
+        case XIAOMI_HUMIDITY:
+          if (dev->get_humidity_sensor() != nullptr)
+            dev->get_humidity_sensor()->publish_state(data1);
+          break;
+        case XIAOMI_BATTERY_LEVEL:
+          if (dev->get_battery_level_sensor() != nullptr)
+            dev->get_battery_level_sensor()->publish_state(data1);
+          break;
+        case XIAOMI_TEMPERATURE:
+          if (dev->get_temperature_sensor() != nullptr)
+            dev->get_temperature_sensor()->publish_state(data1);
+          break;
+        case XIAOMI_MOISTURE:
+          if (dev->get_moisture_sensor() != nullptr)
+            dev->get_moisture_sensor()->publish_state(data1);
+          break;
+        case XIAOMI_ILLUMINANCE:
+          if (dev->get_illuminance_sensor() != nullptr)
+            dev->get_illuminance_sensor()->publish_state(data1);
+          break;
+        case XIAOMI_CONDUCTIVITY:
+          if (dev->get_conductivity_sensor() != nullptr)
+            dev->get_conductivity_sensor()->publish_state(data1);
+          break;
+        default:
+          break;
       }
     }
-  });
+  }
 }
 
 bool ESP32BLETracker::parse_already_discovered_(const ESPBTDevice &device) {
@@ -420,30 +440,33 @@ bool ESP32BLETracker::parse_already_discovered_(const ESPBTDevice &device) {
   this->already_discovered_.push_back(address);
 
 #ifdef ESPHOMELIB_LOG_HAS_DEBUG
-  this->defer([device]() {
-    ESP_LOGD(TAG, "Found device %s RSSI=%d", device.address_str().c_str(), device.get_rssi());
+  ESP_LOGD(TAG, "Found device %s RSSI=%d", device.address_str().c_str(), device.get_rssi());
 
-    const char *address_type_s;
-    switch (device.get_address_type()) {
-      case BLE_ADDR_TYPE_PUBLIC: address_type_s = "PUBLIC";
-        break;
-      case BLE_ADDR_TYPE_RANDOM: address_type_s = "RANDOM";
-        break;
-      case BLE_ADDR_TYPE_RPA_PUBLIC: address_type_s = "RPA_PUBLIC";
-        break;
-      case BLE_ADDR_TYPE_RPA_RANDOM: address_type_s = "RPA_RANDOM";
-        break;
-      default: address_type_s = "UNKNOWN";
-        break;
-    }
+  const char *address_type_s;
+  switch (device.get_address_type()) {
+    case BLE_ADDR_TYPE_PUBLIC:
+      address_type_s = "PUBLIC";
+      break;
+    case BLE_ADDR_TYPE_RANDOM:
+      address_type_s = "RANDOM";
+      break;
+    case BLE_ADDR_TYPE_RPA_PUBLIC:
+      address_type_s = "RPA_PUBLIC";
+      break;
+    case BLE_ADDR_TYPE_RPA_RANDOM:
+      address_type_s = "RPA_RANDOM";
+      break;
+    default:
+      address_type_s = "UNKNOWN";
+      break;
+  }
 
-    ESP_LOGD(TAG, "    Address Type: %s", address_type_s);
-    if (!device.get_name().empty())
-      ESP_LOGD(TAG, "    Name: '%s'", device.get_name().c_str());
-    if (device.get_tx_power().has_value()) {
-      ESP_LOGD(TAG, "    TX Power: %d", *device.get_tx_power());
-    }
-  });
+  ESP_LOGD(TAG, "  Address Type: %s", address_type_s);
+  if (!device.get_name().empty())
+    ESP_LOGD(TAG, "  Name: '%s'", device.get_name().c_str());
+  if (device.get_tx_power().has_value()) {
+    ESP_LOGD(TAG, "  TX Power: %d", *device.get_tx_power());
+  }
 #endif
 
   return false;
@@ -453,9 +476,7 @@ void ESP32BLETracker::parse_presence_sensors_(const ESPBTDevice &device) {
   const uint64_t address = device.address_uint64();
   for (auto *dev : this->presence_sensors_) {
     if (dev->address_ == address)
-      this->defer([dev]() {
-        dev->publish_state(true);
-      });
+      dev->publish_state(true);
   }
 }
 

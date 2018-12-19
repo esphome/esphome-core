@@ -22,6 +22,10 @@ class LightTraits {
   bool has_color_temperature() const;
   /// Hack to allow FastLED light effects without dynamic_cast.
   bool has_fast_led() const;
+  float get_min_mireds() const;
+  float get_max_mireds() const;
+  void set_min_mireds(float min_mireds);
+  void set_max_mireds(float max_mireds);
 
  protected:
   bool brightness_{false};
@@ -29,6 +33,8 @@ class LightTraits {
   bool rgb_white_value_{false};
   bool color_temperature_{false};
   bool fast_led_{false};
+  float min_mireds_{0};
+  float max_mireds_{0};
 };
 
 } // namespace light

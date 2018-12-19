@@ -10,15 +10,15 @@
 #include "esphomelib/util.h"
 
 #include <cstdio>
-#include <ArduinoOTA.h>
-#include <StreamString.h>
-
+#ifndef USE_NEW_OTA
+  #include <ArduinoOTA.h>
+#else
+#include <MD5Builder.h>
 #ifdef ARDUINO_ARCH_ESP32
-#include <ESPmDNS.h>
+  #include <Update.h>
 #endif
-#ifdef ARDUINO_ARCH_ESP8266
-#include <ESP8266mDNS.h>
 #endif
+#include <StreamString.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -39,7 +39,6 @@ void OTAComponent::setup() {
 #ifdef ARDUINO_ARCH_ESP32
   add_shutdown_hook([this](const char *cause) {
     this->server_->close();
-    MDNS.end();
   });
 #endif
 #else
@@ -476,6 +475,12 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
 #endif
     global_state = STATUS_LED_ERROR;
     network_setup();
+    global_wifi_component->setup_();
+    while (!global_wifi_component->ready_for_ota()) {
+      yield();
+      global_wifi_component->loop_();
+      tick_status_led();
+    }
     this->setup_();
 
     ESP_LOGI(TAG, "Waiting for OTA attempt.");

@@ -58,16 +58,20 @@ optional<bool> PMSX003Component::check_byte_() {
   if (index == 3) {
     bool length_matches = false;
     switch (this->type_) {
-      case PMSX003_TYPE_X003:length_matches = payload_length == 13 || payload_length == 9;
+      case PMSX003_TYPE_X003:
+        length_matches = payload_length == 28 || payload_length == 20;
         break;
-      case PMSX003_TYPE_5003T:length_matches = payload_length == 13;
+      case PMSX003_TYPE_5003T:
+        length_matches = payload_length == 28;
         break;
-      case PMSX003_TYPE_5003ST:length_matches = payload_length == 17;
+      case PMSX003_TYPE_5003ST:
+        length_matches = payload_length == 36;
         break;
     }
 
     if (!length_matches) {
-      ESP_LOGW(TAG, "PMSX003 length doesn't match. Are you using the correct PMSX003 type?");
+      ESP_LOGW(TAG, "PMSX003 length %u doesn't match. Are you using the correct PMSX003 type?",
+               payload_length);
       return false;
     }
     return true;

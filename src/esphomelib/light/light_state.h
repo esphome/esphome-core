@@ -103,17 +103,27 @@ class LightState : public Nameable, public Component {
    public:
     StateCall(LightState *state);
     LightState::StateCall &set_state(bool state);
+    LightState::StateCall &set_state(optional<bool> state);
     LightState::StateCall &set_transition_length(uint32_t transition_length);
+    LightState::StateCall &set_transition_length(optional<uint32_t> transition_length);
     LightState::StateCall &set_flash_length(uint32_t flash_length);
+    LightState::StateCall &set_flash_length(optional<uint32_t> flash_length);
     LightState::StateCall &set_brightness(float brightness);
+    LightState::StateCall &set_brightness(optional<float> brightness);
     LightState::StateCall &set_rgb(float red, float green, float blue);
     LightState::StateCall &set_rgbw(float red, float green, float blue, float white);
     LightState::StateCall &set_red(float red);
+    LightState::StateCall &set_red(optional<float> red);
     LightState::StateCall &set_green(float green);
+    LightState::StateCall &set_green(optional<float> green);
     LightState::StateCall &set_blue(float blue);
+    LightState::StateCall &set_blue(optional<float> blue);
     LightState::StateCall &set_white(float white);
+    LightState::StateCall &set_white(optional<float> white);
     LightState::StateCall &set_color_temperature(float color_temperature);
+    LightState::StateCall &set_color_temperature(optional<float> color_temperature);
     LightState::StateCall &set_effect(const std::string &effect);
+    LightState::StateCall &set_effect(optional<std::string> effect);
     LightState::StateCall &set_effect(uint32_t effect_index);
     LightState::StateCall &parse_color_json(JsonObject &root);
     LightState::StateCall &parse_json(JsonObject &root);
@@ -200,6 +210,8 @@ class LightState : public Nameable, public Component {
   void add_effects(std::vector<LightEffect *> effects);
 
  protected:
+  uint32_t hash_base_() override;
+
   ESPPreferenceObject rtc_;
   uint32_t default_transition_length_{1000};
   LightEffect *active_effect_{nullptr};

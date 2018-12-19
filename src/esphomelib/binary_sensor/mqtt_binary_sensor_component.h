@@ -37,8 +37,8 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
 
   void set_is_status(bool status);
 
-  void send_initial_state() override;
-  void publish_state(bool state);
+  bool send_initial_state() override;
+  bool publish_state(bool state);
   bool is_internal() override;
 
  protected:

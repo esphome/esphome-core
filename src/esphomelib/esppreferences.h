@@ -46,8 +46,6 @@ class ESPPreferences {
   ESPPreferenceObject make_preference(size_t length, uint32_t type);
   template<typename T>
   ESPPreferenceObject make_preference(uint32_t type);
-  template<typename T>
-  ESPPreferenceObject make_preference(uint32_t type, const std::string &str);
 
 #ifdef ARDUINO_ARCH_ESP8266
   /** On the ESP8266, we can't override the first 128 bytes during OTA uploads
@@ -78,12 +76,6 @@ extern ESPPreferences global_preferences;
 template<typename T>
 ESPPreferenceObject esphomelib::ESPPreferences::make_preference(uint32_t type) {
   return this->make_preference((sizeof(T) + 3) / 4, type);
-}
-
-template<typename T>
-ESPPreferenceObject ESPPreferences::make_preference(uint32_t type, const std::string &str) {
-  type ^= std::hash<std::string>{}(str);
-  return make_preference<T>(type);
 }
 
 template<typename T>

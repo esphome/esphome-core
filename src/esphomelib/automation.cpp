@@ -1,12 +1,16 @@
 #include "esphomelib/automation.h"
+#include "esphomelib/espmath.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
-void Trigger<NoArg>::add_on_trigger_callback(std::function<void(NoArg)> &&f) {
-  this->on_trigger_.add(std::move(f));
-}
 void Trigger<NoArg>::trigger() {
-  this->on_trigger_.call(false);
+  this->parent_->process_trigger_(false);
+}
+void Trigger<NoArg>::trigger(bool arg) {
+  this->parent_->process_trigger_(arg);
+}
+void Trigger<NoArg>::set_parent(Automation<NoArg> *parent) {
+  this->parent_ = parent;
 }
 
 void StartupTrigger::setup() {
@@ -31,6 +35,13 @@ void LoopTrigger::loop() {
   this->trigger();
 }
 float LoopTrigger::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
+
+void IntervalTrigger::loop() {
+  this->trigger();
+}
+float IntervalTrigger::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
@@ -62,6 +73,9 @@ void RangeCondition::set_max(float max) {
 
 void Script::execute() {
   this->trigger();
+}
+void Script::stop() {
+  this->parent_->stop();
 }
 
 ESPHOMELIB_NAMESPACE_END

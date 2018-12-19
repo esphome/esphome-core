@@ -84,9 +84,9 @@ void BasicFanComponent::loop() {
   if (this->state_->get_traits().supports_oscillation()) {
     bool enable = this->state_->oscillating;
     if (enable) {
-      this->binary_output_->turn_on();
+      this->oscillating_output_->turn_on();
     } else {
-      this->binary_output_->turn_off();
+      this->oscillating_output_->turn_off();
     }
     ESP_LOGD(TAG, "Setting oscillation: %d", int(enable));
   }

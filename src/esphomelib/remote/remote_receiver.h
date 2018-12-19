@@ -152,6 +152,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   // On ESP8266, we can
 #ifdef ARDUINO_ARCH_ESP8266
   uint32_t buffer_size_{1000};
+  HighFrequencyLoopRequester high_freq_;
 #endif
   uint8_t tolerance_{25};
   std::vector<RemoteReceiver *> decoders_{};
