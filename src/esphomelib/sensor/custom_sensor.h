@@ -5,17 +5,20 @@
 
 #ifdef USE_CUSTOM_SENSOR
 
+#include "esphomelib/component.h"
 #include "esphomelib/sensor/sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-class CustomSensorConstructor {
+class CustomSensorConstructor : public Component {
  public:
   CustomSensorConstructor(const std::function<std::vector<Sensor *>()> &init);
 
   Sensor *get_sensor(int i);
+
+  void dump_config() override;
 
  protected:
   std::vector<Sensor *> sensors_;

@@ -103,12 +103,15 @@ void RemoteTransmitterComponent::dump_config() {
   LOG_PIN("  Pin: ", this->pin_);
 
   if (this->current_carrier_frequency_ != 0 && this->carrier_duty_percent_ != 100) {
-    ESP_LOGCONFIG(TAG, "    Carrier Frequency: %uHz", this->current_carrier_frequency_);
     ESP_LOGCONFIG(TAG, "    Carrier Duty: %u%%", this->carrier_duty_percent_);
   }
 
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Configuring RMT driver failed: %s", esp_err_to_name(this->error_code_));
+  }
+
+  for (auto *child : this->transmitters_) {
+    LOG_SWITCH("  ", "Transmitter", child);
   }
 }
 
@@ -224,6 +227,10 @@ void RemoteTransmitterComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Transmitter...");
   ESP_LOGCONFIG(TAG, "  Carrier Duty: %u%%", this->carrier_duty_percent_);
   LOG_PIN("  Pin: ", this->pin_);
+
+  for (auto *child : this->transmitters_) {
+    LOG_SWITCH("  ", "Transmitter", child);
+  }
 }
 
 void RemoteTransmitterComponent::calculate_on_off_time_(uint32_t carrier_frequency,

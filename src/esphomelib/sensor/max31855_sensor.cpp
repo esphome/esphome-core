@@ -29,7 +29,7 @@ void MAX31855Sensor::setup() {
   this->spi_setup();
 }
 void MAX31855Sensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "MAX31855 '%s':", this->name_.c_str());
+  LOG_SENSOR("", "MAX31855", this);
   LOG_PIN("  CS Pin: ", this->cs_);
   LOG_UPDATE_INTERVAL(this);
 }

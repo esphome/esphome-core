@@ -72,8 +72,8 @@ void TemplateSwitch::setup() {
   }
 }
 void TemplateSwitch::dump_config() {
-  ESP_LOGCONFIG(TAG, "Template Switch '%s':", this->name_.c_str());
-  LOG_SWITCH(this);
+  LOG_SWITCH("", "Template Switch", this);
+  ESP_LOGCONFIG(TAG, "  Restore State: %s", YESNO(this->restore_state_));
 }
 void TemplateSwitch::set_restore_state(bool restore_state) {
   this->restore_state_ = restore_state;

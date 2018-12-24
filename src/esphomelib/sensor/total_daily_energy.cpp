@@ -9,6 +9,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
+static const char *TAG = "sensor.total_daily_energy";
+
 void TotalDailyEnergy::setup() {
   this->pref_ = global_preferences.make_preference<float>(this->get_object_id_hash());
 
@@ -22,6 +24,9 @@ void TotalDailyEnergy::setup() {
 
   auto f = std::bind(&TotalDailyEnergy::process_new_state_, this, std::placeholders::_1);
   this->parent_->add_on_state_callback(f);
+}
+void TotalDailyEnergy::dump_config() {
+  LOG_SENSOR("", "Total Daily Energy", this);
 }
 float TotalDailyEnergy::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
@@ -69,7 +74,7 @@ void TotalDailyEnergy::publish_state_and_save_(float state) {
 }
 TotalDailyEnergy::TotalDailyEnergy(const std::string &name, time::RealTimeClockComponent *time, Sensor *parent)
     : Sensor(name), time_(time), parent_(parent) {
-  this->clear_filters();
+
 }
 
 } // namespace sensor

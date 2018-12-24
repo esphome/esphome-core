@@ -23,6 +23,7 @@ class StatusBinarySensor : public BinarySensor, public Component {
   void loop() override;
 
   void setup() override;
+  void dump_config() override;
 
   float get_setup_priority() const override;
 

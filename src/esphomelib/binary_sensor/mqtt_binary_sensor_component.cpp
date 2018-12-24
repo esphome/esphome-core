@@ -23,9 +23,6 @@ void MQTTBinarySensorComponent::setup() {
 
 void MQTTBinarySensorComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT Binary Sensor '%s':", this->binary_sensor_->get_name().c_str());
-  if (!this->binary_sensor_->get_device_class().empty()) {
-    ESP_LOGCONFIG(TAG, "  Device Class: '%s'", this->binary_sensor_->get_device_class().c_str());
-  }
   LOG_MQTT_COMPONENT(true, false)
 }
 MQTTBinarySensorComponent::MQTTBinarySensorComponent(BinarySensor *binary_sensor)

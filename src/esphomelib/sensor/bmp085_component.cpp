@@ -58,6 +58,9 @@ void BMP085Component::dump_config() {
     ESP_LOGE(TAG, "Connection with BMP085 failed!");
   }
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "Temperature", this->temperature_);
+  LOG_SENSOR("  ", "Pressure", this->pressure_);
 }
 BMP085Component::BMP085Component(I2CComponent *parent,
                                  const std::string &temperature_name, const std::string &pressure_name,

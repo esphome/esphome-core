@@ -343,7 +343,7 @@ void WiFiComponent::check_connecting_finished() {
   }
 
   uint32_t now = millis();
-  if (now - this->action_started_ > 60000) {
+  if (now - this->action_started_ > 30000) {
     ESP_LOGW(TAG, "Timeout while connecting to WiFi.");
     this->retry_connect();
     return;
@@ -668,6 +668,8 @@ wl_status_t WiFiComponent::wifi_sta_status_() {
   }
 }
 bool WiFiComponent::wifi_scan_start_() {
+  static bool first_scan = false;
+
   // enable STA
   if (!this->wifi_mode_(true, {}))
     return false;
@@ -685,8 +687,14 @@ bool WiFiComponent::wifi_scan_start_() {
   config.channel = 0;
   config.show_hidden = 1;
   config.scan_type = WIFI_SCAN_TYPE_ACTIVE;
-  config.scan_time.active.min = 100;
-  config.scan_time.active.max = 200;
+  if (first_scan) {
+    config.scan_time.active.min = 100;
+    config.scan_time.active.max = 200;
+  } else {
+    config.scan_time.active.min = 400;
+    config.scan_time.active.max = 500;
+  }
+  first_scan = false;
   bool ret = wifi_station_scan(&config, &WiFiComponent::s_wifi_scan_done_callback_);
   if (!ret) {
     ESP_LOGV(TAG, "wifi_station_scan failed!");
@@ -920,15 +928,14 @@ bool WiFiComponent::wifi_sta_ip_config_(optional<ManualIP> manual_ip) {
   info.gw.addr = static_cast<uint32_t>(manual_ip->gateway);
   info.netmask.addr = static_cast<uint32_t>(manual_ip->subnet);
 
-  if (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED) {
-    esp_err_t dhcp_stop_ret = tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);;
-    if (dhcp_stop_ret != ESP_OK) {
-      ESP_LOGV(TAG, "Stopping DHCP client failed! %d", dhcp_stop_ret);
-    }
+  esp_err_t dhcp_stop_ret = tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
+  if (dhcp_stop_ret != ESP_OK) {
+    ESP_LOGV(TAG, "Stopping DHCP client failed! %d", dhcp_stop_ret);
   }
+
   esp_err_t wifi_set_info_ret = tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &info);
   if (wifi_set_info_ret != ESP_OK) {
-    ESP_LOGV(TAG, "Setting manual IP info failed! %d", wifi_set_info_ret);
+    ESP_LOGV(TAG, "Setting manual IP info failed! %s", esp_err_to_name(wifi_set_info_ret));
   }
 
   ip_addr_t dns;
@@ -1131,12 +1138,10 @@ bool WiFiComponent::wifi_ap_ip_config_(optional<ManualIP> manual_ip) {
   }
   tcpip_adapter_dhcp_status_t dhcp_status;
   tcpip_adapter_dhcps_get_status(TCPIP_ADAPTER_IF_AP, &dhcp_status);
-  if (dhcp_status == TCPIP_ADAPTER_DHCP_STARTED) {
-    err = tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
-    if (err != ESP_OK) {
-      ESP_LOGV(TAG, "tcpip_adapter_dhcps_stop failed! %d", err);
-      return false;
-    }
+  err = tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+  if (err != ESP_OK) {
+    ESP_LOGV(TAG, "tcpip_adapter_dhcps_stop failed! %d", err);
+    return false;
   }
 
   err = tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_AP, &info);

@@ -202,7 +202,7 @@ APIConnection::APIConnection(AsyncClient *client, APIServer *parent)
     ((APIConnection *) s)->on_data_(reinterpret_cast<uint8_t *>(buf), len);
   }, this);
 
-  this->buffer_size_ = 128;
+  this->buffer_size_ = 256;
   this->buffer_ = new uint8_t[this->buffer_size_];
   this->client_info_ = this->client_->remoteIP().toString().c_str();
   this->last_traffic_ = millis();
@@ -607,16 +607,11 @@ bool APIConnection::valid_rx_message_type_() {
       return this->connection_state_ == ConnectionState::CONNECTED;
   }
 }
-bool APIConnection::send_message(APIMessage &msg) {
-  APIBuffer buf(this->buffer_, this->buffer_size_);
-  msg.encode(buf);
-  return this->send_buffer(msg.message_type(), buf);
-}
-bool APIConnection::send_message_resize(APIMessage &msg) {
+bool APIConnection::send_message(APIMessage &msg, bool resize) {
   while (true) {
     APIBuffer buf(this->buffer_, this->buffer_size_);
     msg.encode(buf);
-    if (buf.get_overflow()) {
+    if (buf.get_overflow() && resize) {
       this->resize_buffer_();
     } else {
       return this->send_buffer(msg.message_type(), buf);
@@ -649,10 +644,12 @@ bool APIConnection::send_buffer(APIMessageType type, APIBuffer &buf) {
   needed_space += header_buffer.get_length();
 
   if (needed_space > this->client_->space()) {
-    if (type != APIMessageType::SUBSCRIBE_LOGS_RESPONSE) {
+    delay(5);
+    if (needed_space > this->client_->space()) {
       ESP_LOGV(TAG, "Cannot send message because of TCP buffer space");
+      delay(5);
+      return false;
     }
-    return false;
   }
 
   this->client_->add(reinterpret_cast<char *>(header_raw), header_buffer.get_length());
@@ -831,14 +828,23 @@ bool APIConnection::send_log_message(int level,
   if (this->log_subscription_ < level)
     return false;
 
-  return this->send_buffer([level, tag, line](APIBuffer &buffer) {
+  bool success = this->send_buffer([level, tag, line](APIBuffer &buffer) {
     // LogLevel level = 1;
     buffer.encode_uint32(1, static_cast<uint32_t>(level));
     // string tag = 2;
     buffer.encode_string(2, tag, strlen(tag));
     // string message = 3;
     buffer.encode_string(3, line, strlen(line));
-  }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
+  }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE, false);
+
+  if (!success) {
+    return this->send_buffer([level, tag, line](APIBuffer &buffer) {
+      // bool send_failed = 4;
+      buffer.encode_bool(4, true);
+    }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE, false);
+  } else {
+    return true;
+  }
 }
 bool APIConnection::send_disconnect_request(const char *reason) {
   DisconnectRequest req;
@@ -935,7 +941,7 @@ void APIConnection::send_service_call(ServiceCallResponse &call) {
   if (!this->service_call_subscription_)
     return;
 
-  this->send_message_resize(call);
+  this->send_message(call);
 }
 void APIConnection::on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req) {
   for (auto &it : this->parent_->get_state_subs()) {

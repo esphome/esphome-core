@@ -13,7 +13,7 @@ static const char *TAG = "sensor.uptime";
 
 UptimeSensor::UptimeSensor(const std::string &name, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval) {
-  this->clear_filters();
+
 }
 void UptimeSensor::update() {
   const uint32_t ms = millis();

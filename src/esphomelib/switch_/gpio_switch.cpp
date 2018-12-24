@@ -31,9 +31,8 @@ void GPIOSwitch::setup() {
   }
 }
 void GPIOSwitch::dump_config() {
-  ESP_LOGCONFIG(TAG, "GPIO Switch '%s':", this->name_.c_str());
+  LOG_SWITCH("", "GPIO Switch", this);
   LOG_PIN("  Pin: ", this->pin_);
-  LOG_SWITCH(this);
 }
 void GPIOSwitch::write_state(bool state) {
   this->pin_->digital_write(state);

@@ -24,6 +24,7 @@ class MHZ19Component : public PollingComponent, public UARTDevice {
   float get_setup_priority() const override;
 
   void update() override;
+  void dump_config() override;
 
   MHZ19TemperatureSensor *make_temperature_sensor(const std::string &name);
   MHZ19CO2Sensor *get_co2_sensor() const;

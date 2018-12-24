@@ -21,7 +21,7 @@ void HX711Sensor::setup() {
 }
 
 void HX711Sensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "HX711 '%s':", this->name_.c_str());
+  LOG_SENSOR("", "HX711", this);
   LOG_PIN("  DOUT Pin: ", this->dout_pin_);
   LOG_PIN("  SCK Pin: ", this->sck_pin_);
   LOG_UPDATE_INTERVAL(this);

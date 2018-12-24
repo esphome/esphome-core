@@ -47,6 +47,8 @@ void HTU21DComponent::dump_config() {
     ESP_LOGE(TAG, "Communication with HTU21D failed!");
   }
   LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Temperature", this->temperature_);
+  LOG_SENSOR("  ", "Humidity", this->humidity_);
 }
 void HTU21DComponent::update() {
   uint16_t raw_temperature;

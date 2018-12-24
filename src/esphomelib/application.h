@@ -432,6 +432,10 @@ class Application {
   binary_sensor::RDM6300Component *make_rdm6300_component(UARTComponent *parent);
 #endif
 
+#ifdef USE_CUSTOM_BINARY_SENSOR
+  binary_sensor::CustomBinarySensorConstructor *make_custom_binary_sensor(const std::function<std::vector<binary_sensor::BinarySensor *>()> &init);
+#endif
+
 
 
 
@@ -1010,6 +1014,11 @@ class Application {
 #endif
 
 
+#ifdef USE_CUSTOM_SENSOR
+  sensor::CustomSensorConstructor *make_custom_sensor(const std::function<std::vector<sensor::Sensor *>()> &init);
+#endif
+
+
 
 
 
@@ -1256,6 +1265,10 @@ class Application {
   };
 
   MakeUARTSwitch make_uart_switch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data);
+#endif
+
+#ifdef USE_CUSTOM_SWITCH
+  switch_::CustomSwitchConstructor *make_custom_switch(const std::function<std::vector<switch_::Switch *>()> &init);
 #endif
 
 

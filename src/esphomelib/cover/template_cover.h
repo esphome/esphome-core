@@ -23,6 +23,7 @@ class TemplateCover : public Cover, public Component {
   void set_optimistic(bool optimistic);
 
   void loop() override;
+  void dump_config() override;
 
   float get_setup_priority() const override;
 

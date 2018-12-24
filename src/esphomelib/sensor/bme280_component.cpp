@@ -161,12 +161,15 @@ void BME280Component::dump_config() {
     default:
       break;
   }
-
-  ESP_LOGCONFIG(TAG, "    Temperature Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
-  ESP_LOGCONFIG(TAG, "    Pressure Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
-  ESP_LOGCONFIG(TAG, "    Humidity Oversampling: %s", oversampling_to_str(this->humidity_oversampling_));
-  ESP_LOGCONFIG(TAG, "    IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
+  ESP_LOGCONFIG(TAG, "  IIR Filter: %s", iir_filter_to_str(this->iir_filter_));
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  ESP_LOGCONFIG(TAG, "    Oversampling: %s", oversampling_to_str(this->temperature_oversampling_));
+  LOG_SENSOR("  ", "Pressure", this->pressure_sensor_);
+  ESP_LOGCONFIG(TAG, "    Oversampling: %s", oversampling_to_str(this->pressure_oversampling_));
+  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
+  ESP_LOGCONFIG(TAG, "    Oversampling: %s", oversampling_to_str(this->humidity_oversampling_));
 }
 float BME280Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

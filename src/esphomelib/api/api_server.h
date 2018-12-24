@@ -38,9 +38,8 @@ class APIConnection {
   void disconnect_client_();
   bool send_buffer(APIMessageType type, APIBuffer &buf);
   template<typename T>
-  bool send_buffer(T func, APIMessageType type);
-  bool send_message(APIMessage &msg);
-  bool send_message_resize(APIMessage &msg);
+  bool send_buffer(T func, APIMessageType type, bool resize = true);
+  bool send_message(APIMessage &msg, bool resize = true);
   bool send_empty_message(APIMessageType type);
   void loop();
 
@@ -242,10 +241,16 @@ void HomeAssistantServiceCallAction<T>::play(T x) {
 }
 
 template<typename T>
-bool APIConnection::send_buffer(T func, APIMessageType type) {
-  APIBuffer buf(this->buffer_, this->buffer_size_);
-  func(buf);
-  return this->send_buffer(type, buf);
+bool APIConnection::send_buffer(T func, APIMessageType type, bool resize) {
+  while (true) {
+    APIBuffer buf(this->buffer_, this->buffer_size_);
+    func(buf);
+    if (buf.get_overflow() && resize) {
+      this->resize_buffer_();
+    } else {
+      return this->send_buffer(type, buf);
+    }
+  }
 }
 
 } // namespace api

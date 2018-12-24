@@ -22,6 +22,8 @@ class TemplateTextSensor : public TextSensor, public PollingComponent {
 
   float get_setup_priority() const override;
 
+  void dump_config() override;
+
  protected:
   std::function<optional<std::string>()> f_{};
 };

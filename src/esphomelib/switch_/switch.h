@@ -23,8 +23,19 @@ class TurnOnAction;
 template<typename T>
 class SwitchCondition;
 
-#define LOG_SWITCH(this) \
-  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); }
+#define LOG_SWITCH(prefix, type, obj) \
+    if (obj != nullptr) { \
+      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+      if (!obj->get_icon().empty()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
+      } \
+      if (obj->optimistic()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Optimistic: YES"); \
+      } \
+      if (obj->is_inverted()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Inverted: YES"); \
+      } \
+    }
 
 /** Base class for all switches.
  *
@@ -108,6 +119,8 @@ class Switch : public Nameable {
    * Defaults to false.
    */
   virtual bool optimistic();
+
+  bool is_inverted() const;
 
  protected:
   /** Write the given state to hardware. You should implement this

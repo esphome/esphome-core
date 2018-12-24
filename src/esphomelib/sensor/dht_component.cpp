@@ -43,6 +43,9 @@ void DHTComponent::dump_config() {
   }
 
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
 }
 
 void DHTComponent::update() {

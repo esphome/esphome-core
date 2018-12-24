@@ -45,7 +45,7 @@ void DutyCycleSensor::setup() {
   attachInterrupt(this->pin_->get_pin(), gpio_intr, CHANGE);
 }
 void DutyCycleSensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "Duty Cycle Sensor '%s':", this->name_.c_str());
+  LOG_SENSOR("", "Duty Cycle Sensor", this);
   LOG_PIN("  Pin: ", this->pin_);
   LOG_UPDATE_INTERVAL(this);
 }

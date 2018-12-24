@@ -35,6 +35,9 @@ void ShutdownSwitch::write_state(bool state) {
 #endif
   }
 }
+void ShutdownSwitch::dump_config() {
+  LOG_SWITCH("", "Shutdown Switch", this);
+}
 
 } // namespace switch_
 

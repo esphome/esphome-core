@@ -153,6 +153,7 @@ class LightState : public Nameable, public Component {
   // (In most use cases you won't need these)
   /// Load state from preferences
   void setup() override;
+  void dump_config() override;
   void loop() override;
   /// Shortly after HARDWARE.
   float get_setup_priority() const override;

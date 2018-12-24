@@ -32,12 +32,6 @@ void MQTTTextSensor::setup() {
 
 void MQTTTextSensor::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT Text Sensor '%s':", this->sensor_->get_name().c_str());
-  if (!this->sensor_->get_icon().empty()) {
-    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->sensor_->get_icon().c_str());
-  }
-  if (!this->sensor_->unique_id().empty()) {
-    ESP_LOGCONFIG(TAG, "  Unique ID: '%s'", this->sensor_->unique_id().c_str());
-  }
   LOG_MQTT_COMPONENT(true, false);
 }
 

@@ -48,6 +48,8 @@ void HDC1080Component::dump_config() {
     ESP_LOGE(TAG, "Communication with HDC1080 failed!");
   }
   LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Temperature", this->temperature_);
+  LOG_SENSOR("  ", "Humidity", this->humidity_);
 }
 void HDC1080Component::update() {
   uint16_t raw_temp;

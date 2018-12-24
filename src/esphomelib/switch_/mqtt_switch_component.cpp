@@ -46,12 +46,6 @@ void MQTTSwitchComponent::setup() {
 }
 void MQTTSwitchComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT switch '%s': ", this->switch_->get_name().c_str());
-  if (!this->switch_->get_icon().empty()) {
-    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->switch_->get_icon().c_str());
-  }
-  if (this->switch_->optimistic()) {
-    ESP_LOGCONFIG(TAG, "  Optimistic: YES");
-  }
   LOG_MQTT_COMPONENT(true, true);
 }
 

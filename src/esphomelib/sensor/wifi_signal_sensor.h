@@ -16,6 +16,7 @@ class WiFiSignalSensor : public PollingSensorComponent {
   explicit WiFiSignalSensor(const std::string &name, uint32_t update_interval = 15000);
 
   void update() override;
+  void dump_config() override;
 
   std::string unit_of_measurement() override;
   std::string icon() override;

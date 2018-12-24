@@ -16,6 +16,7 @@ class VersionTextSensor : public TextSensor, public Component {
  public:
   explicit VersionTextSensor(const std::string &name);
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   std::string icon() override;
   std::string unique_id() override;

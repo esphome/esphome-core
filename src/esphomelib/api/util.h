@@ -22,6 +22,7 @@ class APIBuffer {
   bool get_overflow() const;
   void write(uint8_t value);
 
+  void encode_int32(uint32_t field, int32_t value);
   void encode_uint32(uint32_t field, uint32_t value);
   void encode_sint32(uint32_t field, int32_t value);
   void encode_bool(uint32_t field, bool value);

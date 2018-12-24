@@ -3,10 +3,13 @@
 #ifdef USE_TEMPLATE_COVER
 
 #include "esphomelib/cover/template_cover.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace cover {
+
+static const char *TAG = "cover.template";
 
 TemplateCover::TemplateCover(const std::string &name)
     : Cover(name), open_trigger_(new Trigger<NoArg>()), close_trigger_(new Trigger<NoArg>),
@@ -65,6 +68,9 @@ void TemplateCover::write_command(CoverCommand command) {
       break;
     }
   }
+}
+void TemplateCover::dump_config() {
+  LOG_COVER("Template Cover", "", this);
 }
 
 } // namespace cover
