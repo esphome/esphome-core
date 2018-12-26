@@ -64,6 +64,7 @@
   #define USE_BME280
   #define USE_BMP280
   #define USE_BME680
+  #define USE_TX20
   #define USE_SHT3XD
   #define USE_TEMPLATE_SENSOR
   #ifdef ARDUINO_ARCH_ESP32

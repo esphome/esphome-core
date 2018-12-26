@@ -682,6 +682,25 @@ Application::MakeBH1750Sensor Application::make_bh1750_sensor(const std::string 
 }
 #endif
 
+#ifdef USE_TX20
+Application::MakeTX20Sensor Application::make_tx20_sensor(const std::string &wind_speed_name, 
+                                                          const std::string &wind_direction_name,
+                                                          const std::string &wind_direction_text_name, GPIOPin *pin,
+                                                          uint32_t update_interval) {
+  auto *tx20 = this->register_component(
+      new TX20Component(wind_speed_name, wind_direction_name, wind_direction_text_name,
+                        pin, update_interval)
+  );
+
+  return {
+      .tx20 = tx20,
+      .mqtt_wind_speed = this->register_sensor(tx20->get_wind_speed_sensor()),
+      .mqtt_wind_direction = this->register_sensor(tx20->get_wind_direction_sensor()),
+      .mqtt_wind_direction_text = this->register_text_sensor(tx20->get_wind_direction_text_sensor()),
+  };
+}
+#endif
+
 #ifdef USE_BME280
 Application::MakeBME280Sensor Application::make_bme280_sensor(const std::string &temperature_name,
                                                               const std::string &pressure_name,
