@@ -721,7 +721,7 @@ class Application {
    * @return The TX20Component + MQTT sensors tuple, use this for advanced settings.
    */
   MakeTX20Sensor make_tx20_sensor(const std::string &wind_speed_name, const std::string &wind_direction_name,
-                                  const std::string &wind_direction_text_name, GPIOPin *pin,
+                                  const std::string &wind_direction_text_name, const GPIOInputPin &pin,
                                   uint32_t update_interval = 15000);
 #endif
 

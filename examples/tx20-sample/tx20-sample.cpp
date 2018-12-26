@@ -10,7 +10,8 @@ void setup() {
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
   App.init_ota()->start_safe_mode();
 
-  App.make_tx20_sensor("Windspeed", "Wind Direction Index", "Wind Direction", new GPIOPin(4, INPUT), 500);
+  App.make_tx20_sensor(
+      "Windspeed", "Winddirection", "Winddirection Text", ::GPIOInputPin(4, INPUT), 500);
 }
 
 void loop() {
