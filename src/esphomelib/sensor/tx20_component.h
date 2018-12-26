@@ -41,13 +41,16 @@ public:
   void update() override;
 
 protected:
-  void start_read_();
+  static void start_read_();
+  void start_read_internal_();
 
   TX20WindSpeedSensor *wind_speed_sensor_;
   TX20WindDirectionSensor *wind_direction_sensor_;
   TX20WindDirectionTextSensor *wind_direction_text_sensor_;
   GPIOPin *pin_;
 };
+/// Global storage for having multiple tx20
+extern TX20Component *global_tx20_;
 
 } // namespace sensor
 
