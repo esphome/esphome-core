@@ -66,7 +66,8 @@ void TX20Component::update() {
     this->wind_direction_sensor_->publish_state(tx20_wind_direction);
     this->wind_speed_sensor_->publish_state(tx20_wind_speed_kmh);
 
-    if(tx20_wind_direction >= DIRECTIONS && tx20_wind_direction < std::size(DIRECTIONS)){
+    if(tx20_wind_direction >= 0 
+        && tx20_wind_direction < (sizeof(DIRECTIONS) / sizeof(*DIRECTIONS))){
       std::string direction = DIRECTIONS[tx20_wind_direction];
       this->wind_direction_text_sensor_->publish_state(direction);
     }
