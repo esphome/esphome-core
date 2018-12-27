@@ -1,5 +1,3 @@
-// Based on:
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_TX20
@@ -7,7 +5,7 @@
 #include "esphomelib/espmath.h"
 #include "esphomelib/log.h"
 #include "esphomelib/text_sensor/text_sensor.h"
-#include "tx20_component.h"
+#include "esphomelib/sensor/tx20_component.h"
 
 #ifdef ARDUINO_ARCH_ESP32
   #define GPIO_STATUS_W1TC_ADDRESS 0x24
@@ -26,13 +24,13 @@ const char EMPTY[] = "";
 const uint16_t TX20_BIT_TIME = 1220;   // microseconds
 const uint8_t TX20_RESET_VALUES = 60;  // seconds
 
-const std::vector<std::string> DIRECTIONS = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-                                             "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
+const std::string DIRECTIONS[] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                                   "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
 
-static bool tx20_available = false;
-static float tx20_wind_speed_kmh = 0;
-static uint8_t tx20_wind_direction = 0;
-static bool firstInstance = false;
+bool tx20_available = false;
+float tx20_wind_speed_kmh = 0;
+uint8_t tx20_wind_direction = 0;
+static bool first_instance = false;
 
 TX20Component::TX20Component(const std::string &wind_speed_name, const std::string &wind_direction_name,
                              const std::string &wind_direction_text_name, GPIOPin *pin, uint32_t update_interval)
@@ -41,11 +39,8 @@ TX20Component::TX20Component(const std::string &wind_speed_name, const std::stri
       wind_direction_sensor_(new TX20WindDirectionSensor(wind_direction_name, this)),
       wind_direction_text_sensor_(new TX20WindDirectionTextSensor(wind_direction_text_name)),
       pin_(pin) {
-  ESP_LOGV(TAG, "Start TX20Component...");
-  if(firstInstance){
-    ESP_LOGE(TAG, "Multiple TX20 Sensors are not supported!!");
-  }
-  firstInstance = true;
+  assert(!first_instance);
+  first_instance = true;
 }
 
 void TX20Component::setup() {
@@ -57,7 +52,7 @@ void TX20Component::setup() {
 }
 void TX20Component::dump_config() {
   ESP_LOGCONFIG(TAG, "TX20:");
-  LOG_PIN(" Pin:", TX20Component::pin_);
+  LOG_PIN(" Pin:", this->pin_);
   LOG_UPDATE_INTERVAL(this);
 }
 float TX20Component::get_setup_priority() const {
@@ -67,11 +62,15 @@ float TX20Component::get_setup_priority() const {
 void TX20Component::update() {
   if (tx20_available) {
     ESP_LOGV(TAG, "Updating TX20...");
-    std::string direction = DIRECTIONS.at(tx20_wind_direction);
 
     this->wind_direction_sensor_->publish_state(tx20_wind_direction);
     this->wind_speed_sensor_->publish_state(tx20_wind_speed_kmh);
-    this->wind_direction_text_sensor_->publish_state(direction);
+
+    if(tx20_wind_direction >= DIRECTIONS && tx20_wind_direction < std::size(DIRECTIONS)){
+      std::string direction = DIRECTIONS[tx20_wind_direction];
+      this->wind_direction_text_sensor_->publish_state(direction);
+    }
+    tx20_available = false;
   }
 }
 void TX20Component::start_read_() {
@@ -100,7 +99,7 @@ void TX20Component::start_read_internal_() {
   delayMicroseconds(TX20_BIT_TIME / 2);
 
   for (int bitcount = 41; bitcount > 0; bitcount--) {
-    uint8_t dpin = (digitalRead(this->pin_->get_pin()));
+    uint8_t dpin = this->pin_->digital_read();
     if (bitcount > 41 - 5) {
       // start, inverted
       tx20_sa = (tx20_sa << 1) | (dpin ^ 1);
@@ -134,7 +133,7 @@ void TX20Component::start_read_internal_() {
   // Must clear this bit in the interrupt register,
   // it gets set even when interrupts are disabled
   tx20_wind_direction = tx20_sb;
-  tx20_wind_speed_kmh = float(tx20_sc) * 0.36;
+  tx20_wind_speed_kmh = float(tx20_sc) * 0.36f;
 #ifdef ARDUINO_ARCH_ESP32
   GPIO_REG_WRITE(GPIO.status_w1tc, 1 << this->pin_->get_pin());
 #endif

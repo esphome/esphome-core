@@ -198,6 +198,10 @@ const char UNIT_K[] = "K";
 const char UNIT_MICROSIEMENS_PER_CENTIMETER[] = "µS/cm";
 const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m^3";
 const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
+const char UNIT_KMH[] = "km/h";
+const char ICON_WIND_SPEED[] = "mdi:weather-windy";
+const char ICON_WIND_DIRECTION[] = "mdi:sign-direction";
+const char EMPTY[] = "";
 
 SensorStateTrigger::SensorStateTrigger(Sensor *parent) {
   parent->add_on_state_callback([this](float value) {

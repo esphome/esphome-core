@@ -1,4 +1,3 @@
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_TX20
