@@ -21,7 +21,7 @@ using TX20WindDirectionSensor =
 using TX20WindDirectionTextSensor = text_sensor::TextSensor;
 
 /// This class implements support for the TX20 WindSpeed+WindDirection sensor.
-class TX20Component : public PollingComponent {
+class TX20Component : public Component {
 public:
   TX20Component(const std::string &wind_speed_name,
                 const std::string &wind_direction_name,
