@@ -38,6 +38,7 @@ public:
   void dump_config() override;
   float get_setup_priority() const override;
   void update() override;
+  void loop() override;
 
 protected:
   static void start_read_();
