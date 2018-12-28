@@ -39,9 +39,9 @@ TX20Component::TX20Component(const std::string &wind_speed_name,
                              const std::string &wind_direction_text_name,
                              GPIOPin *pin)
     : Component(),
-      wind_speed_sensor_(new TX20WindSpeedSensor(wind_speed_name, this)),
+      wind_speed_sensor_(new TX20WindSpeedSensor(wind_speed_name)),
       wind_direction_sensor_(
-          new TX20WindDirectionSensor(wind_direction_name, this)),
+          new TX20WindDirectionSensor(wind_direction_name)),
       wind_direction_text_sensor_(
           new TX20WindDirectionTextSensor(wind_direction_text_name)),
       pin_(pin) {

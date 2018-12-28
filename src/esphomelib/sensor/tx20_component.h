@@ -15,9 +15,9 @@ extern const char ICON_WIND_DIRECTION[];
 extern const char EMPTY[];
 
 using TX20WindSpeedSensor =
-    sensor::EmptyPollingParentSensor<1, ICON_WIND_SPEED, UNIT_KMH>;
+    sensor::EmptySensor<1, ICON_WIND_SPEED, UNIT_KMH>;
 using TX20WindDirectionSensor =
-    sensor::EmptyPollingParentSensor<1, ICON_WIND_DIRECTION, EMPTY>;
+    sensor::EmptySensor<1, ICON_WIND_DIRECTION, EMPTY>;
 using TX20WindDirectionTextSensor = text_sensor::TextSensor;
 
 /// This class implements support for the TX20 WindSpeed+WindDirection sensor.
