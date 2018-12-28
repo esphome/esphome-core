@@ -54,7 +54,7 @@ void APIServer::loop() {
   }
 }
 void APIServer::dump_config() {
-
+  ESP_LOGI(TAG,"API Server:");
 }
 bool APIServer::uses_password() const {
   return !this->password_.empty();
