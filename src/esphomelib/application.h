@@ -753,12 +753,10 @@ class Application {
    * @param wind_direction_text_name The friendly name the wind direction text sensor (showing the orientation of the
    * flag in text - like 'NNE') should be advertised as.
    * @param pin The black cable of the TX20.
-   * @param update_interval The interval in ms to update the sensor values.
    * @return The TX20Component + MQTT sensors tuple, use this for advanced settings.
    */
   MakeTX20Sensor make_tx20_sensor(const std::string &wind_speed_name, const std::string &wind_direction_name,
-                                  const std::string &wind_direction_text_name, const GPIOInputPin &pin,
-                                  uint32_t update_interval = 15000);
+                                  const std::string &wind_direction_text_name, const GPIOInputPin &pin);
 #endif
 
 #ifdef USE_BMP280

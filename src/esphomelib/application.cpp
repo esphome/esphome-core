@@ -685,11 +685,11 @@ Application::MakeBH1750Sensor Application::make_bh1750_sensor(const std::string 
 #ifdef USE_TX20
 Application::MakeTX20Sensor Application::make_tx20_sensor(const std::string &wind_speed_name, 
                                                           const std::string &wind_direction_name,
-                                                          const std::string &wind_direction_text_name, const GPIOInputPin &pin,
-                                                          uint32_t update_interval) {
+                                                          const std::string &wind_direction_text_name,
+                                                          const GPIOInputPin &pin) {
   auto *tx20 = this->register_component(
       new TX20Component(wind_speed_name, wind_direction_name, wind_direction_text_name,
-                        pin.copy(), update_interval)
+                        pin.copy())
   );
 
   return {

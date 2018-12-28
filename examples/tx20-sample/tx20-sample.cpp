@@ -11,7 +11,7 @@ void setup() {
   App.init_ota()->start_safe_mode();
 
   App.make_tx20_sensor(
-      "Windspeed", "Winddirection", "Winddirection Text", ::GPIOInputPin(4, INPUT), 500);
+      "Windspeed", "Winddirection", "Winddirection Text", ::GPIOInputPin(4, INPUT));
 }
 
 void loop() {

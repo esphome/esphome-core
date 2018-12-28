@@ -28,21 +28,17 @@ const std::string DIRECTIONS[] = {"N",  "NNE", "NE", "ENE", "E",  "ESE",
                                   "SE", "SSE", "S",  "SSW", "SW", "WSW",
                                   "W",  "WNW", "NW", "NNW"};
 
-bool tx20_available = false;
 bool start_read = false;
-float tx20_wind_speed_kmh = 0;
-uint8_t tx20_wind_direction = 0;
 uint8_t bit_count = 0;
 uint16_t delay_until = 0;
 uint32_t start_time = 0;
-
 uint8_t tx20_data[6] = {0};
 
 TX20Component::TX20Component(const std::string &wind_speed_name,
                              const std::string &wind_direction_name,
                              const std::string &wind_direction_text_name,
                              GPIOPin *pin, uint32_t update_interval)
-    : PollingComponent(update_interval),
+    : Component(update_interval),
       wind_speed_sensor_(new TX20WindSpeedSensor(wind_speed_name, this)),
       wind_direction_sensor_(
           new TX20WindDirectionSensor(wind_direction_name, this)),
@@ -63,27 +59,11 @@ void TX20Component::setup() {
 void TX20Component::dump_config() {
   ESP_LOGCONFIG(TAG, "TX20:");
   LOG_PIN(" Pin:", this->pin_);
-  LOG_UPDATE_INTERVAL(this);
 }
 float TX20Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
-void TX20Component::update() {
-  if (tx20_available) {
-    ESP_LOGV(TAG, "Updating TX20...");
-
-    this->wind_direction_sensor_->publish_state(tx20_wind_direction);
-    this->wind_speed_sensor_->publish_state(tx20_wind_speed_kmh);
-
-    if (tx20_wind_direction >= 0 &&
-        tx20_wind_direction < (sizeof(DIRECTIONS) / sizeof(*DIRECTIONS))) {
-      std::string direction = DIRECTIONS[tx20_wind_direction];
-      this->wind_direction_text_sensor_->publish_state(direction);
-    }
-    tx20_available = false;
-  }
-}
 void TX20Component::loop() const {
   if (start_read && (delay + start_time >= micros())) {
     this->read_loop_();
@@ -93,15 +73,18 @@ void TX20Component::start_read_() { global_tx20_->start_read_internal_(); }
 
 void TX20Component::start_read_internal_() {
   /* La Crosse TX20 Anemometer datagram every 2 seconds
-   * 0-0 11011 0011 111010101111 0101 1100 000101010000 0-0 - Received pin data
-   * at 1200 uSec per bit sa    sb   sc           sd   se   sf 00100 1100
-   * 000101010000 1010 1100 000101010000     - sa to sd inverted user data,
-   * LSB first sa - Start frame always 00100 sb - Wind direction 0 - 15 sc -
-   * Wind speed 0 - 511 sd - Checksum se - Wind direction 0 - 15 sf - Wind speed
-   * 0 - 511
+   * 0-0 11011 0011 111010101111 0101 1100 000101010000 0-0
+   * Received pin data at 1200 uSec per bit
+   * 00100 1100 000101010000 1010 1100 000101010000
+   * - data[0] to data[3] inverted user data,
+   * - LSB first data[0] 
+   * - Start frame always 00100 data[1]
+   * - Wind direction 0 - 15 sc
+   * - Wind speed 0 - 511 data[2] 
+   * - Checksum data[4]
+   * - Wind direction 0 - 15 data[5] - Wind speed 0 - 511
    */
 
-  tx20_available = false;
   tx20_data = {0};
   start_read = true;
   start_time = micros() delay_until = TX20_BIT_TIME / 2;
@@ -133,6 +116,16 @@ void TX20Component::read_loop_() {
       tx20_data[5] = tx20_data[5] >> 1 | (dpin << 11);
     }
     if (bit_count == 0) {
+      start_read = false;
+
+      // Must clear this bit in the interrupt register,
+      // it gets set even when interrupts are disabled
+#ifdef ARDUINO_ARCH_ESP32
+      GPIO_REG_WRITE(GPIO.status_w1tc, 1 << this->pin_->get_pin());
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+      GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, 1 << this->pin_->get_pin());
+#endif
       uint8_t chk = (tx20_sb + (tx20_sc & 0xf) + ((tx20_sc >> 4) & 0xf) +
                      ((tx20_sc >> 8) & 0xf));
       chk &= 0xf;
@@ -140,19 +133,18 @@ void TX20Component::read_loop_() {
       if ((chk == tx20_sd) &&
           (tx20_sc <
            400)) {  // if checksum seems to be ok and wind speed below 40 m/s
-        tx20_available = true;
+        const uint8_t tx20_wind_direction = tx20_data[1];
+        const float tx20_wind_speed = tx20_data[2] * 0.36f;
+
+        this->wind_direction_sensor_->publish_state(tx20_wind_direction);
+        this->wind_speed_sensor_->publish_state(tx20_wind_speed);
+        if (tx20_wind_direction >= 0 &&
+            tx20_wind_direction < (sizeof(DIRECTIONS) / sizeof(*DIRECTIONS))) {
+          std::string direction = DIRECTIONS[tx20_wind_direction];
+          this->wind_direction_text_sensor_->publish_state(direction);
+        }
       }
 
-      // Must clear this bit in the interrupt register,
-      // it gets set even when interrupts are disabled
-      tx20_wind_direction = tx20_sb;
-      tx20_wind_speed_kmh = float(tx20_sc) * 0.36f;
-#ifdef ARDUINO_ARCH_ESP32
-      GPIO_REG_WRITE(GPIO.status_w1tc, 1 << this->pin_->get_pin());
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-      GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, 1 << this->pin_->get_pin());
-#endif
     } else {
       start_time = micros();
       delay_until = TX20_BIT_TIME;

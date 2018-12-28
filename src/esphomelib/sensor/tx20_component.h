@@ -25,8 +25,7 @@ class TX20Component : public Component {
 public:
   TX20Component(const std::string &wind_speed_name,
                 const std::string &wind_direction_name,
-                const std::string &wind_direction_text_name, GPIOPin *pin,
-                uint32_t update_interval = 15000);
+                const std::string &wind_direction_text_name, GPIOPin *pin);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -37,7 +36,6 @@ public:
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
-  void update() override;
   void loop() override;
 
 protected:
