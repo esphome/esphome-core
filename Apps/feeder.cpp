@@ -25,12 +25,18 @@ void setup() {
   Automation<std::string> *automation = App.make_automation<std::string>(mqtt_mqttmessagetrigger);
   Application::MakeGPIOSwitch application_makegpioswitch = App.make_gpio_switch("motor_p1", 5);
   switch_::GPIOSwitch *motor_p1 = application_makegpioswitch.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent = application_makegpioswitch.mqtt;
+//   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent = application_makegpioswitch.mqtt;
 //   motor_p1->set_internal(true);
   Application::MakeGPIOSwitch application_makegpioswitch_2 = App.make_gpio_switch("motor_p2", 4);
-  switch_::GPIOSwitch *switch__gpioswitch = application_makegpioswitch_2.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
+//   switch_::GPIOSwitch *switch__gpioswitch = application_makegpioswitch_2.switch_;
+//   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
   switch_::TurnOnAction<std::string> *action = motor_p1->make_turn_on_action<std::string>();
+
+  Application::MakePulseCounterSensor application_makepulsecountersensor = App.make_pulse_counter_sensor("weight", 14);
+  sensor::PulseCounterSensorComponent *sensor_pulsecountersensorcomponent = application_makepulsecountersensor.pcnt;
+  sensor_pulsecountersensorcomponent->set_filters({});
+
+  
   automation->add_actions({action});
   // =========== AUTO GENERATED CODE END ============
   // ========= YOU CAN EDIT AFTER THIS LINE =========
