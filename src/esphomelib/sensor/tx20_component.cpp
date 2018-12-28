@@ -126,15 +126,16 @@ void TX20Component::read_loop_() {
 
         this->wind_direction_sensor_->publish_state(tx20_wind_direction);
         this->wind_speed_sensor_->publish_state(tx20_wind_speed);
-        ESP_LOGV(TAG, "WindSpeed %d, WindDirection %d", tx20_wind_speed, tx20_wind_direction);
+        ESP_LOGI(TAG, "WindSpeed %d, WindDirection %d", tx20_wind_speed, tx20_wind_direction);
 
-        if (tx20_wind_direction >= 0 && tx20_wind_direction < (sizeof(DIRECTIONS) / sizeof(*DIRECTIONS))) {
+        if (tx20_wind_direction >= 0 && tx20_wind_direction < 16) {
           std::string direction = DIRECTIONS[tx20_wind_direction];
           this->wind_direction_text_sensor_->publish_state(direction);
+          ESP_LOGI(TAG, "WindDirectionText %s", direction);
         }
       }
       else{
-        ESP_LOGV(TAG, "Checksum failed!! Wind speed: %d, Wind direction %d, Chk: %d", 
+        ESP_LOGI(TAG, "Checksum failed!! Wind speed: %d, Wind direction %d, Chk: %d", 
           tx20_wind_speed, tx20_wind_direction, chk);
 
       }
