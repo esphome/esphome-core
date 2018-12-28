@@ -26,7 +26,7 @@ void setup() {
   Application::MakeGPIOSwitch application_makegpioswitch = App.make_gpio_switch("motor_p1", 5);
   switch_::GPIOSwitch *motor_p1 = application_makegpioswitch.switch_;
   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent = application_makegpioswitch.mqtt;
-  motor_p1->set_internal(true);
+//   motor_p1->set_internal(true);
   Application::MakeGPIOSwitch application_makegpioswitch_2 = App.make_gpio_switch("motor_p2", 4);
   switch_::GPIOSwitch *switch__gpioswitch = application_makegpioswitch_2.switch_;
   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
@@ -34,9 +34,10 @@ void setup() {
   automation->add_actions({action});
   // =========== AUTO GENERATED CODE END ============
   // ========= YOU CAN EDIT AFTER THIS LINE =========
+  mqtt_mqttmessagetrigger->setup();
   App.setup();
   
-  mqtt_mqttmessagetrigger->setup();
+  
 }
 
 void loop() {
