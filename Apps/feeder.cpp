@@ -35,6 +35,8 @@ void setup() {
   // =========== AUTO GENERATED CODE END ============
   // ========= YOU CAN EDIT AFTER THIS LINE =========
   App.setup();
+  
+  mqtt_mqttmessagetrigger->setup();
 }
 
 void loop() {
