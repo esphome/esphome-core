@@ -37,8 +37,8 @@ uint8_t tx20_data[6] = {0};
 TX20Component::TX20Component(const std::string &wind_speed_name,
                              const std::string &wind_direction_name,
                              const std::string &wind_direction_text_name,
-                             GPIOPin *pin, uint32_t update_interval)
-    : Component(update_interval),
+                             GPIOPin *pin)
+    : Component(),
       wind_speed_sensor_(new TX20WindSpeedSensor(wind_speed_name, this)),
       wind_direction_sensor_(
           new TX20WindDirectionSensor(wind_direction_name, this)),
