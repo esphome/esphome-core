@@ -98,6 +98,7 @@ void Application::dump_config() {
   }
 
   for (uint32_t i = 0; i < this->components_.size(); i++) {
+    ESP_LOGI(TAG,"---------------- Dump Config ---------------- Component  index %i of [0..%i]",i,this->components_.size()-1);
     Component *component = this->components_[i];
     component->dump_config();
   }
