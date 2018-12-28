@@ -119,17 +119,23 @@ void TX20Component::read_loop_() {
 #endif
       uint8_t chk = (tx20_data[1] + (tx20_data[2] & 0xf) + ((tx20_data[2] >> 4) & 0xf) + ((tx20_data[2] >> 8) & 0xf));
       chk &= 0xf;
-
+      const uint8_t tx20_wind_direction = tx20_data[1];
+      const float tx20_wind_speed = tx20_data[2] * 0.36f;
       if ((chk == tx20_data[3]) && (tx20_data[2] < 400)) {  // if checksum seems to be ok and wind speed below 40 m/s
-        const uint8_t tx20_wind_direction = tx20_data[1];
-        const float tx20_wind_speed = tx20_data[2] * 0.36f;
+        
 
         this->wind_direction_sensor_->publish_state(tx20_wind_direction);
         this->wind_speed_sensor_->publish_state(tx20_wind_speed);
+        ESP_LOGV(TAG, "Wind speed %d, Wind direction %d", tx20_wind_speed, tx20_wind_direction);
+
         if (tx20_wind_direction >= 0 && tx20_wind_direction < (sizeof(DIRECTIONS) / sizeof(*DIRECTIONS))) {
           std::string direction = DIRECTIONS[tx20_wind_direction];
           this->wind_direction_text_sensor_->publish_state(direction);
         }
+      else{
+        ESP_LOGV(TAG, "Checksum failed!! Wind speed: %d, Wind direction %d, Chk: %d", 
+          tx20_wind_speed, tx20_wind_direction, chk);
+
       }
 
     } else {
