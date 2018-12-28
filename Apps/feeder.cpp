@@ -32,11 +32,11 @@ void setup() {
 //   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
   switch_::TurnOnAction<std::string> *action = motor_p1->make_turn_on_action<std::string>();
 
-  Application::MakePulseCounterSensor application_makepulsecountersensor = App.make_pulse_counter_sensor("weight", 14);
+  Application::MakePulseCounterSensor application_makepulsecountersensor = App.make_pulse_counter_sensor("weight",GPIOInputPin(14, INPUT_PULLUP));
   sensor::PulseCounterSensorComponent *sensor_pulsecountersensorcomponent = application_makepulsecountersensor.pcnt;
   sensor_pulsecountersensorcomponent->set_filters({});
 
-  
+
   automation->add_actions({action});
   // =========== AUTO GENERATED CODE END ============
   // ========= YOU CAN EDIT AFTER THIS LINE =========
