@@ -1,37 +1,117 @@
 // Auto generated code by esphomeyaml
-// ========== AUTO GENERATED INCLUDE BLOCK BEGIN ===========
 #include "esphomelib/application.h"
+// 0  for detection
+// 1 for heat pipe #1
+// 2 for #2
+//3 for #3
+#define I_AM  3 
+
+
+
 using namespace esphomelib;
-// ========== AUTO GENERATED INCLUDE BLOCK END ==========="
 
 void setup() {
   // ===== DO NOT EDIT ANYTHING BELOW THIS LINE =====
   // ========== AUTO GENERATED CODE BEGIN ===========
-  App.set_name("feeder");
+  App.set_name("heat_pipe");
   App.set_compilation_datetime(__DATE__ ", " __TIME__);
-  LogComponent *logcomponent = App.init_log(115200);
-  WiFiComponent *wificomponent = App.init_wifi();
-  WiFiAP wifiap = WiFiAP();
-  wifiap.set_ssid("FuckGFW");
-  wifiap.set_password("refuckgfw");
-  wificomponent->add_sta(wifiap);
-  OTAComponent *otacomponent = App.init_ota();
-  otacomponent->set_auth_password("1234567890");
-  otacomponent->start_safe_mode();
-  mqtt::MQTTClientComponent *mqtt_mqttclientcomponent = App.init_mqtt("voicevon.vicp.io", 1883, "von", "von1970");
-  mqtt::MQTTMessageTrigger *mqtt_mqttmessagetrigger = mqtt_mqttclientcomponent->make_message_trigger("abcd/efgh");
-  api::APIServer *api_apiserver = App.init_api_server();
-  api_apiserver->set_password("1234567890");
-  Automation<std::string> *automation = App.make_automation<std::string>(mqtt_mqttmessagetrigger);
-  Application::MakeGPIOSwitch application_makegpioswitch = App.make_gpio_switch("motor_p1", 5);
-  switch_::GPIOSwitch *motor_p1 = application_makegpioswitch.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent = application_makegpioswitch.mqtt;
-  motor_p1->set_internal(true);
-  Application::MakeGPIOSwitch application_makegpioswitch_2 = App.make_gpio_switch("motor_p2", 4);
-  switch_::GPIOSwitch *switch__gpioswitch = application_makegpioswitch_2.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
-  switch_::TurnOnAction<std::string> *action = motor_p1->make_turn_on_action<std::string>();
-  automation->add_actions({action});
+  ::LogComponent *_logcomponent = App.init_log(115200);
+  _logcomponent->set_global_log_level(ESPHOMELIB_LOG_LEVEL_DEBUG);
+  ::WiFiComponent *_wificomponent = App.init_wifi("FuckGFW","refuckgfw");
+  // _wificomponent->set_sta(::WiFiAp{
+  //     .ssid = "",
+  //     .password = "",
+  //     .channel = -1,
+  // });
+  _wificomponent->set_reboot_timeout(300000);
+  ::OTAComponent *_otacomponent = App.init_ota();
+  _otacomponent->set_auth_password("1234567890");
+  _otacomponent->start_safe_mode();
+  mqtt::MQTTClientComponent *mqtt_mqttclientcomponent = App.init_mqtt("192.168.123.41", 1883, "von", "von1970");
+  mqtt_mqttclientcomponent->set_reboot_timeout(300000);
+   App.make_status_led(::GPIOOutputPin(16, OUTPUT, false));
+  sensor::DallasComponent *sensor_dallascomponent = App.make_dallas_component(32, 5000);
+  #if (I_AM == 0)
+    sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor = sensor_dallascomponent->get_sensor_by_address("t0", 0);
+  #endif
+  #if (I_AM == 2) 
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor = sensor_dallascomponent->get_sensor_by_address("t0", 0x2A01186AAC05FF28);
+  App.register_sensor(sensor_dallastemperaturesensor);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_2 = sensor_dallascomponent->get_sensor_by_address("t1", 0x940213122B6DAA28);
+  App.register_sensor(sensor_dallastemperaturesensor_2);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_3 = sensor_dallascomponent->get_sensor_by_address("t2", 0x51021891774C6A28);
+  App.register_sensor(sensor_dallastemperaturesensor_3);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_4 = sensor_dallascomponent->get_sensor_by_address("t3", 0xA901186AD770FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_4);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_5 = sensor_dallascomponent->get_sensor_by_address("t4", 0x49021312C346AA28);
+  App.register_sensor(sensor_dallastemperaturesensor_5);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_6 = sensor_dallascomponent->get_sensor_by_address("t5", 0x87021312A0BDAA28);
+  App.register_sensor(sensor_dallastemperaturesensor_6);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_7 = sensor_dallascomponent->get_sensor_by_address("t6", 0x3001186AD8BCFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_7);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_8 = sensor_dallascomponent->get_sensor_by_address("t7", 0x8B01186AAEF5FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_8);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_9 = sensor_dallascomponent->get_sensor_by_address("t8", 0x8F01186AD9D0FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_9);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_10 = sensor_dallascomponent->get_sensor_by_address("t9", 0x1001186AACF3FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_10);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_11 = sensor_dallascomponent->get_sensor_by_address("t10", 0x34021312BBB9AA28);
+  App.register_sensor(sensor_dallastemperaturesensor_11);
+
+  sensor_dallastemperaturesensor->set_filters({});
+  sensor_dallastemperaturesensor_2->set_filters({});
+  sensor_dallastemperaturesensor_3->set_filters({});
+  sensor_dallastemperaturesensor_4->set_filters({});
+  sensor_dallastemperaturesensor_5->set_filters({});
+  sensor_dallastemperaturesensor_6->set_filters({});
+  sensor_dallastemperaturesensor_7->set_filters({});
+  sensor_dallastemperaturesensor_8->set_filters({});
+  sensor_dallastemperaturesensor_9->set_filters({});
+  sensor_dallastemperaturesensor_10->set_filters({});
+  sensor_dallastemperaturesensor_11->set_filters({});
+  #endif
+
+  #if (I_AM == 3) 
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor = sensor_dallascomponent->get_sensor_by_address("t12", 0x56011853A570FF28);
+  App.register_sensor(sensor_dallastemperaturesensor);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_2 = sensor_dallascomponent->get_sensor_by_address("t10", 0x8F01186AA5E8FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_2);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_3 = sensor_dallascomponent->get_sensor_by_address("t1", 0x4201186AAC38FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_3);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_4 = sensor_dallascomponent->get_sensor_by_address("t9", 0xFB01186AAA9AFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_4);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_5 = sensor_dallascomponent->get_sensor_by_address("t3", 0xAC01186AD8BAFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_5);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_6 = sensor_dallascomponent->get_sensor_by_address("t2", 0xF601186AAE56FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_6);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_7 = sensor_dallascomponent->get_sensor_by_address("t0", 0xBB01186AA9D6FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_7);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_8 = sensor_dallascomponent->get_sensor_by_address("t4", 0x8E01186AA8EEFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_8);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_9 = sensor_dallascomponent->get_sensor_by_address("t6", 0x9B01186AD9FDFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_9);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_10 = sensor_dallascomponent->get_sensor_by_address("t8", 0x4501186AAD13FF28);
+  App.register_sensor(sensor_dallastemperaturesensor_10);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_11 = sensor_dallascomponent->get_sensor_by_address("t7", 0x6401186AA97BFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_11);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_12 = sensor_dallascomponent->get_sensor_by_address("t5", 0x1201186AD7FBFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_12);
+  sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor_13 = sensor_dallascomponent->get_sensor_by_address("t11", 0x0401186AA50FFF28);
+  App.register_sensor(sensor_dallastemperaturesensor_13);
+  sensor_dallastemperaturesensor->set_filters({});
+  sensor_dallastemperaturesensor_2->set_filters({});
+  sensor_dallastemperaturesensor_3->set_filters({});
+  sensor_dallastemperaturesensor_4->set_filters({});
+  sensor_dallastemperaturesensor_5->set_filters({});
+  sensor_dallastemperaturesensor_6->set_filters({});
+  sensor_dallastemperaturesensor_7->set_filters({});
+  sensor_dallastemperaturesensor_8->set_filters({});
+  sensor_dallastemperaturesensor_9->set_filters({});
+  sensor_dallastemperaturesensor_10->set_filters({});
+  sensor_dallastemperaturesensor_11->set_filters({});
+   sensor_dallastemperaturesensor_12->set_filters({});
+  sensor_dallastemperaturesensor_13->set_filters({});
+  #endif
   // =========== AUTO GENERATED CODE END ============
   // ========= YOU CAN EDIT AFTER THIS LINE =========
   App.setup();
@@ -39,4 +119,5 @@ void setup() {
 
 void loop() {
   App.loop();
+  delay(16);
 }
