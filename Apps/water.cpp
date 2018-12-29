@@ -20,7 +20,8 @@ void setup() {
   otacomponent->start_safe_mode();
   api::APIServer *api_apiserver = App.init_api_server();
   api_apiserver->set_password("1234567890");
-//   sensor::DallasComponent *sensor_dallascomponent = App.make_dallas_component(19);
+  mqtt::MQTTClientComponent *mqtt_mqttclientcomponent = App.init_mqtt("voicevon.vicp.io", 1883, "von", "von1970");
+  // sensor::DallasComponent *sensor_dallascomponent = App.make_dallas_component(19);
   Application::MakeADCSensor application_makeadcsensor = App.make_adc_sensor("tds", 39, 10000);
   application_makeadcsensor.adc->set_attenuation(ADC_11db);
   sensor::ADCSensorComponent *sensor_adcsensorcomponent = application_makeadcsensor.adc;
@@ -33,8 +34,8 @@ void setup() {
   application_makeadcsensor_3.adc->set_attenuation(ADC_11db);
   sensor::ADCSensorComponent *sensor_adcsensorcomponent_3 = application_makeadcsensor_3.adc;
   sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_4 = application_makeadcsensor_3.mqtt;
-//   sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor = sensor_dallascomponent->get_sensor_by_address("temp", 0x00);
-//   sensor::MQTTSensorComponent *sensor_mqttsensorcomponent = App.register_sensor(sensor_dallastemperaturesensor);
+  // sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor = sensor_dallascomponent->get_sensor_by_address("temp", 0x00);
+  // sensor::MQTTSensorComponent *sensor_mqttsensorcomponent = App.register_sensor(sensor_dallastemperaturesensor);
   Application::MakePulseCounterSensor application_makepulsecountersensor = App.make_pulse_counter_sensor("pc_a", 18, 10000);
   sensor::PulseCounterSensorComponent *sensor_pulsecountersensorcomponent = application_makepulsecountersensor.pcnt;
   sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_5 = application_makepulsecountersensor.mqtt;
