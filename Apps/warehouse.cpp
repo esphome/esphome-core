@@ -12,8 +12,6 @@ using namespace esphomelib;
 
 
 void setup() {
-  // ===== DO NOT EDIT ANYTHING BELOW THIS LINE =====
-  // ========== AUTO GENERATED CODE BEGIN ===========
   App.set_name("heat_pipe");
   App.set_compilation_datetime(__DATE__ ", " __TIME__);
   ::LogComponent *_logcomponent = App.init_log(115200);
