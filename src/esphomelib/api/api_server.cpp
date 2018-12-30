@@ -54,7 +54,8 @@ void APIServer::loop() {
   }
 }
 void APIServer::dump_config() {
-
+  ESP_LOGCONFIG(TAG, "API Server:");
+  ESP_LOGCONFIG(TAG, "  Port: %u", this->port_);
 }
 bool APIServer::uses_password() const {
   return !this->password_.empty();
