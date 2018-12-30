@@ -31,9 +31,10 @@ class TX20Component : public Component {
   void loop() override;
 
  protected:
-  static void start_read_();
+  static void tx20_black_change_static_();
   void start_read_internal_();
   void read_loop_();
+  void tx20_black_change_();
 
   TX20WindSpeedSensor *wind_speed_sensor_;
   TX20WindDirectionSensor *wind_direction_sensor_;
