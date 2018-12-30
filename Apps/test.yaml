@@ -1,0 +1,18 @@
+esphomeyaml:
+  name: test
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: 'abc'
+  password: '1234567890'
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: '1234567890'
+
+ota:
+  password: '1234567890'
