@@ -16,3 +16,30 @@ api:
 
 ota:
   password: '1234567890'
+
+switch:
+  - platform: gpio
+    pin: 5
+    name: red_light
+    id: red_light
+
+  - platform: gpio
+    pin: 6
+    name: green_light
+    id: green_light
+
+sensor:
+  platform: adc
+  name: weight
+  pin: 35
+  on_value_range:
+    - above: 70
+    then:
+      - switch.turn_on: red_light
+      - switch.turn_off: green_light
+      
+    - below: 60
+    then:
+      - switch.turn_on: red_light
+      - switch.turn_off: green_light
+

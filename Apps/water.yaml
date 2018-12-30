@@ -40,13 +40,13 @@ sensor:
     update_interval: 10s
     attenuation: 11db
     filters: [] 
-    # on_value_range:
-    #   - above: 100
-    #     then: 
-    #       - script.execute: my_script
-    #   - below: 80
-    #     then:
-    #       - script.execute: my_script
+    on_value_range:
+      - above: 100
+        then: 
+          - script.execute: my_script
+      - below: 80
+        then:
+          - script.execute: my_script
   
   - platform: adc
     name: ap    #膜前压力/浓水压力
@@ -91,7 +91,7 @@ switch:
   - platform: gpio
     name: r1
     id: r1
-    pin: 4   #14
+    pin: 14   
 
   - platform: gpio
     name: r2
@@ -130,17 +130,48 @@ display:
       it.print("01234567");    
     
 status_led:
-  pin: 12
+  pin: 
+    number: 12
+    inverted: true
   
+
+ globals:
+   - id: current_state
+     # 0, standby
+     # 1, Washing pipe
+     # 2, pumping water
+     # 3, washing back 
+     type: int
+     restore_state: yes
+     initial_value: '0'
   
 script:
   - id: my_script
     then:
       - lambda: |-
+          bool br1 = false;
+          bool br2 = false;
+          bool br3 = false;
+          void turn_off_all()
+          {
+             r1.turn_off();
+             r2.turn_off();
+             r3.turn_off();
+          }
           if(id(leaking).state >100)
           {
-            id(r1).turn_on();
+            br1 = false;
+            br2 = false;
+            br3 = false;
           }
+          if(id(lp.state == "ON"))
+            turn_pump_on = false;
+
+          if(turn_pump_on)
+            id(r1).turn_on();
+          else
+            id(r1).turn_off();
+
         
         
 

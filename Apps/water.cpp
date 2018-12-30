@@ -3,6 +3,11 @@
 #include "esphomelib/application.h"
 using namespace esphomelib;
 // ========== AUTO GENERATED INCLUDE BLOCK END ==========="
+sensor::ADCSensorComponent *sensor_adcsensorcomponent;
+void turn_off_all()
+{
+  sensor_adcsensorcomponent->setup();
+}
 
 void setup() {
   App.set_name("water");
