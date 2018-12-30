@@ -1,0 +1,149 @@
+esphomeyaml:
+  name: water
+  platform: ESP32
+  board: nodemcu-32s
+
+wifi:
+  ssid: 'fuckgfw'
+  password: 'refuckgfw'
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: '1234567890'
+
+ota:
+  password: '1234567890'
+  
+dallas:
+  pin: 19
+  
+sensor:
+  - platform: dallas
+    name: temp
+    address: 0x0000
+    filters: []
+  
+  - platform: adc
+    name: tds
+    pin: 39
+    update_interval: 10s
+    attenuation: 11db
+    filters: []
+    
+  - platform: adc
+    name: leaking  #漏水传感器
+    id: leaking
+    pin: 36
+    update_interval: 10s
+    attenuation: 11db
+    filters: [] 
+    # on_value_range:
+    #   - above: 100
+    #     then: 
+    #       - script.execute: my_script
+    #   - below: 80
+    #     then:
+    #       - script.execute: my_script
+  
+  - platform: adc
+    name: ap    #膜前压力/浓水压力
+    pin: 33
+    update_interval: 10s
+    attenuation: 11db
+    filters: []
+
+  - platform: pulse_counter
+    name: pc_a    #原水流量
+    pin: 18
+    update_interval: 10s
+    filters: []
+
+  - platform: pulse_counter
+    name: pc_a    #净水流量
+    pin: 17
+    update_interval: 10s
+    filters: []
+    
+  - platform: pulse_counter
+    name: pc_a    #浓水流量
+    pin: 16
+    update_interval: 10s
+    filters: []
+    
+binary_sensor:    
+  - platform: gpio
+    name: sp    #原水压力
+    id: sp
+    pin: 35
+    
+  - platform: gpio
+    name: sp    #净水压力
+    pin: 34
+
+  - platform: gpio
+    name: door    #
+    pin: 23
+    
+switch:    
+  - platform: gpio
+    name: r1
+    id: r1
+    pin: 4   #14
+
+  - platform: gpio
+    name: r2
+    id: r2
+    pin: 13
+
+  - platform: gpio
+    name: r3
+    id: r3
+    pin: 32
+
+  - platform: gpio
+    name: r4
+    id: r4
+    pin: 4
+
+  - platform: gpio
+    name: r5
+    id: r5
+    pin: 25
+
+  - platform: gpio
+    name: r6
+    id: r6
+    pin: 27
+    
+spi:
+  clk_pin: 5
+  mosi_pin: 2
+
+display:
+  - platform: max7219
+    cs_pin: 15
+    num_chips: 1
+    lambda: |-
+      it.print("01234567");    
+    
+status_led:
+  pin: 12
+  
+  
+script:
+  - id: my_script
+    then:
+      - lambda: |-
+          if(id(leaking).state >100)
+          {
+            id(r1).turn_on();
+          }
+        
+        
+
+  
+
+  

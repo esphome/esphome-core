@@ -30,12 +30,16 @@ void setup() {
   application_makeadcsensor.adc->set_attenuation(ADC_11db);
   sensor::ADCSensorComponent *sensor_adcsensorcomponent = application_makeadcsensor.adc;
   sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_2 = application_makeadcsensor.mqtt;
+
   Application::MakeADCSensor application_makeadcsensor_2 = App.make_adc_sensor("leaking", 36, 10000);
+  sensor::ADCSensorComponent *leaking = application_makeadcsensor_2.adc;
   application_makeadcsensor_2.adc->set_attenuation(ADC_11db);
   sensor::ADCSensorComponent *sensor_adcsensorcomponent_2 = application_makeadcsensor_2.adc;
+
   sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_3 = application_makeadcsensor_2.mqtt;
   Application::MakeADCSensor application_makeadcsensor_3 = App.make_adc_sensor("ap", 33, 10000);
   application_makeadcsensor_3.adc->set_attenuation(ADC_11db);
+
   sensor::ADCSensorComponent *sensor_adcsensorcomponent_3 = application_makeadcsensor_3.adc;
   sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_4 = application_makeadcsensor_3.mqtt;
 
@@ -72,10 +76,12 @@ void setup() {
   //switch.gpio
   Application::MakeGPIOSwitch application_makegpioswitch = App.make_gpio_switch("r1", 14);
   switch_::GPIOSwitch *switch__gpioswitch = application_makegpioswitch.switch_;
+  
   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent = application_makegpioswitch.mqtt;
   Application::MakeGPIOSwitch application_makegpioswitch_2 = App.make_gpio_switch("r2", 13);
   switch_::GPIOSwitch *switch__gpioswitch_2 = application_makegpioswitch_2.switch_;
   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
+
   Application::MakeGPIOSwitch application_makegpioswitch_3 = App.make_gpio_switch("r3", 32);
   switch_::GPIOSwitch *switch__gpioswitch_3 = application_makegpioswitch_3.switch_;
   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_3 = application_makegpioswitch_3.mqtt;
@@ -106,43 +112,55 @@ void setup() {
 
 
 
-  //automation::script
-  Script *my_script = new Script();
+  // //automation::script
+  // Script *my_script = new Script();
 
-  //automation::trigger:: create,setting,register.
-  sensor::ValueRangeTrigger *sensor_valuerangetrigger = sensor_adcsensorcomponent_2->make_value_range_trigger();
-      sensor_valuerangetrigger->set_min(100.000000f);
-  App.register_component(sensor_valuerangetrigger);
-  //automation::trigger:: create,setting,register.
-  sensor::ValueRangeTrigger *sensor_valuerangetrigger_2 = sensor_adcsensorcomponent_2->make_value_range_trigger();
-      sensor_valuerangetrigger_2->set_max(80.000000f);
-  App.register_component(sensor_valuerangetrigger_2);
+  // //automation:: prepare actions
+  // switch_::GPIOSwitch *r1 = application_makegpioswitch.switch_;
+
+  // //automation::trigger:: create,setting,register.
+  // LambdaAction<NoArg> *action = new LambdaAction<NoArg>([=](NoArg x) {
+  //     if(leaking->state >100)
+  //     {
+  //       r1->turn_on();
+  //     }
+  // });
+
+  // //automation::trigger:: create,setting,register.
+  // sensor::ValueRangeTrigger *sensor_valuerangetrigger = sensor_adcsensorcomponent_2->make_value_range_trigger();
+  //     sensor_valuerangetrigger->set_min(100.000000f);
+  // App.register_component(sensor_valuerangetrigger);
+  // //automation::trigger:: create,setting,register.
+  // sensor::ValueRangeTrigger *sensor_valuerangetrigger_2 = sensor_adcsensorcomponent_2->make_value_range_trigger();
+  //     sensor_valuerangetrigger_2->set_max(80.000000f);
+  // App.register_component(sensor_valuerangetrigger_2);
     
 
-  //automation:: bind_trigger
-  Automation<float> *automation = App.make_automation<float>(sensor_valuerangetrigger);
-  Automation<float> *automation_2 = App.make_automation<float>(sensor_valuerangetrigger_2);
-  Automation<NoArg> *automation_3 = App.make_automation<NoArg>(my_script);
+  // //automation:: bind_trigger
+  // Automation<float> *automation = App.make_automation<float>(sensor_valuerangetrigger);
+  // Automation<float> *automation_2 = App.make_automation<float>(sensor_valuerangetrigger_2);
+  // Automation<NoArg> *automation_3 = App.make_automation<NoArg>(my_script);
 
 
 
-  //automation:: prepare actions
-  switch_::GPIOSwitch *r1 = application_makegpioswitch.switch_;
+
   
-  //automation::actions   create,setting, 
-  switch_::TurnOnAction<NoArg> *action_3 = r1->make_turn_on_action<NoArg>();
+  // //automation::actions   create,setting, 
+  // switch_::TurnOnAction<NoArg> *action_3 = r1->make_turn_on_action<NoArg>();
   
-  switch_::TurnOffAction<NoArg> *action_5 = r1->make_turn_off_action<NoArg>();
-  ScriptExecuteAction<float> *action = my_script->make_execute_action<float>();
-  ScriptExecuteAction<float> *action_2 = my_script->make_execute_action<float>();
+  // switch_::TurnOffAction<NoArg> *action_5 = r1->make_turn_off_action<NoArg>();
+  // ScriptExecuteAction<float> *action = my_script->make_execute_action<float>();
+  // ScriptExecuteAction<float> *action_2 = my_script->make_execute_action<float>();
 
-  DelayAction<NoArg> *action_4 = App.register_component(new DelayAction<NoArg>());
-      action_4->set_delay(1000);
-      
-  //automation::  add_to/bind/register_to automation
-  automation->add_actions({action});
-  automation_2->add_actions({action_2});
-  automation_3->add_actions({action_3, action_4, action_5});
+  // DelayAction<NoArg> *action_4 = App.register_component(new DelayAction<NoArg>());
+  //     action_4->set_delay(1000);
+
+  // //automation::  add_to/bind/register_to automation
+  // automation->add_actions({action});
+  // automation_2->add_actions({action_2});
+  // automation_3->add_actions({action_3, action_4, action_5});
+
+
 
 
   App.setup();
