@@ -8,6 +8,7 @@ switch_::GPIOSwitch* motor_pa;
 switch_::GPIOSwitch* motor_pb;
 sensor::PulseCounterSensorComponent* weight;
 sensor::MQTTSubscribeSensor* max_weight;
+int weight_history = 0;
 
 
 void setup_apps(){
@@ -55,19 +56,25 @@ void setup() {
 
 
 void automation_1(){
+  static bool last = false;
   bool next  = false;
-
-  if(weight->state < max_weight->state)
+  if(weight->state < max_weight->state + weight_history)
     next = true;
-
   if(motor_pa->state != next)
+  {
     motor_pa->toggle();
+    if( last && !next)
+    {
+      // weight->state = 0;  //read only
+      weight_history += max_weight->state;
+      max_weight->state = 0;
+    }
+    last = next;
+  }
 }
-
 
 void loop() {
   delay(16);
   App.loop();
-
   automation_1();
 }
