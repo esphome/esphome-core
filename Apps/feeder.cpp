@@ -38,6 +38,14 @@ void setup_servers(){
   WiFiAP wifiap = WiFiAP();
   wifiap.set_ssid("FuckGFW");
   wifiap.set_password("refuckgfw");
+  wifiap.set_manual_ip(ManualIP{
+      .static_ip = IPAddress(192, 168, 123, 198),
+      .gateway = IPAddress(192, 168, 123, 1),
+      .subnet = IPAddress(255, 255, 255, 0),
+      .dns1 = IPAddress(192, 168, 123, 1),
+      .dns2 = IPAddress(0, 0, 0, 0),
+  });
+
   wificomponent->add_sta(wifiap);
   // OTAComponent *otacomponent = App.init_ota();
   // otacomponent->set_auth_password("1234567890");
@@ -66,7 +74,7 @@ void automation_1(){
     if( last && !next)
     {
       // weight->state = 0;  //read only
-      weight_history += max_weight->state;
+      weight_history = weight->state;
       max_weight->state = 0;
     }
     last = next;
