@@ -3,10 +3,13 @@
 #include "esphomelib/application.h"
 using namespace esphomelib;
 // ========== AUTO GENERATED INCLUDE BLOCK END ==========="
-sensor::ADCSensorComponent *sensor_adcsensorcomponent;
+Application::MakeADCSensor *adc_tds;
+Application::MakeADCSensor *adc_leaking;
+Application::MakeADCSensor *adc_ap;
+
 void turn_off_all()
 {
-  sensor_adcsensorcomponent->setup();
+
 }
 
 void setup() {
@@ -31,26 +34,22 @@ void setup() {
   // sensor::MQTTSensorComponent *sensor_mqttsensorcomponent = App.register_sensor(sensor_dallastemperaturesensor);
 
   //sensors: Adc
-  Application::MakeADCSensor application_makeadcsensor = App.make_adc_sensor("tds", 39, 10000);
-  application_makeadcsensor.adc->set_attenuation(ADC_11db);
-  sensor::ADCSensorComponent *sensor_adcsensorcomponent = application_makeadcsensor.adc;
-  sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_2 = application_makeadcsensor.mqtt;
+  Application::MakeADCSensor sensor_adc_tds = App.make_adc_sensor("tds", 39, 10000);
+  adc_tds = &sensor_adc_tds;
+  sensor_adc_tds.adc->set_attenuation(ADC_11db);
+  adc_tds->adc->set_filters({});
 
-  Application::MakeADCSensor application_makeadcsensor_2 = App.make_adc_sensor("leaking", 36, 10000);
-  sensor::ADCSensorComponent *leaking = application_makeadcsensor_2.adc;
-  application_makeadcsensor_2.adc->set_attenuation(ADC_11db);
-  sensor::ADCSensorComponent *sensor_adcsensorcomponent_2 = application_makeadcsensor_2.adc;
+  Application::MakeADCSensor sensor_adc_leaking = App.make_adc_sensor("leaking", 36, 10000);
+  adc_leaking = &sensor_adc_leaking;
+  adc_leaking->adc->set_attenuation(ADC_11db);
+  adc_leaking->adc->set_filters({});
 
-  sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_3 = application_makeadcsensor_2.mqtt;
-  Application::MakeADCSensor application_makeadcsensor_3 = App.make_adc_sensor("ap", 33, 10000);
-  application_makeadcsensor_3.adc->set_attenuation(ADC_11db);
 
-  sensor::ADCSensorComponent *sensor_adcsensorcomponent_3 = application_makeadcsensor_3.adc;
-  sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_4 = application_makeadcsensor_3.mqtt;
-
-  sensor_adcsensorcomponent->set_filters({});
-  sensor_adcsensorcomponent_2->set_filters({});
-  sensor_adcsensorcomponent_3->set_filters({});
+  Application::MakeADCSensor sensor_adc_ap = App.make_adc_sensor("ap", 33, 10000);
+  adc_ap = &sensor_adc_ap;
+  adc_ap->adc->set_attenuation(ADC_11db);
+  adc_ap->adc->set_filters({});
+ 
 
   //sensors: Pulse_counter
   Application::MakePulseCounterSensor application_makepulsecountersensor = App.make_pulse_counter_sensor("pc_a", 18, 10000);
