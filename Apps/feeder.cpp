@@ -2,50 +2,72 @@
 // ========== AUTO GENERATED INCLUDE BLOCK BEGIN ===========
 #include "esphomelib/application.h"
 using namespace esphomelib;
-// ========== AUTO GENERATED INCLUDE BLOCK END ==========="
 
-void setup() {
-  // ===== DO NOT EDIT ANYTHING BELOW THIS LINE =====
-  // ========== AUTO GENERATED CODE BEGIN ===========
+
+switch_::GPIOSwitch* motor_pa;
+switch_::GPIOSwitch* motor_pb;
+sensor::PulseCounterSensorComponent* weight;
+sensor::MQTTSubscribeSensor* max_weight;
+
+
+void setup_apps(){
+  //sensor_mqtt_subcribe create, registring?
+  Application::MakeMQTTSubscribeSensor subcribe_max_weight = App.make_mqtt_subscribe_sensor("max_weight", "feeder/config/max_weight/command");
+  max_weight = subcribe_max_weight.sensor;
+ 
+  //binary_sensor::gpio   create,register,
+  Application::MakeGPIOSwitch switch_gpio_motor_pa = App.make_gpio_switch("motor_pa", 5);
+  motor_pa = switch_gpio_motor_pa.switch_;
+
+  Application::MakeGPIOSwitch switch_gpio_motor_pb = App.make_gpio_switch("motor_pb", 4);
+  motor_pb = switch_gpio_motor_pb.switch_;
+  
+  //sensor::pulse_counter create,register,set up,
+  Application::MakePulseCounterSensor pc_weight = App.make_pulse_counter_sensor("weight",GPIOInputPin(14, INPUT_PULLUP));
+  weight = pc_weight.pcnt;
+  weight->set_filters({});
+}
+void setup_servers(){
   App.set_name("feeder");
   App.set_compilation_datetime(__DATE__ ", " __TIME__);
   LogComponent *logcomponent = App.init_log(115200);
+  logcomponent->set_global_log_level(ESPHOMELIB_LOG_LEVEL_DEBUG);
+
   WiFiComponent *wificomponent = App.init_wifi();
   WiFiAP wifiap = WiFiAP();
   wifiap.set_ssid("FuckGFW");
   wifiap.set_password("refuckgfw");
   wificomponent->add_sta(wifiap);
-  OTAComponent *otacomponent = App.init_ota();
-  otacomponent->set_auth_password("1234567890");
-  otacomponent->start_safe_mode();
+  // OTAComponent *otacomponent = App.init_ota();
+  // otacomponent->set_auth_password("1234567890");
+  // otacomponent->start_safe_mode();
   mqtt::MQTTClientComponent *mqtt_mqttclientcomponent = App.init_mqtt("voicevon.vicp.io", 1883, "von", "von1970");
-  mqtt::MQTTMessageTrigger *mqtt_mqttmessagetrigger = mqtt_mqttclientcomponent->make_message_trigger("abcd/efgh");
-  api::APIServer *api_apiserver = App.init_api_server();
-  api_apiserver->set_password("1234567890");
-  Automation<std::string> *automation = App.make_automation<std::string>(mqtt_mqttmessagetrigger);
-  Application::MakeGPIOSwitch application_makegpioswitch = App.make_gpio_switch("motor_p1", 5);
-  switch_::GPIOSwitch *motor_p1 = application_makegpioswitch.switch_;
-//   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent = application_makegpioswitch.mqtt;
-//   motor_p1->set_internal(true);
-  Application::MakeGPIOSwitch application_makegpioswitch_2 = App.make_gpio_switch("motor_p2", 4);
-//   switch_::GPIOSwitch *switch__gpioswitch = application_makegpioswitch_2.switch_;
-//   switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
-  switch_::TurnOnAction<std::string> *action = motor_p1->make_turn_on_action<std::string>();
-
-  Application::MakePulseCounterSensor application_makepulsecountersensor = App.make_pulse_counter_sensor("weight",GPIOInputPin(14, INPUT_PULLUP));
-  sensor::PulseCounterSensorComponent *sensor_pulsecountersensorcomponent = application_makepulsecountersensor.pcnt;
-  sensor_pulsecountersensorcomponent->set_filters({});
-
-
-  automation->add_actions({action});
-  // =========== AUTO GENERATED CODE END ============
-  // ========= YOU CAN EDIT AFTER THIS LINE =========
-  mqtt_mqttmessagetrigger->setup();
-  App.setup();
-  
-  
+  // api::APIServer *api_apiserver = App.init_api_server();
+  // api_apiserver->set_password("1234567890");
 }
 
+void setup() {
+  setup_servers();
+  setup_apps();
+  App.setup(); 
+}
+// ========== AUTO GENERATED INCLUDE BLOCK END ==========="
+
+
+void automation_1(){
+  bool next  = false;
+
+  if(weight->state < max_weight->state)
+    next = true;
+
+  if(motor_pa->state != next)
+    motor_pa->toggle();
+}
+
+
 void loop() {
+  delay(16);
   App.loop();
+
+  automation_1();
 }
