@@ -2,15 +2,26 @@
 // ========== AUTO GENERATED INCLUDE BLOCK BEGIN ===========
 #include "esphomelib/application.h"
 using namespace esphomelib;
-// ========== AUTO GENERATED INCLUDE BLOCK END ==========="
-Application::MakeADCSensor *adc_tds;
-Application::MakeADCSensor *adc_leaking;
-Application::MakeADCSensor *adc_ap;
 
-void turn_off_all()
-{
+Application::MakeADCSensor* adc_tds;
+Application::MakeADCSensor* adc_leaking;
+Application::MakeADCSensor* adc_ap;
 
-}
+Application::MakePulseCounterSensor* pc_a;
+Application::MakePulseCounterSensor* pc_b;
+Application::MakePulseCounterSensor* pc_c;
+
+Application::MakeGPIOBinarySensor* bs_sp;
+Application::MakeGPIOBinarySensor* bs_bp;
+Application::MakeGPIOBinarySensor* bs_door;
+
+Application::MakeGPIOSwitch* r1;
+Application::MakeGPIOSwitch* r2;
+Application::MakeGPIOSwitch* r3;
+Application::MakeGPIOSwitch* r4;
+Application::MakeGPIOSwitch* r5;
+Application::MakeGPIOSwitch* r6;
+
 
 void setup() {
   App.set_name("water");
@@ -44,132 +55,86 @@ void setup() {
   adc_leaking->adc->set_attenuation(ADC_11db);
   adc_leaking->adc->set_filters({});
 
-
   Application::MakeADCSensor sensor_adc_ap = App.make_adc_sensor("ap", 33, 10000);
   adc_ap = &sensor_adc_ap;
   adc_ap->adc->set_attenuation(ADC_11db);
   adc_ap->adc->set_filters({});
  
-
   //sensors: Pulse_counter
-  Application::MakePulseCounterSensor application_makepulsecountersensor = App.make_pulse_counter_sensor("pc_a", 18, 10000);
-  sensor::PulseCounterSensorComponent *sensor_pulsecountersensorcomponent = application_makepulsecountersensor.pcnt;
-  sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_5 = application_makepulsecountersensor.mqtt;
-  Application::MakePulseCounterSensor application_makepulsecountersensor_2 = App.make_pulse_counter_sensor("pc_a", 17, 10000);
-  sensor::PulseCounterSensorComponent *sensor_pulsecountersensorcomponent_2 = application_makepulsecountersensor_2.pcnt;
-  sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_6 = application_makepulsecountersensor_2.mqtt;
-  Application::MakePulseCounterSensor application_makepulsecountersensor_3 = App.make_pulse_counter_sensor("pc_a", 16, 10000);
-  sensor::PulseCounterSensorComponent *sensor_pulsecountersensorcomponent_3 = application_makepulsecountersensor_3.pcnt;
-  sensor::MQTTSensorComponent *sensor_mqttsensorcomponent_7 = application_makepulsecountersensor_3.mqtt;
+  Application::MakePulseCounterSensor pc_pc_a = App.make_pulse_counter_sensor("pc_a", 18, 10000);
+  pc_a = &pc_pc_a;
+  pc_a->pcnt->set_filters({});
 
-  sensor_pulsecountersensorcomponent->set_filters({});
-  sensor_pulsecountersensorcomponent_2->set_filters({});
-  sensor_pulsecountersensorcomponent_3->set_filters({});
+  Application::MakePulseCounterSensor pc_pc_b = App.make_pulse_counter_sensor("pc_b", 17, 10000);
+  pc_b = &pc_pc_b;
+  pc_b->pcnt->set_filters({});
+
+  Application::MakePulseCounterSensor pc_pc_c = App.make_pulse_counter_sensor("pc_c", 16, 10000);
+  pc_c = &pc_pc_c;
+  pc_c->pcnt->set_filters({});
 
   //sensors: gpio_binary
-  Application::MakeGPIOBinarySensor application_makegpiobinarysensor = App.make_gpio_binary_sensor("sp", 35);
-  binary_sensor::GPIOBinarySensorComponent *binary_sensor_gpiobinarysensorcomponent = application_makegpiobinarysensor.gpio;
-  binary_sensor::MQTTBinarySensorComponent *binary_sensor_mqttbinarysensorcomponent = application_makegpiobinarysensor.mqtt;
-  Application::MakeGPIOBinarySensor application_makegpiobinarysensor_2 = App.make_gpio_binary_sensor("sp", 34);
-  binary_sensor::GPIOBinarySensorComponent *binary_sensor_gpiobinarysensorcomponent_2 = application_makegpiobinarysensor_2.gpio;
-  binary_sensor::MQTTBinarySensorComponent *binary_sensor_mqttbinarysensorcomponent_2 = application_makegpiobinarysensor_2.mqtt;
-  Application::MakeGPIOBinarySensor application_makegpiobinarysensor_3 = App.make_gpio_binary_sensor("door", 23);
-  binary_sensor::GPIOBinarySensorComponent *binary_sensor_gpiobinarysensorcomponent_3 = application_makegpiobinarysensor_3.gpio;
-  binary_sensor::MQTTBinarySensorComponent *binary_sensor_mqttbinarysensorcomponent_3 = application_makegpiobinarysensor_3.mqtt;
+  Application::MakeGPIOBinarySensor sensor_gpio_binary_sp = App.make_gpio_binary_sensor("sp", 35);
+  bs_sp = &sensor_gpio_binary_sp;
+
+  Application::MakeGPIOBinarySensor sensor_gpio_binary_bp = App.make_gpio_binary_sensor("bp", 34);
+  bs_bp = &sensor_gpio_binary_bp;
+
+  Application::MakeGPIOBinarySensor sensor_gpio_binary_door = App.make_gpio_binary_sensor("door", 23);
+  bs_door = &sensor_gpio_binary_door;
 
   //switch.gpio
-  Application::MakeGPIOSwitch application_makegpioswitch = App.make_gpio_switch("r1", 14);
-  switch_::GPIOSwitch *switch__gpioswitch = application_makegpioswitch.switch_;
-  
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent = application_makegpioswitch.mqtt;
-  Application::MakeGPIOSwitch application_makegpioswitch_2 = App.make_gpio_switch("r2", 13);
-  switch_::GPIOSwitch *switch__gpioswitch_2 = application_makegpioswitch_2.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_2 = application_makegpioswitch_2.mqtt;
+  Application::MakeGPIOSwitch switch_gpio_r1 = App.make_gpio_switch("r1", 14);
+  r1 = &switch_gpio_r1;
 
-  Application::MakeGPIOSwitch application_makegpioswitch_3 = App.make_gpio_switch("r3", 32);
-  switch_::GPIOSwitch *switch__gpioswitch_3 = application_makegpioswitch_3.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_3 = application_makegpioswitch_3.mqtt;
+  Application::MakeGPIOSwitch switch_gpio_r2 = App.make_gpio_switch("r2", 13);
+  r2 = &switch_gpio_r2;
 
-  Application::MakeGPIOSwitch application_makegpioswitch_4 = App.make_gpio_switch("r4", 4);
-  switch_::GPIOSwitch *switch__gpioswitch_4 = application_makegpioswitch_4.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_4 = application_makegpioswitch_4.mqtt;
+  Application::MakeGPIOSwitch switch_gpio_r3 = App.make_gpio_switch("r3", 32);
+  r3 = &switch_gpio_r3;
 
-  Application::MakeGPIOSwitch application_makegpioswitch_5 = App.make_gpio_switch("r5", 25);
-  switch_::GPIOSwitch *switch__gpioswitch_5 = application_makegpioswitch_5.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_5 = application_makegpioswitch_5.mqtt;
-  Application::MakeGPIOSwitch application_makegpioswitch_6 = App.make_gpio_switch("r6", 27);
-  switch_::GPIOSwitch *switch__gpioswitch_6 = application_makegpioswitch_6.switch_;
-  switch_::MQTTSwitchComponent *switch__mqttswitchcomponent_6 = application_makegpioswitch_6.mqtt;
+  Application::MakeGPIOSwitch switch_gpio_r4 = App.make_gpio_switch("r4", 4);
+  r4 = &switch_gpio_r4;
+
+  Application::MakeGPIOSwitch switch_gpio_r5 = App.make_gpio_switch("r5", 25);
+  r5 = &switch_gpio_r5;
+
+  Application::MakeGPIOSwitch switch_gpio_r6 = App.make_gpio_switch("r6", 27);
+  r6 = &switch_gpio_r6;
+
 
   //Status_led
-  StatusLEDComponent *statusledcomponent = App.make_status_led(12);
+  StatusLEDComponent *status_led = App.make_status_led(12);
 
   //SPI and max7219 display
   SPIComponent *spicomponent = App.init_spi(5);
   spicomponent->set_mosi(2);
-  display::MAX7219Component *display_max7219component = App.make_max7219(spicomponent, 15);
-  display_max7219component->set_num_chips(1);
-  display_max7219component->set_writer([=](display::MAX7219Component & it) {
+  display::MAX7219Component *display_max7219 = App.make_max7219(spicomponent, 15);
+  display_max7219->set_num_chips(1);
+  display_max7219->set_writer([=](display::MAX7219Component & it) {
       it.print("01234567");    
   });
-
-
-
-
-  // //automation::script
-  // Script *my_script = new Script();
-
-  // //automation:: prepare actions
-  // switch_::GPIOSwitch *r1 = application_makegpioswitch.switch_;
-
-  // //automation::trigger:: create,setting,register.
-  // LambdaAction<NoArg> *action = new LambdaAction<NoArg>([=](NoArg x) {
-  //     if(leaking->state >100)
-  //     {
-  //       r1->turn_on();
-  //     }
-  // });
-
-  // //automation::trigger:: create,setting,register.
-  // sensor::ValueRangeTrigger *sensor_valuerangetrigger = sensor_adcsensorcomponent_2->make_value_range_trigger();
-  //     sensor_valuerangetrigger->set_min(100.000000f);
-  // App.register_component(sensor_valuerangetrigger);
-  // //automation::trigger:: create,setting,register.
-  // sensor::ValueRangeTrigger *sensor_valuerangetrigger_2 = sensor_adcsensorcomponent_2->make_value_range_trigger();
-  //     sensor_valuerangetrigger_2->set_max(80.000000f);
-  // App.register_component(sensor_valuerangetrigger_2);
-    
-
-  // //automation:: bind_trigger
-  // Automation<float> *automation = App.make_automation<float>(sensor_valuerangetrigger);
-  // Automation<float> *automation_2 = App.make_automation<float>(sensor_valuerangetrigger_2);
-  // Automation<NoArg> *automation_3 = App.make_automation<NoArg>(my_script);
-
-
-
-
-  
-  // //automation::actions   create,setting, 
-  // switch_::TurnOnAction<NoArg> *action_3 = r1->make_turn_on_action<NoArg>();
-  
-  // switch_::TurnOffAction<NoArg> *action_5 = r1->make_turn_off_action<NoArg>();
-  // ScriptExecuteAction<float> *action = my_script->make_execute_action<float>();
-  // ScriptExecuteAction<float> *action_2 = my_script->make_execute_action<float>();
-
-  // DelayAction<NoArg> *action_4 = App.register_component(new DelayAction<NoArg>());
-  //     action_4->set_delay(1000);
-
-  // //automation::  add_to/bind/register_to automation
-  // automation->add_actions({action});
-  // automation_2->add_actions({action_2});
-  // automation_3->add_actions({action_3, action_4, action_5});
-
-
-
 
   App.setup();
 }
 
+void myloop()
+{
+  //automation logic.
+  bool br1 = true;
+  if(adc_leaking->adc->state > 100)
+    br1 = false;
+  if(adc_ap->adc->state > 800)
+    br1 = false;
+
+  //output to relay.
+  if(br1)
+    r1->switch_->turn_on();  //will mqtt public the new state?
+  else
+    r1->switch_->turn_off();
+  
+}
 void loop() {
   App.loop();
+  myloop();
 }
