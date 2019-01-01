@@ -613,4 +613,13 @@
   #endif
 #endif
 
+#ifdef USE_TX20
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_TEXT_SENSOR
+    #define USE_TEXT_SENSOR
+  #endif
+#endif
+
 #endif //ESPHOMELIB_DEFINES_H
