@@ -8,9 +8,7 @@
 #include "esphomelib/log.h"
 #include "esphomelib/text_sensor/text_sensor.h"
 #include "tx20_component.h"
-#ifdef ARDUINO_ARCH_ESP32
-#define GPIO_STATUS_W1TC_ADDRESS 0x24
-#endif
+
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
