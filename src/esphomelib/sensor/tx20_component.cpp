@@ -9,7 +9,7 @@
 #include "esphomelib/text_sensor/text_sensor.h"
 #include "tx20_component.h"
 #ifdef ARDUINO_ARCH_ESP32
-  #define GPIO_STATUS_W1TC_ADDRESS 0x24
+#define GPIO_STATUS_W1TC_ADDRESS 0x24
 #endif
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -53,7 +53,12 @@ float TX20Component::get_setup_priority() const {
 
 void TX20Component::loop() {
   if (tx20_available) {
+#ifdef ARDUINO_ARCH_ESP32
+    GPIO_REG_WRITE(GPIO.status_w1tc, 1 << this->pin_->get_pin());
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
     GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, 1 << this->pin_->get_pin());
+#endif
     this->decodeAndPublish_();
     // rearm it!
     tx20_available = false;
@@ -114,7 +119,7 @@ void TX20Component::decodeAndPublish_() {
     bit_buffer.insert(bit_buffer.end(), repeat, current_bit);
     current_bit = !current_bit;
   }
-  if(string_buffer.length() < MAX_BUFFER_SIZE){
+  if (string_buffer.length() < MAX_BUFFER_SIZE) {
     uint8_t remain = MAX_BUFFER_SIZE - string_buffer.length();
     string_buffer.append(remain, current_bit ? '1' : '0');
     bit_buffer.insert(bit_buffer.end(), remain, current_bit);
