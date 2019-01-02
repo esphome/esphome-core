@@ -29,7 +29,7 @@ RawTransmitter::RawTransmitter(const std::string &name,
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
-void RawDumper::dump(RemoteReceiveData *data) {
+bool RawDumper::dump(RemoteReceiveData *data) {
   char buffer[256];
   uint32_t buffer_offset = 0;
   buffer_offset += sprintf(buffer, "Received Raw: ");
@@ -63,6 +63,11 @@ void RawDumper::dump(RemoteReceiveData *data) {
   if (buffer_offset != 0) {
     ESP_LOGD(TAG, "%s", buffer);
   }
+
+  return true;
+}
+bool RawDumper::secondary_() {
+  return true;
 }
 bool RawReceiver::matches(RemoteReceiveData *data) {
   for (int32_t val : this->data_) {

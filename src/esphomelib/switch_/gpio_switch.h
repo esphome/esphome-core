@@ -13,9 +13,18 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
+enum GPIOSwitchRestoreMode {
+  GPIO_SWITCH_RESTORE_DEFAULT_OFF,
+  GPIO_SWITCH_RESTORE_DEFAULT_ON,
+  GPIO_SWITCH_ALWAYS_OFF,
+  GPIO_SWITCH_ALWAYS_ON,
+};
+
 class GPIOSwitch : public Switch, public Component {
  public:
   GPIOSwitch(const std::string &name, GPIOPin *pin);
+
+  void set_restore_mode(GPIOSwitchRestoreMode restore_mode);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -28,6 +37,7 @@ class GPIOSwitch : public Switch, public Component {
   void write_state(bool state) override;
 
   GPIOPin *const pin_;
+  GPIOSwitchRestoreMode restore_mode_{GPIO_SWITCH_RESTORE_DEFAULT_OFF};
 };
 
 } // namespace switch_

@@ -43,7 +43,7 @@ class NECReceiver : public RemoteReceiver {
 
 class NECDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData *data) override;
+  bool dump(RemoteReceiveData *data) override;
 };
 #endif
 
