@@ -285,7 +285,7 @@ void MQTTClientComponent::loop() {
   }
 
   if (millis() - this->last_connected_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
-    ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
+    ESP_LOGE(TAG, "Can't connect to MQTT... Restarting...");
     reboot("mqtt");
   }
 }
