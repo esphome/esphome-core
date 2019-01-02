@@ -3,109 +3,134 @@
 #include "esphomelib/application.h"
 using namespace esphomelib;
 
-Application::MakeADCSensor* adc_tds;
-Application::MakeADCSensor* adc_leaking;
-Application::MakeADCSensor* adc_ap;
+sensor::HX711Sensor* weight;
+sensor::ADCSensorComponent* tds;
+sensor::ADCSensorComponent* adc_leaking;
+sensor::ADCSensorComponent* adc_ap;
 
-Application::MakePulseCounterSensor* pc_a;
-Application::MakePulseCounterSensor* pc_b;
-Application::MakePulseCounterSensor* pc_c;
+sensor::PulseCounterSensorComponent* pc_a;
+sensor::PulseCounterSensorComponent* pc_b;
+sensor::PulseCounterSensorComponent* pc_c;
 
-Application::MakeGPIOBinarySensor* bs_sp;
-Application::MakeGPIOBinarySensor* bs_bp;
-Application::MakeGPIOBinarySensor* bs_door;
+binary_sensor::GPIOBinarySensorComponent*  bs_sp;
+binary_sensor::GPIOBinarySensorComponent* bs_bp;
+binary_sensor::GPIOBinarySensorComponent* bs_door;
 
-Application::MakeGPIOSwitch* r1;
-Application::MakeGPIOSwitch* r2;
-Application::MakeGPIOSwitch* r3;
-Application::MakeGPIOSwitch* r4;
-Application::MakeGPIOSwitch* r5;
-Application::MakeGPIOSwitch* r6;
+binary_sensor::TemplateBinarySensor * leaking;
+
+switch_::GPIOSwitch* r1;
+switch_::GPIOSwitch*  r2;
+switch_::GPIOSwitch*  r3;
+switch_::GPIOSwitch*  r4;
+switch_::GPIOSwitch*  r5;
+switch_::GPIOSwitch*  r6;
+
+// next version, a compnent named weighing_scale_hx711
+float g_value_of_zero_mass = 83900182.0f;
+float g_slope = 0.000123;
+// result = (value - g_value_of_zero_mass) * slope
 
 
-void setup() {
-  App.set_name("water");
-  App.set_compilation_datetime(__DATE__ ", " __TIME__);
-  LogComponent *logcomponent = App.init_log(115200);
-  WiFiComponent *wificomponent = App.init_wifi();
-  WiFiAP wifiap = WiFiAP();
-  wifiap.set_ssid("FuckGFW");
-  wifiap.set_password("refuckgfw");
-  wificomponent->add_sta(wifiap);
-  OTAComponent *otacomponent = App.init_ota();
-  otacomponent->set_auth_password("1234567890");
-  otacomponent->start_safe_mode();
-  api::APIServer *api_apiserver = App.init_api_server();
-  api_apiserver->set_password("1234567890");
-  mqtt::MQTTClientComponent *mqtt_mqttclientcomponent = App.init_mqtt("voicevon.vicp.io", 1883, "von", "von1970");
+void setup_apps_ondebug(){
+  //sensor::HX711
+  Application::MakeHX711Sensor hx711_weight = App.make_hx711_sensor("weight", 22, 21, 2000);
+  weight = hx711_weight.hx711;
+  weight->set_gain(sensor::HX711_GAIN_128);
+  weight->set_unit_of_measurement("Kg");
+  weight->set_filters({
+      new sensor::LambdaFilter([=](float x) {
+        auto first_mass = 0.0; // first known mass was 0kg
+        auto first_value = g_value_of_zero_mass; // value for the first known mass was 120
+        auto second_mass = 1.0; // second mass was 1kg
+        auto second_value = 83990182; // second value was 810
+        return map(x, first_value, second_value, first_mass, second_mass);
+    }),
+  });
+}
 
+void setup3_gpioPin(){
+  
   //sensors:  Dallas
   // sensor::DallasComponent *sensor_dallascomponent = App.make_dallas_component(19);
   // sensor::DallasTemperatureSensor *sensor_dallastemperaturesensor = sensor_dallascomponent->get_sensor_by_address("temp", 0x00);
   // sensor::MQTTSensorComponent *sensor_mqttsensorcomponent = App.register_sensor(sensor_dallastemperaturesensor);
 
+
+
   //sensors: Adc
-  Application::MakeADCSensor sensor_adc_tds = App.make_adc_sensor("tds", 39, 10000);
-  adc_tds = &sensor_adc_tds;
-  sensor_adc_tds.adc->set_attenuation(ADC_11db);
-  adc_tds->adc->set_filters({});
+  Application::MakeADCSensor sensor_adc_tds = App.make_adc_sensor("tds", 39, 20000);
+  tds = sensor_adc_tds.adc;
+  tds->set_attenuation(ADC_11db);
+  tds->set_filters({});
+  tds->set_unit_of_measurement("ppm");
 
-  Application::MakeADCSensor sensor_adc_leaking = App.make_adc_sensor("leaking", 36, 10000);
-  adc_leaking = &sensor_adc_leaking;
-  adc_leaking->adc->set_attenuation(ADC_11db);
-  adc_leaking->adc->set_filters({});
+  Application::MakeADCSensor sensor_adc_leaking = App.make_adc_sensor("adc_leaking", 36, 20000);
+  adc_leaking = sensor_adc_leaking.adc;
+  adc_leaking->set_attenuation(ADC_11db);
+  adc_leaking->set_filters({});
+  adc_leaking->set_unit_of_measurement("V");
 
-  Application::MakeADCSensor sensor_adc_ap = App.make_adc_sensor("ap", 33, 10000);
-  adc_ap = &sensor_adc_ap;
-  adc_ap->adc->set_attenuation(ADC_11db);
-  adc_ap->adc->set_filters({});
+  Application::MakeADCSensor sensor_adc_ap = App.make_adc_sensor("ap", 33, 20000);
+  adc_ap = sensor_adc_ap.adc;
+  adc_ap->set_attenuation(ADC_11db);
+  adc_ap->set_filters({});
  
   //sensors: Pulse_counter
-  Application::MakePulseCounterSensor pc_pc_a = App.make_pulse_counter_sensor("pc_a", 18, 10000);
-  pc_a = &pc_pc_a;
-  pc_a->pcnt->set_filters({});
+  Application::MakePulseCounterSensor pc_pc_a = App.make_pulse_counter_sensor("pc_a", 18, 20000);
+  pc_a = pc_pc_a.pcnt;
+  pc_a->set_filters({});
 
-  Application::MakePulseCounterSensor pc_pc_b = App.make_pulse_counter_sensor("pc_b", 17, 10000);
-  pc_b = &pc_pc_b;
-  pc_b->pcnt->set_filters({});
+  Application::MakePulseCounterSensor pc_pc_b = App.make_pulse_counter_sensor("pc_b", 17, 20000);
+  pc_b = pc_pc_b.pcnt;
+  pc_b->set_filters({});
 
-  Application::MakePulseCounterSensor pc_pc_c = App.make_pulse_counter_sensor("pc_c", 16, 10000);
-  pc_c = &pc_pc_c;
-  pc_c->pcnt->set_filters({});
+  Application::MakePulseCounterSensor pc_pc_c = App.make_pulse_counter_sensor("pc_c", 16, 20000);
+  pc_c = pc_pc_c.pcnt;
+  pc_c->set_filters({});
 
-  //sensors: gpio_binary
+  //binary_sensors: gpio
   Application::MakeGPIOBinarySensor sensor_gpio_binary_sp = App.make_gpio_binary_sensor("sp", 35);
-  bs_sp = &sensor_gpio_binary_sp;
+  bs_sp = sensor_gpio_binary_sp.gpio;
 
   Application::MakeGPIOBinarySensor sensor_gpio_binary_bp = App.make_gpio_binary_sensor("bp", 34);
-  bs_bp = &sensor_gpio_binary_bp;
+  bs_bp = sensor_gpio_binary_bp.gpio;
 
-  Application::MakeGPIOBinarySensor sensor_gpio_binary_door = App.make_gpio_binary_sensor("door", 23);
-  bs_door = &sensor_gpio_binary_door;
+  Application::MakeGPIOBinarySensor sensor_gpio_binary_door = App.make_gpio_binary_sensor("door", GPIOInputPin(23, INPUT_PULLUP));
+  bs_door = sensor_gpio_binary_door.gpio;
 
   //switch.gpio
   Application::MakeGPIOSwitch switch_gpio_r1 = App.make_gpio_switch("r1", 14);
-  r1 = &switch_gpio_r1;
+  r1 = switch_gpio_r1.switch_;
 
   Application::MakeGPIOSwitch switch_gpio_r2 = App.make_gpio_switch("r2", 13);
-  r2 = &switch_gpio_r2;
+  r2 = switch_gpio_r2.switch_;
 
   Application::MakeGPIOSwitch switch_gpio_r3 = App.make_gpio_switch("r3", 32);
-  r3 = &switch_gpio_r3;
+  r3 = switch_gpio_r3.switch_;
 
   Application::MakeGPIOSwitch switch_gpio_r4 = App.make_gpio_switch("r4", 4);
-  r4 = &switch_gpio_r4;
+  r4 = switch_gpio_r4.switch_;
 
   Application::MakeGPIOSwitch switch_gpio_r5 = App.make_gpio_switch("r5", 25);
-  r5 = &switch_gpio_r5;
+  r5 = switch_gpio_r5.switch_;
 
   Application::MakeGPIOSwitch switch_gpio_r6 = App.make_gpio_switch("r6", 27);
-  r6 = &switch_gpio_r6;
+  r6 = switch_gpio_r6.switch_;
 
+}
+void setup4_template(){
+  //template::binary_sensor 
+  Application::MakeTemplateBinarySensor temp_binary_sensor_leaking = App.make_template_binary_sensor("leaking");
+  leaking = temp_binary_sensor_leaking.template_;
+  leaking->set_template([=]() -> optional<bool> {
+      if (adc_leaking->state < 0.7)
+        return true;
+      else
+        return false;
+  });
+}
 
-  //Status_led
-  StatusLEDComponent *status_led = App.make_status_led(12);
-
+void setup5_display(){
   //SPI and max7219 display
   SPIComponent *spicomponent = App.init_spi(5);
   spicomponent->set_mosi(2);
@@ -114,27 +139,89 @@ void setup() {
   display_max7219->set_writer([=](display::MAX7219Component & it) {
       it.print("01234567");    
   });
+}
 
+void setup1_servers(){
+  App.set_name("water");
+  App.set_compilation_datetime(__DATE__ ", " __TIME__);
+  LogComponent *logcomponent = App.init_log(115200);
+  WiFiComponent *wificomponent = App.init_wifi();
+  WiFiAP wifiap = WiFiAP();
+  wifiap.set_ssid("FuckGFW");
+  wifiap.set_password("refuckgfw");
+//   wifiap.set_manual_ip(ManualIP{
+//     .static_ip = IPAddress(192, 168, 123, 198),
+//     .gateway = IPAddress(192, 168, 123, 1),
+//     .subnet = IPAddress(255, 255, 255, 0),
+//     .dns1 = IPAddress(192, 168, 123, 1),
+//     .dns2 = IPAddress(0, 0, 0, 0),
+// });
+  wificomponent->add_sta(wifiap);
+  OTAComponent *otacomponent = App.init_ota();
+  otacomponent->set_auth_password("1234567890");
+  otacomponent->start_safe_mode();
+  api::APIServer *api_apiserver = App.init_api_server();
+  api_apiserver->set_password("1234567890");
+  mqtt::MQTTClientComponent *mqtt_mqttclientcomponent = App.init_mqtt("voicevon.vicp.io", 1883, "von", "von1970");
+  mqtt_mqttclientcomponent->set_birth_message(mqtt::MQTTMessage{
+      .topic = "water/status",
+      .payload = "online",
+      .qos = 0,
+      .retain = true,
+  });
+  mqtt_mqttclientcomponent->set_last_will(mqtt::MQTTMessage{
+      .topic = "water/status",
+      .payload = "offline",
+      .qos = 0,
+      .retain = true,
+  });
+
+}
+
+void setup2_common(){
+  
+  //Status_led
+  StatusLEDComponent *status_led = App.make_status_led(12);
+}
+
+
+void setup() {
+  setup1_servers();
+  setup2_common();
+  setup3_gpioPin();
+  setup4_template();
+  // setup5_display();
+  setup_apps_ondebug();
   App.setup();
 }
 
 void myloop()
 {
   //automation logic.
-  bool br1 = true;
-  if(adc_leaking->adc->state > 100)
-    br1 = false;
-  if(adc_ap->adc->state > 800)
-    br1 = false;
+  // bool br1 = true;
+  // if(adc_leaking->adc->state > 100)
+  //   br1 = false;
+  // if(adc_ap->adc->state > 800)
+  //   br1 = false;
 
-  //output to relay.
-  if(br1)
-    r1->switch_->turn_on();  //will mqtt public the new state?
-  else
-    r1->switch_->turn_off();
+  // //output to relay.
+  // if(br1)
+  //   r1->switch_->turn_on();  //will mqtt public the new state?
+  // else
+  //   r1->switch_->turn_off();
   
+}
+
+void automation_main(){
+
 }
 void loop() {
   App.loop();
   myloop();
+  automation_main();
+
+
+
+
+  
 }

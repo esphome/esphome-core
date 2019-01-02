@@ -7,7 +7,18 @@ wifi:
   ssid: 'fuckgfw'
   password: 'refuckgfw'
 
-# Enable logging
+mqtt:
+  broker: voicevon.vicp.io
+  port: 1883
+  username: von
+  password: von1970
+  birth_message:
+    topic: water/status
+    payload: online
+  will_message:
+    topic: water/status
+    payload: offline
+
 logger:
 
 # Enable Home Assistant API
@@ -25,6 +36,24 @@ sensor:
     name: temp
     address: 0x0000
     filters: []
+
+  - platform: hx711
+    name: "weight"
+    dout_pin: 22
+    clk_pin: 21
+    gain: 128
+    update_interval: 15s
+    # filters: 
+    #   - multiply: 0.00001
+    filters:
+      - lambda: |-
+          auto first_mass = 0.0; // first known mass was 0kg
+          auto first_value = 120.0; // value for the first known mass was 120
+          auto second_mass = 1.0; // second mass was 1kg
+          auto second_value = 810.0; // second value was 810
+
+          return map(x, first_value, second_value, first_mass, second_mass);
+    unit_of_measurement: Kg
   
   - platform: adc
     name: tds
@@ -34,19 +63,12 @@ sensor:
     filters: []
     
   - platform: adc
-    name: leaking  #漏水传感器
-    id: leaking
+    name: adc_leaking  #漏水传感器
+    id: adc_leaking
     pin: 36
     update_interval: 10s
     attenuation: 11db
     filters: [] 
-    on_value_range:
-      - above: 100
-        then: 
-          - script.execute: my_script
-      - below: 80
-        then:
-          - script.execute: my_script
   
   - platform: adc
     name: ap    #膜前压力/浓水压力
@@ -85,8 +107,19 @@ binary_sensor:
 
   - platform: gpio
     name: door    #
-    pin: 23
-    
+    pin: 
+       number: 23
+       mode: INPUT_PULLUP
+
+  - platform: template
+    name: bin_leaking
+    id: bin_leaking
+    lambda: >-
+      if (adc_leaking->state < 0.7)
+        return true;
+      else
+        return false;
+
 switch:    
   - platform: gpio
     name: r1
@@ -135,42 +168,42 @@ status_led:
     inverted: true
   
 
- globals:
-   - id: current_state
-     # 0, standby
-     # 1, Washing pipe
-     # 2, pumping water
-     # 3, washing back 
-     type: int
-     restore_state: yes
-     initial_value: '0'
+#  globals:
+#    - id: current_state
+#      # 0, standby
+#      # 1, Washing pipe
+#      # 2, pumping water
+#      # 3, washing back 
+#      type: int
+#      restore_state: yes
+#      initial_value: '0'
   
-script:
-  - id: my_script
-    then:
-      - lambda: |-
-          bool br1 = false;
-          bool br2 = false;
-          bool br3 = false;
-          void turn_off_all()
-          {
-             r1.turn_off();
-             r2.turn_off();
-             r3.turn_off();
-          }
-          if(id(leaking).state >100)
-          {
-            br1 = false;
-            br2 = false;
-            br3 = false;
-          }
-          if(id(lp.state == "ON"))
-            turn_pump_on = false;
+# script:
+#   - id: my_script
+#     then:
+#       - lambda: |-
+#           bool br1 = false;
+#           bool br2 = false;
+#           bool br3 = false;
+#           void turn_off_all()
+#           {
+#              r1.turn_off();
+#              r2.turn_off();
+#              r3.turn_off();
+#           }
+#           if(id(leaking).state >100)
+#           {
+#             br1 = false;
+#             br2 = false;
+#             br3 = false;
+#           }
+#           if(id(lp.state == "ON"))
+#             turn_pump_on = false;
 
-          if(turn_pump_on)
-            id(r1).turn_on();
-          else
-            id(r1).turn_off();
+#           if(turn_pump_on)
+#             id(r1).turn_on();
+#           else
+#             id(r1).turn_off();
 
         
         
