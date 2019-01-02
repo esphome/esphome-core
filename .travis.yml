@@ -7,11 +7,6 @@ cache:
   directories:
     - "~/.platformio"
     - "$TRAVIS_BUILD_DIR/.piolibdeps"
-env:
-  matrix:
-    - BUILD_TARGET=livingroom
-    - BUILD_TARGET=livingroom8266
-    - BUILD_TARGET=custombmp180
 
 script:
   - platformio run -e $BUILD_TARGET
