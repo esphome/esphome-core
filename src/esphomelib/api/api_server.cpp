@@ -217,9 +217,10 @@ void APIConnection::on_error_(int8_t error) {
   // disconnect will also be called, nothing to do here
 }
 void APIConnection::on_disconnect_() {
-  ESP_LOGD(TAG, "'%s' disconnected.", this->client_info_.c_str());
   // delete self, generally unsafe but not in this case.
+  std::string client_info = this->client_info_;
   this->parent_->handle_disconnect(this);
+  ESP_LOGD(TAG, "'%s' disconnected.", client_info.c_str());
 }
 void APIConnection::on_timeout_(uint32_t time) {
   ESP_LOGV(TAG, "Timeout from client");
@@ -647,7 +648,9 @@ bool APIConnection::send_buffer(APIMessageType type, APIBuffer &buf) {
   if (needed_space > this->client_->space()) {
     delay(5);
     if (needed_space > this->client_->space()) {
-      ESP_LOGV(TAG, "Cannot send message because of TCP buffer space");
+      if (type != APIMessageType::SUBSCRIBE_LOGS_RESPONSE) {
+        ESP_LOGV(TAG, "Cannot send message because of TCP buffer space");
+      }
       delay(5);
       return false;
     }
@@ -836,13 +839,13 @@ bool APIConnection::send_log_message(int level,
     buffer.encode_string(2, tag, strlen(tag));
     // string message = 3;
     buffer.encode_string(3, line, strlen(line));
-  }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE, false);
+  }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
 
   if (!success) {
     return this->send_buffer([level, tag, line](APIBuffer &buffer) {
       // bool send_failed = 4;
       buffer.encode_bool(4, true);
-    }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE, false);
+    }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
   } else {
     return true;
   }
