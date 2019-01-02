@@ -25,7 +25,9 @@ switch_::GPIOSwitch*  r4;
 switch_::GPIOSwitch*  r5;
 switch_::GPIOSwitch*  r6;
 
-// next version, a compnent named weighing_scale_hx711
+// next version:  a component named weighing_scale_hx711
+// action_1 :=  reset zero mass value (long new_value)
+// action_2 :=  reset second mass and value (float second_mess, long new_value) , will change the g_slope
 float g_value_of_zero_mass = 83900182.0f;
 float g_slope = 0.000123;
 // result = (value - g_value_of_zero_mass) * slope
@@ -142,26 +144,21 @@ void setup5_display(){
 }
 
 void setup1_servers(){
-  App.set_name("water");
   App.set_compilation_datetime(__DATE__ ", " __TIME__);
   LogComponent *logcomponent = App.init_log(115200);
   WiFiComponent *wificomponent = App.init_wifi();
   WiFiAP wifiap = WiFiAP();
   wifiap.set_ssid("FuckGFW");
   wifiap.set_password("refuckgfw");
-//   wifiap.set_manual_ip(ManualIP{
-//     .static_ip = IPAddress(192, 168, 123, 198),
-//     .gateway = IPAddress(192, 168, 123, 1),
-//     .subnet = IPAddress(255, 255, 255, 0),
-//     .dns1 = IPAddress(192, 168, 123, 1),
-//     .dns2 = IPAddress(0, 0, 0, 0),
-// });
   wificomponent->add_sta(wifiap);
+
   OTAComponent *otacomponent = App.init_ota();
   otacomponent->set_auth_password("1234567890");
   otacomponent->start_safe_mode();
+
   api::APIServer *api_apiserver = App.init_api_server();
   api_apiserver->set_password("1234567890");
+
   mqtt::MQTTClientComponent *mqtt_mqttclientcomponent = App.init_mqtt("voicevon.vicp.io", 1883, "von", "von1970");
   mqtt_mqttclientcomponent->set_birth_message(mqtt::MQTTMessage{
       .topic = "water/status",
@@ -179,13 +176,14 @@ void setup1_servers(){
 }
 
 void setup2_common(){
-  
   //Status_led
   StatusLEDComponent *status_led = App.make_status_led(12);
+
 }
 
 
 void setup() {
+  App.set_name("water");
   setup1_servers();
   setup2_common();
   setup3_gpioPin();
@@ -195,33 +193,12 @@ void setup() {
   App.setup();
 }
 
-void myloop()
-{
-  //automation logic.
-  // bool br1 = true;
-  // if(adc_leaking->adc->state > 100)
-  //   br1 = false;
-  // if(adc_ap->adc->state > 800)
-  //   br1 = false;
-
-  // //output to relay.
-  // if(br1)
-  //   r1->switch_->turn_on();  //will mqtt public the new state?
-  // else
-  //   r1->switch_->turn_off();
-  
-}
 
 void automation_main(){
 
 }
 void loop() {
   App.loop();
-  myloop();
   automation_main();
 
-
-
-
-  
 }
