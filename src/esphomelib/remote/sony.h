@@ -44,7 +44,7 @@ class SonyReceiver : public RemoteReceiver {
 
 class SonyDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData *data) override;
+  bool dump(RemoteReceiveData *data) override;
 };
 #endif
 
