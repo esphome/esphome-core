@@ -270,8 +270,6 @@ class Automation {
   ActionList<T> actions_;
 };
 
-// =============== TEMPLATE DEFINITIONS ===============
-
 template<typename T>
 class GlobalVariableComponent : public Component {
  public:
@@ -295,6 +293,8 @@ class GlobalVariableComponent : public Component {
   uint32_t name_hash_{};
   ESPPreferenceObject rtc_;
 };
+
+// =============== TEMPLATE DEFINITIONS ===============
 
 template<typename T>
 bool AndCondition<T>::check(T x) {
@@ -631,7 +631,5 @@ void WhileAction<T>::stop() {
 }
 
 ESPHOMELIB_NAMESPACE_END
-
-#include "esphomelib/automation.tcc"
 
 #endif //ESPHOMELIB_AUTOMATION_H
