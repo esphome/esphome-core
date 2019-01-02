@@ -155,6 +155,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
   bool uses_password() const;
   void set_port(uint16_t port);
   void set_password(const std::string &password);
+  void set_reboot_timeout(uint32_t reboot_timeout);
   void handle_disconnect(APIConnection *conn);
 #ifdef USE_BINARY_SENSOR
   void on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool state) override;
@@ -192,6 +193,8 @@ class APIServer : public Component, public StoringUpdateListenerController {
  protected:
   AsyncServer server_{0};
   uint16_t port_{6053};
+  uint32_t reboot_timeout_{300000};
+  uint32_t last_connected_{0};
   std::vector<APIConnection *> clients_;
   std::string password_;
   std::vector<HomeAssistantStateSubscription> state_subs_;
