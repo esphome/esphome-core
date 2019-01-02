@@ -9,7 +9,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace light {
 
 LightTraits::LightTraits()
-    : brightness_(false), rgb_(false), rgb_white_value_(false), fast_led_(false), color_temperature_(false) {
+    : brightness_(false), rgb_(false), rgb_white_value_(false), color_temperature_(false) {
   
 }
 

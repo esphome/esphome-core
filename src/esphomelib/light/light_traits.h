@@ -32,6 +32,7 @@ class LightTraits {
   bool color_temperature_{false};
   float min_mireds_{0};
   float max_mireds_{0};
+};
 
 } // namespace light
 
