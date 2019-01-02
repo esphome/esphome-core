@@ -1,29 +1,3 @@
-# Continuous Integration (CI) is the practice, in software
-# engineering, of merging all developer working copies with a shared mainline
-# several times a day < http://docs.platformio.org/page/ci/index.html >
-#
-# Documentation:
-#
-# * Travis CI Embedded Builds with PlatformIO
-#   < https://docs.travis-ci.com/user/integration/platformio/ >
-#
-# * PlatformIO integration with Travis CI
-#   < http://docs.platformio.org/page/ci/travis.html >
-#
-# * User Guide for `platformio ci` command
-#   < http://docs.platformio.org/page/userguide/cmd_ci.html >
-#
-#
-# Please choice one of the following templates (proposed below) and uncomment
-# it (remove "# " before each line) or use own configuration according to the
-# Travis CI documentation (see above).
-#
-
-
-#
-# Template #1: General project. Test it using existing `platformio.ini`.
-#
-
 language: python
 python:
   - "2.7"
@@ -41,3 +15,26 @@ env:
 
 script:
   - platformio run -e $BUILD_TARGET
+
+matrix:
+  fast_finish: true
+  include:
+  - env: BUILD_TARGET=livingroom
+  - env: BUILD_TARGET=livingroom8266
+  - env: BUILD_TARGET=custombmp180
+  - env: BUILD_TARGET=dht-dallas-sensors
+    if: branch = dev AND type = push
+  - env: BUILD_TARGET=switch-binarysensor
+    if: branch = dev AND type = push
+  - env: BUILD_TARGET=fan-example
+    if: branch = dev AND type = push
+  - env: BUILD_TARGET=lights
+    if: branch = dev AND type = push
+  - env: BUILD_TARGET=i2c-sensors
+    if: branch = dev AND type = push
+  - env: BUILD_TARGET=pcf8574
+    if: branch = dev AND type = push
+  - env: BUILD_TARGET=fastled
+    if: branch = dev AND type = push
+  - env: BUILD_TARGET=sonoff-b1
+    if: branch = dev AND type = push
