@@ -47,10 +47,24 @@ void APIServer::setup() {
 
     delay(10);
   });
+
+  this->last_connected_ = millis();
 }
 void APIServer::loop() {
   for (auto *client : this->clients_) {
     client->loop();
+  }
+
+  if (this->reboot_timeout_ != 0) {
+    const uint32_t now = millis();
+    if (this->clients_.empty()) {
+      if (now - this->last_connected_ > this->reboot_timeout_) {
+        ESP_LOGE(TAG, "No client connected to API. Rebooting...");
+        reboot("api");
+      }
+    } else {
+      this->last_connected_ = now;
+    }
   }
 }
 void APIServer::dump_config() {
@@ -184,6 +198,9 @@ const std::vector<APIServer::HomeAssistantStateSubscription> &APIServer::get_sta
 }
 uint16_t APIServer::get_port() const {
   return this->port_;
+}
+void APIServer::set_reboot_timeout(uint32_t reboot_timeout) {
+  this->reboot_timeout_ = reboot_timeout;
 }
 
 // APIConnection
