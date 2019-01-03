@@ -69,7 +69,7 @@ void APIServer::loop() {
 }
 void APIServer::dump_config() {
   ESP_LOGCONFIG(TAG, "API Server:");
-  ESP_LOGCONFIG(TAG, "  Port: %u", this->port_);
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", WiFi.localIP().toString().c_str(), this->port_);
 }
 bool APIServer::uses_password() const {
   return !this->password_.empty();
@@ -853,7 +853,7 @@ bool APIConnection::send_log_message(int level,
     // LogLevel level = 1;
     buffer.encode_uint32(1, static_cast<uint32_t>(level));
     // string tag = 2;
-    buffer.encode_string(2, tag, strlen(tag));
+    // buffer.encode_string(2, tag, strlen(tag));
     // string message = 3;
     buffer.encode_string(3, line, strlen(line));
   }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
