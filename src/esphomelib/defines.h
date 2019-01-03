@@ -5,6 +5,7 @@
 
 #define HOT __attribute__ ((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
+#define ALWAYS_INLINE __attribute__((always_inline))
 
 #ifndef DOXYGEN
   #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {
@@ -118,7 +119,8 @@
   #define USE_PMSX003
   #define USE_STEPPER
   #define USE_A4988
-  #define USE_ULN2003
+  #define USE_DC_MOTOR
+  #define USE_DC_MOTOR_L298N
   #define USE_TOTAL_DAILY_ENERGY_SENSOR
   #define USE_MY9231_OUTPUT
   #define USE_CUSTOM_SENSOR

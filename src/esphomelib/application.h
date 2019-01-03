@@ -119,6 +119,8 @@
 #include "esphomelib/sensor/wifi_signal_sensor.h"
 #include "esphomelib/stepper/a4988.h"
 #include "esphomelib/stepper/stepper.h"
+#include "esphomelib/dc_motor/l298n.h"
+//#include "esphomelib/dc_motor/dc_motor.h"    //Shold not be defined here?
 #include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
