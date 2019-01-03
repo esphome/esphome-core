@@ -233,6 +233,8 @@ class LightOutput {
   /// Return the LightTraits of this LightOutput.
   virtual LightTraits get_traits() = 0;
 
+  virtual void setup_state(LightState *state);
+
   virtual void write_state(LightState *state) = 0;
 };
 

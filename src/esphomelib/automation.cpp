@@ -45,6 +45,8 @@ float IntervalTrigger::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
+IntervalTrigger::IntervalTrigger(uint32_t update_interval) : PollingComponent(update_interval) {}
+
 RangeCondition::RangeCondition() = default;
 
 bool RangeCondition::check(float x) {
