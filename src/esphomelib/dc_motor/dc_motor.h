@@ -22,7 +22,7 @@ class dc_motor {
   void set_direction(bool clockwise);
   
  protected:
-  bool has_angle_sensor = false;
+  int sensor_type =0;  //no sensor
 };
 
 
