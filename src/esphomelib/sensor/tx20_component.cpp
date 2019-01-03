@@ -1,13 +1,10 @@
-// Based on:
-
 #include "esphomelib/defines.h"
 
 #ifdef USE_TX20
 
 #include "esphomelib/espmath.h"
 #include "esphomelib/log.h"
-#include "esphomelib/text_sensor/text_sensor.h"
-#include "tx20_component.h"
+#include "esphomelib/sensor/tx20_component.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -18,24 +15,25 @@ static const uint8_t MAX_BUFFER_SIZE = 41;
 static const uint16_t TX20_MAX_TIME = MAX_BUFFER_SIZE * 1220 + 5000;
 const uint16_t TX20_BIT_TIME = 1200;   // microseconds
 const uint8_t TX20_RESET_VALUES = 60;  // seconds
-const std::vector<std::string> DIRECTIONS = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-                                             "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
+const std::string[] DIRECTIONS = {"N",  "NNE", "NE", "ENE", "E",  "ESE",
+                                  "SE", "SSE", "S",  "SSW", "SW", "WSW",
+                                  "W",  "WNW", "NW", "NNW"};
 static uint16_t *buffer;
 static uint32_t start_time = 0;
 static uint8_t buffer_index = 0;
 static uint32_t spent_time = 0;
 static bool tx20_available = false;
 
-TX20Component::TX20Component(const std::string &wind_speed_name, const std::string &wind_direction_name,
-                             const std::string &wind_direction_text_name, GPIOPin *pin)
+TX20Component::TX20Component(const std::string &wind_speed_name,
+                             const std::string &wind_direction_degree_name,
+                             const GPIOInputPin *pin)
     : Component(),
       wind_speed_sensor_(new TX20WindSpeedSensor(wind_speed_name)),
-      wind_direction_sensor_(new TX20WindDirectionSensor(wind_direction_name)),
-      wind_direction_text_sensor_(new TX20WindDirectionTextSensor(wind_direction_text_name)),
-      pin_(pin) {
-}
+      wind_direction_degrees_sensor_(
+          new TX20WindDirectionDegreesSensor(wind_direction_degrees_name)),
+      pin_(pin) {}
 
-void TX20Component::setup() {
+void TX20CompoDegreesnent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up TX20...");
   this->pin_->setup();
   buffer = new uint16_t[MAX_BUFFER_SIZE];
@@ -51,14 +49,7 @@ float TX20Component::get_setup_priority() const {
 
 void TX20Component::loop() {
   if (tx20_available) {
-#ifdef ARDUINO_ARCH_ESP32
-    GPIO_REG_WRITE(GPIO.status_w1tc, 1 << this->pin_->get_pin());
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-    GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, 1 << this->pin_->get_pin());
-#endif
     this->decodeAndPublish_();
-    // rearm it!
     tx20_available = false;
     buffer_index = 0;
     spent_time = 0;
@@ -93,14 +84,16 @@ void ICACHE_RAM_ATTR TX20Component::pin_change_() {
   start_time = now;
   buffer_index++;
 }
+std::string get_wind_cardinal_direction() const {
+  return this->wind_cardinal_direction_;
+}
+
 TX20WindSpeedSensor *TX20Component::get_wind_speed_sensor() const {
   return this->wind_speed_sensor_;
 }
-TX20WindDirectionSensor *TX20Component::get_wind_direction_sensor() const {
-  return this->wind_direction_sensor_;
-}
-TX20WindDirectionTextSensor *TX20Component::get_wind_direction_text_sensor() const {
-  return this->wind_direction_text_sensor_;
+TX20WindDirectionDegreesSensor *TX20Component::get_wind_direction_sensor()
+    const {
+  return this->wind_direction_degrees_sensor_;
 }
 
 void TX20Component::decodeAndPublish_() {
@@ -157,18 +150,25 @@ void TX20Component::decodeAndPublish_() {
     }
   }
 
-  uint8_t chk = (tx20_sb + (tx20_sc & 0xf) + ((tx20_sc >> 4) & 0xf) + ((tx20_sc >> 8) & 0xf));
+  uint8_t chk = (tx20_sb + (tx20_sc & 0xf) + ((tx20_sc >> 4) & 0xf) +
+                 ((tx20_sc >> 8) & 0xf));
   chk &= 0xf;
 
-  if ((chk == tx20_sd) && (tx20_sc < 400)) {  // if checksum seems to be ok and wind speed below 40 m/s
+  if ((chk == tx20_sd) &&
+      (tx20_sc <
+       400)) {  // if checksum seems to be ok and wind speed below 40 m/s
     tx20_wind_speed_kmh = float(tx20_sc) * 0.36;
     tx20_wind_direction = tx20_sb;
-    std::string direction = DIRECTIONS.at(tx20_wind_direction);
-    ESP_LOGV(TAG, "WindSpeed %f, WindDirection %d, WindDirection Text %s", tx20_wind_speed_kmh, tx20_wind_direction,
-             direction.c_str());
-    this->wind_direction_sensor_->publish_state(tx20_wind_direction);
+    if (tx20_wind_direction >= 0 && tx20_wind_direction < 16) {
+      wind_cardinal_direction_ = DIRECTIONS[tx20_wind_direction];
+    }
+
+    ESP_LOGV(TAG, "WindSpeed %f, WindDirection %d, WindDirection Text %s",
+             tx20_wind_speed_kmh, tx20_wind_direction, direction.c_str());
+    this->wind_direction_degrees_sensor_->publish_state(
+        float(tx20_wind_direction) * 22.5f);
     this->wind_speed_sensor_->publish_state(tx20_wind_speed_kmh);
-    this->wind_direction_text_sensor_->publish_state(direction);
+
   } else {
     ESP_LOGV(TAG, "Incorrect checksum!");
   }

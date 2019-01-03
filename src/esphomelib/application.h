@@ -742,21 +742,20 @@ class Application {
   struct MakeTX20Sensor {
     sensor::TX20Component *tx20;
     sensor::MQTTSensorComponent *mqtt_wind_speed;
-    sensor::MQTTSensorComponent *mqtt_wind_direction;
-    text_sensor::MQTTTextSensor *mqtt_wind_direction_text;
+    sensor::MQTTSensorComponent *wind_direction_degree;
   };
 
   /** Create a TX20 Wind Speed+Wind Direction sensor.
    *
    * @param wind_speed_name The friendly name the wind speed sensor should be advertised as.
-   * @param wind_direction_name The friendly name the wind direction sensor should be advertised as.
+   * @param wind_direction_degree_name The friendly name the wind direction degree sensor should be advertised as.
    * @param wind_direction_text_name The friendly name the wind direction text sensor (showing the orientation of the
    * flag in text - like 'NNE') should be advertised as.
    * @param pin The black cable of the TX20.
    * @return The TX20Component + MQTT sensors tuple, use this for advanced settings.
    */
-  MakeTX20Sensor make_tx20_sensor(const std::string &wind_speed_name, const std::string &wind_direction_name,
-                                  const std::string &wind_direction_text_name, const GPIOInputPin &pin);
+  MakeTX20Sensor make_tx20_sensor(const std::string &wind_speed_name, const std::string &wind_direction_degree_name,
+                                  const GPIOInputPin &pin);
 #endif
 
 #ifdef USE_BMP280
