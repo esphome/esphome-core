@@ -124,32 +124,32 @@ switch:
   - platform: gpio
     name: r1
     id: r1
-    pin: 14   
+    pin: 13  #  14   
 
   - platform: gpio
     name: r2
     id: r2
-    pin: 13
+    pin: 32  #13
 
   - platform: gpio
     name: r3
     id: r3
-    pin: 32
+    pin: 4  #32
 
   - platform: gpio
     name: r4
     id: r4
-    pin: 4
+    pin: 25 #4
 
   - platform: gpio
     name: r5
     id: r5
-    pin: 25
+    pin: 27  #25
 
   - platform: gpio
     name: r6
     id: r6
-    pin: 27
+    pin: 14  #27
     
 spi:
   clk_pin: 5

@@ -28,7 +28,7 @@ switch_::GPIOSwitch*  r6;
 // next version:  a component named weighing_scale_hx711
 // action_1 :=  reset zero mass value (long new_value)
 // action_2 :=  reset second mass and value (float second_mess, long new_value) , will change the g_slope
-float g_value_of_zero_mass = 83900182.0f;
+float g_value_of_zero_mass = 8388608.0f;
 float g_slope = 0.000123;
 // result = (value - g_value_of_zero_mass) * slope
 
@@ -43,8 +43,8 @@ void setup_apps_ondebug(){
       new sensor::LambdaFilter([=](float x) {
         auto first_mass = 0.0; // first known mass was 0kg
         auto first_value = g_value_of_zero_mass; // value for the first known mass was 120
-        auto second_mass = 1.0; // second mass was 1kg
-        auto second_value = 83990182; // second value was 810
+        auto second_mass = 1000.0; // second mass was 1kg
+        auto second_value = 8588609; // second value was 810
         return map(x, first_value, second_value, first_mass, second_mass);
     }),
   });
@@ -101,22 +101,22 @@ void setup3_gpioPin(){
   bs_door = sensor_gpio_binary_door.gpio;
 
   //switch.gpio
-  Application::MakeGPIOSwitch switch_gpio_r1 = App.make_gpio_switch("r1", 14);
+  Application::MakeGPIOSwitch switch_gpio_r1 = App.make_gpio_switch("r1", 13);
   r1 = switch_gpio_r1.switch_;
 
-  Application::MakeGPIOSwitch switch_gpio_r2 = App.make_gpio_switch("r2", 13);
+  Application::MakeGPIOSwitch switch_gpio_r2 = App.make_gpio_switch("r2", 32);
   r2 = switch_gpio_r2.switch_;
 
-  Application::MakeGPIOSwitch switch_gpio_r3 = App.make_gpio_switch("r3", 32);
+  Application::MakeGPIOSwitch switch_gpio_r3 = App.make_gpio_switch("r3", 4);
   r3 = switch_gpio_r3.switch_;
 
-  Application::MakeGPIOSwitch switch_gpio_r4 = App.make_gpio_switch("r4", 4);
+  Application::MakeGPIOSwitch switch_gpio_r4 = App.make_gpio_switch("r4", 25);
   r4 = switch_gpio_r4.switch_;
 
-  Application::MakeGPIOSwitch switch_gpio_r5 = App.make_gpio_switch("r5", 25);
+  Application::MakeGPIOSwitch switch_gpio_r5 = App.make_gpio_switch("r5", 27);
   r5 = switch_gpio_r5.switch_;
 
-  Application::MakeGPIOSwitch switch_gpio_r6 = App.make_gpio_switch("r6", 27);
+  Application::MakeGPIOSwitch switch_gpio_r6 = App.make_gpio_switch("r6", 14);
   r6 = switch_gpio_r6.switch_;
 
 }
