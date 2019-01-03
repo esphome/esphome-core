@@ -694,7 +694,7 @@ Application::MakeTX20Sensor Application::make_tx20_sensor(const std::string &win
   return {
       .tx20 = tx20,
       .mqtt_wind_speed = this->register_sensor(tx20->get_wind_speed_sensor()),
-      .mqtt_wind_direction_degree = this->register_sensor(tx20->get_wind_cardinal_direction()),
+      .mqtt_wind_direction_degree = this->register_sensor(tx20->get_wind_direction_degrees_sensor()),
   };
 }
 #endif

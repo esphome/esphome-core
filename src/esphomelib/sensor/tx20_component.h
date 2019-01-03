@@ -10,15 +10,13 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace sensor {
 
 using TX20WindSpeedSensor = sensor::EmptySensor<1, ICON_WIND_SPEED, UNIT_KMH>;
-using TX20WindDirectionDegreesSensor =
-    sensor::EmptySensor<1, ICON_WIND_DIRECTION, EMPTY>;
+using TX20WindDirectionDegreesSensor = sensor::EmptySensor<1, ICON_WIND_DIRECTION, EMPTY>;
 
 /// This class implements support for the TX20 WindSpeed+WindDirection sensor.
 class TX20Component : public Component {
  public:
-  TX20Component(const std::string &wind_speed_name,
-                const std::string &wind_direction_degrees_name,
-                const GPIOInputPin *pin);
+  TX20Component(const std::string &wind_speed_name, const std::string &wind_direction_degrees_name,
+                GPIOPin *pin);
 
   std::string get_wind_cardinal_direction() const;
 
@@ -38,8 +36,15 @@ class TX20Component : public Component {
 
   TX20WindSpeedSensor *wind_speed_sensor_;
   TX20WindDirectionDegreesSensor *wind_direction_degrees_sensor_;
-  GPIOInputPin *pin_;
+  GPIOPin *pin_;
   std::string wind_cardinal_direction_;
+
+ private:
+  static uint16_t *buffer_;
+  static uint32_t start_time_;
+  static uint8_t buffer_index_;
+  static uint32_t spent_time_;
+  static bool tx20_available_;
 };
 
 }  // namespace sensor

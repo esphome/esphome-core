@@ -8,35 +8,27 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
-namespace sensor {
+namespace sensor {  // namespace
 
 static const char *TAG = "sensor.tx20";
 static const uint8_t MAX_BUFFER_SIZE = 41;
 static const uint16_t TX20_MAX_TIME = MAX_BUFFER_SIZE * 1220 + 5000;
-const uint16_t TX20_BIT_TIME = 1200;   // microseconds
-const uint8_t TX20_RESET_VALUES = 60;  // seconds
-const std::string[] DIRECTIONS = {"N",  "NNE", "NE", "ENE", "E",  "ESE",
-                                  "SE", "SSE", "S",  "SSW", "SW", "WSW",
-                                  "W",  "WNW", "NW", "NNW"};
-static uint16_t *buffer;
-static uint32_t start_time = 0;
-static uint8_t buffer_index = 0;
-static uint32_t spent_time = 0;
-static bool tx20_available = false;
+static const uint16_t TX20_BIT_TIME = 1200;
+static const std::string DIRECTIONS[] = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                                         "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
 
-TX20Component::TX20Component(const std::string &wind_speed_name,
-                             const std::string &wind_direction_degree_name,
-                             const GPIOInputPin *pin)
+TX20Component::TX20Component(const std::string &wind_speed_name, const std::string &wind_direction_degrees_name,
+                             GPIOPin *pin)
     : Component(),
       wind_speed_sensor_(new TX20WindSpeedSensor(wind_speed_name)),
-      wind_direction_degrees_sensor_(
-          new TX20WindDirectionDegreesSensor(wind_direction_degrees_name)),
-      pin_(pin) {}
+      wind_direction_degrees_sensor_(new TX20WindDirectionDegreesSensor(wind_direction_degrees_name)),
+      pin_(pin) {
+}
 
-void TX20CompoDegreesnent::setup() {
+void TX20Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up TX20...");
   this->pin_->setup();
-  buffer = new uint16_t[MAX_BUFFER_SIZE];
+  buffer_ = new uint16_t[MAX_BUFFER_SIZE];
   attachInterrupt(this->pin_->get_pin(), TX20Component::pin_change_, CHANGE);
 }
 void TX20Component::dump_config() {
@@ -48,51 +40,50 @@ float TX20Component::get_setup_priority() const {
 }
 
 void TX20Component::loop() {
-  if (tx20_available) {
+  if (tx20_available_) {
     this->decodeAndPublish_();
-    tx20_available = false;
-    buffer_index = 0;
-    spent_time = 0;
+    tx20_available_ = false;
+    buffer_index_ = 0;
+    spent_time_ = 0;
     // rearm it!
-    start_time = 0;
+    start_time_ = 0;
   }
 }
 
 void ICACHE_RAM_ATTR TX20Component::pin_change_() {
   uint32_t now = micros();
-  if (!start_time) {
-    buffer[buffer_index] = 1;
-    start_time = now;
-    buffer_index++;
+  if (!start_time_) {
+    buffer_[buffer_index_] = 1;
+    start_time_ = now;
+    buffer_index_++;
     return;
   }
   uint16_t delay = 0;
-  if (now < start_time) {
-    delay = (UINT32_MAX - start_time + now);
+  if (now < start_time_) {
+    delay = (UINT32_MAX - start_time_ + now);
   } else {
-    delay = (now - start_time);
+    delay = (now - start_time_);
   }
 
-  if (tx20_available || ((spent_time + delay > TX20_MAX_TIME) && start_time)) {
-    tx20_available = true;
+  if (tx20_available_ || ((spent_time_ + delay > TX20_MAX_TIME) && start_time_)) {
+    tx20_available_ = true;
     return;
   }
-  if (buffer_index <= MAX_BUFFER_SIZE) {
-    buffer[buffer_index] = delay;
+  if (buffer_index_ <= MAX_BUFFER_SIZE) {
+    buffer_[buffer_index_] = delay;
   }
-  spent_time += delay;
-  start_time = now;
-  buffer_index++;
+  spent_time_ += delay;
+  start_time_ = now;
+  buffer_index_++;
 }
-std::string get_wind_cardinal_direction() const {
+std::string TX20Component::get_wind_cardinal_direction() const {
   return this->wind_cardinal_direction_;
 }
 
 TX20WindSpeedSensor *TX20Component::get_wind_speed_sensor() const {
   return this->wind_speed_sensor_;
 }
-TX20WindDirectionDegreesSensor *TX20Component::get_wind_direction_sensor()
-    const {
+TX20WindDirectionDegreesSensor *TX20Component::get_wind_direction_degrees_sensor() const {
   return this->wind_direction_degrees_sensor_;
 }
 
@@ -101,11 +92,10 @@ void TX20Component::decodeAndPublish_() {
 
   std::string string_buffer;
   std::vector<bool> bit_buffer;
-  uint8_t index_to = 0;
   bool current_bit = true;
 
-  for (int i = 1; i <= buffer_index; i++) {
-    uint8_t repeat = buffer[i] / TX20_BIT_TIME;
+  for (int i = 1; i <= buffer_index_; i++) {
+    uint8_t repeat = buffer_[i] / TX20_BIT_TIME;
     string_buffer.append(repeat, current_bit ? '1' : '0');
     bit_buffer.insert(bit_buffer.end(), repeat, current_bit);
     current_bit = !current_bit;
@@ -150,29 +140,30 @@ void TX20Component::decodeAndPublish_() {
     }
   }
 
-  uint8_t chk = (tx20_sb + (tx20_sc & 0xf) + ((tx20_sc >> 4) & 0xf) +
-                 ((tx20_sc >> 8) & 0xf));
+  uint8_t chk = (tx20_sb + (tx20_sc & 0xf) + ((tx20_sc >> 4) & 0xf) + ((tx20_sc >> 8) & 0xf));
   chk &= 0xf;
 
-  if ((chk == tx20_sd) &&
-      (tx20_sc <
-       400)) {  // if checksum seems to be ok and wind speed below 40 m/s
+  if ((chk == tx20_sd) && (tx20_sc < 400)) {  // if checksum seems to be ok and wind speed below 40 m/s
     tx20_wind_speed_kmh = float(tx20_sc) * 0.36;
     tx20_wind_direction = tx20_sb;
     if (tx20_wind_direction >= 0 && tx20_wind_direction < 16) {
       wind_cardinal_direction_ = DIRECTIONS[tx20_wind_direction];
     }
 
-    ESP_LOGV(TAG, "WindSpeed %f, WindDirection %d, WindDirection Text %s",
-             tx20_wind_speed_kmh, tx20_wind_direction, direction.c_str());
-    this->wind_direction_degrees_sensor_->publish_state(
-        float(tx20_wind_direction) * 22.5f);
+    ESP_LOGV(TAG, "WindSpeed %f, WindDirection %d, WindDirection Text %s", tx20_wind_speed_kmh, tx20_wind_direction,
+             direction.c_str());
+    this->wind_direction_degrees_sensor_->publish_state(float(tx20_wind_direction) * 22.5f);
     this->wind_speed_sensor_->publish_state(tx20_wind_speed_kmh);
 
   } else {
     ESP_LOGV(TAG, "Incorrect checksum!");
   }
 }
+
+uint32_t TX20Component::start_time_ = 0;
+uint8_t TX20Component::buffer_index_ = 0;
+uint32_t TX20Component::spent_time_ = 0;
+bool TX20Component::tx20_available_ = false;
 
 }  // namespace sensor
 

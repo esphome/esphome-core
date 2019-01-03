@@ -742,7 +742,7 @@ class Application {
   struct MakeTX20Sensor {
     sensor::TX20Component *tx20;
     sensor::MQTTSensorComponent *mqtt_wind_speed;
-    sensor::MQTTSensorComponent *wind_direction_degree;
+    sensor::MQTTSensorComponent *mqtt_wind_direction_degree;
   };
 
   /** Create a TX20 Wind Speed+Wind Direction sensor.
