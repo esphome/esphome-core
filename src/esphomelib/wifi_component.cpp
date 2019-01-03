@@ -727,8 +727,8 @@ void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
     }
     case EVENT_STAMODE_GOT_IP: {
       auto it = event->event_info.got_ip;
-      ESP_LOGV(TAG, "Event: Got IP static_ip=%s gateway=%s",
-               format_ip_addr(it.ip).c_str(), format_ip_addr(it.gw).c_str());
+      ESP_LOGV(TAG, "Event: Got IP static_ip=%s gateway=%s netmask=%s",
+               format_ip_addr(it.ip).c_str(), format_ip_addr(it.gw).c_str(), format_ip_addr(it.mask).c_str());
       break;
     }
     case EVENT_STAMODE_DHCP_TIMEOUT: {
@@ -1216,8 +1216,8 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
     }
     case SYSTEM_EVENT_STA_GOT_IP: {
       auto it = info.got_ip.ip_info;
-      ESP_LOGV(TAG, "Event: Got IP static_ip=%s gateway=%s netmask=%s",
-               format_ip4_addr(it.ip).c_str(), format_ip4_addr(it.gw).c_str(), format_ip4_addr(it.mask).c_str());
+      ESP_LOGV(TAG, "Event: Got IP static_ip=%s gateway=%s",
+               format_ip4_addr(it.ip).c_str(), format_ip4_addr(it.gw).c_str());
       break;
     }
     case SYSTEM_EVENT_STA_LOST_IP: {
