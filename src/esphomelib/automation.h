@@ -68,6 +68,7 @@ class Trigger {
  public:
   void trigger(T x);
   void set_parent(Automation<T> *parent);
+  void stop();
  protected:
   Automation<T> *parent_;
 };
@@ -78,6 +79,7 @@ class Trigger<NoArg> {
   void trigger();
   void trigger(bool arg);
   void set_parent(Automation<NoArg> *parent);
+  void stop();
  protected:
   Automation<NoArg> *parent_;
 };
