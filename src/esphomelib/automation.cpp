@@ -9,6 +9,9 @@ void Trigger<NoArg>::trigger() {
 void Trigger<NoArg>::trigger(bool arg) {
   this->parent_->process_trigger_(arg);
 }
+void Trigger<NoArg>::stop() {
+  this->parent_->stop();
+}
 void Trigger<NoArg>::set_parent(Automation<NoArg> *parent) {
   this->parent_ = parent;
 }

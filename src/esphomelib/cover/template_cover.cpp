@@ -50,20 +50,26 @@ Trigger<NoArg> *TemplateCover::get_stop_trigger() const {
   return this->stop_trigger_;
 }
 void TemplateCover::write_command(CoverCommand command) {
+  if (this->prev_trigger_ != nullptr) {
+    this->prev_trigger_->stop();
+  }
   switch (command) {
     case COVER_COMMAND_OPEN: {
       if (this->optimistic_)
         this->publish_state(COVER_OPEN);
+      this->prev_trigger_ = this->open_trigger_;
       this->open_trigger_->trigger();
       break;
     }
     case COVER_COMMAND_CLOSE: {
       if (this->optimistic_)
         this->publish_state(COVER_CLOSED);
+      this->prev_trigger_ = this->close_trigger_;
       this->close_trigger_->trigger();
       break;
     }
     case COVER_COMMAND_STOP: {
+      this->prev_trigger_ = this->stop_trigger_;
       this->stop_trigger_->trigger();
       break;
     }
