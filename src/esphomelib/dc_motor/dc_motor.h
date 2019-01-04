@@ -13,16 +13,16 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace dc_motor {
 
 #define LOG_STEPPER(this) \
-    ESP_LOGCONFIG(TAG, "  has_angle_sensor", this->has_angle_sensor); 
+    ESP_LOGCONFIG(TAG, "Sensor type: ", this->sensor_type); 
 
-class dc_motor {
+class Dc_motor {
  public:
   void move();
   void stop();
   void set_direction(bool clockwise);
   
  protected:
-  int sensor_type =0;  //no sensor
+  int sensor_type = 0;  //no sensor
 };
 
 
