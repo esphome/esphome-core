@@ -59,15 +59,22 @@ void WiFiComponent::setup() {
 #ifdef USE_API
   if (api::global_api_server != nullptr) {
     MDNS.addService("esphomelib", "tcp", api::global_api_server->get_port());
-  } else {
+    MDNS.addServiceTxt("esphomelib", "tcp", "version", ESPHOMELIB_VERSION);
+  }
 #endif
-#ifdef ARDUINO_ARCH_ESP32
-    MDNS.addService("arduino", "tcp", 3232);
+#ifdef USE_OTA
+  if (global_ota_component != nullptr) {
+    MDNS.addService("arduino", "tcp", global_ota_component->get_port());
+    MDNS.addServiceTxt("arduino", "tcp", "tcp_check", "no");
+    MDNS.addServiceTxt("arduino", "tcp", "ssh_upload", "no");
+    MDNS.addServiceTxt("arduino", "tcp", "board", ARDUINO_BOARD);
+    MDNS.addServiceTxt("arduino", "tcp", "auth_upload", global_ota_component->get_auth_required() ? "yes" : "no");
+  }
 #endif
-#ifdef ARDUINO_ARCH_ESP8266
-    MDNS.addService("arduino", "tcp", 8266);
-#endif
-#ifdef USE_API
+#ifdef USE_WEB_SERVER
+  if (global_web_server != nullptr) {
+    MDNS.addService("http", "tcp", global_web_server->get_port());
+    MDNS.addServiceTxt("http", "tcp", "path", "/");
   }
 #endif
 }

@@ -77,6 +77,9 @@ class OTAComponent : public Component {
   void set_auth_password_hash(const std::string &hash);
 #endif
 
+  /// Check to see if a password has been set.
+  bool get_auth_required() const;
+
   /// Manually set the port OTA should listen on.
   void set_port(uint16_t port);
 
@@ -135,6 +138,8 @@ class OTAComponent : public Component {
   uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
   ESPPreferenceObject rtc_;
 };
+
+extern OTAComponent *global_ota_component;
 
 ESPHOMELIB_NAMESPACE_END
 

@@ -422,9 +422,10 @@ size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes, bool check_discon
 }
 #endif
 
+OTAComponent *global_ota_component = nullptr;
 OTAComponent::OTAComponent(uint16_t port)
     : port_(port) {
-
+  global_ota_component = this;
 }
 
 #ifdef USE_NEW_OTA
@@ -442,9 +443,14 @@ void OTAComponent::set_auth_password_hash(const std::string &hash) {
 }
 #endif
 
+bool OTAComponent::get_auth_required() const {
+  return !this->password_.empty();
+}
+
 float OTAComponent::get_setup_priority() const {
   return setup_priority::MQTT_CLIENT + 1.0f;
 }
+
 uint16_t OTAComponent::get_port() const {
   return this->port_;
 }

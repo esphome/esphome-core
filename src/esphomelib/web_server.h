@@ -49,6 +49,9 @@ class WebServer : public StoringUpdateListenerController, public Component, publ
    */
   void set_js_url(const char *js_url);
 
+  /// Get the web server port.
+  uint16_t get_port() const;
+
   /// Set the web server port.
   void set_port(uint16_t port);
 
@@ -145,6 +148,8 @@ class WebServer : public StoringUpdateListenerController, public Component, publ
   uint32_t last_ota_progress_{0};
   uint32_t ota_read_length_{0};
 };
+
+extern WebServer *global_web_server;
 
 ESPHOMELIB_NAMESPACE_END
 

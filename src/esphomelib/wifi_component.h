@@ -17,6 +17,8 @@
 #include "esphomelib/component.h"
 #include "esphomelib/helpers.h"
 #include "esphomelib/defines.h"
+#include "esphomelib/ota_component.h"
+#include "esphomelib/web_server.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
