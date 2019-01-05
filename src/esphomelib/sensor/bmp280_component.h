@@ -63,7 +63,7 @@ class BMP280Component : public PollingComponent, public I2CDevice {
  public:
   BMP280Component(I2CComponent *parent,
                   const std::string &temperature_name, const std::string &pressure_name,
-                  uint8_t address = 0x77, uint32_t update_interval = 15000);
+                  uint8_t address = 0x77, uint32_t update_interval = 60000);
 
   /// Set the oversampling value for the temperature sensor. Default is 16x.
   void set_temperature_oversampling(BMP280Oversampling temperature_over_sampling);

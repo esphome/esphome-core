@@ -68,6 +68,7 @@ class Trigger {
  public:
   void trigger(T x);
   void set_parent(Automation<T> *parent);
+  void stop();
  protected:
   Automation<T> *parent_;
 };
@@ -78,6 +79,7 @@ class Trigger<NoArg> {
   void trigger();
   void trigger(bool arg);
   void set_parent(Automation<NoArg> *parent);
+  void stop();
  protected:
   Automation<NoArg> *parent_;
 };
@@ -105,6 +107,7 @@ class LoopTrigger : public Trigger<NoArg>, public Component {
 
 class IntervalTrigger : public Trigger<NoArg>, public PollingComponent {
  public:
+  IntervalTrigger(uint32_t update_interval);
   void loop() override;
   float get_setup_priority() const override;
 };

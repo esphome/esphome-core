@@ -13,7 +13,7 @@ namespace sensor {
 
 class WiFiSignalSensor : public PollingSensorComponent {
  public:
-  explicit WiFiSignalSensor(const std::string &name, uint32_t update_interval = 15000);
+  explicit WiFiSignalSensor(const std::string &name, uint32_t update_interval = 60000);
 
   void update() override;
   void dump_config() override;

@@ -9,6 +9,9 @@ void Trigger<NoArg>::trigger() {
 void Trigger<NoArg>::trigger(bool arg) {
   this->parent_->process_trigger_(arg);
 }
+void Trigger<NoArg>::stop() {
+  this->parent_->stop();
+}
 void Trigger<NoArg>::set_parent(Automation<NoArg> *parent) {
   this->parent_ = parent;
 }
@@ -44,6 +47,8 @@ void IntervalTrigger::loop() {
 float IntervalTrigger::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
+
+IntervalTrigger::IntervalTrigger(uint32_t update_interval) : PollingComponent(update_interval) {}
 
 RangeCondition::RangeCondition() = default;
 

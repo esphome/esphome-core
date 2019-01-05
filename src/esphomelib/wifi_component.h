@@ -21,52 +21,24 @@
 ESPHOMELIB_NAMESPACE_BEGIN
 
 enum WiFiComponentState {
-  /** Nothing has been initialized yet. Internal AP, if configured, is disabled at this point.
-   *
-   * State can transition to:
-   *   - WIFI_COMPONENT_STATE_AP (when AP-only mode)
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when in STA-only mode)
-   *   - WIFI_COMPONENT_STATE_AP_STA_CONNECTING (when in AP+STA mode)
-   */
+  /** Nothing has been initialized yet. Internal AP, if configured, is disabled at this point. */
   WIFI_COMPONENT_STATE_OFF = 0,
+  /** WiFi is in cooldown mode because something went wrong, scanning will begin after a short period of time. */
   WIFI_COMPONENT_STATE_COOLDOWN,
-  /** WiFi is in STA-only mode and currently scanning for APs.
-   *
-   * State can transition here from:
-   *   - WIFI_COMPONENT_STATE_OFF
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTING
-   *
-   * State can transition to:
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting fails)
-   */
+  /** WiFi is in STA-only mode and currently scanning for APs. */
    WIFI_COMPONENT_STATE_STA_SCANNING,
-  /** WiFi is in STA(+AP) mode and currently connecting to an AP.
-   *
-   * State can transition here from:
-   *   - WIFI_COMPONENT_STATE_OFF (when connecting using Probe Request)
-   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when connecting from Search Result)
-   *
-   * State can transition to:
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTED (when connecting was successful)
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting fails)
-   */
+  /** WiFi is in STA(+AP) mode and currently connecting to an AP. */
   WIFI_COMPONENT_STATE_STA_CONNECTING,
-  /** WiFi is in STA(+AP) mode and successfully connected.
+  /** WiFi is in STA(+AP) mode and currently connecting to an AP a second time.
    *
-   * State can transition here from:
-   *   - WIFI_COMPONENT_STATE_STA_CONNECTING (when connecting was successful)
-   *
-   * State can transition to:
-   *   - WIFI_COMPONENT_STATE_OFF (when connection is lost)
-   *   - WIFI_COMPONENT_STATE_STA_SCANNING (when connection is lost)
-   */
+   * This is required because for some reason ESPs don't like to connect to WiFi APs directly after
+   * a scan.
+   * */
+  WIFI_COMPONENT_STATE_STA_CONNECTING_2,
+  /** WiFi is in STA(+AP) mode and successfully connected. */
       WIFI_COMPONENT_STATE_STA_CONNECTED,
   // Any state below here is a valid state for continuing
-  /** WiFi is in AP-only mode and internal AP is already enabled.
-   *
-   * State can transition here from:
-   *   - WIFI_COMPONENT_STATE_OFF (on boot)
-   */
+  /** WiFi is in AP-only mode and internal AP is already enabled. */
   WIFI_COMPONENT_STATE_AP,
 };
 
@@ -160,7 +132,7 @@ class WiFiComponent : public Component {
 
   void start_scanning();
   void check_scanning_finished();
-  void start_connecting(const WiFiAP &ap);
+  void start_connecting(const WiFiAP &ap, bool two);
 
   void check_connecting_finished();
 
@@ -203,6 +175,8 @@ class WiFiComponent : public Component {
   bool has_sta() const;
   bool has_ap() const;
 
+  IPAddress get_ip_address();
+
  protected:
   void setup_ap_config();
   void print_connect_params_();
@@ -211,6 +185,7 @@ class WiFiComponent : public Component {
   bool wifi_disable_auto_connect_();
   bool wifi_apply_power_save_();
   bool wifi_sta_ip_config_(optional<ManualIP> manual_ip);
+  IPAddress wifi_sta_ip_();
   bool wifi_apply_hostname_();
   bool wifi_sta_connect_(WiFiAP ap);
   void wifi_register_callbacks_();
@@ -234,6 +209,7 @@ class WiFiComponent : public Component {
   std::string hostname_;
 
   std::vector<WiFiAP> sta_;
+  WiFiAP selected_ap_;
 
   WiFiAP ap_;
   WiFiComponentState state_{WIFI_COMPONENT_STATE_OFF};

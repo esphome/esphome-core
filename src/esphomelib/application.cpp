@@ -156,6 +156,14 @@ WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string
   return wifi;
 }
 
+#ifdef USE_ETHERNET
+EthernetComponent *Application::init_ethernet() {
+  auto *eth = new EthernetComponent();
+  eth->set_hostname(sanitize_hostname(this->name_));
+  return this->register_component(eth);
+}
+#endif
+
 void Application::set_name(const std::string &name) {
   this->name_ = to_lowercase_underscore(name);
   global_preferences.begin(name);
@@ -1354,6 +1362,20 @@ sensor::CustomSensorConstructor *Application::make_custom_sensor(const std::func
 #ifdef USE_CUSTOM_SWITCH
 switch_::CustomSwitchConstructor *Application::make_custom_switch(const std::function<std::vector<Switch *>()> &init) {
   return this->register_component(new CustomSwitchConstructor(init));
+}
+#endif
+
+#ifdef USE_APDS9960
+sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
+  return this->register_component(new APDS9960(this->i2c_, update_interval));
+}
+#endif
+
+#ifdef USE_ULN2003
+stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
+                                            const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d) {
+  auto *uln = new stepper::ULN2003(pin_a.copy(), pin_b.copy(), pin_c.copy(), pin_d.copy());
+  return this->register_component(uln);
 }
 #endif
 
