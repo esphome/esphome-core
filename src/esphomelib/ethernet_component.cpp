@@ -73,7 +73,7 @@ float EthernetComponent::get_setup_priority() const {
 bool EthernetComponent::can_proceed() {
   return this->is_connected();
 }
-IPAddress WiFiComponent::get_ip_address() {
+IPAddress EthernetComponent::get_ip_address() {
   tcpip_adapter_ip_info_t ip;
   tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_ETH, &ip);
   return IPAddress(ip.ip.addr);
