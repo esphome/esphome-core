@@ -397,7 +397,7 @@ APDS9960ColorChannelSensor *APDS9960::make_green_channel(const std::string &name
 APDS9960ColorChannelSensor *APDS9960::make_blue_channel(const std::string &name) {
   return this->blue_channel_ = new APDS9960ColorChannelSensor(name, this);
 }
-APDS9960ColorChannelSensor *APDS9960::make_proximity(const std::string &name) {
+APDS9960ProximitySensor *APDS9960::make_proximity(const std::string &name) {
   return this->proximity_ = new APDS9960ProximitySensor(name, this);
 }
 APDS9960GestureDirectionBinarySensor *APDS9960::make_up_direction(const std::string &name) {

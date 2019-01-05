@@ -31,7 +31,7 @@ class APDS9960 : public PollingComponent, public I2CDevice {
   APDS9960ColorChannelSensor *make_red_channel(const std::string &name);
   APDS9960ColorChannelSensor *make_green_channel(const std::string &name);
   APDS9960ColorChannelSensor *make_blue_channel(const std::string &name);
-  APDS9960ColorChannelSensor *make_proximity(const std::string &name);
+  APDS9960ProximitySensor *make_proximity(const std::string &name);
   APDS9960GestureDirectionBinarySensor *make_up_direction(const std::string &name);
   APDS9960GestureDirectionBinarySensor *make_down_direction(const std::string &name);
   APDS9960GestureDirectionBinarySensor *make_left_direction(const std::string &name);
