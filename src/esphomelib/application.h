@@ -56,6 +56,7 @@
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/light_state.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/light/neo_pixel_bus_light_output.h"
 #include "esphomelib/mqtt/custom_mqtt_device.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
@@ -1196,6 +1197,23 @@ class Application {
   MakeFastLEDLight make_fast_led_light(const std::string &name);
 #endif
 
+#ifdef USE_NEO_PIXEL_BUS_LIGHT
+  template<typename T_METHOD, typename T_COLOR_FEATURE>
+  struct MakeNeoPixelBusLight {
+    light::NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE> *output;
+    light::LightState *state;
+    light::MQTTJSONLightComponent *mqtt;
+  };
+
+  /// Create an RGB NeoPixelBus light.
+  template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbFeature>
+  MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgb_light(const std::string &name);
+
+  /// Create an RGBW NeoPixelBus light.
+  template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbwFeature>
+  MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgbw_light(const std::string &name);
+#endif
+
 
 
 
@@ -1488,6 +1506,31 @@ template<typename T>
 GlobalVariableComponent<T> *Application::make_global_variable(T initial_value) {
   return this->register_component(new GlobalVariableComponent<T>(initial_value));
 }
+
+#ifdef USE_NEO_PIXEL_BUS_LIGHT
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgb_light(const std::string &name) {
+  auto *neo_pixel = this->register_component(new light::NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE>());
+  auto make = this->make_light_for_light_output(name, neo_pixel);
+
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
+      .output = neo_pixel,
+      .state = make.state,
+      .mqtt = make.mqtt,
+  };
+}
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgbw_light(const std::string &name) {
+  auto *neo_pixel = this->register_component(new light::NeoPixelRGBWLightOutput<T_METHOD, T_COLOR_FEATURE>());
+  auto make = this->make_light_for_light_output(name, neo_pixel);
+
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
+      .output = neo_pixel,
+      .state = make.state,
+      .mqtt = make.mqtt,
+  };
+}
+#endif
 
 ESPHOMELIB_NAMESPACE_END
 

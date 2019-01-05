@@ -31,5 +31,7 @@ matrix:
     if: branch = dev AND type = push
   - env: BUILD_TARGET=fastled
     if: branch = dev AND type = push
+  - env: BUILD_TARGET=neopixelbus
+    if: branch = dev AND type = push
   - env: BUILD_TARGET=sonoff-b1
     if: branch = dev AND type = push
