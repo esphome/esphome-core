@@ -472,12 +472,6 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
 #endif
     global_state = STATUS_LED_ERROR;
     network_setup();
-    global_wifi_component->setup_();
-    while (!global_wifi_component->ready_for_ota()) {
-      yield();
-      global_wifi_component->loop_();
-      tick_status_led();
-    }
     this->setup_();
 
     ESP_LOGI(TAG, "Waiting for OTA attempt.");
@@ -485,6 +479,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     while ((millis() - begin) < enable_time) {
       this->loop_();
       network_tick();
+      tick_status_led();
       yield();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");

@@ -6,6 +6,7 @@
 #include "esphomelib/api/basic_messages.h"
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
+#include "esphomelib/util.h"
 #include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/time/homeassistant_time.h"
 

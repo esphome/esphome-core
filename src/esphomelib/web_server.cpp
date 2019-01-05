@@ -5,6 +5,7 @@
 #include "esphomelib/web_server.h"
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
+#include "esphomelib/util.h"
 #include "StreamString.h"
 
 #ifdef ARDUINO_ARCH_ESP32
