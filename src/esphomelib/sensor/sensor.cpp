@@ -42,8 +42,7 @@ int8_t Sensor::accuracy_decimals() {
 }
 Sensor::Sensor(const std::string &name)
     : Nameable(name), state(NAN), raw_state(NAN) {
-  // By default, apply a smoothing over the last 15 values
-  this->add_filter(new SlidingWindowMovingAverageFilter(15, 15));
+
 }
 Sensor::Sensor()
     : Sensor("") {
@@ -104,9 +103,9 @@ void Sensor::set_filters(const std::vector<Filter *> &filters) {
   this->add_filters(filters);
 }
 void Sensor::clear_filters() {
-  ESP_LOGVV(TAG, "Sensor(%p)::clear_filters()", this);
-  // note: not deallocating here, it makes the code faster (no virtual destructor)
-  // plus this is not called too often.
+  if (this->filter_list_ != nullptr) {
+    ESP_LOGVV(TAG, "Sensor(%p)::clear_filters()", this);
+  }
   this->filter_list_ = nullptr;
 }
 float Sensor::get_value() const {
@@ -126,9 +125,11 @@ std::string Sensor::unique_id() { return ""; }
 void Sensor::send_state_to_frontend_internal_(float state) {
   this->has_state_ = true;
   this->state = state;
-  ESP_LOGD(TAG, "'%s': Sending state %.5f%s with %d decimals of accuracy",
-           this->get_name().c_str(), state, this->get_unit_of_measurement().c_str(),
-           this->get_accuracy_decimals());
+  if (this->filter_list_ != nullptr) {
+    ESP_LOGD(TAG, "'%s': Sending state %.5f %s with %d decimals of accuracy",
+             this->get_name().c_str(), state, this->get_unit_of_measurement().c_str(),
+             this->get_accuracy_decimals());
+  }
   this->callback_.call(state);
 }
 SensorStateTrigger *Sensor::make_state_trigger() {

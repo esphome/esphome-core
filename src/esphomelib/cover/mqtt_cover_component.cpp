@@ -34,9 +34,6 @@ void MQTTCoverComponent::setup() {
 
 void MQTTCoverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT cover '%s':", this->cover_->get_name().c_str());
-  if (this->cover_->optimistic()) {
-    ESP_LOGCONFIG(TAG, "  Optimistic: YES");
-  }
   LOG_MQTT_COMPONENT(true, true)
 }
 void MQTTCoverComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {

@@ -14,7 +14,7 @@ namespace sensor {
 
 class MAX31855Sensor : public PollingSensorComponent, public SPIDevice {
  public:
-  MAX31855Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval = 15000);
+  MAX31855Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval = 60000);
 
   void setup() override;
   void dump_config() override;

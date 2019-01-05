@@ -263,6 +263,10 @@ void PN532Component::dump_config() {
 
   LOG_PIN("  CS Pin: ", this->cs_);
   LOG_UPDATE_INTERVAL(this);
+
+  for (auto *child : this->binary_sensors_) {
+    LOG_BINARY_SENSOR("  ", "Tag", child);
+  }
 }
 
 PN532BinarySensor::PN532BinarySensor(const std::string &name, const std::vector<uint8_t> &uid, uint32_t update_interval)

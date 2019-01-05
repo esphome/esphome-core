@@ -5,17 +5,20 @@
 
 #ifdef USE_CUSTOM_BINARY_SENSOR
 
+#include "esphomelib/component.h"
 #include "esphomelib/binary_sensor/binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
-class CustomBinarySensorConstructor {
+class CustomBinarySensorConstructor : public Component {
  public:
   CustomBinarySensorConstructor(const std::function<std::vector<BinarySensor *>()> &init);
 
   BinarySensor *get_binary_sensor(int i);
+
+  void dump_config() override;
 
  protected:
   std::vector<BinarySensor *> binary_sensors_;

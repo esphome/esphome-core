@@ -30,14 +30,6 @@ void MQTTSensorComponent::dump_config() {
   if (this->get_expire_after() > 0) {
     ESP_LOGCONFIG(TAG, "  Expire After: %us", this->get_expire_after() / 1000);
   }
-  ESP_LOGCONFIG(TAG, "  Unit of Measurement: '%s'", this->sensor_->get_unit_of_measurement().c_str());
-  ESP_LOGCONFIG(TAG, "  Accuracy Decimals: %d", this->sensor_->get_accuracy_decimals());
-  if (!this->sensor_->get_icon().empty()) {
-    ESP_LOGCONFIG(TAG, "  Icon: '%s'", this->sensor_->get_icon().c_str());
-  }
-  if (!this->sensor_->unique_id().empty()) {
-    ESP_LOGCONFIG(TAG, "  Unique ID: '%s'", this->sensor_->unique_id().c_str());
-  }
   LOG_MQTT_COMPONENT(true, false)
 }
 
@@ -49,7 +41,7 @@ uint32_t MQTTSensorComponent::get_expire_after() const {
   if (this->expire_after_.has_value()) {
     return *this->expire_after_;
   } else {
-    return this->sensor_->calculate_expected_filter_update_interval() * 3;
+    return this->sensor_->calculate_expected_filter_update_interval() * 5;
   }
 }
 void MQTTSensorComponent::set_expire_after(uint32_t expire_after) {

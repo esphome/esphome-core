@@ -15,6 +15,17 @@ namespace text_sensor {
 
 class TextSensorStateTrigger;
 
+#define LOG_TEXT_SENSOR(prefix, type, obj) \
+    if (obj != nullptr) { \
+      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+      if (!obj->get_icon().empty()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
+      } \
+      if (!obj->unique_id().empty()) { \
+        ESP_LOGV(TAG, prefix "  Unique ID: '%s'", obj->unique_id().c_str()); \
+      } \
+    }
+
 class TextSensor : public Nameable {
  public:
   explicit TextSensor(const std::string &name) : Nameable(name) {}

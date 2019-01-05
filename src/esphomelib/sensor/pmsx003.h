@@ -53,6 +53,7 @@ class PMSX003Component : public UARTDevice, public Component {
 
   void loop() override;
   float get_setup_priority() const override;
+  void dump_config() override;
 
   PMSX003Sensor *make_pm_1_0_sensor(const std::string &name);
   PMSX003Sensor *make_pm_2_5_sensor(const std::string &name);

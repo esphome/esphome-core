@@ -81,12 +81,13 @@ bool SamsungReceiver::matches(RemoteReceiveData *data) {
   return this->data_ == decode.data;
 }
 
-void SamsungDumper::dump(RemoteReceiveData *data) {
+bool SamsungDumper::dump(RemoteReceiveData *data) {
   auto decode = decode_samsung(data);
   if (!decode.valid)
-    return;
+    return false;
 
   ESP_LOGD(TAG, "Received Samsung: data=0x%08X", decode.data);
+  return true;
 }
 #endif
 

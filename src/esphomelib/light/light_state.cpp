@@ -265,6 +265,17 @@ LightState::StateCall LightState::make_call() {
 uint32_t LightState::hash_base_() {
   return 1114400283;
 }
+void LightState::dump_config() {
+  ESP_LOGCONFIG(TAG, "Light '%s'", this->get_name().c_str());
+  if (this->get_traits().has_brightness()) {
+    ESP_LOGCONFIG(TAG, "  Default Transition Length: %u ms", this->default_transition_length_);
+    ESP_LOGCONFIG(TAG, "  Gamma Correct: %.2f", this->gamma_correct_);
+  }
+  if (this->get_traits().has_color_temperature()) {
+    ESP_LOGCONFIG(TAG, "  Min Mireds: %.1f", this->get_traits().get_min_mireds());
+    ESP_LOGCONFIG(TAG, "  Max Mireds: %.1f", this->get_traits().get_max_mireds());
+  }
+}
 
 LightState::StateCall &LightState::StateCall::set_state(bool state) {
   this->binary_state_ = state;
@@ -512,6 +523,11 @@ LightState::StateCall::StateCall(LightState *state)
     : state_(state) {
 
 }
+
+void LightOutput::setup_state(LightState *state) {
+
+}
+
 } // namespace light
 
 ESPHOMELIB_NAMESPACE_END

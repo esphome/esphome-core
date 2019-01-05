@@ -24,6 +24,19 @@ class ValueRangeTrigger;
 template<typename T>
 class SensorInRangeCondition;
 
+#define LOG_SENSOR(prefix, type, obj) \
+    if (obj != nullptr) { \
+      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+      ESP_LOGCONFIG(TAG, prefix "  Unit of Measurement: '%s'", obj->get_unit_of_measurement().c_str()); \
+      ESP_LOGCONFIG(TAG, prefix "  Accuracy Decimals: %d", obj->get_accuracy_decimals()); \
+      if (!obj->get_icon().empty()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
+      } \
+      if (!obj->unique_id().empty()) { \
+        ESP_LOGV(TAG, prefix "  Unique ID: '%s'", obj->unique_id().c_str()); \
+      } \
+    }
+
 /** Base-class for all sensors.
  *
  * A sensor has unit of measurement and can use publish_state to send out a new value with the specified accuracy.

@@ -5,6 +5,7 @@
 
 #define HOT __attribute__ ((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
+#define ALWAYS_INLINE __attribute__((always_inline))
 
 #ifndef DOXYGEN
   #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {
@@ -131,6 +132,7 @@
   #define USE_HOMEASSISTANT_TIME
   #define USE_HOMEASSISTANT_SENSOR
   #define USE_HOMEASSISTANT_TEXT_SENSOR
+  #define USE_APDS9960
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -597,6 +599,15 @@
 #ifdef USE_MY9231_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
+  #endif
+#endif
+
+#ifdef USE_APDS9960
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
   #endif
 #endif
 

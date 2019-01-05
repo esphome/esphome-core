@@ -87,12 +87,13 @@ bool SonyReceiver::matches(RemoteReceiveData *data) {
   return decode.valid && this->data_ == decode.data && this->nbits_ == decode.nbits;
 }
 
-void SonyDumper::dump(RemoteReceiveData *data) {
+bool SonyDumper::dump(RemoteReceiveData *data) {
   auto decode = decode_sony(data);
   if (!decode.valid)
-    return;
+    return false;
 
   ESP_LOGD(TAG, "Received Sony: data=0x%08X, nbits=%d", decode.data, decode.nbits);
+  return true;
 }
 #endif
 

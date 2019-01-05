@@ -79,8 +79,7 @@ static uint16_t state_lookup_table[32] = {
 
 RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a, GPIOPin *pin_b)
     : Sensor(name), Component(), pin_a_(pin_a), pin_b_(pin_b) {
-  // Filters make no sense with this
-  this->clear_filters();
+
 }
 void RotaryEncoderSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder '%s'...", this->name_.c_str());
@@ -99,7 +98,7 @@ void RotaryEncoderSensor::setup() {
 }
 
 void RotaryEncoderSensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "Rotary Encoder '%s':", this->name_.c_str());
+  LOG_SENSOR("", "Rotary Encoder", this);
   LOG_PIN("  Pin A: ", this->pin_a_);
   LOG_PIN("  Pin B: ", this->pin_b_);
   LOG_PIN("  Pin I: ", this->pin_i_);

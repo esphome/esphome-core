@@ -66,8 +66,20 @@ void INA3221Component::dump_config() {
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Communication with INA3221 failed!");
   }
-
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "Bus Voltage #1", this->channels[0].bus_voltage_sensor_);
+  LOG_SENSOR("  ", "Shunt Voltage #1", this->channels[0].shunt_voltage_sensor_);
+  LOG_SENSOR("  ", "Current #1", this->channels[0].current_sensor_);
+  LOG_SENSOR("  ", "Power #1", this->channels[0].power_sensor_);
+  LOG_SENSOR("  ", "Bus Voltage #2", this->channels[1].bus_voltage_sensor_);
+  LOG_SENSOR("  ", "Shunt Voltage #2", this->channels[1].shunt_voltage_sensor_);
+  LOG_SENSOR("  ", "Current #2", this->channels[1].current_sensor_);
+  LOG_SENSOR("  ", "Power #2", this->channels[1].power_sensor_);
+  LOG_SENSOR("  ", "Bus Voltage #3", this->channels[2].bus_voltage_sensor_);
+  LOG_SENSOR("  ", "Shunt Voltage #3", this->channels[2].shunt_voltage_sensor_);
+  LOG_SENSOR("  ", "Current #3", this->channels[2].current_sensor_);
+  LOG_SENSOR("  ", "Power #3", this->channels[2].power_sensor_);
 }
 
 inline uint8_t ina3221_bus_voltage_register(int channel) {

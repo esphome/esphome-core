@@ -30,7 +30,7 @@ void BH1750Sensor::setup() {
   }
 }
 void BH1750Sensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "BH1750 '%s':", this->name_.c_str());
+  LOG_SENSOR("", "BH1750", this);
   LOG_I2C_DEVICE(this);
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Communication with BH1750 failed!");

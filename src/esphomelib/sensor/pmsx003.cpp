@@ -172,6 +172,15 @@ PMSX003Sensor *PMSX003Component::make_formaldehyde_sensor(const std::string &nam
 PMSX003Component::PMSX003Component(UARTComponent *parent, PMSX003Type type) : UARTDevice(parent), type_(type) {
 
 }
+void PMSX003Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "PMSX003:");
+  LOG_SENSOR("  ", "PM1.0", this->pm_1_0_sensor_);
+  LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
+  LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
+  LOG_SENSOR("  ", "Formaldehyde", this->formaldehyde_sensor_);
+}
 
 std::string PMSX003Sensor::unit_of_measurement() {
   switch (this->type_) {

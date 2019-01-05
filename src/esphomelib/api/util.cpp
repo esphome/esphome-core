@@ -34,6 +34,9 @@ void APIBuffer::encode_uint32(uint32_t field, uint32_t value) {
   this->encode_field_(field, 0);
   this->encode_varint_(value);
 }
+void APIBuffer::encode_int32(uint32_t field, int32_t value) {
+  this->encode_uint32(field, static_cast<uint32_t>(value));
+}
 void APIBuffer::encode_bool(uint32_t field, bool value) {
   if (!value)
     return;

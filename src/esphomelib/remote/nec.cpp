@@ -97,12 +97,13 @@ bool NECReceiver::matches(RemoteReceiveData *data) {
 
   return this->address_ == decode.address && this->command_ == decode.command;
 }
-void NECDumper::dump(RemoteReceiveData *data) {
+bool NECDumper::dump(RemoteReceiveData *data) {
   auto decode = decode_nec(data);
   if (!decode.valid)
-    return;
+    return false;
 
   ESP_LOGD(TAG, "Received NEC: address=0x%04X, command=0x%04X", decode.address, decode.command);
+  return true;
 }
 #endif
 

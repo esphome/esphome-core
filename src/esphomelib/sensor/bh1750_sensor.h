@@ -23,7 +23,7 @@ enum BH1750Resolution {
 class BH1750Sensor : public PollingSensorComponent, public I2CDevice {
  public:
   BH1750Sensor(I2CComponent *parent, const std::string &name,
-               uint8_t address = 0x23, uint32_t update_interval = 15000);
+               uint8_t address = 0x23, uint32_t update_interval = 60000);
 
   /** Set the resolution of this sensor.
    *

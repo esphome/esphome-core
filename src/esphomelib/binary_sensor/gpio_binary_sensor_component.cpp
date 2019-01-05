@@ -20,7 +20,7 @@ void GPIOBinarySensorComponent::setup() {
 }
 
 void GPIOBinarySensorComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "GPIO Binary Sensor '%s':", this->name_.c_str());
+  LOG_BINARY_SENSOR("", "GPIO Binary Sensor", this);
   LOG_PIN("  Pin: ", this->pin_);
 }
 
