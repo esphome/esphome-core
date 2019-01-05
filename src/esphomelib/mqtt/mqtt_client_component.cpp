@@ -562,9 +562,10 @@ void MQTTClientComponent::set_shutdown_message(MQTTMessage &&message) {
   this->shutdown_message_ = std::move(message);
 }
 
-void MQTTClientComponent::set_discovery_info(std::string &&prefix, bool retain) {
+void MQTTClientComponent::set_discovery_info(std::string &&prefix, bool retain, bool clean) {
   this->discovery_info_.prefix = std::move(prefix);
   this->discovery_info_.retain = retain;
+  this->discovery_info_.clean = clean;
 }
 
 void MQTTClientComponent::disable_last_will() {
