@@ -1015,7 +1015,7 @@ class Application {
 #endif
 
 #ifdef USE_APDS9960
-  sensor::APDS9960 *make_apds9960(uint32_t update_interval = 15000);
+  sensor::APDS9960 *make_apds9960(uint32_t update_interval = 60000);
 #endif
 
 

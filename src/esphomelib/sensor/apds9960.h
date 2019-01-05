@@ -20,7 +20,7 @@ class APDS9960GestureDirectionBinarySensor;
 
 class APDS9960 : public PollingComponent, public I2CDevice {
  public:
-  APDS9960(I2CComponent *parent, uint32_t update_interval = 15000);
+  APDS9960(I2CComponent *parent, uint32_t update_interval = 60000);
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
