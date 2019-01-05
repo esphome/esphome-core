@@ -93,5 +93,15 @@ void network_setup_mdns(const std::string &hostname) {
 #endif
 }
 
+IPAddress network_get_address() {
+#ifdef USE_ETHERNET
+  if (global_eth_component != nullptr)
+    global_eth_component->get_ip_address();
+#endif
+  if (global_wifi_component != nullptr)
+    global_wifi_component->get_ip_address();
+  return IPAddress();
+}
+
 
 ESPHOMELIB_NAMESPACE_END

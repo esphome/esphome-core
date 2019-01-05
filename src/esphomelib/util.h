@@ -3,6 +3,7 @@
 
 #include "esphomelib/defines.h"
 #include <string>
+#include <IPAddress.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -10,6 +11,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 bool network_is_connected();
 /// Get the active network hostname
 std::string network_get_hostname();
+IPAddress network_get_address();
 
 /// Manually set up the network stack (outside of the App.setup() loop, for example in OTA safe mode)
 void network_setup();

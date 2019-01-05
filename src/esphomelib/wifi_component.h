@@ -175,6 +175,8 @@ class WiFiComponent : public Component {
   bool has_sta() const;
   bool has_ap() const;
 
+  IPAddress get_ip_address();
+
  protected:
   void setup_ap_config();
   void print_connect_params_();
@@ -183,6 +185,7 @@ class WiFiComponent : public Component {
   bool wifi_disable_auto_connect_();
   bool wifi_apply_power_save_();
   bool wifi_sta_ip_config_(optional<ManualIP> manual_ip);
+  IPAddress wifi_sta_ip_();
   bool wifi_apply_hostname_();
   bool wifi_sta_connect_(WiFiAP ap);
   void wifi_register_callbacks_();

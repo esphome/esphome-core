@@ -36,6 +36,7 @@ class EthernetComponent : public Component {
   void set_hostname(const std::string &hostname);
 
   const std::string &get_hostname() const;
+  IPAddress get_ip_address();
 
  protected:
   void on_wifi_event_(system_event_id_t event, system_event_info_t info);

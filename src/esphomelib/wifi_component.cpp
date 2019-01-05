@@ -109,6 +109,13 @@ bool WiFiComponent::has_ap() const {
 bool WiFiComponent::has_sta() const {
   return !this->sta_.empty();
 }
+IPAddress WiFiComponent::get_ip_address() {
+  if (this->has_sta())
+    return this->wifi_sta_ip_();
+  if (this->has_ap())
+    return this->wifi_soft_ap_ip_();
+  return IPAddress();
+}
 void WiFiComponent::setup_ap_config() {
   this->wifi_mode_({}, true);
 
@@ -547,6 +554,15 @@ bool WiFiComponent::wifi_sta_ip_config_(optional<ManualIP> manual_ip) {
   }
 
   return ret;
+}
+
+
+IPAddress WiFiComponent::wifi_sta_ip_() {
+  if (!this->has_sta())
+    return IPAddress();
+  struct ip_info ip;
+  wifi_get_ip_info(STATION_IF, &ip);
+  return IPAddress(ip.ip.addr);
 }
 bool WiFiComponent::wifi_apply_hostname_() {
   if (this->hostname_.empty())
@@ -1039,6 +1055,15 @@ bool WiFiComponent::wifi_sta_ip_config_(optional<ManualIP> manual_ip) {
 
   return true;
 }
+
+IPAddress WiFiComponent::wifi_sta_ip_() {
+  if (!this->has_sta())
+    return IPAddress();
+  tcpip_adapter_ip_info_t ip;
+  tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
+  return IPAddress(ip.ip.addr);
+}
+
 bool WiFiComponent::wifi_apply_hostname_() {
   esp_err_t err = tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, this->hostname_.c_str());
   if (err != ESP_OK) {
