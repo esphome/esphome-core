@@ -121,6 +121,7 @@
 #include "esphomelib/sensor/wifi_signal_sensor.h"
 #include "esphomelib/stepper/a4988.h"
 #include "esphomelib/stepper/stepper.h"
+#include "esphomelib/stepper/uln2003.h"
 #include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
@@ -1338,6 +1339,11 @@ class Application {
 
 #ifdef USE_A4988
   stepper::A4988 *make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin);
+#endif
+
+#ifdef USE_ULN2003
+  stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
+                                 const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d);
 #endif
 
 

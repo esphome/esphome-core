@@ -1371,6 +1371,14 @@ sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
 }
 #endif
 
+#ifdef USE_ULN2003
+stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
+                                            const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d) {
+  auto *uln = new stepper::ULN2003(pin_a.copy(), pin_b.copy(), pin_c.copy(), pin_d.copy());
+  return this->register_component(uln);
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOMELIB_NAMESPACE_END
