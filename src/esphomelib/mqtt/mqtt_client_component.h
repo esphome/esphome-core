@@ -74,6 +74,7 @@ class MQTTPublishJsonAction;
 struct MQTTDiscoveryInfo {
   std::string prefix; ///< The Home Assistant discovery prefix. Empty means disabled.
   bool retain; ///< Whether to retain discovery messages.
+  bool clean;
 };
 
 enum MQTTClientState {
@@ -111,7 +112,7 @@ class MQTTClientComponent : public Component {
    * @param prefix The Home Assistant discovery prefix.
    * @param retain Whether to retain discovery messages.
    */
-  void set_discovery_info(std::string &&prefix, bool retain);
+  void set_discovery_info(std::string &&prefix, bool retain, bool clean = false);
   /// Get Home Assistant discovery info.
   const MQTTDiscoveryInfo &get_discovery_info() const;
   /// Globally disable Home Assistant discovery.
@@ -263,7 +264,8 @@ class MQTTClientComponent : public Component {
   /// default and empty prefix means disabled.
   MQTTDiscoveryInfo discovery_info_{
       .prefix = "homeassistant",
-      .retain = true
+      .retain = true,
+      .clean = false,
   };
   std::string topic_prefix_{};
   MQTTMessage log_message_;
