@@ -4,6 +4,7 @@
 
 #include "esphomelib/ethernet_component.h"
 #include "esphomelib/log.h"
+#include "esphomelib/util.h"
 
 #include <eth_phy/phy_lan8720.h>
 #include <eth_phy/phy_tlk110.h>
@@ -30,6 +31,8 @@ void EthernetComponent::setup() {
   }
 
   this->start_connect_();
+
+  network_setup_mdns(this->hostname_);
 }
 void EthernetComponent::loop() {
   const uint32_t now = millis();

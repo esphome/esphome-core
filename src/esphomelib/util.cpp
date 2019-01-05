@@ -2,6 +2,14 @@
 #include "esphomelib/defines.h"
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/ethernet_component.h"
+#include "esphomelib/api/api_server.h"
+
+#ifdef ARDUINO_ARCH_ESP32
+  #include <ESPmDNS.h>
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  #include <ESP8266mDNS.h>
+#endif
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -66,5 +74,24 @@ void network_tick() {
   if (global_wifi_component != nullptr)
     global_wifi_component->loop_();
 }
+
+void network_setup_mdns(const std::string &hostname) {
+  MDNS.begin(hostname.c_str());
+#ifdef USE_API
+  if (api::global_api_server != nullptr) {
+    MDNS.addService("esphomelib", "tcp", api::global_api_server->get_port());
+    // DNS-SD (!=mDNS !) requires at least one TXT record for service discovery - let's add version
+    MDNS.addServiceTxt("esphomelib", "tcp", "version", ESPHOMELIB_VERSION);
+  } else {
+#endif
+    // Publish "http" service if not using native API.
+    // This is just to have *some* mDNS service so that .local resolution works
+    MDNS.addService("http", "tcp", 80);
+    MDNS.addServiceTxt("http", "tcp", "version", ESPHOMELIB_VERSION);
+#ifdef USE_API
+  }
+#endif
+}
+
 
 ESPHOMELIB_NAMESPACE_END

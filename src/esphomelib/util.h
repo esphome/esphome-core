@@ -14,6 +14,7 @@ std::string network_get_hostname();
 /// Manually set up the network stack (outside of the App.setup() loop, for example in OTA safe mode)
 void network_setup();
 void network_tick();
+void network_setup_mdns(const std::string &hostname);
 
 ESPHOMELIB_NAMESPACE_END
 

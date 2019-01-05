@@ -33,9 +33,6 @@ void OTAComponent::setup() {
   this->server_->begin();
 
 #ifdef USE_NEW_OTA
-  MDNS.begin(network_get_hostname().c_str());
-  MDNS.enableArduino(this->port_, !this->password_.empty());
-
 #ifdef ARDUINO_ARCH_ESP32
   add_shutdown_hook([this](const char *cause) {
     this->server_->close();

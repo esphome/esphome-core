@@ -15,14 +15,7 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
-#include "esphomelib/api/api_server.h"
-
-#ifdef ARDUINO_ARCH_ESP32
-#include <ESPmDNS.h>
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-#include <ESP8266mDNS.h>
-#endif
+#include "esphomelib/util.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -55,21 +48,7 @@ void WiFiComponent::setup() {
     this->setup_ap_config();
   }
 
-  MDNS.begin(this->hostname_.c_str());
-#ifdef USE_API
-  if (api::global_api_server != nullptr) {
-    MDNS.addService("esphomelib", "tcp", api::global_api_server->get_port());
-  } else {
-#endif
-#ifdef ARDUINO_ARCH_ESP32
-    MDNS.addService("arduino", "tcp", 3232);
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-    MDNS.addService("arduino", "tcp", 8266);
-#endif
-#ifdef USE_API
-  }
-#endif
+  network_setup_mdns(this->hostname_);
 }
 
 void WiFiComponent::loop() {
