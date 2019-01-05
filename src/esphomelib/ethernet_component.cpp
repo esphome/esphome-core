@@ -11,6 +11,10 @@
 #include <lwip/dns.h>
 #include <WiFi.h>
 
+// Defined in WiFiGeneric.cpp, sets global initialized flag, starts network event task queue and calls
+// tcpip_adapter_init()
+extern void tcpipInit();
+
 ESPHOMELIB_NAMESPACE_BEGIN
 
 static const char *TAG = "ethernet";
@@ -107,10 +111,6 @@ void EthernetComponent::on_wifi_event_(system_event_id_t event, system_event_inf
 
   ESP_LOGV(TAG, "[Ethernet event] %s (num=%d)", event_name, event);
 }
-
-// Defined in WiFiGeneric.cpp, sets global initialized flag, starts network event task queue and calls
-// tcpip_adapter_init()
-extern void tcpipInit();
 
 #define ESPHL_ERROR_CHECK(err, message) \
     if (err != ESP_OK) { \
