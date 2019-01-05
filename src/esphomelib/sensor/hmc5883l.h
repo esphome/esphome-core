@@ -28,7 +28,7 @@ using HMC5883LHeadingSensor = EmptyPollingParentSensor<1, ICON_SCREEN_ROTATION, 
 
 class HMC5883LComponent : public PollingComponent, public I2CDevice {
  public:
-  HMC5883LComponent(I2CComponent *parent, uint32_t update_interval = 15000);
+  HMC5883LComponent(I2CComponent *parent, uint32_t update_interval = 60000);
 
   void setup() override;
   void dump_config() override;

@@ -35,7 +35,7 @@ enum TSL2561Gain {
 class TSL2561Sensor : public PollingSensorComponent, public I2CDevice {
  public:
   TSL2561Sensor(I2CComponent *parent, const std::string &name, uint8_t address = 0x39,
-                uint32_t update_interval = 15000);
+                uint32_t update_interval = 60000);
 
   /** Set the time that sensor values should be accumulated for.
    *

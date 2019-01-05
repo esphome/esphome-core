@@ -19,7 +19,7 @@ enum HX711Gain {
 
 class HX711Sensor : public PollingSensorComponent {
  public:
-  HX711Sensor(const std::string &name, GPIOPin *dout, GPIOPin *sck, uint32_t update_interval = 15000);
+  HX711Sensor(const std::string &name, GPIOPin *dout, GPIOPin *sck, uint32_t update_interval = 60000);
 
   void setup() override;
   void dump_config() override;
