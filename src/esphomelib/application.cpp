@@ -6,7 +6,6 @@
 #include "esphomelib/log.h"
 #include "esphomelib/espmath.h"
 #include "esphomelib/esppreferences.h"
-#include "application.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
