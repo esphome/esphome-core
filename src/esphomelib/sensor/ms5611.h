@@ -18,7 +18,7 @@ using MS5611PressureSensor = sensor::EmptyPollingParentSensor<1, ICON_GAUGE, UNI
 class MS5611Component : public PollingComponent, public I2CDevice {
  public:
   MS5611Component(I2CComponent *parent, const std::string &temperature_name, const std::string &pressure_name,
-                  uint32_t update_interval = 15000);
+                  uint32_t update_interval = 60000);
 
   void setup() override;
   void dump_config() override;

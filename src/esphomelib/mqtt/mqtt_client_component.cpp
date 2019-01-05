@@ -197,7 +197,7 @@ bool MQTTClientComponent::is_connected() {
 
 void MQTTClientComponent::check_connected() {
   if (!this->mqtt_client_.connected()) {
-    if (millis() - this->connect_begin_ > 15000) {
+    if (millis() - this->connect_begin_ > 60000) {
       this->state_ = MQTT_CLIENT_DISCONNECTED;
       this->start_dnslookup();
     }
