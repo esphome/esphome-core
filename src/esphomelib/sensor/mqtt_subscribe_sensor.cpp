@@ -20,15 +20,14 @@ MQTTSubscribeSensor::MQTTSubscribeSensor(const std::string &name, std::string to
 }
 void MQTTSubscribeSensor::setup() {
   mqtt::global_mqtt_client->subscribe(this->topic_, [this](const std::string &topic, std::string payload) {
-    char *end;
-    float value = ::strtof(payload.c_str(), &end);
-    if (end == nullptr) {
+    auto val = parse_float(payload);
+    if (!val.has_value()) {
       ESP_LOGW(TAG, "Can't convert '%s' to number!", payload.c_str());
       this->publish_state(NAN);
       return;
     }
 
-    this->publish_state(value);
+    this->publish_state(*val);
   }, this->qos_);
 }
 
@@ -39,7 +38,7 @@ void MQTTSubscribeSensor::set_qos(uint8_t qos) {
   this->qos_ = qos;
 }
 void MQTTSubscribeSensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "MQTT Subscribe Sensor '%s':", this->name_.c_str());
+  LOG_SENSOR("", "MQTT Subscribe", this);
   ESP_LOGCONFIG(TAG, "  Topic: %s", this->topic_.c_str());
 }
 

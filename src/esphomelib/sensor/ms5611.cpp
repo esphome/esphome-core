@@ -39,6 +39,8 @@ void MS5611Component::dump_config() {
     ESP_LOGE(TAG, "Communication with MS5611 failed!");
   }
   LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Pressure", this->pressure_sensor_);
 }
 float MS5611Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

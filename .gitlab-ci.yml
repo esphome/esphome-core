@@ -29,11 +29,4 @@ test-advanced:
   script:
   - |
     platformio run \
-        -e dht-dallas-sensors \
-        -e switch-binarysensor \
-        -e fan-example \
-        -e lights \
-        -e custombmp180 \
-        -e i2c-sensors \
-        -e pcf8574 \
-        -e fastled
+        -e custombmp180

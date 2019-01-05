@@ -220,7 +220,8 @@ RCSwitchTypeDReceiver::RCSwitchTypeDReceiver(const std::string &name,
   RCSwitchProtocol::type_d_code(group, device, state, &this->code_, &this->nbits_);
 }
 
-void RCSwitchDumper::dump(RemoteReceiveData *data) {
+bool RCSwitchDumper::dump(RemoteReceiveData *data) {
+  bool ret = false;
   for (uint8_t i = 1; i <= 7; i++) {
     data->reset_index();
     uint32_t out_data;
@@ -233,8 +234,11 @@ void RCSwitchDumper::dump(RemoteReceiveData *data) {
 
       buffer[out_nbits] = '\0';
       ESP_LOGD(TAG, "Received RCSwitch: protocol=%u data='%s'", i, buffer);
+      ret = true;
     }
   }
+
+  return ret;
 }
 #endif
 

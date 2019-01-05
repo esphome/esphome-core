@@ -153,6 +153,7 @@ class LightState : public Nameable, public Component {
   // (In most use cases you won't need these)
   /// Load state from preferences
   void setup() override;
+  void dump_config() override;
   void loop() override;
   /// Shortly after HARDWARE.
   float get_setup_priority() const override;
@@ -231,6 +232,8 @@ class LightOutput {
  public:
   /// Return the LightTraits of this LightOutput.
   virtual LightTraits get_traits() = 0;
+
+  virtual void setup_state(LightState *state);
 
   virtual void write_state(LightState *state) = 0;
 };

@@ -81,6 +81,11 @@ MHZ19CO2Sensor *MHZ19Component::get_co2_sensor() const {
 float MHZ19Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
+void MHZ19Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "MH-Z19:");
+  LOG_SENSOR("  ", "CO2", this->co2_sensor_);
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+}
 
 } // namespace sensor
 

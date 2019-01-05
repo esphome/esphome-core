@@ -27,7 +27,7 @@ void MQTTSubscribeTextSensor::set_qos(uint8_t qos) {
   this->qos_ = qos;
 }
 void MQTTSubscribeTextSensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "MQTT Subscribe Text Sensor '%s':", this->name_.c_str());
+  LOG_TEXT_SENSOR("", "MQTT Subscribe Text Sensor", this);
   ESP_LOGCONFIG(TAG, "  Topic: %s", this->topic_.c_str());
 }
 

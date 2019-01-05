@@ -6,16 +6,19 @@
 #ifdef USE_CUSTOM_TEXT_SENSOR
 
 #include "esphomelib/text_sensor/text_sensor.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace text_sensor {
 
-class CustomTextSensorConstructor {
+class CustomTextSensorConstructor : public Component {
  public:
   CustomTextSensorConstructor(std::function<std::vector<TextSensor *>()> init);
 
   TextSensor *get_text_sensor(int i);
+
+  void dump_config() override;
 
  protected:
   std::vector<TextSensor *> text_sensors_;

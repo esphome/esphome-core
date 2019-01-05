@@ -29,9 +29,15 @@ void TemplateSwitch::loop() {
   this->publish_state(*s);
 }
 void TemplateSwitch::write_state(bool state) {
+  if (this->prev_trigger_ != nullptr) {
+    this->prev_trigger_->stop();
+  }
+
   if (state) {
+    this->prev_trigger_ = this->turn_on_trigger_;
     this->turn_on_trigger_->trigger();
   } else {
+    this->prev_trigger_ = this->turn_off_trigger_;
     this->turn_off_trigger_->trigger();
   }
 
@@ -72,8 +78,8 @@ void TemplateSwitch::setup() {
   }
 }
 void TemplateSwitch::dump_config() {
-  ESP_LOGCONFIG(TAG, "Template Switch '%s':", this->name_.c_str());
-  LOG_SWITCH(this);
+  LOG_SWITCH("", "Template Switch", this);
+  ESP_LOGCONFIG(TAG, "  Restore State: %s", YESNO(this->restore_state_));
 }
 void TemplateSwitch::set_restore_state(bool restore_state) {
   this->restore_state_ = restore_state;

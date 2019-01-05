@@ -303,19 +303,6 @@ void DisplayBuffer::do_update() {
     (*this->writer_)(*this);
   }
 }
-const char *DisplayBuffer::rotation_str_() {
-  switch (this->rotation_) {
-    case DISPLAY_ROTATION_90_DEGREES:
-      return "90°";
-    case DISPLAY_ROTATION_180_DEGREES:
-      return "180°";
-    case DISPLAY_ROTATION_270_DEGREES:
-      return "270°";
-    case DISPLAY_ROTATION_0_DEGREES:
-    default:
-      return "0°";
-  }
-}
 #ifdef USE_TIME
 void DisplayBuffer::strftime(int x, int y, Font *font, int color, TextAlign align, const char *format,
                              time::EsphomelibTime time) {

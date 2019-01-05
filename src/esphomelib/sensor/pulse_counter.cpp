@@ -167,7 +167,7 @@ void PulseCounterSensorComponent::setup() {
 }
 
 void PulseCounterSensorComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "Pulse Counter '%s':", this->name_.c_str());
+  LOG_SENSOR("", "Pulse Counter", this);
   LOG_PIN("  Pin: ", this->pin_);
   ESP_LOGCONFIG(TAG, "  Rising Edge: %s", EDGE_MODE_TO_STRING[this->rising_edge_mode_]);
   ESP_LOGCONFIG(TAG, "  Falling Edge: %s", EDGE_MODE_TO_STRING[this->falling_edge_mode_]);

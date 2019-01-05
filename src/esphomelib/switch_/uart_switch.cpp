@@ -27,6 +27,9 @@ void UARTSwitch::write_state(bool state) {
   this->write_array(this->data_.data(), this->data_.size());
   this->publish_state(false);
 }
+void UARTSwitch::dump_config() {
+  LOG_SWITCH("", "UART Switch", this);
+}
 
 } // namespace switch_
 

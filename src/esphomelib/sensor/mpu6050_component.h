@@ -19,7 +19,7 @@ using MPU6050TemperatureSensor = EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>
 
 class MPU6050Component : public PollingComponent, public I2CDevice {
  public:
-  explicit MPU6050Component(I2CComponent *parent, uint8_t address = 0x68, uint32_t update_interval = 15000);
+  explicit MPU6050Component(I2CComponent *parent, uint8_t address = 0x68, uint32_t update_interval = 60000);
 
   void setup() override;
   void dump_config() override;

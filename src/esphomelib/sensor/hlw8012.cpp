@@ -39,6 +39,9 @@ void HLW8012Component::dump_config() {
   ESP_LOGCONFIG(TAG, "  Current resistor: %.1f mΩ", this->current_resistor_ * 1000.0f);
   ESP_LOGCONFIG(TAG, "  Voltage Divider: %.1f", this->voltage_divider_);
   LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Voltage", this->voltage_sensor_);
+  LOG_SENSOR("  ", "Current", this->current_sensor_);
+  LOG_SENSOR("  ", "Power", this->power_sensor_);
 }
 float HLW8012Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

@@ -68,6 +68,9 @@ void Switch::set_inverted(bool inverted) {
 uint32_t Switch::hash_base_() {
   return 3129890955UL;
 }
+bool Switch::is_inverted() const {
+  return this->inverted_;
+}
 
 } // namespace switch_
 

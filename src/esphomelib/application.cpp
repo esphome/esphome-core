@@ -564,7 +564,7 @@ Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const
 
 #ifdef USE_RESTART_SWITCH
 Application::MakeRestartSwitch Application::make_restart_switch(const std::string &friendly_name) {
-  auto *switch_ = new RestartSwitch(friendly_name); // not a component
+  auto *switch_ = this->register_component(new RestartSwitch(friendly_name));
   return MakeRestartSwitch{
       .restart = switch_,
       .mqtt = this->register_switch(switch_),
@@ -574,7 +574,7 @@ Application::MakeRestartSwitch Application::make_restart_switch(const std::strin
 
 #ifdef USE_SHUTDOWN_SWITCH
 Application::MakeShutdownSwitch Application::make_shutdown_switch(const std::string &friendly_name) {
-  auto *switch_ = new ShutdownSwitch(friendly_name);
+  auto *switch_ = this->register_component(new ShutdownSwitch(friendly_name));
   return MakeShutdownSwitch{
       .shutdown = switch_,
       .mqtt = this->register_switch(switch_),
@@ -1237,7 +1237,7 @@ Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_s
 #ifdef USE_HOMEASSISTANT_TEXT_SENSOR
 Application::MakeHomeassistantTextSensor Application::make_homeassistant_text_sensor(const std::string &name,
                                                                                      std::string entity_id) {
-  auto *sensor = new HomeassistantTextSensor(name, std::move(entity_id));
+  auto *sensor = this->register_component(new HomeassistantTextSensor(name, std::move(entity_id)));
   return MakeHomeassistantTextSensor {
       .sensor = sensor,
       .mqtt = this->register_text_sensor(sensor),
@@ -1269,7 +1269,7 @@ Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(con
 #ifdef USE_HOMEASSISTANT_SENSOR
 Application::MakeHomeassistantSensor Application::make_homeassistant_sensor(const std::string &name,
                                                                                      std::string entity_id) {
-  auto *sensor = new sensor::HomeassistantSensor(name, std::move(entity_id));
+  auto *sensor = this->register_component(new HomeassistantSensor(name, std::move(entity_id)));
 
   return MakeHomeassistantSensor {
       .sensor = sensor,
@@ -1345,6 +1345,30 @@ api::APIServer *Application::init_api_server() {
   this->register_component(server);
   this->register_controller(server);
   return server;
+}
+#endif
+
+#ifdef USE_CUSTOM_BINARY_SENSOR
+binary_sensor::CustomBinarySensorConstructor *Application::make_custom_binary_sensor(const std::function<std::vector<BinarySensor *>()> &init) {
+  return this->register_component(new CustomBinarySensorConstructor(init));
+}
+#endif
+
+#ifdef USE_CUSTOM_SENSOR
+sensor::CustomSensorConstructor *Application::make_custom_sensor(const std::function<std::vector<Sensor *>()> &init) {
+  return this->register_component(new CustomSensorConstructor(init));
+}
+#endif
+
+#ifdef USE_CUSTOM_SWITCH
+switch_::CustomSwitchConstructor *Application::make_custom_switch(const std::function<std::vector<Switch *>()> &init) {
+  return this->register_component(new CustomSwitchConstructor(init));
+}
+#endif
+
+#ifdef USE_APDS9960
+sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
+  return this->register_component(new APDS9960(this->i2c_, update_interval));
 }
 #endif
 

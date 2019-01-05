@@ -38,9 +38,8 @@ class APIConnection {
   void disconnect_client_();
   bool send_buffer(APIMessageType type, APIBuffer &buf);
   template<typename T>
-  bool send_buffer(T func, APIMessageType type);
-  bool send_message(APIMessage &msg);
-  bool send_message_resize(APIMessage &msg);
+  bool send_buffer(T func, APIMessageType type, bool resize = true);
+  bool send_message(APIMessage &msg, bool resize = true);
   bool send_empty_message(APIMessageType type);
   void loop();
 
@@ -156,6 +155,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
   bool uses_password() const;
   void set_port(uint16_t port);
   void set_password(const std::string &password);
+  void set_reboot_timeout(uint32_t reboot_timeout);
   void handle_disconnect(APIConnection *conn);
 #ifdef USE_BINARY_SENSOR
   void on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool state) override;
@@ -193,6 +193,8 @@ class APIServer : public Component, public StoringUpdateListenerController {
  protected:
   AsyncServer server_{0};
   uint16_t port_{6053};
+  uint32_t reboot_timeout_{300000};
+  uint32_t last_connected_{0};
   std::vector<APIConnection *> clients_;
   std::string password_;
   std::vector<HomeAssistantStateSubscription> state_subs_;
@@ -242,10 +244,16 @@ void HomeAssistantServiceCallAction<T>::play(T x) {
 }
 
 template<typename T>
-bool APIConnection::send_buffer(T func, APIMessageType type) {
-  APIBuffer buf(this->buffer_, this->buffer_size_);
-  func(buf);
-  return this->send_buffer(type, buf);
+bool APIConnection::send_buffer(T func, APIMessageType type, bool resize) {
+  while (true) {
+    APIBuffer buf(this->buffer_, this->buffer_size_);
+    func(buf);
+    if (buf.get_overflow() && resize) {
+      this->resize_buffer_();
+    } else {
+      return this->send_buffer(type, buf);
+    }
+  }
 }
 
 } // namespace api

@@ -12,9 +12,12 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
 
-class HomeassistantSensor : public Sensor {
+class HomeassistantSensor : public Sensor, public Component {
  public:
   HomeassistantSensor(const std::string &name, const std::string &entity_id);
+  void setup() override;
+  void dump_config() override;
+  float get_setup_priority() const override;
  protected:
   std::string entity_id_;
 };

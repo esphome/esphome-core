@@ -92,7 +92,7 @@ bool ListEntitiesIterator::on_sensor(sensor::Sensor *sensor) {
     // string unit_of_measurement = 6;
     buffer.encode_string(6, sensor->get_unit_of_measurement());
     // int32 accuracy_decimals = 7;
-    buffer.encode_sint32(7, sensor->get_accuracy_decimals());
+    buffer.encode_uint32(7, sensor->get_accuracy_decimals());
   }, APIMessageType::LIST_ENTITIES_SENSOR_RESPONSE);
 }
 #endif

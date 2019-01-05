@@ -23,6 +23,7 @@ class OutputSwitch : public Switch, public Component {
 
   void setup() override;
   float get_setup_priority() const override;
+  void dump_config() override;
  protected:
   void write_state(bool state) override;
 

@@ -11,11 +11,14 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace switch_ {
 
 /// A simple switch that restarts the device when triggered.
-class RestartSwitch : public Switch {
+class RestartSwitch : public Switch, public Component {
  public:
   explicit RestartSwitch(const std::string &name);
 
   std::string icon() override;
+
+  void dump_config() override;
+
  protected:
   void write_state(bool state) override;
 };

@@ -73,9 +73,9 @@ namespace display {
 
 enum DisplayRotation {
   DISPLAY_ROTATION_0_DEGREES = 0,
-  DISPLAY_ROTATION_90_DEGREES,
-  DISPLAY_ROTATION_180_DEGREES,
-  DISPLAY_ROTATION_270_DEGREES,
+  DISPLAY_ROTATION_90_DEGREES = 90,
+  DISPLAY_ROTATION_180_DEGREES = 180,
+  DISPLAY_ROTATION_270_DEGREES = 270,
 };
 
 class Font;
@@ -83,6 +83,13 @@ class Image;
 class DisplayBuffer;
 
 using display_writer_t = std::function<void(DisplayBuffer &)>;
+
+#define LOG_DISPLAY(prefix, type, obj) \
+    if (obj != nullptr) { \
+      ESP_LOGCONFIG(TAG, prefix type); \
+      ESP_LOGCONFIG(TAG, prefix "  Rotations: %d °", obj->rotation_); \
+      ESP_LOGCONFIG(TAG, prefix "  Dimensions: %dpx x %dpx", obj->get_width(), obj->get_height()); \
+    }
 
 class DisplayBuffer {
  public:
@@ -286,8 +293,6 @@ class DisplayBuffer {
   void init_internal_(uint32_t buffer_length);
 
   void do_update();
-
-  const char *rotation_str_();
 
   uint8_t *buffer_{nullptr};
   DisplayRotation rotation_{DISPLAY_ROTATION_0_DEGREES};

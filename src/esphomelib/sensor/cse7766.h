@@ -20,7 +20,7 @@ using CSE7766PowerSensor = EmptySensor<1, ICON_FLASH, UNIT_W>;
 
 class CSE7766Component : public PollingComponent, public UARTDevice {
  public:
-  CSE7766Component(UARTComponent *parent, uint32_t update_interval = 15000);
+  CSE7766Component(UARTComponent *parent, uint32_t update_interval = 60000);
 
   CSE7766VoltageSensor *make_voltage_sensor(const std::string &name);
 

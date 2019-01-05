@@ -5,10 +5,13 @@
 #include "esphomelib/binary_sensor/status_binary_sensor.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/wifi_component.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
+
+static const char *TAG = "binary_sensor.status";
 
 std::string StatusBinarySensor::device_class() {
   return "connectivity";
@@ -38,6 +41,9 @@ float StatusBinarySensor::get_setup_priority() const {
 }
 bool StatusBinarySensor::is_status_binary_sensor() const {
   return true;
+}
+void StatusBinarySensor::dump_config() {
+  LOG_BINARY_SENSOR("", "Status Binary Sensor", this);
 }
 
 } // namespace binary_sensor

@@ -26,7 +26,7 @@ namespace sensor {
 class ADCSensorComponent : public PollingSensorComponent {
  public:
   /// Construct the ADCSensor with the provided pin and update interval in ms.
-  explicit ADCSensorComponent(const std::string &name, GPIOInputPin pin, uint32_t update_interval = 15000);
+  explicit ADCSensorComponent(const std::string &name, GPIOInputPin pin, uint32_t update_interval = 60000);
 
 #ifdef ARDUINO_ARCH_ESP32
   /// Set the attenuation for this pin. Only available on the ESP32.

@@ -11,11 +11,13 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace switch_ {
 
 /// A simple switch that will put the node into deep sleep indefinitely.
-class ShutdownSwitch : public Switch {
+class ShutdownSwitch : public Switch, public Component {
  public:
   explicit ShutdownSwitch(const std::string &name);
 
   std::string icon() override;
+
+  void dump_config() override;
  protected:
   void write_state(bool state) override;
 };

@@ -170,7 +170,7 @@ void WaveshareEPaperTypeA::setup() {
   this->data(0x03); // from top left to bottom right
 }
 void WaveshareEPaperTypeA::dump_config() {
-  ESP_LOGCONFIG(TAG, "Waveshare E-Paper:");
+  LOG_DISPLAY("", "Waveshare E-Paper", this);
   switch (this->model_) {
     case WAVESHARE_EPAPER_1_54_IN:
       ESP_LOGCONFIG(TAG, "  Model: 1.54in");
@@ -183,7 +183,6 @@ void WaveshareEPaperTypeA::dump_config() {
       break;
   }
   ESP_LOGCONFIG(TAG, "  Full Update Every: %u", this->full_update_every_);
-  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
   LOG_PIN("  DC Pin: ", this->dc_pin_);
   LOG_PIN("  Busy Pin: ", this->busy_pin_);
@@ -457,9 +456,8 @@ int WaveshareEPaper2P7In::get_height_internal_() {
 WaveshareEPaper2P7In::WaveshareEPaper2P7In(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : WaveshareEPaper(parent, cs, dc_pin, update_interval) {}
 void WaveshareEPaper2P7In::dump_config() {
-  ESP_LOGCONFIG(TAG, "Waveshare E-Paper:");
+  LOG_DISPLAY("", "Waveshare E-Paper", this);
   ESP_LOGCONFIG(TAG, "  Model: 2.7in");
-  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
   LOG_PIN("  DC Pin: ", this->dc_pin_);
   LOG_PIN("  Busy Pin: ", this->busy_pin_);
@@ -590,9 +588,8 @@ int WaveshareEPaper4P2In::get_height_internal_() {
 WaveshareEPaper4P2In::WaveshareEPaper4P2In(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : WaveshareEPaper(parent, cs, dc_pin, update_interval) {}
 void WaveshareEPaper4P2In::dump_config() {
-  ESP_LOGCONFIG(TAG, "Waveshare E-Paper:");
+  LOG_DISPLAY("", "Waveshare E-Paper", this);
   ESP_LOGCONFIG(TAG, "  Model: 4.2in");
-  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
   LOG_PIN("  DC Pin: ", this->dc_pin_);
   LOG_PIN("  Busy Pin: ", this->busy_pin_);
@@ -678,9 +675,8 @@ int WaveshareEPaper7P5In::get_height_internal_() {
 WaveshareEPaper7P5In::WaveshareEPaper7P5In(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : WaveshareEPaper(parent, cs, dc_pin, update_interval) {}
 void WaveshareEPaper7P5In::dump_config() {
-  ESP_LOGCONFIG(TAG, "Waveshare E-Paper:");
+  LOG_DISPLAY("", "Waveshare E-Paper", this);
   ESP_LOGCONFIG(TAG, "  Model: 7.5in");
-  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
   LOG_PIN("  DC Pin: ", this->dc_pin_);
   LOG_PIN("  Busy Pin: ", this->busy_pin_);

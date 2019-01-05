@@ -57,6 +57,13 @@ void TCS34725Component::dump_config() {
     ESP_LOGE(TAG, "Communication with TCS34725 failed!");
   }
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "Clear Channel", this->clear_sensor_);
+  LOG_SENSOR("  ", "Red Channel", this->red_sensor_);
+  LOG_SENSOR("  ", "Green Channel", this->green_sensor_);
+  LOG_SENSOR("  ", "Blue Channel", this->blue_sensor_);
+  LOG_SENSOR("  ", "Illuminance", this->illuminance_sensor_);
+  LOG_SENSOR("  ", "Color Temperature", this->color_temperature_sensor_);
 }
 float TCS34725Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

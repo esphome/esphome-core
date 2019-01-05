@@ -32,6 +32,14 @@ struct MultiClickTriggerEvent {
   uint32_t max_length;
 };
 
+#define LOG_BINARY_SENSOR(prefix, type, obj) \
+    if (obj != nullptr) { \
+      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+      if (!obj->get_device_class().empty()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Device Class: '%s'", obj->get_device_class().c_str()); \
+      } \
+    }
+
 /** Base class for all binary_sensor-type classes.
  *
  * This class includes a callback that components such as MQTT can subscribe to for state changes.

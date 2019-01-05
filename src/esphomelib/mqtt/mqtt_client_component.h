@@ -262,7 +262,7 @@ class MQTTClientComponent : public Component {
   /// The discovery info options for Home Assistant. Undefined optional means
   /// default and empty prefix means disabled.
   MQTTDiscoveryInfo discovery_info_{
-      .prefix = "api",
+      .prefix = "homeassistant",
       .retain = true
   };
   std::string topic_prefix_{};

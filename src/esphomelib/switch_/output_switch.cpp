@@ -3,12 +3,13 @@
 #ifdef USE_OUTPUT_SWITCH
 
 #include "esphomelib/switch_/output_switch.h"
-
 #include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
+
+static const char *TAG = "switch.output";
 
 OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output)
     : Switch(name), output_(output) {
@@ -35,6 +36,9 @@ void OutputSwitch::setup() {
 }
 float OutputSwitch::get_setup_priority() const {
   return setup_priority::HARDWARE;
+}
+void OutputSwitch::dump_config() {
+  LOG_SWITCH("", "Output Switch", this);
 }
 
 } // namespace switch_

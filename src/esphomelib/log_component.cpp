@@ -57,9 +57,14 @@ void LogComponent::pre_setup() {
   global_log_component = this;
 #ifdef ARDUINO_ARCH_ESP32
   esp_log_set_vprintf(esp_idf_log_vprintf_);
-  esp_log_level_t log_level;
   if (this->global_log_level_ >= ESPHOMELIB_LOG_LEVEL_VERBOSE) {
     esp_log_level_set("*", ESP_LOG_VERBOSE);
+  }
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  if (this->global_log_level_ >= ESPHOMELIB_LOG_LEVEL_VERBOSE) {
+    if (this->baud_rate_ > 0)
+      Serial.setDebugOutput(true);
   }
 #endif
 

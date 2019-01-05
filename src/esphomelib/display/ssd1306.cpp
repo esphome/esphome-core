@@ -252,13 +252,12 @@ void SPISSD1306::setup() {
   SSD1306::setup();
 }
 void SPISSD1306::dump_config() {
-  ESP_LOGCONFIG(TAG, "SPI SSD1306:");
+  LOG_DISPLAY("", "SPI SSD1306", this);
   ESP_LOGCONFIG(TAG, "  Model: %s", this->model_str_());
   LOG_PIN("  CS Pin: ", this->cs_);
   LOG_PIN("  DC Pin: ", this->dc_pin_);
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
   ESP_LOGCONFIG(TAG, "  External VCC: %s", YESNO(this->external_vcc_));
-  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
   LOG_UPDATE_INTERVAL(this);
 }
 void SPISSD1306::command(uint8_t value) {
@@ -312,12 +311,11 @@ void I2CSSD1306::setup() {
   SSD1306::setup();
 }
 void I2CSSD1306::dump_config() {
-  ESP_LOGCONFIG(TAG, "I2C SSD1306:");
+  LOG_DISPLAY("", "I2C SSD1306", this);
   LOG_I2C_DEVICE(this);
   ESP_LOGCONFIG(TAG, "  Model: %s", this->model_str_());
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
   ESP_LOGCONFIG(TAG, "  External VCC: %s", YESNO(this->external_vcc_));
-  ESP_LOGCONFIG(TAG, "  Rotation: %s", this->rotation_str_());
   LOG_UPDATE_INTERVAL(this);
 
   if (this->error_code_ == COMMUNICATION_FAILED) {

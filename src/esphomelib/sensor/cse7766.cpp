@@ -181,6 +181,9 @@ CSE7766PowerSensor *CSE7766Component::make_power_sensor(const std::string &name)
 void CSE7766Component::dump_config() {
   ESP_LOGCONFIG(TAG, "CSE7766:");
   LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Voltage", this->voltage_);
+  LOG_SENSOR("  ", "Current", this->current_);
+  LOG_SENSOR("  ", "Power", this->power_);
 }
 
 } // namespace sensor

@@ -123,8 +123,8 @@ bool RCSwitchProtocol::expect_sync(RemoteReceiveData *data) const {
   return true;
 }
 bool RCSwitchProtocol::decode(RemoteReceiveData *data, uint32_t *out_data, uint8_t *out_nbits) const {
-  if (!this->expect_sync(data))
-    return false;
+  // ignore if sync doesn't exist
+  this->expect_sync(data);
 
   *out_data = 0;
   for (*out_nbits = 1; *out_nbits < 32; *out_nbits += 1) {

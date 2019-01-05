@@ -84,8 +84,8 @@ void ESP32TouchComponent::dump_config() {
   }
 
   for (auto *child : this->children_) {
-    ESP_LOGCONFIG(TAG, "  Pad '%s'", child->get_name().c_str());
-    ESP_LOGCONFIG(TAG, "    Touch Pad: T%d", child->get_touch_pad());
+    LOG_BINARY_SENSOR("  ", "Touch Pad", child);
+    ESP_LOGCONFIG(TAG, "    Pad: T%d", child->get_touch_pad());
     ESP_LOGCONFIG(TAG, "    Threshold: %u", child->get_threshold());
   }
 }
