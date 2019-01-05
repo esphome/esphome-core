@@ -6,6 +6,7 @@
 #include "esphomelib/api/basic_messages.h"
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
+#include "esphomelib/util.h"
 #include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/time/homeassistant_time.h"
 
@@ -69,7 +70,7 @@ void APIServer::loop() {
 }
 void APIServer::dump_config() {
   ESP_LOGCONFIG(TAG, "API Server:");
-  ESP_LOGCONFIG(TAG, "  Address: %s:%u", WiFi.localIP().toString().c_str(), this->port_);
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().toString().c_str(), this->port_);
 }
 bool APIServer::uses_password() const {
   return !this->password_.empty();

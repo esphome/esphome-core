@@ -2,8 +2,8 @@
 
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
+#include "esphomelib/util.h"
 #include "esphomelib/log_component.h"
-#include "esphomelib/wifi_component.h"
 #include "lwip/err.h"
 #include "lwip/dns.h"
 
@@ -164,11 +164,11 @@ void MQTTClientComponent::dns_found_callback_(const char *name, const ip_addr_t 
 }
 
 void MQTTClientComponent::start_connect() {
-  if (!global_wifi_component->is_connected())
+  if (!network_is_connected())
     return;
 
   ESP_LOGI(TAG, "Connecting to MQTT...");
-  // Force disconnect_client_ first
+  // Force disconnect first
   this->mqtt_client_.disconnect(true);
 
   this->mqtt_client_.setClientId(this->credentials_.client_id.c_str());
@@ -251,7 +251,7 @@ void MQTTClientComponent::loop() {
         reason_s = "Unknown";
         break;
     }
-    if (!global_wifi_component->is_connected()) {
+    if (!network_is_connected()) {
       reason_s = "WiFi disconnected";
     }
     ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
