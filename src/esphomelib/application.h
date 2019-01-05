@@ -77,6 +77,7 @@
 #include "esphomelib/remote/sony.h"
 #include "esphomelib/sensor/adc.h"
 #include "esphomelib/sensor/ads1115_component.h"
+#include "esphomelib/sensor/apds9960.h"
 #include "esphomelib/sensor/bh1750_sensor.h"
 #include "esphomelib/sensor/bme280_component.h"
 #include "esphomelib/sensor/bme680_component.h"
@@ -1011,6 +1012,10 @@ class Application {
 
   MakeTotalDailyEnergySensor make_total_daily_energy_sensor(const std::string &name, time::RealTimeClockComponent *time,
       sensor::Sensor *parent);
+#endif
+
+#ifdef USE_APDS9960
+  sensor::APDS9960 *make_apds9960(uint32_t update_interval = 60000);
 #endif
 
 
