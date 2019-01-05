@@ -1198,8 +1198,8 @@ class Application {
 #endif
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
-  template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbFeature>
-  struct MakeNeoPixelBusRGBLight {
+  template<typename T_METHOD, typename T_COLOR_FEATURE>
+  struct MakeNeoPixelBusLight {
     light::NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE> *output;
     light::LightState *state;
     light::MQTTJSONLightComponent *mqtt;
@@ -1207,18 +1207,11 @@ class Application {
 
   /// Create an RGB NeoPixelBus light.
   template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbFeature>
-  MakeNeoPixelBusRGBLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgb_light(const std::string &name);
-
-  template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbwFeature>
-  struct MakeNeoPixelBusRGBWLight {
-    light::NeoPixelRGBWLightOutput<T_METHOD, T_COLOR_FEATURE> *output;
-    light::LightState *state;
-    light::MQTTJSONLightComponent *mqtt;
-  };
+  MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgb_light(const std::string &name);
 
   /// Create an RGBW NeoPixelBus light.
   template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbwFeature>
-  MakeNeoPixelBusRGBWLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgbw_light(const std::string &name);
+  MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgbw_light(const std::string &name);
 #endif
 
 
@@ -1516,22 +1509,22 @@ GlobalVariableComponent<T> *Application::make_global_variable(T initial_value) {
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-Application::MakeNeoPixelBusRGBLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgb_light(const std::string &name) {
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgb_light(const std::string &name) {
   auto *neo_pixel = this->register_component(new light::NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE>());
   auto make = this->make_light_for_light_output(name, neo_pixel);
 
-  return MakeNeoPixelBusRGBLight<T_METHOD, T_COLOR_FEATURE> {
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
       .output = neo_pixel,
       .state = make.state,
       .mqtt = make.mqtt,
   };
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-Application::MakeNeoPixelBusRGBWLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgbw_light(const std::string &name) {
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgbw_light(const std::string &name) {
   auto *neo_pixel = this->register_component(new light::NeoPixelRGBWLightOutput<T_METHOD, T_COLOR_FEATURE>());
   auto make = this->make_light_for_light_output(name, neo_pixel);
 
-  return MakeNeoPixelBusRGBWLight<T_METHOD, T_COLOR_FEATURE> {
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
       .output = neo_pixel,
       .state = make.state,
       .mqtt = make.mqtt,
