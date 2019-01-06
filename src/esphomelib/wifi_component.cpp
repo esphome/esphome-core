@@ -1429,6 +1429,9 @@ IPAddress WiFiComponent::wifi_soft_ap_ip_() {
 void WiFiAP::set_ssid(const std::string &ssid) {
   this->ssid_ = ssid;
 }
+void WiFiAP::set_bssid(bssid_t bssid) {
+  this->bssid_ = bssid;
+}
 void WiFiAP::set_bssid(optional<bssid_t> bssid) {
   this->bssid_ = bssid;
 }

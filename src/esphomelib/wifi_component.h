@@ -56,6 +56,7 @@ using bssid_t = std::array<uint8_t, 6>;
 class WiFiAP {
  public:
   void set_ssid(const std::string &ssid);
+  void set_bssid(bssid_t bssid);
   void set_bssid(optional<bssid_t> bssid);
   void set_password(const std::string &password);
   void set_channel(optional<uint8_t> channel);
