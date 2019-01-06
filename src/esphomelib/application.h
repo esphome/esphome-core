@@ -1200,7 +1200,7 @@ class Application {
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
   template<typename T_METHOD, typename T_COLOR_FEATURE>
   struct MakeNeoPixelBusLight {
-    light::NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE> *output;
+    light::NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE> *output;
     light::LightState *state;
     light::MQTTJSONLightComponent *mqtt;
   };

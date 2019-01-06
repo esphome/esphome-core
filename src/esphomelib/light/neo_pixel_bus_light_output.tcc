@@ -9,24 +9,24 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
 
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::schedule_show() {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::schedule_show() {
   this->next_show_ = true;
 }
 
 #ifdef USE_OUTPUT
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::set_power_supply(PowerSupplyComponent *power_supply) {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::set_power_supply(PowerSupplyComponent *power_supply) {
   this->power_supply_ = power_supply;
 }
 #endif
 
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::get_controller_() const {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::get_controller_() const {
   return this->controller_;
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::set_correction(float red,
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::set_correction(float red,
                                                                            float green,
                                                                            float blue,
                                                                            float white) {
@@ -37,36 +37,36 @@ void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::set_correction(float
       uint8_t(roundf(white * 255.0f))
   ));
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::clear_effect_data() {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::clear_effect_data() {
   for (int i = 0; i < this->size(); i++)
     this->effect_data_[i] = 0;
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::setup_state(LightState *state) {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup_state(LightState *state) {
   this->correction_.calculate_gamma_table(state->get_gamma_correct());
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::add_leds(uint16_t count_pixels, uint8_t pin) {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(uint16_t count_pixels, uint8_t pin) {
   this->add_leds(new NeoPixelBus<T_COLOR_FEATURE, T_METHOD>(count_pixels, pin));
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::add_leds(uint16_t count_pixels,
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(uint16_t count_pixels,
                                                                      uint8_t pin_clock,
                                                                      uint8_t pin_data) {
   this->add_leds(new NeoPixelBus<T_COLOR_FEATURE, T_METHOD>(count_pixels, pin_clock, pin_data));
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::add_leds(uint16_t count_pixels) {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(uint16_t count_pixels) {
   this->add_leds(new NeoPixelBus<T_COLOR_FEATURE, T_METHOD>(count_pixels));
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::add_leds(NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller) {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller) {
   this->controller_ = controller;
   this->controller_->Begin();
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::write_state(LightState *state) {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightState *state) {
   LightColorValues value = state->get_current_values();
   uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
   this->correction_.set_max_brightness(max_brightness);
@@ -89,16 +89,16 @@ void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::write_state(LightSta
 
   this->schedule_show();
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::setup() {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
   for (int i = 0; i < this->size(); i++) {
     (*this)[i] = ESPColor(0, 0, 0, 0);
   }
 
   this->effect_data_ = new uint8_t[this->size()];
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::loop() {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
   if (!this->next_show_ && !this->is_effect_active())
     return;
 
@@ -128,17 +128,17 @@ void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::loop() {
 
   this->controller_->Show();
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-float NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::get_setup_priority() const {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+float NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-int32_t NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::size() const {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+int32_t NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::size() const {
   return this->controller_->PixelCount();
 }
 
-template<typename T_COLOR_FEATURE, typename T_METHOD>
-void NeoPixelBusLightOutputBase<T_COLOR_FEATURE, T_METHOD>::set_pixel_order(ESPNeoPixelOrder order) {
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::set_pixel_order(ESPNeoPixelOrder order) {
   uint8_t order_ = static_cast<uint8_t>(order);
   this->rgb_offsets_[0] = (order_ >> 6) & 0b11;
   this->rgb_offsets_[1] = (order_ >> 4) & 0b11;
