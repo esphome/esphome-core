@@ -42,15 +42,15 @@ void BasicFanComponent::setup() {
 }
 void BasicFanComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Fan '%s':", this->state_->get_name().c_str());
-  if (this->oscillating_output_ != nullptr) {
+  if (this->state_->get_traits().supports_oscillation()) {
     ESP_LOGCONFIG(TAG, "  Oscillation: YES");
   }
-  if (this->binary_output_ == nullptr) {
-    ESP_LOGCONFIG(TAG, "  Mode: Binary");
-  } else {
+  if (this->state_->get_traits().supports_speed()) {
     ESP_LOGCONFIG(TAG, "  Mode: Speed");
     ESP_LOGCONFIG(TAG, "  Speeds: Low=%.0f%% Medium=%.0f%% High=%.0f%%",
-        this->low_speed_ * 100.0f, this->medium_speed_ * 100.0f, this->high_speed_ * 100.0f);
+                  this->low_speed_ * 100.0f, this->medium_speed_ * 100.0f, this->high_speed_ * 100.0f);
+  } else {
+    ESP_LOGCONFIG(TAG, "  Mode: Binary");
   }
 }
 void BasicFanComponent::loop() {
@@ -84,9 +84,9 @@ void BasicFanComponent::loop() {
   if (this->state_->get_traits().supports_oscillation()) {
     bool enable = this->state_->oscillating;
     if (enable) {
-      this->binary_output_->turn_on();
+      this->oscillating_output_->turn_on();
     } else {
-      this->binary_output_->turn_off();
+      this->oscillating_output_->turn_off();
     }
     ESP_LOGD(TAG, "Setting oscillation: %d", int(enable));
   }

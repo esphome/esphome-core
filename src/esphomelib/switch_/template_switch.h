@@ -38,6 +38,7 @@ class TemplateSwitch : public Switch, public Component {
   optional<bool> last_state_{};
   Trigger<NoArg> *turn_on_trigger_;
   Trigger<NoArg> *turn_off_trigger_;
+  Trigger<NoArg> *prev_trigger_{nullptr};
   bool restore_state_{true};
 };
 

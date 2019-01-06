@@ -3,10 +3,13 @@
 #ifdef USE_TEMPLATE_BINARY_SENSOR
 
 #include "esphomelib/binary_sensor/template_binary_sensor.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
+
+static const char *TAG = "binary_sensor.template";
 
 TemplateBinarySensor::TemplateBinarySensor(const std::string &name)
     : BinarySensor(name) {
@@ -28,6 +31,9 @@ float TemplateBinarySensor::get_setup_priority() const {
 }
 void TemplateBinarySensor::set_template(std::function<optional<bool>()> &&f) {
   this->f_ = std::move(f);
+}
+void TemplateBinarySensor::dump_config() {
+  LOG_BINARY_SENSOR("", "Template Binary Sensor", this);
 }
 
 } // namespace binary_sensor

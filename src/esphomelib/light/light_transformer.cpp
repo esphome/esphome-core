@@ -24,7 +24,16 @@ const LightColorValues &LightTransformer::get_target_values() const {
 LightTransformer::LightTransformer(uint32_t start_time, uint32_t length,
                                    const LightColorValues &start_values,
                                    const LightColorValues &target_values) : start_time_(
-    start_time), length_(length), start_values_(start_values), target_values_(target_values) {}
+    start_time), length_(length), start_values_(start_values), target_values_(target_values) {
+  // When turning light on from off state, use colors from new.
+  if (!this->start_values_.is_on() && this->target_values_.is_on()) {
+    this->start_values_.set_red(target_values.get_red());
+    this->start_values_.set_green(target_values.get_green());
+    this->start_values_.set_blue(target_values.get_blue());
+    this->start_values_.set_white(target_values.get_white());
+    this->start_values_.set_color_temperature(target_values.get_color_temperature());
+  }
+}
 
 bool LightTransformer::is_finished() {
   return this->get_progress() >= 1.0f;

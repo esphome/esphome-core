@@ -2,22 +2,22 @@
 #include <esphomelib/light/light_effect.h>
 
 using namespace esphomelib;
+using namespace esphomelib::light;
 
 /// Custom FastLED effect - Note: this will only work with FastLED lights
-class CustomLightEffect : public light::BaseFastLEDLightEffect {
+class CustomLightEffect : public AddressableLightEffect {
  public:
-  CustomLightEffect(const std::string &name) : BaseFastLEDLightEffect(name) {}
+  CustomLightEffect(const std::string &name) : AddressableLightEffect(name) {}
 
-  void apply(light::FastLEDLightOutputComponent &fastled, uint8_t brightness, CRGB rgb) override {
-    CHSV hsv;
-    hsv.val = 255; // brightness
-    hsv.sat = 240; // saturation
+  void apply(AddressableLight &it, const ESPColor &current_color) override {
+    ESPHSVColor hsv;
+    hsv.value = 255; // brightness
+    hsv.saturation = 240; // saturation
     hsv.hue = millis() / 70;
-    for (CRGB &led : fastled) {
-      led = hsv;
+    for (int i = 0; i < it.size(); i++) {
+      it[i] = hsv;
       hsv.hue += 10;
     }
-    fastled.schedule_show();
   }
 };
 

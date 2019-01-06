@@ -3,10 +3,13 @@
 #ifdef USE_TEMPLATE_COVER
 
 #include "esphomelib/cover/template_cover.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace cover {
+
+static const char *TAG = "cover.template";
 
 TemplateCover::TemplateCover(const std::string &name)
     : Cover(name), open_trigger_(new Trigger<NoArg>()), close_trigger_(new Trigger<NoArg>),
@@ -14,11 +17,16 @@ TemplateCover::TemplateCover(const std::string &name)
 
 }
 void TemplateCover::loop() {
-  if (this->f_.has_value()) {
-    auto s = (*this->f_)();
-    if (s.has_value())
-      this->publish_state(*s);
-  }
+  if (!this->f_.has_value())
+    return;
+  auto s = (*this->f_)();
+  if (!s.has_value())
+    return;
+  if (this->last_state_.has_value() && *this->last_state_ == *s)
+    return;
+
+  this->publish_state(*s);
+  this->last_state_ = *s;
 }
 void TemplateCover::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
@@ -42,24 +50,33 @@ Trigger<NoArg> *TemplateCover::get_stop_trigger() const {
   return this->stop_trigger_;
 }
 void TemplateCover::write_command(CoverCommand command) {
+  if (this->prev_trigger_ != nullptr) {
+    this->prev_trigger_->stop();
+  }
   switch (command) {
     case COVER_COMMAND_OPEN: {
       if (this->optimistic_)
         this->publish_state(COVER_OPEN);
+      this->prev_trigger_ = this->open_trigger_;
       this->open_trigger_->trigger();
       break;
     }
     case COVER_COMMAND_CLOSE: {
       if (this->optimistic_)
         this->publish_state(COVER_CLOSED);
+      this->prev_trigger_ = this->close_trigger_;
       this->close_trigger_->trigger();
       break;
     }
     case COVER_COMMAND_STOP: {
+      this->prev_trigger_ = this->stop_trigger_;
       this->stop_trigger_->trigger();
       break;
     }
   }
+}
+void TemplateCover::dump_config() {
+  LOG_COVER("Template Cover", "", this);
 }
 
 } // namespace cover

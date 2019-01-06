@@ -18,7 +18,7 @@ using INA3221PowerSensor = EmptyPollingParentSensor<2, ICON_FLASH, UNIT_W>;
 
 class INA3221Component : public PollingComponent, public I2CDevice {
  public:
-  INA3221Component(I2CComponent *parent, uint8_t address = 0x40, uint32_t update_interval = 15000);
+  INA3221Component(I2CComponent *parent, uint8_t address = 0x40, uint32_t update_interval = 60000);
   void setup() override;
   void dump_config() override;
   void update() override;

@@ -24,7 +24,7 @@ void GPIOBinaryOutputComponent::setup() {
 }
 void GPIOBinaryOutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "GPIO Binary Output:");
-  LOG_PIN("  Pin:", this->pin_);
+  LOG_PIN("  Pin: ", this->pin_);
   LOG_BINARY_OUTPUT(this);
 }
 

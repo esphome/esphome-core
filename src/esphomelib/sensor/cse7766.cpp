@@ -46,23 +46,26 @@ bool CSE7766Component::check_byte_() {
   uint8_t byte = this->raw_data_[index];
   if (index == 0) {
     // Header - 0x55
+    // These messages are verbose because the CSE7766
+    // reports these when no load is attached. If the checksum doesn't match
+    // though, then we should print a warning.
     if (byte == 0xAA) {
-      ESP_LOGW(TAG, "CSE7766 not calibrated!");
+      ESP_LOGV(TAG, "CSE7766 not calibrated!");
       return false;
     }
     if ((byte & 0xF0) == 0xF0) {
-      ESP_LOGW(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
+      ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
       if ((byte >> 3) & 1) {
-        ESP_LOGW(TAG, "  Voltage cycle exceeds range.");
+        ESP_LOGV(TAG, "  Voltage cycle exceeds range.");
       }
       if ((byte >> 2) & 1) {
-        ESP_LOGW(TAG, "  Current cycle exceeds range.");
+        ESP_LOGV(TAG, "  Current cycle exceeds range.");
       }
       if ((byte >> 1) & 1) {
-        ESP_LOGW(TAG, "  Power cycle exceeds range.");
+        ESP_LOGV(TAG, "  Power cycle exceeds range.");
       }
       if ((byte >> 0) & 1) {
-        ESP_LOGW(TAG, "  Coefficient storage area is abnormal.");
+        ESP_LOGV(TAG, "  Coefficient storage area is abnormal.");
       }
       return false;
     }
@@ -75,7 +78,7 @@ bool CSE7766Component::check_byte_() {
 
   if (index == 1) {
     if (byte != 0x5A) {
-      ESP_LOGW(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
+      ESP_LOGV(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
       return false;
     }
 
@@ -102,6 +105,10 @@ void CSE7766Component::parse_data_() {
     ESP_LOGVV(TAG, "  i=%u: 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
         i, BYTE_TO_BINARY(this->raw_data_[i]), this->raw_data_[i]);
   }
+  const uint32_t now = micros();
+  const float d = (now - this->last_reading_) / 1000.0f;
+  this->last_reading_ = now;
+
   uint32_t voltage_calib = this->get_24_bit_uint(2);
   uint32_t voltage_cycle = this->get_24_bit_uint(5);
   uint32_t current_calib = this->get_24_bit_uint(8);
@@ -114,26 +121,43 @@ void CSE7766Component::parse_data_() {
   if ((adj >> 6 != 0) && voltage_cycle != 0) {
     // voltage cycle of serial port outputted is a complete cycle;
     float voltage = voltage_calib / float(voltage_cycle);
-    ESP_LOGD(TAG, "Got voltage=%.1fV", voltage);
-    if (this->voltage_ != nullptr)
-      this->voltage_->publish_state(voltage);
+    this->voltage_acc_ += voltage * d;
   }
 
   if ((adj >> 5 != 0) && power_cycle != 0 && current_cycle != 0) {
     // indicates current cycle of serial port outputted is a complete cycle;
     float current = current_calib / float(current_cycle);
-    ESP_LOGD(TAG, "Got current=%.1fA", current);
-    if (this->current_ != nullptr)
-      this->current_->publish_state(current);
+    this->current_acc_ += current * d;
   }
 
   if ((adj >> 4 != 0) && power_cycle != 0) {
     // power cycle of serial port outputted is a complete cycle;
     float active_power = power_calib / float(power_cycle);
-    ESP_LOGD(TAG, "Got power=%.1fW", active_power);
-    if (this->power_ != nullptr)
-      this->power_->publish_state(active_power);
+    this->power_acc_ += active_power * d;
   }
+}
+void CSE7766Component::update() {
+  const uint32_t now = millis();
+  uint32_t d = now - this->last_update_;
+  this->last_update_ = now;
+  float voltage = this->voltage_acc_ / d;
+  float current = this->current_acc_ / d;
+  float power = this->power_acc_ / d;
+  ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW",
+      voltage, current, power);
+
+  if (this->voltage_ != nullptr)
+    this->voltage_->publish_state(voltage);
+  if (this->current_ != nullptr)
+    this->current_->publish_state(current);
+  if (this->power_ != nullptr)
+    this->power_->publish_state(power);
+
+  this->voltage_acc_ = this->current_acc_ = this->power_acc_ = 0;
+}
+void CSE7766Component::setup() {
+  this->last_reading_ = micros();
+  this->last_update_ = millis();
 }
 uint32_t CSE7766Component::get_24_bit_uint(uint8_t start_index) {
   return (uint32_t(this->raw_data_[start_index]) << 16) |
@@ -141,7 +165,8 @@ uint32_t CSE7766Component::get_24_bit_uint(uint8_t start_index) {
       uint32_t(this->raw_data_[start_index + 2]);
 }
 
-CSE7766Component::CSE7766Component(UARTComponent *parent) : UARTDevice(parent) {
+CSE7766Component::CSE7766Component(UARTComponent *parent, uint32_t update_interval)
+    : UARTDevice(parent), PollingComponent(update_interval) {
 
 }
 CSE7766VoltageSensor *CSE7766Component::make_voltage_sensor(const std::string &name) {
@@ -152,6 +177,13 @@ CSE7766CurrentSensor *CSE7766Component::make_current_sensor(const std::string &n
 }
 CSE7766PowerSensor *CSE7766Component::make_power_sensor(const std::string &name) {
   return this->power_ = new CSE7766PowerSensor(name);
+}
+void CSE7766Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "CSE7766:");
+  LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Voltage", this->voltage_);
+  LOG_SENSOR("  ", "Current", this->current_);
+  LOG_SENSOR("  ", "Power", this->power_);
 }
 
 } // namespace sensor

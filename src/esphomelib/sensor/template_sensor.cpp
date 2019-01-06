@@ -28,7 +28,7 @@ void TemplateSensor::set_template(std::function<optional<float>()> &&f) {
   this->f_ = std::move(f);
 }
 void TemplateSensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "Template Sensor '%s':", this->name_.c_str());
+  LOG_SENSOR("", "Template Sensor", this);
   LOG_UPDATE_INTERVAL(this);
 }
 

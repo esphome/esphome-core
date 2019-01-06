@@ -23,6 +23,7 @@ class TemplateCover : public Cover, public Component {
   void set_optimistic(bool optimistic);
 
   void loop() override;
+  void dump_config() override;
 
   float get_setup_priority() const override;
 
@@ -35,6 +36,8 @@ class TemplateCover : public Cover, public Component {
   Trigger<NoArg> *open_trigger_;
   Trigger<NoArg> *close_trigger_;
   Trigger<NoArg> *stop_trigger_;
+  Trigger<NoArg> *prev_trigger_{nullptr};
+  optional<CoverState> last_state_;
 };
 
 } // namespace cover

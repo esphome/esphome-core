@@ -20,7 +20,7 @@ class SHT3XDComponent : public PollingComponent, public I2CDevice {
  public:
   SHT3XDComponent(I2CComponent *parent,
                   const std::string &temperature_name, const std::string &humidity_name,
-                  uint8_t address = 0x44, uint32_t update_interval = 15000);
+                  uint8_t address = 0x44, uint32_t update_interval = 60000);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

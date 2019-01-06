@@ -34,7 +34,7 @@ enum TCS34725Gain {
 
 class TCS34725Component : public PollingComponent, public I2CDevice {
  public:
-  TCS34725Component(I2CComponent *parent, uint32_t update_interval = 15000);
+  TCS34725Component(I2CComponent *parent, uint32_t update_interval = 60000);
 
   void set_integration_time(TCS34725IntegrationTime integration_time);
   void set_gain(TCS34725Gain gain);

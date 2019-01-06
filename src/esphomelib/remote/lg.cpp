@@ -92,12 +92,13 @@ bool LGReceiver::matches(RemoteReceiveData *data) {
   return this->data_ == data_ && this->nbits_ == res.nbits;
 }
 
-void LGDumper::dump(RemoteReceiveData *data) {
+bool LGDumper::dump(RemoteReceiveData *data) {
   auto res = decode_lg(data);
   if (!res.valid)
-    return;
+    return false;
 
   ESP_LOGD(TAG, "Received LG: data=0x%08X, nbits=%d", res.data, res.nbits);
+  return true;
 }
 #endif
 

@@ -23,8 +23,11 @@ class StatusBinarySensor : public BinarySensor, public Component {
   void loop() override;
 
   void setup() override;
+  void dump_config() override;
 
   float get_setup_priority() const override;
+
+  bool is_status_binary_sensor() const override;
 
  protected:
   /// "connectivity" device class.

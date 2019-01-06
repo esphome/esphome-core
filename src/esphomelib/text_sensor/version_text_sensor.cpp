@@ -3,11 +3,14 @@
 #ifdef USE_VERSION_TEXT_SENSOR
 
 #include "esphomelib/text_sensor/version_text_sensor.h"
+#include "esphomelib/log.h"
 #include "esphomelib/application.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace text_sensor {
+
+static const char *TAG = "text_sensor.version";
 
 void VersionTextSensor::setup() {
   if (App.get_compilation_time().empty()) {
@@ -26,6 +29,9 @@ std::string VersionTextSensor::icon() {
 }
 std::string VersionTextSensor::unique_id() {
   return get_mac_address() + "-version";
+}
+void VersionTextSensor::dump_config() {
+  LOG_TEXT_SENSOR("", "Version Text Sensor", this);
 }
 
 } // namespace text_sensor

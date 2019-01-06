@@ -95,6 +95,8 @@ class DeepSleepComponent : public Component {
   bool prevent_{false};
 };
 
+extern bool global_has_deep_sleep;
+
 template<typename T>
 class EnterDeepSleepAction : public Action<T> {
  public:

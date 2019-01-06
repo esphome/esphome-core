@@ -99,12 +99,13 @@ PanasonicReceiver::PanasonicReceiver(const std::string &name, uint16_t address, 
 
 }
 
-void PanasonicDumper::dump(RemoteReceiveData *data) {
+bool PanasonicDumper::dump(RemoteReceiveData *data) {
   auto decode = decode_panasonic(data);
   if (!decode.valid)
-    return;
+    return false;
 
   ESP_LOGD(TAG, "Received Panasonic: address=0x%04X, command=0x%08X", decode.address, decode.command);
+  return true;
 }
 #endif
 

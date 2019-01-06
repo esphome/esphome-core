@@ -8,6 +8,19 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
+void Filter::output(bool value) {
+  if (this->next_ == nullptr) {
+    this->parent_->send_state_internal_(value);
+  } else {
+    this->next_->input(value);
+  }
+}
+void Filter::input(bool value) {
+  auto b = this->new_value(value);
+  if (b.has_value()) {
+    this->output(*b);
+  }
+}
 DelayedOnFilter::DelayedOnFilter(uint32_t delay) : delay_(delay) {
 
 }
@@ -22,22 +35,9 @@ optional<bool> DelayedOnFilter::new_value(bool value) {
     return false;
   }
 }
+
 float DelayedOnFilter::get_setup_priority() const {
   return setup_priority::HARDWARE;
-}
-
-void Filter::output(bool value) {
-  if (this->next_ == nullptr) {
-    this->parent_->send_state_internal_(value);
-  } else {
-    this->next_->input(value);
-  }
-}
-void Filter::input(bool value) {
-  auto b = this->new_value(value);
-  if (b.has_value()) {
-    this->output(*b);
-  }
 }
 
 DelayedOffFilter::DelayedOffFilter(uint32_t delay) : delay_(delay) {

@@ -81,8 +81,12 @@ void HMC5883LComponent::dump_config() {
   } else if (this->error_code_ == ID_REGISTERS) {
     ESP_LOGE(TAG, "The ID registers don't match - Is this really an HMC5883L?");
   }
-
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "X Axis", this->x_sensor_);
+  LOG_SENSOR("  ", "Y Axis", this->y_sensor_);
+  LOG_SENSOR("  ", "Z Axis", this->z_sensor_);
+  LOG_SENSOR("  ", "Heading", this->heading_sensor_);
 }
 float HMC5883LComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

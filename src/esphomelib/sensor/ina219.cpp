@@ -143,8 +143,12 @@ void INA219Component::dump_config() {
     this->mark_failed();
     return;
   }
-
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "Bus Voltage", this->bus_voltage_sensor_);
+  LOG_SENSOR("  ", "Shunt Voltage", this->shunt_voltage_sensor_);
+  LOG_SENSOR("  ", "Current", this->current_sensor_);
+  LOG_SENSOR("  ", "Power", this->power_sensor_);
 }
 
 float INA219Component::get_setup_priority() const {

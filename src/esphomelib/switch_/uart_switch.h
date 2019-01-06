@@ -12,9 +12,11 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-class UARTSwitch : public Switch, public UARTDevice {
+class UARTSwitch : public Switch, public UARTDevice, public Component {
  public:
   UARTSwitch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data);
+
+  void dump_config() override;
 
  protected:
   void write_state(bool state) override;

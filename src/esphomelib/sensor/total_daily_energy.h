@@ -18,6 +18,7 @@ class TotalDailyEnergy : public Sensor, public Component {
  public:
   TotalDailyEnergy(const std::string &name, time::RealTimeClockComponent *time, Sensor *parent);
   void setup() override;
+  void dump_config() override;
   float get_setup_priority() const override;
   uint32_t update_interval() override;
   std::string unit_of_measurement() override;
@@ -25,8 +26,9 @@ class TotalDailyEnergy : public Sensor, public Component {
   int8_t accuracy_decimals() override;
   void loop() override;
 
- protected:
   void publish_state_and_save_(float state);
+
+ protected:
   void process_new_state_(float state);
 
   ESPPreferenceObject pref_;

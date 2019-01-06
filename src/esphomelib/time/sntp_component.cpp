@@ -39,8 +39,12 @@ void SNTPComponent::setup() {
 #endif
 
   sntp_setservername(0, strdup(this->server_1_.c_str()));
-  sntp_setservername(1, strdup(this->server_2_.c_str()));
-  sntp_setservername(2, strdup(this->server_3_.c_str()));
+  if (!this->server_2_.empty()) {
+    sntp_setservername(1, strdup(this->server_2_.c_str()));
+  }
+  if (!this->server_3_.empty()) {
+    sntp_setservername(2, strdup(this->server_3_.c_str()));
+  }
 
 #ifdef ARDUINO_ARCH_ESP8266
   // let localtime/gmtime handle timezones, not sntp

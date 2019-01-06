@@ -36,6 +36,9 @@ void Cover::close() {
 void Cover::stop() {
   this->write_command(COVER_COMMAND_STOP);
 }
+uint32_t Cover::hash_base_() {
+  return 1727367479UL;
+}
 
 } // namespace cover
 

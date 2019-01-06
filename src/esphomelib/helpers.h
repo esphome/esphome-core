@@ -31,12 +31,27 @@ using json_build_t = std::function<void(JsonObject &)>;
 /// The characters that are allowed in a hostname.
 extern const char *HOSTNAME_CHARACTER_WHITELIST;
 
-/// Gets the MAC address as a string, this can be used as way to identify this ESP32.
+/// Gets the MAC address as a string, this can be used as way to identify this ESP.
 std::string get_mac_address();
+
+std::string get_mac_address_pretty();
 
 void tick_status_led();
 
 void feed_wdt();
+
+std::string to_string(std::string val);
+std::string to_string(String val);
+std::string to_string(int val);
+std::string to_string(long val);
+std::string to_string(long long val);
+std::string to_string(unsigned val);
+std::string to_string(unsigned long val);
+std::string to_string(unsigned long long val);
+std::string to_string(float val);
+std::string to_string(double val);
+std::string to_string(long double val);
+optional<float> parse_float(const std::string &str);
 
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
@@ -79,6 +94,16 @@ std::string build_json(const json_build_t &f);
 /// Parse a JSON string and run the provided json parse function if it's valid.
 void parse_json(const std::string &data, const json_parse_t &f);
 
+class HighFrequencyLoopRequester {
+ public:
+  void start();
+  void stop();
+
+  static bool is_high_frequency();
+ protected:
+  bool started_{false};
+};
+
 /** Clamp the value between min and max.
  *
  * @tparam T The input/output typename.
@@ -116,6 +141,11 @@ double random_double();
 
 /// Returns a random float between 0 and 1. Essentially just casts random_double() to a float.
 float random_float();
+
+void fast_random_set_seed(uint32_t seed);
+uint32_t fast_random_32();
+uint16_t fast_random_16();
+uint8_t fast_random_8();
 
 /// Applies gamma correction with the provided gamma to value.
 float gamma_correct(float value, float gamma);

@@ -12,6 +12,7 @@
 #include "esphomelib/automation.h"
 #include "esphomelib/log.h"
 #include "esphomelib/defines.h"
+#include "lwip/ip_addr.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -21,7 +22,8 @@ namespace mqtt {
  *
  * First parameter is the topic, the second one is the payload.
  */
-using mqtt_callback_t = std::function<void(const std::string &)>;
+using mqtt_callback_t = std::function<void(const std::string &, const std::string &)>;
+using mqtt_json_callback_t = std::function<void(const std::string &, JsonObject &)>;
 
 /// internal struct for MQTT messages.
 struct MQTTMessage {
@@ -36,6 +38,8 @@ struct MQTTSubscription {
   std::string topic;
   uint8_t qos;
   mqtt_callback_t callback;
+  bool subscribed;
+  uint32_t resubscribe_timeout;
 };
 
 /// internal struct for MQTT credentials.
@@ -65,15 +69,17 @@ class MQTTPublishJsonAction;
 
 /** Internal struct for MQTT Home Assistant discovery
  *
- * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
+ * See <a href="https://www.home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
  */
 struct MQTTDiscoveryInfo {
   std::string prefix; ///< The Home Assistant discovery prefix. Empty means disabled.
   bool retain; ///< Whether to retain discovery messages.
+  bool clean;
 };
 
 enum MQTTClientState {
   MQTT_CLIENT_DISCONNECTED = 0,
+  MQTT_CLIENT_RESOLVING_ADDRESS,
   MQTT_CLIENT_CONNECTING,
   MQTT_CLIENT_CONNECTED,
 };
@@ -102,11 +108,11 @@ class MQTTClientComponent : public Component {
 
   /** Set the Home Assistant discovery info
    *
-   * See <a href="https://home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
+   * See <a href="https://www.home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
    * @param prefix The Home Assistant discovery prefix.
    * @param retain Whether to retain discovery messages.
    */
-  void set_discovery_info(std::string &&prefix, bool retain);
+  void set_discovery_info(std::string &&prefix, bool retain, bool clean = false);
   /// Get Home Assistant discovery info.
   const MQTTDiscoveryInfo &get_discovery_info() const;
   /// Globally disable Home Assistant discovery.
@@ -169,13 +175,13 @@ class MQTTClientComponent : public Component {
    * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
    * @param qos The QoS of this subscription.
    */
-  void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos = 0);
 
   /** Publish a MQTTMessage
    *
    * @param message The message.
    */
-  void publish(const MQTTMessage &message);
+  bool publish(const MQTTMessage &message);
 
   /** Publish a MQTT message
    *
@@ -183,9 +189,9 @@ class MQTTClientComponent : public Component {
    * @param payload The payload.
    * @param retain Whether to retain the message.
    */
-  void publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
+  bool publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
 
-  void publish(const std::string &topic, const char *payload, size_t payload_length,
+  bool publish(const std::string &topic, const char *payload, size_t payload_length,
                uint8_t qos = 0, bool retain = false);
 
   /** Construct and send a JSON MQTT message.
@@ -194,7 +200,7 @@ class MQTTClientComponent : public Component {
    * @param f The Json Message builder.
    * @param retain Whether to retain the message.
    */
-  void publish_json(const std::string &topic, const json_build_t &f, uint8_t qos = 0, bool retain = false);
+  bool publish_json(const std::string &topic, const json_build_t &f, uint8_t qos = 0, bool retain = false);
 
   /// Setup the MQTT client, registering a bunch of callbacks and attempting to connect.
   void setup() override;
@@ -206,7 +212,7 @@ class MQTTClientComponent : public Component {
 
   void on_message(const std::string &topic, const std::string &payload);
 
-  MQTTMessageTrigger *make_message_trigger(const std::string &topic, uint8_t qos = 0);
+  MQTTMessageTrigger *make_message_trigger(const std::string &topic);
 
   MQTTJsonMessageTrigger *make_json_message_trigger(const std::string &topic, uint8_t qos = 0);
 
@@ -229,9 +235,20 @@ class MQTTClientComponent : public Component {
  protected:
   /// Reconnect to the MQTT broker if not already connected.
   void start_connect();
+  void start_dnslookup();
+  void check_dnslookup();
+#if defined(ARDUINO_ARCH_ESP8266) && LWIP_VERSION_MAJOR == 1
+  static void dns_found_callback_(const char *name, ip_addr_t *ipaddr, void *callback_arg);
+#else
+  static void dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+#endif
 
   /// Re-calculate the availability property.
   void recalculate_availability();
+
+  bool subscribe_(const char* topic, uint8_t qos);
+  void resubscribe_subscription_(MQTTSubscription *sub);
+  void resubscribe_subscriptions_();
 
   MQTTCredentials credentials_;
   /// The last will message. Disabled optional denotes it being default and
@@ -247,7 +264,8 @@ class MQTTClientComponent : public Component {
   /// default and empty prefix means disabled.
   MQTTDiscoveryInfo discovery_info_{
       .prefix = "homeassistant",
-      .retain = true
+      .retain = true,
+      .clean = false,
   };
   std::string topic_prefix_{};
   MQTTMessage log_message_;
@@ -256,6 +274,9 @@ class MQTTClientComponent : public Component {
   std::vector<MQTTSubscription> subscriptions_;
   AsyncMqttClient mqtt_client_;
   MQTTClientState state_{MQTT_CLIENT_DISCONNECTED};
+  IPAddress ip_;
+  bool dns_resolved_{false};
+  bool dns_resolve_error_{false};
   std::vector<MQTTComponent *> children_;
   uint32_t reboot_timeout_{300000};
   uint32_t connect_begin_;
@@ -265,9 +286,20 @@ class MQTTClientComponent : public Component {
 
 extern MQTTClientComponent *global_mqtt_client;
 
-class MQTTMessageTrigger : public Trigger<std::string> {
+class MQTTMessageTrigger : public Trigger<std::string>, public Component {
  public:
-  explicit MQTTMessageTrigger(const std::string &topic, uint8_t qos = 0);
+  explicit MQTTMessageTrigger(const std::string &topic);
+
+  void set_qos(uint8_t qos);
+  void set_payload(const std::string &payload);
+  void setup() override;
+  void dump_config() override;
+  float get_setup_priority() const override;
+
+ protected:
+  std::string topic_;
+  uint8_t qos_{0};
+  optional<std::string> payload_;
 };
 
 class MQTTJsonMessageTrigger : public Trigger<const JsonObject &> {

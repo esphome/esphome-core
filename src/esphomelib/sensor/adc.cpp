@@ -33,7 +33,7 @@ void ADCSensorComponent::setup() {
 #endif
 }
 void ADCSensorComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "ADC '%s':", this->get_name().c_str());
+  LOG_SENSOR("", "ADC Sensor", this);
 #ifdef ARDUINO_ARCH_ESP8266
   #ifdef USE_ADC_SENSOR_VCC
     ESP_LOGCONFIG(TAG, "  Pin: VCC");

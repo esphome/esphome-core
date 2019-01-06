@@ -39,7 +39,7 @@ float Component::get_loop_priority() const {
 }
 
 float Component::get_setup_priority() const {
-  return 0.0f;
+  return setup_priority::HARDWARE_LATE;
 }
 
 void Component::setup() {
@@ -58,7 +58,9 @@ void Component::set_interval(const std::string &name, uint32_t interval, std::fu
     offset = (random_uint32() % interval) / 2;
   ESP_LOGVV(TAG, "set_interval(name='%s', interval=%u, offset=%u)", name.c_str(), interval, offset);
 
-  this->cancel_interval(name);
+  if (!name.empty()) {
+    this->cancel_interval(name);
+  }
   struct TimeFunction function = {
       .name = name,
       .type = TimeFunction::INTERVAL,
@@ -78,7 +80,9 @@ void Component::set_timeout(const std::string &name, uint32_t timeout, std::func
   const uint32_t now = millis();
   ESP_LOGVV(TAG, "set_timeout(name='%s', timeout=%u)", name.c_str(), timeout);
 
-  this->cancel_timeout(name);
+  if (!name.empty()) {
+    this->cancel_timeout(name);
+  }
   struct TimeFunction function = {
       .name = name,
       .type = TimeFunction::TIMEOUT,
@@ -100,8 +104,6 @@ void Component::loop_() {
 }
 
 bool Component::cancel_time_function(const std::string &name, TimeFunction::Type type) {
-  if (name.empty())
-    return false;
   for (auto iter = this->time_functions_.begin(); iter != this->time_functions_.end(); iter++) {
     if (!iter->remove && iter->name == name && iter->type == type) {
       ESP_LOGVV(TAG, "Removing old time function %s.", iter->name.c_str());
@@ -170,7 +172,9 @@ bool Component::cancel_defer(const std::string &name) {
   return this->cancel_time_function(name, TimeFunction::DEFER);
 }
 void Component::defer(const std::string &name, std::function<void()> &&f) {
-  this->cancel_defer(name);
+  if (!name.empty()) {
+    this->cancel_defer(name);
+  }
   struct TimeFunction function = {
       .name = name,
       .type = TimeFunction::DEFER,
@@ -259,18 +263,34 @@ const std::string &Nameable::get_name() const {
 }
 void Nameable::set_name(const std::string &name) {
   this->name_ = name;
+  this->calc_object_id_();
 }
 Nameable::Nameable(const std::string &name)
-    : name_(name) {}
+    : name_(name) {
+  this->calc_object_id_();
+}
 
-std::string Nameable::get_name_id() {
-  return sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+const std::string &Nameable::get_object_id() {
+  return this->object_id_;
 }
 bool Nameable::is_internal() const {
   return this->internal_;
 }
 void Nameable::set_internal(bool internal) {
   this->internal_ = internal;
+}
+void Nameable::calc_object_id_() {
+  this->object_id_ = sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
+  // FNV-1 hash
+  uint32_t hash = 2166136261UL;
+  for (char c : this->object_id_) {
+    hash *= 16777619UL;
+    hash ^= c;
+  }
+  this->object_id_hash_ = hash;
+}
+uint32_t Nameable::get_object_id_hash() {
+  return this->object_id_hash_;
 }
 
 bool Component::TimeFunction::should_run(uint32_t now) const {
