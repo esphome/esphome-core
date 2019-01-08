@@ -523,6 +523,11 @@ LightState::StateCall::StateCall(LightState *state)
     : state_(state) {
 
 }
+
+void LightOutput::setup_state(LightState *state) {
+
+}
+
 } // namespace light
 
 ESPHOMELIB_NAMESPACE_END

@@ -33,7 +33,7 @@ using HLW8012PowerSensor = EmptyPollingParentSensor<1, ICON_FLASH, UNIT_W>;
 
 class HLW8012Component : public PollingComponent {
  public:
-  HLW8012Component(GPIOPin *sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 15000);
+  HLW8012Component(GPIOPin *sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 60000);
 
   void setup() override;
   void dump_config() override;

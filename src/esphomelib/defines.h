@@ -1,7 +1,7 @@
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
-#define ESPHOMELIB_VERSION "1.10.0-dev"
+#define ESPHOMELIB_VERSION "1.11.0-dev"
 
 #define HOT __attribute__ ((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
@@ -134,6 +134,8 @@
   #define USE_HOMEASSISTANT_TIME
   #define USE_HOMEASSISTANT_SENSOR
   #define USE_HOMEASSISTANT_TEXT_SENSOR
+  #define USE_APDS9960
+  #define USE_NEO_PIXEL_BUS_LIGHT
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -600,6 +602,15 @@
 #ifdef USE_MY9231_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
+  #endif
+#endif
+
+#ifdef USE_APDS9960
+  #ifndef USE_SENSOR
+    #define USE_SENSOR
+  #endif
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
   #endif
 #endif
 

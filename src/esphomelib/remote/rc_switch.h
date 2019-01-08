@@ -112,7 +112,7 @@ class RCSwitchTypeDReceiver : public RCSwitchRawReceiver {
 
 class RCSwitchDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData *data) override;
+  bool dump(RemoteReceiveData *data) override;
 };
 #endif
 

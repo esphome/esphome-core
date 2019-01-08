@@ -13,7 +13,7 @@ namespace sensor {
 
 class UptimeSensor : public PollingSensorComponent {
  public:
-  explicit UptimeSensor(const std::string &name, uint32_t update_interval = 15000);
+  explicit UptimeSensor(const std::string &name, uint32_t update_interval = 60000);
 
   void update() override;
 

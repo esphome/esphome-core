@@ -15,14 +15,7 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/log.h"
 #include "esphomelib/esphal.h"
-#include "esphomelib/api/api_server.h"
-
-#ifdef ARDUINO_ARCH_ESP32
-#include <ESPmDNS.h>
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-#include <ESP8266mDNS.h>
-#endif
+#include "esphomelib/util.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -55,21 +48,7 @@ void WiFiComponent::setup() {
     this->setup_ap_config();
   }
 
-  MDNS.begin(this->hostname_.c_str());
-#ifdef USE_API
-  if (api::global_api_server != nullptr) {
-    MDNS.addService("esphomelib", "tcp", api::global_api_server->get_port());
-  } else {
-#endif
-#ifdef ARDUINO_ARCH_ESP32
-    MDNS.addService("arduino", "tcp", 3232);
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-    MDNS.addService("arduino", "tcp", 8266);
-#endif
-#ifdef USE_API
-  }
-#endif
+  network_setup_mdns(this->hostname_);
 }
 
 void WiFiComponent::loop() {
@@ -78,16 +57,20 @@ void WiFiComponent::loop() {
   if (this->has_sta()) {
     switch (this->state_) {
       case WIFI_COMPONENT_STATE_COOLDOWN: {
+        this->status_set_warning();
         if (millis() - this->action_started_ > 5000) {
           this->start_scanning();
         }
         break;
       }
       case WIFI_COMPONENT_STATE_STA_SCANNING: {
+        this->status_set_warning();
         this->check_scanning_finished();
         break;
       }
-      case WIFI_COMPONENT_STATE_STA_CONNECTING: {
+      case WIFI_COMPONENT_STATE_STA_CONNECTING:
+      case WIFI_COMPONENT_STATE_STA_CONNECTING_2: {
+        this->status_set_warning();
         this->check_connecting_finished();
         break;
       }
@@ -95,9 +78,9 @@ void WiFiComponent::loop() {
       case WIFI_COMPONENT_STATE_STA_CONNECTED: {
         if (!this->is_connected()) {
           ESP_LOGW(TAG, "WiFi Connection lost... Reconnecting...");
-          this->status_set_warning();
           this->retry_connect();
         } else {
+          this->status_clear_warning();
           this->last_connected_ = now;
         }
         break;
@@ -125,6 +108,13 @@ bool WiFiComponent::has_ap() const {
 }
 bool WiFiComponent::has_sta() const {
   return !this->sta_.empty();
+}
+IPAddress WiFiComponent::get_ip_address() {
+  if (this->has_sta())
+    return this->wifi_sta_ip_();
+  if (this->has_ap())
+    return this->wifi_soft_ap_ip_();
+  return IPAddress();
 }
 void WiFiComponent::setup_ap_config() {
   this->wifi_mode_({}, true);
@@ -166,9 +156,14 @@ void WiFiComponent::add_sta(const WiFiAP &ap) {
   this->sta_.push_back(ap);
 }
 
-void WiFiComponent::start_connecting(const WiFiAP &ap) {
+std::string format_mac_addr(const uint8_t mac[6]) {
+  char buf[20];
+  sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return buf;
+}
+
+void WiFiComponent::start_connecting(const WiFiAP &ap, bool two) {
   ESP_LOGI(TAG, "WiFi Connecting to '%s'...", ap.get_ssid().c_str());
-  this->status_set_warning();
 
   if (!this->wifi_sta_connect_(ap)) {
     ESP_LOGE(TAG, "wifi_sta_connect_ failed!");
@@ -176,7 +171,11 @@ void WiFiComponent::start_connecting(const WiFiAP &ap) {
     return;
   }
 
-  this->state_ = WIFI_COMPONENT_STATE_STA_CONNECTING;
+  if (!two) {
+    this->state_ = WIFI_COMPONENT_STATE_STA_CONNECTING;
+  } else {
+    this->state_ = WIFI_COMPONENT_STATE_STA_CONNECTING_2;
+  }
   this->action_started_ = millis();
 }
 
@@ -249,6 +248,7 @@ void WiFiComponent::start_scanning() {
   this->wifi_scan_start_();
   this->state_ = WIFI_COMPONENT_STATE_STA_SCANNING;
 }
+
 void WiFiComponent::check_scanning_finished() {
   if (!this->scan_done_) {
     if (millis() - this->action_started_ > 30000) {
@@ -318,8 +318,12 @@ void WiFiComponent::check_scanning_finished() {
     }
   }
 
-  this->start_connecting(ap);
+  yield();
+
+  this->selected_ap_ = ap;
+  this->start_connecting(ap, false);
 }
+
 void WiFiComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "WiFi:");
   this->print_connect_params_();
@@ -331,7 +335,6 @@ void WiFiComponent::check_connecting_finished() {
   if (status == WL_CONNECTED) {
     ESP_LOGI(TAG, "WiFi connected!");
     this->print_connect_params_();
-    this->status_clear_warning();
 
     if (this->has_ap()) {
       ESP_LOGD(TAG, "Disabling AP...");
@@ -375,7 +378,6 @@ void WiFiComponent::check_connecting_finished() {
   }
 
   ESP_LOGW(TAG, "WiFi Unknown connection status %d", status);
-  delay(100);
 }
 
 void WiFiComponent::retry_connect() {
@@ -389,6 +391,13 @@ void WiFiComponent::retry_connect() {
     this->num_retried_++;
   }
   this->error_from_callback_ = false;
+  if (this->state_ == WIFI_COMPONENT_STATE_STA_CONNECTING) {
+    yield();
+    this->state_ = WIFI_COMPONENT_STATE_STA_CONNECTING_2;
+    this->start_connecting(this->selected_ap_, true);
+    return;
+  }
+
   if (this->has_ap()) {
     this->setup_ap_config();
   }
@@ -546,6 +555,15 @@ bool WiFiComponent::wifi_sta_ip_config_(optional<ManualIP> manual_ip) {
 
   return ret;
 }
+
+
+IPAddress WiFiComponent::wifi_sta_ip_() {
+  if (!this->has_sta())
+    return IPAddress();
+  struct ip_info ip;
+  wifi_get_ip_info(STATION_IF, &ip);
+  return IPAddress(ip.ip.addr);
+}
 bool WiFiComponent::wifi_apply_hostname_() {
   if (this->hostname_.empty())
     return true;
@@ -556,22 +574,18 @@ bool WiFiComponent::wifi_apply_hostname_() {
   }
   return ret;
 }
-static bool station_config_equal_(const station_config &lhs, const station_config &rhs) {
-  if (!sta_field_equal(lhs.ssid, rhs.ssid, 32))
-    return false;
-  if (!sta_field_equal(lhs.password, rhs.password, 64))
-    return false;
-  if (lhs.bssid_set != rhs.bssid_set)
-    return false;
-  return memcmp(lhs.bssid, rhs.bssid, 6) == 0;
-}
 
 bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
   // enable STA
   if (!this->wifi_mode_(true, {}))
     return false;
 
+  ETS_UART_INTR_DISABLE();
+  wifi_station_disconnect();
+  ETS_UART_INTR_ENABLE();
+
   struct station_config conf;
+  memset(&conf, 0, sizeof(conf));
   strcpy(reinterpret_cast<char *>(conf.ssid), ap.get_ssid().c_str());
   strcpy(reinterpret_cast<char *>(conf.password), ap.get_password().c_str());
 
@@ -582,19 +596,13 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
     conf.bssid_set = 0;
   }
 
-  struct station_config current_config;
-  if (!wifi_station_get_config(&current_config)) {
-    ESP_LOGV(TAG, "Get current config failed!");
-  }
-  if (!station_config_equal_(conf, current_config)) {
-    ETS_UART_INTR_DISABLE();
-    bool ret = wifi_station_set_config_current(&conf);
-    ETS_UART_INTR_ENABLE();
+  ETS_UART_INTR_DISABLE();
+  bool ret = wifi_station_set_config_current(&conf);
+  ETS_UART_INTR_ENABLE();
 
-    if (!ret) {
-      ESP_LOGV(TAG, "Setting WiFi Station config failed!");
-      return false;
-    }
+  if (!ret) {
+    ESP_LOGV(TAG, "Setting WiFi Station config failed!");
+    return false;
   }
 
   if (!this->wifi_sta_ip_config_(ap.get_manual_ip())) {
@@ -602,7 +610,7 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
   }
 
   ETS_UART_INTR_DISABLE();
-  bool ret = wifi_station_connect();
+  ret = wifi_station_connect();
   ETS_UART_INTR_ENABLE();
   if (!ret) {
     ESP_LOGV(TAG, "wifi_station_connect failed!");
@@ -627,19 +635,134 @@ class WiFiMockClass : public ESP8266WiFiGenericClass {
   }
 };
 
-void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
-#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
-  static const char *EVENT_TO_STR[] = {
-      "STA_CONNECTED", "STA_DISCONNECTED", "STA_AUTHMODE_CHANGE", "STA_GOT_IP", "STA_DHCP_TIMEOUT",
-      "AP_STA_CONNECTED", "AP_STA_DISCONNECTED", "AP_PROBEREQUEST_RECEIVED", "MODE_CHANGED",
-      "AP_DITRIBUTE_STA_IP"
-  };
-  const char *str = "";
-  if (event->event < EVENT_MAX) {
-    str = EVENT_TO_STR[event->event];
+const char *get_auth_mode_str(uint8_t mode) {
+  switch (mode) {
+    case AUTH_OPEN: return "OPEN";
+    case AUTH_WEP: return "WEP";
+    case AUTH_WPA_PSK: return "WPA PSK";
+    case AUTH_WPA2_PSK: return "WPA2 PSK";
+    case AUTH_WPA_WPA2_PSK: return "WPA/WPA2 PSK";
+    default: return "UNKNOWN";
   }
-  ESP_LOGV(TAG, "WiFi event: %s", str);
-#endif
+}
+std::string format_ip_addr(struct ip_addr ip) {
+  char buf[20];
+  sprintf(buf, "%u.%u.%u.%u", uint8_t(ip.addr >> 0), uint8_t(ip.addr >> 8), uint8_t(ip.addr >> 16), uint8_t(ip.addr >> 24));
+  return buf;
+}
+const char *get_op_mode_str(uint8_t mode) {
+  switch (mode) {
+    case WIFI_OFF: return "OFF";
+    case WIFI_STA: return "STA";
+    case WIFI_AP: return "AP";
+    case WIFI_AP_STA: return "AP+STA";
+    default: return "UNKNOWN";
+  }
+}
+const char *get_disconnect_reason_str(uint8_t reason) {
+  switch (reason) {
+    case REASON_AUTH_EXPIRE: return "Auth Expired";
+    case REASON_AUTH_LEAVE: return "Auth Leave";
+    case REASON_ASSOC_EXPIRE: return "Association Expired";
+    case REASON_ASSOC_TOOMANY: return "Too Many Associations";
+    case REASON_NOT_AUTHED: return "Not Authenticated";
+    case REASON_NOT_ASSOCED: return "Not Associated";
+    case REASON_ASSOC_LEAVE: return "Association Leave";
+    case REASON_ASSOC_NOT_AUTHED: return "Association not Authenticated";
+    case REASON_DISASSOC_PWRCAP_BAD: return "Disassociate Power Cap Bad";
+    case REASON_DISASSOC_SUPCHAN_BAD: return "Disassociate Supported Channel Bad";
+    case REASON_IE_INVALID: return "IE Invalid";
+    case REASON_MIC_FAILURE: return "Mic Failure";
+    case REASON_4WAY_HANDSHAKE_TIMEOUT: return "4-Way Handshake Timeout";
+    case REASON_GROUP_KEY_UPDATE_TIMEOUT: return "Group Key Update Timeout";
+    case REASON_IE_IN_4WAY_DIFFERS: return "IE In 4-Way Handshake Differs";
+    case REASON_GROUP_CIPHER_INVALID: return "Group Cipher Invalid";
+    case REASON_PAIRWISE_CIPHER_INVALID: return "Pairwise Cipher Invalid";
+    case REASON_AKMP_INVALID: return "AKMP Invalid";
+    case REASON_UNSUPP_RSN_IE_VERSION: return "Unsupported RSN IE version";
+    case REASON_INVALID_RSN_IE_CAP: return "Invalid RSN IE Cap";
+    case REASON_802_1X_AUTH_FAILED: return "802.1x Authentication Failed";
+    case REASON_CIPHER_SUITE_REJECTED: return "Cipher Suite Rejected";
+    case REASON_BEACON_TIMEOUT: return "Beacon Timeout";
+    case REASON_NO_AP_FOUND: return "AP Not Found";
+    case REASON_AUTH_FAIL: return "Authentication Failed";
+    case REASON_ASSOC_FAIL: return "Association Failed";
+    case REASON_HANDSHAKE_TIMEOUT: return "Handshake Failed";
+    case REASON_UNSPECIFIED:
+    default:
+      return "Unspecified";
+  }
+}
+
+void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
+  switch (event->event) {
+    case EVENT_STAMODE_CONNECTED: {
+      auto it = event->event_info.connected;
+      char buf[33];
+      memcpy(buf, it.ssid, it.ssid_len);
+      buf[it.ssid_len] = '\0';
+      ESP_LOGV(TAG, "Event: Connected ssid='%s' bssid=%s channel=%u",
+               buf, format_mac_addr(it.bssid).c_str(), it.channel);
+      break;
+    }
+    case EVENT_STAMODE_DISCONNECTED: {
+      auto it = event->event_info.disconnected;
+      char buf[33];
+      memcpy(buf, it.ssid, it.ssid_len);
+      buf[it.ssid_len] = '\0';
+      ESP_LOGW(TAG, "Event: Disconnected ssid='%s' bssid=%s reason='%s'",
+               buf, format_mac_addr(it.bssid).c_str(), get_disconnect_reason_str(it.reason));
+      break;
+    }
+    case EVENT_STAMODE_AUTHMODE_CHANGE: {
+      auto it = event->event_info.auth_change;
+      ESP_LOGV(TAG, "Event: Changed AuthMode old=%s new=%s",
+               get_auth_mode_str(it.old_mode), get_auth_mode_str(it.new_mode));
+      break;
+    }
+    case EVENT_STAMODE_GOT_IP: {
+      auto it = event->event_info.got_ip;
+      ESP_LOGV(TAG, "Event: Got IP static_ip=%s gateway=%s netmask=%s",
+               format_ip_addr(it.ip).c_str(), format_ip_addr(it.gw).c_str(), format_ip_addr(it.mask).c_str());
+      break;
+    }
+    case EVENT_STAMODE_DHCP_TIMEOUT: {
+      ESP_LOGW(TAG, "Event: Getting IP address timeout");
+      break;
+    }
+    case EVENT_SOFTAPMODE_STACONNECTED: {
+      auto it = event->event_info.sta_connected;
+      ESP_LOGV(TAG, "Event: AP client connected MAC=%s aid=%u",
+               format_mac_addr(it.mac).c_str(), it.aid);
+      break;
+    }
+    case EVENT_SOFTAPMODE_STADISCONNECTED: {
+      auto it = event->event_info.sta_disconnected;
+      ESP_LOGV(TAG, "Event: AP client disconnected MAC=%s aid=%u",
+               format_mac_addr(it.mac).c_str(), it.aid);
+      break;
+    }
+    case EVENT_SOFTAPMODE_PROBEREQRECVED: {
+      auto it = event->event_info.ap_probereqrecved;
+      ESP_LOGV(TAG, "Event: AP receive Probe Request MAC=%s RSSI=%d",
+               format_mac_addr(it.mac).c_str(), it.rssi);
+      break;
+    }
+    case EVENT_OPMODE_CHANGED: {
+      auto it = event->event_info.opmode_changed;
+      ESP_LOGV(TAG, "Event: Changed Mode old=%s new=%s",
+               get_op_mode_str(it.old_opmode), get_op_mode_str(it.new_opmode));
+      break;
+    }
+    case EVENT_SOFTAPMODE_DISTRIBUTE_STA_IP: {
+      auto it = event->event_info.distribute_sta_ip;
+      ESP_LOGV(TAG, "Event: AP Distribute Station IP MAC=%s IP=%s aid=%u",
+               format_mac_addr(it.mac).c_str(), format_ip_addr(it.ip).c_str(), it.aid);
+      break;
+    }
+    default:
+      break;
+  }
 
   if (event->event == EVENT_STAMODE_DISCONNECTED) {
     global_wifi_component->error_from_callback_ = true;
@@ -647,6 +770,7 @@ void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
 
   WiFiMockClass::_event_callback(event);
 }
+
 void WiFiComponent::wifi_register_callbacks_() {
   wifi_set_event_handler_cb(&WiFiComponent::wifi_event_callback_);
 }
@@ -677,7 +801,6 @@ bool WiFiComponent::wifi_scan_start_() {
   station_status_t sta_status = wifi_station_get_connect_status();
   if (sta_status != STATION_GOT_IP && sta_status != STATION_IDLE) {
     wifi_station_disconnect();
-    ESP_LOGV(TAG, "wifi_station_disconnect");
   }
 
   struct scan_config config;
@@ -788,21 +911,6 @@ bool WiFiComponent::wifi_ap_ip_config_(optional<ManualIP> manual_ip) {
 
   return true;
 }
-static bool softap_config_equal_(const softap_config &lhs, const softap_config &rhs) {
-  if (!sta_field_equal(lhs.ssid, rhs.ssid, 32))
-    return false;
-  if (!sta_field_equal(lhs.password, rhs.password, 64))
-    return false;
-  if (lhs.channel != rhs.channel)
-    return false;
-  if (lhs.ssid_hidden != rhs.ssid_hidden)
-    return false;
-  if (lhs.max_connection != rhs.max_connection)
-    return false;
-  if (lhs.beacon_interval != rhs.beacon_interval)
-    return false;
-  return lhs.authmode == rhs.authmode;
-}
 bool WiFiComponent::wifi_start_ap_(const WiFiAP &ap) {
   // enable AP
   if (!this->wifi_mode_({}, true))
@@ -824,18 +932,13 @@ bool WiFiComponent::wifi_start_ap_(const WiFiAP &ap) {
     strcpy(reinterpret_cast<char*>(conf.password), ap.get_password().c_str());
   }
 
-  struct softap_config conf_compare;
-  wifi_softap_get_config(&conf_compare);
+  ETS_UART_INTR_DISABLE();
+  bool ret = wifi_softap_set_config_current(&conf);
+  ETS_UART_INTR_ENABLE();
 
-  if (!softap_config_equal_(conf, conf_compare)) {
-    ETS_UART_INTR_DISABLE();
-    bool ret = wifi_softap_set_config_current(&conf);
-    ETS_UART_INTR_ENABLE();
-
-    if (!ret) {
-      ESP_LOGV(TAG, "wifi_softap_set_config_current failed!");
-      return false;
-    }
+  if (!ret) {
+    ESP_LOGV(TAG, "wifi_softap_set_config_current failed!");
+    return false;
   }
 
   if (!this->wifi_ap_ip_config_(ap.get_manual_ip())) {
@@ -924,6 +1027,7 @@ bool WiFiComponent::wifi_sta_ip_config_(optional<ManualIP> manual_ip) {
   }
 
   tcpip_adapter_ip_info_t info;
+  memset(&info, 0, sizeof(info));
   info.ip.addr = static_cast<uint32_t>(manual_ip->static_ip);
   info.gw.addr = static_cast<uint32_t>(manual_ip->gateway);
   info.netmask.addr = static_cast<uint32_t>(manual_ip->subnet);
@@ -951,6 +1055,15 @@ bool WiFiComponent::wifi_sta_ip_config_(optional<ManualIP> manual_ip) {
 
   return true;
 }
+
+IPAddress WiFiComponent::wifi_sta_ip_() {
+  if (!this->has_sta())
+    return IPAddress();
+  tcpip_adapter_ip_info_t ip;
+  tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
+  return IPAddress(ip.ip.addr);
+}
+
 bool WiFiComponent::wifi_apply_hostname_() {
   esp_err_t err = tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, this->hostname_.c_str());
   if (err != ESP_OK) {
@@ -959,23 +1072,13 @@ bool WiFiComponent::wifi_apply_hostname_() {
   }
   return true;
 }
-static bool station_config_equal_(const wifi_config_t &lhs, const wifi_config_t &rhs) {
-  if (!sta_field_equal(lhs.sta.ssid, rhs.sta.ssid, 32))
-    return false;
-  if (!sta_field_equal(lhs.sta.password, rhs.sta.password, 64))
-    return false;
-  if (lhs.sta.channel != rhs.sta.channel)
-    return false;
-  if (lhs.sta.bssid_set != rhs.sta.bssid_set)
-    return false;
-  return memcmp(lhs.sta.bssid, rhs.sta.bssid, 6) == 0;
-}
 bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
   // enable STA
   if (!this->wifi_mode_(true, {}))
     return false;
 
   wifi_config_t conf;
+  memset(&conf, 0, sizeof(conf));
   strcpy(reinterpret_cast<char *>(conf.sta.ssid), ap.get_ssid().c_str());
   strcpy(reinterpret_cast<char *>(conf.sta.password), ap.get_password().c_str());
 
@@ -989,22 +1092,15 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
     conf.sta.channel = *ap.get_channel();
   }
 
-  wifi_config_t current_config;
-  esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &current_config);
+  esp_err_t err = esp_wifi_disconnect();
   if (err != ESP_OK) {
-    ESP_LOGV(TAG, "Get current config failed! %d", err);
+    ESP_LOGV(TAG, "esp_wifi_disconnect failed! %d", err);
+    return false;
   }
-  if (!station_config_equal_(conf, current_config)) {
-    err = esp_wifi_disconnect();
-    if (err != ESP_OK) {
-      ESP_LOGV(TAG, "esp_wifi_disconnect failed! %d", err);
-      return false;
-    }
 
-    err = esp_wifi_set_config(WIFI_IF_STA, &conf);
-    if (err != ESP_OK) {
-      ESP_LOGV(TAG, "esp_wifi_set_config failed! %d", err);
-    }
+  err = esp_wifi_set_config(WIFI_IF_STA, &conf);
+  if (err != ESP_OK) {
+    ESP_LOGV(TAG, "esp_wifi_set_config failed! %d", err);
   }
 
   if (!this->wifi_sta_ip_config_(ap.get_manual_ip())) {
@@ -1019,46 +1115,152 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
 
   return true;
 }
+const char *get_auth_mode_str(uint8_t mode) {
+  switch (mode) {
+    case WIFI_AUTH_OPEN: return "OPEN";
+    case WIFI_AUTH_WEP: return "WEP";
+    case WIFI_AUTH_WPA_PSK: return "WPA PSK";
+    case WIFI_AUTH_WPA2_PSK: return "WPA2 PSK";
+    case WIFI_AUTH_WPA_WPA2_PSK: return "WPA/WPA2 PSK";
+    case WIFI_AUTH_WPA2_ENTERPRISE: return "WPA2 Enterprise";
+    default: return "UNKNOWN";
+  }
+}
+std::string format_ip4_addr(const ip4_addr_t &ip) {
+  char buf[20];
+  sprintf(buf, "%u.%u.%u.%u", uint8_t(ip.addr >> 0), uint8_t(ip.addr >> 8), uint8_t(ip.addr >> 16), uint8_t(ip.addr >> 24));
+  return buf;
+}
+const char *get_op_mode_str(uint8_t mode) {
+  switch (mode) {
+    case WIFI_OFF: return "OFF";
+    case WIFI_STA: return "STA";
+    case WIFI_AP: return "AP";
+    case WIFI_AP_STA: return "AP+STA";
+    default: return "UNKNOWN";
+  }
+}
+const char *get_disconnect_reason_str(uint8_t reason) {
+  switch (reason) {
+    case WIFI_REASON_AUTH_EXPIRE: return "Auth Expired";
+    case WIFI_REASON_AUTH_LEAVE: return "Auth Leave";
+    case WIFI_REASON_ASSOC_EXPIRE: return "Association Expired";
+    case WIFI_REASON_ASSOC_TOOMANY: return "Too Many Associations";
+    case WIFI_REASON_NOT_AUTHED: return "Not Authenticated";
+    case WIFI_REASON_NOT_ASSOCED: return "Not Associated";
+    case WIFI_REASON_ASSOC_LEAVE: return "Association Leave";
+    case WIFI_REASON_ASSOC_NOT_AUTHED: return "Association not Authenticated";
+    case WIFI_REASON_DISASSOC_PWRCAP_BAD: return "Disassociate Power Cap Bad";
+    case WIFI_REASON_DISASSOC_SUPCHAN_BAD: return "Disassociate Supported Channel Bad";
+    case WIFI_REASON_IE_INVALID: return "IE Invalid";
+    case WIFI_REASON_MIC_FAILURE: return "Mic Failure";
+    case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT: return "4-Way Handshake Timeout";
+    case WIFI_REASON_GROUP_KEY_UPDATE_TIMEOUT: return "Group Key Update Timeout";
+    case WIFI_REASON_IE_IN_4WAY_DIFFERS: return "IE In 4-Way Handshake Differs";
+    case WIFI_REASON_GROUP_CIPHER_INVALID: return "Group Cipher Invalid";
+    case WIFI_REASON_PAIRWISE_CIPHER_INVALID: return "Pairwise Cipher Invalid";
+    case WIFI_REASON_AKMP_INVALID: return "AKMP Invalid";
+    case WIFI_REASON_UNSUPP_RSN_IE_VERSION: return "Unsupported RSN IE version";
+    case WIFI_REASON_INVALID_RSN_IE_CAP: return "Invalid RSN IE Cap";
+    case WIFI_REASON_802_1X_AUTH_FAILED: return "802.1x Authentication Failed";
+    case WIFI_REASON_CIPHER_SUITE_REJECTED: return "Cipher Suite Rejected";
+    case WIFI_REASON_BEACON_TIMEOUT: return "Beacon Timeout";
+    case WIFI_REASON_NO_AP_FOUND: return "AP Not Found";
+    case WIFI_REASON_AUTH_FAIL: return "Authentication Failed";
+    case WIFI_REASON_ASSOC_FAIL: return "Association Failed";
+    case WIFI_REASON_HANDSHAKE_TIMEOUT: return "Handshake Failed";
+    case WIFI_REASON_UNSPECIFIED:
+    default:
+      return "Unspecified";
+  }
+}
 void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_info_t info) {
-#ifdef ESPHOMELIB_LOG_HAS_VERBOSE
-  const char *event_name;
   switch (event) {
-    case SYSTEM_EVENT_WIFI_READY: event_name = "WiFi ready";
+    case SYSTEM_EVENT_WIFI_READY: {
+      ESP_LOGV(TAG, "Event: WiFi ready");
       break;
-    case SYSTEM_EVENT_SCAN_DONE: event_name = "Scan done";
+    }
+    case SYSTEM_EVENT_SCAN_DONE: {
+      auto it = info.scan_done;
+      ESP_LOGV(TAG, "Event: WiFi Scan Done status=%u number=%u scan_id=%u",
+               it.status, it.number, it.scan_id);
       break;
-    case SYSTEM_EVENT_STA_START: event_name = "STA start";
+    }
+    case SYSTEM_EVENT_STA_START: {
+      ESP_LOGV(TAG, "Event: WiFi STA start");
       break;
-    case SYSTEM_EVENT_STA_STOP: event_name = "STA stop";
+    }
+    case SYSTEM_EVENT_STA_STOP: {
+      ESP_LOGV(TAG, "Event: WiFi STA stop");
       break;
-    case SYSTEM_EVENT_STA_CONNECTED: event_name = "STA connected";
+    }
+    case SYSTEM_EVENT_STA_CONNECTED: {
+      auto it = info.connected;
+      char buf[33];
+      memcpy(buf, it.ssid, it.ssid_len);
+      buf[it.ssid_len] = '\0';
+      ESP_LOGV(TAG, "Event: Connected ssid='%s' bssid=%s channel=%u, authmode=%s",
+               buf, format_mac_addr(it.bssid).c_str(), it.channel, get_auth_mode_str(it.authmode));
       break;
-    case SYSTEM_EVENT_STA_DISCONNECTED: event_name = "STA disconnected";
+    }
+    case SYSTEM_EVENT_STA_DISCONNECTED: {
+      auto it = info.disconnected;
+      char buf[33];
+      memcpy(buf, it.ssid, it.ssid_len);
+      buf[it.ssid_len] = '\0';
+      ESP_LOGW(TAG, "Event: Disconnected ssid='%s' bssid=%s reason=%s",
+               buf, format_mac_addr(it.bssid).c_str(), get_disconnect_reason_str(it.reason));
       break;
-    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE: event_name = "STA auth mode change";
+    }
+    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE: {
+      auto it = info.auth_change;
+      ESP_LOGV(TAG, "Event: Authmode Change old=%s new=%s",
+               get_auth_mode_str(it.old_mode), get_auth_mode_str(it.new_mode));
       break;
-    case SYSTEM_EVENT_STA_GOT_IP: event_name = "STA got IP";
+    }
+    case SYSTEM_EVENT_STA_GOT_IP: {
+      auto it = info.got_ip.ip_info;
+      ESP_LOGV(TAG, "Event: Got IP static_ip=%s gateway=%s",
+               format_ip4_addr(it.ip).c_str(), format_ip4_addr(it.gw).c_str());
       break;
-    case SYSTEM_EVENT_STA_LOST_IP: event_name = "STA lost IP";
+    }
+    case SYSTEM_EVENT_STA_LOST_IP: {
+      ESP_LOGV(TAG, "Event: Lost IP");
       break;
-    case SYSTEM_EVENT_AP_START: event_name = "AP start";
+    }
+    case SYSTEM_EVENT_AP_START: {
+      ESP_LOGV(TAG, "Event: WiFi AP start");
       break;
-    case SYSTEM_EVENT_AP_STOP: event_name = "AP stop";
+    }
+    case SYSTEM_EVENT_AP_STOP: {
+      ESP_LOGV(TAG, "Event: WiFi AP stop");
       break;
-    case SYSTEM_EVENT_AP_STACONNECTED: event_name = "AP STA connected";
+    }
+    case SYSTEM_EVENT_AP_STACONNECTED: {
+      auto it = info.sta_connected;
+      ESP_LOGV(TAG, "Event: AP client connected MAC=%s aid=%u",
+               format_mac_addr(it.mac).c_str(), it.aid);
       break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED: event_name = "AP STA disconnected";
+    }
+    case SYSTEM_EVENT_AP_STADISCONNECTED: {
+      auto it = info.sta_disconnected;
+      ESP_LOGV(TAG, "Event: AP client disconnected MAC=%s aid=%u",
+               format_mac_addr(it.mac).c_str(), it.aid);
       break;
-    case SYSTEM_EVENT_AP_STAIPASSIGNED: event_name = "AP STA IP assigned";
+    }
+    case SYSTEM_EVENT_AP_STAIPASSIGNED: {
+      ESP_LOGV(TAG, "Event: AP client assigned IP");
       break;
-    case SYSTEM_EVENT_AP_PROBEREQRECVED: event_name = "AP Probe Request received";
+    }
+    case SYSTEM_EVENT_AP_PROBEREQRECVED: {
+      auto it = info.ap_probereqrecved;
+      ESP_LOGV(TAG, "Event: AP receive Probe Request MAC=%s RSSI=%d",
+               format_mac_addr(it.mac).c_str(), it.rssi);
       break;
-    default: event_name = "UNKNOWN";
+    }
+    default:
       break;
   }
-
-  ESP_LOGV(TAG, "[WiFi event] %s (num=%d status=%u)", event_name, event, WiFi.status());
-#endif
 
   if (event == SYSTEM_EVENT_STA_DISCONNECTED) {
     uint8_t reason = info.disconnected.reason;
@@ -1073,6 +1275,7 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
 void WiFiComponent::wifi_register_callbacks_() {
   auto f = std::bind(&WiFiComponent::wifi_event_callback_, this, std::placeholders::_1, std::placeholders::_2);
   WiFi.onEvent(f);
+  WiFi.persistent(false);
 }
 wl_status_t WiFiComponent::wifi_sta_status_() {
   return WiFi.status();
@@ -1127,6 +1330,7 @@ bool WiFiComponent::wifi_ap_ip_config_(optional<ManualIP> manual_ip) {
     return false;
 
   tcpip_adapter_ip_info_t info;
+  memset(&info, 0, sizeof(info));
   if (manual_ip.has_value()) {
     info.ip.addr = static_cast<uint32_t>(manual_ip->static_ip);
     info.gw.addr = static_cast<uint32_t>(manual_ip->gateway);
@@ -1179,27 +1383,13 @@ bool WiFiComponent::wifi_ap_ip_config_(optional<ManualIP> manual_ip) {
 
   return true;
 }
-static bool softap_config_equal_(const wifi_config_t &lhs, const wifi_config_t &rhs) {
-  if (!sta_field_equal(lhs.ap.ssid, rhs.ap.ssid, 32))
-    return false;
-  if (!sta_field_equal(lhs.ap.password, rhs.ap.password, 64))
-    return false;
-  if (lhs.ap.channel != rhs.ap.channel)
-    return false;
-  if (lhs.ap.ssid_hidden != rhs.ap.ssid_hidden)
-    return false;
-  if (lhs.ap.max_connection != rhs.ap.max_connection)
-    return false;
-  if (lhs.ap.beacon_interval != rhs.ap.beacon_interval)
-    return false;
-  return lhs.ap.authmode == rhs.ap.authmode;
-}
 bool WiFiComponent::wifi_start_ap_(const WiFiAP &ap) {
   // enable AP
   if (!this->wifi_mode_({}, true))
     return false;
 
   wifi_config_t conf;
+  memset(&conf, 0, sizeof(conf));
   strcpy(reinterpret_cast<char*>(conf.ap.ssid), ap.get_ssid().c_str());
   conf.ap.channel = ap.get_channel().value_or(1);
   conf.ap.ssid_hidden = ap.get_ssid().size();
@@ -1214,16 +1404,10 @@ bool WiFiComponent::wifi_start_ap_(const WiFiAP &ap) {
     strcpy(reinterpret_cast<char*>(conf.ap.password), ap.get_password().c_str());
   }
 
-  wifi_config_t conf_compare;
-  esp_wifi_get_config(WIFI_IF_AP, &conf_compare);
-
-  if (!softap_config_equal_(conf, conf_compare)) {
-    esp_err_t err = esp_wifi_set_config(WIFI_IF_AP, &conf);
-
-    if (err != ESP_OK) {
-      ESP_LOGV(TAG, "esp_wifi_set_config failed! %d", err);
-      return false;
-    }
+  esp_err_t err = esp_wifi_set_config(WIFI_IF_AP, &conf);
+  if (err != ESP_OK) {
+    ESP_LOGV(TAG, "esp_wifi_set_config failed! %d", err);
+    return false;
   }
 
   yield();
@@ -1244,6 +1428,9 @@ IPAddress WiFiComponent::wifi_soft_ap_ip_() {
 
 void WiFiAP::set_ssid(const std::string &ssid) {
   this->ssid_ = ssid;
+}
+void WiFiAP::set_bssid(bssid_t bssid) {
+  this->bssid_ = bssid;
 }
 void WiFiAP::set_bssid(optional<bssid_t> bssid) {
   this->bssid_ = bssid;

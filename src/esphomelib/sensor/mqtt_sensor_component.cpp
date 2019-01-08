@@ -41,7 +41,7 @@ uint32_t MQTTSensorComponent::get_expire_after() const {
   if (this->expire_after_.has_value()) {
     return *this->expire_after_;
   } else {
-    return this->sensor_->calculate_expected_filter_update_interval() * 3;
+    return this->sensor_->calculate_expected_filter_update_interval() * 5;
   }
 }
 void MQTTSensorComponent::set_expire_after(uint32_t expire_after) {

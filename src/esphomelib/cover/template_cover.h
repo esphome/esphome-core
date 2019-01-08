@@ -36,6 +36,7 @@ class TemplateCover : public Cover, public Component {
   Trigger<NoArg> *open_trigger_;
   Trigger<NoArg> *close_trigger_;
   Trigger<NoArg> *stop_trigger_;
+  Trigger<NoArg> *prev_trigger_{nullptr};
   optional<CoverState> last_state_;
 };
 
