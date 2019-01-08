@@ -41,6 +41,7 @@ void tick_status_led();
 void feed_wdt();
 
 std::string to_string(std::string val);
+std::string to_string(String val);
 std::string to_string(int val);
 std::string to_string(long val);
 std::string to_string(long long val);
@@ -50,6 +51,7 @@ std::string to_string(unsigned long long val);
 std::string to_string(float val);
 std::string to_string(double val);
 std::string to_string(long double val);
+optional<float> parse_float(const std::string &str);
 
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);

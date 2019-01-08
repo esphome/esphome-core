@@ -5,6 +5,7 @@
 #include "esphomelib/web_server.h"
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
+#include "esphomelib/util.h"
 #include "StreamString.h"
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -136,7 +137,7 @@ void WebServer::setup() {
 }
 void WebServer::dump_config() {
   ESP_LOGCONFIG(TAG, "Web Server:");
-  ESP_LOGCONFIG(TAG, "  Address: %s:%u", WiFi.localIP().toString().c_str(), this->port_);
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().toString().c_str(), this->port_);
 }
 float WebServer::get_setup_priority() const {
   return setup_priority::WIFI - 1.0f;

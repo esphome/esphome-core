@@ -26,7 +26,7 @@ class HTU21DComponent : public PollingComponent, public I2CDevice {
   /// Construct the HTU21D with the given update interval.
   HTU21DComponent(I2CComponent *parent,
                   const std::string &temperature_name, const std::string &humidity_name,
-                  uint32_t update_interval = 15000);
+                  uint32_t update_interval = 60000);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

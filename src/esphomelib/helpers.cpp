@@ -399,6 +399,9 @@ std::string build_json(const json_build_t &f) {
 std::string to_string(std::string val) {
   return val;
 }
+std::string to_string(String val) {
+  return val.c_str();
+}
 std::string to_string(int val) {
   char buf[64];
   sprintf(buf, "%d", val);
@@ -443,6 +446,13 @@ std::string to_string(long double val) {
   char buf[64];
   sprintf(buf, "%Lf", val);
   return buf;
+}
+optional<float> parse_float(const std::string &str) {
+  char *end;
+  float value = ::strtof(str.c_str(), &end);
+  if (end == nullptr)
+    return {};
+  return value;
 }
 
 template<uint32_t>

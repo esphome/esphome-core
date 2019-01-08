@@ -29,9 +29,15 @@ void TemplateSwitch::loop() {
   this->publish_state(*s);
 }
 void TemplateSwitch::write_state(bool state) {
+  if (this->prev_trigger_ != nullptr) {
+    this->prev_trigger_->stop();
+  }
+
   if (state) {
+    this->prev_trigger_ = this->turn_on_trigger_;
     this->turn_on_trigger_->trigger();
   } else {
+    this->prev_trigger_ = this->turn_off_trigger_;
     this->turn_off_trigger_->trigger();
   }
 
