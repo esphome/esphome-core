@@ -122,6 +122,7 @@
   #define USE_DC_MOTOR
   #define USE_L298N
   #define USE_YX75V18
+  #define USE_ULN2003
   #define USE_TOTAL_DAILY_ENERGY_SENSOR
   #define USE_MY9231_OUTPUT
   #define USE_CUSTOM_SENSOR
