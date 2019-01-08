@@ -120,6 +120,7 @@
 #include "esphomelib/stepper/a4988.h"
 #include "esphomelib/stepper/stepper.h"
 #include "esphomelib/dc_motor/l298n.h"
+#include "esphomelib/dc_motor/yx75v18.h"
 //#include "esphomelib/dc_motor/dc_motor.h"    //Shold not be defined here?
 #include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
@@ -1330,6 +1331,13 @@ class Application {
 
 #ifdef USE_A4988
   stepper::A4988 *make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin);
+#endif
+
+#ifdef USE_L298N
+  dc_motor::L298n_half* make_l298n_half(GPIOPin *enable_pin_motor, GPIOPin *dir_pin_motor);
+#endif
+#ifdef USE_YX75V18
+ dc_motor::Yx75v18 *make_yx75v18(GPIOPin *positive_pin, GPIOPin *nagtive_pin);
 #endif
 
 

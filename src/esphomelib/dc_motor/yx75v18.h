@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_DC_MOTOR_YX75V18
+#ifdef USE_YX75V18
 
 #include "esphomelib/component.h"
 #include "esphomelib/dc_motor/dc_motor.h"

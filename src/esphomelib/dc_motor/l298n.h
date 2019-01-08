@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_DC_MOTOR_L298N
+#ifdef USE_L298N
 
 #include "esphomelib/component.h"
 #include "esphomelib/dc_motor/dc_motor.h"
