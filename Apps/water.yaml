@@ -1,0 +1,213 @@
+esphomeyaml:
+  name: water
+  platform: ESP32
+  board: nodemcu-32s
+
+wifi:
+  ssid: 'fuckgfw'
+  password: 'refuckgfw'
+
+mqtt:
+  broker: voicevon.vicp.io
+  port: 1883
+  username: von
+  password: von1970
+  birth_message:
+    topic: water/status
+    payload: online
+  will_message:
+    topic: water/status
+    payload: offline
+
+logger:
+
+# Enable Home Assistant API
+api:
+  password: '1234567890'
+
+ota:
+  password: '1234567890'
+  
+dallas:
+  pin: 19
+  
+sensor:
+  - platform: dallas
+    name: temp
+    address: 0x0000
+    filters: []
+
+  - platform: hx711
+    name: "weight"
+    dout_pin: 22
+    clk_pin: 21
+    gain: 128
+    update_interval: 15s
+    # filters: 
+    #   - multiply: 0.00001
+    filters:
+      - lambda: |-
+          auto first_mass = 0.0; // first known mass was 0kg
+          auto first_value = 120.0; // value for the first known mass was 120
+          auto second_mass = 1.0; // second mass was 1kg
+          auto second_value = 810.0; // second value was 810
+
+          return map(x, first_value, second_value, first_mass, second_mass);
+    unit_of_measurement: Kg
+  
+  - platform: adc
+    name: tds
+    pin: 39
+    update_interval: 10s
+    attenuation: 11db
+    filters: []
+    
+  - platform: adc
+    name: adc_leaking  #漏水传感器
+    id: adc_leaking
+    pin: 36
+    update_interval: 10s
+    attenuation: 11db
+    filters: [] 
+  
+  - platform: adc
+    name: ap    #膜前压力/浓水压力
+    pin: 33
+    update_interval: 10s
+    attenuation: 11db
+    filters: []
+
+  - platform: pulse_counter
+    name: pc_a    #原水流量
+    pin: 18
+    update_interval: 10s
+    filters: []
+
+  - platform: pulse_counter
+    name: pc_a    #净水流量
+    pin: 17
+    update_interval: 10s
+    filters: []
+    
+  - platform: pulse_counter
+    name: pc_a    #浓水流量
+    pin: 16
+    update_interval: 10s
+    filters: []
+    
+binary_sensor:    
+  - platform: gpio
+    name: sp    #原水压力
+    id: sp
+    pin: 35
+    
+  - platform: gpio
+    name: sp    #净水压力
+    pin: 34
+
+  - platform: gpio
+    name: door    #
+    pin: 
+       number: 23
+       mode: INPUT_PULLUP
+
+  - platform: template
+    name: bin_leaking
+    id: bin_leaking
+    lambda: >-
+      if (adc_leaking->state < 0.7)
+        return true;
+      else
+        return false;
+
+switch:    
+  - platform: gpio
+    name: r1
+    id: r1
+    pin: 13  #  14   
+
+  - platform: gpio
+    name: r2
+    id: r2
+    pin: 32  #13
+
+  - platform: gpio
+    name: r3
+    id: r3
+    pin: 4  #32
+
+  - platform: gpio
+    name: r4
+    id: r4
+    pin: 25 #4
+
+  - platform: gpio
+    name: r5
+    id: r5
+    pin: 27  #25
+
+  - platform: gpio
+    name: r6
+    id: r6
+    pin: 14  #27
+    
+spi:
+  clk_pin: 5
+  mosi_pin: 2
+
+display:
+  - platform: max7219
+    cs_pin: 15
+    num_chips: 1
+    lambda: |-
+      it.print("01234567");    
+    
+status_led:
+  pin: 
+    number: 12
+    inverted: true
+  
+
+#  globals:
+#    - id: current_state
+#      # 0, standby
+#      # 1, Washing pipe
+#      # 2, pumping water
+#      # 3, washing back 
+#      type: int
+#      restore_state: yes
+#      initial_value: '0'
+  
+# script:
+#   - id: my_script
+#     then:
+#       - lambda: |-
+#           bool br1 = false;
+#           bool br2 = false;
+#           bool br3 = false;
+#           void turn_off_all()
+#           {
+#              r1.turn_off();
+#              r2.turn_off();
+#              r3.turn_off();
+#           }
+#           if(id(leaking).state >100)
+#           {
+#             br1 = false;
+#             br2 = false;
+#             br3 = false;
+#           }
+#           if(id(lp.state == "ON"))
+#             turn_pump_on = false;
+
+#           if(turn_pump_on)
+#             id(r1).turn_on();
+#           else
+#             id(r1).turn_off();
+
+        
+        
+
+  
+
+  

@@ -1,0 +1,65 @@
+esphomeyaml:
+  name: feeder
+  platform: ESP32
+  board: nodemcu-32s
+
+wifi:
+  ssid: 'FuckGFW'
+  password: 'refuckgfw'
+
+
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: '1234567890'
+
+ota:
+  password: '1234567890'
+  
+  
+switch:
+  - platform: gpio
+    id: motor_p1
+    pin: 5
+
+  - platform: gpio
+    name: motor_p2
+    pin: 4
+ 
+
+# status_led:
+#   pin: 
+#     number: 2
+#     inverted: true
+  
+sensor:
+  - platform: pulse_counter
+    id: weight
+    name: weight
+    pin: 
+      number: 14
+      mode: input_pullup
+    filters: []
+    
+mqtt:
+  broker: 'voicevon.vicp.io'
+  username: 'von'
+  password: 'von1970'
+  on_message: 
+    - topic: abcd/efgh
+      then:
+        - delay: 10s
+        - lambda: |
+            if(id(weight).state <5)
+              id(motor_p1).turn_on();
+        - switch.turn_on: motor_p1
+
+script:
+  - id: my_script
+    then:
+      - lambda: |-
+        id(motor_p1).turn_on();
+      
