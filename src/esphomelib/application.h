@@ -124,8 +124,7 @@
 #include "esphomelib/stepper/stepper.h"
 #include "esphomelib/stepper/uln2003.h"
 #include "esphomelib/dc_motor/dc_motor.h"
-#include "esphomelib/dc_motor/l298n.h"
-#include "esphomelib/dc_motor/yx75v18.h"
+#include "esphomelib/dc_motor/h_bridge.h"
 #include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
@@ -1367,13 +1366,11 @@ class Application {
                                  const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d);
 #endif
 
-#ifdef USE_YX75V18
-   dc_motor::YX75V18 *make_yx75v18(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b);
+#ifdef USE_H_BRIDGE
+   dc_motor::H_bridge *make_h_bridge(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b);
 #endif
 
-#ifdef USE_L298N
-   dc_motor::L298N_half *make_l298n_half(const GPIOOutputPin &pin_dir, const GPIOOutputPin &pin_pwm);
-#endif
+
 
 
 

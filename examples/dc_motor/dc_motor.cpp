@@ -12,8 +12,7 @@ void setup() {
   App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
   App.init_ota()->start_safe_mode();
 
-  App.make_l298n_half(12,14);
-  App.make_yx75v18(22,33);
+  App.make_h_bridge(22,33);
   ESP_LOGV(TAG, "Humidifier created.");
 
   App.make_gpio_binary_sensor("Cabinet Motion", 36, "motion");

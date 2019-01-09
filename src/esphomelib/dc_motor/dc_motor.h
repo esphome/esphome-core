@@ -13,7 +13,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace dc_motor {
 
 #define LOG_DC_MOTOR(this) \
-    ESP_LOGCONFIG(TAG, "Sensor type: ", this->sensor_type) ; 
+    ESP_LOGCONFIG(TAG, "Sensor type: ", this->sensor_type);
 
 class Dc_motor {
  public:
@@ -22,8 +22,10 @@ class Dc_motor {
   void set_direction(bool clockwise);
   
  protected:
-  //to discuss, is this correct?
-  int sensor_type = 0;  //no sensor
+  //0: not adjustable 
+  //1: pwm
+  int adjust_speed_ = 0;    
+
 };
 
 

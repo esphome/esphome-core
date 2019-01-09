@@ -4,17 +4,17 @@
 
 #ifdef USE_H_BRIDGE
 
-#include "esphomelib/dc_motor/yx75v18.h"
+#include "esphomelib/dc_motor/h_bridge.h"
 #include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace dc_motor {
 
-static const char *TAG = "dc_motor.yx75v18";
+static const char *TAG = "dc_motor.h_bridge";
 
 void H_bridge::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up YX75V18...");
+  ESP_LOGCONFIG(TAG, "Setting up h_bridge...");
 //   if (this->sleep_pin_ != nullptr) {
 //     this->sleep_pin_->setup();
 //     this->sleep_pin_->digital_write(false);
