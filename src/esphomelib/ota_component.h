@@ -56,9 +56,7 @@ class OTAComponent : public Component {
   /** Set a plaintext password that OTA will use for authentication.
    *
    * Warning: This password will be stored in plaintext in the ROM and can be read
-   * by intruders. It is however secured somewhat secure again MITM attacks (attackers
-   * could still modify the binary while you're sending it, but they can't start OTA processes
-   * themselves.)
+   * by intruders.
    *
    * @param password The plaintext password.
    */
