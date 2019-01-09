@@ -2,20 +2,20 @@
 
 using namespace esphomelib;
 
-static const char *TAG = "main";
 
 void setup() {
   App.set_name("dc_motor");
   App.init_log();
 
-  App.init_wifi("YOUR_SSID", "YOUR_PASSWORD");
-  App.init_mqtt("MQTT_HOST", "USERNAME", "PASSWORD");
+  App.init_wifi("FuckGFW", "refuckgfw");
+  App.init_mqtt("192.168.123.41", "von", "von1970");
   App.init_ota()->start_safe_mode();
 
-  App.make_h_bridge(22,33);
-  ESP_LOGV(TAG, "Humidifier created.");
-
-  App.make_gpio_binary_sensor("Cabinet Motion", 36, "motion");
+  auto bridge = App.make_h_bridge(5,4);
+  bridge->move();
+  bridge->set_direction(true);
+  bridge->move();
+  App.make_gpio_binary_sensor("Cabinet Motion", 16, "motion");
 
   App.setup();
 }

@@ -20,6 +20,8 @@ class H_bridge : public Dc_motor, public Component {
   void dump_config() override;
   void loop() override;
   float get_setup_priority() const override;
+  void move() override;
+  void stop() override;
 
  protected:
   GPIOPin *positive_pin_;

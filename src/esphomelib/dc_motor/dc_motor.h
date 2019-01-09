@@ -17,15 +17,15 @@ namespace dc_motor {
 
 class Dc_motor {
  public:
-  void move();
-  void stop();
+  virtual void move();
+  virtual void stop();
   void set_direction(bool clockwise);
   
  protected:
   //0: not adjustable 
   //1: pwm
   int adjust_speed_ = 0;    
-
+  bool direction_clockwise_ = false;
 };
 
 
