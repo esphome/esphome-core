@@ -47,10 +47,10 @@ void TSL2561Sensor::setup() {
   timing &= ~0b00000011;
   timing |= this->integration_time_ & 0b11;
 
-  this->write_byte(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, timing);
+  this->tsl2561_write_byte(TSL2561_REGISTER_TIMING, timing);
 }
 void TSL2561Sensor::dump_config() {
-  ESP_LOGCONFIG(TAG, "TSL2561:");
+  LOG_SENSOR("", "TSL2561", this);
   LOG_I2C_DEVICE(this);
 
   if (this->is_failed()) {

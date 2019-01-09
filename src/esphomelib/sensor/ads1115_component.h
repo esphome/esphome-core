@@ -67,7 +67,7 @@ class ADS1115Component : public Component, public I2CDevice {
    * @return An ADS1115Sensor, use this for advanced options.
    */
   ADS1115Sensor *get_sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,
-                            uint32_t update_interval = 15000);
+                            uint32_t update_interval = 60000);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

@@ -106,8 +106,6 @@ void PCA9685OutputComponent::loop() {
   if (this->min_channel_ == 0xFF || !this->update_)
     return;
 
-  uint8_t data[16 * 4];
-  uint8_t len = 0;
   const uint16_t num_channels = this->max_channel_ - this->min_channel_ + 1;
   for (uint8_t channel = this->min_channel_; channel <= this->max_channel_; channel++) {
     uint16_t phase_begin = uint16_t(channel - this->min_channel_) / num_channels * 4096 ;
@@ -126,17 +124,20 @@ void PCA9685OutputComponent::loop() {
 
     ESP_LOGVV(TAG, "Channel %02u: amount=%04u phase_begin=%04u phase_end=%04u", channel, amount, phase_begin, phase_end);
 
-    data[len++] = phase_begin & 0xFF;
-    data[len++] = (phase_begin >> 8) & 0xFF;
-    data[len++] = phase_end & 0xFF;
-    data[len++] = (phase_end >> 8) & 0xFF;
-  }
-  if (!this->write_bytes(PCA9685_REGISTER_LED0 + 4 * this->min_channel_, data, len)) {
-    this->status_set_warning();
-  } else {
-    this->status_clear_warning();
+    uint8_t data[4];
+    data[0] = phase_begin & 0xFF;
+    data[1] = (phase_begin >> 8) & 0xFF;
+    data[2] = phase_end & 0xFF;
+    data[3] = (phase_end >> 8) & 0xFF;
+
+    uint8_t reg = PCA9685_REGISTER_LED0 + 4 * channel;
+    if (!this->write_bytes(reg, data, 4)) {
+      this->status_set_warning();
+      return;
+    }
   }
 
+  this->status_clear_warning();
   this->update_ = false;
 }
 

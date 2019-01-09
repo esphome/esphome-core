@@ -19,11 +19,12 @@ using MHZ19CO2Sensor = sensor::EmptyPollingParentSensor<0, ICON_PERIODIC_TABLE_C
 class MHZ19Component : public PollingComponent, public UARTDevice {
  public:
   MHZ19Component(UARTComponent *parent, const std::string &name,
-                 uint32_t update_interval = 15000);
+                 uint32_t update_interval = 60000);
   
   float get_setup_priority() const override;
 
   void update() override;
+  void dump_config() override;
 
   MHZ19TemperatureSensor *make_temperature_sensor(const std::string &name);
   MHZ19CO2Sensor *get_co2_sensor() const;

@@ -39,7 +39,9 @@ class RawReceiver : public RemoteReceiver {
 
 class RawDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData *data) override;
+  bool dump(RemoteReceiveData *data) override;
+
+  bool secondary_() override;
 };
 #endif
 

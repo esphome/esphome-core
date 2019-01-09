@@ -20,9 +20,22 @@ template<typename T>
 class TurnOffAction;
 template<typename T>
 class TurnOnAction;
+template<typename T>
+class SwitchCondition;
 
-#define LOG_SWITCH(this) \
-  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); }
+#define LOG_SWITCH(prefix, type, obj) \
+    if (obj != nullptr) { \
+      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+      if (!obj->get_icon().empty()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
+      } \
+      if (obj->optimistic()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Optimistic: YES"); \
+      } \
+      if (obj->is_inverted()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Inverted: YES"); \
+      } \
+    }
 
 /** Base class for all switches.
  *
@@ -87,6 +100,10 @@ class Switch : public Nameable {
   TurnOffAction<T> *make_turn_off_action();
   template<typename T>
   TurnOnAction<T> *make_turn_on_action();
+  template<typename T>
+  SwitchCondition<T> *make_switch_is_on_condition();
+  template<typename T>
+  SwitchCondition<T> *make_switch_is_off_condition();
 
   /** Set callback for state changes.
    *
@@ -102,6 +119,8 @@ class Switch : public Nameable {
    * Defaults to false.
    */
   virtual bool optimistic();
+
+  bool is_inverted() const;
 
  protected:
   /** Write the given state to hardware. You should implement this
@@ -121,6 +140,8 @@ class Switch : public Nameable {
    * @return The icon of this switch, for example "mdi:fan".
    */
   virtual std::string icon();
+
+  uint32_t hash_base_() override;
 
   optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
 
@@ -160,6 +181,16 @@ class ToggleAction : public Action<T> {
 
  protected:
   Switch *switch_;
+};
+
+template<typename T>
+class SwitchCondition : public Condition<T> {
+ public:
+  SwitchCondition(Switch *parent, bool state);
+  bool check(T x) override;
+ protected:
+  Switch *parent_;
+  bool state_;
 };
 
 // =============== TEMPLATE DEFINITIONS ===============
@@ -204,6 +235,24 @@ TurnOffAction<T> *Switch::make_turn_off_action() {
 template<typename T>
 TurnOnAction<T> *Switch::make_turn_on_action() {
   return new TurnOnAction<T>(this);
+}
+
+template<typename T>
+SwitchCondition<T>::SwitchCondition(Switch *parent, bool state) : parent_(parent), state_(state) {
+
+}
+template<typename T>
+bool SwitchCondition<T>::check(T x) {
+  return this->parent_->state == this->state_;
+}
+
+template<typename T>
+SwitchCondition<T> *Switch::make_switch_is_on_condition() {
+  return new SwitchCondition<T>(this, true);
+}
+template<typename T>
+SwitchCondition<T> *Switch::make_switch_is_off_condition() {
+  return new SwitchCondition<T>(this, false);
 }
 
 } // namespace switch_

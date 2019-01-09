@@ -22,7 +22,7 @@ class ESP8266SoftwareSerial {
 
   void write_byte(uint8_t data);
 
-  size_t available();
+  int available();
 
  protected:
   void gpio_intr_();
@@ -43,7 +43,7 @@ class ESP8266SoftwareSerial {
 };
 #endif
 
-class UARTComponent : public Component {
+class UARTComponent : public Component, public Stream {
  public:
   UARTComponent(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate = 9600);
 
@@ -63,11 +63,15 @@ class UARTComponent : public Component {
 
   bool read_array(uint8_t *data, size_t len);
 
-  size_t available();
+  int available() override;
 
-  void flush();
+  void flush() override;
 
   float get_setup_priority() const override;
+
+  size_t write(uint8_t data) override;
+  int read() override;
+  int peek() override;
 
  protected:
   bool check_read_timeout_(size_t len = 1);
@@ -85,7 +89,7 @@ class UARTComponent : public Component {
 extern uint8_t next_uart_num;
 #endif
 
-class UARTDevice {
+class UARTDevice : public Stream {
  public:
   UARTDevice(UARTComponent *parent);
 
@@ -100,9 +104,13 @@ class UARTDevice {
 
   bool read_array(uint8_t *data, size_t len);
 
-  size_t available();
+  int available() override;
 
-  void flush();
+  void flush() override;
+
+  size_t write(uint8_t data) override;
+  int read() override;
+  int peek() override;
 
  protected:
   UARTComponent *parent_;

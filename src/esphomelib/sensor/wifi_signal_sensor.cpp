@@ -8,10 +8,13 @@
 #else
   #include <ESP8266WiFi.h>
 #endif
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace sensor {
+
+static const char *TAG = "sensor.wifi_signal";
 
 WiFiSignalSensor::WiFiSignalSensor(const std::string &name, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval) {
@@ -34,6 +37,9 @@ std::string WiFiSignalSensor::unique_id() {
 }
 float WiFiSignalSensor::get_setup_priority() const {
   return setup_priority::WIFI;
+}
+void WiFiSignalSensor::dump_config() {
+  LOG_SENSOR("", "WiFi Signal", this);
 }
 
 } // namespace sensor

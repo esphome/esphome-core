@@ -6,19 +6,19 @@
 #include "esphomelib/log.h"
 #include "esphomelib/esppreferences.h"
 #include "esphomelib/helpers.h"
-#include "esphomelib/wifi_component.h"
 #include "esphomelib/status_led.h"
+#include "esphomelib/util.h"
 
 #include <cstdio>
-#include <ArduinoOTA.h>
-#include <StreamString.h>
-
+#ifndef USE_NEW_OTA
+  #include <ArduinoOTA.h>
+#else
+#include <MD5Builder.h>
 #ifdef ARDUINO_ARCH_ESP32
-#include <ESPmDNS.h>
+  #include <Update.h>
 #endif
-#ifdef ARDUINO_ARCH_ESP8266
-#include <ESP8266mDNS.h>
 #endif
+#include <StreamString.h>
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -33,17 +33,13 @@ void OTAComponent::setup() {
   this->server_->begin();
 
 #ifdef USE_NEW_OTA
-  MDNS.begin(global_wifi_component->get_hostname().c_str());
-  MDNS.enableArduino(this->port_, !this->password_.empty());
-
 #ifdef ARDUINO_ARCH_ESP32
   add_shutdown_hook([this](const char *cause) {
     this->server_->close();
-    MDNS.end();
   });
 #endif
 #else
-  ArduinoOTA.setHostname(global_wifi_component->get_hostname().c_str());
+  ArduinoOTA.setHostname(network_get_hostname().c_str());
   ArduinoOTA.setPort(this->port_);
   switch (this->auth_type_) {
     case PLAINTEXT: {
@@ -131,7 +127,7 @@ void OTAComponent::setup() {
 }
 void OTAComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Over-The-Air Updates:");
-  ESP_LOGCONFIG(TAG, "  Address: %s:%u", WiFi.localIP().toString().c_str(), this->port_);
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().toString().c_str(), this->port_);
   if (!this->password_.empty()) {
     ESP_LOGCONFIG(TAG, "  Using Password.");
   }
@@ -475,19 +471,15 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     }
 #endif
     global_state = STATUS_LED_ERROR;
-    global_wifi_component->setup_();
-    while (!global_wifi_component->can_proceed()) {
-      yield();
-      global_wifi_component->loop_();
-      tick_status_led();
-    }
+    network_setup();
     this->setup_();
 
     ESP_LOGI(TAG, "Waiting for OTA attempt.");
     uint32_t begin = millis();
     while ((millis() - begin) < enable_time) {
       this->loop_();
-      global_wifi_component->loop_();
+      network_tick();
+      tick_status_led();
       yield();
     }
     ESP_LOGE(TAG, "No OTA attempt made, restarting.");

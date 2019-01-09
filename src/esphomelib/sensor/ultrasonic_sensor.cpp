@@ -27,7 +27,7 @@ void UltrasonicSensorComponent::setup() {
   this->trigger_pin_->digital_write(false);
 }
 void UltrasonicSensorComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "Ultrasonic Sensor '%s':", this->name_.c_str());
+  LOG_SENSOR("", "Ultrasonic Sensor", this);
   LOG_PIN("  Echo Pin: ", this->echo_pin_);
   LOG_PIN("  Trigger Pin: ", this->trigger_pin_);
   ESP_LOGCONFIG(TAG, "    Pulse time: %u µs", this->pulse_time_us_);

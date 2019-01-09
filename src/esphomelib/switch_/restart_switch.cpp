@@ -30,6 +30,9 @@ void RestartSwitch::write_state(bool state) {
     safe_reboot("restart");
   }
 }
+void RestartSwitch::dump_config() {
+  LOG_SWITCH("", "Restart Switch", this);
+}
 
 } // namespace switch_
 

@@ -103,6 +103,13 @@ void MPU6050Component::dump_config() {
     ESP_LOGE(TAG, "Communication with MPU6050 failed!");
   }
   LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Acceleration X", this->accel_x_sensor_);
+  LOG_SENSOR("  ", "Acceleration Y", this->accel_y_sensor_);
+  LOG_SENSOR("  ", "Acceleration Z", this->accel_z_sensor_);
+  LOG_SENSOR("  ", "Gyro X", this->gyro_x_sensor_);
+  LOG_SENSOR("  ", "Gyro Y", this->gyro_y_sensor_);
+  LOG_SENSOR("  ", "Gyro Z", this->gyro_z_sensor_);
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
 }
 
 void MPU6050Component::update() {

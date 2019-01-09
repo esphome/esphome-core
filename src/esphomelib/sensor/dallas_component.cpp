@@ -78,6 +78,7 @@ void DallasComponent::setup() {
 void DallasComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "DallasComponent:");
   LOG_PIN("  Pin: ", this->one_wire_->get_pin());
+  LOG_UPDATE_INTERVAL(this);
 
   if (this->found_sensors_.empty()) {
     ESP_LOGW(TAG, "  Found no sensors!");
@@ -90,7 +91,7 @@ void DallasComponent::dump_config() {
   }
 
   for (auto sensor : this->sensors_) {
-    ESP_LOGCONFIG(TAG, "  Device '%s':", sensor->get_name().c_str());
+    LOG_SENSOR("  ", "Device", sensor);
     if (sensor->get_index().has_value()) {
       ESP_LOGCONFIG(TAG, "    Index %u", *sensor->get_index());
       if (*sensor->get_index() >= this->found_sensors_.size()) {

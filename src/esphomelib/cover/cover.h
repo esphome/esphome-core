@@ -31,6 +31,14 @@ class CloseAction;
 template<typename T>
 class StopAction;
 
+#define LOG_COVER(prefix, type, obj) \
+    if (obj != nullptr) { \
+      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+      if (obj->optimistic()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Optimistic: YES"); \
+      } \
+    }
+
 class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
@@ -63,6 +71,8 @@ class Cover : public Nameable {
 
  protected:
   virtual void write_command(CoverCommand command) = 0;
+
+  uint32_t hash_base_() override;
 
   bool has_state_{false};
   CallbackManager<void(CoverState)> state_callback_{};

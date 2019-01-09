@@ -50,7 +50,7 @@ class MQTTComponent : public Component {
   /// Send discovery info the Home Assistant, override this.
   virtual void send_discovery(JsonObject &root, SendDiscoveryConfig &config) = 0;
 
-  virtual void send_initial_state() = 0;
+  virtual bool send_initial_state() = 0;
 
   virtual bool is_internal() = 0;
 
@@ -110,30 +110,24 @@ class MQTTComponent : public Component {
   /// Get the MQTT topic for listening to commands.
   const std::string get_command_topic() const;
 
+  bool is_connected() const;
+
   /// Internal method to start sending discovery info, this will call send_discovery().
-  void send_discovery_();
+  bool send_discovery_();
 
   /** Send a MQTT message.
    *
    * @param topic The topic.
    * @param payload The payload.
-   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  void send_message(const std::string &topic,
-                    const std::string &payload,
-                    const optional<uint8_t> &qos = {},
-                    const optional<bool> &retain = {});
+  bool publish(const std::string &topic, const std::string &payload);
 
   /** Construct and send a JSON MQTT message.
    *
    * @param topic The topic.
    * @param f The Json Message builder.
-   * @param retain Whether to retain the message. If not set, defaults to get_retain.
    */
-  void send_json_message(const std::string &topic,
-                         const json_build_t &f,
-                         const optional<uint8_t> &qos = {},
-                         const optional<bool> &retain = {});
+  bool publish_json(const std::string &topic, const json_build_t &f);
 
   /** Subscribe to a MQTT topic.
    *
@@ -151,7 +145,7 @@ class MQTTComponent : public Component {
    * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
    * @param qos The MQTT quality of service. Defaults to 0.
    */
-  void subscribe_json(const std::string &topic, json_parse_t callback, uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos = 0);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

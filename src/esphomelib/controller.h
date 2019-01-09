@@ -49,33 +49,46 @@ class StoringController : public Controller {
  public:
 #ifdef USE_BINARY_SENSOR
   void register_binary_sensor(binary_sensor::BinarySensor *obj) override;
+
+  binary_sensor::BinarySensor *get_binary_sensor_by_key(uint32_t key);
 #endif
 
 #ifdef USE_FAN
   void register_fan(fan::FanState *obj) override;
+
+  fan::FanState *get_fan_by_key(uint32_t key);
 #endif
 
 #ifdef USE_LIGHT
   void register_light(light::LightState *obj) override;
+
+  light::LightState *get_light_by_key(uint32_t key);
 #endif
 
 #ifdef USE_SENSOR
   void register_sensor(sensor::Sensor *obj) override;
+
+  sensor::Sensor *get_sensor_by_key(uint32_t key);
 #endif
 
 #ifdef USE_SWITCH
   void register_switch(switch_::Switch *obj) override;
+
+  switch_::Switch *get_switch_by_key(uint32_t key);
 #endif
 
 #ifdef USE_COVER
   void register_cover(cover::Cover *cover) override;
+
+  cover::Cover *get_cover_by_key(uint32_t key);
 #endif
 
 #ifdef USE_TEXT_SENSOR
   void register_text_sensor(text_sensor::TextSensor *obj) override;
+
+  text_sensor::TextSensor *get_text_sensor_by_key(uint32_t key);
 #endif
 
- protected:
 #ifdef USE_BINARY_SENSOR
   std::vector<binary_sensor::BinarySensor *> binary_sensors_;
 #endif
@@ -102,6 +115,50 @@ class StoringController : public Controller {
 
 #ifdef USE_TEXT_SENSOR
   std::vector<text_sensor::TextSensor *> text_sensors_;
+#endif
+};
+
+class StoringUpdateListenerController : public StoringController {
+ public:
+#ifdef USE_BINARY_SENSOR
+  void register_binary_sensor(binary_sensor::BinarySensor *obj) override;
+
+  virtual void on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool state) = 0;
+#endif
+#ifdef USE_FAN
+  void register_fan(fan::FanState *obj) override;
+
+  virtual void on_fan_update(fan::FanState *obj) = 0;
+#endif
+
+#ifdef USE_LIGHT
+  void register_light(light::LightState *obj) override;
+
+  virtual void on_light_update(light::LightState *obj) = 0;
+#endif
+
+#ifdef USE_SENSOR
+  void register_sensor(sensor::Sensor *obj) override;
+
+  virtual void on_sensor_update(sensor::Sensor *obj, float state) = 0;
+#endif
+
+#ifdef USE_SWITCH
+  void register_switch(switch_::Switch *obj) override;
+
+  virtual void on_switch_update(switch_::Switch *obj, bool state) = 0;
+#endif
+
+#ifdef USE_COVER
+  void register_cover(cover::Cover *obj) override;
+
+  virtual void on_cover_update(cover::Cover *obj);
+#endif
+
+#ifdef USE_TEXT_SENSOR
+  void register_text_sensor(text_sensor::TextSensor *obj) override;
+
+  virtual void on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) = 0;
 #endif
 };
 

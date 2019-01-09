@@ -87,7 +87,10 @@ void Application::setup() {
   this->application_state_ = COMPONENT_STATE_SETUP;
 
   ESP_LOGI(TAG, "setup() finished successfully!");
+  this->dump_config();
+}
 
+void Application::dump_config() {
   if (this->compilation_time_.empty()) {
     ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION);
   } else {
@@ -98,6 +101,9 @@ void Application::setup() {
     Component *component = this->components_[i];
     component->dump_config();
   }
+}
+void Application::schedule_dump_config() {
+  this->dump_config_scheduled_ = true;
 }
 
 void HOT Application::loop() {
@@ -119,22 +125,44 @@ void HOT Application::loop() {
     feed_wdt();
   }
   global_state = new_global_state;
-  yield();
 
-  if (first_loop)
+  const uint32_t now = millis();
+  if (HighFrequencyLoopRequester::is_high_frequency()) {
+    yield();
+  } else {
+    uint32_t delay_time = this->loop_interval_;
+    if (now - this->last_loop_ < this->loop_interval_)
+      delay_time = this->loop_interval_ - (now - this->last_loop_);
+    delay(delay_time);
+  }
+  this->last_loop_  = now;
+
+  if (first_loop) {
     ESP_LOGI(TAG, "First loop finished successfully!");
+  }
+
+  if (this->dump_config_scheduled_) {
+    this->dump_config();
+    this->dump_config_scheduled_ = false;
+  }
 }
 
 WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string &password) {
   WiFiComponent *wifi = this->init_wifi();
-  wifi->set_sta(WiFiAp{
-      .ssid = ssid,
-      .password = password,
-      .channel = -1,
-      .manual_ip = {},
-  });
+  WiFiAP ap;
+  ap.set_ssid(ssid);
+  ap.set_password(password);
+  wifi->add_sta(ap);
   return wifi;
 }
+
+#ifdef USE_ETHERNET
+EthernetComponent *Application::init_ethernet() {
+  auto *eth = new EthernetComponent();
+  eth->set_hostname(sanitize_hostname(this->name_));
+  return this->register_component(eth);
+}
+#endif
 
 void Application::set_name(const std::string &name) {
   this->name_ = to_lowercase_underscore(name);
@@ -521,9 +549,11 @@ I2CComponent *Application::init_i2c(uint8_t sda_pin, uint8_t scl_pin, bool scan)
 Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const std::string &friendly_name) {
   auto *binary_sensor = this->register_component(new StatusBinarySensor(friendly_name));
   auto *mqtt = this->register_binary_sensor(binary_sensor);
-  mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
-  mqtt->disable_availability();
-  mqtt->set_is_status(true);
+  if (mqtt != nullptr) {
+    mqtt->set_custom_state_topic(this->mqtt_client_->get_availability().topic);
+    mqtt->disable_availability();
+    mqtt->set_is_status(true);
+  }
   return MakeStatusBinarySensor{
       .status = binary_sensor,
       .mqtt = mqtt,
@@ -533,7 +563,7 @@ Application::MakeStatusBinarySensor Application::make_status_binary_sensor(const
 
 #ifdef USE_RESTART_SWITCH
 Application::MakeRestartSwitch Application::make_restart_switch(const std::string &friendly_name) {
-  auto *switch_ = new RestartSwitch(friendly_name); // not a component
+  auto *switch_ = this->register_component(new RestartSwitch(friendly_name));
   return MakeRestartSwitch{
       .restart = switch_,
       .mqtt = this->register_switch(switch_),
@@ -543,7 +573,7 @@ Application::MakeRestartSwitch Application::make_restart_switch(const std::strin
 
 #ifdef USE_SHUTDOWN_SWITCH
 Application::MakeShutdownSwitch Application::make_shutdown_switch(const std::string &friendly_name) {
-  auto *switch_ = new ShutdownSwitch(friendly_name);
+  auto *switch_ = this->register_component(new ShutdownSwitch(friendly_name));
   return MakeShutdownSwitch{
       .shutdown = switch_,
       .mqtt = this->register_switch(switch_),
@@ -796,10 +826,6 @@ Application::MakeRotaryEncoderSensor Application::make_rotary_encoder_sensor(con
 }
 #endif
 
-mqtt::MQTTMessageTrigger *Application::make_mqtt_message_trigger(const std::string &topic, uint8_t qos) {
-  return global_mqtt_client->make_message_trigger(topic, qos);
-}
-
 StartupTrigger *Application::make_startup_trigger() {
   return this->register_component(new StartupTrigger());
 }
@@ -816,6 +842,22 @@ Application::MakeTemplateSensor Application::make_template_sensor(const std::str
   return MakeTemplateSensor{
       .template_ = template_,
       .mqtt = this->register_sensor(template_),
+  };
+}
+#endif
+
+#ifdef USE_MAX31855_SENSOR
+Application::MakeMAX31855Sensor Application::make_max31855_sensor(const std::string &name,
+                                                                  SPIComponent *spi_bus,
+                                                                  const GPIOOutputPin &cs,
+                                                                  uint32_t update_interval) {
+  auto *sensor = this->register_component(
+      new MAX31855Sensor(name, spi_bus, cs.copy(), update_interval)
+  );
+
+  return MakeMAX31855Sensor{
+      .max31855 = sensor,
+      .mqtt = this->register_sensor(sensor),
   };
 }
 #endif
@@ -1148,6 +1190,12 @@ SNTPComponent *Application::make_sntp_component() {
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_TIME
+HomeAssistantTime *Application::make_homeassistant_time_component() {
+  return this->register_component(new HomeAssistantTime());
+}
+#endif
+
 #ifdef USE_HLW8012
 sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin,
                                            uint8_t cf_pin,
@@ -1185,6 +1233,17 @@ Application::MakeMQTTSubscribeTextSensor Application::make_mqtt_subscribe_text_s
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_TEXT_SENSOR
+Application::MakeHomeassistantTextSensor Application::make_homeassistant_text_sensor(const std::string &name,
+                                                                                     std::string entity_id) {
+  auto *sensor = this->register_component(new HomeassistantTextSensor(name, std::move(entity_id)));
+  return MakeHomeassistantTextSensor {
+      .sensor = sensor,
+      .mqtt = this->register_text_sensor(sensor),
+  };
+}
+#endif
+
 #ifdef USE_VERSION_TEXT_SENSOR
 Application::MakeVersionTextSensor Application::make_version_text_sensor(const std::string &name) {
   auto *sensor = this->register_component(new VersionTextSensor(name));
@@ -1206,6 +1265,18 @@ Application::MakeMQTTSubscribeSensor Application::make_mqtt_subscribe_sensor(con
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_SENSOR
+Application::MakeHomeassistantSensor Application::make_homeassistant_sensor(const std::string &name,
+                                                                                     std::string entity_id) {
+  auto *sensor = this->register_component(new HomeassistantSensor(name, std::move(entity_id)));
+
+  return MakeHomeassistantSensor {
+      .sensor = sensor,
+      .mqtt = this->register_sensor(sensor),
+  };
+}
+#endif
+
 #ifdef USE_TEMPLATE_TEXT_SENSOR
 Application::MakeTemplateTextSensor Application::make_template_text_sensor(const std::string &name,
                                                                            uint32_t update_interval) {
@@ -1219,8 +1290,8 @@ Application::MakeTemplateTextSensor Application::make_template_text_sensor(const
 #endif
 
 #ifdef USE_CSE7766
-sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent) {
-  return this->register_component(new sensor::CSE7766Component(parent));
+sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent, uint32_t update_interval) {
+  return this->register_component(new sensor::CSE7766Component(parent, update_interval));
 }
 #endif
 
@@ -1248,6 +1319,65 @@ Application::MakeTotalDailyEnergySensor Application::make_total_daily_energy_sen
 }
 #endif
 
+void Application::set_loop_interval(uint32_t loop_interval) {
+  this->loop_interval_ = loop_interval;
+}
+
+void Application::register_component_(Component *comp) {
+  if (comp == nullptr) {
+    ESP_LOGW(TAG, "Tried to register null component!");
+    return;
+  }
+
+  for (auto *c : this->components_) {
+    if (comp == c) {
+      ESP_LOGW(TAG, "Component already registered! (%p)", c);
+      return;
+    }
+  }
+  this->components_.push_back(comp);
+}
+
+#ifdef USE_API
+api::APIServer *Application::init_api_server() {
+  auto *server = new api::APIServer();
+  this->register_component(server);
+  this->register_controller(server);
+  return server;
+}
+#endif
+
+#ifdef USE_CUSTOM_BINARY_SENSOR
+binary_sensor::CustomBinarySensorConstructor *Application::make_custom_binary_sensor(const std::function<std::vector<BinarySensor *>()> &init) {
+  return this->register_component(new CustomBinarySensorConstructor(init));
+}
+#endif
+
+#ifdef USE_CUSTOM_SENSOR
+sensor::CustomSensorConstructor *Application::make_custom_sensor(const std::function<std::vector<Sensor *>()> &init) {
+  return this->register_component(new CustomSensorConstructor(init));
+}
+#endif
+
+#ifdef USE_CUSTOM_SWITCH
+switch_::CustomSwitchConstructor *Application::make_custom_switch(const std::function<std::vector<Switch *>()> &init) {
+  return this->register_component(new CustomSwitchConstructor(init));
+}
+#endif
+
+#ifdef USE_APDS9960
+sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
+  return this->register_component(new APDS9960(this->i2c_, update_interval));
+}
+#endif
+
+#ifdef USE_ULN2003
+stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
+                                            const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d) {
+  auto *uln = new stepper::ULN2003(pin_a.copy(), pin_b.copy(), pin_c.copy(), pin_d.copy());
+  return this->register_component(uln);
+}
+#endif
 
 Application App; // NOLINT
 

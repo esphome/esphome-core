@@ -59,6 +59,9 @@ void SHT3XDComponent::dump_config() {
     ESP_LOGE(TAG, "Communication with SHT3xD failed!");
   }
   LOG_UPDATE_INTERVAL(this);
+
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
 }
 float SHT3XDComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;

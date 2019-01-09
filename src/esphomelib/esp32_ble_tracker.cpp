@@ -742,6 +742,25 @@ void ESP32BLETracker::set_scan_interval(uint32_t scan_interval) {
 uint32_t ESP32BLETracker::get_scan_interval() const {
   return this->scan_interval_;
 }
+void ESP32BLETracker::dump_config() {
+  ESP_LOGCONFIG(TAG, "BLE Tracker:");
+  ESP_LOGCONFIG(TAG, "  Scan Interval: %u s", this->scan_interval_);
+  for (auto *child : this->presence_sensors_) {
+    LOG_BINARY_SENSOR("  ", "Presence", child);
+  }
+  for (auto *child : this->rssi_sensors_) {
+    LOG_SENSOR("  ", "RSSI", child);
+  }
+  for (auto *child : this->xiaomi_devices_) {
+    ESP_LOGCONFIG(TAG, "  Xiaomi %s", child->unique_id().c_str());
+    LOG_SENSOR("    ", "Temperature ", child->get_temperature_sensor());
+    LOG_SENSOR("    ", "Humidity ", child->get_humidity_sensor());
+    LOG_SENSOR("    ", "Moisture ", child->get_moisture_sensor());
+    LOG_SENSOR("    ", "Illuminance ", child->get_illuminance_sensor());
+    LOG_SENSOR("    ", "Conductivity ", child->get_conductivity_sensor());
+    LOG_SENSOR("    ", "Battery Level ", child->get_battery_level_sensor());
+  }
+}
 
 std::string ESP32BLERSSISensor::unit_of_measurement() {
   return "dB";

@@ -26,6 +26,7 @@ class A4988 : public Stepper, public Component {
   GPIOPin *step_pin_;
   GPIOPin *dir_pin_;
   GPIOPin *sleep_pin_{nullptr};
+  HighFrequencyLoopRequester high_freq_;
 };
 
 } // namespace stepper
