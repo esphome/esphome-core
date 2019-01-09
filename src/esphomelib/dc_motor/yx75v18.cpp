@@ -52,10 +52,11 @@ void YX75V18::loop() {
 float YX75V18::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-YX75V18::YX75V18(GPIOOutputPin *positive_pin, GPIOOutputPin *negative_pin) {
+YX75V18::YX75V18(GPIOPin *positive_pin, GPIOPin *negative_pin) {
     this->positive_pin_ = positive_pin;
     this->negative_pin_ = negative_pin;
 }
+
 // void YX75V18::set_sleep_pin(const GPIOOutputPin &sleep_pin) {
 //   this->sleep_pin_ = sleep_pin.copy();
 // }

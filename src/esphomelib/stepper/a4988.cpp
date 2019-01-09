@@ -8,7 +8,7 @@
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace stepper {
-
+ 
 static const char *TAG = "stepper.a4988";
 
 void A4988::setup() {
@@ -52,9 +52,11 @@ void A4988::loop() {
 float A4988::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
+
+
 A4988::A4988(GPIOPin *step_pin, GPIOPin *dir_pin)
     : step_pin_(step_pin), dir_pin_(dir_pin) {
-
+  
 }
 void A4988::set_sleep_pin(const GPIOOutputPin &sleep_pin) {
   this->sleep_pin_ = sleep_pin.copy();

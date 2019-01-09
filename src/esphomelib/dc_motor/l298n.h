@@ -13,10 +13,10 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace dc_motor {
 
-class L298n_half : public Dc_motor, public Component {
+class L298N_half : public Dc_motor, public Component {
  public:
-  L298n_half(GPIOPin *enable_pin_motor, GPIOPin *dir_pin_motor);
-  void set_sleep_pin(const GPIOOutputPin &sleep_pin);
+  L298N_half(GPIOPin *enable_pin_motor, GPIOPin *dir_pin_motor);
+  void set_sleep_pin(const GPIOPin &sleep_pin);
   void setup() override;
   void dump_config() override;
   void loop() override;

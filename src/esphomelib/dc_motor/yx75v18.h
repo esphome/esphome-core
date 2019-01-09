@@ -13,9 +13,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace dc_motor {
 
-class Yx75v18 : public Dc_motor, public Component {
+class YX75V18 : public Dc_motor, public Component {
  public:
-  Yx75v18(GPIOPin *positive_pin, GPIOPin *nagtive_pin);
+  YX75V18(GPIOPin *positive_pin, GPIOPin *nagative_pin);
   void setup() override;
   void dump_config() override;
   void loop() override;
@@ -25,6 +25,7 @@ class Yx75v18 : public Dc_motor, public Component {
   GPIOPin *positive_pin_;
   GPIOPin *negative_pin_;
 };
+
 
 } // namespace dc_motor
 

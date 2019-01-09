@@ -1302,8 +1302,23 @@ sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, senso
 #endif
 
 #ifdef USE_A4988
-stepper::A4988 *Application::make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin) {
-  return this->register_component(new A4988(step_pin.copy(), dir_pin.copy()));
+A4988 *Application::make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin) {
+
+  auto xx=new A4988(step_pin.copy(), dir_pin.copy());
+  return this->register_component(xx);
+}
+#endif
+
+#ifdef USE_L298N
+dc_motor::L298N_half *Application::make_l298n_half(const GPIOOutputPin &positive_pin, const GPIOOutputPin &negative_pin){
+  return this->register_component(new dc_motor::L298N_half(positive_pin.copy(),negative_pin.copy()));
+}
+#endif
+
+#ifdef USE_YX75V18
+dc_motor::YX75V18 *Application::make_yx75v18(const GPIOOutputPin &positive_pin, const GPIOOutputPin &negative_pin){
+  auto xx=  new dc_motor::YX75V18(positive_pin.copy(),negative_pin.copy());
+  return this->register_component(xx);
 }
 #endif
 
