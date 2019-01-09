@@ -10,7 +10,7 @@
 #include "esphomelib/esphal.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
-
+ 
 namespace stepper {
 
 class A4988 : public Stepper, public Component {

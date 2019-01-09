@@ -123,6 +123,8 @@
 #include "esphomelib/stepper/a4988.h"
 #include "esphomelib/stepper/stepper.h"
 #include "esphomelib/stepper/uln2003.h"
+#include "esphomelib/dc_motor/dc_motor.h"
+#include "esphomelib/dc_motor/h_bridge.h"
 #include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
@@ -1363,6 +1365,11 @@ class Application {
   stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
                                  const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d);
 #endif
+
+#ifdef USE_H_BRIDGE
+   dc_motor::H_bridge *make_h_bridge(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b);
+#endif
+
 
 
 

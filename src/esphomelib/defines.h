@@ -120,6 +120,8 @@
   #define USE_STEPPER
   #define USE_A4988
   #define USE_ULN2003
+  #define USE_DC_MOTOR
+  #define USE_H_BRIDGE
   #define USE_TOTAL_DAILY_ENERGY_SENSOR
   #define USE_MY9231_OUTPUT
   #define USE_CUSTOM_SENSOR
