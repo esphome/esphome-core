@@ -4,7 +4,6 @@
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/log.h"
-#include "binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 

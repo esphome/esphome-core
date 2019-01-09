@@ -75,7 +75,7 @@ class PulseCounterSensorComponent : public PollingSensorComponent, public PulseC
    * @param pin The pin.
    * @param update_interval The update interval in ms.
    */
-  explicit PulseCounterSensorComponent(const std::string &name, GPIOPin *pin, uint32_t update_interval = 15000);
+  explicit PulseCounterSensorComponent(const std::string &name, GPIOPin *pin, uint32_t update_interval = 60000);
 
   /// Set the PulseCounterCountMode for the rising and falling edges. can be disable, increment and decrement.
   void set_edge_mode(PulseCounterCountMode rising_edge_mode, PulseCounterCountMode falling_edge_mode);

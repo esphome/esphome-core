@@ -15,6 +15,7 @@
 #include "esphomelib/esp_one_wire.h"
 #include "esphomelib/esphal.h"
 #include "esphomelib/esppreferences.h"
+#include "esphomelib/ethernet_component.h"
 #include "esphomelib/i2c_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/log_component.h"
@@ -55,6 +56,7 @@
 #include "esphomelib/light/light_output_component.h"
 #include "esphomelib/light/light_state.h"
 #include "esphomelib/light/mqtt_json_light_component.h"
+#include "esphomelib/light/neo_pixel_bus_light_output.h"
 #include "esphomelib/mqtt/custom_mqtt_device.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
@@ -77,6 +79,7 @@
 #include "esphomelib/remote/sony.h"
 #include "esphomelib/sensor/adc.h"
 #include "esphomelib/sensor/ads1115_component.h"
+#include "esphomelib/sensor/apds9960.h"
 #include "esphomelib/sensor/bh1750_sensor.h"
 #include "esphomelib/sensor/bme280_component.h"
 #include "esphomelib/sensor/bme680_component.h"
@@ -119,6 +122,7 @@
 #include "esphomelib/sensor/wifi_signal_sensor.h"
 #include "esphomelib/stepper/a4988.h"
 #include "esphomelib/stepper/stepper.h"
+#include "esphomelib/stepper/uln2003.h"
 #include "esphomelib/switch_/custom_switch.h"
 #include "esphomelib/switch_/gpio_switch.h"
 #include "esphomelib/switch_/mqtt_switch_component.h"
@@ -173,6 +177,10 @@ class Application {
 
   /// Initialize the WiFi engine with no initial mode. Use this if you just want an Access Point.
   WiFiComponent *init_wifi();
+
+#ifdef USE_ETHERNET
+  EthernetComponent *init_ethernet();
+#endif
 
 #ifdef USE_OTA
   /** Initialize Over-the-Air updates.
@@ -482,13 +490,13 @@ class Application {
   MakeDHTSensor make_dht_sensor(const std::string &temperature_friendly_name,
                                 const std::string &humidity_friendly_name,
                                 const GPIOOutputPin &pin,
-                                uint32_t update_interval = 15000);
+                                uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_DALLAS_SENSOR
-  sensor::DallasComponent *make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval = 15000);
+  sensor::DallasComponent *make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval = 60000);
 
-  sensor::DallasComponent *make_dallas_component(const GPIOOutputPin &pin, uint32_t update_interval = 15000);
+  sensor::DallasComponent *make_dallas_component(const GPIOOutputPin &pin, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_PULSE_COUNTER_SENSOR
@@ -510,7 +518,7 @@ class Application {
    */
   MakePulseCounterSensor make_pulse_counter_sensor(const std::string &friendly_name,
                                                    const GPIOInputPin &pin,
-                                                   uint32_t update_interval = 15000);
+                                                   uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_ADC_SENSOR
@@ -532,7 +540,7 @@ class Application {
    */
   MakeADCSensor make_adc_sensor(const std::string &friendly_name,
                                 uint8_t pin,
-                                uint32_t update_interval = 15000);
+                                uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_ADS1115_SENSOR
@@ -566,7 +574,7 @@ class Application {
    */
   MakeBMP085Sensor make_bmp085_sensor(const std::string &temperature_friendly_name,
                                       const std::string &pressure_friendly_name,
-                                      uint32_t update_interval = 15000);
+                                      uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_HTU21D_SENSOR
@@ -588,7 +596,7 @@ class Application {
    */
   MakeHTU21DSensor make_htu21d_sensor(const std::string &temperature_friendly_name,
                                       const std::string &humidity_friendly_name,
-                                      uint32_t update_interval = 15000);
+                                      uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_HDC1080_SENSOR
@@ -610,7 +618,7 @@ class Application {
    */
   MakeHDC1080Sensor make_hdc1080_sensor(const std::string &temperature_friendly_name,
                                         const std::string &humidity_friendly_name,
-                                        uint32_t update_interval = 15000);
+                                        uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_ULTRASONIC_SENSOR
@@ -645,7 +653,7 @@ class Application {
     sensor::MQTTSensorComponent *mqtt;
   };
 
-  MakeWiFiSignalSensor make_wifi_signal_sensor(const std::string &name, uint32_t update_interval = 15000);
+  MakeWiFiSignalSensor make_wifi_signal_sensor(const std::string &name, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_MPU6050
@@ -660,7 +668,7 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    * @return An MPU6050Component, use this to create the individual sensors and register them with `register_sensor`.
    */
-  sensor::MPU6050Component *make_mpu6050_sensor(uint8_t address = 0x68, uint32_t update_interval = 15000);
+  sensor::MPU6050Component *make_mpu6050_sensor(uint8_t address = 0x68, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_TSL2561
@@ -689,7 +697,7 @@ class Application {
    * @return The TSL2561Sensor + MQTT sensor pair, use this for advanced settings.
    */
   MakeTSL2561Sensor make_tsl2561_sensor(const std::string &name, uint8_t address = 0x23,
-                                        uint32_t update_interval = 15000);
+                                        uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_BH1750
@@ -712,7 +720,7 @@ class Application {
    * @return The BH1750Sensor + MQTT sensor pair, use this for advanced settings.
    */
   MakeBH1750Sensor make_bh1750_sensor(const std::string &name, uint8_t address = 0x23,
-                                      uint32_t update_interval = 15000);
+                                      uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_BME280
@@ -734,7 +742,7 @@ class Application {
    */
   MakeBME280Sensor make_bme280_sensor(const std::string &temperature_name, const std::string &pressure_name,
                                       const std::string &humidity_name,
-                                      uint8_t address = 0x77, uint32_t update_interval = 15000);
+                                      uint8_t address = 0x77, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_BMP280
@@ -753,7 +761,7 @@ class Application {
    * @return The BME280Component + MQTT sensors tuple, use this for advanced settings.
    */
   MakeBMP280Sensor make_bmp280_sensor(const std::string &temperature_name, const std::string &pressure_name,
-                                      uint8_t address = 0x77, uint32_t update_interval = 15000);
+                                      uint8_t address = 0x77, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_BME680
@@ -767,7 +775,7 @@ class Application {
 
   MakeBME680Sensor make_bme680_sensor(const std::string &temperature_name, const std::string &pressure_name,
                                       const std::string &humidity_name, const std::string &gas_resistance_name,
-                                      uint8_t address = 0x76, uint32_t update_interval = 15000);
+                                      uint8_t address = 0x76, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_SHT3XD
@@ -778,7 +786,7 @@ class Application {
   };
 
   MakeSHT3XDSensor make_sht3xd_sensor(const std::string &temperature_name, const std::string &humidity_name,
-                                      uint8_t address = 0x44, uint32_t update_interval = 15000);
+                                      uint8_t address = 0x44, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_DHT12_SENSOR
@@ -789,7 +797,7 @@ class Application {
   };
 
   MakeDHT12Sensor make_dht12_sensor(const std::string &temperature_name, const std::string &humidity_name,
-                                    uint32_t update_interval = 15000);
+                                    uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_ROTARY_ENCODER_SENSOR
@@ -829,7 +837,7 @@ class Application {
     sensor::MQTTSensorComponent *mqtt;
   };
 
-  MakeTemplateSensor make_template_sensor(const std::string &name, uint32_t update_interval = 15000);
+  MakeTemplateSensor make_template_sensor(const std::string &name, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_MAX31855_SENSOR
@@ -839,7 +847,7 @@ class Application {
   };
 
   MakeMAX31855Sensor make_max31855_sensor(const std::string &name, SPIComponent *spi_bus, const GPIOOutputPin &cs,
-                                          uint32_t update_interval = 15000);
+                                          uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_MAX6675_SENSOR
@@ -849,7 +857,7 @@ class Application {
   };
 
   MakeMAX6675Sensor make_max6675_sensor(const std::string &name, SPIComponent *spi_bus, const GPIOOutputPin &cs,
-                                        uint32_t update_interval = 15000);
+                                        uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_ESP32_HALL_SENSOR
@@ -858,7 +866,7 @@ class Application {
     sensor::MQTTSensorComponent *mqtt;
   };
 
-  MakeESP32HallSensor make_esp32_hall_sensor(const std::string &name, uint32_t update_interval = 15000);
+  MakeESP32HallSensor make_esp32_hall_sensor(const std::string &name, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_DUTY_CYCLE_SENSOR
@@ -868,7 +876,7 @@ class Application {
   };
 
   MakeDutyCycleSensor make_duty_cycle_sensor(const std::string &name, const GPIOInputPin &pin,
-                                             uint32_t update_interval = 15000);
+                                             uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_MHZ19
@@ -878,7 +886,7 @@ class Application {
   };
 
   MakeMHZ19Sensor make_mhz19_sensor(UARTComponent *parent, const std::string &co2_name,
-                                    uint32_t update_interval = 15000);
+                                    uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_UPTIME_SENSOR
@@ -887,20 +895,20 @@ class Application {
     sensor::MQTTSensorComponent *mqtt;
   };
 
-  MakeUptimeSensor make_uptime_sensor(const std::string &name, uint32_t update_interval = 15000);
+  MakeUptimeSensor make_uptime_sensor(const std::string &name, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_INA219
   sensor::INA219Component *make_ina219(float shunt_resistance_ohm, float max_current_a, float max_voltage_v,
-                                       uint8_t address = 0x40, uint32_t update_interval = 15000);
+                                       uint8_t address = 0x40, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_INA3221
-  sensor::INA3221Component *make_ina3221(uint8_t address = 0x40, uint32_t update_interval = 15000);
+  sensor::INA3221Component *make_ina3221(uint8_t address = 0x40, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_HMC5883L
-  sensor::HMC5883LComponent *make_hmc5883l(uint32_t update_interval = 15000);
+  sensor::HMC5883LComponent *make_hmc5883l(uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_HX711
@@ -910,7 +918,7 @@ class Application {
   };
 
   MakeHX711Sensor make_hx711_sensor(const std::string &name, const GPIOInputPin &dout, const GPIOOutputPin &sck,
-                                    uint32_t update_interval = 15000);
+                                    uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_MS5611
@@ -921,11 +929,11 @@ class Application {
   };
 
   MakeMS5611Sensor make_ms5611_sensor(const std::string &temperature_name, const std::string &pressure_name,
-                                      uint32_t update_interval = 15000);
+                                      uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_TCS34725
-  sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 15000);
+  sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_SNTP_COMPONENT
@@ -937,7 +945,7 @@ class Application {
 #endif
 
 #ifdef USE_HLW8012
-  sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 15000);
+  sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_MQTT_SUBSCRIBE_SENSOR
@@ -959,7 +967,7 @@ class Application {
 #endif
 
 #ifdef USE_CSE7766
-  sensor::CSE7766Component *make_cse7766(UARTComponent *parent, uint32_t update_interval = 15000);
+  sensor::CSE7766Component *make_cse7766(UARTComponent *parent, uint32_t update_interval = 60000);
 #endif
 
 
@@ -996,7 +1004,7 @@ class Application {
     text_sensor::MQTTTextSensor *mqtt;
   };
 
-  MakeTemplateTextSensor make_template_text_sensor(const std::string &name, uint32_t update_interval = 15000);
+  MakeTemplateTextSensor make_template_text_sensor(const std::string &name, uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_PMSX003
@@ -1011,6 +1019,10 @@ class Application {
 
   MakeTotalDailyEnergySensor make_total_daily_energy_sensor(const std::string &name, time::RealTimeClockComponent *time,
       sensor::Sensor *parent);
+#endif
+
+#ifdef USE_APDS9960
+  sensor::APDS9960 *make_apds9960(uint32_t update_interval = 60000);
 #endif
 
 
@@ -1185,6 +1197,23 @@ class Application {
   MakeFastLEDLight make_fast_led_light(const std::string &name);
 #endif
 
+#ifdef USE_NEO_PIXEL_BUS_LIGHT
+  template<typename T_METHOD, typename T_COLOR_FEATURE>
+  struct MakeNeoPixelBusLight {
+    light::NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE> *output;
+    light::LightState *state;
+    light::MQTTJSONLightComponent *mqtt;
+  };
+
+  /// Create an RGB NeoPixelBus light.
+  template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbFeature>
+  MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgb_light(const std::string &name);
+
+  /// Create an RGBW NeoPixelBus light.
+  template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbwFeature>
+  MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgbw_light(const std::string &name);
+#endif
+
 
 
 
@@ -1330,6 +1359,11 @@ class Application {
   stepper::A4988 *make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin);
 #endif
 
+#ifdef USE_ULN2003
+  stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
+                                 const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d);
+#endif
+
 
 
 
@@ -1472,6 +1506,31 @@ template<typename T>
 GlobalVariableComponent<T> *Application::make_global_variable(T initial_value) {
   return this->register_component(new GlobalVariableComponent<T>(initial_value));
 }
+
+#ifdef USE_NEO_PIXEL_BUS_LIGHT
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgb_light(const std::string &name) {
+  auto *neo_pixel = this->register_component(new light::NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE>());
+  auto make = this->make_light_for_light_output(name, neo_pixel);
+
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
+      .output = neo_pixel,
+      .state = make.state,
+      .mqtt = make.mqtt,
+  };
+}
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgbw_light(const std::string &name) {
+  auto *neo_pixel = this->register_component(new light::NeoPixelRGBWLightOutput<T_METHOD, T_COLOR_FEATURE>());
+  auto make = this->make_light_for_light_output(name, neo_pixel);
+
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
+      .output = neo_pixel,
+      .state = make.state,
+      .mqtt = make.mqtt,
+  };
+}
+#endif
 
 ESPHOMELIB_NAMESPACE_END
 

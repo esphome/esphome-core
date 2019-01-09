@@ -42,6 +42,10 @@ template<typename T>
 void Trigger<T>::trigger(T x) {
   this->parent_->process_trigger_(x);
 }
+template<typename T>
+void Trigger<T>::stop() {
+  this->parent_->stop();
+}
 
 template<typename T>
 void Action<T>::play_next(T x) {
