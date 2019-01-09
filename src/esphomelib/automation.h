@@ -108,7 +108,7 @@ class LoopTrigger : public Trigger<NoArg>, public Component {
 class IntervalTrigger : public Trigger<NoArg>, public PollingComponent {
  public:
   IntervalTrigger(uint32_t update_interval);
-  void loop() override;
+  void update() override;
   float get_setup_priority() const override;
 };
 
