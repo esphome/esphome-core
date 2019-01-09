@@ -1,9 +1,9 @@
-#ifndef ESPHOMELIB_DC_MOTOR_YX75V18_H
-#define ESPHOMELIB_DC_MOTOR_YX75V18_H
+#ifndef ESPHOMELIB_DC_MOTOR_H_BRIDGE_H
+#define ESPHOMELIB_DC_MOTOR_H_BRIDGE_H
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_YX75V18
+#ifdef USE_H_BRIDGE
 
 #include "esphomelib/component.h"
 #include "esphomelib/dc_motor/dc_motor.h"
@@ -13,9 +13,9 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace dc_motor {
 
-class YX75V18 : public Dc_motor, public Component {
+class H_bridge : public Dc_motor, public Component {
  public:
-  YX75V18(GPIOPin *positive_pin, GPIOPin *nagative_pin);
+  H_bridge(GPIOPin *positive_pin, GPIOPin *nagative_pin);
   void setup() override;
   void dump_config() override;
   void loop() override;

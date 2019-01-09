@@ -1,8 +1,10 @@
+//What is H-Bridge  https://slideplayer.com/slide/9387972/28/images/13/H-Bridge+Examples+L293%2C+L298%2C+MC33886%2C+TLE5206%2C+TPIC0108b%2C+etc.jpg
+
 #include "esphomelib/defines.h"
 
-#ifdef USE_L298N
+#ifdef USE_H_BRIDGE
 
-#include "esphomelib/dc_motor/l298n.h"
+#include "esphomelib/dc_motor/yx75v18.h"
 #include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -11,7 +13,7 @@ namespace dc_motor {
 
 static const char *TAG = "dc_motor.yx75v18";
 
-void YX75V18::setup() {
+void H_bridge::setup() {
   ESP_LOGCONFIG(TAG, "Setting up YX75V18...");
 //   if (this->sleep_pin_ != nullptr) {
 //     this->sleep_pin_->setup();
@@ -22,14 +24,14 @@ void YX75V18::setup() {
 //   this->dir_pin_->setup();
 //   this->dir_pin_->digital_write(false);
 }
-void YX75V18::dump_config() {
+void H_bridge::dump_config() {
 //   ESP_LOGCONFIG(TAG, "A4988:");
 //   LOG_PIN("  Step Pin: ", this->step_pin_);
 //   LOG_PIN("  Dir Pin: ", this->dir_pin_);
 //   LOG_PIN("  Sleep Pin: ", this->sleep_pin_);
 //   LOG_STEPPER(this);
 }
-void YX75V18::loop() {
+void H_bridge::loop() {
 //   bool at_target = this->has_reached_target();
 //   if (this->sleep_pin_ != nullptr) {
 //     this->sleep_pin_->digital_write(!at_target);
@@ -49,10 +51,10 @@ void YX75V18::loop() {
 //   delayMicroseconds(5);
 //   this->step_pin_->digital_write(false);
 }
-float YX75V18::get_setup_priority() const {
+float H_bridge::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-YX75V18::YX75V18(GPIOPin *positive_pin, GPIOPin *negative_pin) {
+H_bridge::H_bridge(GPIOPin *positive_pin, GPIOPin *negative_pin) {
     this->positive_pin_ = positive_pin;
     this->negative_pin_ = negative_pin;
 }
