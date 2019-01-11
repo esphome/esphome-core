@@ -77,11 +77,15 @@ void RemoteTransmitter::write_state(bool state) {
     return;
   }
 
-  this->publish_state(true);
-  this->parent_->temp_.reset();
-  this->to_data(&this->parent_->temp_);
-  this->parent_->send_(&this->parent_->temp_, this->send_times_, this->send_wait_);
-  this->publish_state(false);
+  // write_state is called from TCP task on ESP32
+  // we must defer sending until next loop execution
+  this->parent_->deferred_send(this);
+}
+uint32_t RemoteTransmitter::get_send_times() const {
+  return this->send_times_;
+}
+uint32_t RemoteTransmitter::get_send_wait() const {
+  return this->send_wait_;
 }
 
 RemoteTransmitterComponent::RemoteTransmitterComponent(GPIOPin *pin)
@@ -315,6 +319,15 @@ void RemoteTransmitterComponent::set_carrier_duty_percent(uint8_t carrier_duty_p
 }
 RemoteTransmitterComponent::TransmitCall RemoteTransmitterComponent::transmit() {
   return TransmitCall(this);
+}
+void RemoteTransmitterComponent::deferred_send(RemoteTransmitter *switch_) {
+  this->defer([this, switch_]() {
+    switch_->publish_state(true);
+    this->temp_.reset();
+    switch_->to_data(&this->temp_);
+    this->send_(&this->temp_, switch_->get_send_times(), switch_->get_send_wait());
+    switch_->publish_state(false);
+  });
 }
 
 void RemoteTransmitterComponent::TransmitCall::perform() {

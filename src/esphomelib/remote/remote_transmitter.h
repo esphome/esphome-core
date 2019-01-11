@@ -45,7 +45,7 @@ class RemoteTransmitData {
 
 class RemoteTransmitterComponent;
 
- class RemoteTransmitter : public switch_::Switch {
+class RemoteTransmitter : public switch_::Switch {
  public:
   explicit RemoteTransmitter(const std::string &name);
 
@@ -54,6 +54,8 @@ class RemoteTransmitterComponent;
   void set_parent(RemoteTransmitterComponent *parent);
 
   void set_repeat(uint32_t send_times, uint32_t send_wait);
+  uint32_t get_send_times() const;
+  uint32_t get_send_wait() const;
 
  protected:
   void write_state(bool state) override;
@@ -76,6 +78,9 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   float get_setup_priority() const override;
 
   void set_carrier_duty_percent(uint8_t carrier_duty_percent);
+
+  /// Defer send of the switches remote code until next loop().
+  void deferred_send(RemoteTransmitter *switch_);
 
   class TransmitCall {
    public:
