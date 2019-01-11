@@ -103,7 +103,11 @@ bool APIServer::check_password(const std::string &password) const {
 
   return result == 0;
 }
-void APIServer::handle_disconnect(APIConnection *conn) {
+void APIServer::handle_disconnect(APIConnection *conn, std::string client_info) {
+  this->defer([client_info]() {
+    ESP_LOGD(TAG, "'%s' disconnected.", client_info.c_str());
+  });
+
   this->clients_.erase(
       std::remove_if(this->clients_.begin(), this->clients_.end(),
                      [conn](APIConnection *conn2) {
@@ -236,9 +240,7 @@ void APIConnection::on_error_(int8_t error) {
 }
 void APIConnection::on_disconnect_() {
   // delete self, generally unsafe but not in this case.
-  std::string client_info = this->client_info_;
-  this->parent_->handle_disconnect(this);
-  ESP_LOGD(TAG, "'%s' disconnected.", client_info.c_str());
+  this->parent_->handle_disconnect(this, this->client_info_);
 }
 void APIConnection::on_timeout_(uint32_t time) {
   ESP_LOGV(TAG, "Timeout from client");

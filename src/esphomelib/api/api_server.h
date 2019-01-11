@@ -156,7 +156,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
   void set_port(uint16_t port);
   void set_password(const std::string &password);
   void set_reboot_timeout(uint32_t reboot_timeout);
-  void handle_disconnect(APIConnection *conn);
+  void handle_disconnect(APIConnection *conn, std::string client_info);
 #ifdef USE_BINARY_SENSOR
   void on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool state) override;
 #endif
