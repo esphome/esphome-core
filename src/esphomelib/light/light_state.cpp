@@ -156,6 +156,11 @@ struct LightStateRTCState {
 void LightState::setup() {
   ESP_LOGCONFIG(TAG, "Setting up light '%s'...", this->get_name().c_str());
 
+  this->output_->setup_state(this);
+  for (auto *effect : this->effects_) {
+    effect->init_(this);
+  }
+
   this->rtc_ = global_preferences.make_preference<LightStateRTCState>(this->get_object_id_hash());
   LightStateRTCState recovered;
   if (!this->rtc_.load(&recovered))
@@ -247,7 +252,6 @@ void LightState::add_effects(const std::vector<LightEffect *> effects) {
   this->effects_.reserve(this->effects_.size() + effects.size());
   for (auto *effect : effects) {
     this->effects_.push_back(effect);
-    effect->init_(this);
   }
 }
 LightState::StateCall LightState::turn_on() {

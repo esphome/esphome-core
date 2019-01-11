@@ -283,7 +283,7 @@ AddressableFireworksEffect::AddressableFireworksEffect(const std::string &name)
     : AddressableLightEffect(name) {
 }
 
-void AddressableFireworksEffect::init() {
+void AddressableFireworksEffect::start() {
   const auto &it = *this->get_addressable_();
   for (int i = 0; i < it.size(); i++)
     it[i] = ESPColor(0, 0, 0, 0);
