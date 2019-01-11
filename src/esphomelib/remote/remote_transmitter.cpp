@@ -211,7 +211,8 @@ void RemoteTransmitterComponent::send_(RemoteTransmitData *data, uint32_t send_t
       this->status_clear_warning();
     }
     if (i + 1 < send_times) {
-      delay_microseconds_accurate(send_wait);
+      delay(send_wait / 1000UL);
+      delayMicroseconds(send_wait % 1000UL);
     }
   }
 }
