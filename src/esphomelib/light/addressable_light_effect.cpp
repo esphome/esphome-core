@@ -85,7 +85,7 @@ void AddressableRainbowLightEffect::apply(AddressableLight &it, const ESPColor &
   uint16_t hue = (millis() * this->speed_) % 0xFFFF;
   const uint16_t add = 0xFFFF / this->width_;
   for (int i = 0; i < it.size(); i++) {
-    hsv.hue = hue / 0xFF;
+    hsv.hue = hue >> 8;
     it[i] = hsv;
     hue += add;
   }

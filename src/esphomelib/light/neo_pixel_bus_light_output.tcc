@@ -96,6 +96,7 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
   }
 
   this->effect_data_ = new uint8_t[this->size()];
+  this->controller_->Begin();
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
