@@ -22,14 +22,13 @@ void FastLEDLightOutputComponent::write_state(LightState *state) {
   if (this->is_effect_active())
     return;
 
-  float r, g, b, w;
+  float r, g, b;
   // don't use LightState helper, gamma correction is handled by ESPColorView
-  state->get_current_values().as_rgbw(&r, &g, &b, &w);
+  state->get_current_values().as_rgb(&r, &g, &b);
   ESPColor color = ESPColor(
       uint8_t(roundf(r * 255.0f)),
       uint8_t(roundf(g * 255.0f)),
-      uint8_t(roundf(b * 255.0f)),
-      uint8_t(roundf(w * 255.0f))
+      uint8_t(roundf(b * 255.0f))
   );
 
   for (int i = 0; i < this->size(); i++) {
