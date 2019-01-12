@@ -27,14 +27,14 @@ ESPColor HOT ESPColor::random_color() {
 
 // based on FastLED's hsv rainbow to rgb
 ESPColor HOT ESPHSVColor::to_rgb() const {
-  uint8_t hue = this->hue;
-  uint8_t sat = this->saturation;
-  uint8_t val = this->value;
+  const uint8_t hue = this->hue;
+  const uint8_t sat = this->saturation;
+  const uint8_t val = this->value;
   // upper 3 hue bits are for branch selection, lower 5 are for values
-  uint8_t offset8 = (hue & 0x1F) << 3; // 0..248
+  const uint8_t offset8 = (hue & 0x1F) << 3; // 0..248
   // third of the offset, 255/3 = 85 (actually only up to 82; 164)
-  uint8_t third = esp_scale8(offset8, 85);
-  uint8_t two_thirds = esp_scale8(offset8, 170);
+  const uint8_t third = esp_scale8(offset8, 85);
+  const uint8_t two_thirds = esp_scale8(offset8, 170);
   ESPColor rgb(255, 255, 255, 0);
   switch (hue >> 5) {
     case 0b000:
@@ -80,20 +80,15 @@ ESPColor HOT ESPHSVColor::to_rgb() const {
     default:
       break;
   }
-  // Scale down colors if we're desaturated at all
-  // and add the brightness_floor to r, g, and b.
-  if (sat == 0) {
-    rgb.r = 255;
-    rgb.b = 255;
-    rgb.g = 255;
-  } else if (sat != 255) {
-    // (r,g,b) = (r,g,b) * sat + (1 - sat)^2
-    rgb *= sat;
-    uint8_t desat = 255 - sat;
-    rgb += esp_scale8(desat, desat);
-  }
-  // (r,g,b) = (r,g,b) * val^2
-  rgb *= esp_scale8(val, val);
+  // low saturation -> add uniform color to orig. hue
+  // high saturation -> use hue directly
+  // scales with square of saturation
+  // (r,g,b) = (r,g,b) * sat + (1 - sat)^2
+  rgb *= sat;
+  const uint8_t desat = 255 - sat;
+  rgb += esp_scale8(desat, desat);
+  // (r,g,b) = (r,g,b) * val
+  rgb *= val;
   return rgb;
 }
 
