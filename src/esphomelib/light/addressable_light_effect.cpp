@@ -128,11 +128,13 @@ void AddressableColorWipeEffect::apply(AddressableLight &it, const ESPColor &cur
     return;
   this->last_add_ = now;
   if (!this->reverse_) {
-    for (size_t i = 0; i < it.size() - 1UL; i++)
+    for (int i = 0; i < it.size() - 1; i++) {
       it[i] = it[i + 1].get();
+    }
   } else {
-    for (size_t i = it.size() - 1UL; i > 0; i++)
+    for (int i = it.size() - 1; i > 0; i--) {
       it[i] = it[i - 1].get();
+    }
   }
   const AddressableColorWipeEffectColor color = this->colors_[this->at_color_];
   const ESPColor esp_color = ESPColor(color.r, color.g, color.b, color.w);
