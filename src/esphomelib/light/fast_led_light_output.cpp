@@ -22,12 +22,19 @@ void FastLEDLightOutputComponent::write_state(LightState *state) {
   if (this->is_effect_active())
     return;
 
-  float red, green, blue;
-  state->current_values_as_rgb(&red, &green, &blue);
-  CRGB crgb = CRGB(red * 255, green * 255, blue * 255);
+  float r, g, b, w;
+  // don't use LightState helper, gamma correction is handled by ESPColorView
+  state->get_current_values().as_rgbw(&r, &g, &b, &w);
+  ESPColor color = ESPColor(
+      uint8_t(roundf(r * 255.0f)),
+      uint8_t(roundf(g * 255.0f)),
+      uint8_t(roundf(b * 255.0f)),
+      uint8_t(roundf(w * 255.0f))
+  );
 
-  for (int i = 0; i < this->num_leds_; i++)
-    this->leds_[i] = crgb;
+  for (int i = 0; i < this->size(); i++) {
+    (*this)[i] = color;
+  }
 
   this->schedule_show();
 }

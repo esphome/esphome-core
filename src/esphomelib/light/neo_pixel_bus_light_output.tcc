@@ -75,7 +75,8 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightSta
     return;
 
   float r, g, b, w;
-  state->current_values_as_rgbw(&r, &g, &b, &w);
+  // don't use LightState helper, gamma correction is handled by ESPColorView
+  state->get_current_values().as_rgbw(&r, &g, &b, &w);
   ESPColor color = ESPColor(
       uint8_t(roundf(r * 255.0f)),
       uint8_t(roundf(g * 255.0f)),
