@@ -6,6 +6,7 @@
 #ifdef USE_LIGHT
 
 #include "esphomelib/helpers.h"
+#include "esphomelib/light/light_state.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -135,7 +136,7 @@ class ESPColorView {
   const ESPColorCorrection *const color_correction_;
 };
 
-class AddressableLight {
+class AddressableLight : public LightOutput {
  public:
   AddressableLight();
   virtual int32_t size() const = 0;

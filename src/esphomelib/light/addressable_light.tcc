@@ -25,7 +25,7 @@ ESPColor::ESPColor(uint8_t red, uint8_t green, uint8_t blue)
 }
 
 ESPColor::ESPColor(uint32_t colorcode)
-    : w((colorcode >> 24) & 0xFF), r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF) {
+    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF), w((colorcode >> 24) & 0xFF) {
 }
 
 ESPColor::ESPColor(const ESPColor &rhs) {

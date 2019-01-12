@@ -39,13 +39,11 @@ void FastLEDLightOutputComponent::setup() {
   if (!this->max_refresh_rate_.has_value()) {
     this->set_max_refresh_rate(this->controller_->getMaxRefreshRate());
   }
-  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
 }
 void FastLEDLightOutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "FastLED light:");
-  ESP_LOGCONFIG(TAG, "    Num LEDs: %u", this->num_leds_);
-  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
-
+  ESP_LOGCONFIG(TAG, "  Num LEDs: %u", this->num_leds_);
+  ESP_LOGCONFIG(TAG, "  Max refresh rate: %u", *this->max_refresh_rate_);
 }
 void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_ && !this->is_effect_active())
@@ -81,7 +79,6 @@ void FastLEDLightOutputComponent::loop() {
     }
   }
 #endif
-
   this->controller_->showLeds();
 }
 void FastLEDLightOutputComponent::schedule_show() {
