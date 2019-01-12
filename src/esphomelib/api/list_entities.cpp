@@ -71,6 +71,7 @@ bool ListEntitiesIterator::on_light(light::LightState *light) {
     buffer.encode_bool(10, light->get_traits().get_max_mireds());
     // repeated string effects = 11;
     if (light->supports_effects()) {
+      buffer.encode_string(11, "None");
       for (auto *effect : light->get_effects()) {
         buffer.encode_string(11, effect->get_name());
       }
