@@ -103,7 +103,7 @@ class ESPColorCorrection {
   uint8_t gamma_table_[256];
   uint8_t gamma_reverse_table_[256];
   ESPColor max_brightness_;
-  uint8_t local_brightness_;
+  uint8_t local_brightness_{255};
 };
 
 class ESPColorView {

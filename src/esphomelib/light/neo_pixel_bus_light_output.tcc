@@ -69,7 +69,7 @@ template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightState *state) {
   LightColorValues value = state->get_current_values();
   uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
-  this->correction_.set_max_brightness(max_brightness);
+  this->correction_.set_local_brightness(max_brightness);
 
   if (this->is_effect_active())
     return;
