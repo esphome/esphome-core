@@ -92,11 +92,8 @@ ESPColor HOT ESPHSVColor::to_rgb() const {
     uint8_t desat = 255 - sat;
     rgb += esp_scale8(desat, desat);
   }
-  // Now scale everything down if we're at value < 255.
-  if (val != 255) {
-    // (r,g,b) = (r,g,b) * val^2
-    rgb *= esp_scale8(val, val);
-  }
+  // (r,g,b) = (r,g,b) * val^2
+  rgb *= esp_scale8(val, val);
   return rgb;
 }
 

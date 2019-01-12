@@ -161,7 +161,7 @@ ESPColorView NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE>::operator[](int32
 
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 ESPColorView NeoPixelRGBWLightOutput<T_METHOD, T_COLOR_FEATURE>::operator[](int32_t index) const {
-  uint8_t *base = this->controller_->Pixels() + 3ULL * index;
+  uint8_t *base = this->controller_->Pixels() + 4ULL * index;
   return ESPColorView(
       base + this->rgb_offsets_[0],
       base + this->rgb_offsets_[1],
