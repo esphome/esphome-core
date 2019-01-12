@@ -49,7 +49,7 @@ ESPColor HOT ESPHSVColor::to_rgb() const {
       break;
     case 0b010:
       rgb.r = 171 - two_thirds;
-      rgb.g = 170 + two_thirds;
+      rgb.g = 170 + third;
       rgb.b = 0;
       break;
     case 0b011:
