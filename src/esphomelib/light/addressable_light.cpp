@@ -12,6 +12,7 @@ namespace light {
 
 ESPColor HOT ESPColor::random_color() {
   uint32_t rand = random_uint32();
+  uint8_t w = rand >> 24;
   uint8_t r = rand >> 16;
   uint8_t g = rand >> 8;
   uint8_t b = rand >> 0;
@@ -19,7 +20,8 @@ ESPColor HOT ESPColor::random_color() {
   return ESPColor(
       uint8_t((uint16_t(r) * 255U / max_)),
       uint8_t((uint16_t(g) * 255U / max_)),
-      uint8_t((uint16_t(b) * 255U / max_))
+      uint8_t((uint16_t(b) * 255U / max_)),
+      w
   );
 }
 
