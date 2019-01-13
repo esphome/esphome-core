@@ -43,7 +43,12 @@ void WiFiComponent::setup() {
     delay(10);
 
     this->wifi_apply_power_save_();
-    this->start_scanning();
+
+    if (this->fast_connect_) {
+      this->start_connecting(this->sta_[0], false);
+    } else {
+      this->start_scanning();
+    }
   } else if (this->has_ap()) {
     this->setup_ap_config();
   }
@@ -59,7 +64,11 @@ void WiFiComponent::loop() {
       case WIFI_COMPONENT_STATE_COOLDOWN: {
         this->status_set_warning();
         if (millis() - this->action_started_ > 5000) {
-          this->start_scanning();
+          if (this->fast_connect_) {
+            this->start_connecting(this->sta_[0], false);
+          } else {
+            this->start_scanning();
+          }
         }
         break;
       }
@@ -108,6 +117,9 @@ bool WiFiComponent::has_ap() const {
 }
 bool WiFiComponent::has_sta() const {
   return !this->sta_.empty();
+}
+void WiFiComponent::set_fast_connect(bool fast_connect) {
+  this->fast_connect_ = fast_connect;
 }
 IPAddress WiFiComponent::get_ip_address() {
   if (this->has_sta())
