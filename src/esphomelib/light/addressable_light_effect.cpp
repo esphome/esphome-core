@@ -357,8 +357,9 @@ void AddressableFlickerEffect::set_update_interval(uint32_t update_interval) {
 }
 
 void AddressableFlickerEffect::set_intensity(float intensity) {
-  this->intensity_ = intensity;
+  this->intensity_ = roundf(intensity * 255.0f);
 }
+
 } // namespace light
 
 ESPHOMELIB_NAMESPACE_END
