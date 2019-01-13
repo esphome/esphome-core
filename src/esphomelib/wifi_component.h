@@ -36,7 +36,7 @@ enum WiFiComponentState {
    * */
   WIFI_COMPONENT_STATE_STA_CONNECTING_2,
   /** WiFi is in STA(+AP) mode and successfully connected. */
-      WIFI_COMPONENT_STATE_STA_CONNECTED,
+  WIFI_COMPONENT_STATE_STA_CONNECTED,
   // Any state below here is a valid state for continuing
   /** WiFi is in AP-only mode and internal AP is already enabled. */
   WIFI_COMPONENT_STATE_AP,
@@ -134,6 +134,7 @@ class WiFiComponent : public Component {
   void start_scanning();
   void check_scanning_finished();
   void start_connecting(const WiFiAP &ap, bool two);
+  void set_fast_connect(bool fast_connect);
 
   void check_connecting_finished();
 
@@ -211,6 +212,7 @@ class WiFiComponent : public Component {
 
   std::vector<WiFiAP> sta_;
   WiFiAP selected_ap_;
+  bool fast_connect_{false};
 
   WiFiAP ap_;
   WiFiComponentState state_{WIFI_COMPONENT_STATE_OFF};
