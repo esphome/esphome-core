@@ -9,8 +9,6 @@
 #include <esp_bt.h>
 #include <freertos/task.h>
 #include <esp_gap_ble_api.h>
-#include <btc_spp.h>
-#include <btc_gap_bt.h>
 #include <esp_bt_defs.h>
 #include "esphomelib/log.h"
 
