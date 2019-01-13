@@ -69,18 +69,17 @@ template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightState *state) {
   LightColorValues value = state->get_current_values();
   uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
-  this->correction_.set_max_brightness(max_brightness);
+  this->correction_.set_local_brightness(max_brightness);
 
   if (this->is_effect_active())
     return;
 
-  float r, g, b, w;
-  state->current_values_as_rgbw(&r, &g, &b, &w);
+  auto val = state->get_current_values();
+  // don't use LightState helper, gamma correction+brightness is handled by ESPColorView
   ESPColor color = ESPColor(
-      uint8_t(roundf(r * 255.0f)),
-      uint8_t(roundf(g * 255.0f)),
-      uint8_t(roundf(b * 255.0f)),
-      uint8_t(roundf(w * 255.0f))
+      uint8_t(roundf(val.get_red() * 255.0f)),
+      uint8_t(roundf(val.get_green() * 255.0f)),
+      uint8_t(roundf(val.get_blue() * 255.0f))
   );
 
   for (int i = 0; i < this->size(); i++) {
@@ -96,6 +95,7 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
   }
 
   this->effect_data_ = new uint8_t[this->size()];
+  this->controller_->Begin();
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
@@ -161,7 +161,7 @@ ESPColorView NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE>::operator[](int32
 
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 ESPColorView NeoPixelRGBWLightOutput<T_METHOD, T_COLOR_FEATURE>::operator[](int32_t index) const {
-  uint8_t *base = this->controller_->Pixels() + 3ULL * index;
+  uint8_t *base = this->controller_->Pixels() + 4ULL * index;
   return ESPColorView(
       base + this->rgb_offsets_[0],
       base + this->rgb_offsets_[1],

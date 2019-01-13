@@ -17,17 +17,22 @@ LightTraits FastLEDLightOutputComponent::get_traits() {
 void FastLEDLightOutputComponent::write_state(LightState *state) {
   LightColorValues value = state->get_current_values();
   uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
-  this->correction_.set_max_brightness(max_brightness);
+  this->correction_.set_local_brightness(max_brightness);
 
   if (this->is_effect_active())
     return;
 
-  float red, green, blue;
-  state->current_values_as_rgb(&red, &green, &blue);
-  CRGB crgb = CRGB(red * 255, green * 255, blue * 255);
+  auto val = state->get_current_values();
+  // don't use LightState helper, gamma correction+brightness is handled by ESPColorView
+  ESPColor color = ESPColor(
+      uint8_t(roundf(val.get_red() * 255.0f)),
+      uint8_t(roundf(val.get_green() * 255.0f)),
+      uint8_t(roundf(val.get_blue() * 255.0f))
+  );
 
-  for (int i = 0; i < this->num_leds_; i++)
-    this->leds_[i] = crgb;
+  for (int i = 0; i < this->size(); i++) {
+    (*this)[i] = color;
+  }
 
   this->schedule_show();
 }
@@ -39,13 +44,11 @@ void FastLEDLightOutputComponent::setup() {
   if (!this->max_refresh_rate_.has_value()) {
     this->set_max_refresh_rate(this->controller_->getMaxRefreshRate());
   }
-  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
 }
 void FastLEDLightOutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "FastLED light:");
-  ESP_LOGCONFIG(TAG, "    Num LEDs: %u", this->num_leds_);
-  ESP_LOGCONFIG(TAG, "    Max refresh rate: %u", *this->max_refresh_rate_);
-
+  ESP_LOGCONFIG(TAG, "  Num LEDs: %u", this->num_leds_);
+  ESP_LOGCONFIG(TAG, "  Max refresh rate: %u", *this->max_refresh_rate_);
 }
 void FastLEDLightOutputComponent::loop() {
   if (!this->next_show_ && !this->is_effect_active())
@@ -81,7 +84,6 @@ void FastLEDLightOutputComponent::loop() {
     }
   }
 #endif
-
   this->controller_->showLeds();
 }
 void FastLEDLightOutputComponent::schedule_show() {

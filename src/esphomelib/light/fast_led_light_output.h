@@ -34,7 +34,7 @@ namespace light {
  * with this component you cannot pass in the CRGB array and offset values as you would be
  * able to do with FastLED as the component manage the lights itself.
  */
-class FastLEDLightOutputComponent : public LightOutput, public Component, public AddressableLight {
+class FastLEDLightOutputComponent : public Component, public AddressableLight {
  public:
   void schedule_show();
 

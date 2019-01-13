@@ -52,7 +52,7 @@ enum class ESPNeoPixelOrder {
  * These add_leds helpers can, however, only be called once on a NeoPixelBusLightOutputComponent.
  */
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-class NeoPixelBusLightOutputBase : public LightOutput, public Component, public AddressableLight {
+class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
  public:
   void schedule_show();
 
