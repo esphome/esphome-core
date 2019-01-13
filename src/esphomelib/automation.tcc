@@ -314,11 +314,11 @@ WhileAction<T>::WhileAction(const std::vector<Condition<T> *> &conditions) : con
 }
 template<typename T>
 void WhileAction<T>::add_then(const std::vector<Action<T> *> &actions) {
-this->then_.add_actions(actions);
-this->then_.add_action(new LambdaAction<T>([this](T x) {
-this->is_running_ = false;
-this->play(x);
-}));
+  this->then_.add_actions(actions);
+  this->then_.add_action(new LambdaAction<T>([this](T x) {
+    this->is_running_ = false;
+    this->play(x);
+  }));
 }
 template<typename T>
 void WhileAction<T>::play(T x) {
@@ -337,6 +337,7 @@ void WhileAction<T>::play(T x) {
 template<typename T>
 void WhileAction<T>::stop() {
   this->then_.stop();
+  this->is_running_ = false;
   this->stop_next();
 }
 
