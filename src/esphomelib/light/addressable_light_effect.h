@@ -109,7 +109,7 @@ class AddressableRandomTwinkleEffect : public AddressableLightEffect {
 class AddressableFireworksEffect : public AddressableLightEffect {
  public:
   explicit AddressableFireworksEffect(const std::string &name);
-  void init() override;
+  void start() override;
   void apply(AddressableLight &it, const ESPColor &current_color) override;
   void set_update_interval(uint32_t update_interval);
   void set_spark_probability(float spark_probability);

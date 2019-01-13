@@ -6,6 +6,7 @@
 #ifdef USE_LIGHT
 
 #include "esphomelib/helpers.h"
+#include "esphomelib/light/light_state.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -102,7 +103,7 @@ class ESPColorCorrection {
   uint8_t gamma_table_[256];
   uint8_t gamma_reverse_table_[256];
   ESPColor max_brightness_;
-  uint8_t local_brightness_;
+  uint8_t local_brightness_{255};
 };
 
 class ESPColorView {
@@ -135,7 +136,7 @@ class ESPColorView {
   const ESPColorCorrection *const color_correction_;
 };
 
-class AddressableLight {
+class AddressableLight : public LightOutput {
  public:
   AddressableLight();
   virtual int32_t size() const = 0;

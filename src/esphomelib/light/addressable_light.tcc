@@ -25,7 +25,7 @@ ESPColor::ESPColor(uint8_t red, uint8_t green, uint8_t blue)
 }
 
 ESPColor::ESPColor(uint32_t colorcode)
-    : w((colorcode >> 24) & 0xFF), r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF) {
+    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF), w((colorcode >> 24) & 0xFF) {
 }
 
 ESPColor::ESPColor(const ESPColor &rhs) {
@@ -272,23 +272,35 @@ ESPColor ESPColorCorrection::color_uncorrect(ESPColor color) const {
 }
 
 uint8_t ESPColorCorrection::color_uncorrect_red(uint8_t red) const {
+  if (this->max_brightness_.red == 0 || this->local_brightness_ == 0)
+    return 0;
   uint16_t uncorrected = this->gamma_reverse_table_[red] * 255UL;
-  return ((uncorrected / this->max_brightness_.red) * 255UL) / this->local_brightness_;
+  uint8_t res = ((uncorrected / this->max_brightness_.red) * 255UL) / this->local_brightness_;
+  return res;
 }
 
 uint8_t ESPColorCorrection::color_uncorrect_green(uint8_t green) const {
+  if (this->max_brightness_.green == 0 || this->local_brightness_ == 0)
+    return 0;
   uint16_t uncorrected = this->gamma_reverse_table_[green] * 255UL;
-  return ((uncorrected / this->max_brightness_.green) * 255UL) / this->local_brightness_;
+  uint8_t res = ((uncorrected / this->max_brightness_.green) * 255UL) / this->local_brightness_;
+  return res;
 }
 
 uint8_t ESPColorCorrection::color_uncorrect_blue(uint8_t blue) const {
+  if (this->max_brightness_.blue == 0 || this->local_brightness_ == 0)
+    return 0;
   uint16_t uncorrected = this->gamma_reverse_table_[blue] * 255UL;
-  return ((uncorrected / this->max_brightness_.blue) * 255UL) / this->local_brightness_;
+  uint8_t res = ((uncorrected / this->max_brightness_.blue) * 255UL) / this->local_brightness_;
+  return res;
 }
 
 uint8_t ESPColorCorrection::color_uncorrect_white(uint8_t white) const {
+  if (this->max_brightness_.white == 0 || this->local_brightness_ == 0)
+    return 0;
   uint16_t uncorrected = this->gamma_reverse_table_[white] * 255UL;
-  return ((uncorrected / this->max_brightness_.white) * 255UL) / this->local_brightness_;
+  uint8_t res = ((uncorrected / this->max_brightness_.white) * 255UL) / this->local_brightness_;
+  return res;
 }
 
 ESPHSVColor::ESPHSVColor() {

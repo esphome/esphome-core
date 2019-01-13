@@ -85,7 +85,7 @@ void AddressableRainbowLightEffect::apply(AddressableLight &it, const ESPColor &
   uint16_t hue = (millis() * this->speed_) % 0xFFFF;
   const uint16_t add = 0xFFFF / this->width_;
   for (int i = 0; i < it.size(); i++) {
-    hsv.hue = hue / 0xFF;
+    hsv.hue = hue >> 8;
     it[i] = hsv;
     hue += add;
   }
@@ -128,11 +128,13 @@ void AddressableColorWipeEffect::apply(AddressableLight &it, const ESPColor &cur
     return;
   this->last_add_ = now;
   if (!this->reverse_) {
-    for (size_t i = 0; i < it.size() - 1UL; i++)
+    for (int i = 0; i < it.size() - 1; i++) {
       it[i] = it[i + 1].get();
+    }
   } else {
-    for (size_t i = it.size() - 1UL; i > 0; i++)
+    for (int i = it.size() - 1; i > 0; i--) {
       it[i] = it[i - 1].get();
+    }
   }
   const AddressableColorWipeEffectColor color = this->colors_[this->at_color_];
   const ESPColor esp_color = ESPColor(color.r, color.g, color.b, color.w);
@@ -283,7 +285,7 @@ AddressableFireworksEffect::AddressableFireworksEffect(const std::string &name)
     : AddressableLightEffect(name) {
 }
 
-void AddressableFireworksEffect::init() {
+void AddressableFireworksEffect::start() {
   const auto &it = *this->get_addressable_();
   for (int i = 0; i < it.size(); i++)
     it[i] = ESPColor(0, 0, 0, 0);

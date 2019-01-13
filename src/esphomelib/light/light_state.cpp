@@ -30,8 +30,6 @@ void LightState::start_transition(const LightColorValues &target, uint32_t lengt
   if (target.get_state() == 0.0f)
     // Turn of effect if transitioning to off.
     this->stop_effect();
-
-  this->send_values();
 }
 
 void LightState::add_new_remote_values_callback(light_send_callback_t &&send_callback) {
@@ -46,7 +44,6 @@ void LightState::start_flash(const LightColorValues &target, uint32_t length) {
   if (this->transformer_ != nullptr)
     end_colors = this->transformer_->get_end_values();
   this->transformer_ = make_unique<LightFlashTransformer>(millis(), length, end_colors, target);
-  this->send_values();
 }
 
 LightState::LightState(const std::string &name, LightOutput *output)
@@ -63,13 +60,9 @@ void LightState::set_immediately_without_sending(const LightColorValues &target)
 void LightState::set_immediately(const LightColorValues &target) {
   this->set_immediately_without_sending(target);
   this->remote_values_ = target;
-  this->send_values();
 }
 
 LightColorValues LightState::get_current_values() {
-  if (this->active_effect_ != nullptr)
-    this->active_effect_->apply();
-
   if (this->transformer_ != nullptr) {
     if (this->transformer_->is_finished()) {
       this->remote_values_ = this->values_ = this->transformer_->get_end_values();
@@ -114,7 +107,6 @@ void LightState::start_effect(uint32_t effect_index) {
   this->active_effect_ = this->effects_[effect_index - 1];
   this->active_effect_index_ = effect_index;
   this->active_effect_->start_();
-  this->send_values();
 }
 
 bool LightState::supports_effects() {
@@ -155,6 +147,11 @@ struct LightStateRTCState {
 
 void LightState::setup() {
   ESP_LOGCONFIG(TAG, "Setting up light '%s'...", this->get_name().c_str());
+
+  this->output_->setup_state(this);
+  for (auto *effect : this->effects_) {
+    effect->init_(this);
+  }
 
   this->rtc_ = global_preferences.make_preference<LightStateRTCState>(this->get_object_id_hash());
   LightStateRTCState recovered;
@@ -229,8 +226,9 @@ void LightState::current_values_as_cwww(float color_temperature_cw,
   *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
 }
 void LightState::loop() {
-  if (this->active_effect_ != nullptr)
+  if (this->active_effect_ != nullptr) {
     this->active_effect_->apply();
+  }
 
   if (this->next_write_ || (this->transformer_ != nullptr && this->transformer_->is_continuous())) {
     this->output_->write_state(this);
@@ -247,7 +245,6 @@ void LightState::add_effects(const std::vector<LightEffect *> effects) {
   this->effects_.reserve(this->effects_.size() + effects.size());
   for (auto *effect : effects) {
     this->effects_.push_back(effect);
-    effect->init_(this);
   }
 }
 LightState::StateCall LightState::turn_on() {
@@ -518,6 +515,7 @@ void LightState::StateCall::perform() const {
   saved.color_temp = v.get_color_temperature();
   saved.effect = *this->state_->active_effect_index_;
   this->state_->rtc_.save(&saved);
+  this->state_->send_values();
 }
 LightState::StateCall::StateCall(LightState *state)
     : state_(state) {
