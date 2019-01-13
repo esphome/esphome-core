@@ -45,7 +45,8 @@ void WiFiComponent::setup() {
     this->wifi_apply_power_save_();
 
     if (this->fast_connect_) {
-      this->start_connecting(this->sta_[0], false);
+      this->selected_ap_ = this->sta_[0];
+      this->start_connecting(this->selected_ap_, false);
     } else {
       this->start_scanning();
     }

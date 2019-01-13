@@ -580,8 +580,8 @@ void APIConnection::on_device_info_request_(const DeviceInfoRequest &req) {
     buffer.encode_string(6, ARDUINO_BOARD);
 #endif
 #ifdef USE_DEEP_SLEEP
-    // bool has_deep_sleep = 8;
-    buffer.encode_bool(8, global_has_deep_sleep);
+    // bool has_deep_sleep = 7;
+    buffer.encode_bool(7, global_has_deep_sleep);
 #endif
   }, APIMessageType::DEVICE_INFO_RESPONSE);
 }
