@@ -22,7 +22,7 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::set_power_supply(Pow
 #endif
 
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::get_controller_() const {
+NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::get_controller() const {
   return this->controller_;
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
