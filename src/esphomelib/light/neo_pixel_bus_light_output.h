@@ -60,7 +60,7 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
   void set_power_supply(PowerSupplyComponent *power_supply);
 #endif
 
-  NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *get_controller_() const;
+  NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *get_controller() const;
 
   void set_correction(float red, float green, float blue, float white = 0.0f);
 
