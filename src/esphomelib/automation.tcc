@@ -40,10 +40,14 @@ void Trigger<T>::set_parent(Automation<T> *parent) {
 
 template<typename T>
 void Trigger<T>::trigger(T x) {
+  if (this->parent_ == nullptr)
+    return;
   this->parent_->process_trigger_(x);
 }
 template<typename T>
 void Trigger<T>::stop() {
+  if (this->parent_ == nullptr)
+    return;
   this->parent_->stop();
 }
 

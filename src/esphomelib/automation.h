@@ -70,7 +70,7 @@ class Trigger {
   void set_parent(Automation<T> *parent);
   void stop();
  protected:
-  Automation<T> *parent_;
+  Automation<T> *parent_{nullptr};
 };
 
 template<>
@@ -81,7 +81,7 @@ class Trigger<NoArg> {
   void set_parent(Automation<NoArg> *parent);
   void stop();
  protected:
-  Automation<NoArg> *parent_;
+  Automation<NoArg> *parent_{nullptr};
 };
 
 class StartupTrigger : public Trigger<NoArg>, public Component {
