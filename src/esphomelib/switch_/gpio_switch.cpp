@@ -39,10 +39,10 @@ void GPIOSwitch::setup() {
   }
 
   // write state before setup
-  this->pin_->digital_write(initial_state);
+  this->pin_->digital_write(initial_state != this->inverted_);
   this->pin_->setup();
   // write after setup again for other IOs
-  this->pin_->digital_write(initial_state);
+  this->pin_->digital_write(initial_state != this->inverted_);
   this->publish_state(initial_state);
 }
 void GPIOSwitch::dump_config() {
