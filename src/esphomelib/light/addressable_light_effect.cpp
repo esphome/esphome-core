@@ -342,13 +342,14 @@ AddressableFlickerEffect::AddressableFlickerEffect(const std::string &name)
 
 void AddressableFlickerEffect::apply(AddressableLight &it, const ESPColor &current_color) {
   const uint32_t now = millis();
+  const uint8_t delta_intensity = 255 - this->intensity_;
   if (now - this->last_update_ < this->update_interval_)
     return;
   this->last_update_ = now;
   fast_random_set_seed(random_uint32());
   for (int i = 0; i < it.size(); i++) {
     const uint8_t flicker = fast_random_8() % this->intensity_;
-    it[i] = (it[i].get() * 240) + (current_color * 16) - flicker;
+    it[i] = (it[i].get() * delta_intensity) + (current_color * flicker);
   }
 }
 
