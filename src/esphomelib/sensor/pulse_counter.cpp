@@ -45,9 +45,10 @@ GPIOPin *PulseCounterBase::get_pin() {
 #ifdef ARDUINO_ARCH_ESP8266
 void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
   const uint32_t now = micros();
-  if (now - this->last_pulse_ < this->filter_us_)
-    return;
+  const bool discard = now - this->last_pulse_ < this->filter_us_;
   this->last_pulse_ = now;
+  if (discard)
+    return;
 
   PulseCounterCountMode mode = this->pin_->digital_read() ? this->rising_edge_mode_ : this->falling_edge_mode_;
   switch (mode) {
