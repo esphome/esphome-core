@@ -73,7 +73,7 @@ void LightColorValues::set_white(float white) {
 }
 
 LightColorValues::LightColorValues()
-    : state_(0.0f), brightness_(1.0f), red_(1.0f), green_(1.0f), blue_(1.0f), white_(1.0f) {
+    : state_(0.0f), brightness_(1.0f), red_(1.0f), green_(1.0f), blue_(1.0f), white_(1.0f), color_temperature_{1.0f} {
 
 }
 
