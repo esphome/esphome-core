@@ -38,6 +38,7 @@ class DelayedOnFilter : public Filter, public Component {
 
  protected:
   uint32_t delay_;
+  optional<bool> last_out_{};
 };
 
 class DelayedOffFilter : public Filter, public Component {
@@ -50,6 +51,7 @@ class DelayedOffFilter : public Filter, public Component {
 
  protected:
   uint32_t delay_;
+  optional<bool> last_out_{};
 };
 
 class HeartbeatFilter : public Filter, public Component {

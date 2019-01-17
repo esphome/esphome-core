@@ -27,11 +27,21 @@ DelayedOnFilter::DelayedOnFilter(uint32_t delay) : delay_(delay) {
 optional<bool> DelayedOnFilter::new_value(bool value) {
   if (value) {
     this->set_timeout("ON", this->delay_, [this](){
+      if (this->last_out_.value_or(false)) {
+        // already sent ON
+        return;
+      }
+      this->last_out_ = true;
       this->output(true);
     });
     return {};
   } else {
     this->cancel_timeout("ON");
+    if (!this->last_out_.value_or(true)) {
+      // already sent OFF
+      return {};
+    }
+    this->last_out_ = false;
     return false;
   }
 }
@@ -46,11 +56,21 @@ DelayedOffFilter::DelayedOffFilter(uint32_t delay) : delay_(delay) {
 optional<bool> DelayedOffFilter::new_value(bool value) {
   if (!value) {
     this->set_timeout("OFF", this->delay_, [this](){
+      if (!this->last_out_.value_or(true)) {
+        // already sent OFF
+        return;
+      }
+      this->last_out_ = false;
       this->output(false);
     });
     return {};
   } else {
     this->cancel_timeout("OFF");
+    if (this->last_out_.value_or(false)) {
+      // already sent ON
+      return {};
+    }
+    this->last_out_ = true;
     return true;
   }
 }
