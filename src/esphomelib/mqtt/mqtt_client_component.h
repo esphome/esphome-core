@@ -257,6 +257,7 @@ class MQTTClientComponent : public Component {
   /// The birth message (e.g. the message that's send on an established connection.
   /// See last_will_ for what different values denote.
   MQTTMessage birth_message_;
+  bool sent_birth_message_{false};
   MQTTMessage shutdown_message_;
   /// Caches availability.
   Availability availability_{};
