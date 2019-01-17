@@ -23,18 +23,6 @@
     {
       "name": "ArduinoJson-esphomelib",
       "version": "5.13.3"
-    },
-    {
-      "name": "ESP Async WebServer",
-      "version": "1.1.1"
-    },
-    {
-      "name": "FastLED",
-      "version": "3.2.0"
-    },
-    {
-       "name": "NeoPixelBus",
-       "version": "2.4.1"
     }
   ],
   "build": {
