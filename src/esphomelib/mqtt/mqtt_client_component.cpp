@@ -205,13 +205,11 @@ void MQTTClientComponent::check_connected() {
   }
 
   this->state_ = MQTT_CLIENT_CONNECTED;
+  this->sent_birth_message_ = false;
   this->status_clear_warning();
   ESP_LOGI(TAG, "MQTT Connected!");
   // MQTT Client needs some time to be fully set up.
   delay(100);
-
-  if (!this->birth_message_.topic.empty())
-    this->publish(this->birth_message_);
 
   this->resubscribe_subscriptions_();
 
@@ -278,6 +276,10 @@ void MQTTClientComponent::loop() {
         ESP_LOGW(TAG, "Lost MQTT Client connection!");
         this->start_dnslookup();
       } else {
+        if (!this->birth_message_.topic.empty() && !this->sent_birth_message_) {
+          this->sent_birth_message_ = this->publish(this->birth_message_);
+        }
+
         this->last_connected_ = now;
         this->resubscribe_subscriptions_();
       }
@@ -525,9 +527,11 @@ const std::string &MQTTClientComponent::get_topic_prefix() const {
 }
 void MQTTClientComponent::disable_birth_message() {
   this->birth_message_.topic = "";
+  this->recalculate_availability();
 }
 void MQTTClientComponent::disable_shutdown_message() {
   this->shutdown_message_.topic = "";
+  this->recalculate_availability();
 }
 bool MQTTClientComponent::is_discovery_enabled() const {
   return !this->discovery_info_.prefix.empty();
