@@ -36,8 +36,6 @@ void WiFiComponent::setup() {
     return;
   }
 
-  this->wifi_apply_hostname_();
-
   if (this->has_sta()) {
     this->wifi_disable_auto_connect_();
     delay(10);
@@ -54,6 +52,7 @@ void WiFiComponent::setup() {
     this->setup_ap_config();
   }
 
+  this->wifi_apply_hostname_();
   network_setup_mdns(this->hostname_);
 }
 
@@ -1277,7 +1276,8 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
 
   if (event == SYSTEM_EVENT_STA_DISCONNECTED) {
     uint8_t reason = info.disconnected.reason;
-    if (reason == WIFI_REASON_AUTH_EXPIRE || (reason >= WIFI_REASON_BEACON_TIMEOUT && WIFI_REASON_AUTH_FAIL)) {
+    if (reason == WIFI_REASON_AUTH_EXPIRE || (reason >= WIFI_REASON_BEACON_TIMEOUT && reason != WIFI_REASON_AUTH_FAIL)) {
+      esp_wifi_disconnect();
       this->error_from_callback_ = true;
     }
   }
