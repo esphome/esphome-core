@@ -59,13 +59,20 @@ class BinarySensor : public Nameable {
    *
    * @param callback The void(bool) callback.
    */
-  virtual void add_on_state_callback(std::function<void(bool)> &&callback);
+  void add_on_state_callback(std::function<void(bool)> &&callback);
 
   /** Publish a new state to the front-end.
    *
    * @param state The new state.
    */
-  virtual void publish_state(bool state);
+  void publish_state(bool state);
+
+  /** Publish the initial state, this will not make the callback manager send callbacks
+   * and is meant only for the initial state on boot.
+   *
+   * @param state The new state.
+   */
+  void publish_initial_state(bool state);
 
   union {
     /// The current reported state of the binary sensor.
@@ -95,7 +102,7 @@ class BinarySensor : public Nameable {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  void send_state_internal_(bool state);
+  void send_state_internal_(bool state, bool is_initial);
 
   /// Return whether this binary sensor has outputted a state.
   bool has_state() const;

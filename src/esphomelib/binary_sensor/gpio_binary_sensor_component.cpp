@@ -16,7 +16,7 @@ void GPIOBinarySensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO binary sensor '%s'...", this->name_.c_str());
   this->pin_->setup();
   this->last_state_ = this->pin_->digital_read();
-  this->publish_state(this->last_state_);
+  this->publish_initial_state(this->last_state_);
 }
 
 void GPIOBinarySensorComponent::dump_config() {

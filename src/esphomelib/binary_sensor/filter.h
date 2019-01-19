@@ -15,11 +15,11 @@ class BinarySensor;
 
 class Filter {
  public:
-  virtual optional<bool> new_value(bool value) = 0;
+  virtual optional<bool> new_value(bool value, bool is_initial) = 0;
 
-  void input(bool value);
+  void input(bool value, bool is_initial);
 
-  void output(bool value);
+  void output(bool value, bool is_initial);
 
  protected:
   friend BinarySensor;
@@ -32,7 +32,7 @@ class DelayedOnFilter : public Filter, public Component {
  public:
   explicit DelayedOnFilter(uint32_t delay);
 
-  optional<bool> new_value(bool value) override;
+  optional<bool> new_value(bool value, bool is_initial) override;
 
   float get_setup_priority() const override;
 
@@ -44,7 +44,7 @@ class DelayedOffFilter : public Filter, public Component {
  public:
   explicit DelayedOffFilter(uint32_t delay);
 
-  optional<bool> new_value(bool value) override;
+  optional<bool> new_value(bool value, bool is_initial) override;
 
   float get_setup_priority() const override;
 
@@ -56,7 +56,7 @@ class HeartbeatFilter : public Filter, public Component {
  public:
   explicit HeartbeatFilter(uint32_t interval);
 
-  optional<bool> new_value(bool value) override;
+  optional<bool> new_value(bool value, bool is_initial) override;
 
   void setup();
 
@@ -69,14 +69,14 @@ class HeartbeatFilter : public Filter, public Component {
 
 class InvertFilter : public Filter {
  public:
-  optional<bool> new_value(bool value) override;
+  optional<bool> new_value(bool value, bool is_initial) override;
 };
 
 class LambdaFilter : public Filter {
  public:
   explicit LambdaFilter(const std::function<optional<bool>(bool)> &f);
 
-  optional<bool> new_value(bool value) override;
+  optional<bool> new_value(bool value, bool is_initial) override;
 
  protected:
   std::function<optional<bool>(bool)> f_;
@@ -84,7 +84,7 @@ class LambdaFilter : public Filter {
 
 class UniqueFilter : public Filter {
  public:
-  optional<bool> new_value(bool value) override;
+  optional<bool> new_value(bool value, bool is_initial) override;
 
  protected:
   optional<bool> last_value_{};
