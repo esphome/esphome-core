@@ -43,7 +43,7 @@ void GPIOSwitch::setup() {
   this->pin_->setup();
   // write after setup again for other IOs
   this->pin_->digital_write(initial_state != this->inverted_);
-  this->publish_state(initial_state);
+  this->publish_state(initial_state != this->inverted_);
 }
 void GPIOSwitch::dump_config() {
   LOG_SWITCH("", "GPIO Switch", this);
