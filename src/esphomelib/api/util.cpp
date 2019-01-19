@@ -9,23 +9,15 @@ ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace api {
 
-APIBuffer::APIBuffer(uint8_t *buffer, size_t max_len) : buffer_(buffer), max_len_(max_len) {
+APIBuffer::APIBuffer(std::vector<uint8_t> *buffer)
+  : buffer_(buffer) {
 
 }
 size_t APIBuffer::get_length() const {
-  return this->at_;
-}
-bool APIBuffer::get_overflow() const {
-  return this->overflow_;
+  return this->buffer_->size();
 }
 void APIBuffer::write(uint8_t value) {
-  if (this->at_ >= this->max_len_) {
-    this->overflow_ = true;
-    return;
-  }
-
-  this->buffer_[this->at_] = value;
-  this->at_++;
+  this->buffer_->push_back(value);
 }
 void APIBuffer::encode_uint32(uint32_t field, uint32_t value) {
   if (value == 0)
@@ -128,23 +120,27 @@ uint32_t APIBuffer::varint_length_(uint32_t value) {
 }
 size_t APIBuffer::begin_nested(uint32_t field) {
   this->encode_field_(field, 2);
-  return this->at_;
+  return this->buffer_->size();
 }
 void APIBuffer::end_nested(size_t begin_index) {
-  if (this->overflow_)
-    return;
-
-  uint32_t nested_length = this->at_ - begin_index;
-  uint32_t required = this->varint_length_(nested_length);
-  if (this->at_ + required >= this->max_len_) {
-    this->overflow_ = true;
-    return;
+  const uint32_t nested_length = this->buffer_->size() - begin_index;
+  // add varint
+  std::vector<uint8_t> var;
+  uint32_t val = nested_length;
+  if (val <= 0x7F) {
+    var.push_back(val);
+  } else {
+    while (val) {
+      uint8_t temp = val & 0x7F;
+      val >>= 7;
+      if (val) {
+        var.push_back(temp | 0x80);
+      } else {
+        var.push_back(temp);
+      }
+    }
   }
-
-  memmove(this->buffer_ + begin_index + required, this->buffer_ + begin_index, nested_length);
-  this->at_ = begin_index;
-  this->encode_varint_(nested_length);
-  this->at_ = begin_index + required + nested_length;
+  this->buffer_->insert(this->buffer_->begin() + begin_index, var.begin(), var.end());
 }
 
 optional<uint32_t> proto_decode_varuint32(uint8_t *buf, size_t len, uint32_t *consumed) {

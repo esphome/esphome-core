@@ -52,6 +52,17 @@ void APIServer::setup() {
   this->last_connected_ = millis();
 }
 void APIServer::loop() {
+  auto it = std::remove_if(this->clients_.begin(), this->clients_.end(),
+                           [](APIConnection *conn) {
+                             return conn->remove_;
+                           });
+  for (auto it2 = it; it2 != this->clients_.end(); it2++) {
+    APIConnection *conn = *it;
+    ESP_LOGD(TAG, "Disconnecting %s", conn->client_info_.c_str());
+    delete conn;
+  }
+  this->clients_.erase(it, this->clients_.end());
+
   for (auto *client : this->clients_) {
     client->loop();
   }
@@ -104,15 +115,7 @@ bool APIServer::check_password(const std::string &password) const {
   return result == 0;
 }
 void APIServer::handle_disconnect(APIConnection *conn) {
-  this->clients_.erase(
-      std::remove_if(this->clients_.begin(), this->clients_.end(),
-                     [conn](APIConnection *conn2) {
-                       return conn2 == conn;
-                     }),
-      this->clients_.end()
-  );
 
-  delete conn;
 }
 #ifdef USE_BINARY_SENSOR
 void APIServer::on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool state) {
@@ -221,120 +224,108 @@ APIConnection::APIConnection(AsyncClient *client, APIServer *parent)
     ((APIConnection *) s)->on_data_(reinterpret_cast<uint8_t *>(buf), len);
   }, this);
 
-  this->buffer_size_ = 256;
-  this->buffer_ = new uint8_t[this->buffer_size_];
+  this->send_buffer_.reserve(64);
+  this->recv_buffer_.reserve(32);
   this->client_info_ = this->client_->remoteIP().toString().c_str();
   this->last_traffic_ = millis();
 }
 APIConnection::~APIConnection() {
-  delete [] this->buffer_;
   delete this->client_;
 }
 void APIConnection::on_error_(int8_t error) {
   ESP_LOGD(TAG, "Error from client '%s': %d", this->client_info_.c_str(), error);
   // disconnect will also be called, nothing to do here
+  this->remove_ = true;
 }
 void APIConnection::on_disconnect_() {
   // delete self, generally unsafe but not in this case.
-  std::string client_info = this->client_info_;
-  this->parent_->handle_disconnect(this);
-  ESP_LOGD(TAG, "'%s' disconnected.", client_info.c_str());
+  this->remove_ = true;
 }
 void APIConnection::on_timeout_(uint32_t time) {
-  ESP_LOGV(TAG, "Timeout from client");
+  ESP_LOGV(TAG, "Timeout from client %u", time);
   this->disconnect_client_();
-}
-void APIConnection::resize_buffer_() {
-  delete [] this->buffer_;
-  this->buffer_size_ *= 2;
-  this->buffer_ = new uint8_t[this->buffer_size_];
 }
 void APIConnection::on_data_(uint8_t *buf, size_t len) {
   if (len == 0 || buf == nullptr)
     return;
 
-  for (size_t i = 0; i < len; i++) {
-    uint8_t val = buf[i];
-    const uint32_t buffer_size = this->buffer_size_;
-    const uint32_t buffer_at = this->rx_buffer_at_;
+  this->recv_buffer_.insert(this->recv_buffer_.end(), buf, buf + len);
+  // TODO: On ESP32, use queue to notify main thread of new data
+}
+void APIConnection::parse_recv_buffer_() {
+  if (this->recv_buffer_.empty() || this->remove_)
+    return;
 
-    if (buffer_at >= buffer_size && this->parse_state_ != ParseMessageState::SKIP_MESSAGE_FIELD) {
+  while (!this->recv_buffer_.empty()) {
+    if (this->recv_buffer_[0] != 0x00) {
+      ESP_LOGW(TAG, "Invalid preamble from %s", this->client_info_.c_str());
       this->fatal_error_();
       return;
-    } else if (this->parse_state_ != ParseMessageState::SKIP_MESSAGE_FIELD) {
-      this->buffer_[buffer_at] = val;
+    }
+    uint32_t i = 1;
+    const uint32_t size = this->recv_buffer_.size();
+    uint32_t msg_size = 0;
+    while (i < size) {
+      const uint8_t dat = this->recv_buffer_[i];
+      msg_size |= (dat & 0x7F);
+      // consume
+      i += 1;
+      if ((dat & 0x80) == 0x00) {
+        break;
+      } else {
+        msg_size <<= 7;
+      }
+    }
+    if (i == size)
+      // not enough data there yet
+      return;
+
+    uint32_t msg_type = 0;
+    bool msg_type_done = false;
+    while (i < size) {
+      const uint8_t dat = this->recv_buffer_[i];
+      msg_type |= (dat & 0x7F);
+      // consume
+      i += 1;
+      if ((dat & 0x80) == 0x00) {
+        msg_type_done = true;
+        break;
+      } else {
+        msg_type <<= 7;
+      }
+    }
+    if (!msg_type_done)
+      // not enough data there yet
+      return;
+
+    if (size - i < msg_size)
+      // message body not fully received
+      return;
+
+    // ESP_LOGVV(TAG, "RECV Message: Size=%u Type=%u", msg_size, msg_type);
+
+    if (!this->valid_rx_message_type_(msg_type)) {
+      ESP_LOGE(TAG, "Not a valid message type: %u", msg_type);
+      this->fatal_error_();
+      return;
     }
 
-    this->rx_buffer_at_ += 1;
-
-    switch (this->parse_state_) {
-      case ParseMessageState::PREAMBLE: {
-        if (val != 0x00) {
-          ESP_LOGW(TAG, "Invalid preamble (%02X)!", val);
-          this->fatal_error_();
-          return;
-        }
-        this->parse_state_ = ParseMessageState::LENGTH_FIELD;
-        this->rx_buffer_at_ = 0;
-        break;
-      }
-      case ParseMessageState::LENGTH_FIELD: {
-        auto res = proto_decode_varuint32(this->buffer_, buffer_at + 1);
-        if (res.has_value()) {
-          this->message_length_ = *res;
-          this->parse_state_ = ParseMessageState::TYPE_FIELD;
-        }
-        this->rx_buffer_at_ = 0;
-        break;
-      }
-      case ParseMessageState::TYPE_FIELD: {
-        auto res = proto_decode_varuint32(this->buffer_, buffer_at + 1);
-        if (res.has_value()) {
-          this->message_type_ = static_cast<APIMessageType>(*res);
-
-          if (!this->valid_rx_message_type_()) {
-            ESP_LOGE(TAG, "Not a valid message type: %u", *res);
-            this->fatal_error_();
-            return;
-          }
-
-          if (this->message_length_ == 0) {
-            this->read_message_();
-            this->parse_state_ = ParseMessageState::PREAMBLE;
-          } else if (this->message_length_ >= buffer_size) {
-            this->parse_state_ = ParseMessageState::SKIP_MESSAGE_FIELD;
-            ESP_LOGW(TAG, "Message too long, can't parse: %u", *res);
-          } else {
-            this->parse_state_ = ParseMessageState::MESSAGE_FIELD;
-          }
-          this->rx_buffer_at_ = 0;
-        }
-        break;
-      }
-      case ParseMessageState::MESSAGE_FIELD: {
-        if (buffer_at + 1 == this->message_length_) {
-          this->read_message_();
-          this->rx_buffer_at_ = 0;
-          this->parse_state_ = ParseMessageState::PREAMBLE;
-        }
-        break;
-      }
-      case ParseMessageState::SKIP_MESSAGE_FIELD:
-        if (buffer_at + 1 == this->message_length_) {
-          this->rx_buffer_at_ = 0;
-          this->parse_state_ = ParseMessageState::PREAMBLE;
-        }
-        break;
-    }
+    uint8_t *msg = &this->recv_buffer_[i];
+    this->read_message_(msg_size, msg_type, msg);
+    if (this->remove_)
+      return;
+    // pop front
+    uint32_t total = i + msg_size;
+    this->recv_buffer_.erase(this->recv_buffer_.begin(), this->recv_buffer_.begin() + total);
   }
 }
-void APIConnection::read_message_() {
+void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
   this->last_traffic_ = millis();
 
-  switch (this->message_type_) {
+  switch (static_cast<APIMessageType>(type)) {
     case APIMessageType::HELLO_REQUEST: {
       HelloRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_hello_request_(req);
       break;
     }
@@ -344,7 +335,7 @@ void APIConnection::read_message_() {
     }
     case APIMessageType::CONNECT_REQUEST: {
       ConnectRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_connect_request_(req);
       break;
     }
@@ -353,31 +344,31 @@ void APIConnection::read_message_() {
       break;
     case APIMessageType::DISCONNECT_REQUEST: {
       DisconnectRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_disconnect_request_(req);
       break;
     }
     case APIMessageType::DISCONNECT_RESPONSE: {
       DisconnectResponse req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_disconnect_response_(req);
       break;
     }
     case APIMessageType::PING_REQUEST: {
       PingRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_ping_request_(req);
       break;
     }
     case APIMessageType::PING_RESPONSE: {
       PingResponse req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_ping_response_(req);
       break;
     }
     case APIMessageType::DEVICE_INFO_REQUEST: {
       DeviceInfoRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_device_info_request_(req);
       break;
     }
@@ -387,7 +378,7 @@ void APIConnection::read_message_() {
     }
     case APIMessageType::LIST_ENTITIES_REQUEST: {
       ListEntitiesRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_list_entities_request_(req);
       break;
     }
@@ -403,7 +394,7 @@ void APIConnection::read_message_() {
       break;
     case APIMessageType::SUBSCRIBE_STATES_REQUEST: {
       SubscribeStatesRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_subscribe_states_request_(req);
       break;
     }
@@ -418,7 +409,7 @@ void APIConnection::read_message_() {
       break;
     case APIMessageType::SUBSCRIBE_LOGS_REQUEST: {
       SubscribeLogsRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_subscribe_logs_request_(req);
       break;
     }
@@ -428,7 +419,7 @@ void APIConnection::read_message_() {
     case APIMessageType::COVER_COMMAND_REQUEST: {
 #ifdef USE_COVER
       CoverCommandRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_cover_command_request_(req);
 #endif
       break;
@@ -436,7 +427,7 @@ void APIConnection::read_message_() {
     case APIMessageType::FAN_COMMAND_REQUEST: {
 #ifdef USE_FAN
       FanCommandRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_fan_command_request_(req);
 #endif
       break;
@@ -444,7 +435,7 @@ void APIConnection::read_message_() {
     case APIMessageType::LIGHT_COMMAND_REQUEST: {
 #ifdef USE_LIGHT
       LightCommandRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_light_command_request_(req);
 #endif
       break;
@@ -452,14 +443,14 @@ void APIConnection::read_message_() {
     case APIMessageType::SWITCH_COMMAND_REQUEST: {
 #ifdef USE_SWITCH
       SwitchCommandRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_switch_command_request_(req);
 #endif
       break;
     }
     case APIMessageType::SUBSCRIBE_SERVICE_CALLS_REQUEST: {
       SubscribeServiceCallsRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_subscribe_service_calls_request(req);
       break;
     }
@@ -472,13 +463,13 @@ void APIConnection::read_message_() {
     case APIMessageType::GET_TIME_RESPONSE: {
 #ifdef USE_HOMEASSISTANT_TIME
       time::GetTimeResponse req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
 #endif
       break;
     }
     case APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATES_REQUEST: {
       SubscribeHomeAssistantStatesRequest req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_subscribe_home_assistant_states_request(req);
       break;
     }
@@ -487,7 +478,7 @@ void APIConnection::read_message_() {
       break;
     case APIMessageType::HOME_ASSISTANT_STATE_RESPONSE: {
       HomeAssistantStateResponse req;
-      req.decode(this->buffer_, this->message_length_);
+      req.decode(msg, size);
       this->on_home_assistant_state_response(req);
       break;
     }
@@ -499,15 +490,15 @@ void APIConnection::on_hello_request_(const HelloRequest &req) {
   this->client_info_ += ")";
   ESP_LOGV(TAG, "Hello from client: '%s'", this->client_info_.c_str());
 
-  bool success = this->send_buffer([](APIBuffer &buffer) {
-    // uint32 api_version_major = 1; -> 1
-    buffer.encode_uint32(1, 1);
-    // uint32 api_version_minor = 2; -> 0
-    buffer.encode_uint32(2, 0);
+  auto buffer = this->get_buffer();
+  // uint32 api_version_major = 1; -> 1
+  buffer.encode_uint32(1, 1);
+  // uint32 api_version_minor = 2; -> 0
+  buffer.encode_uint32(2, 0);
 
-    // string server_info = 3;
-    buffer.encode_string(3, App.get_name() + " (esphomelib v" ESPHOMELIB_VERSION ")");
-  }, APIMessageType::HELLO_RESPONSE);
+  // string server_info = 3;
+  buffer.encode_string(3, App.get_name() + " (esphomelib v" ESPHOMELIB_VERSION ")");
+  bool success = this->send_buffer(APIMessageType::HELLO_RESPONSE);
   if (!success) {
     this->fatal_error_();
     return;
@@ -518,10 +509,10 @@ void APIConnection::on_hello_request_(const HelloRequest &req) {
 void APIConnection::on_connect_request_(const ConnectRequest &req) {
   ESP_LOGVV(TAG, "on_connect_request_(password='%s')", req.get_password().c_str());
   bool correct = this->parent_->check_password(req.get_password());
-  bool success = this->send_buffer([correct](APIBuffer &buffer) {
-    // bool invalid_password = 1;
-    buffer.encode_bool(1, !correct);
-  }, APIMessageType::CONNECT_RESPONSE);
+  auto buffer = this->get_buffer();
+  // bool invalid_password = 1;
+  buffer.encode_bool(1, !correct);
+  bool success = this->send_buffer(APIMessageType::CONNECT_RESPONSE);
   if (!success) {
     this->fatal_error_();
     return;
@@ -564,26 +555,26 @@ void APIConnection::on_ping_response_(const PingResponse &req) {
 }
 void APIConnection::on_device_info_request_(const DeviceInfoRequest &req) {
   ESP_LOGVV(TAG, "on_device_info_request_");
-  this->send_buffer([this](APIBuffer &buffer) {
-    // bool uses_password = 1;
-    buffer.encode_bool(1, this->parent_->uses_password());
-    // string name = 2;
-    buffer.encode_string(2, App.get_name());
-    // string mac_address = 3;
-    buffer.encode_string(3, get_mac_address_pretty());
-    // string esphomelib_version = 4;
-    buffer.encode_string(4, ESPHOMELIB_VERSION);
-    // string compilation_time = 5;
-    buffer.encode_string(5, App.get_compilation_time());
+  auto buffer = this->get_buffer();
+  // bool uses_password = 1;
+  buffer.encode_bool(1, this->parent_->uses_password());
+  // string name = 2;
+  buffer.encode_string(2, App.get_name());
+  // string mac_address = 3;
+  buffer.encode_string(3, get_mac_address_pretty());
+  // string esphomelib_version = 4;
+  buffer.encode_string(4, ESPHOMELIB_VERSION);
+  // string compilation_time = 5;
+  buffer.encode_string(5, App.get_compilation_time());
 #ifdef ARDUINO_BOARD
-    // string model = 6;
-    buffer.encode_string(6, ARDUINO_BOARD);
+  // string model = 6;
+  buffer.encode_string(6, ARDUINO_BOARD);
 #endif
 #ifdef USE_DEEP_SLEEP
-    // bool has_deep_sleep = 7;
-    buffer.encode_bool(7, global_has_deep_sleep);
+  // bool has_deep_sleep = 7;
+  buffer.encode_bool(7, global_has_deep_sleep);
 #endif
-  }, APIMessageType::DEVICE_INFO_RESPONSE);
+  this->send_buffer(APIMessageType::DEVICE_INFO_RESPONSE);
 }
 void APIConnection::on_list_entities_request_(const ListEntitiesRequest &req) {
   ESP_LOGVV(TAG, "on_list_entities_request_");
@@ -605,10 +596,10 @@ void APIConnection::on_subscribe_logs_request_(const SubscribeLogsRequest &req) 
 
 void APIConnection::fatal_error_() {
   this->client_->close();
-  this->disconnect_client_();
+  this->remove_ = true;
 }
-bool APIConnection::valid_rx_message_type_() {
-  switch (this->message_type_) {
+bool APIConnection::valid_rx_message_type_(uint32_t type) {
+  switch (static_cast<APIMessageType>(type)) {
     case APIMessageType::HELLO_RESPONSE:
     case APIMessageType::CONNECT_RESPONSE:
       return false;
@@ -627,41 +618,49 @@ bool APIConnection::valid_rx_message_type_() {
       return this->connection_state_ == ConnectionState::CONNECTED;
   }
 }
-bool APIConnection::send_message(APIMessage &msg, bool resize) {
-  while (true) {
-    APIBuffer buf(this->buffer_, this->buffer_size_);
-    msg.encode(buf);
-    if (buf.get_overflow() && resize) {
-      this->resize_buffer_();
-    } else {
-      return this->send_buffer(msg.message_type(), buf);
-    }
-  }
+bool APIConnection::send_message(APIMessage &msg) {
+  this->send_buffer_.clear();
+  APIBuffer buf(&this->send_buffer_);
+  msg.encode(buf);
+  return this->send_buffer(msg.message_type());
 }
 bool APIConnection::send_empty_message(APIMessageType type) {
-  APIBuffer buf(this->buffer_, this->buffer_size_);
-  return this->send_buffer(type, buf);
+  this->send_buffer_.clear();
+  return this->send_buffer(type);
 }
 
 void APIConnection::disconnect_client_() {
   this->client_->close();
+  this->remove_ = true;
 }
-
-bool APIConnection::send_buffer(APIMessageType type, APIBuffer &buf) {
-  if (buf.get_overflow()) {
-    if (type != APIMessageType::SUBSCRIBE_LOGS_RESPONSE) {
-      ESP_LOGV(TAG, "Cannot send message because of buffer overflow");
-    }
-    return false;
+void encode_varint(uint8_t *dat, uint8_t *len, uint32_t value) {
+  if (value <= 0x7F) {
+    *dat = value;
+    (*len)++;
+    return;
   }
 
-  size_t needed_space = buf.get_length();
-  uint8_t header_raw[15];
-  APIBuffer header_buffer(header_raw, sizeof(header_raw));
-  header_buffer.write(0x00);
-  header_buffer.encode_varint_(buf.get_length());
-  header_buffer.encode_varint_(static_cast<uint32_t>(type));
-  needed_space += header_buffer.get_length();
+  while (value) {
+    uint8_t temp = value & 0x7F;
+    value >>= 7;
+    if (value) {
+      *dat = temp | 0x80;
+    } else {
+      *dat = temp;
+    }
+    dat++;
+    (*len)++;
+  }
+}
+
+bool APIConnection::send_buffer(APIMessageType type) {
+  uint8_t header[20];
+  header[0] = 0x00;
+  uint8_t header_len = 1;
+  encode_varint(header + header_len, &header_len, this->send_buffer_.size());
+  encode_varint(header + header_len, &header_len, static_cast<uint32_t>(type));
+
+  size_t needed_space = this->send_buffer_.size() + header_len;
 
   if (needed_space > this->client_->space()) {
     delay(5);
@@ -674,17 +673,32 @@ bool APIConnection::send_buffer(APIMessageType type, APIBuffer &buf) {
     }
   }
 
-  this->client_->add(reinterpret_cast<char *>(header_raw), header_buffer.get_length());
-  this->client_->add(reinterpret_cast<char *>(this->buffer_), buf.get_length());
-  this->client_->send();
-  return true;
+//  char buffer[512];
+//  uint32_t offset = 0;
+//  for (int j = 0; j < header_len; j++) {
+//    offset += snprintf(buffer + offset, 512 - offset, "0x%02X ", header[j]);
+//  }
+//  offset += snprintf(buffer + offset, 512 - offset, "| ");
+//  for (auto &it : this->send_buffer_) {
+//    int i = snprintf(buffer + offset, 512 - offset, "0x%02X ", it);
+//    if (i <= 0)
+//      break;
+//    offset += i;
+//  }
+//  ESP_LOGVV(TAG, "SEND %s", buffer);
+
+  this->client_->add(reinterpret_cast<char *>(header), header_len);
+  this->client_->add(reinterpret_cast<char *>(this->send_buffer_.data()), this->send_buffer_.size());
+  return this->client_->send();
 }
 
 void APIConnection::loop() {
   if (this->client_->disconnected()) {
-    // failsave for disconnect logic
+    // failsafe for disconnect logic
     this->on_disconnect_();
+    return;
   }
+  this->parse_recv_buffer_();
 
   this->list_entities_iterator_.advance();
   this->initial_state_iterator_.advance();
@@ -706,12 +720,12 @@ bool APIConnection::send_binary_sensor_state(binary_sensor::BinarySensor *binary
   if (!this->state_subscription_)
     return false;
 
-  return this->send_buffer([binary_sensor, state](APIBuffer &buffer) {
-    // fixed32 key = 1;
-    buffer.encode_fixed32(1, binary_sensor->get_object_id_hash());
-    // bool state = 2;
-    buffer.encode_bool(2, state);
-  }, APIMessageType::BINARY_SENSOR_STATE_RESPONSE);
+  auto buffer = this->get_buffer();
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, binary_sensor->get_object_id_hash());
+  // bool state = 2;
+  buffer.encode_bool(2, state);
+  return this->send_buffer(APIMessageType::BINARY_SENSOR_STATE_RESPONSE);
 }
 #endif
 
@@ -720,17 +734,17 @@ bool APIConnection::send_cover_state(cover::Cover *cover) {
   if (!this->state_subscription_)
     return false;
 
-  return this->send_buffer([cover](APIBuffer &buffer) {
-    // fixed32 key = 1;
-    buffer.encode_fixed32(1, cover->get_object_id_hash());
-    // enum CoverState {
-    //   OPEN = 0;
-    //   CLOSED = 1;
-    // }
-    // CoverState state = 2;
-    uint32_t state = (cover->state == cover::COVER_OPEN) ? 0 : 1;
-    buffer.encode_uint32(2, state);
-  }, APIMessageType::COVER_STATE_RESPONSE);
+  auto buffer = this->get_buffer();
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, cover->get_object_id_hash());
+  // enum CoverState {
+  //   OPEN = 0;
+  //   CLOSED = 1;
+  // }
+  // CoverState state = 2;
+  uint32_t state = (cover->state == cover::COVER_OPEN) ? 0 : 1;
+  buffer.encode_uint32(2, state);
+  return this->send_buffer(APIMessageType::COVER_STATE_RESPONSE);
 }
 #endif
 
@@ -739,25 +753,25 @@ bool APIConnection::send_fan_state(fan::FanState *fan) {
   if (!this->state_subscription_)
     return false;
 
-  return this->send_buffer([fan](APIBuffer &buffer) {
-    // fixed32 key = 1;
-    buffer.encode_fixed32(1, fan->get_object_id_hash());
-    // bool state = 2;
-    buffer.encode_bool(2, fan->state);
-    // bool oscillating = 3;
-    if (fan->get_traits().supports_oscillation()) {
-      buffer.encode_bool(3, fan->oscillating);
-    }
-    // enum FanSpeed {
-    //   LOW = 0;
-    //   MEDIUM = 1;
-    //   HIGH = 2;
-    // }
-    // FanSpeed speed = 4;
-    if (fan->get_traits().supports_speed()) {
-      buffer.encode_uint32(4, fan->speed);
-    }
-  }, APIMessageType::FAN_STATE_RESPONSE);
+  auto buffer = this->get_buffer();
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, fan->get_object_id_hash());
+  // bool state = 2;
+  buffer.encode_bool(2, fan->state);
+  // bool oscillating = 3;
+  if (fan->get_traits().supports_oscillation()) {
+    buffer.encode_bool(3, fan->oscillating);
+  }
+  // enum FanSpeed {
+  //   LOW = 0;
+  //   MEDIUM = 1;
+  //   HIGH = 2;
+  // }
+  // FanSpeed speed = 4;
+  if (fan->get_traits().supports_speed()) {
+    buffer.encode_uint32(4, fan->speed);
+  }
+  return this->send_buffer(APIMessageType::FAN_STATE_RESPONSE);
 }
 #endif
 
@@ -766,39 +780,39 @@ bool APIConnection::send_light_state(light::LightState *light) {
   if (!this->state_subscription_)
     return false;
 
-  return this->send_buffer([light](APIBuffer &buffer) {
-    light::LightTraits traits = light->get_traits();
-    light::LightColorValues values = light->get_remote_values();
+  auto buffer = this->get_buffer();
+  light::LightTraits traits = light->get_traits();
+  light::LightColorValues values = light->get_remote_values();
 
-    // fixed32 key = 1;
-    buffer.encode_fixed32(1, light->get_object_id_hash());
-    // bool state = 2;
-    buffer.encode_bool(2, values.get_state() != 0.0f);
-    // float brightness = 3;
-    if (traits.has_brightness()) {
-      buffer.encode_float(3, values.get_brightness());
-    }
-    if (traits.has_rgb()) {
-      // float red = 4;
-      buffer.encode_float(4, values.get_red());
-      // float green = 5;
-      buffer.encode_float(5, values.get_green());
-      // float blue = 6;
-      buffer.encode_float(6, values.get_blue());
-    }
-    // float white = 7;
-    if (traits.has_rgb_white_value()) {
-      buffer.encode_float(7, values.get_white());
-    }
-    // float color_temperature = 8;
-    if (traits.has_color_temperature()) {
-      buffer.encode_float(8, values.get_color_temperature());
-    }
-    // string effect = 9;
-    if (light->supports_effects()) {
-      buffer.encode_string(9, light->get_effect_name());
-    }
-  }, APIMessageType::LIGHT_STATE_RESPONSE);
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, light->get_object_id_hash());
+  // bool state = 2;
+  buffer.encode_bool(2, values.get_state() != 0.0f);
+  // float brightness = 3;
+  if (traits.has_brightness()) {
+    buffer.encode_float(3, values.get_brightness());
+  }
+  if (traits.has_rgb()) {
+    // float red = 4;
+    buffer.encode_float(4, values.get_red());
+    // float green = 5;
+    buffer.encode_float(5, values.get_green());
+    // float blue = 6;
+    buffer.encode_float(6, values.get_blue());
+  }
+  // float white = 7;
+  if (traits.has_rgb_white_value()) {
+    buffer.encode_float(7, values.get_white());
+  }
+  // float color_temperature = 8;
+  if (traits.has_color_temperature()) {
+    buffer.encode_float(8, values.get_color_temperature());
+  }
+  // string effect = 9;
+  if (light->supports_effects()) {
+    buffer.encode_string(9, light->get_effect_name());
+  }
+  return this->send_buffer(APIMessageType::LIGHT_STATE_RESPONSE);
 }
 #endif
 
@@ -807,12 +821,12 @@ bool APIConnection::send_sensor_state(sensor::Sensor *sensor, float state) {
   if (!this->state_subscription_)
     return false;
 
-  return this->send_buffer([sensor, state](APIBuffer &buffer) {
-    // fixed32 key = 1;
-    buffer.encode_fixed32(1, sensor->get_object_id_hash());
-    // float state = 2;
-    buffer.encode_float(2, state);
-  }, APIMessageType::SENSOR_STATE_RESPONSE);
+  auto buffer = this->get_buffer();
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, sensor->get_object_id_hash());
+  // float state = 2;
+  buffer.encode_float(2, state);
+  return this->send_buffer(APIMessageType::SENSOR_STATE_RESPONSE);
 }
 #endif
 
@@ -821,12 +835,12 @@ bool APIConnection::send_switch_state(switch_::Switch *switch_, bool state) {
   if (!this->state_subscription_)
     return false;
 
-  return this->send_buffer([switch_, state](APIBuffer &buffer) {
-    // fixed32 key = 1;
-    buffer.encode_fixed32(1, switch_->get_object_id_hash());
-    // bool state = 2;
-    buffer.encode_bool(2, state);
-  }, APIMessageType::SWITCH_STATE_RESPONSE);
+  auto buffer = this->get_buffer();
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, switch_->get_object_id_hash());
+  // bool state = 2;
+  buffer.encode_bool(2, state);
+  return this->send_buffer(APIMessageType::SWITCH_STATE_RESPONSE);
 }
 #endif
 
@@ -835,12 +849,12 @@ bool APIConnection::send_text_sensor_state(text_sensor::TextSensor *text_sensor,
   if (!this->state_subscription_)
     return false;
 
-  return this->send_buffer([text_sensor, state](APIBuffer &buffer) {
-    // fixed32 key = 1;
-    buffer.encode_fixed32(1, text_sensor->get_object_id_hash());
-    // string state = 2;
-    buffer.encode_string(2, state);
-  }, APIMessageType::TEXT_SENSOR_STATE_RESPONSE);
+  auto buffer = this->get_buffer();
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, text_sensor->get_object_id_hash());
+  // string state = 2;
+  buffer.encode_string(2, state);
+  return this->send_buffer(APIMessageType::TEXT_SENSOR_STATE_RESPONSE);
 }
 #endif
 
@@ -850,20 +864,20 @@ bool APIConnection::send_log_message(int level,
   if (this->log_subscription_ < level)
     return false;
 
-  bool success = this->send_buffer([level, tag, line](APIBuffer &buffer) {
-    // LogLevel level = 1;
-    buffer.encode_uint32(1, static_cast<uint32_t>(level));
-    // string tag = 2;
-    // buffer.encode_string(2, tag, strlen(tag));
-    // string message = 3;
-    buffer.encode_string(3, line, strlen(line));
-  }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
+  auto buffer = this->get_buffer();
+  // LogLevel level = 1;
+  buffer.encode_uint32(1, static_cast<uint32_t>(level));
+  // string tag = 2;
+  // buffer.encode_string(2, tag, strlen(tag));
+  // string message = 3;
+  buffer.encode_string(3, line, strlen(line));
+  bool success = this->send_buffer(APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
 
   if (!success) {
-    return this->send_buffer([level, tag, line](APIBuffer &buffer) {
-      // bool send_failed = 4;
-      buffer.encode_bool(4, true);
-    }, APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
+    auto buffer = this->get_buffer();
+    // bool send_failed = 4;
+    buffer.encode_bool(4, true);
+    return this->send_buffer(APIMessageType::SUBSCRIBE_LOGS_RESPONSE);
   } else {
     return true;
   }
@@ -967,10 +981,10 @@ void APIConnection::send_service_call(ServiceCallResponse &call) {
 }
 void APIConnection::on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req) {
   for (auto &it : this->parent_->get_state_subs()) {
-    this->send_buffer([it](APIBuffer &buffer) {
-      // string entity_id = 1;
-      buffer.encode_string(1, it.entity_id);
-    }, APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE);
+    auto buffer = this->get_buffer();
+    // string entity_id = 1;
+    buffer.encode_string(1, it.entity_id);
+    this->send_buffer(APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE);
   }
 }
 void APIConnection::on_home_assistant_state_response(const HomeAssistantStateResponse &req) {
@@ -979,6 +993,10 @@ void APIConnection::on_home_assistant_state_response(const HomeAssistantStateRes
       it.callback(req.get_state());
     }
   }
+}
+APIBuffer APIConnection::get_buffer() {
+  this->send_buffer_.clear();
+  return APIBuffer(&this->send_buffer_);
 }
 
 } // namespace api

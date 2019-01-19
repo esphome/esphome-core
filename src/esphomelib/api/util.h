@@ -15,11 +15,9 @@ namespace api {
 
 class APIBuffer {
  public:
-  APIBuffer(uint8_t *buffer, size_t max_len);
-  APIBuffer(const APIBuffer&) = delete;
+  APIBuffer(std::vector<uint8_t> *buffer);
 
   size_t get_length() const;
-  bool get_overflow() const;
   void write(uint8_t value);
 
   void encode_int32(uint32_t field, int32_t value);
@@ -40,10 +38,7 @@ class APIBuffer {
   uint32_t varint_length_(uint32_t value);
 
  protected:
-  uint8_t *buffer_;
-  size_t at_{0};
-  size_t max_len_;
-  bool overflow_{false};
+  std::vector<uint8_t> *buffer_;
 };
 
 optional<uint32_t> proto_decode_varuint32(uint8_t *buf, size_t len, uint32_t *consumed = nullptr);
