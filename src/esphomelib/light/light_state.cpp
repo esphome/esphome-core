@@ -221,7 +221,7 @@ void LightState::current_values_as_cwww(float color_temperature_cw,
                                         float *cold_white,
                                         float *warm_white) {
   this->get_current_values().as_cwww(color_temperature_cw, color_temperature_ww,
-                                      cold_white, warm_white);
+                                     cold_white, warm_white);
   *cold_white = gamma_correct(*cold_white, this->gamma_correct_);
   *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
 }
