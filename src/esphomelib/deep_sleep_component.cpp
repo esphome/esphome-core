@@ -31,9 +31,6 @@ void DeepSleepComponent::dump_config() {
   if (this->run_duration_.has_value()) {
     ESP_LOGCONFIG(TAG, "  Run Duration: %u ms", *this->run_duration_);
   }
-  if (this->loop_cycles_.has_value()) {
-    ESP_LOGCONFIG(TAG, "  Loop Cycles: %u", *this->loop_cycles_);
-  }
 #ifdef ARDUINO_ARCH_ESP32
   if (this->wakeup_pin_.has_value()) {
     LOG_PIN("  Wakeup Pin: ", *this->wakeup_pin_);
@@ -41,11 +38,6 @@ void DeepSleepComponent::dump_config() {
 #endif
 }
 void DeepSleepComponent::loop() {
-  if (this->loop_cycles_.has_value()) {
-    if (++this->at_loop_cycle_ >= *this->loop_cycles_)
-      this->begin_sleep_();
-  }
-
   if (this->next_enter_deep_sleep_)
     this->begin_sleep_();
 }
@@ -66,9 +58,6 @@ void DeepSleepComponent::set_ext1_wakeup(Ext1Wakeup ext1_wakeup) {
   this->ext1_wakeup_ = ext1_wakeup;
 }
 #endif
-void DeepSleepComponent::set_run_cycles(uint32_t cycles) {
-  this->loop_cycles_ = cycles;
-}
 void DeepSleepComponent::set_run_duration(uint32_t time_ms) {
   this->run_duration_ = time_ms;
 }
