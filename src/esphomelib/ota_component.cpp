@@ -166,6 +166,7 @@ void OTAComponent::handle_() {
   char *sbuf = reinterpret_cast<char *>(buf);
   uint32_t ota_size;
   uint8_t ota_features;
+  (void) ota_features;
 
   if (!this->client_.connected()) {
     this->client_ = this->server_->available();
@@ -455,7 +456,7 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
   this->safe_mode_start_time_ = millis();
   this->safe_mode_enable_time_ = enable_time;
   this->safe_mode_num_attempts_ = num_attempts;
-  this->rtc_ = global_preferences.make_preference<uint8_t>(669657188UL);
+  this->rtc_ = global_preferences.make_preference<uint32_t>(669657188UL);
   this->safe_mode_rtc_value_ = this->read_rtc_();
 
   ESP_LOGCONFIG(TAG, "There have been %u suspected unsuccessful boot attempts.", this->safe_mode_rtc_value_);
@@ -486,14 +487,14 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
     reboot("ota-safe-mode");
   } else {
     // increment counter
-    this->write_rtc_(uint8_t(this->safe_mode_rtc_value_ + 1));
+    this->write_rtc_(this->safe_mode_rtc_value_ + 1);
   }
 }
-void OTAComponent::write_rtc_(uint8_t val) {
+void OTAComponent::write_rtc_(uint32_t val) {
   this->rtc_.save(&val);
 }
-uint8_t OTAComponent::read_rtc_() {
-  uint8_t val;
+uint32_t OTAComponent::read_rtc_() {
+  uint32_t val;
   if (!this->rtc_.load(&val))
     return 0;
   return val;

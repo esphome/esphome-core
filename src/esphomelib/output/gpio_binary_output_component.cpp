@@ -19,8 +19,9 @@ void GPIOBinaryOutputComponent::write_state(bool state) {
 
 void GPIOBinaryOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO Binary Output...");
+  this->turn_off();
   this->pin_->setup();
-  this->pin_->digital_write(false);
+  this->turn_off();
 }
 void GPIOBinaryOutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "GPIO Binary Output:");
