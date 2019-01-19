@@ -28,6 +28,7 @@ DHTComponent::DHTComponent(const std::string &temperature_name, const std::strin
 
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
+  this->pin_->digital_write(true);
   this->pin_->setup();
   this->pin_->digital_write(true);
 }
@@ -96,6 +97,7 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
   *temperature = NAN;
 
   disable_interrupts();
+  this->pin_->digital_write(false);
   this->pin_->pin_mode(OUTPUT);
   this->pin_->digital_write(false);
 
@@ -192,9 +194,11 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
     *temperature = int16_t(raw_temperature) * 0.1f;
   }
 
-  if (*temperature == 0.0f && *humidity == 1.0f) {
-    *temperature = NAN;
-    *humidity = NAN;
+  if (*temperature == 0.0f && (*humidity == 1.0f || *humidity == 2.0f)) {
+    if (report_errors) {
+      ESP_LOGE(TAG, "DHT reports invalid data. Is the update interval too high or the sensor damaged?");
+    }
+    return false;
   }
 
   return true;

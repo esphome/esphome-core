@@ -166,6 +166,7 @@ void OTAComponent::handle_() {
   char *sbuf = reinterpret_cast<char *>(buf);
   uint32_t ota_size;
   uint8_t ota_features;
+  (void) ota_features;
 
   if (!this->client_.connected()) {
     this->client_ = this->server_->available();
