@@ -55,7 +55,6 @@
   #define USE_SHUTDOWN_SWITCH
   #define USE_FAN
   #define USE_DEBUG_COMPONENT
-  #define USE_WEB_SERVER
   #define USE_DEEP_SLEEP
   #define USE_PCF8574
   #define USE_IO
@@ -74,7 +73,6 @@
     #define USE_ESP32_BLE_TRACKER
     #define USE_ESP32_BLE_BEACON
   #endif
-  #define USE_FAST_LED_LIGHT
   #define USE_ROTARY_ENCODER_SENSOR
   #define USE_MAX31855_SENSOR
   #define USE_MAX6675_SENSOR
@@ -133,7 +131,6 @@
   #define USE_HOMEASSISTANT_SENSOR
   #define USE_HOMEASSISTANT_TEXT_SENSOR
   #define USE_APDS9960
-  #define USE_NEO_PIXEL_BUS_LIGHT
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
