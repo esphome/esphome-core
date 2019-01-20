@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_SWITCH
+#ifdef USE_MQTT_SWITCH
 
 #include "esphomelib/switch_/mqtt_switch_component.h"
 
@@ -76,4 +76,4 @@ bool MQTTSwitchComponent::publish_state(bool state) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SWITCH
+#endif //USE_MQTT_SWITCH

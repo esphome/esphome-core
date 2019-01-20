@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_CUSTOM_COMPONENT
+#ifdef USE_MQTT_CUSTOM_COMPONENT
 
 #include "esphomelib/mqtt/custom_mqtt_device.h"
 
@@ -34,4 +34,4 @@ bool CustomMQTTDevice::is_connected() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_CUSTOM_COMPONENT
+#endif //USE_MQTT_CUSTOM_COMPONENT

@@ -131,6 +131,7 @@
   #define USE_HOMEASSISTANT_SENSOR
   #define USE_HOMEASSISTANT_TEXT_SENSOR
   #define USE_APDS9960
+  #define USE_MQTT
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -618,6 +619,54 @@
 #ifndef USE_CUSTOM_BINARY_SENSOR
   #ifndef USE_SENSOR
     #define USE_SENSOR
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_BINARY_SENSOR)
+  #ifndef USE_MQTT_BINARY_SENSOR
+    #define USE_MQTT_BINARY_SENSOR
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_COVER)
+  #ifndef USE_MQTT_COVER
+    #define USE_MQTT_COVER
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_FAN)
+  #ifndef USE_MQTT_FAN
+    #define USE_MQTT_FAN
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_LIGHT)
+  #ifndef USE_MQTT_LIGHT
+    #define USE_MQTT_LIGHT
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_CUSTOM_COMPONENT)
+  #ifndef USE_MQTT_CUSTOM_COMPONENT
+    #define USE_MQTT_CUSTOM_COMPONENT
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_SENSOR)
+  #ifndef USE_MQTT_SENSOR
+    #define USE_MQTT_SENSOR
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_SWITCH)
+  #ifndef USE_MQTT_SWITCH
+    #define USE_MQTT_SWITCH
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_TEXT_SENSOR)
+  #ifndef USE_MQTT_TEXT_SENSOR
+    #define USE_MQTT_TEXT_SENSOR
   #endif
 #endif
 

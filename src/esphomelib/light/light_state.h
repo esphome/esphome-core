@@ -31,6 +31,10 @@ class TurnOffAction;
 template<typename T>
 class TurnOnAction;
 
+#ifdef USE_MQTT_LIGHT
+class MQTTJSONLightComponent;
+#endif
+
 /** This class represents the communication layer between the front-end MQTT layer and the
  * hardware output layer.
  */
@@ -210,6 +214,11 @@ class LightState : public Nameable, public Component {
 
   void add_effects(std::vector<LightEffect *> effects);
 
+#ifdef USE_MQTT_LIGHT
+  MQTTJSONLightComponent *get_mqtt() const;
+  void set_mqtt(MQTTJSONLightComponent *mqtt);
+#endif
+
  protected:
   uint32_t hash_base_() override;
 
@@ -225,6 +234,9 @@ class LightState : public Nameable, public Component {
   bool next_write_{true};
   float gamma_correct_{2.8f};
   std::vector<LightEffect *> effects_;
+#ifdef USE_MQTT_LIGHT
+  MQTTJSONLightComponent *mqtt_{nullptr};
+#endif
 };
 
 /// Interface to write LightStates to hardware.
@@ -469,6 +481,8 @@ void TurnOnAction<T>::set_effect(std::string effect) {
 } // namespace light
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/light/mqtt_json_light_component.h"
 
 #endif //USE_LIGHT
 
