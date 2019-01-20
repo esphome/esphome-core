@@ -94,12 +94,9 @@ void Application::setup() {
 
 void Application::dump_config() {
   if (this->compilation_time_.empty()) {
-    ESP_LOGI(TAG, "You're running esphomelib v"
-        ESPHOMELIB_VERSION);
+    ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION);
   } else {
-    ESP_LOGI(TAG, "You're running esphomelib v"
-        ESPHOMELIB_VERSION
-        " compiled on %s", this->compilation_time_.c_str());
+    ESP_LOGI(TAG, "You're running esphomelib v" ESPHOMELIB_VERSION " compiled on %s", this->compilation_time_.c_str());
   }
 
   for (uint32_t i = 0; i < this->components_.size(); i++) {
