@@ -14,35 +14,62 @@ static const char *TAG = "logger";
 
 int HOT LogComponent::log_vprintf_(int level, const char *tag,
                                    const char *format, va_list args) {
-  // Uses std::vector<> for low memory footprint, though the vector
-  // could be sorted to minimize lookup times. This feature isn't used that
-  // much anyway so it doesn't matter too much.
-  int max_level = this->global_log_level_;
-  for (auto &it : this->log_levels_) {
-    if (it.tag == tag) {
-      max_level = it.level;
-      break;
-    }
-  }
-
-  if (level > max_level)
+  if (level > this->level_for_(tag))
     return 0;
 
   int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(),
                       format, args);
-  if (ret <= 0)
-    return ret;
-
-  // remove trailing newline
-  if (this->tx_buffer_[ret - 1] == '\n') {
-    this->tx_buffer_[ret - 1] = '\0';
-  }
-
-  if (this->baud_rate_ > 0)
-    Serial.println(this->tx_buffer_.data());
-
-  this->log_callback_.call(level, tag, this->tx_buffer_.data());
+  this->log_message_(level, tag, this->tx_buffer_.data(), ret);
   return ret;
+}
+#ifdef USE_STORE_LOG_STR_IN_FLASH
+int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {
+  if (level > this->level_for_(tag))
+    return 0;
+
+  // copy format string
+  const char* format_pgm_p = (PGM_P) format;
+  size_t len = 0;
+  char* write = this->tx_buffer_.data();
+  char ch = '.';
+  while (len < this->tx_buffer_.capacity() && ch != '\0') {
+    *write++ = ch = pgm_read_byte(format_pgm_p++);
+    len++;
+  }
+  if (len == this->tx_buffer_.capacity())
+    return -1;
+
+  // now apply vsnprintf
+  size_t offset = len + 1;
+  size_t remaining = this->tx_buffer_.capacity() - offset;
+  char *msg = this->tx_buffer_.data() + offset;
+  int ret = vsnprintf(msg, remaining, this->tx_buffer_.data(), args);
+  this->log_message_(level, tag, msg, ret);
+  return ret;
+}
+#endif
+
+int HOT LogComponent::level_for_(const char *tag) {
+  // Uses std::vector<> for low memory footprint, though the vector
+  // could be sorted to minimize lookup times. This feature isn't used that
+  // much anyway so it doesn't matter too much.
+  for (auto &it : this->log_levels_) {
+    if (it.tag == tag) {
+      return it.level;
+    }
+  }
+  return this->global_log_level_;
+}
+void HOT LogComponent::log_message_(int level, const char *tag, char *msg, int ret) {
+  if (ret <= 0)
+    return;
+  // remove trailing newline
+  if (msg[ret - 1] == '\n') {
+    msg[ret - 1] = '\0';
+  }
+  if (this->baud_rate_ > 0)
+    Serial.println(msg);
+  this->log_callback_.call(level, tag, msg);
 }
 
 LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size)
