@@ -621,4 +621,10 @@
   #endif
 #endif
 
+#if !defined(DONT_STORE_LOG_STR_IN_FLASH) && defined(ARDUINO_ARCH_ESP8266)
+  #ifndef USE_STORE_LOG_STR_IN_FLASH
+    #define USE_STORE_LOG_STR_IN_FLASH
+  #endif
+#endif
+
 #endif //ESPHOMELIB_DEFINES_H
