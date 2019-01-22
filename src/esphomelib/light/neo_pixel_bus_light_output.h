@@ -79,6 +79,8 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
 
   void setup() override;
 
+  void dump_config() override;
+
   void loop() override;
 
   float get_setup_priority() const override;
@@ -97,6 +99,9 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
   PowerSupplyComponent *power_supply_{nullptr};
   bool has_requested_high_power_{false};
 #endif
+
+private:
+  static const char* TAG;
 };
 
 template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbFeature>

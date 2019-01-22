@@ -4,10 +4,14 @@
 
 #include "esphomelib/light/neo_pixel_bus_light_output.h"
 #include "esphomelib/helpers.h"
+#include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
 namespace light {
+
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+const char* NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::TAG = "light.neo_pixel_bus";
 
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::schedule_show() {
@@ -91,12 +95,18 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightSta
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up NeoPixelBus light...");
   for (int i = 0; i < this->size(); i++) {
     (*this)[i] = ESPColor(0, 0, 0, 0);
   }
 
   this->effect_data_ = new uint8_t[this->size()];
   this->controller_->Begin();
+}
+template<typename T_METHOD, typename T_COLOR_FEATURE>
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::dump_config() {
+  ESP_LOGCONFIG(TAG, "NeoPixelBus light:");
+  ESP_LOGCONFIG(TAG, "  Num LEDs: %u", this->controller_->PixelCount());
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
@@ -127,6 +137,7 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
   }
 #endif
 
+  ESP_LOGVV(TAG, "Writing RGB values to bus...");
   this->controller_->Show();
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
