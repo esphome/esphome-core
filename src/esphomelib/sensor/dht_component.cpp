@@ -110,7 +110,6 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
   }
   else
     delayMicroseconds(800);
-  
   this->pin_->pin_mode(INPUT_PULLUP);
   delayMicroseconds(40);
 
