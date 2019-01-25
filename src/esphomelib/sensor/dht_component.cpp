@@ -101,11 +101,15 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
   this->pin_->pin_mode(OUTPUT);
   this->pin_->digital_write(false);
 
-  if (this->model_ == DHT_MODEL_DHT11)
+  if (this->model_ == DHT_MODEL_DHT11) {
     delayMicroseconds(18000);
-  else
+  } else if (this->model_ == DHT_MODEL_SI7021) {
+    delayMicroseconds(500);
+    this->pin_->digital_write(true);
+    delayMicroseconds(40);
+  } else {
     delayMicroseconds(800);
-
+  }
   this->pin_->pin_mode(INPUT_PULLUP);
   delayMicroseconds(40);
 
