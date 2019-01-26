@@ -100,7 +100,6 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
   bool has_requested_high_power_{false};
 #endif
 
-private:
   static const char* TAG;
 };
 
