@@ -152,7 +152,7 @@ bool LightColorValues::operator!=(const LightColorValues &rhs) const {
 }
 void LightColorValues::as_rgbw(float *red, float *green, float *blue, float *white) const {
   this->as_rgb(red, green, blue);
-  *white = this->state_ * this->brightness_ * this->white_;
+  *white = this->state_ * this->white_;
 }
 
 void LightColorValues::as_rgbww(float color_temperature_cw,
