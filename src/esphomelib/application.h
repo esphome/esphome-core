@@ -139,6 +139,7 @@
 #include "esphomelib/text_sensor/template_text_sensor.h"
 #include "esphomelib/text_sensor/text_sensor.h"
 #include "esphomelib/text_sensor/version_text_sensor.h"
+#include "esphomelib/time/ds1307.h"
 #include "esphomelib/time/rtc_component.h"
 #include "esphomelib/time/sntp_component.h"
 #include "esphomelib/time/homeassistant_time.h"
@@ -934,6 +935,10 @@ class Application {
 
 #ifdef USE_TCS34725
   sensor::TCS34725Component *make_tcs34725(uint32_t update_interval = 60000);
+#endif
+
+#ifdef USE_DS1307_TIME
+  time::DS1307Time *make_ds1307_time_component(uint8_t address = 0x68);
 #endif
 
 #ifdef USE_SNTP_COMPONENT

@@ -1184,6 +1184,12 @@ display::GPIOLCDDisplay *Application::make_gpio_lcd_display(uint8_t columns, uin
 }
 #endif
 
+#ifdef USE_DS1307_TIME
+DS1307Time *Application::make_ds1307_time_component(uint8_t address) {
+  return this->register_component(new DS1307Time(this->i2c_, address));
+}
+#endif
+
 #ifdef USE_SNTP_COMPONENT
 SNTPComponent *Application::make_sntp_component() {
   return this->register_component(new SNTPComponent());
