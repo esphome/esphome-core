@@ -90,7 +90,7 @@ bool RawReceiver::matches(RemoteReceiveData *data) {
   return true;
 }
 
-RawReceiver::RawReceiver(const std::string &name, int32_t *data, size_t len,)
+RawReceiver::RawReceiver(const std::string &name, int32_t *data, size_t len)
     : RemoteReceiver(name), data_(data), len_(len) {
 
 }
