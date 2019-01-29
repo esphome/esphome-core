@@ -28,6 +28,10 @@ class TurnOffAction;
 template<typename T>
 class ToggleAction;
 
+#ifdef USE_MQTT_FAN
+class MQTTFanComponent;
+#endif
+
 /** This class is shared between the hardware backend and the MQTT frontend to share state.
  *
  * A fan state has several variables that determine the current state: state (ON/OFF),
@@ -91,12 +95,20 @@ class FanState : public Nameable, public Component {
   void setup() override;
   float get_setup_priority() const override;
 
+#ifdef USE_MQTT_FAN
+  MQTTFanComponent *get_mqtt() const;
+  void set_mqtt(MQTTFanComponent *mqtt);
+#endif
+
  protected:
   uint32_t hash_base_() override;
 
   FanTraits traits_{};
   CallbackManager<void()> state_callback_{};
   ESPPreferenceObject rtc_;
+#ifdef USE_MQTT_FAN
+  MQTTFanComponent *mqtt_{nullptr};
+#endif
 };
 
 template<typename T>
@@ -206,6 +218,8 @@ ToggleAction<T> *FanState::make_toggle_action() {
 } // namespace fan
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/fan/mqtt_fan_component.h"
 
 #endif //USE_FAN
 

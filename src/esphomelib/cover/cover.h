@@ -36,10 +36,14 @@ class CoverPublishAction;
 #define LOG_COVER(prefix, type, obj) \
     if (obj != nullptr) { \
       ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
-      if (obj->optimistic()) { \
-        ESP_LOGCONFIG(TAG, prefix "  Optimistic: YES"); \
+      if (obj->assumed_state()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Assumed State: YES"); \
       } \
     }
+
+#ifdef USE_MQTT_COVER
+class MQTTCoverComponent;
+#endif
 
 class Cover : public Nameable {
  public:
@@ -67,11 +71,16 @@ class Cover : public Nameable {
    *
    * Defaults to false.
    */
-  virtual bool optimistic();
+  virtual bool assumed_state();
 
   CoverState state{COVER_OPEN};
 
   bool has_state() const;
+
+#ifdef USE_MQTT_COVER
+  MQTTCoverComponent *get_mqtt() const;
+  void set_mqtt(MQTTCoverComponent *mqtt);
+#endif
 
  protected:
   virtual void write_command(CoverCommand command) = 0;
@@ -80,6 +89,9 @@ class Cover : public Nameable {
 
   bool has_state_{false};
   CallbackManager<void(CoverState)> state_callback_{};
+#ifdef USE_MQTT_COVER
+  MQTTCoverComponent *mqtt_{nullptr};
+#endif
 };
 
 template<typename T>
@@ -201,6 +213,8 @@ CoverPublishAction<T> *Cover::make_cover_publish_action() {
 } // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/cover/mqtt_cover_component.h"
 
 #endif //USE_COVER
 

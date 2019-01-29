@@ -1,3 +1,7 @@
+#include "esphomelib/defines.h"
+
+#ifdef USE_MQTT
+
 #include "esphomelib/mqtt/mqtt_client_component.h"
 
 #include "esphomelib/log.h"
@@ -628,7 +632,8 @@ float MQTTMessageTrigger::get_setup_priority() const {
   return setup_priority::MQTT_CLIENT;
 }
 
-
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
+
+#endif //USE_MQTT

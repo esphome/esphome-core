@@ -55,7 +55,7 @@ void Switch::publish_state(bool state) {
   ESP_LOGD(TAG, "'%s': Sending state %s", this->name_.c_str(), ONOFF(state));
   this->state_callback_.call(this->state);
 }
-bool Switch::optimistic() {
+bool Switch::assumed_state() {
   return false;
 }
 
@@ -71,6 +71,14 @@ uint32_t Switch::hash_base_() {
 bool Switch::is_inverted() const {
   return this->inverted_;
 }
+#ifdef USE_MQTT_SWITCH
+MQTTSwitchComponent *Switch::get_mqtt() const {
+  return this->mqtt_;
+}
+void Switch::set_mqtt(MQTTSwitchComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 SwitchTurnOnTrigger *Switch::make_switch_turn_on_trigger() {
   return new SwitchTurnOnTrigger(this);
 }

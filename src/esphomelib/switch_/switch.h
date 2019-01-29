@@ -5,7 +5,6 @@
 
 #ifdef USE_SWITCH
 
-#include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/esppreferences.h"
@@ -33,13 +32,17 @@ class SwitchTurnOffTrigger;
       if (!obj->get_icon().empty()) { \
         ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
       } \
-      if (obj->optimistic()) { \
-        ESP_LOGCONFIG(TAG, prefix "  Optimistic: YES"); \
+      if (obj->assumed_state()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Assumed State: YES"); \
       } \
       if (obj->is_inverted()) { \
         ESP_LOGCONFIG(TAG, prefix "  Inverted: YES"); \
       } \
     }
+
+#ifdef USE_MQTT_SWITCH
+class MQTTSwitchComponent;
+#endif
 
 /** Base class for all switches.
  *
@@ -121,14 +124,19 @@ class Switch : public Nameable {
 
   optional<bool> get_initial_state();
 
-  /** Return whether this switch is optimistic - i.e. if both the ON/OFF actions should be displayed in Home Assistant
+  /** Return whether this switch uses an assumed state - i.e. if both the ON/OFF actions should be displayed in Home Assistant
    * because the real state is unknown.
    *
    * Defaults to false.
    */
-  virtual bool optimistic();
+  virtual bool assumed_state();
 
   bool is_inverted() const;
+
+#ifdef USE_MQTT_SWITCH
+  MQTTSwitchComponent *get_mqtt() const;
+  void set_mqtt(MQTTSwitchComponent *mqtt);
+#endif
 
  protected:
   /** Write the given state to hardware. You should implement this
@@ -156,6 +164,9 @@ class Switch : public Nameable {
   CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
   ESPPreferenceObject rtc_;
+#ifdef USE_MQTT_SWITCH
+  MQTTSwitchComponent *mqtt_{nullptr};
+#endif
 };
 
 template<typename T>
@@ -308,6 +319,8 @@ SwitchPublishAction<T> *Switch::make_switch_publish_action() {
 } // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/switch_/mqtt_switch_component.h"
 
 #endif //USE_SWITCH
 

@@ -47,7 +47,7 @@ void TemplateSwitch::write_state(bool state) {
 void TemplateSwitch::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
 }
-bool TemplateSwitch::optimistic() {
+bool TemplateSwitch::assumed_state() {
   return this->optimistic_;
 }
 void TemplateSwitch::set_state_lambda(std::function<optional<bool>()> &&f) {
@@ -80,9 +80,13 @@ void TemplateSwitch::setup() {
 void TemplateSwitch::dump_config() {
   LOG_SWITCH("", "Template Switch", this);
   ESP_LOGCONFIG(TAG, "  Restore State: %s", YESNO(this->restore_state_));
+  ESP_LOGCONFIG(TAG, "  Optimistic: %s", YESNO(this->optimistic_));
 }
 void TemplateSwitch::set_restore_state(bool restore_state) {
   this->restore_state_ = restore_state;
+}
+void TemplateSwitch::set_assumed_state(bool assumed_state) {
+  this->assumed_state_ = assumed_state;
 }
 
 } // namespace switch_

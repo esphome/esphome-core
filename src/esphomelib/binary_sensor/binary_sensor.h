@@ -42,6 +42,10 @@ struct MultiClickTriggerEvent {
       } \
     }
 
+#ifdef USE_MQTT_BINARY_SENSOR
+class MQTTBinarySensorComponent;
+#endif
+
 /** Base class for all binary_sensor-type classes.
  *
  * This class includes a callback that components such as MQTT can subscribe to for state changes.
@@ -113,6 +117,11 @@ class BinarySensor : public Nameable {
 
   virtual bool is_status_binary_sensor() const;
 
+#ifdef USE_MQTT_BINARY_SENSOR
+  MQTTBinarySensorComponent *get_mqtt() const;
+  void set_mqtt(MQTTBinarySensorComponent *mqtt);
+#endif
+
  protected:
   // ========== OVERRIDE METHODS ==========
   // (You'll only need this when creating your own custom binary sensor)
@@ -125,6 +134,10 @@ class BinarySensor : public Nameable {
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
   bool has_state_{false};
+
+#ifdef USE_MQTT_BINARY_SENSOR
+  MQTTBinarySensorComponent *mqtt_{nullptr};
+#endif
 };
 
 class PressTrigger : public Trigger<NoArg> {
@@ -252,6 +265,8 @@ BinarySensorPublishAction<T> *BinarySensor::make_binary_sensor_publish_action() 
 } // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 
 #endif //USE_BINARY_SENSOR
 

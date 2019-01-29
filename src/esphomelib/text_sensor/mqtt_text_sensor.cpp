@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_TEXT_SENSOR
+#ifdef USE_MQTT_TEXT_SENSOR
 
 #include "esphomelib/text_sensor/mqtt_text_sensor.h"
 #include "esphomelib/log.h"
@@ -59,4 +59,4 @@ std::string MQTTTextSensor::friendly_name() const {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_TEXT_SENSOR
+#endif //USE_MQTT_TEXT_SENSOR

@@ -39,6 +39,10 @@ class SensorPublishAction;
       } \
     }
 
+#ifdef USE_MQTT_SENSOR
+class MQTTSensorComponent;
+#endif
+
 /** Base-class for all sensors.
  *
  * A sensor has unit of measurement and can use publish_state to send out a new value with the specified accuracy.
@@ -181,6 +185,11 @@ class Sensor : public Nameable {
 
   void send_state_to_frontend_internal_(float state);
 
+#ifdef USE_MQTT_SENSOR
+  MQTTSensorComponent *get_mqtt() const;
+  void set_mqtt(MQTTSensorComponent *mqtt);
+#endif
+
  protected:
   /** Override this to set the Home Assistant unit of measurement for this sensor.
    *
@@ -210,6 +219,10 @@ class Sensor : public Nameable {
   optional<int8_t> accuracy_decimals_; ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
   Filter *filter_list_{nullptr}; ///< Store all active filters.
   bool has_state_{false};
+
+#ifdef USE_MQTT_SENSOR
+  MQTTSensorComponent *mqtt_{nullptr};
+#endif
 };
 
 class PollingSensorComponent : public PollingComponent, public Sensor {
@@ -402,6 +415,8 @@ SensorPublishAction<T> *Sensor::make_sensor_publish_action() {
 } // namespace sensor
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/sensor/mqtt_sensor_component.h"
 
 #endif //USE_SENSOR
 

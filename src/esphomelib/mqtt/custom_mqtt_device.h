@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_CUSTOM_COMPONENT
+#ifdef USE_MQTT_CUSTOM_COMPONENT
 
 #include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
@@ -222,6 +222,6 @@ void CustomMQTTDevice::subscribe_json(const std::string &topic, void(T::*callbac
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_CUSTOM_COMPONENT
+#endif //USE_MQTT_CUSTOM_COMPONENT
 
 #endif //ESPHOMELIB_MQTT_CUSTOM_MQTT_DEVICE_H
