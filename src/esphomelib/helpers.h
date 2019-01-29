@@ -343,6 +343,16 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
 
 extern VectorJsonBuffer global_json_buffer;
 
+template<typename T>
+class Deduplicator {
+ public:
+  bool next(T value);
+  bool has_value() const;
+ protected:
+  bool has_value_{false};
+  T last_value_{};
+};
+
 // ================================================
 //                 Definitions
 // ================================================
@@ -373,6 +383,21 @@ template<typename... Ts>
 void CallbackManager<void(Ts...)>::call(Ts... args) {
   for (auto &cb : this->callbacks_)
     cb(args...);
+}
+
+template<typename T>
+bool Deduplicator<T>::next(T value) {
+  if (this->has_value_) {
+    if (this->last_value_ == value)
+      return false;
+  }
+  this->has_value_ = true;
+  this->last_value_ = value;
+  return true;
+}
+template<typename T>
+bool Deduplicator<T>::has_value() const {
+  return this->has_value_;
 }
 
 ESPHOMELIB_NAMESPACE_END

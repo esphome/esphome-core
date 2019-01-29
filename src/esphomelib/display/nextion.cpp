@@ -259,9 +259,7 @@ void Nextion::set_component_text_printf(const char *component, const char *forma
 }
 
 void NextionTouchComponent::process(uint8_t page_id, uint8_t component_id, bool on) {
-  if (this->page_id_ == page_id && this->component_id_ == component_id &&
-      this->last_state_ != on) {
-    this->last_state_ = on;
+  if (this->page_id_ == page_id && this->component_id_ == component_id) {
     this->publish_state(on);
   }
 }

@@ -155,6 +155,7 @@ class Switch : public Nameable {
 
   CallbackManager<void(bool)> state_callback_{};
   bool inverted_{false};
+  Deduplicator<bool> publish_dedup_;
   ESPPreferenceObject rtc_;
 #ifdef USE_MQTT_SWITCH
   MQTTSwitchComponent *mqtt_{nullptr};
