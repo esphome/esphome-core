@@ -190,7 +190,7 @@ StopAction<T> *Cover::make_stop_action() {
 }
 
 template<typename T>
-CoverSensorPublishAction<T>::CoverSensorPublishAction(Cover *cover) : cover_(cover) {}
+CoverPublishAction<T>::CoverPublishAction(Cover *cover) : cover_(cover) {}
 template<typename T>
 void CoverPublishAction<T>::set_state(std::function<CoverState(T)> &&value) {
   this->state_ = std::move(value);
