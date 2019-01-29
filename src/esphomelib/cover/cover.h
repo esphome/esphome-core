@@ -208,7 +208,7 @@ void CoverPublishAction<T>::play(T x) {
 template<typename T>
 CoverPublishAction<T> *Cover::make_cover_publish_action() {
   return new CoverPublishAction<T>(this);
-
+}
 
 } // namespace cover
 
