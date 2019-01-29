@@ -28,7 +28,7 @@ void RawTransmitter::to_data(RemoteTransmitData *data) {
   data->set_carrier_frequency(this->carrier_frequency_);
 }
 RawTransmitter::RawTransmitter(const std::string &name,
-                               int32_t *data, size_t len,
+                               const int32_t *data, size_t len,
                                uint32_t carrier_frequency)
     : RemoteTransmitter(name), data_(data), len_(len), carrier_frequency_(carrier_frequency) {
 
@@ -90,7 +90,7 @@ bool RawReceiver::matches(RemoteReceiveData *data) {
   return true;
 }
 
-RawReceiver::RawReceiver(const std::string &name, int32_t *data, size_t len)
+RawReceiver::RawReceiver(const std::string &name, const int32_t *data, size_t len)
     : RemoteReceiver(name), data_(data), len_(len) {
 
 }
