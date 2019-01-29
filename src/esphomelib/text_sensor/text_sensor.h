@@ -26,6 +26,10 @@ class TextSensorStateTrigger;
       } \
     }
 
+#ifdef USE_MQTT_TEXT_SENSOR
+class MQTTTextSensor;
+#endif
+
 class TextSensor : public Nameable {
  public:
   explicit TextSensor(const std::string &name) : Nameable(name) {}
@@ -50,12 +54,20 @@ class TextSensor : public Nameable {
 
   bool has_state();
 
+#ifdef USE_MQTT_TEXT_SENSOR
+  MQTTTextSensor *get_mqtt() const;
+  void set_mqtt(MQTTTextSensor *mqtt);
+#endif
+
  protected:
   uint32_t hash_base_() override;
 
   CallbackManager<void(std::string)> callback_;
   optional<std::string> icon_;
   bool has_state_{false};
+#ifdef USE_MQTT_TEXT_SENSOR
+  MQTTTextSensor *mqtt_{nullptr};
+#endif
 };
 
 class TextSensorStateTrigger : public Trigger<std::string> {
@@ -66,6 +78,8 @@ class TextSensorStateTrigger : public Trigger<std::string> {
 } // namespace text_sensor
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/text_sensor/mqtt_text_sensor.h"
 
 #endif //USE_TEXT_SENSOR
 

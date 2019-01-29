@@ -273,6 +273,14 @@ void LightState::dump_config() {
     ESP_LOGCONFIG(TAG, "  Max Mireds: %.1f", this->get_traits().get_max_mireds());
   }
 }
+#ifdef USE_MQTT_LIGHT
+MQTTJSONLightComponent *LightState::get_mqtt() const {
+  return this->mqtt_;
+}
+void LightState::set_mqtt(MQTTJSONLightComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 LightState::StateCall &LightState::StateCall::set_state(bool state) {
   this->binary_state_ = state;

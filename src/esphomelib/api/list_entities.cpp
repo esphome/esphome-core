@@ -33,8 +33,8 @@ bool ListEntitiesIterator::on_cover(cover::Cover *cover) {
   buffer.encode_nameable(cover);
   // string unique_id = 4;
   buffer.encode_string(4, get_default_unique_id("cover", cover));
-  // bool is_optimistic = 5;
-  buffer.encode_bool(5, cover->optimistic());
+  // bool assumed_state = 5;
+  buffer.encode_bool(5, cover->assumed_state());
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_COVER_RESPONSE);
 }
 #endif
@@ -105,8 +105,8 @@ bool ListEntitiesIterator::on_switch(switch_::Switch *switch_) {
   buffer.encode_string(4, get_default_unique_id("switch", switch_));
   // string icon = 5;
   buffer.encode_string(5, switch_->get_icon());
-  // bool optimistic = 6;
-  buffer.encode_bool(6, switch_->optimistic());
+  // bool assumed_state = 6;
+  buffer.encode_bool(6, switch_->assumed_state());
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_SWITCH_RESPONSE);
 }
 #endif

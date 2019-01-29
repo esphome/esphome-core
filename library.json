@@ -17,10 +17,6 @@
   ],
   "dependencies": [
     {
-      "name": "AsyncMqttClient",
-      "version": "0.8.2"
-    },
-    {
       "name": "ArduinoJson-esphomelib",
       "version": "5.13.3"
     },

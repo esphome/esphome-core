@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_COVER
+#ifdef USE_MQTT_COVER
 
 #include "esphomelib/cover/mqtt_cover_component.h"
 #include "esphomelib/log.h"
@@ -37,7 +37,7 @@ void MQTTCoverComponent::dump_config() {
   LOG_MQTT_COMPONENT(true, true)
 }
 void MQTTCoverComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
-  if (this->cover_->optimistic())
+  if (this->cover_->assumed_state())
     root["optimistic"] = true;
 }
 
@@ -75,4 +75,4 @@ bool MQTTCoverComponent::publish_state(cover::CoverState state) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_COVER
+#endif //USE_MQTT_COVER

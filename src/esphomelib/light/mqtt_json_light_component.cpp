@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_LIGHT
+#ifdef USE_MQTT_LIGHT
 
 #include "esphomelib/light/mqtt_json_light_component.h"
 
@@ -77,4 +77,4 @@ void MQTTJSONLightComponent::dump_config() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif //USE_MQTT_LIGHT

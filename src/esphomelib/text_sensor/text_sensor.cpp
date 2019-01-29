@@ -43,6 +43,14 @@ bool TextSensor::has_state() {
 uint32_t TextSensor::hash_base_() {
   return 334300109UL;
 }
+#ifdef USE_MQTT_TEXT_SENSOR
+MQTTTextSensor *TextSensor::get_mqtt() const {
+  return this->mqtt_;
+}
+void TextSensor::set_mqtt(MQTTTextSensor *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 TextSensorStateTrigger::TextSensorStateTrigger(TextSensor *parent) {
   parent->add_on_state_callback([this](std::string value) {

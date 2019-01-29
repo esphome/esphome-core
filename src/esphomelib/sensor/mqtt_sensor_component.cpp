@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_SENSOR
+#ifdef USE_MQTT_SENSOR
 
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 
@@ -93,4 +93,4 @@ std::string MQTTSensorComponent::unique_id() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif //USE_MQTT_SENSOR
