@@ -15,13 +15,14 @@ namespace remote {
 #ifdef USE_REMOTE_TRANSMITTER
 class RawTransmitter : public RemoteTransmitter {
  public:
-  RawTransmitter(const std::string &name, std::vector<int32_t> data,
+  RawTransmitter(const std::string &name, int32_t *data, size_t len,
                  uint32_t carrier_frequency = 0);
 
   void to_data(RemoteTransmitData *data) override;
 
  protected:
-  std::vector<int32_t> data_;
+  int32_t *data_;
+  size_t len_;
   uint32_t carrier_frequency_{0};
 };
 #endif
@@ -29,12 +30,13 @@ class RawTransmitter : public RemoteTransmitter {
 #ifdef USE_REMOTE_RECEIVER
 class RawReceiver : public RemoteReceiver {
  public:
-  RawReceiver(const std::string &name, std::vector<int32_t> data);
+  RawReceiver(const std::string &name, int32_t *data, size_t len);
 
   bool matches(RemoteReceiveData *data) override;
 
  protected:
-  std::vector<int32_t> data_;
+  int32_t *data_;
+  size_t len_;
 };
 
 class RawDumper : public RemoteReceiveDumper {
