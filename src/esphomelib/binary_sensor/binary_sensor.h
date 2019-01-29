@@ -25,6 +25,8 @@ class StateTrigger;
 template<typename T>
 class BinarySensorCondition;
 class Filter;
+template<typename T>
+class BinarySensorPublishAction;
 
 struct MultiClickTriggerEvent {
   bool state;
@@ -96,6 +98,8 @@ class BinarySensor : public Nameable {
   BinarySensorCondition<T> *make_binary_sensor_is_on_condition();
   template<typename T>
   BinarySensorCondition<T> *make_binary_sensor_is_off_condition();
+  template<typename T>
+  BinarySensorPublishAction<T> *make_binary_sensor_publish_action();
 
   void add_filter(Filter *filter);
   void add_filters(std::vector<Filter *> filters);
@@ -196,6 +200,18 @@ class BinarySensorCondition : public Condition<T> {
 };
 
 template<typename T>
+class BinarySensorPublishAction : public Action<T> {
+ public:
+  BinarySensorPublishAction(BinarySensor *sensor);
+  void set_state(std::function<bool(T)> &&value);
+  void set_state(bool value);
+  void play(T x) override;
+ protected:
+  BinarySensor *sensor_;
+  TemplatableValue<bool, T> state_;
+};
+
+template<typename T>
 BinarySensorCondition<T>::BinarySensorCondition(BinarySensor *parent, bool state) : parent_(parent), state_(state) {
 
 }
@@ -211,6 +227,26 @@ BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_on_condition() {
 template<typename T>
 BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_off_condition() {
   return new BinarySensorCondition<T>(this, false);
+}
+template<typename T>
+BinarySensorPublishAction<T>::BinarySensorPublishAction(BinarySensor *sensor) : sensor_(sensor) {}
+template<typename T>
+void BinarySensorPublishAction<T>::set_state(std::function<bool(T)> &&value) {
+  this->state_ = std::move(value);
+}
+template<typename T>
+void BinarySensorPublishAction<T>::set_state(bool value) {
+  this->state_ = value;
+}
+template<typename T>
+void BinarySensorPublishAction<T>::play(T x) {
+  auto val = this->state_.value(x);
+  this->sensor_->publish_state(*val);
+  this->play_next(x);
+}
+template<typename T>
+BinarySensorPublishAction<T> *BinarySensor::make_binary_sensor_publish_action() {
+  return new BinarySensorPublishAction<T>(this);
 }
 
 } // namespace binary_sensor

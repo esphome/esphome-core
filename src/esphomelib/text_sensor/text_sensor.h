@@ -14,6 +14,8 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace text_sensor {
 
 class TextSensorStateTrigger;
+template<typename T>
+class TextSensorPublishAction;
 
 #define LOG_TEXT_SENSOR(prefix, type, obj) \
     if (obj != nullptr) { \
@@ -47,6 +49,8 @@ class TextSensor : public Nameable {
   virtual std::string unique_id();
 
   TextSensorStateTrigger *make_state_trigger();
+  template<typename T>
+  TextSensorPublishAction<T> *make_text_sensor_publish_action();
 
   bool has_state();
 
@@ -62,6 +66,38 @@ class TextSensorStateTrigger : public Trigger<std::string> {
  public:
   explicit TextSensorStateTrigger(TextSensor *parent);
 };
+
+template<typename T>
+class TextSensorPublishAction : public Action<T> {
+ public:
+  TextSensorPublishAction(TextSensor *sensor);
+  void set_state(std::function<std::string(T)> &&value);
+  void set_state(std::string value);
+  void play(T x) override;
+ protected:
+  TextSensor *sensor_;
+  TemplatableValue<std::string, T> value_;
+};
+
+template<typename T>
+TextSensorPublishAction<T>::TextSensorPublishAction(TextSensor *sensor) : sensor_(sensor) {}
+template<typename T>
+void TextSensorPublishAction<T>::set_state(std::function<std::string(T)> &&value) {
+  this->value_ = std::move(value);
+}
+template<typename T>
+void TextSensorPublishAction<T>::set_state(std::string value) {
+  this->value_ = value;
+}
+template<typename T>
+void TextSensorPublishAction<T>::play(T x) {
+  this->sensor_->publish_state(this->value_.value(x));
+  this->play_next(x);
+}
+template<typename T>
+TextSensorPublishAction<T> *TextSensor::make_text_sensor_publish_action() {
+  return new TextSensorPublishAction<T>(this);
+}
 
 } // namespace text_sensor
 

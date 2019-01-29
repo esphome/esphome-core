@@ -22,6 +22,10 @@ template<typename T>
 class TurnOnAction;
 template<typename T>
 class SwitchCondition;
+template<typename T>
+class SwitchPublishAction;
+class SwitchTurnOnTrigger;
+class SwitchTurnOffTrigger;
 
 #define LOG_SWITCH(prefix, type, obj) \
     if (obj != nullptr) { \
@@ -104,6 +108,10 @@ class Switch : public Nameable {
   SwitchCondition<T> *make_switch_is_on_condition();
   template<typename T>
   SwitchCondition<T> *make_switch_is_off_condition();
+  template<typename T>
+  SwitchPublishAction<T> *make_switch_publish_action();
+  SwitchTurnOnTrigger *make_switch_turn_on_trigger();
+  SwitchTurnOffTrigger *make_switch_turn_off_trigger();
 
   /** Set callback for state changes.
    *
@@ -193,6 +201,28 @@ class SwitchCondition : public Condition<T> {
   bool state_;
 };
 
+class SwitchTurnOnTrigger : public Trigger<NoArg> {
+ public:
+  SwitchTurnOnTrigger(Switch *switch_);
+};
+
+class SwitchTurnOffTrigger : public Trigger<NoArg> {
+ public:
+  SwitchTurnOffTrigger(Switch *switch_);
+};
+
+template<typename T>
+class SwitchPublishAction : public Action<T> {
+ public:
+  SwitchPublishAction(Switch *sensor);
+  void set_state(std::function<bool(T)> &&value);
+  void set_state(bool value);
+  void play(T x) override;
+ protected:
+  Switch *switch_;
+  TemplatableValue<bool, T> value_;
+};
+
 // =============== TEMPLATE DEFINITIONS ===============
 
 template<typename T>
@@ -253,6 +283,26 @@ SwitchCondition<T> *Switch::make_switch_is_on_condition() {
 template<typename T>
 SwitchCondition<T> *Switch::make_switch_is_off_condition() {
   return new SwitchCondition<T>(this, false);
+}
+
+template<typename T>
+SwitchPublishAction<T>::SwitchPublishAction(Switch *switch_) : switch_(switch_) {}
+template<typename T>
+void SwitchPublishAction<T>::set_state(std::function<bool(T)> &&value) {
+  this->value_ = std::move(value);
+}
+template<typename T>
+void SwitchPublishAction<T>::set_state(bool value) {
+  this->value_ = value;
+}
+template<typename T>
+void SwitchPublishAction<T>::play(T x) {
+  this->sensor_->publish_state(this->value_.value(x));
+  this->play_next(x);
+}
+template<typename T>
+SwitchPublishAction<T> *Switch::make_switch_publish_action() {
+  return new SwitchPublishAction<T>(this);
 }
 
 } // namespace switch_
