@@ -21,7 +21,7 @@ void Cover::publish_state(CoverState state) {
   this->state = state;
   this->state_callback_.call(state);
 }
-bool Cover::optimistic() {
+bool Cover::assumed_state() {
   return false;
 }
 bool Cover::has_state() const {

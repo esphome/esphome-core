@@ -24,17 +24,19 @@ class TemplateSwitch : public Switch, public Component {
   Trigger<NoArg> *get_turn_on_trigger() const;
   Trigger<NoArg> *get_turn_off_trigger() const;
   void set_optimistic(bool optimistic);
+  void set_assumed_state(bool assumed_state);
   void loop() override;
 
   float get_setup_priority() const override;
 
  protected:
-  bool optimistic() override;
+  bool assumed_state() override;
 
   void write_state(bool state) override;
 
   optional<std::function<optional<bool>()>> f_;
   bool optimistic_{false};
+  bool assumed_state_{false};
   Trigger<NoArg> *turn_on_trigger_;
   Trigger<NoArg> *turn_off_trigger_;
   Trigger<NoArg> *prev_trigger_{nullptr};

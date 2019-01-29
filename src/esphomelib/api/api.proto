@@ -120,7 +120,7 @@ message ListEntitiesCoverResponse {
   string name = 3;
   string unique_id = 4;
 
-  bool is_optimistic = 5;
+  bool assumed_state = 5;
 }
 message ListEntitiesFanResponse {
   string object_id = 1;
@@ -162,7 +162,7 @@ message ListEntitiesSwitchResponse {
   string unique_id = 4;
 
   string icon = 5;
-  bool optimistic = 6;
+  bool assumed_state = 6;
 }
 message ListEntitiesTextSensorResponse {
   string object_id = 1;

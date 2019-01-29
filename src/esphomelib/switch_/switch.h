@@ -29,8 +29,8 @@ class SwitchCondition;
       if (!obj->get_icon().empty()) { \
         ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
       } \
-      if (obj->optimistic()) { \
-        ESP_LOGCONFIG(TAG, prefix "  Optimistic: YES"); \
+      if (obj->assumed_state()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Assumed State: YES"); \
       } \
       if (obj->is_inverted()) { \
         ESP_LOGCONFIG(TAG, prefix "  Inverted: YES"); \
@@ -113,12 +113,12 @@ class Switch : public Nameable {
 
   optional<bool> get_initial_state();
 
-  /** Return whether this switch is optimistic - i.e. if both the ON/OFF actions should be displayed in Home Assistant
+  /** Return whether this switch uses an assumed state - i.e. if both the ON/OFF actions should be displayed in Home Assistant
    * because the real state is unknown.
    *
    * Defaults to false.
    */
-  virtual bool optimistic();
+  virtual bool assumed_state();
 
   bool is_inverted() const;
 

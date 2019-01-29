@@ -34,8 +34,8 @@ class StopAction;
 #define LOG_COVER(prefix, type, obj) \
     if (obj != nullptr) { \
       ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
-      if (obj->optimistic()) { \
-        ESP_LOGCONFIG(TAG, prefix "  Optimistic: YES"); \
+      if (obj->assumed_state()) { \
+        ESP_LOGCONFIG(TAG, prefix "  Assumed State: YES"); \
       } \
     }
 
@@ -63,7 +63,7 @@ class Cover : public Nameable {
    *
    * Defaults to false.
    */
-  virtual bool optimistic();
+  virtual bool assumed_state();
 
   CoverState state{COVER_OPEN};
 
