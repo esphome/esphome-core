@@ -36,10 +36,9 @@ class APIConnection {
   ~APIConnection();
 
   void disconnect_client_();
-  bool send_buffer(APIMessageType type, APIBuffer &buf);
-  template<typename T>
-  bool send_buffer(T func, APIMessageType type, bool resize = true);
-  bool send_message(APIMessage &msg, bool resize = true);
+  APIBuffer get_buffer();
+  bool send_buffer(APIMessageType type);
+  bool send_message(APIMessage &msg);
   bool send_empty_message(APIMessageType type);
   void loop();
 
@@ -70,13 +69,16 @@ class APIConnection {
   void send_service_call(ServiceCallResponse &call);
 
  protected:
+  friend APIServer;
+
   void on_error_(int8_t error);
   void on_disconnect_();
   void on_timeout_(uint32_t time);
   void on_data_(uint8_t *buf, size_t len);
   void fatal_error_();
-  bool valid_rx_message_type_();
-  void read_message_();
+  bool valid_rx_message_type_(uint32_t msg_type);
+  void read_message_(uint32_t size, uint32_t type, uint8_t *msg);
+  void parse_recv_buffer_();
 
   // request types
   void on_hello_request_(const HelloRequest &req);
@@ -105,30 +107,19 @@ class APIConnection {
   void on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req);
   void on_home_assistant_state_response(const HomeAssistantStateResponse &req);
 
-  void resize_buffer_();
-
   enum class ConnectionState {
     WAITING_FOR_HELLO,
     WAITING_FOR_CONNECT,
     CONNECTED,
   } connection_state_{ConnectionState::WAITING_FOR_HELLO};
 
+  bool remove_{false};
   AsyncClient *client_;
   APIServer *parent_;
 
-  uint8_t *buffer_;
-  size_t buffer_size_;
-  enum class ParseMessageState {
-    PREAMBLE,
-    LENGTH_FIELD,
-    TYPE_FIELD,
-    MESSAGE_FIELD,
-    SKIP_MESSAGE_FIELD,
-  } parse_state_{ParseMessageState::PREAMBLE};
-  uint32_t rx_buffer_at_{0};
+  std::vector<uint8_t> send_buffer_;
+  std::vector<uint8_t> recv_buffer_;
 
-  APIMessageType message_type_;
-  size_t message_length_;
   std::string client_info_;
   ListEntitiesIterator list_entities_iterator_;
   InitialStateIterator initial_state_iterator_;
@@ -241,19 +232,6 @@ template<typename T>
 void HomeAssistantServiceCallAction<T>::play(T x) {
   this->parent_->send_service_call(this->resp_);
   this->play_next(x);
-}
-
-template<typename T>
-bool APIConnection::send_buffer(T func, APIMessageType type, bool resize) {
-  while (true) {
-    APIBuffer buf(this->buffer_, this->buffer_size_);
-    func(buf);
-    if (buf.get_overflow() && resize) {
-      this->resize_buffer_();
-    } else {
-      return this->send_buffer(type, buf);
-    }
-  }
 }
 
 } // namespace api
