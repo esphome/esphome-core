@@ -39,6 +39,14 @@ void Cover::stop() {
 uint32_t Cover::hash_base_() {
   return 1727367479UL;
 }
+#ifdef USE_MQTT_COVER
+MQTTCoverComponent *Cover::get_mqtt() const {
+  return this->mqtt_;
+}
+void Cover::set_mqtt(MQTTCoverComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 } // namespace cover
 

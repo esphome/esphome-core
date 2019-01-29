@@ -39,6 +39,10 @@ class StopAction;
       } \
     }
 
+#ifdef USE_MQTT_COVER
+class MQTTCoverComponent;
+#endif
+
 class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
@@ -69,6 +73,11 @@ class Cover : public Nameable {
 
   bool has_state() const;
 
+#ifdef USE_MQTT_COVER
+  MQTTCoverComponent *get_mqtt() const;
+  void set_mqtt(MQTTCoverComponent *mqtt);
+#endif
+
  protected:
   virtual void write_command(CoverCommand command) = 0;
 
@@ -76,6 +85,9 @@ class Cover : public Nameable {
 
   bool has_state_{false};
   CallbackManager<void(CoverState)> state_callback_{};
+#ifdef USE_MQTT_COVER
+  MQTTCoverComponent *mqtt_{nullptr};
+#endif
 };
 
 template<typename T>
@@ -164,6 +176,8 @@ StopAction<T> *Cover::make_stop_action() {
 } // namespace cover
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/cover/mqtt_cover_component.h"
 
 #endif //USE_COVER
 

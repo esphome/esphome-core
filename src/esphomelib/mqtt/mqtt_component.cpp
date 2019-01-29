@@ -1,3 +1,7 @@
+#include "esphomelib/defines.h"
+
+#ifdef USE_MQTT
+
 #include "esphomelib/mqtt/mqtt_component.h"
 
 #include <algorithm>
@@ -227,3 +231,5 @@ bool MQTTComponent::is_connected() const {
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
+
+#endif //USE_MQTT

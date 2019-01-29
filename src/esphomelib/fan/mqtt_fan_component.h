@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_FAN
+#ifdef USE_MQTT_FAN
 
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/fan/fan_state.h"
@@ -60,6 +60,6 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_FAN
+#endif //USE_MQTT_FAN
 
 #endif //ESPHOMELIB_FAN_MQTT_FAN_COMPONENT_H

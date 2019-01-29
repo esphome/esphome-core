@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_SENSOR
+#ifdef USE_MQTT_SENSOR
 
 #include "esphomelib/sensor/sensor.h"
 #include "esphomelib/mqtt/mqtt_component.h"
@@ -63,6 +63,6 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif //USE_MQTT_SENSOR
 
 #endif //ESPHOMELIB_SENSOR_MQTT_SENSOR_COMPONENT_H
