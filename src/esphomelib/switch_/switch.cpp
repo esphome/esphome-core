@@ -73,6 +73,14 @@ uint32_t Switch::hash_base_() {
 bool Switch::is_inverted() const {
   return this->inverted_;
 }
+#ifdef USE_MQTT_SWITCH
+MQTTSwitchComponent *Switch::get_mqtt() const {
+  return this->mqtt_;
+}
+void Switch::set_mqtt(MQTTSwitchComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 } // namespace switch_
 

@@ -60,6 +60,14 @@ float FanState::get_setup_priority() const {
 uint32_t FanState::hash_base_() {
   return 418001110UL;
 }
+#ifdef USE_MQTT_FAN
+MQTTFanComponent *FanState::get_mqtt() const {
+  return this->mqtt_;
+}
+void FanState::set_mqtt(MQTTFanComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 FanState::StateCall::StateCall(FanState *state)
     : state_(state) {

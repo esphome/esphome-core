@@ -5,7 +5,6 @@
 
 #ifdef USE_SWITCH
 
-#include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/component.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/esppreferences.h"
@@ -36,6 +35,10 @@ class SwitchCondition;
         ESP_LOGCONFIG(TAG, prefix "  Inverted: YES"); \
       } \
     }
+
+#ifdef USE_MQTT_SWITCH
+class MQTTSwitchComponent;
+#endif
 
 /** Base class for all switches.
  *
@@ -122,6 +125,11 @@ class Switch : public Nameable {
 
   bool is_inverted() const;
 
+#ifdef USE_MQTT_SWITCH
+  MQTTSwitchComponent *get_mqtt() const;
+  void set_mqtt(MQTTSwitchComponent *mqtt);
+#endif
+
  protected:
   /** Write the given state to hardware. You should implement this
    * abstract method if you want to create your own switch.
@@ -149,6 +157,9 @@ class Switch : public Nameable {
   bool inverted_{false};
   Deduplicator<bool> publish_dedup_;
   ESPPreferenceObject rtc_;
+#ifdef USE_MQTT_SWITCH
+  MQTTSwitchComponent *mqtt_{nullptr};
+#endif
 };
 
 template<typename T>
@@ -259,6 +270,8 @@ SwitchCondition<T> *Switch::make_switch_is_off_condition() {
 } // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/switch_/mqtt_switch_component.h"
 
 #endif //USE_SWITCH
 

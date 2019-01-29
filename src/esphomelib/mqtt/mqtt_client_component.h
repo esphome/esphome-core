@@ -1,6 +1,10 @@
 #ifndef ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H
 #define ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_MQTT
+
 #include <string>
 #include <functional>
 #include <vector>
@@ -11,7 +15,6 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/log.h"
-#include "esphomelib/defines.h"
 #include "lwip/ip_addr.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -438,5 +441,7 @@ MQTTPublishAction<T> *MQTTClientComponent::make_publish_action() {
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
+
+#endif //USE_MQTT
 
 #endif //ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H

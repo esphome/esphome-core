@@ -158,6 +158,14 @@ StateTrigger *BinarySensor::make_state_trigger() {
 bool BinarySensor::is_status_binary_sensor() const {
   return false;
 }
+#ifdef USE_MQTT_BINARY_SENSOR
+MQTTBinarySensorComponent *BinarySensor::get_mqtt() const {
+  return this->mqtt_;
+}
+void BinarySensor::set_mqtt(MQTTBinarySensorComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 MultiClickTrigger::MultiClickTrigger(BinarySensor *parent, const std::vector<MultiClickTriggerEvent> &timing)
     : parent_(parent), timing_(timing) {

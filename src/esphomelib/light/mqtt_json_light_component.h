@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_LIGHT
+#ifdef USE_MQTT_LIGHT
 
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/light/light_state.h"
@@ -41,6 +41,6 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif //USE_MQTT_LIGHT
 
 #endif //ESPHOMELIB_LIGHT_MQTT_JSON_LIGHT_COMPONENT

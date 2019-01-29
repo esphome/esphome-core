@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_BINARY_SENSOR
+#ifdef USE_MQTT_BINARY_SENSOR
 
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/log.h"
@@ -67,4 +67,4 @@ void MQTTBinarySensorComponent::set_is_status(bool status) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_BINARY_SENSOR
+#endif //USE_MQTT_BINARY_SENSOR
