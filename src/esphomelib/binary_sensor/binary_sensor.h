@@ -135,7 +135,6 @@ class BinarySensor : public Nameable {
 #ifdef USE_MQTT_BINARY_SENSOR
   MQTTBinarySensorComponent *mqtt_{nullptr};
 #endif
-  Deduplicator<bool> publish_dedup_;
 };
 
 class PressTrigger : public Trigger<NoArg> {
