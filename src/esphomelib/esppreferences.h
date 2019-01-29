@@ -82,12 +82,14 @@ template<typename T>
 bool ESPPreferenceObject::save(T *src) {
   if (!this->is_initialized())
     return false;
+  memset(this->data_, 0, this->length_words_ * 4);
   memcpy(this->data_, src, sizeof(T));
   return this->save_();
 }
 
 template<typename T>
 bool ESPPreferenceObject::load(T *dest) {
+  memset(this->data_, 0, this->length_words_ * 4);
   if (!this->load_())
     return false;
 

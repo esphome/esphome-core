@@ -4,6 +4,10 @@
 #include <cassert>
 #include <cstdarg>
 #include <string>
+#include "esphomelib/defines.h"
+#ifdef USE_STORE_LOG_STR_IN_FLASH
+  #include "WString.h"
+#endif
 
 // avoid esp-idf redefining our macros
 #include "esphomelib/esphal.h"
@@ -58,11 +62,20 @@
 #endif
 
 int esp_log_printf_(int level, const char *tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+#ifdef USE_STORE_LOG_STR_IN_FLASH
+  int esp_log_printf_(int level, const char *tag, const __FlashStringHelper *format, ...);
+#endif
 int esp_log_vprintf_(int level, const char *tag, const char *format, va_list args);
+#ifdef USE_STORE_LOG_STR_IN_FLASH
+  int esp_log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args);
+#endif
 int esp_idf_log_vprintf_(const char *format, va_list args);
 
-#define ESPHOMELIB_SHORT_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter format ESPHOMELIB_LOG_RESET_COLOR
-#define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%03u]: " format ESPHOMELIB_LOG_RESET_COLOR, tag, __LINE__
+#ifdef USE_STORE_LOG_STR_IN_FLASH
+  #define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  F(ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%03u]: " format ESPHOMELIB_LOG_RESET_COLOR), tag, __LINE__
+#else
+  #define ESPHOMELIB_LOG_FORMAT(tag, letter, format)  ESPHOMELIB_LOG_COLOR_ ## letter "[" #letter "][%s:%03u]: " format ESPHOMELIB_LOG_RESET_COLOR, tag, __LINE__
+#endif
 
 #if ESPHOMELIB_LOG_LEVEL >= ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE
   #define esph_log_vv(tag, format, ...) esp_log_printf_(ESPHOMELIB_LOG_LEVEL_VERY_VERBOSE, tag, ESPHOMELIB_LOG_FORMAT(tag, VV, format), ##__VA_ARGS__)

@@ -28,6 +28,7 @@ DHTComponent::DHTComponent(const std::string &temperature_name, const std::strin
 
 void DHTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up DHT...");
+  this->pin_->digital_write(true);
   this->pin_->setup();
   this->pin_->digital_write(true);
 }
@@ -96,14 +97,19 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
   *temperature = NAN;
 
   disable_interrupts();
+  this->pin_->digital_write(false);
   this->pin_->pin_mode(OUTPUT);
   this->pin_->digital_write(false);
 
-  if (this->model_ == DHT_MODEL_DHT11)
+  if (this->model_ == DHT_MODEL_DHT11) {
     delayMicroseconds(18000);
-  else
+  } else if (this->model_ == DHT_MODEL_SI7021) {
+    delayMicroseconds(500);
+    this->pin_->digital_write(true);
+    delayMicroseconds(40);
+  } else {
     delayMicroseconds(800);
-
+  }
   this->pin_->pin_mode(INPUT_PULLUP);
   delayMicroseconds(40);
 
@@ -192,9 +198,11 @@ bool HOT DHTComponent::read_sensor_(float *temperature, float *humidity, bool re
     *temperature = int16_t(raw_temperature) * 0.1f;
   }
 
-  if (*temperature == 0.0f && *humidity == 1.0f) {
-    *temperature = NAN;
-    *humidity = NAN;
+  if (*temperature == 0.0f && (*humidity == 1.0f || *humidity == 2.0f)) {
+    if (report_errors) {
+      ESP_LOGE(TAG, "DHT reports invalid data. Is the update interval too high or the sensor damaged?");
+    }
+    return false;
   }
 
   return true;

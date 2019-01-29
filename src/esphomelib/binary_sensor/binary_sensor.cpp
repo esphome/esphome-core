@@ -17,17 +17,25 @@ void BinarySensor::add_on_state_callback(std::function<void(bool)> &&callback) {
 
 void BinarySensor::publish_state(bool state) {
   if (this->filter_list_ == nullptr) {
-    this->send_state_internal_(state);
+    this->send_state_internal_(state, false);
   } else {
-    this->filter_list_->input(state);
+    this->filter_list_->input(state, false);
   }
-
 }
-void BinarySensor::send_state_internal_(bool state) {
+void BinarySensor::publish_initial_state(bool state) {
+  if (this->filter_list_ == nullptr) {
+    this->send_state_internal_(state, true);
+  } else {
+    this->filter_list_->input(state, true);
+  }
+}
+void BinarySensor::send_state_internal_(bool state, bool is_initial) {
   ESP_LOGD(TAG, "'%s': Sending state %s", this->get_name().c_str(), state ? "ON" : "OFF");
   this->has_state_ = true;
   this->state = state;
-  this->state_callback_.call(state);
+  if (!is_initial) {
+    this->state_callback_.call(state);
+  }
 }
 std::string BinarySensor::device_class() {
   return "";
