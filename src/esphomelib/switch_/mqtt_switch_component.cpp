@@ -55,7 +55,7 @@ std::string MQTTSwitchComponent::component_type() const {
 void MQTTSwitchComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->switch_->get_icon().empty())
     root["icon"] = this->switch_->get_icon();
-  if (this->switch_->optimistic())
+  if (this->switch_->assumed_state())
     root["optimistic"] = true;
 }
 bool MQTTSwitchComponent::send_initial_state() {
