@@ -66,9 +66,9 @@ bool ListEntitiesIterator::on_light(light::LightState *light) {
   // bool supports_color_temperature = 8;
   buffer.encode_bool(8, light->get_traits().has_color_temperature());
   // float min_mireds = 9;
-  buffer.encode_bool(9, light->get_traits().get_min_mireds());
+  buffer.encode_float(9, light->get_traits().get_min_mireds());
   // float max_mireds = 10;
-  buffer.encode_bool(10, light->get_traits().get_max_mireds());
+  buffer.encode_float(10, light->get_traits().get_max_mireds());
   // repeated string effects = 11;
   if (light->supports_effects()) {
     buffer.encode_string(11, "None");

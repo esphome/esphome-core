@@ -242,7 +242,6 @@ void APIConnection::on_disconnect_() {
   this->remove_ = true;
 }
 void APIConnection::on_timeout_(uint32_t time) {
-  ESP_LOGV(TAG, "Timeout from client %u", time);
   this->disconnect_client_();
 }
 void APIConnection::on_data_(uint8_t *buf, size_t len) {
