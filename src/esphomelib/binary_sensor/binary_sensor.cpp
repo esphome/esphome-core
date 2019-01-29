@@ -16,6 +16,8 @@ void BinarySensor::add_on_state_callback(std::function<void(bool)> &&callback) {
 }
 
 void BinarySensor::publish_state(bool state) {
+  if (!this->publish_dedup_.next(state))
+    return;
   if (this->filter_list_ == nullptr) {
     this->send_state_internal_(state, false);
   } else {
@@ -23,6 +25,8 @@ void BinarySensor::publish_state(bool state) {
   }
 }
 void BinarySensor::publish_initial_state(bool state) {
+  if (!this->publish_dedup_.next(state))
+    return;
   if (this->filter_list_ == nullptr) {
     this->send_state_internal_(state, true);
   } else {

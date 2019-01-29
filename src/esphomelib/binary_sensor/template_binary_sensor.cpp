@@ -16,14 +16,12 @@ TemplateBinarySensor::TemplateBinarySensor(const std::string &name)
 
 }
 void TemplateBinarySensor::loop() {
-  auto s = this->f_();
+  if (!this->f_.has_value())
+    return;
+
+  auto s = (*this->f_)();
   if (s.has_value()) {
-    bool new_state = *s;
-    if (this->is_first_state_ || this->last_state_ != new_state) {
-      this->is_first_state_ = false;
-      this->last_state_ = new_state;
-      this->publish_state(new_state);
-    }
+    this->publish_state(*s);
   }
 }
 float TemplateBinarySensor::get_setup_priority() const {

@@ -25,7 +25,7 @@ class TemplateTextSensor : public TextSensor, public PollingComponent {
   void dump_config() override;
 
  protected:
-  std::function<optional<std::string>()> f_{};
+  optional<std::function<optional<std::string>()>> f_{};
 };
 
 } // namespace text_sensor

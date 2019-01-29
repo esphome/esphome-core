@@ -197,8 +197,6 @@ class ESP32TouchBinarySensor : public BinarySensor {
 
   touch_pad_t touch_pad_;
   uint16_t threshold_;
-  bool last_state_{false};
-  bool is_first_state_{true};
 };
 
 } // namespace binary_sensor

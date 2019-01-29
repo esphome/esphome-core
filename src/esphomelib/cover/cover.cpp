@@ -16,7 +16,8 @@ void Cover::add_on_publish_state_callback(std::function<void(CoverState)> &&f) {
   this->state_callback_.add(std::move(f));
 }
 void Cover::publish_state(CoverState state) {
-  this->has_state_ = true;
+  if (!this->dedup_.next(state))
+    return;
   this->state = state;
   this->state_callback_.call(state);
 }
@@ -24,7 +25,7 @@ bool Cover::optimistic() {
   return false;
 }
 bool Cover::has_state() const {
-  return this->has_state_;
+  return this->dedup_.has_value();
 }
 
 void Cover::open() {

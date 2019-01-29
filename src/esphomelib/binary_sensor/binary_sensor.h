@@ -121,6 +121,7 @@ class BinarySensor : public Nameable {
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
   bool has_state_{false};
+  Deduplicator<bool> publish_dedup_;
 };
 
 class PressTrigger : public Trigger<NoArg> {

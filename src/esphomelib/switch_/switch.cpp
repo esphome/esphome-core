@@ -49,6 +49,8 @@ optional<bool> Switch::get_initial_state() {
   return initial_state;
 }
 void Switch::publish_state(bool state) {
+  if (!this->publish_dedup_.next(state))
+    return;
   this->state = state != this->inverted_;
 
   this->rtc_.save(&this->state);

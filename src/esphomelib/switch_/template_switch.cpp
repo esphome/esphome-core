@@ -22,10 +22,6 @@ void TemplateSwitch::loop() {
   if (!s.has_value())
     return;
 
-  if (this->last_state_.value_or(!*s) == *s)
-    return;
-
-  this->last_state_ = *s;
   this->publish_state(*s);
 }
 void TemplateSwitch::write_state(bool state) {
