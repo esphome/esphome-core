@@ -55,7 +55,7 @@ void Switch::publish_state(bool state) {
   ESP_LOGD(TAG, "'%s': Sending state %s", this->name_.c_str(), ONOFF(state));
   this->state_callback_.call(this->state);
 }
-bool Switch::optimistic() {
+bool Switch::assumed_state() {
   return false;
 }
 

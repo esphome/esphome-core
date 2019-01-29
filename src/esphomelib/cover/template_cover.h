@@ -21,6 +21,7 @@ class TemplateCover : public Cover, public Component {
   Trigger<NoArg> *get_close_trigger() const;
   Trigger<NoArg> *get_stop_trigger() const;
   void set_optimistic(bool optimistic);
+  void set_assumed_state(bool assumed_state);
 
   void loop() override;
   void dump_config() override;
@@ -29,15 +30,15 @@ class TemplateCover : public Cover, public Component {
 
  protected:
   void write_command(CoverCommand command) override;
-  bool optimistic() override;
+  bool assumed_state() override;
 
   optional<std::function<optional<CoverState>()>> f_;
+  bool assumed_state_{false};
   bool optimistic_{false};
   Trigger<NoArg> *open_trigger_;
   Trigger<NoArg> *close_trigger_;
   Trigger<NoArg> *stop_trigger_;
   Trigger<NoArg> *prev_trigger_{nullptr};
-  optional<CoverState> last_state_;
 };
 
 } // namespace cover

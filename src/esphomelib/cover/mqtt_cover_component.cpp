@@ -37,7 +37,7 @@ void MQTTCoverComponent::dump_config() {
   LOG_MQTT_COMPONENT(true, true)
 }
 void MQTTCoverComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
-  if (this->cover_->optimistic())
+  if (this->cover_->assumed_state())
     root["optimistic"] = true;
 }
 
