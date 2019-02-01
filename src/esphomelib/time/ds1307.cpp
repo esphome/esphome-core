@@ -52,8 +52,7 @@ bool DS1307Time::read_data() {
   t.tm_min  = ds1307_.reg.minute + 10 * ds1307_.reg.minute_10;
   t.tm_sec  = ds1307_.reg.second + 10 * ds1307_.reg.second_10;
   struct timeval tv {::mktime(&t), 0};
-  timezone tz = {0, 0};
-  ::settimeofday(&tv, &tz);
+  ::settimeofday(&tv, 0);
   time::EsphomelibTime time = now();
   char buf[128];
   time.strftime(buf, sizeof(buf), "%c");
