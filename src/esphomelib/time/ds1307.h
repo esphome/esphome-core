@@ -58,8 +58,7 @@ class DS1307Time : public RealTimeClockComponent, public I2CDevice {
       bool    out        : 1;
     } reg;
     uint8_t raw[sizeof(reg)];
-  } ds1307_t;
-  ds1307_t ds1307_;
+  } ds1307_;
 
 };
 
