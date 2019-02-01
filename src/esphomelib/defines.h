@@ -106,6 +106,7 @@
   #define USE_DISPLAY
   #define USE_TIME
   #define USE_SNTP_COMPONENT
+  #define USE_DS1307_TIME
   #define USE_NEXTION
   #define USE_HLW8012
   #define USE_TEXT_SENSOR
@@ -521,6 +522,11 @@
   #endif
 #endif
 #ifdef USE_SNTP_COMPONENT
+  #ifndef USE_TIME
+    #define USE_TIME
+  #endif
+#endif
+#ifdef USE_DS1307_TIME
   #ifndef USE_TIME
     #define USE_TIME
   #endif
