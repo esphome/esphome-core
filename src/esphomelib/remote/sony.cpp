@@ -34,7 +34,7 @@ void encode_sony(RemoteTransmitData *data, uint32_t data_, uint8_t nbits) {
 
   data->item(HEADER_HIGH_US, HEADER_LOW_US);
 
-  for (uint32_t mask = 1UL << (nbits); mask != 0; mask >>= 1) {
+  for (uint32_t mask = 1UL << (nbits - 1); mask != 0; mask >>= 1) {
     if (data_ & mask)
       data->item(BIT_ONE_HIGH_US, BIT_LOW_US);
     else
