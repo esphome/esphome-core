@@ -22,8 +22,8 @@ class DS1307Time : public RealTimeClockComponent, public I2CDevice {
   float get_setup_priority() const override;
   bool read_data();
   bool write_data();
- private:
-  typedef union {
+ protected:
+  union DS1307Reg {
     struct {
       uint8_t second     : 4;
       uint8_t second_10  : 3;

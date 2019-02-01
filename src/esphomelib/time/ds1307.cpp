@@ -36,7 +36,7 @@ void DS1307Time::setup() {
 }
 
 bool DS1307Time::read_data() {
-  if (!read_bytes(0, ds1307_.raw, sizeof(ds1307_.raw))) {
+  if (!this->read_bytes(0, this->ds1307_.raw, sizeof(this->ds1307_.raw))) {
     ESP_LOGE(TAG, "Can't read I2C data.");
     return false;
   }
@@ -65,11 +65,11 @@ bool DS1307Time::read_data() {
 }
 
 bool DS1307Time::write_data() {
-  if (!read_bytes(0, ds1307_.raw, sizeof(ds1307_.raw))) {
+  if (!this->read_bytes(0, this->ds1307_.raw, sizeof(this->ds1307_.raw))) {
     ESP_LOGE(TAG, "Can't read I2C data.");
     return false;
   }
-  time::EsphomelibTime time = now();
+  time::EsphomelibTime time = this->now();
   if (!time.is_valid()) {
     ESP_LOGE(TAG, "System time is not valid.");
     return false;
@@ -88,7 +88,7 @@ bool DS1307Time::write_data() {
   ds1307_.reg.second    = time.second       % 10;
   ds1307_.reg.second_10 = time.second       / 10;
   ds1307_.reg.weekday   = time.day_of_week;
-  if (!write_bytes(0, ds1307_.raw, sizeof(ds1307_.raw))) {
+  if (!this->write_bytes(0, this->ds1307_.raw, sizeof(this->ds1307_.raw))) {
     ESP_LOGE(TAG, "Can't write I2C data.");
     return false;
   }
