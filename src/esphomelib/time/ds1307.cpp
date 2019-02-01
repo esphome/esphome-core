@@ -57,7 +57,7 @@ bool DS1307Time::read_data() {
   time::EsphomelibTime time = now();
   char buf[128];
   time.strftime(buf, sizeof(buf), "%c");
-  ESP_LOGD(TAG, "Synchronized time: %s", buf);
+  ESP_LOGD(TAG, "Synchronized system time from hardware clock: %s", buf);
   ESP_LOGV(TAG, "Rate select: %0d", ds1307_.reg.rs);
   ESP_LOGV(TAG, "Square-Wave Enable (SQWE): %0d", ds1307_.reg.sqwe);
   ESP_LOGV(TAG, "Output Control (OUT): %0d", ds1307_.reg.out);
@@ -94,7 +94,7 @@ bool DS1307Time::write_data() {
   }
   char buf[128];
   time.strftime(buf, sizeof(buf), "%c");
-  ESP_LOGD(TAG, "Synchronized time: %s", buf);
+  ESP_LOGD(TAG, "Synchronized system time to hardware clock: %s", buf);
   return true;
 }
 
