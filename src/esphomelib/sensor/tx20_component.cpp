@@ -2,7 +2,6 @@
 
 #ifdef USE_TX20
 
-#include "esphomelib/espmath.h"
 #include "esphomelib/log.h"
 #include "esphomelib/sensor/tx20_component.h"
 
@@ -14,8 +13,8 @@ static const char *TAG = "sensor.tx20";
 static const uint8_t MAX_BUFFER_SIZE = 41;
 static const uint16_t TX20_MAX_TIME = MAX_BUFFER_SIZE * 1220 + 5000;
 static const uint16_t TX20_BIT_TIME = 1200;
-static const std::string DIRECTIONS[] = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-                                         "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
+static const char* DIRECTIONS[] = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                                    "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
 
 TX20Component::TX20Component(const std::string &wind_speed_name, const std::string &wind_direction_degrees_name,
                              GPIOPin *pin)
@@ -28,12 +27,11 @@ TX20Component::TX20Component(const std::string &wind_speed_name, const std::stri
 void TX20Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up TX20...");
   this->pin_->setup();
-  buffer_ = new uint16_t[MAX_BUFFER_SIZE];
   attachInterrupt(this->pin_->get_pin(), TX20Component::pin_change_, CHANGE);
 }
 void TX20Component::dump_config() {
   ESP_LOGCONFIG(TAG, "TX20:");
-  LOG_PIN(" Pin:", this->pin_);
+  LOG_PIN("  Pin:", this->pin_);
 }
 float TX20Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
@@ -41,7 +39,7 @@ float TX20Component::get_setup_priority() const {
 
 void TX20Component::loop() {
   if (tx20_available_) {
-    this->decodeAndPublish_();
+    this->decode_and_publish_();
     tx20_available_ = false;
     buffer_index_ = 0;
     spent_time_ = 0;
@@ -87,7 +85,7 @@ TX20WindDirectionDegreesSensor *TX20Component::get_wind_direction_degrees_sensor
   return this->wind_direction_degrees_sensor_;
 }
 
-void TX20Component::decodeAndPublish_() {
+void TX20Component::decode_and_publish_() {
   ESP_LOGV(TAG, "DECODE TX20...");
 
   std::string string_buffer;
@@ -143,7 +141,7 @@ void TX20Component::decodeAndPublish_() {
   uint8_t chk = (tx20_sb + (tx20_sc & 0xf) + ((tx20_sc >> 4) & 0xf) + ((tx20_sc >> 8) & 0xf));
   chk &= 0xf;
 
-  if ((chk == tx20_sd) && (tx20_sc < 400)) {  // if checksum seems to be ok and wind speed below 40 m/s
+  if ((chk == tx20_sd)) { 
     tx20_wind_speed_kmh = float(tx20_sc) * 0.36;
     tx20_wind_direction = tx20_sb;
     if (tx20_wind_direction >= 0 && tx20_wind_direction < 16) {
@@ -156,10 +154,12 @@ void TX20Component::decodeAndPublish_() {
     this->wind_speed_sensor_->publish_state(tx20_wind_speed_kmh);
 
   } else {
+    // sensor seems to produces quite a few checksum errors -> only in verbose mode
     ESP_LOGV(TAG, "Incorrect checksum!");
   }
 }
 
+uint16_t *TX20Component::buffer_ = new uint16_t[MAX_BUFFER_SIZE];
 uint32_t TX20Component::start_time_ = 0;
 uint8_t TX20Component::buffer_index_ = 0;
 uint32_t TX20Component::spent_time_ = 0;

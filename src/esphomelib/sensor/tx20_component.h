@@ -3,7 +3,6 @@
 #ifdef USE_TX20
 
 #include "esphomelib/sensor/sensor.h"
-#include "esphomelib/text_sensor/text_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -32,7 +31,7 @@ class TX20Component : public Component {
 
  protected:
   static void pin_change_();
-  void decodeAndPublish_();
+  void decode_and_publish_();
 
   TX20WindSpeedSensor *wind_speed_sensor_;
   TX20WindDirectionDegreesSensor *wind_direction_degrees_sensor_;
