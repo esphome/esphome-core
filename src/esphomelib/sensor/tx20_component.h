@@ -16,7 +16,7 @@ class TX20Component : public Component {
  public:
   TX20Component(const std::string &wind_speed_name, const std::string &wind_direction_degrees_name,
                 GPIOPin *pin);
-
+  /// Get the textual representation of the wind direction ('N', 'SSE', ..).
   std::string get_wind_cardinal_direction() const;
 
   // ========== INTERNAL METHODS ==========
