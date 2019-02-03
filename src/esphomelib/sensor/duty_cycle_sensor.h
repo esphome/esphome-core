@@ -13,7 +13,7 @@ namespace sensor {
 
 class DutyCycleSensor : public PollingSensorComponent {
  public:
-  DutyCycleSensor(const std::string &name, GPIOPin *pin, uint32_t update_interval = 15000);
+  DutyCycleSensor(const std::string &name, GPIOPin *pin, uint32_t update_interval = 60000);
 
   void setup() override;
   float get_setup_priority() const override;

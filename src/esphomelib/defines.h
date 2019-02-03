@@ -1,10 +1,11 @@
 #ifndef ESPHOMELIB_DEFINES_H
 #define ESPHOMELIB_DEFINES_H
 
-#define ESPHOMELIB_VERSION "1.10.0-dev"
+#define ESPHOMELIB_VERSION "1.11.0-dev"
 
 #define HOT __attribute__ ((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
+#define ALWAYS_INLINE __attribute__((always_inline))
 
 #ifndef DOXYGEN
   #define ESPHOMELIB_NAMESPACE_BEGIN namespace esphomelib {
@@ -54,7 +55,6 @@
   #define USE_SHUTDOWN_SWITCH
   #define USE_FAN
   #define USE_DEBUG_COMPONENT
-  #define USE_WEB_SERVER
   #define USE_DEEP_SLEEP
   #define USE_PCF8574
   #define USE_IO
@@ -74,7 +74,6 @@
     #define USE_ESP32_BLE_TRACKER
     #define USE_ESP32_BLE_BEACON
   #endif
-  #define USE_FAST_LED_LIGHT
   #define USE_ROTARY_ENCODER_SENSOR
   #define USE_MAX31855_SENSOR
   #define USE_MAX6675_SENSOR
@@ -132,6 +131,8 @@
   #define USE_HOMEASSISTANT_TIME
   #define USE_HOMEASSISTANT_SENSOR
   #define USE_HOMEASSISTANT_TEXT_SENSOR
+  #define USE_APDS9960
+  #define USE_MQTT
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -150,16 +151,6 @@
     #define USE_SWITCH
   #endif
 #endif
-#ifdef USE_GPIO_BINARY_SENSOR
-  #ifndef USE_BINARY_SENSOR
-    #define USE_BINARY_SENSOR
-  #endif
-#endif
-#ifdef USE_STATUS_BINARY_SENSOR
-  #ifndef USE_BINARY_SENSOR
-    #define USE_BINARY_SENSOR
-  #endif
-#endif
 #ifdef USE_ESP32_TOUCH_BINARY_SENSOR
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
@@ -173,275 +164,19 @@
     #define USE_SENSOR
   #endif
 #endif
-#ifdef USE_TEMPLATE_BINARY_SENSOR
-  #ifndef USE_BINARY_SENSOR
-    #define USE_BINARY_SENSOR
-  #endif
-#endif
 #ifdef USE_PN532
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
-  #endif
-  #ifndef USE_SPI
-    #define USE_SPI
-  #endif
-#endif
-#ifdef USE_MAX7219
-  #ifndef USE_SPI
-    #define USE_SPI
-  #endif
-  #ifndef USE_DISPLAY
-    #define USE_DISPLAY
   #endif
 #endif
 #ifdef USE_RDM6300
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
   #endif
-  #ifndef USE_UART
-    #define USE_UART
-  #endif
-#endif
-#ifdef USE_MHZ19
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_UART
-    #define USE_UART
-  #endif
-#endif
-#ifdef USE_TCS34725
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_UART_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-  #ifndef USE_UART
-    #define USE_UART
-  #endif
-#endif
-#ifdef USE_UPTIME_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_HX711
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_DHT_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_DHT12_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
 #endif
 #ifdef USE_DALLAS_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
   #ifndef USE_ONE_WIRE
     #define USE_ONE_WIRE
-  #endif
-#endif
-#ifdef USE_PULSE_COUNTER_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_DUTY_CYCLE_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_ADC_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_ADS1115_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_BMP085_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_BMP085_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_HTU21D_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_HDC1080_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_MPU6050
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_INA219
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_INA3221
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_HMC5883L
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_MS5611
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_ESP32_HALL_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_MAX31855_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_MAX6675_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_TSL2561
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_BH1750
-  #ifndef USE_SENSOR
-  #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_BME280
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_BME680
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_SHT3XD
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_TEMPLATE_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_ULTRASONIC_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_WIFI_SIGNAL_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_ROTARY_ENCODER_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_GPIO_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_TEMPLATE_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_RESTART_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-#endif
-#ifdef USE_FAST_LED_LIGHT
-  #ifndef USE_LIGHT
-    #define USE_LIGHT
   #endif
 #endif
 #ifdef USE_LIGHT
@@ -449,167 +184,87 @@
     #define USE_OUTPUT
   #endif
 #endif
-#ifdef USE_OUTPUT_SWITCH
-  #ifndef USE_SWITCH
-    #define USE_SWITCH
-  #endif
-  #ifndef USE_OUTPUT
-    #define USE_OUTPUT
-  #endif
-#endif
-#ifdef USE_SWITCH
-  #ifndef USE_BINARY_SENSOR
-    #define USE_BINARY_SENSOR
-  #endif
-#endif
-#ifdef USE_LEDC_OUTPUT
-  #ifndef USE_OUTPUT
-    #define USE_OUTPUT
-  #endif
-#endif
-#ifdef USE_PCA9685_OUTPUT
-  #ifndef USE_OUTPUT
-    #define USE_OUTPUT
-  #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_GPIO_OUTPUT
-  #ifndef USE_OUTPUT
-    #define USE_OUTPUT
-  #endif
-#endif
-#ifdef USE_ESP8266_PWM_OUTPUT
-  #ifndef USE_OUTPUT
-    #define USE_OUTPUT
-  #endif
-#endif
 #ifdef USE_PCF8574
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
   #ifndef USE_IO
     #define USE_IO
-  #endif
-#endif
-#ifdef USE_TEMPLATE_COVER
-  #ifndef USE_COVER
-    #define USE_COVER
   #endif
 #endif
 #ifdef USE_LCD_DISPLAY_PCF8574
   #ifndef USE_LCD_DISPLAY
     #define USE_LCD_DISPLAY
   #endif
-  #ifndef USE_I2C
-    #define USE_I2C
-  #endif
-#endif
-#ifdef USE_LCD_DISPLAY
-  #ifndef USE_DISPLAY
-    #define USE_DISPLAY
-  #endif
-#endif
-#ifdef USE_SSD1306
-  #ifndef USE_DISPLAY
-    #define USE_DISPLAY
-  #endif
-#endif
-#ifdef USE_WAVESHARE_EPAPER
-  #ifndef USE_DISPLAY
-    #define USE_DISPLAY
-  #endif
-#endif
-#ifdef USE_SNTP_COMPONENT
-  #ifndef USE_TIME
-    #define USE_TIME
-  #endif
 #endif
 #ifdef USE_HLW8012
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
   #ifndef USE_PULSE_COUNTER_SENSOR
     #define USE_PULSE_COUNTER_SENSOR
   #endif
 #endif
-#ifdef USE_NEXTION
-  #ifndef USE_DISPLAY
-    #define USE_DISPLAY
-  #endif
-  #ifndef USE_UART
-    #define USE_UART
-  #endif
-#endif
-#ifdef USE_MQTT_SUBSCRIBE_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-#ifdef USE_CSE7766
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_UART
-    #define USE_UART
-  #endif
-#endif
-#ifdef USE_PMSX003
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_UART
-    #define USE_UART
-  #endif
-#endif
-
-#ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
-  #ifndef USE_TEXT_SENSOR
-    #define USE_TEXT_SENSOR
-  #endif
-#endif
-#ifdef USE_VERSION_TEXT_SENSOR
-  #ifndef USE_TEXT_SENSOR
-    #define USE_TEXT_SENSOR
-  #endif
-#endif
-#ifdef USE_TEMPLATE_TEXT_SENSOR
-  #ifndef USE_TEXT_SENSOR
-    #define USE_TEXT_SENSOR
-  #endif
-#endif
-
-#ifdef USE_A4988
-  #ifndef USE_STEPPER
-    #define USE_STEPPER
-  #endif
-#endif
-
-#ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_TIME
-    #define USE_TIME
-  #endif
-#endif
-
 #ifdef USE_MY9231_OUTPUT
   #ifndef USE_OUTPUT
     #define USE_OUTPUT
   #endif
 #endif
 
-#ifndef USE_CUSTOM_SENSOR
+#ifdef USE_APDS9960
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
 #endif
 
-#ifndef USE_CUSTOM_BINARY_SENSOR
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
+#if defined(USE_MQTT) && defined(USE_BINARY_SENSOR)
+  #ifndef USE_MQTT_BINARY_SENSOR
+    #define USE_MQTT_BINARY_SENSOR
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_COVER)
+  #ifndef USE_MQTT_COVER
+    #define USE_MQTT_COVER
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_FAN)
+  #ifndef USE_MQTT_FAN
+    #define USE_MQTT_FAN
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_LIGHT)
+  #ifndef USE_MQTT_LIGHT
+    #define USE_MQTT_LIGHT
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_CUSTOM_COMPONENT)
+  #ifndef USE_MQTT_CUSTOM_COMPONENT
+    #define USE_MQTT_CUSTOM_COMPONENT
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_SENSOR)
+  #ifndef USE_MQTT_SENSOR
+    #define USE_MQTT_SENSOR
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_SWITCH)
+  #ifndef USE_MQTT_SWITCH
+    #define USE_MQTT_SWITCH
+  #endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_TEXT_SENSOR)
+  #ifndef USE_MQTT_TEXT_SENSOR
+    #define USE_MQTT_TEXT_SENSOR
+  #endif
+#endif
+
+#if !defined(DONT_STORE_LOG_STR_IN_FLASH) && defined(ARDUINO_ARCH_ESP8266)
+  #ifndef USE_STORE_LOG_STR_IN_FLASH
+    #define USE_STORE_LOG_STR_IN_FLASH
   #endif
 #endif
 

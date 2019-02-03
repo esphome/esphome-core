@@ -160,6 +160,15 @@ uint32_t Sensor::hash_base_() {
   return 2455723294UL;
 }
 
+#ifdef USE_MQTT_SENSOR
+MQTTSensorComponent *Sensor::get_mqtt() const {
+  return this->mqtt_;
+}
+void Sensor::set_mqtt(MQTTSensorComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
+
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
     : PollingComponent(update_interval), Sensor(name) {}
 

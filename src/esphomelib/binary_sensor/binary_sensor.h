@@ -40,6 +40,10 @@ struct MultiClickTriggerEvent {
       } \
     }
 
+#ifdef USE_MQTT_BINARY_SENSOR
+class MQTTBinarySensorComponent;
+#endif
+
 /** Base class for all binary_sensor-type classes.
  *
  * This class includes a callback that components such as MQTT can subscribe to for state changes.
@@ -59,13 +63,20 @@ class BinarySensor : public Nameable {
    *
    * @param callback The void(bool) callback.
    */
-  virtual void add_on_state_callback(std::function<void(bool)> &&callback);
+  void add_on_state_callback(std::function<void(bool)> &&callback);
 
   /** Publish a new state to the front-end.
    *
    * @param state The new state.
    */
-  virtual void publish_state(bool state);
+  void publish_state(bool state);
+
+  /** Publish the initial state, this will not make the callback manager send callbacks
+   * and is meant only for the initial state on boot.
+   *
+   * @param state The new state.
+   */
+  void publish_initial_state(bool state);
 
   union {
     /// The current reported state of the binary sensor.
@@ -95,12 +106,17 @@ class BinarySensor : public Nameable {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  void send_state_internal_(bool state);
+  void send_state_internal_(bool state, bool is_initial);
 
   /// Return whether this binary sensor has outputted a state.
   bool has_state() const;
 
   virtual bool is_status_binary_sensor() const;
+
+#ifdef USE_MQTT_BINARY_SENSOR
+  MQTTBinarySensorComponent *get_mqtt() const;
+  void set_mqtt(MQTTBinarySensorComponent *mqtt);
+#endif
 
  protected:
   // ========== OVERRIDE METHODS ==========
@@ -114,6 +130,11 @@ class BinarySensor : public Nameable {
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
   bool has_state_{false};
+  Deduplicator<bool> publish_dedup_;
+
+#ifdef USE_MQTT_BINARY_SENSOR
+  MQTTBinarySensorComponent *mqtt_{nullptr};
+#endif
 };
 
 class PressTrigger : public Trigger<NoArg> {
@@ -209,6 +230,8 @@ BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_off_condition() {
 } // namespace binary_sensor
 
 ESPHOMELIB_NAMESPACE_END
+
+#include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 
 #endif //USE_BINARY_SENSOR
 

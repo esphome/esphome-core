@@ -43,7 +43,7 @@ class PanasonicReceiver : public RemoteReceiver {
 
 class PanasonicDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData *data) override;
+  bool dump(RemoteReceiveData *data) override;
 };
 #endif
 

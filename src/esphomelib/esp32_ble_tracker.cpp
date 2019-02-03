@@ -9,8 +9,6 @@
 #include <esp_bt.h>
 #include <freertos/task.h>
 #include <esp_gap_ble_api.h>
-#include <btc_spp.h>
-#include <btc_gap_bt.h>
 #include <esp_bt_defs.h>
 #include "esphomelib/log.h"
 
@@ -165,12 +163,9 @@ void ESP32BLETracker::start_scan(bool first) {
   }
 
   ESP_LOGD(TAG, "Starting scan...");
-  if (!first) {
-    // also O(N^2), but will only be called once every minute or so
-    for (auto *device : this->presence_sensors_) {
-      if (!this->has_already_discovered_(device->address_))
-        device->publish_state(false);
-    }
+  for (auto *device : this->presence_sensors_) {
+    if (!this->has_already_discovered_(device->address_))
+      device->publish_state(false);
   }
   this->already_discovered_.clear();
 

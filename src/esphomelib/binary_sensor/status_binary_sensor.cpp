@@ -5,6 +5,7 @@
 #include "esphomelib/binary_sensor/status_binary_sensor.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/wifi_component.h"
+#include "esphomelib/util.h"
 #include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -21,12 +22,12 @@ StatusBinarySensor::StatusBinarySensor(const std::string &name)
 
 }
 void StatusBinarySensor::loop() {
-  bool status;
-  if (mqtt::global_mqtt_client == nullptr) {
-    status = global_wifi_component->is_connected();
-  } else {
+  bool status = network_is_connected();
+#ifdef USE_MQTT
+  if (mqtt::global_mqtt_client != nullptr) {
     status = mqtt::global_mqtt_client->is_connected();
   }
+#endif
 
   if (this->last_status_ != status) {
     this->publish_state(status);

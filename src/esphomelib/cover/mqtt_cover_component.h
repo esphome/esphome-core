@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_COVER
+#ifdef USE_MQTT_COVER
 
 #include "esphomelib/mqtt/mqtt_component.h"
 #include "esphomelib/cover/cover.h"
@@ -37,6 +37,6 @@ class MQTTCoverComponent : public mqtt::MQTTComponent {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_COVER
+#endif //USE_MQTT_COVER
 
 #endif //ESPHOMELIB_COVER_MQTT_COVER_COMPONENT_H

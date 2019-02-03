@@ -16,7 +16,10 @@ TemplateSensor::TemplateSensor(const std::string &name, uint32_t update_interval
 
 }
 void TemplateSensor::update() {
-  auto val = this->f_();
+  if (!this->f_.has_value())
+    return;
+
+  auto val = (*this->f_)();
   if (val.has_value()) {
     this->publish_state(*val);
   }

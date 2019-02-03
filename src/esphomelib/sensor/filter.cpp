@@ -180,7 +180,6 @@ optional<float> ThrottleFilter::new_value(float value) {
     this->last_input_ = now;
     return value;
   }
-  this->last_input_ = now;
   return {};
 }
 

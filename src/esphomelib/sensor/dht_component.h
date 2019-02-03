@@ -20,6 +20,7 @@ enum DHTModel {
   DHT_MODEL_DHT22,
   DHT_MODEL_AM2302,
   DHT_MODEL_RHT03,
+  DHT_MODEL_SI7021
 };
 
 /// Component for reading temperature/humidity measurements from DHT11/DHT22 sensors.
@@ -31,7 +32,7 @@ class DHTComponent : public PollingComponent {
    * @param update_interval The interval in ms the sensor should be checked.
    */
   DHTComponent(const std::string &temperature_name, const std::string &humidity_name,
-               GPIOPin *pin, uint32_t update_interval = 15000);
+               GPIOPin *pin, uint32_t update_interval = 60000);
 
   /** Manually select the DHT model.
    *
@@ -42,6 +43,7 @@ class DHTComponent : public PollingComponent {
    *  - DHT_MODEL_DHT22
    *  - DHT_MODEL_AM2302
    *  - DHT_MODEL_RHT03
+   *  - DHT_MODEL_SI7021
    *
    * @param model The DHT model.
    */

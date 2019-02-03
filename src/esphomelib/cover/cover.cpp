@@ -16,15 +16,16 @@ void Cover::add_on_publish_state_callback(std::function<void(CoverState)> &&f) {
   this->state_callback_.add(std::move(f));
 }
 void Cover::publish_state(CoverState state) {
-  this->has_state_ = true;
+  if (!this->dedup_.next(state))
+    return;
   this->state = state;
   this->state_callback_.call(state);
 }
-bool Cover::optimistic() {
+bool Cover::assumed_state() {
   return false;
 }
 bool Cover::has_state() const {
-  return this->has_state_;
+  return this->dedup_.has_value();
 }
 
 void Cover::open() {
@@ -39,6 +40,14 @@ void Cover::stop() {
 uint32_t Cover::hash_base_() {
   return 1727367479UL;
 }
+#ifdef USE_MQTT_COVER
+MQTTCoverComponent *Cover::get_mqtt() const {
+  return this->mqtt_;
+}
+void Cover::set_mqtt(MQTTCoverComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 } // namespace cover
 

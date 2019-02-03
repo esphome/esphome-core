@@ -22,16 +22,18 @@ void TemplateSwitch::loop() {
   if (!s.has_value())
     return;
 
-  if (this->last_state_.value_or(!*s) == *s)
-    return;
-
-  this->last_state_ = *s;
   this->publish_state(*s);
 }
 void TemplateSwitch::write_state(bool state) {
+  if (this->prev_trigger_ != nullptr) {
+    this->prev_trigger_->stop();
+  }
+
   if (state) {
+    this->prev_trigger_ = this->turn_on_trigger_;
     this->turn_on_trigger_->trigger();
   } else {
+    this->prev_trigger_ = this->turn_off_trigger_;
     this->turn_off_trigger_->trigger();
   }
 
@@ -41,7 +43,7 @@ void TemplateSwitch::write_state(bool state) {
 void TemplateSwitch::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
 }
-bool TemplateSwitch::optimistic() {
+bool TemplateSwitch::assumed_state() {
   return this->optimistic_;
 }
 void TemplateSwitch::set_state_lambda(std::function<optional<bool>()> &&f) {
@@ -74,9 +76,13 @@ void TemplateSwitch::setup() {
 void TemplateSwitch::dump_config() {
   LOG_SWITCH("", "Template Switch", this);
   ESP_LOGCONFIG(TAG, "  Restore State: %s", YESNO(this->restore_state_));
+  ESP_LOGCONFIG(TAG, "  Optimistic: %s", YESNO(this->optimistic_));
 }
 void TemplateSwitch::set_restore_state(bool restore_state) {
   this->restore_state_ = restore_state;
+}
+void TemplateSwitch::set_assumed_state(bool assumed_state) {
+  this->assumed_state_ = assumed_state;
 }
 
 } // namespace switch_

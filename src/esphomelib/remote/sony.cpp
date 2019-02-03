@@ -34,7 +34,7 @@ void encode_sony(RemoteTransmitData *data, uint32_t data_, uint8_t nbits) {
 
   data->item(HEADER_HIGH_US, HEADER_LOW_US);
 
-  for (uint32_t mask = 1UL << (nbits); mask != 0; mask >>= 1) {
+  for (uint32_t mask = 1UL << (nbits - 1); mask != 0; mask >>= 1) {
     if (data_ & mask)
       data->item(BIT_ONE_HIGH_US, BIT_LOW_US);
     else
@@ -87,12 +87,13 @@ bool SonyReceiver::matches(RemoteReceiveData *data) {
   return decode.valid && this->data_ == decode.data && this->nbits_ == decode.nbits;
 }
 
-void SonyDumper::dump(RemoteReceiveData *data) {
+bool SonyDumper::dump(RemoteReceiveData *data) {
   auto decode = decode_sony(data);
   if (!decode.valid)
-    return;
+    return false;
 
   ESP_LOGD(TAG, "Received Sony: data=0x%08X, nbits=%d", decode.data, decode.nbits);
+  return true;
 }
 #endif
 

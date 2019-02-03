@@ -14,7 +14,7 @@ namespace text_sensor {
 
 class TemplateTextSensor : public TextSensor, public PollingComponent {
  public:
-  TemplateTextSensor(const std::string &name, uint32_t update_interval = 15000);
+  TemplateTextSensor(const std::string &name, uint32_t update_interval = 60000);
 
   void set_template(std::function<optional<std::string>()> &&f);
 
@@ -25,7 +25,7 @@ class TemplateTextSensor : public TextSensor, public PollingComponent {
   void dump_config() override;
 
  protected:
-  std::function<optional<std::string>()> f_{};
+  optional<std::function<optional<std::string>()>> f_{};
 };
 
 } // namespace text_sensor

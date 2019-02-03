@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_SWITCH
+#ifdef USE_MQTT_SWITCH
 
 #include "esphomelib/switch_/mqtt_switch_component.h"
 
@@ -55,7 +55,7 @@ std::string MQTTSwitchComponent::component_type() const {
 void MQTTSwitchComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->switch_->get_icon().empty())
     root["icon"] = this->switch_->get_icon();
-  if (this->switch_->optimistic())
+  if (this->switch_->assumed_state())
     root["optimistic"] = true;
 }
 bool MQTTSwitchComponent::send_initial_state() {
@@ -76,4 +76,4 @@ bool MQTTSwitchComponent::publish_state(bool state) {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SWITCH
+#endif //USE_MQTT_SWITCH

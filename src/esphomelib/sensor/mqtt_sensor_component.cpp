@@ -1,9 +1,10 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_SENSOR
+#ifdef USE_MQTT_SENSOR
 
 #include "esphomelib/sensor/mqtt_sensor_component.h"
 
+#include "esphomelib/deep_sleep_component.h"
 #include "esphomelib/espmath.h"
 #include "esphomelib/log.h"
 #include "esphomelib/component.h"
@@ -41,7 +42,12 @@ uint32_t MQTTSensorComponent::get_expire_after() const {
   if (this->expire_after_.has_value()) {
     return *this->expire_after_;
   } else {
-    return this->sensor_->calculate_expected_filter_update_interval() * 3;
+#ifdef USE_DEEP_SLEEP
+    if (global_has_deep_sleep) {
+      return 0;
+    }
+#endif
+    return this->sensor_->calculate_expected_filter_update_interval() * 5;
   }
 }
 void MQTTSensorComponent::set_expire_after(uint32_t expire_after) {
@@ -87,4 +93,4 @@ std::string MQTTSensorComponent::unique_id() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif //USE_MQTT_SENSOR

@@ -1,3 +1,7 @@
+#include "esphomelib/defines.h"
+
+#ifdef USE_MQTT
+
 #include "esphomelib/mqtt/mqtt_component.h"
 
 #include <algorithm>
@@ -57,6 +61,11 @@ bool MQTTComponent::publish_json(const std::string &topic, const json_build_t &f
 
 bool MQTTComponent::send_discovery_() {
   const MQTTDiscoveryInfo &discovery_info = global_mqtt_client->get_discovery_info();
+
+  if (discovery_info.clean) {
+    ESP_LOGV(TAG, "'%s': Cleaning discovery...", this->friendly_name().c_str());
+    return global_mqtt_client->publish(this->get_discovery_topic(discovery_info), "", 0, 0, true);
+  }
 
   ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
 
@@ -222,3 +231,5 @@ bool MQTTComponent::is_connected() const {
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
+
+#endif //USE_MQTT

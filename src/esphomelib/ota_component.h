@@ -56,9 +56,7 @@ class OTAComponent : public Component {
   /** Set a plaintext password that OTA will use for authentication.
    *
    * Warning: This password will be stored in plaintext in the ROM and can be read
-   * by intruders. It is however secured somewhat secure again MITM attacks (attackers
-   * could still modify the binary while you're sending it, but they can't start OTA processes
-   * themselves.)
+   * by intruders.
    *
    * @param password The plaintext password.
    */
@@ -106,8 +104,8 @@ class OTAComponent : public Component {
   void clean_rtc();
 
  protected:
-  void write_rtc_(uint8_t val);
-  uint8_t read_rtc_();
+  void write_rtc_(uint32_t val);
+  uint32_t read_rtc_();
 
 #ifdef USE_NEW_OTA
   void handle_();
@@ -130,7 +128,7 @@ class OTAComponent : public Component {
   bool has_safe_mode_{false}; ///< stores whether safe mode can be enabled.
   uint32_t safe_mode_start_time_; ///<stores when safe mode was enabled.
   uint32_t safe_mode_enable_time_{60000}; ///< The time safe mode should be on for.
-  uint8_t safe_mode_rtc_value_;
+  uint32_t safe_mode_rtc_value_;
   uint8_t safe_mode_num_attempts_;
   uint8_t at_ota_progress_message_{0}; ///< store OTA progress message index so that we don't spam logs
   ESPPreferenceObject rtc_;

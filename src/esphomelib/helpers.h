@@ -41,6 +41,7 @@ void tick_status_led();
 void feed_wdt();
 
 std::string to_string(std::string val);
+std::string to_string(String val);
 std::string to_string(int val);
 std::string to_string(long val);
 std::string to_string(long long val);
@@ -50,6 +51,7 @@ std::string to_string(unsigned long long val);
 std::string to_string(float val);
 std::string to_string(double val);
 std::string to_string(long double val);
+optional<float> parse_float(const std::string &str);
 
 /// Constructs a hostname by concatenating base, a hyphen, and the MAC address.
 std::string generate_hostname(const std::string &base);
@@ -139,6 +141,11 @@ double random_double();
 
 /// Returns a random float between 0 and 1. Essentially just casts random_double() to a float.
 float random_float();
+
+void fast_random_set_seed(uint32_t seed);
+uint32_t fast_random_32();
+uint16_t fast_random_16();
+uint8_t fast_random_8();
 
 /// Applies gamma correction with the provided gamma to value.
 float gamma_correct(float value, float gamma);
@@ -336,6 +343,16 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
 
 extern VectorJsonBuffer global_json_buffer;
 
+template<typename T>
+class Deduplicator {
+ public:
+  bool next(T value);
+  bool has_value() const;
+ protected:
+  bool has_value_{false};
+  T last_value_{};
+};
+
 // ================================================
 //                 Definitions
 // ================================================
@@ -366,6 +383,21 @@ template<typename... Ts>
 void CallbackManager<void(Ts...)>::call(Ts... args) {
   for (auto &cb : this->callbacks_)
     cb(args...);
+}
+
+template<typename T>
+bool Deduplicator<T>::next(T value) {
+  if (this->has_value_) {
+    if (this->last_value_ == value)
+      return false;
+  }
+  this->has_value_ = true;
+  this->last_value_ = value;
+  return true;
+}
+template<typename T>
+bool Deduplicator<T>::has_value() const {
+  return this->has_value_;
 }
 
 ESPHOMELIB_NAMESPACE_END

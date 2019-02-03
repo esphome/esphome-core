@@ -59,8 +59,6 @@ class DeepSleepComponent : public Component {
 
   void set_ext1_wakeup(Ext1Wakeup ext1_wakeup);
 #endif
-  /// Set the number of loop cycles after which the node should go into deep sleep mode.
-  void set_run_cycles(uint32_t cycles);
   /// Set a duration in ms for how long the code should run before entering deep sleep mode.
   void set_run_duration(uint32_t time_ms);
 
@@ -88,8 +86,6 @@ class DeepSleepComponent : public Component {
   WakeupPinMode  wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
   optional<Ext1Wakeup> ext1_wakeup_;
 #endif
-  optional<uint32_t> loop_cycles_;
-  uint32_t at_loop_cycle_{0};
   optional<uint32_t> run_duration_;
   bool next_enter_deep_sleep_{false};
   bool prevent_{false};

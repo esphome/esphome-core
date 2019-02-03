@@ -1,9 +1,12 @@
 #ifndef ESPHOMELIB_MQTT_MQTT_COMPONENT_H
 #define ESPHOMELIB_MQTT_MQTT_COMPONENT_H
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_MQTT
+
 #include "esphomelib/component.h"
 #include "esphomelib/mqtt/mqtt_client_component.h"
-#include "esphomelib/defines.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -164,5 +167,7 @@ class MQTTComponent : public Component {
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
+
+#endif //USE_MQTT
 
 #endif //ESPHOMELIB_MQTT_MQTT_COMPONENT_H

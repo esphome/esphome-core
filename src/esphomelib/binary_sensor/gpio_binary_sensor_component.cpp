@@ -15,8 +15,7 @@ static const char *TAG = "binary_sensor.gpio";
 void GPIOBinarySensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO binary sensor '%s'...", this->name_.c_str());
   this->pin_->setup();
-  this->last_state_ = this->pin_->digital_read();
-  this->publish_state(this->last_state_);
+  this->publish_initial_state(this->pin_->digital_read());
 }
 
 void GPIOBinarySensorComponent::dump_config() {
@@ -25,11 +24,7 @@ void GPIOBinarySensorComponent::dump_config() {
 }
 
 void GPIOBinarySensorComponent::loop() {
-  bool new_state = this->pin_->digital_read();
-  if (this->last_state_ != new_state) {
-    this->last_state_ = new_state;
-    this->publish_state(new_state);
-  }
+  this->publish_state(this->pin_->digital_read());
 }
 
 float GPIOBinarySensorComponent::get_setup_priority() const {

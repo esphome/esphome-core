@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_BINARY_SENSOR
+#ifdef USE_MQTT_BINARY_SENSOR
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/mqtt/mqtt_component.h"
@@ -55,6 +55,6 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_BINARY_SENSOR
+#endif //USE_MQTT_BINARY_SENSOR
 
 #endif //ESPHOMELIB_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H

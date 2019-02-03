@@ -1,9 +1,13 @@
+#include "esphomelib/defines.h"
+
+#ifdef USE_MQTT
+
 #include "esphomelib/mqtt/mqtt_client_component.h"
 
 #include "esphomelib/log.h"
 #include "esphomelib/application.h"
+#include "esphomelib/util.h"
 #include "esphomelib/log_component.h"
-#include "esphomelib/wifi_component.h"
 #include "lwip/err.h"
 #include "lwip/dns.h"
 
@@ -164,11 +168,11 @@ void MQTTClientComponent::dns_found_callback_(const char *name, const ip_addr_t 
 }
 
 void MQTTClientComponent::start_connect() {
-  if (!global_wifi_component->is_connected())
+  if (!network_is_connected())
     return;
 
   ESP_LOGI(TAG, "Connecting to MQTT...");
-  // Force disconnect_client_ first
+  // Force disconnect first
   this->mqtt_client_.disconnect(true);
 
   this->mqtt_client_.setClientId(this->credentials_.client_id.c_str());
@@ -197,7 +201,7 @@ bool MQTTClientComponent::is_connected() {
 
 void MQTTClientComponent::check_connected() {
   if (!this->mqtt_client_.connected()) {
-    if (millis() - this->connect_begin_ > 15000) {
+    if (millis() - this->connect_begin_ > 60000) {
       this->state_ = MQTT_CLIENT_DISCONNECTED;
       this->start_dnslookup();
     }
@@ -205,13 +209,11 @@ void MQTTClientComponent::check_connected() {
   }
 
   this->state_ = MQTT_CLIENT_CONNECTED;
+  this->sent_birth_message_ = false;
   this->status_clear_warning();
   ESP_LOGI(TAG, "MQTT Connected!");
   // MQTT Client needs some time to be fully set up.
   delay(100);
-
-  if (!this->birth_message_.topic.empty())
-    this->publish(this->birth_message_);
 
   this->resubscribe_subscriptions_();
 
@@ -251,7 +253,7 @@ void MQTTClientComponent::loop() {
         reason_s = "Unknown";
         break;
     }
-    if (!global_wifi_component->is_connected()) {
+    if (!network_is_connected()) {
       reason_s = "WiFi disconnected";
     }
     ESP_LOGW(TAG, "MQTT Disconnected: %s.", reason_s);
@@ -278,6 +280,10 @@ void MQTTClientComponent::loop() {
         ESP_LOGW(TAG, "Lost MQTT Client connection!");
         this->start_dnslookup();
       } else {
+        if (!this->birth_message_.topic.empty() && !this->sent_birth_message_) {
+          this->sent_birth_message_ = this->publish(this->birth_message_);
+        }
+
         this->last_connected_ = now;
         this->resubscribe_subscriptions_();
       }
@@ -285,7 +291,7 @@ void MQTTClientComponent::loop() {
   }
 
   if (millis() - this->last_connected_ > this->reboot_timeout_ && this->reboot_timeout_ != 0) {
-    ESP_LOGE(TAG, "    Can't connect to MQTT... Restarting...");
+    ESP_LOGE(TAG, "Can't connect to MQTT... Restarting...");
     reboot("mqtt");
   }
 }
@@ -525,9 +531,11 @@ const std::string &MQTTClientComponent::get_topic_prefix() const {
 }
 void MQTTClientComponent::disable_birth_message() {
   this->birth_message_.topic = "";
+  this->recalculate_availability();
 }
 void MQTTClientComponent::disable_shutdown_message() {
   this->shutdown_message_.topic = "";
+  this->recalculate_availability();
 }
 bool MQTTClientComponent::is_discovery_enabled() const {
   return !this->discovery_info_.prefix.empty();
@@ -562,9 +570,10 @@ void MQTTClientComponent::set_shutdown_message(MQTTMessage &&message) {
   this->shutdown_message_ = std::move(message);
 }
 
-void MQTTClientComponent::set_discovery_info(std::string &&prefix, bool retain) {
+void MQTTClientComponent::set_discovery_info(std::string &&prefix, bool retain, bool clean) {
   this->discovery_info_.prefix = std::move(prefix);
   this->discovery_info_.retain = retain;
+  this->discovery_info_.clean = clean;
 }
 
 void MQTTClientComponent::disable_last_will() {
@@ -623,7 +632,8 @@ float MQTTMessageTrigger::get_setup_priority() const {
   return setup_priority::MQTT_CLIENT;
 }
 
-
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
+
+#endif //USE_MQTT

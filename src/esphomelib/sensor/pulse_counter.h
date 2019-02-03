@@ -59,7 +59,7 @@ class PulseCounterBase {
  * It offers 8 pulse counter units that can be setup in several ways to count pulses on a pin.
  * Also allows for some simple filtering of short pulses using set_filter(), any pulse shorter than
  * the value provided to that function will be discarded. The time is given in APB clock cycles,
- * which usually amount to 12.5 ns per clock. Defaults to the max possible (about 13 ms).
+ * which usually amount to 12.5 ns per clock. Defaults to the max possible (about 13 µs).
  * See https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/peripherals/pcnt.html for more information.
  *
  * The pulse counter defaults to reporting a value of the measurement unit "pulses/min". To
@@ -75,7 +75,7 @@ class PulseCounterSensorComponent : public PollingSensorComponent, public PulseC
    * @param pin The pin.
    * @param update_interval The update interval in ms.
    */
-  explicit PulseCounterSensorComponent(const std::string &name, GPIOPin *pin, uint32_t update_interval = 15000);
+  explicit PulseCounterSensorComponent(const std::string &name, GPIOPin *pin, uint32_t update_interval = 60000);
 
   /// Set the PulseCounterCountMode for the rising and falling edges. can be disable, increment and decrement.
   void set_edge_mode(PulseCounterCountMode rising_edge_mode, PulseCounterCountMode falling_edge_mode);

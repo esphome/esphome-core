@@ -7,6 +7,7 @@
 
 #include "esphomelib/power_supply_component.h"
 #include "esphomelib/light/light_state.h"
+#include "esphomelib/light/addressable_light.h"
 #include "esphomelib/helpers.h"
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
@@ -33,33 +34,25 @@ namespace light {
  * with this component you cannot pass in the CRGB array and offset values as you would be
  * able to do with FastLED as the component manage the lights itself.
  */
-class FastLEDLightOutputComponent : public LightOutput, public Component {
+class FastLEDLightOutputComponent : public Component, public AddressableLight {
  public:
-  /// Only for custom effects: Tell this component to write the new color values on the next loop() iteration.
   void schedule_show();
 
   /// Only for custom effects: Get the internal controller.
   CLEDController *get_controller() const;
 
-  CRGB *leds() const;
-  int size() const;
-  CRGB &operator [](int index) const;
-  CRGB *begin();
-  CRGB *end();
-  uint8_t *effect_data() const;
+  inline int32_t size() const override;
+
+  inline ESPColorView operator[](int32_t index) const override;
 
   /// Set a maximum refresh rate in µs as some lights do not like being updated too often.
   void set_max_refresh_rate(uint32_t interval_us);
 
-  /// Only for custom effects: Prevent the LightState from writing over all color values in CRGB.
-  void prevent_writing_leds();
-
-  /// Only for custom effects: Stop prevent_writing_leds. Call this when your effect terminates.
-  void unprevent_writing_leds();
-
   void set_power_supply(PowerSupplyComponent *power_supply);
 
   void set_correction(float red, float green, float blue);
+
+  void setup_state(LightState *state) override;
 
   /// Add some LEDS, can only be called once.
   CLEDController &add_leds(CLEDController *controller, int num_leds);
@@ -338,10 +331,12 @@ class FastLEDLightOutputComponent : public LightOutput, public Component {
   void loop() override;
   float get_setup_priority() const override;
 
+  void clear_effect_data() override;
+
  protected:
   CLEDController *controller_{nullptr};
   CRGB *leds_{nullptr};
-  CRGB correction_{UncorrectedColor};
+  ESPColorCorrection correction_{};
   uint8_t *effect_data_{nullptr};
   int num_leds_{0};
   uint32_t last_refresh_{0};

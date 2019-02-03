@@ -1,6 +1,6 @@
 #include "esphomelib/defines.h"
 
-#ifdef USE_FAN
+#ifdef USE_MQTT_FAN
 
 #include "esphomelib/fan/mqtt_fan_component.h"
 #include "esphomelib/log.h"
@@ -169,4 +169,4 @@ bool MQTTFanComponent::publish_state() {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_FAN
+#endif //USE_MQTT_FAN

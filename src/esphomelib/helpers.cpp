@@ -68,6 +68,24 @@ float random_float() {
   return float(random_double());
 }
 
+static uint32_t fast_random_seed = 0;
+
+void fast_random_set_seed(uint32_t seed) {
+  fast_random_seed = seed;
+}
+uint32_t fast_random_32() {
+  fast_random_seed = (fast_random_seed * 2654435769ULL) + 40503ULL;
+  return fast_random_seed;
+}
+uint16_t fast_random_16() {
+  uint32_t rand32 = fast_random_32();
+  return (rand32 & 0xFFFF) + (rand32 >> 16);
+}
+uint8_t fast_random_8() {
+  uint8_t rand32 = fast_random_32();
+  return (rand32 & 0xFF) + ((rand32 >> 8) & 0xFF);
+}
+
 float gamma_correct(float value, float gamma) {
   if (value <= 0.0f)
     return 0.0f;
@@ -381,6 +399,9 @@ std::string build_json(const json_build_t &f) {
 std::string to_string(std::string val) {
   return val;
 }
+std::string to_string(String val) {
+  return val.c_str();
+}
 std::string to_string(int val) {
   char buf[64];
   sprintf(buf, "%d", val);
@@ -425,6 +446,13 @@ std::string to_string(long double val) {
   char buf[64];
   sprintf(buf, "%Lf", val);
   return buf;
+}
+optional<float> parse_float(const std::string &str) {
+  char *end;
+  float value = ::strtof(str.c_str(), &end);
+  if (end == nullptr)
+    return {};
+  return value;
 }
 
 template<uint32_t>

@@ -22,17 +22,17 @@ void TemplateCover::loop() {
   auto s = (*this->f_)();
   if (!s.has_value())
     return;
-  if (this->last_state_.has_value() && *this->last_state_ == *s)
-    return;
 
   this->publish_state(*s);
-  this->last_state_ = *s;
 }
 void TemplateCover::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
 }
-bool TemplateCover::optimistic() {
-  return this->optimistic_;
+void TemplateCover::set_assumed_state(bool assumed_state) {
+  this->assumed_state_ = assumed_state;
+}
+bool TemplateCover::assumed_state() {
+  return this->assumed_state_;
 }
 void TemplateCover::set_state_lambda(std::function<optional<CoverState>()> &&f) {
   this->f_ = f;
@@ -50,20 +50,26 @@ Trigger<NoArg> *TemplateCover::get_stop_trigger() const {
   return this->stop_trigger_;
 }
 void TemplateCover::write_command(CoverCommand command) {
+  if (this->prev_trigger_ != nullptr) {
+    this->prev_trigger_->stop();
+  }
   switch (command) {
     case COVER_COMMAND_OPEN: {
+      this->prev_trigger_ = this->open_trigger_;
+      this->open_trigger_->trigger();
       if (this->optimistic_)
         this->publish_state(COVER_OPEN);
-      this->open_trigger_->trigger();
       break;
     }
     case COVER_COMMAND_CLOSE: {
+      this->prev_trigger_ = this->close_trigger_;
+      this->close_trigger_->trigger();
       if (this->optimistic_)
         this->publish_state(COVER_CLOSED);
-      this->close_trigger_->trigger();
       break;
     }
     case COVER_COMMAND_STOP: {
+      this->prev_trigger_ = this->stop_trigger_;
       this->stop_trigger_->trigger();
       break;
     }

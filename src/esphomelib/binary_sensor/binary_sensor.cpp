@@ -4,7 +4,6 @@
 
 #include "esphomelib/binary_sensor/binary_sensor.h"
 #include "esphomelib/log.h"
-#include "binary_sensor.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -17,18 +16,30 @@ void BinarySensor::add_on_state_callback(std::function<void(bool)> &&callback) {
 }
 
 void BinarySensor::publish_state(bool state) {
+  if (!this->publish_dedup_.next(state))
+    return;
   if (this->filter_list_ == nullptr) {
-    this->send_state_internal_(state);
+    this->send_state_internal_(state, false);
   } else {
-    this->filter_list_->input(state);
+    this->filter_list_->input(state, false);
   }
-
 }
-void BinarySensor::send_state_internal_(bool state) {
+void BinarySensor::publish_initial_state(bool state) {
+  if (!this->publish_dedup_.next(state))
+    return;
+  if (this->filter_list_ == nullptr) {
+    this->send_state_internal_(state, true);
+  } else {
+    this->filter_list_->input(state, true);
+  }
+}
+void BinarySensor::send_state_internal_(bool state, bool is_initial) {
   ESP_LOGD(TAG, "'%s': Sending state %s", this->get_name().c_str(), state ? "ON" : "OFF");
   this->has_state_ = true;
   this->state = state;
-  this->state_callback_.call(state);
+  if (!is_initial) {
+    this->state_callback_.call(state);
+  }
 }
 std::string BinarySensor::device_class() {
   return "";
@@ -147,6 +158,14 @@ StateTrigger *BinarySensor::make_state_trigger() {
 bool BinarySensor::is_status_binary_sensor() const {
   return false;
 }
+#ifdef USE_MQTT_BINARY_SENSOR
+MQTTBinarySensorComponent *BinarySensor::get_mqtt() const {
+  return this->mqtt_;
+}
+void BinarySensor::set_mqtt(MQTTBinarySensorComponent *mqtt) {
+  this->mqtt_ = mqtt;
+}
+#endif
 
 MultiClickTrigger::MultiClickTrigger(BinarySensor *parent, const std::vector<MultiClickTriggerEvent> &timing)
     : parent_(parent), timing_(timing) {

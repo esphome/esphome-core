@@ -41,7 +41,7 @@ class SamsungReceiver : public RemoteReceiver {
 
 class SamsungDumper : public RemoteReceiveDumper {
  public:
-  void dump(RemoteReceiveData *data) override;
+  bool dump(RemoteReceiveData *data) override;
 };
 #endif
 

@@ -1,6 +1,10 @@
 #ifndef ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H
 #define ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H
 
+#include "esphomelib/defines.h"
+
+#ifdef USE_MQTT
+
 #include <string>
 #include <functional>
 #include <vector>
@@ -11,7 +15,6 @@
 #include "esphomelib/helpers.h"
 #include "esphomelib/automation.h"
 #include "esphomelib/log.h"
-#include "esphomelib/defines.h"
 #include "lwip/ip_addr.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -74,6 +77,7 @@ class MQTTPublishJsonAction;
 struct MQTTDiscoveryInfo {
   std::string prefix; ///< The Home Assistant discovery prefix. Empty means disabled.
   bool retain; ///< Whether to retain discovery messages.
+  bool clean;
 };
 
 enum MQTTClientState {
@@ -111,7 +115,7 @@ class MQTTClientComponent : public Component {
    * @param prefix The Home Assistant discovery prefix.
    * @param retain Whether to retain discovery messages.
    */
-  void set_discovery_info(std::string &&prefix, bool retain);
+  void set_discovery_info(std::string &&prefix, bool retain, bool clean = false);
   /// Get Home Assistant discovery info.
   const MQTTDiscoveryInfo &get_discovery_info() const;
   /// Globally disable Home Assistant discovery.
@@ -256,6 +260,7 @@ class MQTTClientComponent : public Component {
   /// The birth message (e.g. the message that's send on an established connection.
   /// See last_will_ for what different values denote.
   MQTTMessage birth_message_;
+  bool sent_birth_message_{false};
   MQTTMessage shutdown_message_;
   /// Caches availability.
   Availability availability_{};
@@ -263,7 +268,8 @@ class MQTTClientComponent : public Component {
   /// default and empty prefix means disabled.
   MQTTDiscoveryInfo discovery_info_{
       .prefix = "homeassistant",
-      .retain = true
+      .retain = true,
+      .clean = false,
   };
   std::string topic_prefix_{};
   MQTTMessage log_message_;
@@ -435,5 +441,7 @@ MQTTPublishAction<T> *MQTTClientComponent::make_publish_action() {
 } // namespace mqtt
 
 ESPHOMELIB_NAMESPACE_END
+
+#endif //USE_MQTT
 
 #endif //ESPHOMELIB_MQTT_MQTT_CLIENT_COMPONENT_H

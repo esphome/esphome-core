@@ -3,7 +3,7 @@
 
 #include "esphomelib/defines.h"
 
-#ifdef USE_SWITCH
+#ifdef USE_MQTT_SWITCH
 
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/mqtt/mqtt_component.h"
@@ -46,6 +46,6 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
 
 ESPHOMELIB_NAMESPACE_END
 
-#endif //USE_SWITCH
+#endif //USE_MQTT_SWITCH
 
 #endif //ESPHOMELIB_SWITCH_MQTT_SWITCH_COMPONENT_H
