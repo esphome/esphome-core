@@ -45,7 +45,7 @@ void MQTTSwitchComponent::setup() {
   });
 }
 void MQTTSwitchComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "MQTT switch '%s': ", this->switch_->get_name().c_str());
+  ESP_LOGCONFIG(TAG, "MQTT Switch '%s': ", this->switch_->get_name().c_str());
   LOG_MQTT_COMPONENT(true, true);
 }
 

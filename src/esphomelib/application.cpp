@@ -53,7 +53,6 @@ static const char *TAG = "application";
 
 void Application::setup() {
   ESP_LOGI(TAG, "Running through setup()...");
-  assert(this->application_state_ == COMPONENT_STATE_CONSTRUCTION && "setup() called twice.");
   ESP_LOGV(TAG, "Sorting components by setup priority...");
   std::stable_sort(this->components_.begin(), this->components_.end(), [](const Component *a, const Component *b) {
     return a->get_actual_setup_priority() > b->get_actual_setup_priority();
@@ -109,8 +108,6 @@ void Application::schedule_dump_config() {
 }
 
 void HOT Application::loop() {
-  assert(this->application_state_ >= COMPONENT_STATE_SETUP && "Did you forget to call setup()?");
-
   bool first_loop = this->application_state_ == COMPONENT_STATE_SETUP;
   if (first_loop) {
     ESP_LOGI(TAG, "Running through first loop()");
@@ -202,7 +199,6 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address,
 
 LogComponent *Application::init_log(uint32_t baud_rate,
                                     size_t tx_buffer_size) {
-  assert(global_log_component == nullptr && "Log already set up!");
   auto *log = new LogComponent(baud_rate, tx_buffer_size);
   log->pre_setup();
   return this->register_component(log);
@@ -235,6 +231,7 @@ GPIOBinarySensorComponent *Application::make_gpio_binary_sensor(const std::strin
                                                                 const std::string &device_class) {
   auto *comp = this->register_component(new GPIOBinarySensorComponent(friendly_name, pin.copy()));
   comp->set_device_class(device_class);
+  this->register_binary_sensor(comp);
   return comp;
 }
 #endif
@@ -610,7 +607,6 @@ DeepSleepComponent *Application::make_deep_sleep_component() {
 #endif
 
 WiFiComponent *Application::init_wifi() {
-  assert(this->wifi_ == nullptr && "WiFi already setup!");
   auto *wifi = new WiFiComponent();
   wifi->set_hostname(sanitize_hostname(this->name_));
   this->wifi_ = wifi;
@@ -819,7 +815,9 @@ sensor::MAX6675Sensor *Application::make_max6675_sensor(const std::string &name,
 
 #ifdef USE_TEMPLATE_BINARY_SENSOR
 binary_sensor::TemplateBinarySensor *Application::make_template_binary_sensor(const std::string &name) {
-  return this->register_component(new TemplateBinarySensor(name));
+  auto *template_ = this->register_component(new TemplateBinarySensor(name));
+  this->register_binary_sensor(template_);
+  return template_;
 }
 #endif
 

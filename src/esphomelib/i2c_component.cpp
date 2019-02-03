@@ -37,13 +37,17 @@ void I2CComponent::set_frequency(uint32_t frequency) {
 
 void I2CComponent::setup() {
   this->wire_->begin(this->sda_pin_, this->scl_pin_);
-  this->wire_->setClock(this->frequency_);
+  if (this->frequency_.has_value()) {
+    this->wire_->setClock(*this->frequency_);
+  }
 }
 void I2CComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "I2C Bus:");
   ESP_LOGCONFIG(TAG, "  SDA Pin: GPIO%u", this->sda_pin_);
   ESP_LOGCONFIG(TAG, "  SCL Pin: GPIO%u", this->scl_pin_);
-  ESP_LOGCONFIG(TAG, "  Frequency: %u Hz", this->frequency_);
+  if (this->frequency_.has_value()) {
+    ESP_LOGCONFIG(TAG, "  Frequency: %u Hz", *this->frequency_);
+  }
   if (this->scan_) {
     ESP_LOGI(TAG, "Scanning i2c bus for active devices...");
     uint8_t found = 0;

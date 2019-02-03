@@ -996,7 +996,6 @@ class Application {
   struct MakeFastLEDLight {
     light::FastLEDLightOutputComponent *fast_led;
     light::LightState *state;
-    light::MQTTJSONLightComponent *mqtt;
   };
 
   /// Create an FastLED light.
