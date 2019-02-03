@@ -658,19 +658,17 @@ sensor::BH1750Sensor *Application::make_bh1750_sensor(const std::string &name,
 #endif
 
 #ifdef USE_TX20
-Application::MakeTX20Sensor Application::make_tx20_sensor(const std::string &wind_speed_name, 
-                                                          const std::string &wind_direction_degree,
-                                                          const GPIOInputPin &pin) {
+sensor::TX20Component *Application::make_tx20_sensor(const std::string &wind_speed_name, 
+                                                     const std::string &wind_direction_degree,
+                                                     const GPIOInputPin &pin) {
   auto *tx20 = this->register_component(
       new TX20Component(wind_speed_name, wind_direction_degree,
                         pin.copy())
   );
+  this->register_sensor(tx20->get_wind_speed_sensor());
+  this->register_sensor(tx20->get_wind_direction_degrees_sensor());
 
-  return {
-      .tx20 = tx20,
-      .mqtt_wind_speed = this->register_sensor(tx20->get_wind_speed_sensor()),
-      .mqtt_wind_direction_degree = this->register_sensor(tx20->get_wind_direction_degrees_sensor()),
-  };
+  return tx20;
 }
 #endif
 
