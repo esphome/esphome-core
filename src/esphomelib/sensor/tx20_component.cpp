@@ -140,8 +140,9 @@ void TX20Component::decode_and_publish_() {
 
   uint8_t chk = (tx20_sb + (tx20_sc & 0xf) + ((tx20_sc >> 4) & 0xf) + ((tx20_sc >> 8) & 0xf));
   chk &= 0xf;
-
-  if ((chk == tx20_sd)) { 
+  // checksum alone is not good enough - the check for 40 m/s is still needed in order
+  // to avoid incorrect values
+  if ((chk == tx20_sd) && (tx20_sc < 400)) {  
     tx20_wind_speed_kmh = float(tx20_sc) * 0.36;
     tx20_wind_direction = tx20_sb;
     if (tx20_wind_direction >= 0 && tx20_wind_direction < 16) {
