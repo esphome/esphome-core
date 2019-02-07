@@ -92,6 +92,9 @@ void network_setup_mdns(const std::string &hostname) {
   }
 #endif
 }
+void network_tick_mdns() {
+  MDNS.update();
+}
 
 IPAddress network_get_address() {
 #ifdef USE_ETHERNET

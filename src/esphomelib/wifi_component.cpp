@@ -106,6 +106,8 @@ void WiFiComponent::loop() {
       }
     }
   }
+
+  network_tick_mdns();
 }
 
 WiFiComponent::WiFiComponent() {
@@ -468,6 +470,9 @@ bool WiFiComponent::wifi_mode_(optional<bool> sta, optional<bool> ap) {
     ESP_LOGV(TAG, "Enabling STA.");
   } else if (!sta_ && current_sta) {
     ESP_LOGV(TAG, "Disabling STA.");
+    // Stop DHCP client when disabling STA
+    // See https://github.com/esp8266/Arduino/pull/5703
+    wifi_station_dhcpc_stop();
   }
   if (ap_ && !current_ap) {
     ESP_LOGV(TAG, "Enabling AP.");
@@ -607,6 +612,13 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
   } else {
     conf.bssid_set = 0;
   }
+
+  if (ap.get_ssid().empty()) {
+    conf.threshold.authmode = AUTH_OPEN;
+  } else {
+    conf.threshold.authmode = AUTH_WPA_PSK;
+  }
+  conf.threshold.rssi = -127;
 
   ETS_UART_INTR_DISABLE();
   bool ret = wifi_station_set_config_current(&conf);
