@@ -31,6 +31,7 @@
 #include "esphomelib/binary_sensor/esp32_touch_binary_sensor.h"
 #include "esphomelib/binary_sensor/filter.h"
 #include "esphomelib/binary_sensor/gpio_binary_sensor_component.h"
+#include "esphomelib/binary_sensor/homeassistant_binary_sensor.h"
 #include "esphomelib/binary_sensor/mqtt_binary_sensor_component.h"
 #include "esphomelib/binary_sensor/pn532_component.h"
 #include "esphomelib/binary_sensor/rdm6300.h"
@@ -796,6 +797,10 @@ class Application {
 
 #ifdef USE_HOMEASSISTANT_SENSOR
   sensor::HomeassistantSensor *make_homeassistant_sensor(const std::string &name, std::string entity_id);
+#endif
+
+#ifdef USE_HOMEASSISTANT_BINARY_SENSOR
+  binary_sensor::HomeassistantBinarySensor *make_homeassistant_binary_sensor(const std::string &name, std::string entity_id);
 #endif
 
 #ifdef USE_CSE7766
