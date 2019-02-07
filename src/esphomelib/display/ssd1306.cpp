@@ -327,15 +327,16 @@ void I2CSSD1306::command(uint8_t value) {
 }
 void HOT I2CSSD1306::write_display_data() {
   if (this->is_sh1106_()) {
+	uint32_t i = 0;
     for (uint8_t page = 0; page < this->get_height_internal_() / 8; page++) {
       this->command(0xB0 + page); // row
       this->command(0x02); // lower column
       this->command(0x10); // higher column
 
-      for (uint8_t x = 0; x < this->get_width_internal_();) {
+      for (uint8_t x = 0; x < this->get_width_internal_() / 16; x++) {
         uint8_t data[16];
         for (uint8_t &j : data)
-          j = this->buffer_[x++];
+          j = this->buffer_[i++];
         this->write_bytes(0x40, data, sizeof(data));
       }
     }
