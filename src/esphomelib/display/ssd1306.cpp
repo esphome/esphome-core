@@ -327,7 +327,7 @@ void I2CSSD1306::command(uint8_t value) {
 }
 void HOT I2CSSD1306::write_display_data() {
   if (this->is_sh1106_()) {
-	uint32_t i = 0;
+    uint32_t i = 0;
     for (uint8_t page = 0; page < this->get_height_internal_() / 8; page++) {
       this->command(0xB0 + page); // row
       this->command(0x02); // lower column
