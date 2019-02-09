@@ -22,10 +22,12 @@ TX20Component::TX20Component(const std::string &wind_speed_name, const std::stri
       wind_speed_sensor_(new TX20WindSpeedSensor(wind_speed_name)),
       wind_direction_degrees_sensor_(new TX20WindDirectionDegreesSensor(wind_direction_degrees_name)),
       pin_(pin) {
+
 }
 
 void TX20Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up TX20...");
+  TX20Component::buffer_ = new uint16_t[MAX_BUFFER_SIZE];
   this->pin_->setup();
   attachInterrupt(this->pin_->get_pin(), TX20Component::pin_change_, CHANGE);
 }
@@ -56,12 +58,7 @@ void ICACHE_RAM_ATTR TX20Component::pin_change_() {
     buffer_index_++;
     return;
   }
-  uint16_t delay = 0;
-  if (now < start_time_) {
-    delay = (UINT32_MAX - start_time_ + now);
-  } else {
-    delay = (now - start_time_);
-  }
+  uint32_t delay = now - start_time_;
 
   if (tx20_available_ || ((spent_time_ + delay > TX20_MAX_TIME) && start_time_)) {
     tx20_available_ = true;
@@ -146,7 +143,7 @@ void TX20Component::decode_and_publish_() {
     tx20_wind_speed_kmh = float(tx20_sc) * 0.36;
     tx20_wind_direction = tx20_sb;
     if (tx20_wind_direction >= 0 && tx20_wind_direction < 16) {
-      wind_cardinal_direction_ = DIRECTIONS[tx20_wind_direction];
+      this->wind_cardinal_direction_ = DIRECTIONS[tx20_wind_direction];
     }
 
     ESP_LOGV(TAG, "WindSpeed %f, WindDirection %d, WindDirection Text %s", tx20_wind_speed_kmh, tx20_wind_direction,
@@ -160,7 +157,6 @@ void TX20Component::decode_and_publish_() {
   }
 }
 
-uint16_t *TX20Component::buffer_ = new uint16_t[MAX_BUFFER_SIZE];
 uint32_t TX20Component::start_time_ = 0;
 uint8_t TX20Component::buffer_index_ = 0;
 uint32_t TX20Component::spent_time_ = 0;
