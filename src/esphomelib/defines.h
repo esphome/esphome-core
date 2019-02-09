@@ -268,10 +268,4 @@
   #endif
 #endif
 
-#ifdef USE_TX20
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-#endif
-
 #endif //ESPHOMELIB_DEFINES_H
