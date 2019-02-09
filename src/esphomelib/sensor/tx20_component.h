@@ -38,7 +38,6 @@ class TX20Component : public Component {
   GPIOPin *pin_;
   std::string wind_cardinal_direction_;
 
- private:
   static uint16_t *buffer_;
   static uint32_t start_time_;
   static uint8_t buffer_index_;
