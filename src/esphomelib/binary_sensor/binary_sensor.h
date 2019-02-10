@@ -134,6 +134,7 @@ class BinarySensor : public Nameable {
   optional<std::string> device_class_{}; ///< Stores the override of the device class
   Filter *filter_list_{nullptr};
   bool has_state_{false};
+  Deduplicator<bool> publish_dedup_;
 
 #ifdef USE_MQTT_BINARY_SENSOR
   MQTTBinarySensorComponent *mqtt_{nullptr};

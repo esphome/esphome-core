@@ -32,12 +32,14 @@ class GPIOSwitch : public Switch, public Component {
 
   void setup() override;
   void dump_config() override;
+  void set_interlock(const std::vector<Switch *> &interlock);
 
  protected:
   void write_state(bool state) override;
 
   GPIOPin *const pin_;
   GPIOSwitchRestoreMode restore_mode_{GPIO_SWITCH_RESTORE_DEFAULT_OFF};
+  std::vector<Switch *> interlock_;
 };
 
 } // namespace switch_

@@ -77,8 +77,8 @@ optional<bool> PMSX003Component::check_byte_() {
     return true;
   }
 
-  // start (16bit) + length (16bit) + DATA (16bit) + checksum (16bit)
-  uint8_t total_size = 4 + payload_length * 2 + 2;
+  // start (16bit) + length (16bit) + DATA (payload_length-2 bytes) + checksum (16bit)
+  uint8_t total_size = 4 + payload_length;
 
   if (index < total_size - 1)
     return true;

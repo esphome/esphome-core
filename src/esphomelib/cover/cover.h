@@ -87,8 +87,9 @@ class Cover : public Nameable {
 
   uint32_t hash_base_() override;
 
-  bool has_state_{false};
   CallbackManager<void(CoverState)> state_callback_{};
+  Deduplicator<CoverState> dedup_;
+
 #ifdef USE_MQTT_COVER
   MQTTCoverComponent *mqtt_{nullptr};
 #endif

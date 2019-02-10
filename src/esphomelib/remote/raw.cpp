@@ -17,13 +17,20 @@ static const char *TAG = "remote.raw";
 
 #ifdef USE_REMOTE_TRANSMITTER
 void RawTransmitter::to_data(RemoteTransmitData *data) {
-  data->set_data(this->data_);
+  data->reserve(this->len_);
+  for (size_t i = 0; i < this->len_; i++) {
+    auto val = this->data_[i];
+    if (val < 0)
+      data->space(static_cast<uint32_t>(-val));
+    else
+      data->mark(static_cast<uint32_t>(val));
+  }
   data->set_carrier_frequency(this->carrier_frequency_);
 }
 RawTransmitter::RawTransmitter(const std::string &name,
-                               std::vector<int32_t> data,
+                               const int32_t *data, size_t len,
                                uint32_t carrier_frequency)
-    : RemoteTransmitter(name), data_(std::move(data)), carrier_frequency_(carrier_frequency) {
+    : RemoteTransmitter(name), data_(data), len_(len), carrier_frequency_(carrier_frequency) {
 
 }
 #endif
@@ -70,7 +77,8 @@ bool RawDumper::secondary_() {
   return true;
 }
 bool RawReceiver::matches(RemoteReceiveData *data) {
-  for (int32_t val : this->data_) {
+  for (size_t i = 0; i < this->len_; i++) {
+    auto val = this->data_[i];
     if (val < 0) {
       if (!data->expect_space(static_cast<uint32_t>(-val)))
         return false;
@@ -82,8 +90,10 @@ bool RawReceiver::matches(RemoteReceiveData *data) {
   return true;
 }
 
-RawReceiver::RawReceiver(const std::string &name, std::vector<int32_t> data)
-    : RemoteReceiver(name), data_(std::move(data)) {}
+RawReceiver::RawReceiver(const std::string &name, const int32_t *data, size_t len)
+    : RemoteReceiver(name), data_(data), len_(len) {
+
+}
 #endif
 
 } // namespace remote

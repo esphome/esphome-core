@@ -26,6 +26,7 @@ class Filter {
 
   Filter *next_{nullptr};
   BinarySensor *parent_{nullptr};
+  Deduplicator<bool> dedup_;
 };
 
 class DelayedOnFilter : public Filter, public Component {
@@ -38,7 +39,6 @@ class DelayedOnFilter : public Filter, public Component {
 
  protected:
   uint32_t delay_;
-  optional<bool> last_out_{};
 };
 
 class DelayedOffFilter : public Filter, public Component {
@@ -51,22 +51,6 @@ class DelayedOffFilter : public Filter, public Component {
 
  protected:
   uint32_t delay_;
-  optional<bool> last_out_{};
-};
-
-class HeartbeatFilter : public Filter, public Component {
- public:
-  explicit HeartbeatFilter(uint32_t interval);
-
-  optional<bool> new_value(bool value, bool is_initial) override;
-
-  void setup();
-
-  float get_setup_priority() const override;
-
- protected:
-  uint32_t interval_;
-  optional<bool> value_{};
 };
 
 class InvertFilter : public Filter {

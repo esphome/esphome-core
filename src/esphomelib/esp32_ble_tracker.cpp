@@ -163,12 +163,9 @@ void ESP32BLETracker::start_scan(bool first) {
   }
 
   ESP_LOGD(TAG, "Starting scan...");
-  if (!first) {
-    // also O(N^2), but will only be called once every minute or so
-    for (auto *device : this->presence_sensors_) {
-      if (!this->has_already_discovered_(device->address_))
-        device->publish_state(false);
-    }
+  for (auto *device : this->presence_sensors_) {
+    if (!this->has_already_discovered_(device->address_))
+      device->publish_state(false);
   }
   this->already_discovered_.clear();
 

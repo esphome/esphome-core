@@ -50,7 +50,6 @@ void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscover
     root["rgb"] = true;
   if (this->state_->get_traits().has_color_temperature())
     root["color_temp"] = true;
-  root["flash"] = true;
   if (this->state_->get_traits().has_rgb_white_value())
     root["white_value"] = true;
   if (this->state_->supports_effects()) {

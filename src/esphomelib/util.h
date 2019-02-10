@@ -17,6 +17,7 @@ IPAddress network_get_address();
 void network_setup();
 void network_tick();
 void network_setup_mdns(const std::string &hostname);
+void network_tick_mdns();
 
 ESPHOMELIB_NAMESPACE_END
 

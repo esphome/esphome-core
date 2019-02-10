@@ -36,7 +36,6 @@ class TemplateSwitch : public Switch, public Component {
 
   optional<std::function<optional<bool>()>> f_;
   bool optimistic_{false};
-  optional<bool> last_state_{};
   bool assumed_state_{false};
   Trigger<NoArg> *turn_on_trigger_;
   Trigger<NoArg> *turn_off_trigger_;
