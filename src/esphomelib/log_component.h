@@ -17,6 +17,22 @@
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
+/** Enum for logging UART selection
+ *
+ * Advanced configuration (pin selection, etc) is not supported.
+ */
+enum UARTSelection {
+  ESPHOMELIB_UART0 = 0,
+  ESPHOMELIB_UART1,
+#ifdef ARDUINO_ARCH_ESP32
+  ESPHOMELIB_UART2
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  ESPHOMELIB_UART0_SWAP
+#endif
+};
+
+
 /** A simple component that enables logging to Serial via the ESP_LOG* macros.
  *
  * This component should optimally be setup very early because only after its setup log messages are actually sent.
@@ -29,13 +45,16 @@ class LogComponent : public Component {
    * @param baud_rate The baud_rate for the serial interface. 0 to disable UART logging.
    * @param tx_buffer_size The buffer size (in bytes) used for constructing log messages.
    */
-  explicit LogComponent(uint32_t baud_rate = 11520, size_t tx_buffer_size = 512);
+  explicit LogComponent(uint32_t baud_rate = 115200, size_t tx_buffer_size = 512, UARTSelection uart = ESPHOMELIB_UART0);
 
   /// Manually set the baud rate for serial, set to 0 to disable.
   void set_baud_rate(uint32_t baud_rate);
 
   /// Set the buffer size that's used for constructing log messages. Log messages longer than this will be truncated.
   void set_tx_buffer_size(size_t tx_buffer_size);
+
+  /// Get the UART used by the logger.
+  UARTSelection get_uart() const;
 
   /// Set the global log level. Note: Use the ESPHOMELIB_LOG_LEVEL define to also remove the logs from the build.
   void set_global_log_level(int log_level);
@@ -68,6 +87,8 @@ class LogComponent : public Component {
  protected:
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
+  UARTSelection uart_{ESPHOMELIB_UART0};
+  HardwareSerial *hw_serial_{nullptr};
   int global_log_level_{ESPHOMELIB_LOG_LEVEL};
   struct LogLevelOverride {
     std::string tag;

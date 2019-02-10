@@ -162,10 +162,12 @@ class Application {
    *
    * @param baud_rate The serial baud rate. Set to 0 to disable UART debugging.
    * @param tx_buffer_size The size of the printf buffer.
+   * @param hw_serial The hardware serial UART used for logging.
    * @return The created and initialized LogComponent.
    */
   LogComponent *init_log(uint32_t baud_rate = 115200,
-                         size_t tx_buffer_size = 512);
+                         size_t tx_buffer_size = 512,
+                         UARTSelection uart = ESPHOMELIB_UART0);
 
   /** Initialize the WiFi engine in client mode.
    *
