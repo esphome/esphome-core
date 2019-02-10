@@ -36,7 +36,7 @@ void EthernetComponent::setup() {
 
   this->start_connect_();
 
-  network_setup_mdns(this->hostname_);
+  network_setup_mdns();
 }
 void EthernetComponent::loop() {
   const uint32_t now = millis();
@@ -258,7 +258,7 @@ void EthernetComponent::set_clk_mode(eth_clock_mode_t clk_mode) {
 void EthernetComponent::set_manual_ip(ManualIP manual_ip) {
   this->manual_ip_ = manual_ip;
 }
-const std::string &EthernetComponent::get_use_address() const {
+std::string EthernetComponent::get_use_address() const {
   if (this->use_address_.empty()) {
     return get_app_name() + ".local";
   }
