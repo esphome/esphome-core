@@ -92,6 +92,11 @@ void network_setup_mdns(const std::string &hostname) {
   }
 #endif
 }
+void network_tick_mdns() {
+#ifdef ARDUINO_ARCH_ESP8266
+  MDNS.update();
+#endif
+}
 
 IPAddress network_get_address() {
 #ifdef USE_ETHERNET
