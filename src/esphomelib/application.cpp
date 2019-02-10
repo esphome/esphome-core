@@ -1172,6 +1172,15 @@ sensor::HomeassistantSensor *Application::make_homeassistant_sensor(const std::s
 }
 #endif
 
+#ifdef USE_HOMEASSISTANT_BINARY_SENSOR
+binary_sensor::HomeassistantBinarySensor *Application::make_homeassistant_binary_sensor(
+    const std::string &name, std::string entity_id) {
+  auto *sensor = this->register_component(new HomeassistantBinarySensor(name, std::move(entity_id)));
+  this->register_binary_sensor(sensor);
+  return sensor;
+}
+#endif
+
 #ifdef USE_TEMPLATE_TEXT_SENSOR
 text_sensor::TemplateTextSensor *Application::make_template_text_sensor(const std::string &name,
                                                                            uint32_t update_interval) {
