@@ -133,7 +133,7 @@ class I2CComponent : public Component {
   uint8_t sda_pin_;
   uint8_t scl_pin_;
   bool scan_;
-  optional<uint32_t> frequency_{};
+  uint32_t frequency_{50000};
 };
 
 #ifdef ARDUINO_ARCH_ESP32
