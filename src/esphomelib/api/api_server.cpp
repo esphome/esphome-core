@@ -206,6 +206,14 @@ uint16_t APIServer::get_port() const {
 void APIServer::set_reboot_timeout(uint32_t reboot_timeout) {
   this->reboot_timeout_ = reboot_timeout;
 }
+#ifdef USE_HOMEASSISTANT_TIME
+void APIServer::request_time() {
+  for (auto *client : this->clients_) {
+    if (!client->remove_ && client->connection_state_ == APIConnection::ConnectionState::CONNECTED)
+      client->send_time_request();
+  }
+}
+#endif
 
 // APIConnection
 APIConnection::APIConnection(AsyncClient *client, APIServer *parent)
@@ -523,7 +531,7 @@ void APIConnection::on_connect_request_(const ConnectRequest &req) {
 
 #ifdef USE_HOMEASSISTANT_TIME
     if (time::global_homeassistant_time != nullptr) {
-      this->send_empty_message(APIMessageType::GET_TIME_REQUEST);
+      this->send_time_request();
     }
 #endif
   }
@@ -997,6 +1005,11 @@ APIBuffer APIConnection::get_buffer() {
   this->send_buffer_.clear();
   return APIBuffer(&this->send_buffer_);
 }
+#ifdef USE_HOMEASSISTANT_TIME
+void APIConnection::send_time_request() {
+  this->send_empty_message(APIMessageType::GET_TIME_REQUEST);
+}
+#endif
 
 } // namespace api
 

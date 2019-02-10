@@ -3,6 +3,7 @@
 #ifdef USE_HOMEASSISTANT_TIME
 
 #include "esphomelib/time/homeassistant_time.h"
+#include "esphomelib/api/api_server.h"
 #include "esphomelib/log.h"
 #include "lwip/opt.h"
 #ifdef ARDUINO_ARCH_ESP8266
@@ -37,6 +38,11 @@ float HomeAssistantTime::get_setup_priority() const {
 }
 void HomeAssistantTime::setup() {
   global_homeassistant_time = this;
+
+  this->set_interval(15 * 60 * 1000, [this]() {
+    // re-request time every 15 minutes
+    api::global_api_server->request_time();
+  });
 }
 
 HomeAssistantTime *global_homeassistant_time = nullptr;
