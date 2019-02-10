@@ -223,18 +223,6 @@ SensorRawStateTrigger::SensorRawStateTrigger(Sensor *parent) {
 ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) : parent_(parent) {
 
 }
-void ValueRangeTrigger::set_min(std::function<float(float)> &&min) {
-  this->min_ = std::move(min);
-}
-void ValueRangeTrigger::set_min(float min) {
-  this->min_ = min;
-}
-void ValueRangeTrigger::set_max(std::function<float(float)> &&max) {
-  this->max_ = std::move(max);
-}
-void ValueRangeTrigger::set_max(float max) {
-  this->max_ = max;
-}
 void ValueRangeTrigger::on_state_(float state) {
   if (isnan(state))
     return;

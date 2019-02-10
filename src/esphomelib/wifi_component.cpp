@@ -106,6 +106,8 @@ void WiFiComponent::loop() {
       }
     }
   }
+
+  network_tick_mdns();
 }
 
 WiFiComponent::WiFiComponent() {
@@ -239,9 +241,9 @@ void print_signal_bars(int8_t rssi, char *buf) {
 
 void WiFiComponent::print_connect_params_() {
   uint8_t *bssid = WiFi.BSSID();
-  ESP_LOGCONFIG(TAG, "  SSID: '%s'", WiFi.SSID().c_str());
+  ESP_LOGCONFIG(TAG, "  SSID: " LOG_SECRET("'%s'"), WiFi.SSID().c_str());
   ESP_LOGCONFIG(TAG, "  IP Address: %s", WiFi.localIP().toString().c_str());
-  ESP_LOGCONFIG(TAG, "  BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
+  ESP_LOGCONFIG(TAG, "  BSSID: " LOG_SECRET("%02X:%02X:%02X:%02X:%02X:%02X"),
                 bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
   ESP_LOGCONFIG(TAG, "  Hostname: '%s'", get_app_name().c_str());
   char signal_bars[50];
@@ -305,11 +307,12 @@ void WiFiComponent::check_scanning_finished() {
     print_signal_bars(res.get_rssi(), signal_bars);
 
     if (res.get_matches()) {
-      ESP_LOGI(TAG, "- '%s' (%s) %s", res.get_ssid().c_str(), bssid_s, signal_bars);
+      ESP_LOGI(TAG, "- '%s' " LOG_SECRET("(%s) ") "%s", res.get_ssid().c_str(), bssid_s, signal_bars);
       ESP_LOGD(TAG, "    Channel: %u", res.get_channel());
       ESP_LOGD(TAG, "    RSSI: %d dB", res.get_rssi());
     } else {
-      ESP_LOGD(TAG, "- '%s' (%s) %s", res.get_ssid().c_str(), bssid_s, signal_bars);
+      ESP_LOGD(TAG, "- " LOG_SECRET("'%s'") " " LOG_SECRET("(%s) ") "%s",
+          res.get_ssid().c_str(), bssid_s, signal_bars);
     }
   }
 
@@ -469,6 +472,9 @@ bool WiFiComponent::wifi_mode_(optional<bool> sta, optional<bool> ap) {
     ESP_LOGV(TAG, "Enabling STA.");
   } else if (!sta_ && current_sta) {
     ESP_LOGV(TAG, "Disabling STA.");
+    // Stop DHCP client when disabling STA
+    // See https://github.com/esp8266/Arduino/pull/5703
+    wifi_station_dhcpc_stop();
   }
   if (ap_ && !current_ap) {
     ESP_LOGV(TAG, "Enabling AP.");
@@ -605,6 +611,13 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
   } else {
     conf.bssid_set = 0;
   }
+
+  if (ap.get_ssid().empty()) {
+    conf.threshold.authmode = AUTH_OPEN;
+  } else {
+    conf.threshold.authmode = AUTH_WPA_PSK;
+  }
+  conf.threshold.rssi = -127;
 
   ETS_UART_INTR_DISABLE();
   bool ret = wifi_station_set_config_current(&conf);
@@ -1209,7 +1222,7 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
       char buf[33];
       memcpy(buf, it.ssid, it.ssid_len);
       buf[it.ssid_len] = '\0';
-      ESP_LOGV(TAG, "Event: Connected ssid='%s' bssid=%s channel=%u, authmode=%s",
+      ESP_LOGV(TAG, "Event: Connected ssid='%s' bssid=" LOG_SECRET("%s") " channel=%u, authmode=%s",
                buf, format_mac_addr(it.bssid).c_str(), it.channel, get_auth_mode_str(it.authmode));
       break;
     }
@@ -1218,7 +1231,7 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
       char buf[33];
       memcpy(buf, it.ssid, it.ssid_len);
       buf[it.ssid_len] = '\0';
-      ESP_LOGW(TAG, "Event: Disconnected ssid='%s' bssid=%s reason=%s",
+      ESP_LOGW(TAG, "Event: Disconnected ssid='%s' bssid=" LOG_SECRET("%s") " reason=%s",
                buf, format_mac_addr(it.bssid).c_str(), get_disconnect_reason_str(it.reason));
       break;
     }

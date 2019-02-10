@@ -316,14 +316,14 @@ class MQTTPublishAction : public Action<T> {
  public:
   MQTTPublishAction();
 
-  void set_topic(std::function<std::string(T)> topic);
-  void set_topic(std::string topic);
-  void set_payload(std::function<std::string(T)> payload);
-  void set_payload(std::string payload);
-  void set_qos(std::function<uint8_t (T)> qos);
-  void set_qos(uint8_t  qos);
-  void set_retain(std::function<bool(T)> retain);
-  void set_retain(bool retain);
+  template<typename V>
+  void set_topic(V topic) { this->topic_ = topic; }
+  template<typename V>
+  void set_payload(V payload) { this->payload_ = payload; }
+  template<typename V>
+  void set_qos(V qos) { this->qos_ = qos; }
+  template<typename V>
+  void set_retain(V retain) { this->retain_ = retain; }
 
   void play(T x) override;
 
@@ -339,8 +339,8 @@ class MQTTPublishJsonAction : public Action<T> {
  public:
   MQTTPublishJsonAction();
 
-  void set_topic(std::function<std::string(T)> topic);
-  void set_topic(std::string topic);
+  template<typename V>
+  void set_topic(V topic) { this->topic_ = topic; }
   void set_payload(std::function<void(T, JsonObject &)> payload);
   void set_qos(uint8_t qos);
   void set_retain(bool retain);
@@ -355,14 +355,6 @@ class MQTTPublishJsonAction : public Action<T> {
 
 // =============== TEMPLATE DEFINITIONS ===============
 
-template<typename T>
-void MQTTPublishJsonAction<T>::set_topic(std::function<std::string(T)> topic) {
-  this->topic_ = std::move(topic);
-}
-template<typename T>
-void MQTTPublishJsonAction<T>::set_topic(std::string topic) {
-  this->topic_ = topic;
-}
 template<typename T>
 void MQTTPublishJsonAction<T>::set_payload(std::function<void(T, JsonObject &)> payload) {
   this->payload_ = std::move(payload);
@@ -399,39 +391,6 @@ void MQTTPublishAction<T>::play(T x) {
 }
 template<typename T>
 MQTTPublishAction<T>::MQTTPublishAction() = default;
-
-template<typename T>
-void MQTTPublishAction<T>::set_topic(std::function<std::string(T)> topic) {
-  this->topic_ = std::move(topic);
-}
-template<typename T>
-void MQTTPublishAction<T>::set_topic(std::string topic) {
-  this->topic_ = topic;
-}
-template<typename T>
-void MQTTPublishAction<T>::set_payload(std::function<std::string(T)> payload) {
-  this->payload_ = std::move(payload);
-}
-template<typename T>
-void MQTTPublishAction<T>::set_payload(std::string payload) {
-  this->payload_ = payload;
-}
-template<typename T>
-void MQTTPublishAction<T>::set_qos(std::function<uint8_t(T)> qos) {
-  this->qos_ = std::move(qos);
-}
-template<typename T>
-void MQTTPublishAction<T>::set_qos(uint8_t qos) {
-  this->qos_ = qos;
-}
-template<typename T>
-void MQTTPublishAction<T>::set_retain(std::function<bool(T)> retain) {
-  this->retain_ = std::move(retain);
-}
-template<typename T>
-void MQTTPublishAction<T>::set_retain(bool retain) {
-  this->retain_ = retain;
-}
 
 template<typename T>
 MQTTPublishAction<T> *MQTTClientComponent::make_publish_action() {

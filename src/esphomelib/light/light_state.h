@@ -255,8 +255,8 @@ class ToggleAction : public Action<T> {
  public:
   explicit ToggleAction(LightState *state);
 
-  void set_transition_length(std::function<uint32_t(T)> transition_length);
-  void set_transition_length(uint32_t transition_length);
+  template<typename V>
+  void set_transition_length(V value) { this->transition_length_ = value; }
 
   void play(T x) override;
 
@@ -270,8 +270,8 @@ class TurnOffAction : public Action<T> {
  public:
   explicit TurnOffAction(LightState *state);
 
-  void set_transition_length(std::function<uint32_t(T)> transition_length);
-  void set_transition_length(uint32_t transition_length);
+  template<typename V>
+  void set_transition_length(V value) { this->transition_length_ = value; }
 
   void play(T x) override;
 
@@ -285,24 +285,24 @@ class TurnOnAction : public Action<T> {
  public:
   explicit TurnOnAction(LightState *state) : state_(state) {}
 
-  void set_transition_length(std::function<uint32_t(T)> &&transition_length);
-  void set_transition_length(uint32_t transition_length);
-  void set_flash_length(std::function<uint32_t(T)> &&flash_length);
-  void set_flash_length(uint32_t flash_length);
-  void set_brightness(std::function<float(T)> &&brightness);
-  void set_brightness(float brightness);
-  void set_red(std::function<float(T)> &&red);
-  void set_red(float red);
-  void set_green(std::function<float(T)> &&green);
-  void set_green(float green);
-  void set_blue(std::function<float(T)> &&blue);
-  void set_blue(float blue);
-  void set_white(std::function<float(T)> &&white);
-  void set_white(float white);
-  void set_color_temperature(std::function<float(T)> &&color_temperature);
-  void set_color_temperature(float color_temperature);
-  void set_effect(std::function<std::string(T)> &&effect);
-  void set_effect(std::string effect);
+  template<typename V>
+  void set_transition_length(V value) { this->transition_length_ = value; }
+  template<typename V>
+  void set_flash_length(V value) { this->flash_length_ = value; }
+  template<typename V>
+  void set_brightness(V value) { this->brightness_ = value; }
+  template<typename V>
+  void set_red(V value) { this->red_ = value; }
+  template<typename V>
+  void set_green(V value) { this->green_ = value; }
+  template<typename V>
+  void set_blue(V value) { this->blue_ = value; }
+  template<typename V>
+  void set_white(V value) { this->white_ = value; }
+  template<typename V>
+  void set_color_temperature(V value) { this->color_temperature_ = value; }
+  template<typename V>
+  void set_effect(V value) { this->effect_ = value; }
 
   void play(T x) override;
 
@@ -346,14 +346,6 @@ void ToggleAction<T>::play(T x) {
   this->play_next(x);
 }
 template<typename T>
-void ToggleAction<T>::set_transition_length(std::function<uint32_t(T)> transition_length) {
-  this->transition_length_ = std::move(transition_length);
-}
-template<typename T>
-void ToggleAction<T>::set_transition_length(uint32_t transition_length) {
-  this->transition_length_ = transition_length;
-}
-template<typename T>
 TurnOffAction<T>::TurnOffAction(LightState *state) : state_(state) {}
 template<typename T>
 void TurnOffAction<T>::play(T x) {
@@ -363,14 +355,6 @@ void TurnOffAction<T>::play(T x) {
   }
   call.perform();
   this->play_next(x);
-}
-template<typename T>
-void TurnOffAction<T>::set_transition_length(std::function<uint32_t(T)> transition_length) {
-  this->transition_length_ = std::move(transition_length);
-}
-template<typename T>
-void TurnOffAction<T>::set_transition_length(uint32_t transition_length) {
-  this->transition_length_ = transition_length;
 }
 template<typename T>
 void TurnOnAction<T>::play(T x) {
@@ -404,78 +388,6 @@ void TurnOnAction<T>::play(T x) {
   }
   call.perform();
   this->play_next(x);
-}
-template<typename T>
-void TurnOnAction<T>::set_transition_length(std::function<uint32_t(T)> &&transition_length) {
-  this->transition_length_ = std::move(transition_length);
-}
-template<typename T>
-void TurnOnAction<T>::set_transition_length(uint32_t transition_length) {
-  this->transition_length_ = transition_length;
-}
-template<typename T>
-void TurnOnAction<T>::set_flash_length(std::function<uint32_t(T)> &&flash_length) {
-  this->flash_length_ = std::move(flash_length);
-}
-template<typename T>
-void TurnOnAction<T>::set_flash_length(uint32_t flash_length) {
-  this->flash_length_ = flash_length;
-}
-template<typename T>
-void TurnOnAction<T>::set_brightness(std::function<float(T)> &&brightness) {
-  this->brightness_ = std::move(brightness);
-}
-template<typename T>
-void TurnOnAction<T>::set_brightness(float brightness) {
-  this->brightness_ = brightness;
-}
-template<typename T>
-void TurnOnAction<T>::set_red(std::function<float(T)> &&red) {
-  this->red_ = std::move(red);
-}
-template<typename T>
-void TurnOnAction<T>::set_red(float red) {
-  this->red_ = red;
-}
-template<typename T>
-void TurnOnAction<T>::set_green(std::function<float(T)> &&green) {
-  this->green_ = std::move(green);
-}
-template<typename T>
-void TurnOnAction<T>::set_green(float green) {
-  this->green_ = green;
-}
-template<typename T>
-void TurnOnAction<T>::set_blue(std::function<float(T)> &&blue) {
-  this->blue_ = std::move(blue);
-}
-template<typename T>
-void TurnOnAction<T>::set_blue(float blue) {
-  this->blue_ = blue;
-}
-template<typename T>
-void TurnOnAction<T>::set_white(std::function<float(T)> &&white) {
-  this->white_ = std::move(white);
-}
-template<typename T>
-void TurnOnAction<T>::set_white(float white) {
-  this->white_ = white;
-}
-template<typename T>
-void TurnOnAction<T>::set_color_temperature(std::function<float(T)> &&color_temperature) {
-  this->color_temperature_ = std::move(color_temperature);
-}
-template<typename T>
-void TurnOnAction<T>::set_color_temperature(float color_temperature) {
-  this->color_temperature_ = color_temperature;
-}
-template<typename T>
-void TurnOnAction<T>::set_effect(std::function<std::string(T)> &&effect) {
-  this->effect_ = std::move(effect);
-}
-template<typename T>
-void TurnOnAction<T>::set_effect(std::string effect) {
-  this->effect_ = effect;
 }
 
 } // namespace light

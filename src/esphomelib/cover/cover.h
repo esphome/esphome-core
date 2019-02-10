@@ -30,6 +30,8 @@ template<typename T>
 class CloseAction;
 template<typename T>
 class StopAction;
+template<typename T>
+class CoverPublishAction;
 
 #define LOG_COVER(prefix, type, obj) \
     if (obj != nullptr) { \
@@ -61,6 +63,8 @@ class Cover : public Nameable {
   CloseAction<T> *make_close_action();
   template<typename T>
   StopAction<T> *make_stop_action();
+  template<typename T>
+  CoverPublishAction<T> *make_cover_publish_action();
 
   /** Return whether this cover is optimistic - i.e. if both the OPEN/CLOSE actions should be displayed in
    * Home Assistant because the real state is unknown.
@@ -124,6 +128,18 @@ class StopAction : public Action<T> {
   Cover *cover_;
 };
 
+template<typename T>
+class CoverPublishAction : public Action<T> {
+ public:
+  CoverPublishAction(Cover *cover);
+  template<typename V>
+  void set_state(V value) { this->state_ = value; }
+  void play(T x) override;
+ protected:
+  Cover *cover_;
+  TemplatableValue<CoverState, T> state_;
+};
+
 // =============== TEMPLATE DEFINITIONS ===============
 
 template<typename T>
@@ -172,6 +188,19 @@ CloseAction<T> *Cover::make_close_action() {
 template<typename T>
 StopAction<T> *Cover::make_stop_action() {
   return new StopAction<T>(this);
+}
+
+template<typename T>
+CoverPublishAction<T>::CoverPublishAction(Cover *cover) : cover_(cover) {}
+template<typename T>
+void CoverPublishAction<T>::play(T x) {
+  auto val = this->state_.value(x);
+  this->cover_->publish_state(val);
+  this->play_next(x);
+}
+template<typename T>
+CoverPublishAction<T> *Cover::make_cover_publish_action() {
+  return new CoverPublishAction<T>(this);
 }
 
 } // namespace cover

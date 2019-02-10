@@ -62,6 +62,8 @@ void EthernetComponent::loop() {
   }
 
   this->last_connected_ = this->connected_;
+
+  network_tick_mdns();
 }
 void EthernetComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Ethernet:");

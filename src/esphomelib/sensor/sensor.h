@@ -23,6 +23,8 @@ class SensorRawStateTrigger;
 class ValueRangeTrigger;
 template<typename T>
 class SensorInRangeCondition;
+template<typename T>
+class SensorPublishAction;
 
 #define LOG_SENSOR(prefix, type, obj) \
     if (obj != nullptr) { \
@@ -137,6 +139,9 @@ class Sensor : public Nameable {
   ValueRangeTrigger *make_value_range_trigger();
   template<typename T>
   SensorInRangeCondition<T> *make_sensor_in_range_condition();
+  template<typename T>
+  SensorPublishAction<T> *make_sensor_publish_action();
+
 
   union {
     /** This member variable stores the last state that has passed through all filters.
@@ -281,14 +286,26 @@ class SensorRawStateTrigger : public Trigger<float> {
   explicit SensorRawStateTrigger(Sensor *parent);
 };
 
+template<typename T>
+class SensorPublishAction : public Action<T> {
+ public:
+  SensorPublishAction(Sensor *sensor);
+  template<typename V>
+  void set_state(V state) { this->state_ = state; }
+  void play(T x) override;
+ protected:
+  Sensor *sensor_;
+  TemplatableValue<float, T> state_;
+};
+
 class ValueRangeTrigger : public Trigger<float>, public Component {
  public:
   explicit ValueRangeTrigger(Sensor *parent);
 
-  void set_min(std::function<float(float)> &&min);
-  void set_min(float min);
-  void set_max(std::function<float(float)> &&max);
-  void set_max(float max);
+  template<typename V>
+  void set_min(V min) { this->min_ = min; }
+  template<typename V>
+  void set_max(V max) { this->max_ = max; }
 
   void setup() override;
   float get_setup_priority() const override;
@@ -374,6 +391,17 @@ bool SensorInRangeCondition<T>::check(T x) {
   } else {
     return this->min_ <= state && state <= this->max_;
   }
+}
+template<typename T>
+SensorPublishAction<T>::SensorPublishAction(Sensor *sensor) : sensor_(sensor) {}
+template<typename T>
+void SensorPublishAction<T>::play(T x) {
+  this->sensor_->publish_state(this->state_.value(x));
+  this->play_next(x);
+}
+template<typename T>
+SensorPublishAction<T> *Sensor::make_sensor_publish_action() {
+  return new SensorPublishAction<T>(this);
 }
 
 } // namespace sensor

@@ -82,6 +82,11 @@ void network_setup_mdns() {
   }
 #endif
 }
+void network_tick_mdns() {
+#ifdef ARDUINO_ARCH_ESP8266
+  MDNS.update();
+#endif
+}
 
 std::string network_get_address() {
 #ifdef USE_ETHERNET

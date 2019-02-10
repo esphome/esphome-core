@@ -16,6 +16,7 @@ std::string network_get_address();
 void network_setup();
 void network_tick();
 void network_setup_mdns();
+void network_tick_mdns();
 
 std::string get_app_name();
 std::string get_app_compilation_time();
