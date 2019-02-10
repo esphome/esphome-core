@@ -177,8 +177,8 @@ void ESP32BLETracker::start_scan(bool first) {
   // default and works quite well. 0x100/0x50 discovers a few less BLE broadcast packets but is a lot
   // more stable (order of several hours). The old esphomelib default (1600/1600) was terrible with
   // crashes every few minutes
-  this->scan_params_.scan_interval = 0x100;
-  this->scan_params_.scan_window = 0x50;
+  this->scan_params_.scan_interval = 0x200;
+  this->scan_params_.scan_window = 0x30;
 
   esp_ble_gap_set_scan_params(&this->scan_params_);
   esp_ble_gap_start_scanning(this->scan_interval_);
