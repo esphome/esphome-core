@@ -238,9 +238,9 @@ void print_signal_bars(int8_t rssi, char *buf) {
 
 void WiFiComponent::print_connect_params_() {
   uint8_t *bssid = WiFi.BSSID();
-  ESP_LOGCONFIG(TAG, "  SSID: '%s'", WiFi.SSID().c_str());
+  ESP_LOGCONFIG(TAG, "  SSID: " LOG_SECRET("'%s'"), WiFi.SSID().c_str());
   ESP_LOGCONFIG(TAG, "  IP Address: %s", WiFi.localIP().toString().c_str());
-  ESP_LOGCONFIG(TAG, "  BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
+  ESP_LOGCONFIG(TAG, "  BSSID: " LOG_SECRET("%02X:%02X:%02X:%02X:%02X:%02X"),
                 bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
   if (!this->hostname_.empty()) {
     ESP_LOGCONFIG(TAG, "  Hostname: '%s'", this->hostname_.c_str());
@@ -306,11 +306,12 @@ void WiFiComponent::check_scanning_finished() {
     print_signal_bars(res.get_rssi(), signal_bars);
 
     if (res.get_matches()) {
-      ESP_LOGI(TAG, "- '%s' (%s) %s", res.get_ssid().c_str(), bssid_s, signal_bars);
+      ESP_LOGI(TAG, "- '%s' " LOG_SECRET("(%s) ") "%s", res.get_ssid().c_str(), bssid_s, signal_bars);
       ESP_LOGD(TAG, "    Channel: %u", res.get_channel());
       ESP_LOGD(TAG, "    RSSI: %d dB", res.get_rssi());
     } else {
-      ESP_LOGD(TAG, "- '%s' (%s) %s", res.get_ssid().c_str(), bssid_s, signal_bars);
+      ESP_LOGD(TAG, "- " LOG_SECRET("'%s'") " " LOG_SECRET("(%s) ") "%s",
+          res.get_ssid().c_str(), bssid_s, signal_bars);
     }
   }
 
@@ -1223,7 +1224,7 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
       char buf[33];
       memcpy(buf, it.ssid, it.ssid_len);
       buf[it.ssid_len] = '\0';
-      ESP_LOGV(TAG, "Event: Connected ssid='%s' bssid=%s channel=%u, authmode=%s",
+      ESP_LOGV(TAG, "Event: Connected ssid='%s' bssid=" LOG_SECRET("%s") " channel=%u, authmode=%s",
                buf, format_mac_addr(it.bssid).c_str(), it.channel, get_auth_mode_str(it.authmode));
       break;
     }
@@ -1232,7 +1233,7 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
       char buf[33];
       memcpy(buf, it.ssid, it.ssid_len);
       buf[it.ssid_len] = '\0';
-      ESP_LOGW(TAG, "Event: Disconnected ssid='%s' bssid=%s reason=%s",
+      ESP_LOGW(TAG, "Event: Disconnected ssid='%s' bssid=" LOG_SECRET("%s") " reason=%s",
                buf, format_mac_addr(it.bssid).c_str(), get_disconnect_reason_str(it.reason));
       break;
     }
