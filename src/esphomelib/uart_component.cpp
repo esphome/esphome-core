@@ -18,23 +18,9 @@ static const char *TAG = "uart";
 uint8_t next_uart_num = 1;
 #endif
 
-UARTComponent::UARTComponent(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate)
-    : tx_pin_(tx_pin), rx_pin_(rx_pin), baud_rate_(baud_rate) {
-#ifdef ARDUINO_ARCH_ESP32
-  if (this->rx_pin_ == 3 && this->tx_pin_ == 1) {
-    // Default UART for logging
-    this->hw_serial_ = &Serial;
-  } else {
-    this->hw_serial_ = new HardwareSerial(next_uart_num++);
-  }
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-  if (this->rx_pin_ == 3 && this->tx_pin_ == 1) {
-    this->hw_serial_ = &Serial;
-  } else {
-    this->sw_serial_ = new ESP8266SoftwareSerial();
-  }
-#endif
+UARTComponent::UARTComponent(uint32_t baud_rate)
+    : baud_rate_(baud_rate) {
+
 }
 
 float UARTComponent::get_setup_priority() const {
@@ -44,16 +30,26 @@ float UARTComponent::get_setup_priority() const {
 #ifdef ARDUINO_ARCH_ESP32
 void UARTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up UART...");
-  ESP_LOGCONFIG(TAG, "    TX Pin: %d", this->tx_pin_);
-  ESP_LOGCONFIG(TAG, "    RX Pin: %d", this->rx_pin_);
-  ESP_LOGCONFIG(TAG, "    Baud Rate: %u", this->baud_rate_);
-  this->hw_serial_->begin(this->baud_rate_, SERIAL_8N1, this->rx_pin_, this->tx_pin_);
+  if (this->tx_pin_.value_or(1) == 1 && this->rx_pin_.value_or(3) == 3) {
+    // use UART0 if all used pins match the ones on the UART bus
+    // for example if RX disabled but TX pin is 1 we still want to use Serial.
+    this->hw_serial_ = &Serial;
+  } else {
+    this->hw_serial_ = new HardwareSerial(next_uart_num++);
+  }
+  int8_t tx = this->tx_pin_.has_value() ? *this->tx_pin_ : -1;
+  int8_t rx = this->rx_pin_.has_value() ? *this->rx_pin_ : -1;
+  this->hw_serial_->begin(this->baud_rate_, SERIAL_8N1, rx, tx);
 }
 
 void UARTComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "UART Bus:");
-  ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", this->tx_pin_);
-  ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", this->rx_pin_);
+  if (this->tx_pin_.has_value()) {
+    ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", *this->tx_pin_);
+  }
+  if (this->rx_pin_.has_value()) {
+    ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", *this->rx_pin_);
+  }
   ESP_LOGCONFIG(TAG, "  Baud Rate: %u baud", this->baud_rate_);
 }
 
@@ -119,17 +115,27 @@ void UARTComponent::flush() {
 #ifdef ARDUINO_ARCH_ESP8266
 void UARTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up UART bus...");
-  if (this->hw_serial_ != nullptr) {
+  if (this->tx_pin_.value_or(1) == 1 && this->rx_pin_.value_or(3) == 3) {
+    // use UART0 if all used pins match the ones on the UART bus
+    // for example if RX disabled but TX pin is 1 we still want to use Serial.
+    this->hw_serial_ = &Serial;
     this->hw_serial_->begin(this->baud_rate_);
   } else {
-    this->sw_serial_->setup(this->tx_pin_, this->rx_pin_, this->baud_rate_);
+    this->sw_serial_ = new ESP8266SoftwareSerial();
+    int8_t tx = this->tx_pin_.has_value() ? *this->tx_pin_ : -1;
+    int8_t rx = this->rx_pin_.has_value() ? *this->rx_pin_ : -1;
+    this->sw_serial_->setup(tx, rx, this->baud_rate_);
   }
 }
 
 void UARTComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "UART Bus:");
-  ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", this->tx_pin_);
-  ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", this->rx_pin_);
+  if (this->tx_pin_.has_value()) {
+    ESP_LOGCONFIG(TAG, "  TX Pin: GPIO%d", *this->tx_pin_);
+  }
+  if (this->rx_pin_.has_value()) {
+    ESP_LOGCONFIG(TAG, "  RX Pin: GPIO%d", *this->rx_pin_);
+  }
   ESP_LOGCONFIG(TAG, "  Baud Rate: %u baud", this->baud_rate_);
   if (this->hw_serial_ != nullptr) {
     ESP_LOGCONFIG(TAG, "  Using hardware serial interface.");
@@ -353,6 +359,12 @@ int UARTComponent::peek() {
   if (!this->peek_byte(&data))
     return -1;
   return data;
+}
+void UARTComponent::set_tx_pin(uint8_t tx_pin) {
+  this->tx_pin_ = tx_pin;
+}
+void UARTComponent::set_rx_pin(uint8_t rx_pin) {
+  this->rx_pin_ = rx_pin;
 }
 
 void UARTDevice::write_byte(uint8_t data) {
