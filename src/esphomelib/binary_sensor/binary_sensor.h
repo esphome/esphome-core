@@ -255,7 +255,7 @@ void BinarySensorPublishAction<T>::set_state(bool value) {
 template<typename T>
 void BinarySensorPublishAction<T>::play(T x) {
   auto val = this->state_.value(x);
-  this->sensor_->publish_state(*val);
+  this->sensor_->publish_state(val);
   this->play_next(x);
 }
 template<typename T>

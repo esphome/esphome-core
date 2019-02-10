@@ -203,7 +203,7 @@ void CoverPublishAction<T>::set_state(CoverState value) {
 template<typename T>
 void CoverPublishAction<T>::play(T x) {
   auto val = this->state_.value(x);
-  this->cover_->publish_state(*val);
+  this->cover_->publish_state(val);
   this->play_next(x);
 }
 template<typename T>
