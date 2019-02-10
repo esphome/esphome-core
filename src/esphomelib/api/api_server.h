@@ -67,6 +67,9 @@ class APIConnection {
   bool send_disconnect_request(const char *reason);
   bool send_ping_request();
   void send_service_call(ServiceCallResponse &call);
+#ifdef USE_HOMEASSISTANT_TIME
+  void send_time_request();
+#endif
 
  protected:
   friend APIServer;
@@ -172,6 +175,9 @@ class APIServer : public Component, public StoringUpdateListenerController {
   void send_service_call(ServiceCallResponse &call);
   template<typename T>
   HomeAssistantServiceCallAction<T> *make_home_assistant_service_call_action();
+#ifdef USE_HOMEASSISTANT_TIME
+  void request_time();
+#endif
 
   struct HomeAssistantStateSubscription {
     std::string entity_id;
