@@ -81,7 +81,27 @@ void Switch::set_mqtt(MQTTSwitchComponent *mqtt) {
   this->mqtt_ = mqtt;
 }
 #endif
+SwitchTurnOnTrigger *Switch::make_switch_turn_on_trigger() {
+  return new SwitchTurnOnTrigger(this);
+}
+SwitchTurnOffTrigger *Switch::make_switch_turn_off_trigger() {
+  return new SwitchTurnOffTrigger(this);
+}
 
+SwitchTurnOnTrigger::SwitchTurnOnTrigger(Switch *switch_) {
+  switch_->add_on_state_callback([this](bool state) {
+    if (state) {
+      this->trigger();
+    }
+  });
+}
+SwitchTurnOffTrigger::SwitchTurnOffTrigger(Switch *switch_) {
+  switch_->add_on_state_callback([this](bool state) {
+    if (!state) {
+      this->trigger();
+    }
+  });
+}
 } // namespace switch_
 
 ESPHOMELIB_NAMESPACE_END

@@ -116,10 +116,10 @@ class TurnOnAction : public Action<T> {
  public:
   explicit TurnOnAction(FanState *state);
 
-  void set_oscillating(std::function<bool(T)> &&oscillating);
-  void set_oscillating(bool oscillating);
-  void set_speed(std::function<FanSpeed(T)> &&speed);
-  void set_speed(FanSpeed speed);
+  template<typename V>
+  void set_oscillating(V value) { this->oscillating_ = value; }
+  template<typename V>
+  void set_speed(V value) { this->speed_ = value; }
 
   void play(T x) override;
 
@@ -162,22 +162,6 @@ void ToggleAction<T>::play(T x) {
 template<typename T>
 TurnOnAction<T>::TurnOnAction(FanState *state) : state_(state) {
 
-}
-template<typename T>
-void TurnOnAction<T>::set_oscillating(std::function<bool(T)> &&oscillating) {
-  this->oscillating_ = std::move(oscillating);
-}
-template<typename T>
-void TurnOnAction<T>::set_oscillating(bool oscillating) {
-  this->oscillating_ = oscillating;
-}
-template<typename T>
-void TurnOnAction<T>::set_speed(std::function<FanSpeed(T)> &&speed) {
-  this->speed_ = std::move(speed);
-}
-template<typename T>
-void TurnOnAction<T>::set_speed(FanSpeed speed) {
-  this->speed_ = speed;
 }
 template<typename T>
 void TurnOnAction<T>::play(T x) {

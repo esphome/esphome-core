@@ -50,10 +50,10 @@ class RangeCondition : public Condition<float> {
   explicit RangeCondition();
   bool check(float x) override;
 
-  void set_min(std::function<float(float)> &&min);
-  void set_min(float min);
-  void set_max(std::function<float(float)> &&max);
-  void set_max(float max);
+  template<typename V>
+  void set_min(V value) { this->min_ = value; }
+  template<typename V>
+  void set_max(V value) { this->max_ = value; }
 
  protected:
   TemplatableValue<float, float> min_{NAN};
@@ -154,8 +154,8 @@ class DelayAction : public Action<T>, public Component {
  public:
   explicit DelayAction();
 
-  void set_delay(std::function<uint32_t(T)> &&delay);
-  void set_delay(uint32_t delay);
+  template<typename V>
+  void set_delay(V value) { this->delay_ = value; }
   void stop() override;
 
   void play(T x) override;
