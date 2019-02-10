@@ -4,7 +4,7 @@
 
 #include "esphomelib/text_sensor/version_text_sensor.h"
 #include "esphomelib/log.h"
-#include "esphomelib/application.h"
+#include "esphomelib/util.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -13,10 +13,10 @@ namespace text_sensor {
 static const char *TAG = "text_sensor.version";
 
 void VersionTextSensor::setup() {
-  if (App.get_compilation_time().empty()) {
+  if (get_app_compilation_time().empty()) {
     this->publish_state(ESPHOMELIB_VERSION);
   } else {
-    this->publish_state(ESPHOMELIB_VERSION " " + App.get_compilation_time());
+    this->publish_state(ESPHOMELIB_VERSION " " + get_app_compilation_time());
   }
 }
 float VersionTextSensor::get_setup_priority() const {

@@ -81,7 +81,7 @@ void APIServer::loop() {
 }
 void APIServer::dump_config() {
   ESP_LOGCONFIG(TAG, "API Server:");
-  ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().toString().c_str(), this->port_);
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().c_str(), this->port_);
 }
 bool APIServer::uses_password() const {
   return !this->password_.empty();
@@ -504,7 +504,7 @@ void APIConnection::on_hello_request_(const HelloRequest &req) {
   buffer.encode_uint32(2, 0);
 
   // string server_info = 3;
-  buffer.encode_string(3, App.get_name() + " (esphomelib v" ESPHOMELIB_VERSION ")");
+  buffer.encode_string(3, get_app_name() + " (esphomelib v" ESPHOMELIB_VERSION ")");
   bool success = this->send_buffer(APIMessageType::HELLO_RESPONSE);
   if (!success) {
     this->fatal_error_();
@@ -566,13 +566,13 @@ void APIConnection::on_device_info_request_(const DeviceInfoRequest &req) {
   // bool uses_password = 1;
   buffer.encode_bool(1, this->parent_->uses_password());
   // string name = 2;
-  buffer.encode_string(2, App.get_name());
+  buffer.encode_string(2, get_app_name());
   // string mac_address = 3;
   buffer.encode_string(3, get_mac_address_pretty());
   // string esphomelib_version = 4;
   buffer.encode_string(4, ESPHOMELIB_VERSION);
   // string compilation_time = 5;
-  buffer.encode_string(5, App.get_compilation_time());
+  buffer.encode_string(5, get_app_compilation_time());
 #ifdef ARDUINO_BOARD
   // string model = 6;
   buffer.encode_string(6, ARDUINO_BOARD);

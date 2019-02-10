@@ -158,7 +158,6 @@ WiFiComponent *Application::init_wifi(const std::string &ssid, const std::string
 #ifdef USE_ETHERNET
 EthernetComponent *Application::init_ethernet() {
   auto *eth = new EthernetComponent();
-  eth->set_hostname(sanitize_hostname(this->name_));
   return this->register_component(eth);
 }
 #endif
@@ -608,7 +607,6 @@ DeepSleepComponent *Application::make_deep_sleep_component() {
 
 WiFiComponent *Application::init_wifi() {
   auto *wifi = new WiFiComponent();
-  wifi->set_hostname(sanitize_hostname(this->name_));
   this->wifi_ = wifi;
   return this->register_component(wifi);
 }

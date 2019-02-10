@@ -5,7 +5,6 @@
 #include "esphomelib/mqtt/mqtt_client_component.h"
 
 #include "esphomelib/log.h"
-#include "esphomelib/application.h"
 #include "esphomelib/util.h"
 #include "esphomelib/log_component.h"
 #include "lwip/err.h"
@@ -27,7 +26,7 @@ MQTTClientComponent::MQTTClientComponent(const MQTTCredentials &credentials, con
 void MQTTClientComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MQTT...");
   if (this->credentials_.client_id.empty())
-    this->credentials_.client_id = generate_hostname(App.get_name());
+    this->credentials_.client_id = generate_hostname(get_app_name());
   this->mqtt_client_.onMessage([this](char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total){
     std::string payload_s(payload, len);
     std::string topic_s(topic);

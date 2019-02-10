@@ -3,6 +3,7 @@
 #include "esphomelib/wifi_component.h"
 #include "esphomelib/ethernet_component.h"
 #include "esphomelib/api/api_server.h"
+#include "esphomelib/application.h"
 
 #ifdef ARDUINO_ARCH_ESP32
   #include <ESPmDNS.h>
@@ -23,18 +24,6 @@ bool network_is_connected() {
     return global_wifi_component->is_connected();
 
   return false;
-}
-
-std::string network_get_hostname() {
-#ifdef USE_ETHERNET
-  if (global_eth_component != nullptr)
-    return global_eth_component->get_hostname();
-#endif
-
-  if (global_wifi_component != nullptr)
-    return global_wifi_component->get_hostname();
-
-  return "";
 }
 
 void network_setup() {
@@ -75,13 +64,14 @@ void network_tick() {
     global_wifi_component->loop_();
 }
 
-void network_setup_mdns(const std::string &hostname) {
-  MDNS.begin(hostname.c_str());
+void network_setup_mdns() {
+  MDNS.begin(get_app_name().c_str());
 #ifdef USE_API
   if (api::global_api_server != nullptr) {
     MDNS.addService("esphomelib", "tcp", api::global_api_server->get_port());
     // DNS-SD (!=mDNS !) requires at least one TXT record for service discovery - let's add version
     MDNS.addServiceTxt("esphomelib", "tcp", "version", ESPHOMELIB_VERSION);
+    MDNS.addServiceTxt("esphomelib", "tcp", "address", network_get_address().c_str());
   } else {
 #endif
     // Publish "http" service if not using native API.
@@ -98,15 +88,22 @@ void network_tick_mdns() {
 #endif
 }
 
-IPAddress network_get_address() {
+std::string network_get_address() {
 #ifdef USE_ETHERNET
   if (global_eth_component != nullptr)
-    return global_eth_component->get_ip_address();
+    return global_eth_component->get_use_address();
 #endif
   if (global_wifi_component != nullptr)
-    return global_wifi_component->get_ip_address();
-  return IPAddress();
+    return global_wifi_component->get_use_address();
+  return "";
 }
 
+std::string get_app_name() {
+  return App.get_name();
+}
+
+std::string get_app_compilation_time() {
+  return App.get_compilation_time();
+}
 
 ESPHOMELIB_NAMESPACE_END

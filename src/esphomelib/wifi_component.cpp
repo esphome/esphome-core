@@ -53,7 +53,7 @@ void WiFiComponent::setup() {
   }
 
   this->wifi_apply_hostname_();
-  network_setup_mdns(this->hostname_);
+  network_setup_mdns();
 }
 
 void WiFiComponent::loop() {
@@ -130,6 +130,15 @@ IPAddress WiFiComponent::get_ip_address() {
     return this->wifi_soft_ap_ip_();
   return IPAddress();
 }
+std::string WiFiComponent::get_use_address() const {
+  if (this->use_address_.empty()) {
+    return get_app_name() + ".local";
+  }
+  return this->use_address_;
+}
+void WiFiComponent::set_use_address(const std::string &use_address) {
+  this->use_address_ = use_address;
+}
 void WiFiComponent::setup_ap_config() {
   this->wifi_mode_({}, true);
 
@@ -154,12 +163,6 @@ void WiFiComponent::setup_ap_config() {
   }
 }
 
-void WiFiComponent::set_hostname(std::string &&hostname) {
-  this->hostname_ = std::move(hostname);
-}
-const std::string &WiFiComponent::get_hostname() {
-  return this->hostname_;
-}
 float WiFiComponent::get_loop_priority() const {
   return 10.0f; // before other loop components
 }
@@ -242,9 +245,7 @@ void WiFiComponent::print_connect_params_() {
   ESP_LOGCONFIG(TAG, "  IP Address: %s", WiFi.localIP().toString().c_str());
   ESP_LOGCONFIG(TAG, "  BSSID: " LOG_SECRET("%02X:%02X:%02X:%02X:%02X:%02X"),
                 bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-  if (!this->hostname_.empty()) {
-    ESP_LOGCONFIG(TAG, "  Hostname: '%s'", this->hostname_.c_str());
-  }
+  ESP_LOGCONFIG(TAG, "  Hostname: '%s'", get_app_name().c_str());
   char signal_bars[50];
   int8_t rssi = WiFi.RSSI();
   print_signal_bars(rssi, signal_bars);
@@ -583,10 +584,7 @@ IPAddress WiFiComponent::wifi_sta_ip_() {
   return IPAddress(ip.ip.addr);
 }
 bool WiFiComponent::wifi_apply_hostname_() {
-  if (this->hostname_.empty())
-    return true;
-
-  bool ret = wifi_station_set_hostname(const_cast<char *>(this->hostname_.c_str()));
+  bool ret = wifi_station_set_hostname(const_cast<char *>(get_app_name().c_str()));
   if (!ret) {
     ESP_LOGV(TAG, "Setting WiFi Hostname failed!");
   }
@@ -1090,7 +1088,7 @@ IPAddress WiFiComponent::wifi_sta_ip_() {
 }
 
 bool WiFiComponent::wifi_apply_hostname_() {
-  esp_err_t err = tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, this->hostname_.c_str());
+  esp_err_t err = tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, get_app_name().c_str());
   if (err != ESP_OK) {
     ESP_LOGV(TAG, "Setting hostname failed: %d", err);
     return false;
