@@ -10,7 +10,7 @@
 #include "esphomelib/mqtt/mqtt_client_component.h"
 #include "esphomelib/log.h"
 #include "esphomelib/helpers.h"
-#include "esphomelib/application.h"
+#include "esphomelib/util.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
 
@@ -25,7 +25,7 @@ void MQTTComponent::set_retain(bool retain) {
 }
 
 std::string MQTTComponent::get_discovery_topic(const MQTTDiscoveryInfo &discovery_info) const {
-  std::string sanitized_name = sanitize_string_whitelist(App.get_name(), HOSTNAME_CHARACTER_WHITELIST);
+  std::string sanitized_name = sanitize_string_whitelist(get_app_name(), HOSTNAME_CHARACTER_WHITELIST);
   return discovery_info.prefix + "/" + this->component_type() + "/" + sanitized_name + "/" +
       this->get_default_object_id() + "/config";
 }
@@ -100,7 +100,7 @@ bool MQTTComponent::send_discovery_() {
         root["payload_not_available"] = this->availability_->payload_not_available;
     }
 
-    const std::string &node_name = App.get_name();
+    const std::string &node_name = get_app_name();
     std::string unique_id = this->unique_id();
     if (!unique_id.empty()) {
       root["unique_id"] = unique_id;
@@ -113,10 +113,10 @@ bool MQTTComponent::send_discovery_() {
     JsonObject &device_info = root.createNestedObject("device");
     device_info["identifiers"] = get_mac_address();
     device_info["name"] = node_name;
-    if (App.get_compilation_time().empty()) {
+    if (get_app_compilation_time().empty()) {
       device_info["sw_version"] = "esphomelib v" ESPHOMELIB_VERSION;
     } else {
-      device_info["sw_version"] = "esphomelib v" ESPHOMELIB_VERSION " " + App.get_compilation_time();
+      device_info["sw_version"] = "esphomelib v" ESPHOMELIB_VERSION " " + get_app_compilation_time();
     }
 #ifdef ARDUINO_BOARD
     device_info["model"] = ARDUINO_BOARD;

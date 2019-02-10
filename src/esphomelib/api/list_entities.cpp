@@ -3,7 +3,7 @@
 #ifdef USE_API
 
 #include "esphomelib/api/list_entities.h"
-#include "esphomelib/application.h"
+#include "esphomelib/util.h"
 #include "esphomelib/log.h"
 
 ESPHOMELIB_NAMESPACE_BEGIN
@@ -11,7 +11,7 @@ ESPHOMELIB_NAMESPACE_BEGIN
 namespace api {
 
 std::string get_default_unique_id(const std::string &component_type, Nameable *nameable) {
-  return App.get_name() + component_type + nameable->get_object_id();
+  return get_app_name() + component_type + nameable->get_object_id();
 }
 
 #ifdef USE_BINARY_SENSOR

@@ -39,7 +39,7 @@ void OTAComponent::setup() {
   });
 #endif
 #else
-  ArduinoOTA.setHostname(network_get_hostname().c_str());
+  ArduinoOTA.setHostname(get_app_name().c_str());
   ArduinoOTA.setPort(this->port_);
   switch (this->auth_type_) {
     case PLAINTEXT: {
@@ -127,7 +127,7 @@ void OTAComponent::setup() {
 }
 void OTAComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Over-The-Air Updates:");
-  ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().toString().c_str(), this->port_);
+  ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().c_str(), this->port_);
   if (!this->password_.empty()) {
     ESP_LOGCONFIG(TAG, "  Using Password.");
   }

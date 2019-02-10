@@ -127,10 +127,6 @@ class WiFiComponent : public Component {
    */
   void set_ap(const WiFiAP &ap);
 
-  /// Set the advertised hostname, defaults to the App name.
-  void set_hostname(std::string &&hostname);
-  const std::string &get_hostname();
-
   void start_scanning();
   void check_scanning_finished();
   void start_connecting(const WiFiAP &ap, bool two);
@@ -178,6 +174,8 @@ class WiFiComponent : public Component {
   bool has_ap() const;
 
   IPAddress get_ip_address();
+  std::string get_use_address() const;
+  void set_use_address(const std::string &use_address);
 
  protected:
   void setup_ap_config();
@@ -208,8 +206,7 @@ class WiFiComponent : public Component {
   void wifi_scan_done_callback_();
 #endif
 
-  std::string hostname_;
-
+  std::string use_address_;
   std::vector<WiFiAP> sta_;
   WiFiAP selected_ap_;
   bool fast_connect_{false};

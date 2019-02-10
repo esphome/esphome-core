@@ -197,9 +197,7 @@ void EthernetComponent::start_connect_() {
 
   this->initialized_ = true;
 
-  if (!this->hostname_.empty()) {
-    tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_ETH, this->hostname_.c_str());
-  }
+  tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_ETH, get_app_name().c_str());
 
   this->connect_begin_ = millis();
   this->status_set_warning();
@@ -221,9 +219,7 @@ void EthernetComponent::dump_connect_params_() {
   tcpip_adapter_ip_info_t ip;
   tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_ETH, &ip);
   ESP_LOGCONFIG(TAG, "  IP Address: %s", IPAddress(ip.ip.addr).toString().c_str());
-  if (!this->hostname_.empty()) {
-    ESP_LOGCONFIG(TAG, "  Hostname: '%s'", this->hostname_.c_str());
-  }
+  ESP_LOGCONFIG(TAG, "  Hostname: '%s'", get_app_name().c_str());
   ESP_LOGCONFIG(TAG, "  Subnet: %s", IPAddress(ip.netmask.addr).toString().c_str());
   ESP_LOGCONFIG(TAG, "  Gateway: %s", IPAddress(ip.gw.addr).toString().c_str());
 
@@ -260,11 +256,14 @@ void EthernetComponent::set_clk_mode(eth_clock_mode_t clk_mode) {
 void EthernetComponent::set_manual_ip(ManualIP manual_ip) {
   this->manual_ip_ = manual_ip;
 }
-void EthernetComponent::set_hostname(const std::string &hostname) {
-  this->hostname_ = hostname;
+const std::string &EthernetComponent::get_use_address() const {
+  if (this->use_address_.empty()) {
+    return get_app_name() + ".local";
+  }
+  return this->use_address_;
 }
-const std::string &EthernetComponent::get_hostname() const {
-  return this->hostname_;
+void EthernetComponent::set_use_address(const std::string &use_address) {
+  this->use_address_ = use_address;
 }
 
 ESPHOMELIB_NAMESPACE_END

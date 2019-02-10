@@ -33,10 +33,10 @@ class EthernetComponent : public Component {
   void set_type(EthernetType type);
   void set_clk_mode(eth_clock_mode_t clk_mode);
   void set_manual_ip(ManualIP manual_ip);
-  void set_hostname(const std::string &hostname);
 
-  const std::string &get_hostname() const;
   IPAddress get_ip_address();
+  std::string get_use_address() const;
+  void set_use_address(const std::string &use_address);
 
  protected:
   void on_wifi_event_(system_event_id_t event, system_event_info_t info);
@@ -46,6 +46,7 @@ class EthernetComponent : public Component {
   static void eth_phy_config_gpio_();
   static void eth_phy_power_enable_(bool enable);
 
+  std::string use_address_;
   uint8_t phy_addr_{0};
   GPIOPin *power_pin_{nullptr};
   uint8_t mdc_pin_{23};
@@ -53,7 +54,6 @@ class EthernetComponent : public Component {
   EthernetType type_{ETHERNET_TYPE_LAN8720};
   eth_clock_mode_t clk_mode_{ETH_CLOCK_GPIO0_IN};
   optional<ManualIP> manual_ip_{};
-  std::string hostname_;
 
   bool initialized_{false};
   bool connected_{false};
