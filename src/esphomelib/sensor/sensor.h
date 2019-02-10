@@ -290,8 +290,8 @@ template<typename T>
 class SensorPublishAction : public Action<T> {
  public:
   SensorPublishAction(Sensor *sensor);
-  void set_state(std::function<float(T)> &&value);
-  void set_state(float value);
+  template<typename V>
+  void set_state(V state) { this->state_ = state; }
   void play(T x) override;
  protected:
   Sensor *sensor_;
@@ -302,10 +302,10 @@ class ValueRangeTrigger : public Trigger<float>, public Component {
  public:
   explicit ValueRangeTrigger(Sensor *parent);
 
-  void set_min(std::function<float(float)> &&min);
-  void set_min(float min);
-  void set_max(std::function<float(float)> &&max);
-  void set_max(float max);
+  template<typename V>
+  void set_min(V min) { this->min_ = min; }
+  template<typename V>
+  void set_max(V max) { this->max_ = max; }
 
   void setup() override;
   float get_setup_priority() const override;
@@ -394,14 +394,6 @@ bool SensorInRangeCondition<T>::check(T x) {
 }
 template<typename T>
 SensorPublishAction<T>::SensorPublishAction(Sensor *sensor) : sensor_(sensor) {}
-template<typename T>
-void SensorPublishAction<T>::set_state(std::function<float(T)> &&value) {
-  this->state_ = std::move(value);
-}
-template<typename T>
-void SensorPublishAction<T>::set_state(float value) {
-  this->state_ = value;
-}
 template<typename T>
 void SensorPublishAction<T>::play(T x) {
   this->sensor_->publish_state(this->state_.value(x));

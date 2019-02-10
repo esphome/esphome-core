@@ -69,18 +69,6 @@ bool RangeCondition::check(float x) {
     return min <= x && x <= max;
   }
 }
-void RangeCondition::set_min(std::function<float(float)> &&min) {
-  this->min_ = std::move(min);
-}
-void RangeCondition::set_min(float min) {
-  this->min_ = min;
-}
-void RangeCondition::set_max(std::function<float(float)> &&max) {
-  this->max_ = std::move(max);
-}
-void RangeCondition::set_max(float max) {
-  this->max_ = max;
-}
 
 void Script::execute() {
   this->trigger();

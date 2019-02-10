@@ -83,27 +83,19 @@ template<typename T>
 class TextSensorPublishAction : public Action<T> {
  public:
   TextSensorPublishAction(TextSensor *sensor);
-  void set_state(std::function<std::string(T)> &&value);
-  void set_state(std::string value);
+  template<typename V>
+  void set_state(V state) { this->state_ = state; }
   void play(T x) override;
  protected:
   TextSensor *sensor_;
-  TemplatableValue<std::string, T> value_;
+  TemplatableValue<std::string, T> state_;
 };
 
 template<typename T>
 TextSensorPublishAction<T>::TextSensorPublishAction(TextSensor *sensor) : sensor_(sensor) {}
 template<typename T>
-void TextSensorPublishAction<T>::set_state(std::function<std::string(T)> &&value) {
-  this->value_ = std::move(value);
-}
-template<typename T>
-void TextSensorPublishAction<T>::set_state(std::string value) {
-  this->value_ = value;
-}
-template<typename T>
 void TextSensorPublishAction<T>::play(T x) {
-  this->sensor_->publish_state(this->value_.value(x));
+  this->sensor_->publish_state(this->state_.value(x));
   this->play_next(x);
 }
 template<typename T>

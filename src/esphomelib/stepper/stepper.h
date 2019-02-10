@@ -57,8 +57,8 @@ class SetTargetAction : public Action<T> {
  public:
   explicit SetTargetAction(Stepper *parent);
 
-  void set_target(std::function<int32_t(T)> target);
-  void set_target(int32_t target);
+  template<typename V>
+  void set_target(V target) { this->target_ = target; }
 
   void play(T x) override;
 
@@ -72,23 +72,15 @@ class ReportPositionAction : public Action<T> {
  public:
   explicit ReportPositionAction(Stepper *parent);
 
-  void set_position(std::function<int32_t(T)> pos);
-  void set_position(int32_t pos);
+  template<typename V>
+  void set_position(V position) { this->position_ = position; }
 
   void play(T x) override;
 
  protected:
   Stepper *parent_;
-  TemplatableValue<int32_t, T> pos_;
+  TemplatableValue<int32_t, T> position_;
 };
-template<typename T>
-void ReportPositionAction<T>::set_position(std::function<int32_t(T)> pos) {
-  this->target_ = std::move(pos);
-}
-template<typename T>
-void ReportPositionAction<T>::set_position(int32_t pos) {
-  this->target_ = pos;
-}
 template<typename T>
 ReportPositionAction<T>::ReportPositionAction(Stepper *parent)
     : parent_(parent) {
@@ -96,7 +88,7 @@ ReportPositionAction<T>::ReportPositionAction(Stepper *parent)
 }
 template<typename T>
 void ReportPositionAction<T>::play(T x) {
-  this->parent_->report_position(this->pos_.value(x));
+  this->parent_->report_position(this->position_.value(x));
   this->play_next(x);
 }
 
@@ -107,14 +99,6 @@ SetTargetAction<T> *Stepper::make_set_target_action() {
 template<typename T>
 ReportPositionAction<T> *Stepper::make_report_position_action() {
   return new ReportPositionAction<T>(this);
-}
-template<typename T>
-void SetTargetAction<T>::set_target(std::function<int32_t(T)> target) {
-  this->target_ = std::move(target);
-}
-template<typename T>
-void SetTargetAction<T>::set_target(int32_t target) {
-  this->target_ = target;
 }
 template<typename T>
 SetTargetAction<T>::SetTargetAction(Stepper *parent)

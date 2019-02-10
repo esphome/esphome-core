@@ -68,8 +68,8 @@ class SetLevelAction : public Action<T> {
  public:
   SetLevelAction(FloatOutput *output);
 
-  void set_level(std::function<float(T)> &&level);
-  void set_level(float level);
+  template<typename V>
+  void set_level(V level) { this->level_ = level; }
   void play(T x) override;
 
  protected:
@@ -80,14 +80,6 @@ class SetLevelAction : public Action<T> {
 template<typename T>
 SetLevelAction<T>::SetLevelAction(FloatOutput *output) : output_(output) {}
 
-template<typename T>
-void SetLevelAction<T>::set_level(std::function<float(T)> &&level) {
-  this->level_ = std::move(level);
-}
-template<typename T>
-void SetLevelAction<T>::set_level(float level) {
-  this->level_ = level;
-}
 template<typename T>
 void SetLevelAction<T>::play(T x) {
   this->output_->set_level(this->level_.value(x));

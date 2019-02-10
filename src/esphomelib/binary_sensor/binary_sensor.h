@@ -217,8 +217,8 @@ template<typename T>
 class BinarySensorPublishAction : public Action<T> {
  public:
   BinarySensorPublishAction(BinarySensor *sensor);
-  void set_state(std::function<bool(T)> &&value);
-  void set_state(bool value);
+  template<typename V>
+  void set_state(V value) { this->state_ = value; }
   void play(T x) override;
  protected:
   BinarySensor *sensor_;
@@ -244,14 +244,6 @@ BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_off_condition() {
 }
 template<typename T>
 BinarySensorPublishAction<T>::BinarySensorPublishAction(BinarySensor *sensor) : sensor_(sensor) {}
-template<typename T>
-void BinarySensorPublishAction<T>::set_state(std::function<bool(T)> &&value) {
-  this->state_ = std::move(value);
-}
-template<typename T>
-void BinarySensorPublishAction<T>::set_state(bool value) {
-  this->state_ = value;
-}
 template<typename T>
 void BinarySensorPublishAction<T>::play(T x) {
   auto val = this->state_.value(x);

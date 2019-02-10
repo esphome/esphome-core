@@ -78,14 +78,6 @@ void DelayAction<T>::play(T x) {
   });
 }
 template<typename T>
-void DelayAction<T>::set_delay(std::function<uint32_t(T)> &&delay) {
-  this->delay_ = std::move(delay);
-}
-template<typename T>
-void DelayAction<T>::set_delay(uint32_t delay) {
-  this->delay_ = delay;
-}
-template<typename T>
 float DelayAction<T>::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
@@ -207,17 +199,17 @@ void IfAction<T>::play(T x) {
 }
 template<typename T>
 void IfAction<T>::add_then(const std::vector<Action<T> *> &actions) {
-this->then_.add_actions(actions);
-this->then_.add_action(new LambdaAction<T>([this](T x) {
-this->play_next(x);
-}));
+  this->then_.add_actions(actions);
+  this->then_.add_action(new LambdaAction<T>([this](T x) {
+    this->play_next(x);
+  }));
 }
 template<typename T>
 void IfAction<T>::add_else(const std::vector<Action<T> *> &actions) {
-this->else_.add_actions(actions);
-this->else_.add_action(new LambdaAction<T>([this](T x) {
-this->play_next(x);
-}));
+  this->else_.add_actions(actions);
+  this->else_.add_action(new LambdaAction<T>([this](T x) {
+    this->play_next(x);
+  }));
 }
 template<typename T>
 void IfAction<T>::stop() {

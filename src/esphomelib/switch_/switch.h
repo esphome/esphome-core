@@ -227,8 +227,8 @@ template<typename T>
 class SwitchPublishAction : public Action<T> {
  public:
   SwitchPublishAction(Switch *sensor);
-  void set_state(std::function<bool(T)> &&value);
-  void set_state(bool value);
+  template<typename V>
+  void set_state(V state) { this->state_ = state; }
   void play(T x) override;
  protected:
   Switch *switch_;
@@ -299,14 +299,6 @@ SwitchCondition<T> *Switch::make_switch_is_off_condition() {
 
 template<typename T>
 SwitchPublishAction<T>::SwitchPublishAction(Switch *switch_) : switch_(switch_) {}
-template<typename T>
-void SwitchPublishAction<T>::set_state(std::function<bool(T)> &&state) {
-  this->state_ = std::move(state);
-}
-template<typename T>
-void SwitchPublishAction<T>::set_state(bool state) {
-  this->state_ = state;
-}
 template<typename T>
 void SwitchPublishAction<T>::play(T x) {
   this->switch_->publish_state(this->state_.value(x));

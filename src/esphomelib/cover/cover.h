@@ -132,8 +132,8 @@ template<typename T>
 class CoverPublishAction : public Action<T> {
  public:
   CoverPublishAction(Cover *cover);
-  void set_state(std::function<CoverState(T)> &&value);
-  void set_state(CoverState value);
+  template<typename V>
+  void set_state(V value) { this->state_ = value; }
   void play(T x) override;
  protected:
   Cover *cover_;
@@ -192,14 +192,6 @@ StopAction<T> *Cover::make_stop_action() {
 
 template<typename T>
 CoverPublishAction<T>::CoverPublishAction(Cover *cover) : cover_(cover) {}
-template<typename T>
-void CoverPublishAction<T>::set_state(std::function<CoverState(T)> &&value) {
-  this->state_ = std::move(value);
-}
-template<typename T>
-void CoverPublishAction<T>::set_state(CoverState value) {
-  this->state_ = value;
-}
 template<typename T>
 void CoverPublishAction<T>::play(T x) {
   auto val = this->state_.value(x);
