@@ -69,6 +69,7 @@
 #include "esphomelib/output/ledc_output_component.h"
 #include "esphomelib/output/pca9685_output_component.h"
 #include "esphomelib/output/my9231_output_component.h"
+#include "esphomelib/remote/jvc.h"
 #include "esphomelib/remote/lg.h"
 #include "esphomelib/remote/nec.h"
 #include "esphomelib/remote/panasonic.h"

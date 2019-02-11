@@ -85,6 +85,7 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   class TransmitCall {
    public:
     TransmitCall(RemoteTransmitterComponent *parent);
+    void set_jvc(uint32_t data);
     void set_lg(uint32_t data, uint8_t nbits);
     void set_nec(uint16_t address, uint16_t command);
     void set_panasonic(uint16_t address, uint32_t command);

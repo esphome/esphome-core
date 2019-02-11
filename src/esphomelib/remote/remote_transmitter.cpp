@@ -4,6 +4,7 @@
 
 #include "esphomelib/remote/remote_transmitter.h"
 #include "esphomelib/log.h"
+#include "esphomelib/remote/jvc.h"
 #include "esphomelib/remote/nec.h"
 #include "esphomelib/remote/lg.h"
 #include "esphomelib/remote/panasonic.h"
@@ -339,6 +340,9 @@ RemoteTransmitterComponent::TransmitCall::TransmitCall(RemoteTransmitterComponen
 }
 RemoteTransmitData *RemoteTransmitterComponent::TransmitCall::get_data() {
   return &this->parent_->temp_;
+}
+void RemoteTransmitterComponent::TransmitCall::set_jvc(uint32_t data) {
+  encode_jvc(this->get_data(), data);
 }
 void RemoteTransmitterComponent::TransmitCall::set_lg(uint32_t data, uint8_t nbits) {
   encode_lg(this->get_data(), data, nbits);
