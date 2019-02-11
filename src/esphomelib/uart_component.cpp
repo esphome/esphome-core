@@ -36,9 +36,9 @@ void UARTComponent::setup() {
   if (this->tx_pin_.value_or(1) == 1 && this->rx_pin_.value_or(3) == 3) {
     this->hw_serial_ = &Serial;
   } else if (this->tx_pin_.value_or(9) == 9 && this->rx_pin_.value_or(10) == 10) {
-    this->hw_serial = &Serial1;
+    this->hw_serial_ = &Serial1;
   } else if (this->tx_pin_.value_or(16) == 16 && this->rx_pin_.value_or(17) == 17) {
-    this->hw_serial = &Serial2;
+    this->hw_serial_ = &Serial2;
   } else {
     this->hw_serial_ = new HardwareSerial(next_uart_num++);
   }
