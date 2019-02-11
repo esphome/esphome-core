@@ -1,6 +1,6 @@
-#include <esphomelib.h>
+#include <esphome.h>
 
-using namespace esphomelib;
+using namespace esphome;
 
 static const char *TAG = "main";
 

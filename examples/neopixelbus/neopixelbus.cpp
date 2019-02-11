@@ -1,6 +1,6 @@
-#include <esphomelib.h>
+#include <esphome.h>
 
-using namespace esphomelib;
+using namespace esphome;
 
 uint16_t pixel_count = 30;
 uint8_t pixel_pin = 2;
