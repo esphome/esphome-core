@@ -16,6 +16,11 @@ namespace remote {
 
 class RemoteReceiverComponent;
 
+struct JVCDecodeData {
+  bool valid;
+  uint32_t data;
+};
+
 struct LGDecodeData {
   bool valid;
   uint32_t data;
@@ -75,6 +80,7 @@ class RemoteReceiveData {
 
   int32_t size() const;
 
+  JVCDecodeData decode_jvc();
   LGDecodeData decode_lg();
   NECDecodeData decode_nec();
   PanasonicDecodeData decode_panasonic();

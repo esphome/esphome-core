@@ -4,6 +4,7 @@
 
 #include "esphomelib/remote/remote_receiver.h"
 #include "esphomelib/log.h"
+#include "esphomelib/remote/jvc.h"
 #include "esphomelib/remote/nec.h"
 #include "esphomelib/remote/lg.h"
 #include "esphomelib/remote/panasonic.h"
@@ -99,6 +100,9 @@ int32_t RemoteReceiveData::pos(uint32_t index) const {
 
 int32_t RemoteReceiveData::size() const {
   return this->data_->size();
+}
+JVCDecodeData RemoteReceiveData::decode_jvc() {
+  return remote::decode_jvc(this);
 }
 LGDecodeData RemoteReceiveData::decode_lg() {
   return remote::decode_lg(this);
