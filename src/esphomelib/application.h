@@ -229,7 +229,7 @@ class Application {
 #endif
 
 #ifdef USE_UART
-  UARTComponent *init_uart(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate = 9600);
+  UARTComponent *init_uart(uint32_t baud_rate = 9600);
 #endif
 
 #ifdef USE_SPI

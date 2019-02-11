@@ -45,7 +45,7 @@ class ESP8266SoftwareSerial {
 
 class UARTComponent : public Component, public Stream {
  public:
-  UARTComponent(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate = 9600);
+  UARTComponent(uint32_t baud_rate = 9600);
 
   void setup() override;
 
@@ -73,6 +73,9 @@ class UARTComponent : public Component, public Stream {
   int read() override;
   int peek() override;
 
+  void set_tx_pin(uint8_t tx_pin);
+  void set_rx_pin(uint8_t rx_pin);
+
  protected:
   bool check_read_timeout_(size_t len = 1);
 
@@ -80,8 +83,8 @@ class UARTComponent : public Component, public Stream {
 #ifdef ARDUINO_ARCH_ESP8266
   ESP8266SoftwareSerial *sw_serial_{nullptr};
 #endif
-  int8_t tx_pin_;
-  int8_t rx_pin_;
+  optional<uint8_t> tx_pin_;
+  optional<uint8_t> rx_pin_;
   uint32_t baud_rate_;
 };
 
