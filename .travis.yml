@@ -9,6 +9,7 @@ cache:
     - "$TRAVIS_BUILD_DIR/.piolibdeps"
 
 script:
+  - python travis.py
   - platformio run -e $BUILD_TARGET
 
 matrix:
