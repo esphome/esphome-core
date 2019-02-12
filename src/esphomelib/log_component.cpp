@@ -146,10 +146,17 @@ float LogComponent::get_setup_priority() const {
   return setup_priority::HARDWARE - 1.0f;
 }
 const char *LOG_LEVELS[] = {"NONE", "ERROR", "WARN", "INFO", "DEBUG", "VERBOSE", "VERY_VERBOSE"};
+#ifdef ARDUINO_ARCH_ESP32
+const char *UART_SELECTIONS[] = {"UART0", "UART1", "UART2"};
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+const char *UART_SELECTIONS[] = {"UART0", "UART1", "UART0_SWAP"};
+#endif
 void LogComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Logger:");
   ESP_LOGCONFIG(TAG, "  Level: %s", LOG_LEVELS[this->global_log_level_]);
   ESP_LOGCONFIG(TAG, "  Log Baud Rate: %u", this->baud_rate_);
+  ESP_LOGCONFIG(TAG, "  Hardware UART: %s", UART_SELECTIONS[this->uart_]);
   for (auto &it : this->log_levels_) {
     ESP_LOGCONFIG(TAG, "  Level for '%s': %s", it.tag.c_str(), LOG_LEVELS[it.level]);
   }
