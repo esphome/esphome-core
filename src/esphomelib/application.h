@@ -167,7 +167,7 @@ class Application {
    */
   LogComponent *init_log(uint32_t baud_rate = 115200,
                          size_t tx_buffer_size = 512,
-                         UARTSelection uart = ESPHOMELIB_UART0);
+                         UARTSelection uart = UART_SELECTION_UART0);
 
   /** Initialize the WiFi engine in client mode.
    *

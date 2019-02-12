@@ -80,17 +80,17 @@ LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size, UARTSelect
 
 void LogComponent::pre_setup() {
   switch (this->uart_) {
-    case ESPHOMELIB_UART0:
+    case UART_SELECTION_UART0:
 #ifdef ARDUINO_ARCH_ESP8266
-    case ESPHOMELIB_UART0_SWAP:
+    case UART_SELECTION_UART0_SWAP:
 #endif
       this->hw_serial_ = &Serial;
       break;
-    case ESPHOMELIB_UART1:
+    case UART_SELECTION_UART1:
       this->hw_serial_ = &Serial1;
       break;
 #ifdef ARDUINO_ARCH_ESP32
-    case ESPHOMELIB_UART2:
+    case UART_SELECTION_UART2:
       this->hw_serial_ = &Serial2;
       break;
 #endif
@@ -98,7 +98,7 @@ void LogComponent::pre_setup() {
 
   this->hw_serial_->begin(this->baud_rate_);
 #ifdef ARDUINO_ARCH_ESP8266
-  if (this->uart_ == ESPHOMELIB_UART0_SWAP)
+  if (this->uart_ == UART_SELECTION_UART0_SWAP)
     this->hw_serial_->swap();
 #endif
 

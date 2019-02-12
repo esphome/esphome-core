@@ -22,13 +22,13 @@ ESPHOMELIB_NAMESPACE_BEGIN
  * Advanced configuration (pin selection, etc) is not supported.
  */
 enum UARTSelection {
-  ESPHOMELIB_UART0 = 0,
-  ESPHOMELIB_UART1,
+  UART_SELECTION_UART0 = 0,
+  UART_SELECTION_UART1,
 #ifdef ARDUINO_ARCH_ESP32
-  ESPHOMELIB_UART2
+  UART_SELECTION_UART2
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  ESPHOMELIB_UART0_SWAP
+  UART_SELECTION_UART0_SWAP
 #endif
 };
 
@@ -45,7 +45,7 @@ class LogComponent : public Component {
    * @param baud_rate The baud_rate for the serial interface. 0 to disable UART logging.
    * @param tx_buffer_size The buffer size (in bytes) used for constructing log messages.
    */
-  explicit LogComponent(uint32_t baud_rate = 115200, size_t tx_buffer_size = 512, UARTSelection uart = ESPHOMELIB_UART0);
+  explicit LogComponent(uint32_t baud_rate = 115200, size_t tx_buffer_size = 512, UARTSelection uart = UART_SELECTION_UART0);
 
   /// Manually set the baud rate for serial, set to 0 to disable.
   void set_baud_rate(uint32_t baud_rate);
@@ -87,7 +87,7 @@ class LogComponent : public Component {
  protected:
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
-  UARTSelection uart_{ESPHOMELIB_UART0};
+  UARTSelection uart_{UART_SELECTION_UART0};
   HardwareSerial *hw_serial_{nullptr};
   int global_log_level_{ESPHOMELIB_LOG_LEVEL};
   struct LogLevelOverride {
