@@ -90,7 +90,6 @@ class LogComponent : public Component {
   int global_log_level_{ESPHOME_LOG_LEVEL};
   UARTSelection uart_{UART_SELECTION_UART0};
   HardwareSerial *hw_serial_{nullptr};
-  int global_log_level_{ESPHOMELIB_LOG_LEVEL};
   struct LogLevelOverride {
     std::string tag;
     int level;
