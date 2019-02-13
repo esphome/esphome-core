@@ -30,10 +30,15 @@ float UARTComponent::get_setup_priority() const {
 #ifdef ARDUINO_ARCH_ESP32
 void UARTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up UART...");
+  // Use Arduino HardwareSerial UARTs if all used pins match the ones
+  // preconfigured by the platform. For example if RX disabled but TX pin
+  // is 1 we still want to use Serial.
   if (this->tx_pin_.value_or(1) == 1 && this->rx_pin_.value_or(3) == 3) {
-    // use UART0 if all used pins match the ones on the UART bus
-    // for example if RX disabled but TX pin is 1 we still want to use Serial.
     this->hw_serial_ = &Serial;
+  } else if (this->tx_pin_.value_or(9) == 9 && this->rx_pin_.value_or(10) == 10) {
+    this->hw_serial_ = &Serial1;
+  } else if (this->tx_pin_.value_or(16) == 16 && this->rx_pin_.value_or(17) == 17) {
+    this->hw_serial_ = &Serial2;
   } else {
     this->hw_serial_ = new HardwareSerial(next_uart_num++);
   }
@@ -115,10 +120,18 @@ void UARTComponent::flush() {
 #ifdef ARDUINO_ARCH_ESP8266
 void UARTComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up UART bus...");
+  // Use Arduino HardwareSerial UARTs if all used pins match the ones
+  // preconfigured by the platform. For example if RX disabled but TX pin
+  // is 1 we still want to use Serial.
   if (this->tx_pin_.value_or(1) == 1 && this->rx_pin_.value_or(3) == 3) {
-    // use UART0 if all used pins match the ones on the UART bus
-    // for example if RX disabled but TX pin is 1 we still want to use Serial.
     this->hw_serial_ = &Serial;
+    this->hw_serial_->begin(this->baud_rate_);
+  } else if (this->tx_pin_.value_or(15) == 15 && this->rx_pin_.value_or(13) == 13) {
+    this->hw_serial_ = &Serial;
+    this->hw_serial_->begin(this->baud_rate_);
+    this->hw_serial_->swap();
+  } else if (this->tx_pin_.value_or(2) == 2 && this->rx_pin_.value_or(8) == 8) {
+    this->hw_serial_ = &Serial1;
     this->hw_serial_->begin(this->baud_rate_);
   } else {
     this->sw_serial_ = new ESP8266SoftwareSerial();
