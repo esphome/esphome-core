@@ -68,18 +68,39 @@ void HOT LogComponent::log_message_(int level, const char *tag, char *msg, int r
     msg[ret - 1] = '\0';
   }
   if (this->baud_rate_ > 0)
-    Serial.println(msg);
+    this->hw_serial_->println(msg);
   this->log_callback_.call(level, tag, msg);
 }
 
-LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size)
-    : baud_rate_(baud_rate) {
+LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size, UARTSelection uart)
+    : baud_rate_(baud_rate)
+    , uart_(uart) {
   this->set_tx_buffer_size(tx_buffer_size);
 }
 
 void LogComponent::pre_setup() {
-  if (this->baud_rate_ > 0)
-    Serial.begin(this->baud_rate_);
+  switch (this->uart_) {
+    case UART_SELECTION_UART0:
+#ifdef ARDUINO_ARCH_ESP8266
+    case UART_SELECTION_UART0_SWAP:
+#endif
+      this->hw_serial_ = &Serial;
+      break;
+    case UART_SELECTION_UART1:
+      this->hw_serial_ = &Serial1;
+      break;
+#ifdef ARDUINO_ARCH_ESP32
+    case UART_SELECTION_UART2:
+      this->hw_serial_ = &Serial2;
+      break;
+#endif
+  }
+
+  this->hw_serial_->begin(this->baud_rate_);
+#ifdef ARDUINO_ARCH_ESP8266
+  if (this->uart_ == UART_SELECTION_UART0_SWAP)
+    this->hw_serial_->swap();
+#endif
 
   global_log_component = this;
 #ifdef ARDUINO_ARCH_ESP32
@@ -91,7 +112,7 @@ void LogComponent::pre_setup() {
 #ifdef ARDUINO_ARCH_ESP8266
   if (this->global_log_level_ >= ESPHOMELIB_LOG_LEVEL_VERBOSE) {
     if (this->baud_rate_ > 0)
-      Serial.setDebugOutput(true);
+      this->hw_serial_->setDebugOutput(true);
   }
 #endif
 
@@ -115,6 +136,9 @@ size_t LogComponent::get_tx_buffer_size() const {
 void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) {
   this->tx_buffer_.reserve(tx_buffer_size);
 }
+UARTSelection LogComponent::get_uart() const {
+  return this->uart_;
+}
 void LogComponent::add_on_log_callback(std::function<void(int, const char *, const char *)> &&callback) {
   this->log_callback_.add(std::move(callback));
 }
@@ -122,10 +146,17 @@ float LogComponent::get_setup_priority() const {
   return setup_priority::HARDWARE - 1.0f;
 }
 const char *LOG_LEVELS[] = {"NONE", "ERROR", "WARN", "INFO", "DEBUG", "VERBOSE", "VERY_VERBOSE"};
+#ifdef ARDUINO_ARCH_ESP32
+const char *UART_SELECTIONS[] = {"UART0", "UART1", "UART2"};
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+const char *UART_SELECTIONS[] = {"UART0", "UART1", "UART0_SWAP"};
+#endif
 void LogComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Logger:");
   ESP_LOGCONFIG(TAG, "  Level: %s", LOG_LEVELS[this->global_log_level_]);
   ESP_LOGCONFIG(TAG, "  Log Baud Rate: %u", this->baud_rate_);
+  ESP_LOGCONFIG(TAG, "  Hardware UART: %s", UART_SELECTIONS[this->uart_]);
   for (auto &it : this->log_levels_) {
     ESP_LOGCONFIG(TAG, "  Level for '%s': %s", it.tag.c_str(), LOG_LEVELS[it.level]);
   }

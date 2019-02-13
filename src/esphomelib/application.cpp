@@ -197,8 +197,9 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address,
 #endif
 
 LogComponent *Application::init_log(uint32_t baud_rate,
-                                    size_t tx_buffer_size) {
-  auto *log = new LogComponent(baud_rate, tx_buffer_size);
+                                    size_t tx_buffer_size,
+                                    UARTSelection uart) {
+  auto *log = new LogComponent(baud_rate, tx_buffer_size, uart);
   log->pre_setup();
   return this->register_component(log);
 }
