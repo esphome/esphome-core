@@ -40,7 +40,7 @@ class TemplateSwitch : public Switch, public Component {
   Trigger<NoArg> *turn_on_trigger_;
   Trigger<NoArg> *turn_off_trigger_;
   Trigger<NoArg> *prev_trigger_{nullptr};
-  bool restore_state_{true};
+  bool restore_state_{false};
 };
 
 } // namespace switch_
