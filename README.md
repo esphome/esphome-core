@@ -5,6 +5,7 @@
 This is the source of the C++ library that powers [ESPHome](https://esphome.io/)
 
 For issues, please go to [the issue tracker](https://github.com/esphome/issues/issues).
+
 For feature requests, please see [feature requests](https://github.com/esphome/feature-requests/issues).
 
 > Note: Starting with 1.10.0 using ESPHome-Core directly through C++ is no longer officially
