@@ -74,6 +74,7 @@
 #include "esphome/remote/nec.h"
 #include "esphome/remote/panasonic.h"
 #include "esphome/remote/raw.h"
+#include "esphome/remote/rc5.h"
 #include "esphome/remote/rc_switch.h"
 #include "esphome/remote/remote_receiver.h"
 #include "esphome/remote/remote_transmitter.h"
