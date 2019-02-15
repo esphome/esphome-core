@@ -61,7 +61,7 @@ namespace sensor {
     void MPR121_Channel::process_(uint16_t *data, uint16_t *last_data) {
         if ((*data & _BV(channel)) && !(*last_data & _BV(channel))) {
             this->publish_state(true);
-        } 
+        }
         if (!(*data & _BV(channel)) && (*last_data & _BV(channel)) ) {
             this->publish_state(false);
         }
@@ -73,7 +73,10 @@ namespace sensor {
     }
 
     void MPR121_Sensor::setup() {
-
+      bool connected = cap.begin(0x5A);
+        if (!connected) {
+          ;//ESP_LOGD("mpr121_setup", "NOT connected");
+        }
     }
 
     void MPR121_Sensor::dump_config() {
@@ -81,20 +84,25 @@ namespace sensor {
         LOG_I2C_DEVICE(this);
     }
 
-    MPR121_Channel *MPR121_Sensor::add_channel(sensor::MPR121_Channel*) {
-
+    MPR121_Channel *MPR121_Sensor::add_channel(sensor::MPR121_Channel* channel) {
+      this->channels.push_back(channel);
+      return channel;
     }
 
     void MPR121_Sensor::process_(uint8_t *ch, uint16_t *data,uint16_t *last_data) {
-
+      for (auto *channel : this->channels) {
+        if(channel->channel == *ch)
+          channel->process_(data,last_data);
+      }
     }
 
     void MPR121_Sensor::loop() {
         // Get the currently touched pads
         this->currtouched = this->cap.touched();
-  
-        for (uint8_t i=0; i<this->num_channels; i++) {
+        if(this->currtouched != this->lasttouched) {
+          for (uint8_t i=0; i<this->num_channels; i++) {
             this->process_(&i,&currtouched,&lasttouched);
+          }
         }
 
         // reset our state
@@ -118,22 +126,22 @@ namespace sensor {
     ****************************************************************************************/
     boolean MPR121::begin(uint8_t i2caddr) {
         Wire.begin();
-            
+
         _i2caddr = i2caddr;
 
         // soft reset
         writeRegister(MPR121_SOFTRESET, 0x63);
         delay(1);
         for (uint8_t i=0; i<0x7F; i++) {
-        //  Serial.print("$"); Serial.print(i, HEX); 
+        //  Serial.print("$"); Serial.print(i, HEX);
         //  Serial.print(": 0x"); Serial.println(readRegister8(i));
         }
-        
+
 
         writeRegister(MPR121_ECR, 0x0);
 
         uint8_t c = readRegister8(MPR121_CONFIG2);
-        
+
         if (c != 0x24) return false;
 
 
@@ -181,11 +189,11 @@ namespace sensor {
     /**
      *****************************************************************************************
     *  @brief      Set the touch and release thresholds for all 13 channels on the device to the
-    *              passed values. The threshold is defined as a deviation value from the baseline value, 
-    *              so it remains constant even baseline value changes. Typically the touch 
+    *              passed values. The threshold is defined as a deviation value from the baseline value,
+    *              so it remains constant even baseline value changes. Typically the touch
     *              threshold is a little bigger than the release threshold to touch debounce and hysteresis.
-    * 
-    *              For typical touch application, the value can be in range 0x05~0x30 for example. The setting 
+    *
+    *              For typical touch application, the value can be in range 0x05~0x30 for example. The setting
     *              of the threshold is depended on the actual application. For the operation details and how to set the threshold refer to
     *              application note AN3892 and MPR121 design guidelines.
     *
@@ -201,7 +209,7 @@ namespace sensor {
 
     /**
      *****************************************************************************************
-    *  @brief      Read the filtered data from channel t. The ADC raw data outputs run through 3 
+    *  @brief      Read the filtered data from channel t. The ADC raw data outputs run through 3
     *              levels of digital filtering to filter out the high frequency and low frequency noise
     *              encountered. For detailed information on this filtering see page 6 of the device datasheet.
     *
@@ -215,9 +223,9 @@ namespace sensor {
 
     /**
      *****************************************************************************************
-    *  @brief      Read the baseline value for the channel. The 3rd level filtered result is internally 10bit 
+    *  @brief      Read the baseline value for the channel. The 3rd level filtered result is internally 10bit
     *              but only high 8 bits are readable from registers 0x1E~0x2A as the baseline value output for each channel.
-    * 
+    *
     *  @param      t the channel to read.
     *  @returns    the baseline data that was read
     ****************************************************************************************/
@@ -230,7 +238,7 @@ namespace sensor {
     /**
      *****************************************************************************************
     *  @brief      Read the touch status of all 13 channels as bit values in a 12 bit integer.
-    *              
+    *
     *  @returns    a 12 bit integer with each bit corresponding to the touch status of a sensor.
     *              For example, if bit 0 is set then channel 0 of the device is currently deemed to be touched.
     ****************************************************************************************/
@@ -244,7 +252,7 @@ namespace sensor {
     /**
      *****************************************************************************************
     *  @brief      Read the contents of an 8 bit device register.
-    * 
+    *
     *  @param      reg the register address to read from
     *  @returns    the 8 bit value that was read.
     ****************************************************************************************/
@@ -261,7 +269,7 @@ namespace sensor {
     /**
      *****************************************************************************************
     *  @brief      Read the contents of a 16 bit device register.
-    * 
+    *
     *  @param      reg the register address to read from
     *  @returns    the 16 bit value that was read.
     ****************************************************************************************/
