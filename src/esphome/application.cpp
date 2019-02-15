@@ -1270,6 +1270,12 @@ sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
 }
 #endif
 
+#ifdef USE_MPR121
+sensor::MPR121_Sensor *Application::make_mpr121(const std::string &name, uint8_t address) {
+  return this->register_component(new MPR121_Sensor(this->i2c_, name, address));
+}
+#endif
+
 #ifdef USE_ULN2003
 stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
                                             const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d) {

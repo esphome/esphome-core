@@ -82,6 +82,7 @@
 #include "esphome/sensor/adc.h"
 #include "esphome/sensor/ads1115_component.h"
 #include "esphome/sensor/apds9960.h"
+#include "esphome/sensor/mpr121_sensor.h"
 #include "esphome/sensor/bh1750_sensor.h"
 #include "esphome/sensor/bme280_component.h"
 #include "esphome/sensor/bme680_component.h"
@@ -840,6 +841,9 @@ class Application {
   sensor::APDS9960 *make_apds9960(uint32_t update_interval = 60000);
 #endif
 
+#ifdef USE_MPR121
+  sensor::MPR121_Sensor *make_mpr121(const std::string &name, uint8_t address = 0x5A);
+#endif
 
 #ifdef USE_CUSTOM_SENSOR
   sensor::CustomSensorConstructor *make_custom_sensor(const std::function<std::vector<sensor::Sensor *>()> &init);
