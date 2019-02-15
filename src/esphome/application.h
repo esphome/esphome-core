@@ -1026,6 +1026,15 @@ class Application {
   MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgbw_light(const std::string &name);
 #endif
 
+#ifdef USE_LIGHT
+  struct MakePartitionLight {
+    light::PartitionLightOutput *partition;
+    light::LightState *state;
+  };
+  MakePartitionLight make_partition_light(const std::string &name,
+                                          const std::vector<light::AddressableSegment> &segments);
+#endif
+
 
 
 
