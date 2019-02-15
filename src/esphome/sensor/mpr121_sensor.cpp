@@ -113,8 +113,8 @@ namespace sensor {
     /*******************************************************************************************
     *  @brief      Default constructor
     ****************************************************************************************/
-    MPR121::MPR121() {
-    }
+  //  MPR121::MPR121() {
+  //  }
 
     /**
      *****************************************************************************************
@@ -145,7 +145,7 @@ namespace sensor {
         if (c != 0x24) return false;
 
 
-        setThreshholds(12, 6);
+        setThresholds(12, 6);
         writeRegister(MPR121_MHDR, 0x01);
         writeRegister(MPR121_NHDR, 0x01);
         writeRegister(MPR121_NCLR, 0x0E);
@@ -173,17 +173,6 @@ namespace sensor {
         writeRegister(MPR121_ECR, 0x8F);  // start with first 5 bits of baseline tracking
 
         return true;
-    }
-
-    /**
-     *****************************************************************************************
-    *  @brief      DEPRECATED. Use MPR121::setThresholds(uint8_t touch, uint8_t release) instead.
-    *
-    *  @param      touch see MPR121::setThresholds(uint8_t touch, uint8_t release)
-    *  @param      release see MPR121::setThresholds(uint8_t touch, uint8_t release)
-    ****************************************************************************************/
-    void MPR121::setThreshholds(uint8_t touch, uint8_t release) {
-        setThresholds(touch, release);
     }
 
     /**

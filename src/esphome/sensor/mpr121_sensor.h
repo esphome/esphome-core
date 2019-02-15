@@ -19,7 +19,7 @@ namespace sensor {
     class MPR121 {
         public:
             // Hardware I2C
-            MPR121(void);
+            //MPR121(void);
 
             boolean begin(uint8_t i2caddr = MPR121_I2CADDR_DEFAULT);
 
@@ -30,12 +30,10 @@ namespace sensor {
             uint16_t readRegister16(uint8_t reg);
             void writeRegister(uint8_t reg, uint8_t value);
             uint16_t touched(void);
-            // Add deprecated attribute so that the compiler shows a warning
-            void setThreshholds(uint8_t touch, uint8_t release) __attribute__((deprecated));
             void setThresholds(uint8_t touch, uint8_t release);
 
-        private:
-            int8_t _i2caddr;        
+        protected:
+            int8_t _i2caddr;
     };
 
     class MPR121_Channel : public binary_sensor::BinarySensor {
@@ -69,6 +67,6 @@ namespace sensor {
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_APDS9960
+#endif //USE_MPR121
 
 #endif //ESPHOME_SENSOR_MPR121_H
