@@ -107,7 +107,7 @@ bool Nextion::send_command_printf_(const char *format, ...) {
     return false;
   }
   this->send_command_(buffer);
-  if (this->ack_()) {
+  if (!this->ack_()) {
     ESP_LOGW(TAG, "Sending command '%s' failed because no ACK was received", buffer);
     return false;
   }
@@ -154,7 +154,7 @@ void Nextion::loop() {
     while (this->available() && this->peek_byte(&temp) && temp == 0xFF)
       this->read_byte(&temp);
 
-    if (this->available())
+    if (!this->available())
       break;
 
     uint8_t event;
