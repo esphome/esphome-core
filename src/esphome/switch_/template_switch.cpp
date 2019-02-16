@@ -44,7 +44,7 @@ void TemplateSwitch::set_optimistic(bool optimistic) {
   this->optimistic_ = optimistic;
 }
 bool TemplateSwitch::assumed_state() {
-  return this->optimistic_;
+  return this->assumed_state_;
 }
 void TemplateSwitch::set_state_lambda(std::function<optional<bool>()> &&f) {
   this->f_ = f;
