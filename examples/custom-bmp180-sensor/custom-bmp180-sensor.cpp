@@ -3,10 +3,10 @@
 //   See  for more information
 // </WARNING>
 
-#include "esphomelib/application.h"
+#include "esphome.h"
 #include <Adafruit_BMP085.h>
 
-using namespace esphomelib;
+using namespace esphome;
 
 // SIMPLE EXAMPLE: just pressure
 class BMP180Sensor : public sensor::PollingSensorComponent {

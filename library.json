@@ -1,10 +1,10 @@
 {
-  "name": "esphomelib",
+  "name": "esphome-core",
   "keywords": "esp32, home-assistant, ir, ledc, mqtt, iot",
-  "description": "esphomelib is a library designed to greatly simplify your firmware code for ESP32-based devices with full MQTT and Home Assistant support.",
+  "description": "ESPHome - Reimagining DIY Home Automation.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OttoWinter/esphomelib.git"
+    "url": "https://github.com/esphome/esphome-core.git"
   },
   "version": "1.11.0-dev",
   "authors": [
@@ -19,16 +19,6 @@
     {
       "name": "ArduinoJson-esphomelib",
       "version": "5.13.3"
-    },
-    {
-      "name": "ESPAsyncTCP",
-      "version": "1.1.3",
-      "platforms": "espressif8266"
-    },
-    {
-      "name": "AsyncTCP",
-      "version": "1.0.3",
-      "platforms": "espressif32"
     }
   ],
   "build": {
