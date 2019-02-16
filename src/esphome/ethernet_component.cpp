@@ -133,36 +133,6 @@ void EthernetComponent::start_connect_() {
     return;
   }
 
-  if (this->manual_ip_.has_value()) {
-    tcpip_adapter_ip_info_t info;
-    info.ip.addr = static_cast<uint32_t>(this->manual_ip_->static_ip);
-    info.gw.addr = static_cast<uint32_t>(this->manual_ip_->gateway);
-    info.netmask.addr = static_cast<uint32_t>(this->manual_ip_->subnet);
-
-    err = tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_ETH);
-    ESPHL_ERROR_CHECK(err, "DHCPC stop error");
-    err = tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_ETH, &info);
-    ESPHL_ERROR_CHECK(err, "DHCPC set IP info error");
-
-    if (!is_empty(this->manual_ip_->dns1)) {
-      ip_addr_t d;
-      d.type = IPADDR_TYPE_V4;
-      d.u_addr.ip4.addr = static_cast<uint32_t>(this->manual_ip_->dns1);
-      dns_setserver(0, &d);
-    }
-    if (!is_empty(this->manual_ip_->dns1)) {
-      ip_addr_t d;
-      d.type = IPADDR_TYPE_V4;
-      d.u_addr.ip4.addr = static_cast<uint32_t>(this->manual_ip_->dns2);
-      dns_setserver(1, &d);
-    }
-  } else {
-    err = tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_ETH);
-    if (err != ESP_ERR_TCPIP_ADAPTER_DHCP_ALREADY_STARTED) {
-      ESPHL_ERROR_CHECK(err, "DHCPC start error");
-    }
-  }
-
   switch (this->type_) {
     case ETHERNET_TYPE_LAN8720: {
       memcpy(&this->eth_config, &phy_lan8720_default_ethernet_config, sizeof(eth_config_t));
@@ -200,6 +170,42 @@ void EthernetComponent::start_connect_() {
   this->initialized_ = true;
 
   tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_ETH, get_app_name().c_str());
+
+  tcpip_adapter_ip_info_t info;
+  if (this->manual_ip_.has_value()) {
+    info.ip.addr = static_cast<uint32_t>(this->manual_ip_->static_ip);
+    info.gw.addr = static_cast<uint32_t>(this->manual_ip_->gateway);
+    info.netmask.addr = static_cast<uint32_t>(this->manual_ip_->subnet);
+  } else {
+    info.ip.addr = 0;
+    info.gw.addr = 0;
+    info.netmask.addr = 0;
+  }
+
+  err = tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_ETH);
+  ESPHL_ERROR_CHECK(err, "DHCPC stop error");
+  err = tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_ETH, &info);
+  ESPHL_ERROR_CHECK(err, "DHCPC set IP info error");
+
+  if (this->manual_ip_.has_value()) {
+    if (!is_empty(this->manual_ip_->dns1)) {
+      ip_addr_t d;
+      d.type = IPADDR_TYPE_V4;
+      d.u_addr.ip4.addr = static_cast<uint32_t>(this->manual_ip_->dns1);
+      dns_setserver(0, &d);
+    }
+    if (!is_empty(this->manual_ip_->dns1)) {
+      ip_addr_t d;
+      d.type = IPADDR_TYPE_V4;
+      d.u_addr.ip4.addr = static_cast<uint32_t>(this->manual_ip_->dns2);
+      dns_setserver(1, &d);
+    }
+  } else {
+    err = tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_ETH);
+    if (err != ESP_ERR_TCPIP_ADAPTER_DHCP_ALREADY_STARTED) {
+      ESPHL_ERROR_CHECK(err, "DHCPC start error");
+    }
+  }
 
   this->connect_begin_ = millis();
   this->status_set_warning();
