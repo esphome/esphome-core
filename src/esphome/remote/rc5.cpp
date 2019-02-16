@@ -93,7 +93,7 @@ bool RC5Dumper::dump(RemoteReceiveData *data) {
   if (!res.valid)
     return false;
 
-  ESP_LOGD(TAG, "Received RC5: address=0x%08X, command=%d", res.address, res.command);
+  ESP_LOGD(TAG, "Received RC5: address=0x02X, command=0x%02X", res.address, res.command);
   return true;
 }
 #endif
