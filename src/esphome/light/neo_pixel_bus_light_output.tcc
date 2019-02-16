@@ -70,7 +70,7 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(NeoPixelBus
   this->controller_->Begin();
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightState *state) {
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightState *state, int32_t begin, int32_t end) {
   LightColorValues value = state->get_current_values();
   uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
   this->correction_.set_local_brightness(max_brightness);
@@ -87,7 +87,7 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightSta
       uint8_t(roundf(val.get_white() * 255.0f))
   );
 
-  for (int i = 0; i < this->size(); i++) {
+  for (int i = begin; i < end; i++) {
     (*this)[i] = color;
   }
 

@@ -131,6 +131,69 @@ bool AddressableLight::is_effect_active() const {
 void AddressableLight::set_effect_active(bool effect_active) {
   this->effect_active_ = effect_active;
 }
+void AddressableLight::write_state(LightState *state) {
+  this->write_state(state, 0, this->size());
+}
+
+int32_t PartitionLightOutput::size() const {
+  auto last_seg = this->segments_[this->segments_.size() - 1];
+  return last_seg.get_dst_offset() + last_seg.get_size();
+}
+ESPColorView PartitionLightOutput::operator[](int32_t index) const {
+  uint32_t lo = 0;
+  uint32_t hi = this->segments_.size() - 1;
+  while (lo < hi) {
+    uint32_t mid = (lo + hi) / 2;
+    int32_t begin = this->segments_[mid].get_dst_offset();
+    int32_t end = begin + this->segments_[mid].get_size();
+    if (index < begin) {
+      hi = mid - 1;
+    } else if (index >= end) {
+      lo = mid + 1;
+    } else {
+      lo = hi = mid;
+    }
+  }
+  auto seg = this->segments_[lo];
+  auto view = (*seg.get_src())[index - seg.get_src_offset()];
+  return view;
+}
+void PartitionLightOutput::clear_effect_data() {
+  for (auto seg : this->segments_) {
+    seg.get_src()->clear_effect_data();
+  }
+}
+LightTraits PartitionLightOutput::get_traits() {
+  return this->segments_[0].get_src()->get_traits();
+}
+void PartitionLightOutput::write_state(LightState *state, int32_t begin, int32_t end) {
+  for (auto seg : this->segments_) {
+    int32_t dbegin = seg.get_dst_offset();
+    if (begin > dbegin)
+      continue;
+
+    int32_t sbegin = seg.get_src_offset();
+    int32_t send = begin + std::min(seg.get_size(), end - dbegin);
+    seg.get_src()->write_state(state, sbegin, send);
+  }
+}
+PartitionLightOutput::PartitionLightOutput(const std::vector<AddressableSegment> &segments) : segments_(segments) {
+  int32_t off = 0;
+  for (auto seg : this->segments_) {
+    seg.set_dst_offset(off);
+    off += seg.get_size();
+  }
+}
+
+AddressableSegment::AddressableSegment(LightState *src, int32_t src_offset, int32_t size)
+    : src_(static_cast<AddressableLight *>(src->get_output())), src_offset_(src_offset), size_(size) {
+
+}
+AddressableLight *AddressableSegment::get_src() const { return this->src_; }
+int32_t AddressableSegment::get_src_offset() const { return this->src_offset_; }
+int32_t AddressableSegment::get_size() const { return this->size_; }
+int32_t AddressableSegment::get_dst_offset() const { return this->dst_offset_; }
+void AddressableSegment::set_dst_offset(int32_t dst_offset) { this->dst_offset_ = dst_offset; }
 
 } // namespace light
 

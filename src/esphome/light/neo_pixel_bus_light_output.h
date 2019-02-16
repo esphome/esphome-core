@@ -75,7 +75,7 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
   void add_leds(NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller);
 
   // ========== INTERNAL METHODS ==========
-  void write_state(LightState *state) override;
+  void write_state(LightState *state, int32_t begin, int32_t end) override;
 
   void setup() override;
 
