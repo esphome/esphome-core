@@ -50,6 +50,12 @@ struct SonyDecodeData {
   uint8_t nbits;
 };
 
+struct RC5DecodeData {
+  bool valid;
+  uint8_t address;
+  uint8_t command;
+};
+
 class RemoteReceiveData {
  public:
   RemoteReceiveData(RemoteReceiverComponent *parent, std::vector<int32_t> *data);
