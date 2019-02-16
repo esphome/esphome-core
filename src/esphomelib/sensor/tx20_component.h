@@ -30,6 +30,7 @@ class TX20Component : public Component {
   void loop() override;
 
  protected:
+  static void reset_state_();
   static void pin_change_();
   void decode_and_publish_();
 
@@ -43,6 +44,7 @@ class TX20Component : public Component {
   static uint8_t buffer_index_;
   static uint32_t spent_time_;
   static bool tx20_available_;
+  static bool pin_state_;
 };
 
 }  // namespace sensor
