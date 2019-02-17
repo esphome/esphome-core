@@ -210,6 +210,25 @@ class WhileAction : public Action<T> {
 };
 
 template<typename T>
+class WaitUntilAction : public Action<T>, public Component {
+ public:
+  WaitUntilAction(const std::vector<Condition<T> *> &conditions);
+
+  void play(T x) override;
+
+  void stop() override;
+
+  void loop() override;
+
+  float get_setup_priority() const override;
+
+ protected:
+  std::vector<Condition<T> *> conditions_;
+  bool triggered_{false};
+  T var_{};
+};
+
+template<typename T>
 class UpdateComponentAction : public Action<T> {
  public:
   UpdateComponentAction(PollingComponent *component);
