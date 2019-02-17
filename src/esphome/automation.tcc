@@ -337,4 +337,40 @@ void WhileAction<T>::stop() {
   this->stop_next();
 }
 
+
+template<typename T>
+WaitUntilAction<T>::WaitUntilAction(const std::vector<Condition<T> *> &conditions)
+  : conditions_(conditions) {
+
+}
+template<typename T>
+void WaitUntilAction<T>::play(T x) {
+  this->var_ = x;
+  this->triggered_ = true;
+  this->loop();
+}
+template<typename T>
+void WaitUntilAction<T>::stop() {
+  this->triggered_ = false;
+  this->stop_next();
+}
+template<typename T>
+void WaitUntilAction<T>::loop() {
+  if (!this->triggered_)
+    return;
+
+  for (auto *condition : this->conditions_) {
+    if (!condition->check(this->var_)) {
+      return;
+    }
+  }
+
+  this->triggered_ = false;
+  this->play_next(this->var_);
+}
+template<typename T>
+float WaitUntilAction<T>::get_setup_priority() const {
+  return setup_priority::HARDWARE_LATE;
+}
+
 ESPHOME_NAMESPACE_END
