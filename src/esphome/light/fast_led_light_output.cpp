@@ -14,7 +14,7 @@ static const char *TAG = "light.fast_led";
 LightTraits FastLEDLightOutputComponent::get_traits() {
   return {true, true, false, false};
 }
-void FastLEDLightOutputComponent::write_state(LightState *state) {
+void FastLEDLightOutputComponent::write_state(LightState *state, int32_t begin, int32_t end) {
   LightColorValues value = state->get_current_values();
   uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
   this->correction_.set_local_brightness(max_brightness);
@@ -30,7 +30,7 @@ void FastLEDLightOutputComponent::write_state(LightState *state) {
       uint8_t(roundf(val.get_blue() * 255.0f))
   );
 
-  for (int i = 0; i < this->size(); i++) {
+  for (int i = begin; i < end; i++) {
     (*this)[i] = color;
   }
 

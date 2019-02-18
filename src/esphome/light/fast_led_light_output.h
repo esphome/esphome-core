@@ -325,7 +325,7 @@ class FastLEDLightOutputComponent : public Component, public AddressableLight {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   LightTraits get_traits() override;
-  void write_state(LightState *state) override;
+  void write_state(LightState *state, int32_t begin, int32_t end) override;
   void setup() override;
   void dump_config() override;
   void loop() override;

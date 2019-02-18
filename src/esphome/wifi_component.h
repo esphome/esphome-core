@@ -61,17 +61,20 @@ class WiFiAP {
   void set_password(const std::string &password);
   void set_channel(optional<uint8_t> channel);
   void set_manual_ip(optional<ManualIP> manual_ip);
+  void set_hidden(bool hidden);
   const std::string &get_ssid() const;
   const optional<bssid_t> &get_bssid() const;
   const std::string &get_password() const;
   const optional<uint8_t> &get_channel() const;
   const optional<ManualIP> &get_manual_ip() const;
+  bool get_hidden() const;
  protected:
   std::string ssid_;
   optional<bssid_t> bssid_;
   std::string password_;
   optional<uint8_t> channel_;
   optional<ManualIP> manual_ip_;
+  bool hidden_{false};
 };
 
 class WiFiScanResult {

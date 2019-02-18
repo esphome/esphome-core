@@ -36,7 +36,8 @@ void APIServer::setup() {
   if (global_log_component != nullptr) {
     global_log_component->add_on_log_callback([this](int level, const char *tag, const char *message) {
       for (auto *c : this->clients_) {
-        c->send_log_message(level, tag, message);
+        if (!c->remove_)
+          c->send_log_message(level, tag, message);
       }
     });
   }
@@ -52,16 +53,21 @@ void APIServer::setup() {
   this->last_connected_ = millis();
 }
 void APIServer::loop() {
-  auto it = std::remove_if(this->clients_.begin(), this->clients_.end(),
-                           [](APIConnection *conn) {
-                             return conn->remove_;
-                           });
-  for (auto it2 = it; it2 != this->clients_.end(); it2++) {
-    APIConnection *conn = *it;
-    ESP_LOGD(TAG, "Disconnecting %s", conn->client_info_.c_str());
-    delete conn;
+  // Partition clients into remove and active
+  auto new_end = std::partition(this->clients_.begin(), this->clients_.end(),
+                                [](APIConnection *conn) {
+                                  return !conn->remove_;
+                                });
+  // print disconnection messages
+  for (auto it = new_end; it != this->clients_.end(); ++it) {
+    ESP_LOGD(TAG, "Disconnecting %s", (*it)->client_info_.c_str());
   }
-  this->clients_.erase(it, this->clients_.end());
+  // only then delete the pointers, otherwise log routine
+  // would access freed memory
+  for (auto it = new_end; it != this->clients_.end(); ++it)
+    delete *it;
+  // resize vector
+  this->clients_.erase(new_end, this->clients_.end());
 
   for (auto *client : this->clients_) {
     client->loop();

@@ -66,6 +66,8 @@ void GPIOSwitch::dump_config() {
   if (!this->interlock_.empty()) {
     ESP_LOGCONFIG(TAG, "  Interlocks:");
     for (auto *lock : this->interlock_) {
+      if (lock == this)
+        continue;
       ESP_LOGCONFIG(TAG, "    %s", lock->get_name().c_str());
     }
   }
@@ -74,6 +76,9 @@ void GPIOSwitch::write_state(bool state) {
   if (state != this->inverted_) {
     // Turning ON, check interlocking
     for (auto *lock : this->interlock_) {
+      if (lock == this)
+        continue;
+
       if (lock->state)
         lock->turn_off();
     }

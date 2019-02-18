@@ -10,6 +10,7 @@
 #include "esphome/remote/panasonic.h"
 #include "esphome/remote/remote_transmitter.h"
 #include "esphome/remote/rc_switch.h"
+#include "esphome/remote/rc5.h"
 #include "esphome/remote/samsung.h"
 #include "esphome/remote/sony.h"
 
@@ -355,6 +356,9 @@ void RemoteTransmitterComponent::TransmitCall::set_panasonic(uint16_t address, u
 }
 void RemoteTransmitterComponent::TransmitCall::set_raw(std::vector<int32_t> data) {
   this->get_data()->set_data(data);
+}
+void RemoteTransmitterComponent::TransmitCall::set_rc5(uint8_t address, uint8_t command, bool toggle) {
+  encode_rc5(this->get_data(), address, command, toggle);
 }
 void RemoteTransmitterComponent::TransmitCall::set_rc_switch_raw(uint32_t code,
                                                                  uint8_t nbits,

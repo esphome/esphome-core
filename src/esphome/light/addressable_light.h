@@ -144,8 +144,40 @@ class AddressableLight : public LightOutput {
   virtual void clear_effect_data() = 0;
   bool is_effect_active() const;
   void set_effect_active(bool effect_active);
+  void write_state(LightState *state) override;
+  virtual void write_state(LightState *state, int32_t begin, int32_t end) = 0;
  protected:
   bool effect_active_{false};
+};
+
+class AddressableSegment {
+ public:
+  AddressableSegment(LightState *src, int32_t src_offset, int32_t size);
+
+  AddressableLight *get_src() const;
+  int32_t get_src_offset() const;
+  int32_t get_size() const;
+  int32_t get_dst_offset() const;
+  void set_dst_offset(int32_t dst_offset);
+
+ protected:
+  AddressableLight *src_;
+  int32_t src_offset_;
+  int32_t size_;
+  int32_t dst_offset_;
+};
+
+class PartitionLightOutput : public AddressableLight {
+ public:
+  PartitionLightOutput(const std::vector<AddressableSegment> &segments);
+  int32_t size() const override;
+  ESPColorView operator[](int32_t index) const override;
+  void clear_effect_data() override;
+  LightTraits get_traits() override;
+  void write_state(LightState *state, int32_t begin, int32_t end) override;
+
+ protected:
+  std::vector<AddressableSegment> segments_;
 };
 
 } // namespace light

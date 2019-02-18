@@ -6,6 +6,7 @@
 #ifdef USE_DISPLAY
 
 #include "esphome/helpers.h"
+#include "esphome/automation.h"
 #include "esphome/time/rtc_component.h"
 #include <functional>
 #include <vector>
@@ -81,6 +82,7 @@ enum DisplayRotation {
 class Font;
 class Image;
 class DisplayBuffer;
+class DisplayPage;
 
 using display_writer_t = std::function<void(DisplayBuffer &)>;
 
@@ -278,6 +280,12 @@ class DisplayBuffer {
   /// Internal method to set the display writer lambda.
   void set_writer(display_writer_t &&writer);
 
+  void show_page(DisplayPage *page);
+  void show_next_page();
+  void show_prev_page();
+
+  void set_pages(std::vector<DisplayPage *> pages);
+
   /// Internal method to set the display rotation with.
   void set_rotation(DisplayRotation rotation);
 
@@ -297,6 +305,24 @@ class DisplayBuffer {
   uint8_t *buffer_{nullptr};
   DisplayRotation rotation_{DISPLAY_ROTATION_0_DEGREES};
   optional<display_writer_t> writer_{};
+  DisplayPage *page_{nullptr};
+};
+
+class DisplayPage {
+ public:
+  DisplayPage(const display_writer_t &writer);
+  void show();
+  void show_next();
+  void show_prev();
+  void set_parent(DisplayBuffer *parent);
+  void set_prev(DisplayPage *prev);
+  void set_next(DisplayPage *next);
+  const display_writer_t &get_writer() const;
+ protected:
+  DisplayBuffer *parent_;
+  display_writer_t writer_;
+  DisplayPage *prev_{nullptr};
+  DisplayPage *next_{nullptr};
 };
 
 class Glyph {
@@ -358,6 +384,48 @@ class Image {
   int width_;
   int height_;
   const uint8_t *data_start_;
+};
+
+template<typename T>
+class DisplayPageShowAction : public Action<T> {
+ public:
+  DisplayPageShowAction() {}
+  template<typename V>
+  void set_page(V page) { this->page_ = page; }
+  void play(T x) override {
+    auto *page = this->page_.value(x);
+    if (page != nullptr) {
+      page->show();
+    }
+    this->play_next(x);
+  }
+ protected:
+  TemplatableValue<DisplayPage *, T> page_;
+};
+
+template<typename T>
+class DisplayPageShowNextAction : public Action<T> {
+ public:
+  DisplayPageShowNextAction(DisplayBuffer *buffer) : buffer_(buffer) {}
+  void play(T x) override {
+    this->buffer_->show_next_page();
+    this->play_next(x);
+  }
+ protected:
+  DisplayBuffer *buffer_;
+};
+
+template<typename T>
+class DisplayPageShowPrevAction : public Action<T> {
+ public:
+  DisplayPageShowPrevAction(DisplayBuffer *buffer) : buffer_(buffer) {}
+  DisplayPageShowPrevAction() {}
+  void play(T x) override {
+    this->buffer_->show_prev_page();
+    this->play_next(x);
+  }
+ protected:
+  DisplayBuffer *buffer_;
 };
 
 } // namespace display

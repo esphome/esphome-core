@@ -74,6 +74,7 @@
 #include "esphome/remote/nec.h"
 #include "esphome/remote/panasonic.h"
 #include "esphome/remote/raw.h"
+#include "esphome/remote/rc5.h"
 #include "esphome/remote/rc_switch.h"
 #include "esphome/remote/remote_receiver.h"
 #include "esphome/remote/remote_transmitter.h"
@@ -1028,6 +1029,15 @@ class Application {
   /// Create an RGBW NeoPixelBus light.
   template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbwFeature>
   MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> make_neo_pixel_bus_rgbw_light(const std::string &name);
+#endif
+
+#ifdef USE_LIGHT
+  struct MakePartitionLight {
+    light::PartitionLightOutput *partition;
+    light::LightState *state;
+  };
+  MakePartitionLight make_partition_light(const std::string &name,
+                                          const std::vector<light::AddressableSegment> &segments);
 #endif
 
 

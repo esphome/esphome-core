@@ -1284,6 +1284,19 @@ stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GP
 }
 #endif
 
+#ifdef USE_LIGHT
+Application::MakePartitionLight Application::make_partition_light(
+    const std::string &name, const std::vector<light::AddressableSegment> &segments) {
+  auto *part = new PartitionLightOutput(segments);
+  auto make = this->make_light_for_light_output(name, part);
+
+  return MakePartitionLight{
+      .partition = part,
+      .state = make.state,
+  };
+}
+#endif
+
 Application App; // NOLINT
 
 ESPHOME_NAMESPACE_END
