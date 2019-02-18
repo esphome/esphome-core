@@ -34,7 +34,8 @@ class MQTTTextSensor;
 
 class TextSensor : public Nameable {
  public:
-  explicit TextSensor(const std::string &name) : Nameable(name) {}
+  explicit TextSensor();
+  explicit TextSensor(const std::string &name);
 
   void publish_state(std::string state);
 
