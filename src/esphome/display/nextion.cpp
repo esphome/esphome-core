@@ -163,12 +163,13 @@ void Nextion::loop() {
     uint8_t data_length = 0;
     uint8_t end_length = 0;
     while (this->available() && end_length < 3 && data_length < sizeof(data)) {
-      this->read_byte(&data[data_length++]);
+      this->read_byte(&data[data_length]);
       if (data[data_length] == 0xFF) {
         end_length++;
       } else {
         end_length = 0;
       }
+      data_length++;
     }
 
     if (end_length != 3) {
