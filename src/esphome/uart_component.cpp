@@ -7,7 +7,7 @@
 #include "esphome/log.h"
 
 #ifdef ARDUINO_ARCH_ESP8266
-  #include "FunctionalInterrupt.h"
+  extern "C" void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*userFunc)(void*), void*fp , int mode);
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -263,31 +263,31 @@ void ESP8266SoftwareSerial::setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_ra
     this->rx_mask_ = (1U << rx_pin);
     pinMode(rx_pin, INPUT);
     this->rx_buffer_ = new uint8_t[this->rx_buffer_size_];
-    auto f = std::bind(&ESP8266SoftwareSerial::gpio_intr_, this);
-    attachInterrupt(rx_pin, f, FALLING);
+    __attachInterruptArg(rx_pin, &ESP8266SoftwareSerial::gpio_intr_, this, FALLING);
   }
 }
 
-void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::gpio_intr_() {
-  uint32_t wait = this->bit_time_ + this->bit_time_/3 - 500;
+void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::gpio_intr_(void *param) {
+  ESP8266SoftwareSerial *this_ = static_cast<ESP8266SoftwareSerial *>(param);
+  uint32_t wait = this_->bit_time_ + this_->bit_time_/3 - 500;
   const uint32_t start = ESP.getCycleCount();
   uint8_t rec = 0;
   // Manually unroll the loop
-  rec |= this->read_bit_(wait, start) << 0;
-  rec |= this->read_bit_(wait, start) << 1;
-  rec |= this->read_bit_(wait, start) << 2;
-  rec |= this->read_bit_(wait, start) << 3;
-  rec |= this->read_bit_(wait, start) << 4;
-  rec |= this->read_bit_(wait, start) << 5;
-  rec |= this->read_bit_(wait, start) << 6;
-  rec |= this->read_bit_(wait, start) << 7;
+  rec |= this_->read_bit_(wait, start) << 0;
+  rec |= this_->read_bit_(wait, start) << 1;
+  rec |= this_->read_bit_(wait, start) << 2;
+  rec |= this_->read_bit_(wait, start) << 3;
+  rec |= this_->read_bit_(wait, start) << 4;
+  rec |= this_->read_bit_(wait, start) << 5;
+  rec |= this_->read_bit_(wait, start) << 6;
+  rec |= this_->read_bit_(wait, start) << 7;
   // Stop bit
-  this->wait_(wait, start);
+  this_->wait_(wait, start);
 
-  this->rx_buffer_[this->rx_in_pos_] = rec;
-  this->rx_in_pos_ = (this->rx_in_pos_ + 1) % this->rx_buffer_size_;
+  this_->rx_buffer_[this_->rx_in_pos_] = rec;
+  this_->rx_in_pos_ = (this_->rx_in_pos_ + 1) % this_->rx_buffer_size_;
   // Clear RX pin so that the interrupt doesn't re-trigger right away again.
-  GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, this->rx_mask_);
+  GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, this_->rx_mask_);
 }
 void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
   if (this->tx_mask_ == 0) {
