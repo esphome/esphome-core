@@ -17,7 +17,7 @@
   #include <soc/rmt_struct.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  #include "FunctionalInterrupt.h"
+  extern "C" void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*userFunc)(void*), void*fp , int mode);
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -278,20 +278,21 @@ void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-void ICACHE_RAM_ATTR HOT RemoteReceiverComponent::gpio_intr() {
+void ICACHE_RAM_ATTR HOT RemoteReceiverComponent::gpio_intr(void *param) {
+  RemoteReceiverComponent *this_ = static_cast<RemoteReceiverComponent *>(param);
   const uint32_t now = micros();
   // If the lhs is 1 (rising edge) we should write to an uneven index and vice versa
-  const uint32_t next = (this->buffer_write_at_ + 1) % this->buffer_size_;
-  if (uint32_t(this->pin_->digital_read()) != next % 2)
+  const uint32_t next = (this_->buffer_write_at_ + 1) % this_->buffer_size_;
+  if (uint32_t(this_->pin_->digital_read()) != next % 2)
     return;
-  const uint32_t last_change = this->buffer_[this->buffer_write_at_];
-  if (now - last_change <= this->filter_us_)
+  const uint32_t last_change = this_->buffer_[this_->buffer_write_at_];
+  if (now - last_change <= this_->filter_us_)
     return;
 
-  this->buffer_[this->buffer_write_at_ = next] = now;
+  this_->buffer_[this_->buffer_write_at_ = next] = now;
 
-  if (next == this->buffer_read_at_) {
-    this->overflow_ = true;
+  if (next == this_->buffer_read_at_) {
+    this_->overflow_ = true;
   }
 }
 
@@ -313,8 +314,7 @@ void RemoteReceiverComponent::setup() {
     this->buffer_write_at_ = this->buffer_read_at_ = 0;
     this->buffer_[0] = 0;
   }
-  auto intr = std::bind(&RemoteReceiverComponent::gpio_intr, this);
-  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
+  __attachInterruptArg(this->pin_->get_pin(), &RemoteReceiverComponent::gpio_intr, this, CHANGE);
 }
 void RemoteReceiverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Receiver:");

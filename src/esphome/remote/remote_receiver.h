@@ -160,7 +160,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   /// The position last read from
   uint32_t buffer_read_at_{0};
   bool overflow_{false};
-  void gpio_intr();
+  static void gpio_intr(void *param);
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
