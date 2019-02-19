@@ -127,13 +127,14 @@ class ESPColorView {
   inline uint8_t get_blue() const ALWAYS_INLINE;
   inline uint8_t get_white() const ALWAYS_INLINE;
   inline uint8_t get_effect_data() const ALWAYS_INLINE;
+  inline void set_color_correction_(const ESPColorCorrection *color_correction) ALWAYS_INLINE;
  protected:
   uint8_t *const red_;
   uint8_t *const green_;
   uint8_t *const blue_;
   uint8_t *const white_;
   uint8_t *const effect_data_;
-  const ESPColorCorrection *const color_correction_;
+  const ESPColorCorrection *color_correction_;
 };
 
 class AddressableLight : public LightOutput {
@@ -145,9 +146,16 @@ class AddressableLight : public LightOutput {
   bool is_effect_active() const;
   void set_effect_active(bool effect_active);
   void write_state(LightState *state) override;
-  virtual void write_state(LightState *state, int32_t begin, int32_t end) = 0;
+  void set_correction(float red, float green, float blue, float white = 1.0f);
+  void setup_state(LightState *state) override;
+  void schedule_show();
  protected:
+  bool should_show_() const;
+  void mark_shown_();
+  
   bool effect_active_{false};
+  bool next_show_{true};
+  ESPColorCorrection correction_{};
 };
 
 class AddressableSegment {
@@ -167,17 +175,18 @@ class AddressableSegment {
   int32_t dst_offset_;
 };
 
-class PartitionLightOutput : public AddressableLight {
+class PartitionLightOutput : public AddressableLight, public Component {
  public:
   PartitionLightOutput(const std::vector<AddressableSegment> &segments);
   int32_t size() const override;
   ESPColorView operator[](int32_t index) const override;
   void clear_effect_data() override;
   LightTraits get_traits() override;
-  void write_state(LightState *state, int32_t begin, int32_t end) override;
+  void loop() override;
 
  protected:
   std::vector<AddressableSegment> segments_;
+  ESPColorCorrection correction_{};
 };
 
 } // namespace light
