@@ -15,10 +15,8 @@ static const char *TAG = "switch";
 std::string Switch::icon() {
   return "";
 }
-Switch::Switch(const std::string &name)
-  : Nameable(name), state(false) {
-
-}
+Switch::Switch(const std::string &name) : Nameable(name), state(false) {}
+Switch::Switch() : Switch("") {}
 
 std::string Switch::get_icon() {
   if (this->icon_.has_value())

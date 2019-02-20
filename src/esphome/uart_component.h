@@ -25,7 +25,7 @@ class ESP8266SoftwareSerial {
   int available();
 
  protected:
-  void gpio_intr_();
+  static void gpio_intr_(void *param);
 
   inline void wait_(uint32_t &wait, const uint32_t &start);
   inline uint8_t read_bit_(uint32_t &wait, const uint32_t &start);
