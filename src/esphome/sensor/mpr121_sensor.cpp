@@ -102,8 +102,13 @@ namespace sensor {
     uint16_t MPR121_Sensor::read_mpr121_channels() {
         uint16_t val = 0;
         this->read_byte_16(MPR121_TOUCHSTATUS_L, &val);
-        //ESP_LOGD(TAG,"value: %d",val);
-        return val >> 8;
+        uint8_t lsb = val >> 8;
+        uint8_t msb = val ;
+        val = ((uint16_t) msb) << 8;
+        val |= lsb;
+
+        //ESP_LOGD(TAG,"msb:%d lsb:%d value: %d",msb,lsb,val);
+        return val ;
     }
 
     void MPR121_Sensor::loop() {
