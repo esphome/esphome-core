@@ -54,19 +54,13 @@ enum class ESPNeoPixelOrder {
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
  public:
-  void schedule_show();
-
 #ifdef USE_OUTPUT
   void set_power_supply(PowerSupplyComponent *power_supply);
 #endif
 
   NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *get_controller() const;
 
-  void set_correction(float red, float green, float blue, float white = 0.0f);
-
   void clear_effect_data() override;
-
-  void setup_state(LightState *state) override;
 
   /// Add some LEDS, can only be called once.
   void add_leds(uint16_t count_pixels, uint8_t pin);
@@ -75,8 +69,6 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
   void add_leds(NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller);
 
   // ========== INTERNAL METHODS ==========
-  void write_state(LightState *state, int32_t begin, int32_t end) override;
-
   void setup() override;
 
   void dump_config() override;
@@ -91,8 +83,6 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
 
  protected:
   NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller_{nullptr};
-  bool next_show_{true};
-  ESPColorCorrection correction_{};
   uint8_t *effect_data_{nullptr};
   uint8_t rgb_offsets_[4];
 #ifdef USE_OUTPUT
