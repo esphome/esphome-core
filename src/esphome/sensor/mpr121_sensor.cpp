@@ -42,16 +42,7 @@ namespace sensor {
         delay(1);
         this->write_byte(MPR121_ECR, 0x0);
 
-        uint8_t c = 0;
-//        this->read_byte(MPR121_CONFIG2,&c);
-
-        this->read_byte(MPR121_CONFIG2, &c);
-        if (c != 0x24) {
-            this->error_code_ = WRONG_CHIP_STATE;
-            this->mark_failed();
-            return;
-        }
-
+        //set touch sensitivity
         for (uint8_t i=0; i<12; i++) {
             this->write_byte(MPR121_TOUCHTH_0 + 2*i, 12);
             this->write_byte(MPR121_RELEASETH_0 + 2*i, 6);
@@ -76,7 +67,6 @@ namespace sensor {
 
         this->write_byte(MPR121_ECR, 0x8F);     // start with first 5 bits of baseline tracking
 
-        ESP_LOGCONFIG(TAG, "Finished.");
     }
 
     void MPR121_Sensor::dump_config() {
@@ -112,7 +102,8 @@ namespace sensor {
     uint16_t MPR121_Sensor::read_mpr121_channels() {
         uint16_t val = 0;
         this->read_byte_16(MPR121_TOUCHSTATUS_L, &val);
-        return val & 0x0FFF;
+        //ESP_LOGD(TAG,"value: %d",val);
+        return val >> 8;
     }
 
     void MPR121_Sensor::loop() {
@@ -122,7 +113,7 @@ namespace sensor {
             this->process_(&i, &currtouched,&lasttouched);
           }
         }
-        // reset our state
+        // reset touchstate
         this->lasttouched = this->currtouched;
     }
 
