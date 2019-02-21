@@ -84,6 +84,13 @@ void WaveshareEPaper::data(uint8_t value) {
   this->write_byte(value);
   this->disable();
 }
+void WaveshareEPaper::start_data() {
+  this->dc_pin_->digital_write(true);
+  this->enable();
+}
+void WaveshareEPaper::stop_data() {
+  this->disable();
+}
 bool WaveshareEPaper::msb_first() {
   return true;
 }
@@ -641,6 +648,7 @@ void WaveshareEPaper7P5In::setup() {
 }
 void HOT WaveshareEPaper7P5In::display() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
+  this->start_data();
   for (size_t i = 0; i < this->get_buffer_length(); i++) {
     uint8_t temp1 = this->buffer_[i];
     for (uint8_t j = 0; j < 8; j++) {
@@ -658,11 +666,12 @@ void HOT WaveshareEPaper7P5In::display() {
       else
         temp2 |= 0x00;
       temp1 <<= 1;
-      this->data(temp2);
+      this->write_byte(temp2);
     }
 
     feed_wdt();
   }
+  this->stop_data();
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
 int WaveshareEPaper7P5In::get_width_internal_() {

@@ -22,6 +22,8 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
   bool msb_first() override;
   void command(uint8_t value);
   void data(uint8_t value);
+  void start_data();
+  void stop_data();
   bool wait_until_idle_();
 
   virtual void display() = 0;
