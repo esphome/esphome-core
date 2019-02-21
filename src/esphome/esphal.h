@@ -74,6 +74,10 @@ class GPIOPin {
   const bool inverted_;
 };
 
+#ifdef ARDUINO_ARCH_ESP8266
+void attach_functional_interrupt(uint8_t pin, std::function<void()> func, int mode);
+#endif
+
 /**  Basically just a GPIOPin, but defaults to OUTPUT pinMode.
  *
  * Note that theoretically you can still assign an INPUT pinMode to this - we intentionally don't check this.
