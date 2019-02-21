@@ -26,7 +26,7 @@ namespace sensor {
         }
     }
 
-    MPR121_Sensor::MPR121_Sensor(I2CComponent *parent, const std::string &name, uint8_t address, uint8_t num_channels)
+    MPR121_Sensor::MPR121_Sensor(I2CComponent *parent, uint8_t address, uint8_t num_channels)
     :  I2CDevice(parent, address) {
         this->num_channels = num_channels;
     }

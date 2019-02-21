@@ -67,7 +67,7 @@ namespace sensor {
 
     class MPR121_Sensor : public Component , public I2CDevice {
         public:
-            MPR121_Sensor(I2CComponent *parent, const std::string &name, uint8_t address = MPR121_I2CADDR_DEFAULT, uint8_t num_channels = 12);
+            MPR121_Sensor(I2CComponent *parent, uint8_t address = MPR121_I2CADDR_DEFAULT, uint8_t num_channels = 12);
             sensor::MPR121_Channel *add_channel(sensor::MPR121_Channel *channel);
             void process_(uint8_t *ch, uint16_t *data,uint16_t *last_data);
             void setup() override;
