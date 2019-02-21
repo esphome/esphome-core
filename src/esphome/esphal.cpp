@@ -2,6 +2,11 @@
 #include "esphome/helpers.h"
 #include "esphome/log.h"
 
+#ifdef ARDUINO_ARCH_ESP8266
+#include "FunctionalInterrupt.h"
+extern "C" void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*userFunc)(void*), void*fp , int mode);
+#endif
+
 ESPHOME_NAMESPACE_BEGIN
 
 static const char *TAG = "esphal";
@@ -108,5 +113,25 @@ GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted)
 
 GPIOInputPin::GPIOInputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}
+
+#ifdef ARDUINO_ARCH_ESP8266
+void ICACHE_RAM_ATTR custom_interrupt_functional(void* arg) {
+  ArgStructure* localArg = (ArgStructure*)arg;
+  if (localArg->functionInfo->reqFunction) {
+    localArg->functionInfo->reqFunction();
+  }
+}
+
+void ICACHE_RAM_ATTR attach_functional_interrupt(uint8_t pin, std::function<void()> func, int mode) {
+  FunctionInfo* fi = new FunctionInfo;
+  fi->reqFunction = func;
+
+  ArgStructure* as = new ArgStructure;
+  as->interruptInfo = nullptr;
+  as->functionInfo = fi;
+
+  __attachInterruptArg(pin, custom_interrupt_functional, as, mode);
+}
+#endif
 
 ESPHOME_NAMESPACE_END

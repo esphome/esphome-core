@@ -8,10 +8,6 @@
 #include "esphome/esphal.h"
 #include "esphome/espmath.h"
 
-#ifdef ARDUINO_ARCH_ESP8266
-  extern "C" void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*userFunc)(void*), void*fp , int mode);
-#endif
-
 ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
@@ -43,29 +39,30 @@ GPIOPin *PulseCounterBase::get_pin() {
 }
 
 #ifdef ARDUINO_ARCH_ESP8266
-void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr(void *param) {
-  PulseCounterBase *this_ = static_cast<PulseCounterBase *>(param);
+void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
   const uint32_t now = micros();
-  const bool discard = now - this_->last_pulse_ < this_->filter_us_;
-  this_->last_pulse_ = now;
+  const bool discard = now - this->last_pulse_ < this->filter_us_;
+  this->last_pulse_ = now;
   if (discard)
     return;
 
-  PulseCounterCountMode mode = this_->pin_->digital_read() ? this_->rising_edge_mode_ : this_->falling_edge_mode_;
+  PulseCounterCountMode mode = this->pin_->digital_read() ? this->rising_edge_mode_ : this->falling_edge_mode_;
   switch (mode) {
     case PULSE_COUNTER_DISABLE:
       break;
     case PULSE_COUNTER_INCREMENT:
-      this_->counter_++;
+      this->counter_++;
       break;
     case PULSE_COUNTER_DECREMENT:
-      this_->counter_--;
+      this->counter_--;
       break;
   }
 }
 bool PulseCounterBase::pulse_counter_setup_() {
   this->pin_->setup();
-  __attachInterruptArg(this->pin_->get_pin(), &PulseCounterSensorComponent::gpio_intr, this, CHANGE);
+  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR {
+    this->gpio_intr();
+  }, CHANGE);
   return true;
 }
 pulse_counter_t PulseCounterBase::read_raw_value_() {
