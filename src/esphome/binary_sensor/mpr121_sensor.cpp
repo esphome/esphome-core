@@ -2,14 +2,14 @@
 #ifdef USE_MPR121
 
 #include "esphome.h"
-#include "esphome/sensor/mpr121_sensor.h"
+#include "esphome/binary_sensor/mpr121_sensor.h"
 #include "esphome/log.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
-namespace sensor {
+namespace binary_sensor {
 
-static const char *TAG = "sensor.mpr121";
+static const char *TAG = "binary_sensor.mpr121";
 
 MPR121_Channel::MPR121_Channel(const std::string &name, int channel_num) : BinarySensor(name) {
   channel_ = channel_num;
@@ -85,7 +85,7 @@ float MPR121_Sensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
-MPR121_Channel *MPR121_Sensor::add_channel(sensor::MPR121_Channel *channel) {
+MPR121_Channel *MPR121_Sensor::add_channel(binary_sensor::MPR121_Channel *channel) {
   this->channels_.push_back(channel);
   return channel;
 }

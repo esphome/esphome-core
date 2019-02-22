@@ -12,7 +12,7 @@
 
 ESPHOME_NAMESPACE_BEGIN
 
-namespace sensor {
+namespace binary_sensor {
 
 enum {
   MPR121_TOUCHSTATUS_L = 0x00,
@@ -67,7 +67,7 @@ class MPR121_Channel : public binary_sensor::BinarySensor {
 class MPR121_Sensor : public Component, public I2CDevice {
  public:
   MPR121_Sensor(I2CComponent *parent, uint8_t address = 0x5A);
-  sensor::MPR121_Channel *add_channel(sensor::MPR121_Channel *channel);
+  binary_sensor::MPR121_Channel *add_channel(binary_sensor::MPR121_Channel *channel);
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
