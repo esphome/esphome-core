@@ -105,7 +105,7 @@ namespace sensor {
         val |= lsb;
 
         //ESP_LOGD(TAG,"msb:%d lsb:%d value: %d",msb,lsb,val);
-        return val ;
+        return val;
     }
 
     void MPR121_Sensor::loop() {
