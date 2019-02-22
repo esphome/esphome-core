@@ -74,6 +74,7 @@ namespace sensor {
             void dump_config() override;
             //float get_setup_priority() const override;
             void loop() override;
+            void set_sensitivity(uint8_t sens_touch = 12, uint8_t sens_release = 6, uint8 channel=-1);
         protected:
             std::vector<MPR121_Channel *> channels{};
             uint8_t num_channels;

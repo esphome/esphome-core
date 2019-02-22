@@ -43,10 +43,11 @@ namespace sensor {
         this->write_byte(MPR121_ECR, 0x0);
 
         //set touch sensitivity
-        for (uint8_t i=0; i<12; i++) {
-            this->write_byte(MPR121_TOUCHTH_0 + 2*i, 12);
-            this->write_byte(MPR121_RELEASETH_0 + 2*i, 6);
-        }
+        this->set_sensitivity();
+        // for (uint8_t i=0; i<12; i++) {
+        //     this->write_byte(MPR121_TOUCHTH_0 + 2*i, 12);
+        //     this->write_byte(MPR121_RELEASETH_0 + 2*i, 6);
+        // }
         this->write_byte(MPR121_MHDR, 0x01);
         this->write_byte(MPR121_NHDR, 0x01);
         this->write_byte(MPR121_NCLR, 0x0E);
@@ -93,10 +94,19 @@ namespace sensor {
     }
 
     void MPR121_Sensor::process_(uint8_t *ch, uint16_t *data, uint16_t *last_data) {
-      for (auto *channel : this->channels) {
-        if(channel->channel == *ch)
-          channel->process_(data,last_data);
-      }
+      this->channels[*ch]->process_(data,last_data);
+    }
+
+    void MPR121_Sensor::set_sensitivity(uint8_t sens_touch , uint8_t sens_release, uint8 channel) {
+        if(channel == -1) {
+            for (uint8_t i=0; i<12; i++) {
+                this->write_byte(MPR121_TOUCHTH_0 + 2*i, sens_touch);
+                this->write_byte(MPR121_RELEASETH_0 + 2*i, sens_release);
+            }
+        } else {
+            this->write_byte(MPR121_TOUCHTH_0 + 2*channel, sens_touch);
+            this->write_byte(MPR121_RELEASETH_0 + 2*channel, sens_release);
+        }
     }
 
     uint16_t MPR121_Sensor::read_mpr121_channels() {
