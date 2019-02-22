@@ -26,10 +26,7 @@ namespace sensor {
         }
     }
 
-    MPR121_Sensor::MPR121_Sensor(I2CComponent *parent, uint8_t address, uint8_t num_channels)
-    :  I2CDevice(parent, address) {
-        this->num_channels = num_channels;
-    }
+    MPR121_Sensor::MPR121_Sensor(I2CComponent *parent, uint8_t address) :  I2CDevice(parent, address) {}
 
     void MPR121_Sensor::setup() {
         ESP_LOGCONFIG(TAG, "Setting up MPR121...");
@@ -93,8 +90,10 @@ namespace sensor {
       return channel;
     }
 
-    void MPR121_Sensor::process_(uint8_t *ch, uint16_t *data, uint16_t *last_data) {
-      this->channels[*ch]->process_(data,last_data);
+    void MPR121_Sensor::process_( uint16_t *data, uint16_t *last_data) {
+      for (auto *channel : this->channels) {
+        channel->process_(data,last_data);
+      }
     }
 
     void MPR121_Sensor::set_sensitivity(uint8_t sens_touch , uint8_t sens_release, uint8 channel) {
@@ -123,10 +122,8 @@ namespace sensor {
 
     void MPR121_Sensor::loop() {
         this->currtouched = this->read_mpr121_channels();
-        if(this->currtouched != this->lasttouched) {
-          for (uint8_t i = 0; i < this->num_channels; i++) {
-            this->process_(&i, &currtouched,&lasttouched);
-          }
+        if(this->currtouched != this->lasttouched) {  
+            this->process_(&currtouched,&lasttouched);
         }
         // reset touchstate
         this->lasttouched = this->currtouched;

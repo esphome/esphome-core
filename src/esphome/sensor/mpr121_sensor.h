@@ -67,9 +67,9 @@ namespace sensor {
 
     class MPR121_Sensor : public Component , public I2CDevice {
         public:
-            MPR121_Sensor(I2CComponent *parent, uint8_t address = MPR121_I2CADDR_DEFAULT, uint8_t num_channels = 12);
+            MPR121_Sensor(I2CComponent *parent, uint8_t address = MPR121_I2CADDR_DEFAULT);
             sensor::MPR121_Channel *add_channel(sensor::MPR121_Channel *channel);
-            void process_(uint8_t *ch, uint16_t *data,uint16_t *last_data);
+            void process_(uint16_t *data,uint16_t *last_data);
             void setup() override;
             void dump_config() override;
             //float get_setup_priority() const override;
@@ -77,7 +77,6 @@ namespace sensor {
             void set_sensitivity(uint8_t sens_touch = 12, uint8_t sens_release = 6, uint8 channel=-1);
         protected:
             std::vector<MPR121_Channel *> channels{};
-            uint8_t num_channels;
             uint16_t lasttouched = 0;
             uint16_t currtouched = 0;
             enum ErrorCode {
