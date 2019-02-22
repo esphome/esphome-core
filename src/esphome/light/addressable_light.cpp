@@ -151,6 +151,8 @@ void AddressableLight::write_state(LightState *state) {
   for (int i = 0; i < this->size(); i++) {
     (*this)[i] = color;
   }
+
+  this->schedule_show();
 }
 void AddressableLight::set_correction(float red, float green, float blue, float white) {
   this->correction_.set_max_brightness(ESPColor(
