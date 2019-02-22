@@ -21,9 +21,9 @@ class MQTTSensorComponent;
 class SensorStateTrigger;
 class SensorRawStateTrigger;
 class ValueRangeTrigger;
-template<typename T>
+template<typename... Ts>
 class SensorInRangeCondition;
-template<typename T>
+template<typename... Ts>
 class SensorPublishAction;
 
 #define LOG_SENSOR(prefix, type, obj) \
@@ -137,10 +137,10 @@ class Sensor : public Nameable {
   SensorStateTrigger *make_state_trigger();
   SensorRawStateTrigger *make_raw_state_trigger();
   ValueRangeTrigger *make_value_range_trigger();
-  template<typename T>
-  SensorInRangeCondition<T> *make_sensor_in_range_condition();
-  template<typename T>
-  SensorPublishAction<T> *make_sensor_publish_action();
+  template<typename... Ts>
+  SensorInRangeCondition<Ts...> *make_sensor_in_range_condition();
+  template<typename... Ts>
+  SensorPublishAction<Ts...> *make_sensor_publish_action();
 
 
   union {
@@ -286,16 +286,16 @@ class SensorRawStateTrigger : public Trigger<float> {
   explicit SensorRawStateTrigger(Sensor *parent);
 };
 
-template<typename T>
-class SensorPublishAction : public Action<T> {
+template<typename... Ts>
+class SensorPublishAction : public Action<Ts...> {
  public:
   SensorPublishAction(Sensor *sensor);
   template<typename V>
   void set_state(V state) { this->state_ = state; }
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   Sensor *sensor_;
-  TemplatableValue<float, T> state_;
+  TemplatableValue<float, Ts...> state_;
 };
 
 class ValueRangeTrigger : public Trigger<float>, public Component {
@@ -320,14 +320,14 @@ class ValueRangeTrigger : public Trigger<float>, public Component {
   TemplatableValue<float, float> max_{NAN};
 };
 
-template<typename T>
-class SensorInRangeCondition : public Condition<T> {
+template<typename... Ts>
+class SensorInRangeCondition : public Condition<Ts...> {
  public:
   SensorInRangeCondition(Sensor *parent);
 
   void set_min(float min);
   void set_max(float max);
-  bool check(T x) override;
+  bool check(Ts... x) override;
  protected:
   Sensor *parent_;
   float min_{NAN};
@@ -367,22 +367,22 @@ extern const char UNIT_K[];
 extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 extern const char UNIT_MICROGRAMS_PER_CUBIC_METER[];
 
-template<typename T>
-SensorInRangeCondition<T> *Sensor::make_sensor_in_range_condition() {
-  return new SensorInRangeCondition<T>(this);
+template<typename... Ts>
+SensorInRangeCondition<Ts...> *Sensor::make_sensor_in_range_condition() {
+  return new SensorInRangeCondition<Ts...>(this);
 }
-template<typename T>
-SensorInRangeCondition<T>::SensorInRangeCondition(Sensor *parent) : parent_(parent) {}
-template<typename T>
-void SensorInRangeCondition<T>::set_min(float min) {
+template<typename... Ts>
+SensorInRangeCondition<Ts...>::SensorInRangeCondition(Sensor *parent) : parent_(parent) {}
+template<typename... Ts>
+void SensorInRangeCondition<Ts...>::set_min(float min) {
   this->min_ = min;
 }
-template<typename T>
-void SensorInRangeCondition<T>::set_max(float max) {
+template<typename... Ts>
+void SensorInRangeCondition<Ts...>::set_max(float max) {
   this->max_ = max;
 }
-template<typename T>
-bool SensorInRangeCondition<T>::check(T x) {
+template<typename... Ts>
+bool SensorInRangeCondition<Ts...>::check(Ts... x) {
   const float state = this->parent_->state;
   if (isnan(this->min_)) {
     return state <= this->max_;
@@ -392,16 +392,16 @@ bool SensorInRangeCondition<T>::check(T x) {
     return this->min_ <= state && state <= this->max_;
   }
 }
-template<typename T>
-SensorPublishAction<T>::SensorPublishAction(Sensor *sensor) : sensor_(sensor) {}
-template<typename T>
-void SensorPublishAction<T>::play(T x) {
-  this->sensor_->publish_state(this->state_.value(x));
-  this->play_next(x);
+template<typename... Ts>
+SensorPublishAction<Ts...>::SensorPublishAction(Sensor *sensor) : sensor_(sensor) {}
+template<typename... Ts>
+void SensorPublishAction<Ts...>::play(Ts... x) {
+  this->sensor_->publish_state(this->state_.value(x...));
+  this->play_next(x...);
 }
-template<typename T>
-SensorPublishAction<T> *Sensor::make_sensor_publish_action() {
-  return new SensorPublishAction<T>(this);
+template<typename... Ts>
+SensorPublishAction<Ts...> *Sensor::make_sensor_publish_action() {
+  return new SensorPublishAction<Ts...>(this);
 }
 
 } // namespace sensor

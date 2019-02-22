@@ -24,13 +24,13 @@ enum CoverCommand {
   COVER_COMMAND_STOP,
 };
 
-template<typename T>
+template<typename... Ts>
 class OpenAction;
-template<typename T>
+template<typename... Ts>
 class CloseAction;
-template<typename T>
+template<typename... Ts>
 class StopAction;
-template<typename T>
+template<typename... Ts>
 class CoverPublishAction;
 
 #define LOG_COVER(prefix, type, obj) \
@@ -57,14 +57,14 @@ class Cover : public Nameable {
 
   void publish_state(CoverState state);
 
-  template<typename T>
-  OpenAction<T> *make_open_action();
-  template<typename T>
-  CloseAction<T> *make_close_action();
-  template<typename T>
-  StopAction<T> *make_stop_action();
-  template<typename T>
-  CoverPublishAction<T> *make_cover_publish_action();
+  template<typename... Ts>
+  OpenAction<Ts...> *make_open_action();
+  template<typename... Ts>
+  CloseAction<Ts...> *make_close_action();
+  template<typename... Ts>
+  StopAction<Ts...> *make_stop_action();
+  template<typename... Ts>
+  CoverPublishAction<Ts...> *make_cover_publish_action();
 
   /** Return whether this cover is optimistic - i.e. if both the OPEN/CLOSE actions should be displayed in
    * Home Assistant because the real state is unknown.
@@ -95,112 +95,110 @@ class Cover : public Nameable {
 #endif
 };
 
-template<typename T>
-class OpenAction : public Action<T> {
+template<typename... Ts>
+class OpenAction : public Action<Ts...> {
  public:
   explicit OpenAction(Cover *cover);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Cover *cover_;
 };
 
-template<typename T>
-class CloseAction : public Action<T> {
+template<typename... Ts>
+class CloseAction : public Action<Ts...> {
  public:
   explicit CloseAction(Cover *cover);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Cover *cover_;
 };
 
-template<typename T>
-class StopAction : public Action<T> {
+template<typename... Ts>
+class StopAction : public Action<Ts...> {
  public:
   explicit StopAction(Cover *cover);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Cover *cover_;
 };
 
-template<typename T>
-class CoverPublishAction : public Action<T> {
+template<typename... Ts>
+class CoverPublishAction : public Action<Ts...> {
  public:
   CoverPublishAction(Cover *cover);
   template<typename V>
   void set_state(V value) { this->state_ = value; }
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   Cover *cover_;
-  TemplatableValue<CoverState, T> state_;
+  TemplatableValue<CoverState, Ts...> state_;
 };
 
 // =============== TEMPLATE DEFINITIONS ===============
 
-template<typename T>
-OpenAction<T>::OpenAction(Cover *cover)
+template<typename... Ts>
+OpenAction<Ts...>::OpenAction(Cover *cover)
     : cover_(cover) {
 
 }
-template<typename T>
-void OpenAction<T>::play(T x) {
+template<typename... Ts>
+void OpenAction<Ts...>::play(Ts... x) {
   this->cover_->open();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
-template<typename T>
-CloseAction<T>::CloseAction(Cover *cover)
+template<typename... Ts>
+CloseAction<Ts...>::CloseAction(Cover *cover)
     : cover_(cover) {
 
 }
-template<typename T>
-void CloseAction<T>::play(T x) {
+template<typename... Ts>
+void CloseAction<Ts...>::play(Ts... x) {
   this->cover_->close();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
-template<typename T>
-StopAction<T>::StopAction(Cover *cover)
-    : cover_(cover) {
+template<typename... Ts>
+StopAction<Ts...>::StopAction(Cover *cover)
+    : cover_(cover) { }
 
-}
-
-template<typename T>
-void StopAction<T>::play(T x) {
+template<typename... Ts>
+void StopAction<Ts...>::play(Ts... x) {
   this->cover_->stop();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
-template<typename T>
-OpenAction<T> *Cover::make_open_action() {
-  return new OpenAction<T>(this);
+template<typename... Ts>
+OpenAction<Ts...> *Cover::make_open_action() {
+  return new OpenAction<Ts...>(this);
 }
 
-template<typename T>
-CloseAction<T> *Cover::make_close_action() {
-  return new CloseAction<T>(this);
+template<typename... Ts>
+CloseAction<Ts...> *Cover::make_close_action() {
+  return new CloseAction<Ts...>(this);
 }
-template<typename T>
-StopAction<T> *Cover::make_stop_action() {
-  return new StopAction<T>(this);
+template<typename... Ts>
+StopAction<Ts...> *Cover::make_stop_action() {
+  return new StopAction<Ts...>(this);
 }
 
-template<typename T>
-CoverPublishAction<T>::CoverPublishAction(Cover *cover) : cover_(cover) {}
-template<typename T>
-void CoverPublishAction<T>::play(T x) {
-  auto val = this->state_.value(x);
+template<typename... Ts>
+CoverPublishAction<Ts...>::CoverPublishAction(Cover *cover) : cover_(cover) {}
+template<typename... Ts>
+void CoverPublishAction<Ts...>::play(Ts... x) {
+  auto val = this->state_.value(x...);
   this->cover_->publish_state(val);
-  this->play_next(x);
+  this->play_next(x...);
 }
-template<typename T>
-CoverPublishAction<T> *Cover::make_cover_publish_action() {
-  return new CoverPublishAction<T>(this);
+template<typename... Ts>
+CoverPublishAction<Ts...> *Cover::make_cover_publish_action() {
+  return new CoverPublishAction<Ts...>(this);
 }
 
 } // namespace cover

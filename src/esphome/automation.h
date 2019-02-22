@@ -10,39 +10,43 @@
 
 ESPHOME_NAMESPACE_BEGIN
 
-using NoArg = bool;
-
-template<typename T>
+template<typename... Ts>
 class Condition {
  public:
-  virtual bool check(T x) = 0;
+  virtual bool check(Ts... x) = 0;
+
+  bool check(const std::tuple<Ts...> &tuple);
+
+ protected:
+  template<int... S>
+  bool check(const std::tuple<Ts...> &tuple, seq<S...>);
 };
 
-template<typename T>
-class AndCondition : public Condition<T> {
+template<typename... Ts>
+class AndCondition : public Condition<Ts...> {
  public:
-  explicit AndCondition(const std::vector<Condition<T> *> &conditions);
-  bool check(T x) override;
+  explicit AndCondition(const std::vector<Condition<Ts...> *> &conditions);
+  bool check(Ts... x) override;
  protected:
-  std::vector<Condition<T> *> conditions_;
+  std::vector<Condition<Ts...> *> conditions_;
 };
 
-template<typename T>
-class OrCondition : public Condition<T> {
+template<typename... Ts>
+class OrCondition : public Condition<Ts...> {
  public:
-  explicit OrCondition(const std::vector<Condition<T> *> &conditions);
-  bool check(T x) override;
+  explicit OrCondition(const std::vector<Condition<Ts...> *> &conditions);
+  bool check(Ts... x) override;
  protected:
-  std::vector<Condition<T> *> conditions_;
+  std::vector<Condition<Ts...> *> conditions_;
 };
 
-template<typename T>
-class LambdaCondition : public Condition<T> {
+template<typename... Ts>
+class LambdaCondition : public Condition<Ts...> {
  public:
-  explicit LambdaCondition(std::function<bool(T)> &&f);
-  bool check(T x) override;
+  explicit LambdaCondition(std::function<bool(Ts...)> &&f);
+  bool check(Ts... x) override;
  protected:
-  std::function<bool(T)> f_;
+  std::function<bool(Ts...)> f_;
 };
 
 class RangeCondition : public Condition<float> {
@@ -60,31 +64,20 @@ class RangeCondition : public Condition<float> {
   TemplatableValue<float, float> max_{NAN};
 };
 
-template<typename T>
+template<typename... Ts>
 class Automation;
 
-template<typename T>
+template<typename... Ts>
 class Trigger {
  public:
-  void trigger(T x);
-  void set_parent(Automation<T> *parent);
+  void trigger(Ts... x);
+  void set_parent(Automation<Ts...> *parent);
   void stop();
  protected:
-  Automation<T> *parent_{nullptr};
+  Automation<Ts...> *parent_{nullptr};
 };
 
-template<>
-class Trigger<NoArg> {
- public:
-  void trigger();
-  void trigger(bool arg);
-  void set_parent(Automation<NoArg> *parent);
-  void stop();
- protected:
-  Automation<NoArg> *parent_{nullptr};
-};
-
-class StartupTrigger : public Trigger<NoArg>, public Component {
+class StartupTrigger : public Trigger<>, public Component {
  public:
   explicit StartupTrigger(float setup_priority = setup_priority::LATE);
   void setup() override;
@@ -99,58 +92,64 @@ class ShutdownTrigger : public Trigger<const char *> {
   ShutdownTrigger();
 };
 
-class LoopTrigger : public Trigger<NoArg>, public Component {
+class LoopTrigger : public Trigger<>, public Component {
  public:
   void loop() override;
   float get_setup_priority() const override;
 };
 
-class IntervalTrigger : public Trigger<NoArg>, public PollingComponent {
+class IntervalTrigger : public Trigger<>, public PollingComponent {
  public:
   IntervalTrigger(uint32_t update_interval);
   void update() override;
   float get_setup_priority() const override;
 };
 
-template<typename T>
+template<typename... Ts>
 class ScriptExecuteAction;
-template<typename T>
+template<typename... Ts>
 class ScriptStopAction;
 
-template<typename T>
+template<typename... Ts>
 class ScriptStopAction;
 
-class Script : public Trigger<NoArg> {
+class Script : public Trigger<> {
  public:
   void execute();
 
   void stop();
 
-  template<typename T>
-  ScriptExecuteAction<T> *make_execute_action();
+  template<typename... Ts>
+  ScriptExecuteAction<Ts...> *make_execute_action();
 
-  template<typename T>
-  ScriptStopAction<T> *make_stop_action();
+  template<typename... Ts>
+  ScriptStopAction<Ts...> *make_stop_action();
 };
 
-template<typename T>
+template<typename... Ts>
 class ActionList;
 
-template<typename T>
+template<typename... Ts>
 class Action {
  public:
-  virtual void play(T x) = 0;
-  void play_next(T x);
+  virtual void play(Ts... x) = 0;
+  void play_next(Ts... x);
   virtual void stop();
   void stop_next();
- protected:
-  friend ActionList<T>;
 
-  Action<T> *next_ = nullptr;
+  void play_next(const std::tuple<Ts...> &tuple);
+
+ protected:
+  friend ActionList<Ts...>;
+
+  template<int... S>
+  void play_next(const std::tuple<Ts...> &tuple, seq<S...>);
+
+  Action<Ts...> *next_ = nullptr;
 };
 
-template<typename T>
-class DelayAction : public Action<T>, public Component {
+template<typename... Ts>
+class DelayAction : public Action<Ts...>, public Component {
  public:
   explicit DelayAction();
 
@@ -158,63 +157,63 @@ class DelayAction : public Action<T>, public Component {
   void set_delay(V value) { this->delay_ = value; }
   void stop() override;
 
-  void play(T x) override;
+  void play(Ts... x) override;
   float get_setup_priority() const override;
  protected:
-  TemplatableValue<uint32_t, T> delay_{0};
+  TemplatableValue<uint32_t, Ts...> delay_{0};
 };
 
-template<typename T>
-class LambdaAction : public Action<T> {
+template<typename... Ts>
+class LambdaAction : public Action<Ts...> {
  public:
-  explicit LambdaAction(std::function<void(T)> &&f);
-  void play(T x) override;
+  explicit LambdaAction(std::function<void(Ts...)> &&f);
+  void play(Ts... x) override;
  protected:
-  std::function<void(T)> f_;
+  std::function<void(Ts...)> f_;
 };
 
-template<typename T>
-class IfAction : public Action<T> {
+template<typename... Ts>
+class IfAction : public Action<Ts...> {
  public:
-  explicit IfAction(std::vector<Condition<T> *> conditions);
+  explicit IfAction(std::vector<Condition<Ts...> *> conditions);
 
-  void add_then(const std::vector<Action<T> *> &actions);
+  void add_then(const std::vector<Action<Ts...> *> &actions);
 
-  void add_else(const std::vector<Action<T> *> &actions);
+  void add_else(const std::vector<Action<Ts...> *> &actions);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
   void stop() override;
 
  protected:
-  std::vector<Condition<T> *> conditions_;
-  ActionList<T> then_;
-  ActionList<T> else_;
+  std::vector<Condition<Ts...> *> conditions_;
+  ActionList<Ts...> then_;
+  ActionList<Ts...> else_;
 };
 
-template<typename T>
-class WhileAction : public Action<T> {
+template<typename... Ts>
+class WhileAction : public Action<Ts...> {
  public:
-  WhileAction(const std::vector<Condition<T> *> &conditions);
+  WhileAction(const std::vector<Condition<Ts...> *> &conditions);
 
-  void add_then(const std::vector<Action<T> *> &actions);
+  void add_then(const std::vector<Action<Ts...> *> &actions);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
   void stop() override;
 
  protected:
-  std::vector<Condition<T> *> conditions_;
-  ActionList<T> then_;
+  std::vector<Condition<Ts...> *> conditions_;
+  ActionList<Ts...> then_;
   bool is_running_{false};
 };
 
-template<typename T>
-class WaitUntilAction : public Action<T>, public Component {
+template<typename... Ts>
+class WaitUntilAction : public Action<Ts...>, public Component {
  public:
-  WaitUntilAction(const std::vector<Condition<T> *> &conditions);
+  WaitUntilAction(const std::vector<Condition<Ts...> *> &conditions);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
   void stop() override;
 
@@ -223,73 +222,73 @@ class WaitUntilAction : public Action<T>, public Component {
   float get_setup_priority() const override;
 
  protected:
-  std::vector<Condition<T> *> conditions_;
+  std::vector<Condition<Ts...> *> conditions_;
   bool triggered_{false};
-  T var_{};
+  std::tuple<Ts...> var_{};
 };
 
-template<typename T>
-class UpdateComponentAction : public Action<T> {
+template<typename... Ts>
+class UpdateComponentAction : public Action<Ts...> {
  public:
   UpdateComponentAction(PollingComponent *component);
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   PollingComponent *component_;
 };
 
-template<typename T>
-class ScriptExecuteAction : public Action<T> {
+template<typename... Ts>
+class ScriptExecuteAction : public Action<Ts...> {
  public:
   ScriptExecuteAction(Script *script);
 
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   Script *script_;
 };
 
-template<typename T>
-class ScriptStopAction : public Action<T> {
+template<typename... Ts>
+class ScriptStopAction : public Action<Ts...> {
  public:
   ScriptStopAction(Script *script);
 
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   Script *script_;
 };
 
-template<typename T>
+template<typename... Ts>
 class ActionList {
  public:
-  Action<T> *add_action(Action<T> *action);
-  void add_actions(const std::vector<Action<T> *> &actions);
-  void play(T x);
+  Action<Ts...> *add_action(Action<Ts...> *action);
+  void add_actions(const std::vector<Action<Ts...> *> &actions);
+  void play(Ts... x);
   void stop();
   bool empty() const;
 
  protected:
-  Action<T> *actions_begin_{nullptr};
-  Action<T> *actions_end_{nullptr};
+  Action<Ts...> *actions_begin_{nullptr};
+  Action<Ts...> *actions_end_{nullptr};
 };
 
-template<typename T>
+template<typename... Ts>
 class Automation {
  public:
-  explicit Automation(Trigger<T> *trigger);
+  explicit Automation(Trigger<Ts...> *trigger);
 
-  Condition<T> *add_condition(Condition<T> *condition);
-  void add_conditions(const std::vector<Condition<T> *> &conditions);
+  Condition<Ts...> *add_condition(Condition<Ts...> *condition);
+  void add_conditions(const std::vector<Condition<Ts...> *> &conditions);
 
-  Action<T> *add_action(Action<T> *action);
-  void add_actions(const std::vector<Action<T> *> &actions);
+  Action<Ts...> *add_action(Action<Ts...> *action);
+  void add_actions(const std::vector<Action<Ts...> *> &actions);
 
-  void process_trigger_(T x);
+  void process_trigger_(Ts... x);
 
   void stop();
 
  protected:
-  Trigger<T> *trigger_;
-  std::vector<Condition<T> *> conditions_;
-  ActionList<T> actions_;
+  Trigger<Ts...> *trigger_;
+  std::vector<Condition<Ts...> *> conditions_;
+  ActionList<Ts...> actions_;
 };
 
 template<typename T>
