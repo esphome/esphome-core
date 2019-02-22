@@ -40,11 +40,11 @@ namespace sensor {
         this->write_byte(MPR121_ECR, 0x0);
 
         //set touch sensitivity
-        this->set_sensitivity();
-        // for (uint8_t i=0; i<12; i++) {
-        //     this->write_byte(MPR121_TOUCHTH_0 + 2*i, 12);
-        //     this->write_byte(MPR121_RELEASETH_0 + 2*i, 6);
-        // }
+        //this->set_sensitivity();
+        for (uint8_t i=0; i<12; i++) {
+            this->write_byte(MPR121_TOUCHTH_0 + 2*i, 12);
+            this->write_byte(MPR121_RELEASETH_0 + 2*i, 6);
+        }
         this->write_byte(MPR121_MHDR, 0x01);
         this->write_byte(MPR121_NHDR, 0x01);
         this->write_byte(MPR121_NCLR, 0x0E);
