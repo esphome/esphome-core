@@ -10,7 +10,7 @@
 #include "esphome/i2c_component.h"
 #include "esphome/component.h"
 
-#define MPR121_I2CADDR_DEFAULT 0x5A
+static const uint8_t MPR121_DEFAULT_I2C_ADDR = 0x5A;
 
 ESPHOME_NAMESPACE_BEGIN
 
