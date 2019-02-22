@@ -9,6 +9,7 @@ cache:
     - "$TRAVIS_BUILD_DIR/.piolibdeps"
 
 script:
+  - python travis.py
   - platformio run -e $BUILD_TARGET
 
 matrix:
@@ -17,21 +18,5 @@ matrix:
   - env: BUILD_TARGET=livingroom
   - env: BUILD_TARGET=livingroom8266
   - env: BUILD_TARGET=custombmp180
-  - env: BUILD_TARGET=dht-dallas-sensors
-    if: branch = dev AND type = push
-  - env: BUILD_TARGET=switch-binarysensor
-    if: branch = dev AND type = push
-  - env: BUILD_TARGET=fan-example
-    if: branch = dev AND type = push
-  - env: BUILD_TARGET=lights
-    if: branch = dev AND type = push
-  - env: BUILD_TARGET=i2c-sensors
-    if: branch = dev AND type = push
-  - env: BUILD_TARGET=pcf8574
-    if: branch = dev AND type = push
   - env: BUILD_TARGET=fastled
-    if: branch = dev AND type = push
-  - env: BUILD_TARGET=neopixelbus
-    if: branch = dev AND type = push
-  - env: BUILD_TARGET=sonoff-b1
     if: branch = dev AND type = push

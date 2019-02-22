@@ -1,8 +1,8 @@
-#include <esphomelib.h>
-#include <esphomelib/light/light_effect.h>
+#include <esphome.h>
+#include <esphome/light/light_effect.h>
 
-using namespace esphomelib;
-using namespace esphomelib::light;
+using namespace esphome;
+using namespace esphome::light;
 
 /// Custom FastLED effect - Note: this will only work with FastLED lights
 class CustomLightEffect : public AddressableLightEffect {

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(esphomelib)
+project(esphome-core)
 
 include(CMakeListsPrivate.txt)
 
