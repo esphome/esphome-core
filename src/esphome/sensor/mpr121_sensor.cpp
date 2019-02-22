@@ -13,7 +13,7 @@ namespace sensor {
     static const char *TAG = "sensor.mpr121";
 
     MPR121_Channel::MPR121_Channel(const std::string &name,int channel_num) : BinarySensor(name) {
-      ESP_LOGD(TAG, "channel %d " , channel_num);
+      //ESP_LOGD(TAG, "channel %d " , channel_num);
       channel = channel_num;
     }
 
@@ -68,7 +68,7 @@ namespace sensor {
     }
 
     void MPR121_Sensor::dump_config() {
-        ESP_LOGCONFIG(TAG, "BMP280:");
+        ESP_LOGCONFIG(TAG, "MPR121:");
         LOG_I2C_DEVICE(this);
         switch (this->error_code_) {
             case COMMUNICATION_FAILED:
