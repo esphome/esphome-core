@@ -92,7 +92,7 @@ namespace sensor {
 
     void MPR121_Sensor::process_( uint16_t *data, uint16_t *last_data) {
       for (auto *channel : this->channels) {
-        channel->process_(data,last_data);
+        channel->process_(data, last_data);
       }
     }
 
