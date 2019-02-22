@@ -39,6 +39,11 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
 
   bool high_speed() override;
 
+  void start_command_();
+  void end_command_();
+  void start_data_();
+  void end_data_();
+
   GPIOPin *reset_pin_{nullptr};
   GPIOPin *dc_pin_;
   GPIOPin *busy_pin_{nullptr};
