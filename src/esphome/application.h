@@ -843,7 +843,7 @@ class Application {
 #endif
 
 #ifdef USE_MPR121
-  sensor::MPR121_Sensor *make_mpr121( uint8_t address = 0x5A);
+  sensor::MPR121_Sensor *make_mpr121(uint8_t address = 0x5A);
 #endif
 
 #ifdef USE_CUSTOM_SENSOR
