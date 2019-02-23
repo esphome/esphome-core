@@ -1,5 +1,5 @@
 #ifndef ESPHOME_SENSOR_MPR121_H
-#define ESPHOME_SENSOR_MPR121_H
+#define ESPHOME_BINARY_SENSOR_MPR121_H
 
 #include "esphome/defines.h"
 
