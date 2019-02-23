@@ -11,11 +11,11 @@ namespace binary_sensor {
 
 static const char *TAG = "binary_sensor.mpr121";
 
-MPR121_Channel::MPR121_Channel(const std::string &name, int channel_num) : BinarySensor(name) {
+MPR121Channel::MPR121Channel(const std::string &name, int channel_num) : BinarySensor(name) {
   channel_ = channel_num;
 }
 
-void MPR121_Channel::process(uint16_t *data, uint16_t *last_data) {
+void MPR121Channel::process(uint16_t *data, uint16_t *last_data) {
   if ((*data & _BV(channel_)) && !(*last_data & _BV(channel_))) {
     this->publish_state(true);
   }
@@ -24,10 +24,10 @@ void MPR121_Channel::process(uint16_t *data, uint16_t *last_data) {
   }
 }
 
-MPR121_Sensor::MPR121_Sensor(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {
+MPR121Component::MPR121Component(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {
 }
 
-void MPR121_Sensor::setup() {
+void MPR121Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MPR121...");
   // soft reset device and see if we can communicate
   if (!this->write_byte(MPR121_SOFTRESET, 0x63)) {
@@ -66,7 +66,7 @@ void MPR121_Sensor::setup() {
   this->write_byte(MPR121_ECR, 0x8F);
 }
 
-void MPR121_Sensor::dump_config() {
+void MPR121Component::dump_config() {
   ESP_LOGCONFIG(TAG, "MPR121:");
   LOG_I2C_DEVICE(this);
   switch (this->error_code_) {
@@ -82,22 +82,22 @@ void MPR121_Sensor::dump_config() {
   }
 }
 
-float MPR121_Sensor::get_setup_priority() const {
+float MPR121Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 
-MPR121_Channel *MPR121_Sensor::add_channel(binary_sensor::MPR121_Channel *channel) {
+MPR121Channel *MPR121Component::add_channel(binary_sensor::MPR121Channel *channel) {
   this->channels_.push_back(channel);
   return channel;
 }
 
-void MPR121_Sensor::process_(uint16_t *data, uint16_t *last_data) {
+void MPR121Component::process_(uint16_t *data, uint16_t *last_data) {
   for (auto *channel : this->channels_) {
     channel->process(data, last_data);
   }
 }
 
-uint16_t MPR121_Sensor::read_mpr121_channels_() {
+uint16_t MPR121Component::read_mpr121_channels_() {
   uint16_t val = 0;
   this->read_byte_16(MPR121_TOUCHSTATUS_L, &val);
   uint8_t lsb = val >> 8;
@@ -107,7 +107,7 @@ uint16_t MPR121_Sensor::read_mpr121_channels_() {
   return val;
 }
 
-void MPR121_Sensor::loop() {
+void MPR121Component::loop() {
   this->currtouched_ = this->read_mpr121_channels_();
   if (this->currtouched_ != this->lasttouched_) {
     this->process_(&currtouched_, &lasttouched_);

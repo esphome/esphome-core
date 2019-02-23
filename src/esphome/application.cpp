@@ -1271,8 +1271,8 @@ sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
 #endif
 
 #ifdef USE_MPR121
-binary_sensor::MPR121_Sensor *Application::make_mpr121(uint8_t address) {
-  return this->register_component(new MPR121_Sensor(this->i2c_, address));
+binary_sensor::MPR121Component *Application::make_mpr121(uint8_t address) {
+  return this->register_component(new MPR121Component(this->i2c_, address));
 }
 #endif
 

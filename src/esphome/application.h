@@ -437,7 +437,7 @@ class Application {
 #endif
 
 #ifdef USE_MPR121
-  binary_sensor::MPR121_Sensor *make_mpr121(uint8_t address = 0x5A);
+  binary_sensor::MPR121Component *make_mpr121(uint8_t address = 0x5A);
 #endif
 
 

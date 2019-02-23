@@ -51,26 +51,26 @@ enum {
   MPR121_SOFTRESET = 0x80,
 };
 
-class MPR121_Channel : public binary_sensor::BinarySensor {
+class MPR121Channel : public binary_sensor::BinarySensor {
  public:
-  MPR121_Channel(const std::string &name, int channel_num = 0);
+  MPR121Channel(const std::string &name, int channel_num = 0);
   void process(uint16_t *data, uint16_t *last_data);
 
  protected:
   int channel_ = 0;
 };
 
-class MPR121_Sensor : public Component, public I2CDevice {
+class MPR121Component : public Component, public I2CDevice {
  public:
-  MPR121_Sensor(I2CComponent *parent, uint8_t address = 0x5A);
-  binary_sensor::MPR121_Channel *add_channel(binary_sensor::MPR121_Channel *channel);
+  MPR121Component(I2CComponent *parent, uint8_t address = 0x5A);
+  binary_sensor::MPR121Channel *add_channel(binary_sensor::MPR121Channel *channel);
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
   void loop() override;
 
  protected:
-  std::vector<MPR121_Channel *> channels_{};
+  std::vector<MPR121Channel *> channels_{};
   uint16_t lasttouched_ = 0;
   uint16_t currtouched_ = 0;
   enum ErrorCode {
