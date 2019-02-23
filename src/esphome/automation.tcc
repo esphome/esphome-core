@@ -92,9 +92,8 @@ DelayAction<Ts...>::DelayAction() = default;
 
 template<typename... Ts>
 void DelayAction<Ts...>::play(Ts... x) {
-  this->set_timeout(this->delay_.value(x...), [this, x...](){
-    this->play_next(x...);
-  });
+  auto f = std::bind(&DelayAction<Ts...>::play_next, this, x...);
+  this->set_timeout(this->delay_.value(x...), f);
 }
 template<typename... Ts>
 float DelayAction<Ts...>::get_setup_priority() const {

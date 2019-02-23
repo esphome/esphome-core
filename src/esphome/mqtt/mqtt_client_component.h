@@ -369,9 +369,7 @@ void MQTTPublishJsonAction<Ts...>::set_retain(bool retain) {
 }
 template<typename... Ts>
 void MQTTPublishJsonAction<Ts...>::play(Ts... x) {
-  auto f = [this, x...](JsonObject &root) {
-    this->payload_(x..., root);
-  };
+  auto f = std::bind(&MQTTPublishAction<Ts...>::payload_, this, x..., std::placeholders::_1);
   global_mqtt_client->publish_json(this->topic_.value(x...), f, this->qos_, this->retain_);
   this->play_next(x...);
 }
