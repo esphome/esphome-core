@@ -73,16 +73,14 @@ float WaveshareEPaper::get_setup_priority() const {
   return setup_priority::POST_HARDWARE;
 }
 void WaveshareEPaper::command(uint8_t value) {
-  this->dc_pin_->digital_write(false);
-  this->enable();
+  this->start_command_();
   this->write_byte(value);
-  this->disable();
+  this->end_command_();
 }
 void WaveshareEPaper::data(uint8_t value) {
-  this->dc_pin_->digital_write(true);
-  this->enable();
+  this->start_data_();
   this->write_byte(value);
-  this->disable();
+  this->end_data_();
 }
 bool WaveshareEPaper::msb_first() {
   return true;
@@ -137,6 +135,20 @@ WaveshareEPaper::WaveshareEPaper(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_
     update_interval), SPIDevice(parent, cs), dc_pin_(dc_pin) {}
 bool WaveshareEPaper::high_speed() {
   return true;
+}
+void WaveshareEPaper::start_command_() {
+  this->dc_pin_->digital_write(false);
+  this->enable();
+}
+void WaveshareEPaper::end_command_() {
+  this->disable();
+}
+void WaveshareEPaper::start_data_() {
+  this->dc_pin_->digital_write(true);
+  this->enable();
+}
+void WaveshareEPaper::end_data_() {
+  this->disable();
 }
 
 // ========================================================
@@ -224,10 +236,9 @@ void HOT WaveshareEPaperTypeA::display() {
   }
 
   this->command(WAVESHARE_EPAPER_COMMAND_WRITE_RAM);
-  for (size_t i = 0; i < this->get_buffer_length(); i++) {
-    this->data(this->buffer_[i]);
-    feed_wdt();
-  }
+  this->start_data_();
+  this->write_array(this->buffer_, this->get_buffer_length());
+  this->end_data_();
 
   this->command(WAVESHARE_EPAPER_COMMAND_DISPLAY_UPDATE_CONTROL_2);
   this->data(0xC4);
@@ -435,15 +446,15 @@ void HOT WaveshareEPaper2P7In::display() {
   // TODO check active frame buffer to only transmit once / use partial transmits
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
   delay(2);
-  for (size_t i = 0; i < this->get_buffer_length(); i++)
-    this->data(this->buffer_[i]);
+  this->start_data_();
+  this->write_array(this->buffer_, this->get_buffer_length());
+  this->end_data_();
   delay(2);
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_2);
   delay(2);
-  for (size_t i = 0; i < this->get_buffer_length(); i++) {
-    this->data(this->buffer_[i]);
-    feed_wdt();
-  }
+  this->start_data_();
+  this->write_array(this->buffer_, this->get_buffer_length());
+  this->end_data_();
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
 int WaveshareEPaper2P7In::get_width_internal_() {
@@ -565,17 +576,15 @@ void HOT WaveshareEPaper4P2In::display() {
   // TODO check active frame buffer to only transmit once / use partial transmits
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
   delay(2);
-  for (size_t i = 0; i < this->get_buffer_length(); i++) {
-    this->data(this->buffer_[i]);
-    feed_wdt();
-  }
+  this->start_data_();
+  this->write_array(this->buffer_, this->get_buffer_length());
+  this->end_data_();
   delay(2);
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_2);
   delay(2);
-  for (size_t i = 0; i < this->get_buffer_length(); i++) {
-    this->data(this->buffer_[i]);
-    feed_wdt();
-  }
+  this->start_data_();
+  this->write_array(this->buffer_, this->get_buffer_length());
+  this->end_data_();
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
 int WaveshareEPaper4P2In::get_width_internal_() {
@@ -641,6 +650,8 @@ void WaveshareEPaper7P5In::setup() {
 }
 void HOT WaveshareEPaper7P5In::display() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
+
+  this->start_data_();
   for (size_t i = 0; i < this->get_buffer_length(); i++) {
     uint8_t temp1 = this->buffer_[i];
     for (uint8_t j = 0; j < 8; j++) {
@@ -658,11 +669,13 @@ void HOT WaveshareEPaper7P5In::display() {
       else
         temp2 |= 0x00;
       temp1 <<= 1;
-      this->data(temp2);
+      this->write_byte(temp2);
     }
 
     feed_wdt();
   }
+  this->end_data_();
+
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
 int WaveshareEPaper7P5In::get_width_internal_() {
