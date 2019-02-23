@@ -29,17 +29,16 @@ MPR121_Sensor::MPR121_Sensor(I2CComponent *parent, uint8_t address) : I2CDevice(
 
 void MPR121_Sensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MPR121...");
-  // soft reset
+  // soft reset device and see if we can communicate
   if (!this->write_byte(MPR121_SOFTRESET, 0x63)) {
     this->error_code_ = COMMUNICATION_FAILED;
     this->mark_failed();
     return;
   }
-  delay(1);
+  delay(10);
   this->write_byte(MPR121_ECR, 0x0);
 
-  // set touch sensitivity
-  // this->set_sensitivity();
+  // set touch sensitivity for all 12 channels
   for (uint8_t i = 0; i < 12; i++) {
     this->write_byte(MPR121_TOUCHTH_0 + 2 * i, 12);
     this->write_byte(MPR121_RELEASETH_0 + 2 * i, 6);
@@ -59,10 +58,12 @@ void MPR121_Sensor::setup() {
   this->write_byte(MPR121_FDLT, 0x00);
 
   this->write_byte(MPR121_DEBOUNCE, 0);
-  this->write_byte(MPR121_CONFIG1, 0x10);  // default, 16uA charge current
-  this->write_byte(MPR121_CONFIG2, 0x20);  // 0.5uS encoding, 1ms period
-
-  this->write_byte(MPR121_ECR, 0x8F);  // start with first 5 bits of baseline tracking
+  // default, 16uA charge current
+  this->write_byte(MPR121_CONFIG1, 0x10);
+  // 0.5uS encoding, 1ms period
+  this->write_byte(MPR121_CONFIG2, 0x20);
+ // start with first 5 bits of baseline tracking
+  this->write_byte(MPR121_ECR, 0x8F);
 }
 
 void MPR121_Sensor::dump_config() {
@@ -111,12 +112,12 @@ void MPR121_Sensor::loop() {
   if (this->currtouched_ != this->lasttouched_) {
     this->process_(&currtouched_, &lasttouched_);
   }
-  // reset touchstate
+  // reset touchsensor state
   this->lasttouched_ = this->currtouched_;
 }
 
-}  // namespace sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif  // USE_BH1750
+#endif  // USE_MPR121

@@ -5,7 +5,6 @@
 
 #ifdef USE_MPR121
 
-#include "esphome/sensor/sensor.h"
 #include "esphome/binary_sensor/binary_sensor.h"
 #include "esphome/i2c_component.h"
 #include "esphome/component.h"
@@ -31,7 +30,6 @@ enum {
   MPR121_NHDT = 0x33,
   MPR121_NCLT = 0x34,
   MPR121_FDLT = 0x35,
-
   MPR121_TOUCHTH_0 = 0x41,
   MPR121_RELEASETH_0 = 0x42,
   MPR121_DEBOUNCE = 0x5B,
@@ -45,13 +43,11 @@ enum {
   MPR121_UPLIMIT = 0x7D,
   MPR121_LOWLIMIT = 0x7E,
   MPR121_TARGETLIMIT = 0x7F,
-
   MPR121_GPIODIR = 0x76,
   MPR121_GPIOEN = 0x77,
   MPR121_GPIOSET = 0x78,
   MPR121_GPIOCLR = 0x79,
   MPR121_GPIOTOGGLE = 0x7A,
-
   MPR121_SOFTRESET = 0x80,
 };
 
@@ -86,7 +82,7 @@ class MPR121_Sensor : public Component, public I2CDevice {
   uint16_t read_mpr121_channels_();
 };
 
-}  // namespace sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
