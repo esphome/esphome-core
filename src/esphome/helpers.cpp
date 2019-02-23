@@ -388,8 +388,8 @@ void ICACHE_RAM_ATTR HOT feed_wdt() {
 #ifdef ARDUINO_ARCH_ESP32
     yield();
 #endif
+    last_feed = now;
   }
-  last_feed = now;
 }
 std::string build_json(const json_build_t &f) {
   size_t len;
