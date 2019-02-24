@@ -119,6 +119,13 @@ void LightColorValues::normalize_color(const LightTraits &traits) {
     this->set_green(this->get_green() / max_value);
     this->set_blue(this->get_blue() / max_value);
   }
+
+  if (traits.has_brightness() && this->get_brightness() == 0.0f) {
+    // 0% brightness means off
+    this->set_state(false);
+    // reset brightness to 100% (0% brightness is not allowed)
+    this->set_brightness(1.0f);
+  }
 }
 
 void LightColorValues::dump_json(JsonObject &root, const LightTraits &traits) const {
