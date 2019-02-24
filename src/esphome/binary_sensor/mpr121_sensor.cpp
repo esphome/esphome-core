@@ -1,7 +1,6 @@
 #include "esphome/defines.h"
 #ifdef USE_MPR121
 
-#include "esphome.h"
 #include "esphome/binary_sensor/mpr121_sensor.h"
 #include "esphome/log.h"
 
@@ -16,10 +15,10 @@ MPR121Channel::MPR121Channel(const std::string &name, int channel_num) : BinaryS
 }
 
 void MPR121Channel::process(uint16_t *data, uint16_t *last_data) {
-  if ((*data & _BV(channel_)) && !(*last_data & _BV(channel_))) {
+  if ((*data & (1 << this->channel_)) && !(*last_data & (1 << this->channel_))) {
     this->publish_state(true);
   }
-  if (!(*data & _BV(channel_)) && (*last_data & _BV(channel_))) {
+  if (!(*data & (1 << this->channel_)) && (*last_data & (1 << this->channel_))) {
     this->publish_state(false);
   }
 }

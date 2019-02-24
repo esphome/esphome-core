@@ -216,9 +216,6 @@
 #endif
 
 #ifdef USE_MPR121
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
   #endif
