@@ -128,9 +128,14 @@ bool ListEntitiesIterator::on_text_sensor(text_sensor::TextSensor *text_sensor) 
 bool ListEntitiesIterator::on_end() {
   return this->client_->send_empty_message(APIMessageType::LIST_ENTITIES_DONE_RESPONSE);
 }
-ListEntitiesIterator::ListEntitiesIterator(StoringController *controller, APIConnection *client)
-    : ComponentIterator(controller), client_(client) {
+ListEntitiesIterator::ListEntitiesIterator(APIServer *server, APIConnection *client)
+    : ComponentIterator(server), client_(client) {
 
+}
+bool ListEntitiesIterator::on_service(UserServiceDescriptor *service) {
+  auto buffer = this->client_->get_buffer();
+  service->encode_list_service_response(buffer);
+  return this->client_->send_buffer(APIMessageType::LIST_SERVICES_SERVICE_RESPONSE);
 }
 
 APIMessageType ListEntitiesRequest::message_type() const {

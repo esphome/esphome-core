@@ -15,6 +15,7 @@
 #include "esphome/api/subscribe_logs.h"
 #include "esphome/api/command_messages.h"
 #include "esphome/api/service_call_message.h"
+#include "esphome/api/user_services.h"
 #include "esphome/log.h"
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -109,6 +110,7 @@ class APIConnection {
   void on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req);
   void on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req);
   void on_home_assistant_state_response(const HomeAssistantStateResponse &req);
+  void on_execute_service(const ExecuteServiceRequest &req);
 
   enum class ConnectionState {
     WAITING_FOR_HELLO,
@@ -175,6 +177,8 @@ class APIServer : public Component, public StoringUpdateListenerController {
   void send_service_call(ServiceCallResponse &call);
   template<typename... Ts>
   HomeAssistantServiceCallAction<Ts...> *make_home_assistant_service_call_action();
+  template<typename... Ts>
+  UserService<Ts...> *make_user_service_trigger(const std::string &name, const std::array<ServiceTypeArgument, sizeof...(Ts)> &args);
 #ifdef USE_HOMEASSISTANT_TIME
   void request_time();
 #endif
@@ -186,6 +190,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
 
   void subscribe_home_assistant_state(std::string entity_id, std::function<void(std::string)> f);
   const std::vector<HomeAssistantStateSubscription> &get_state_subs() const;
+  const std::vector<UserServiceDescriptor *> &get_user_services() const { return this->user_services_; }
 
  protected:
   AsyncServer server_{0};
@@ -195,6 +200,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
   std::vector<APIConnection *> clients_;
   std::string password_;
   std::vector<HomeAssistantStateSubscription> state_subs_;
+  std::vector<UserServiceDescriptor *> user_services_;
 };
 
 extern APIServer *global_api_server;
@@ -238,6 +244,13 @@ template<typename... Ts>
 void HomeAssistantServiceCallAction<Ts...>::play(Ts... x) {
   this->parent_->send_service_call(this->resp_);
   this->play_next(x...);
+}
+template<typename... Ts>
+UserService<Ts...> *APIServer::make_user_service_trigger(const std::string &name,
+                                                         const std::array<ServiceTypeArgument, sizeof...(Ts)> &args) {
+  auto *service = new UserService<Ts...>(name, args);
+  this->user_services_.push_back(service);
+  return service;
 }
 
 } // namespace api

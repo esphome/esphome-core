@@ -454,6 +454,14 @@ optional<float> parse_float(const std::string &str) {
     return {};
   return value;
 }
+uint32_t fnv1_hash(const std::string &str) {
+  uint32_t hash = 2166136261UL;
+  for (char c : str) {
+    hash *= 16777619UL;
+    hash ^= c;
+  }
+  return hash;
+}
 
 template<uint32_t>
 uint32_t reverse_bits(uint32_t x) {

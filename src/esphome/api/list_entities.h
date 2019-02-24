@@ -21,7 +21,7 @@ class APIConnection;
 
 class ListEntitiesIterator : public ComponentIterator {
  public:
-  ListEntitiesIterator(StoringController *controller, APIConnection *client);
+  ListEntitiesIterator(APIServer *server, APIConnection *client);
 #ifdef USE_BINARY_SENSOR
   bool on_binary_sensor(binary_sensor::BinarySensor *binary_sensor) override;
 #endif
@@ -43,6 +43,7 @@ class ListEntitiesIterator : public ComponentIterator {
 #ifdef USE_TEXT_SENSOR
   bool on_text_sensor(text_sensor::TextSensor *text_sensor) override;
 #endif
+  bool on_service(UserServiceDescriptor *service) override;
   bool on_end() override;
  protected:
   APIConnection *client_;

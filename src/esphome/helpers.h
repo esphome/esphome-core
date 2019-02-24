@@ -377,6 +377,8 @@ class Deduplicator {
   T last_value_{};
 };
 
+uint32_t fnv1_hash(const std::string &str);
+
 // ================================================
 //                 Definitions
 // ================================================
