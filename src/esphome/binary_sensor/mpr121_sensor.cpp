@@ -28,14 +28,14 @@ MPR121Component::MPR121Component(I2CComponent *parent, uint8_t address) : I2CDev
 
 void MPR121Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MPR121...");
-  // soft reset device and see if we can communicate
-  if (!this->write_byte(MPR121_SOFTRESET, 0x63)) {
+  // soft reset device
+  this->write_byte(MPR121_SOFTRESET, 0x63);
+  delay(100);
+  if (!this->write_byte(MPR121_ECR, 0x0)) {
     this->error_code_ = COMMUNICATION_FAILED;
     this->mark_failed();
     return;
   }
-  delay(10);
-  this->write_byte(MPR121_ECR, 0x0);
 
   // set touch sensitivity for all 12 channels
   for (uint8_t i = 0; i < 12; i++) {
