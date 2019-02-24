@@ -244,6 +244,13 @@ void Nextion::set_nextion_rtc_time(time::ESPTime time) {
 }
 #endif
 
+void Nextion::set_backlight_brightness(uint8_t brightness) {
+  this->send_command_printf_("dim=%u", brightness);
+}
+void Nextion::set_touch_sleep_timeout(uint16_t timeout) {
+  this->send_command_printf_("thsp=%u", timeout);
+}
+
 NextionTouchComponent *Nextion::make_touch_component(const std::string &name, uint8_t page_id, uint8_t component_id) {
   auto *ret = new NextionTouchComponent(name, page_id, component_id);
   this->touch_.push_back(ret);
