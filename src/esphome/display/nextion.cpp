@@ -15,6 +15,7 @@ void Nextion::setup() {
   this->send_command_("");
   this->ack_();
   this->goto_page("0");
+  this->send_command_printf_("bkcmd=3");
 }
 float Nextion::get_setup_priority() const {
   return setup_priority::POST_HARDWARE;
