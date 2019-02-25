@@ -195,7 +195,8 @@ ESPColorView PartitionLightOutput::operator[](int32_t index) const {
     }
   }
   auto seg = this->segments_[lo];
-  auto view = (*seg.get_src())[index - seg.get_src_offset()];
+  int32_t off = index - seg.get_dst_offset();
+  auto view = (*seg.get_src())[seg.get_src_offset() + off];
   view.set_color_correction_(&this->correction_);
   return view;
 }
