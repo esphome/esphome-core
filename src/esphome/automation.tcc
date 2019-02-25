@@ -78,12 +78,12 @@ void Action<Ts...>::stop_next() {
   }
 }
 template<typename... Ts>
-void Action<Ts...>::play_next(const std::tuple<Ts...> &tuple) {
-  this->play_next(tuple, typename gens<sizeof...(Ts)>::type());
+void Action<Ts...>::play_next_tuple(const std::tuple<Ts...> &tuple) {
+  this->play_next_tuple(tuple, typename gens<sizeof...(Ts)>::type());
 }
 template<typename... Ts>
 template<int... S>
-void Action<Ts...>::play_next(const std::tuple<Ts...> &tuple, seq<S...>) {
+void Action<Ts...>::play_next_tuple(const std::tuple<Ts...> &tuple, seq<S...>) {
   this->play_next(std::get<S>(tuple) ...);
 }
 
@@ -384,7 +384,7 @@ void WaitUntilAction<Ts...>::loop() {
   }
 
   this->triggered_ = false;
-  this->play_next(this->var_);
+  this->play_next_tuple(this->var_);
 }
 template<typename... Ts>
 float WaitUntilAction<Ts...>::get_setup_priority() const {

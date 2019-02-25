@@ -137,13 +137,13 @@ class Action {
   virtual void stop();
   void stop_next();
 
-  void play_next(const std::tuple<Ts...> &tuple);
+  void play_next_tuple(const std::tuple<Ts...> &tuple);
 
  protected:
   friend ActionList<Ts...>;
 
   template<int... S>
-  void play_next(const std::tuple<Ts...> &tuple, seq<S...>);
+  void play_next_tuple(const std::tuple<Ts...> &tuple, seq<S...>);
 
   Action<Ts...> *next_ = nullptr;
 };
