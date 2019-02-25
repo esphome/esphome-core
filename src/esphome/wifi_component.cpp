@@ -323,11 +323,15 @@ void WiFiComponent::check_scanning_finished() {
   }
 
   WiFiAP ap;
-  ap.set_ssid(this->scan_result_[0].get_ssid());
-  ap.set_bssid(this->scan_result_[0].get_bssid());
-  ap.set_channel(this->scan_result_[0].get_channel());
+  WiFiScanResult scan_res = this->scan_result_[0];
+  ap.set_ssid(scan_res.get_ssid());
+  ap.set_bssid(scan_res.get_bssid());
+  ap.set_channel(scan_res.get_channel());
   for (auto &ap2 : this->sta_) {
-    if (this->scan_result_[0].matches(ap2)) {
+    if (scan_res.matches(ap2)) {
+      if (ap.get_ssid().empty()) {
+        ap.set_ssid(ap2.get_ssid());
+      }
       ap.set_password(ap2.get_password());
       ap.set_manual_ip(ap2.get_manual_ip());
       break;
@@ -1450,39 +1454,20 @@ IPAddress WiFiComponent::wifi_soft_ap_ip_() {
 }
 #endif
 
-void WiFiAP::set_ssid(const std::string &ssid) {
-  this->ssid_ = ssid;
-}
-void WiFiAP::set_bssid(bssid_t bssid) {
-  this->bssid_ = bssid;
-}
-void WiFiAP::set_bssid(optional<bssid_t> bssid) {
-  this->bssid_ = bssid;
-}
-void WiFiAP::set_password(const std::string &password) {
-  this->password_ = password;
-}
-void WiFiAP::set_channel(optional<uint8_t> channel) {
-  this->channel_ = channel;
-}
-void WiFiAP::set_manual_ip(optional<ManualIP> manual_ip) {
-  this->manual_ip_ = manual_ip;
-}
-const std::string &WiFiAP::get_ssid() const {
-  return this->ssid_;
-}
-const optional<bssid_t> &WiFiAP::get_bssid() const {
-  return this->bssid_;
-}
-const std::string &WiFiAP::get_password() const {
-  return this->password_;
-}
-const optional<uint8_t> &WiFiAP::get_channel() const {
-  return this->channel_;
-}
-const optional<ManualIP> &WiFiAP::get_manual_ip() const {
-  return this->manual_ip_;
-}
+void WiFiAP::set_ssid(const std::string &ssid) { this->ssid_ = ssid; }
+void WiFiAP::set_bssid(bssid_t bssid) { this->bssid_ = bssid; }
+void WiFiAP::set_bssid(optional<bssid_t> bssid) { this->bssid_ = bssid; }
+void WiFiAP::set_password(const std::string &password) { this->password_ = password; }
+void WiFiAP::set_channel(optional<uint8_t> channel) { this->channel_ = channel; }
+void WiFiAP::set_manual_ip(optional<ManualIP> manual_ip) { this->manual_ip_ = manual_ip; }
+void WiFiAP::set_hidden(bool hidden) { this->hidden_ = hidden; }
+const std::string &WiFiAP::get_ssid() const { return this->ssid_; }
+const optional<bssid_t> &WiFiAP::get_bssid() const { return this->bssid_; }
+const std::string &WiFiAP::get_password() const { return this->password_; }
+const optional<uint8_t> &WiFiAP::get_channel() const { return this->channel_; }
+const optional<ManualIP> &WiFiAP::get_manual_ip() const { return this->manual_ip_; }
+bool WiFiAP::get_hidden() const { return this->hidden_; }
+
 WiFiScanResult::WiFiScanResult(const bssid_t &bssid,
                                const std::string &ssid,
                                uint8_t channel,
@@ -1498,8 +1483,14 @@ WiFiScanResult::WiFiScanResult(const bssid_t &bssid,
 
 }
 bool WiFiScanResult::matches(const WiFiAP &ap) {
-  if (!ap.get_ssid().empty() && ap.get_ssid() != this->ssid_)
-    return false;
+  if (this->is_hidden_ || this->ssid_.empty()) {
+    // SSID is hidden
+    if (!ap.get_hidden())
+      return false;
+  } else {
+    if (ap.get_ssid() != this->ssid_)
+      return false;
+  }
   if (ap.get_bssid().has_value() && *ap.get_bssid() != this->bssid_)
     return false;
   if (ap.get_password().empty() == this->with_auth_)
@@ -1510,30 +1501,14 @@ bool WiFiScanResult::matches(const WiFiAP &ap) {
   }
   return true;
 }
-bool WiFiScanResult::get_matches() const {
-  return this->matches_;
-}
-void WiFiScanResult::set_matches(bool matches) {
-  this->matches_ = matches;
-}
-const bssid_t &WiFiScanResult::get_bssid() const {
-  return this->bssid_;
-}
-const std::string &WiFiScanResult::get_ssid() const {
-  return this->ssid_;
-}
-uint8_t WiFiScanResult::get_channel() const {
-  return this->channel_;
-}
-int8_t WiFiScanResult::get_rssi() const {
-  return this->rssi_;
-}
-bool WiFiScanResult::get_with_auth() const {
-  return this->with_auth_;
-}
-bool WiFiScanResult::get_is_hidden() const {
-  return this->is_hidden_;
-}
+bool WiFiScanResult::get_matches() const { return this->matches_; }
+void WiFiScanResult::set_matches(bool matches) { this->matches_ = matches; }
+const bssid_t &WiFiScanResult::get_bssid() const { return this->bssid_; }
+const std::string &WiFiScanResult::get_ssid() const { return this->ssid_; }
+uint8_t WiFiScanResult::get_channel() const { return this->channel_; }
+int8_t WiFiScanResult::get_rssi() const { return this->rssi_; }
+bool WiFiScanResult::get_with_auth() const { return this->with_auth_; }
+bool WiFiScanResult::get_is_hidden() const { return this->is_hidden_; }
 
 WiFiComponent *global_wifi_component;
 

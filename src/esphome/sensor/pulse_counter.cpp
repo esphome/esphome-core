@@ -8,10 +8,6 @@
 #include "esphome/esphal.h"
 #include "esphome/espmath.h"
 
-#ifdef ARDUINO_ARCH_ESP8266
-  #include "FunctionalInterrupt.h"
-#endif
-
 ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
@@ -64,8 +60,9 @@ void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
 }
 bool PulseCounterBase::pulse_counter_setup_() {
   this->pin_->setup();
-  auto intr = std::bind(&PulseCounterSensorComponent::gpio_intr, this);
-  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
+  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR {
+    this->gpio_intr();
+  }, CHANGE);
   return true;
 }
 pulse_counter_t PulseCounterBase::read_raw_value_() {

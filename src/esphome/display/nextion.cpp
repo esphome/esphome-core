@@ -107,7 +107,7 @@ bool Nextion::send_command_printf_(const char *format, ...) {
     return false;
   }
   this->send_command_(buffer);
-  if (this->ack_()) {
+  if (!this->ack_()) {
     ESP_LOGW(TAG, "Sending command '%s' failed because no ACK was received", buffer);
     return false;
   }
@@ -154,21 +154,29 @@ void Nextion::loop() {
     while (this->available() && this->peek_byte(&temp) && temp == 0xFF)
       this->read_byte(&temp);
 
-    if (this->available())
+    if (!this->available())
       break;
 
     uint8_t event;
+    // event type
     this->read_byte(&event);
+
     uint8_t data[255];
+    // total length of data (including end bytes)
     uint8_t data_length = 0;
+    // message is terminated by three consecutive 0xFF
+    // this variable keeps track of ohow many of those have
+    // been received
     uint8_t end_length = 0;
     while (this->available() && end_length < 3 && data_length < sizeof(data)) {
-      this->read_byte(&data[data_length++]);
-      if (data[data_length] == 0xFF) {
+      uint8_t byte;
+      this->read_byte(&byte);
+      if (byte == 0xFF) {
         end_length++;
       } else {
         end_length = 0;
       }
+      data[data_length++] = byte;
     }
 
     if (end_length != 3) {

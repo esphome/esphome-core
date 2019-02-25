@@ -16,9 +16,6 @@
 #ifdef ARDUINO_ARCH_ESP32
   #include <soc/rmt_struct.h>
 #endif
-#ifdef ARDUINO_ARCH_ESP8266
-  #include "FunctionalInterrupt.h"
-#endif
 
 ESPHOME_NAMESPACE_BEGIN
 
@@ -313,8 +310,9 @@ void RemoteReceiverComponent::setup() {
     this->buffer_write_at_ = this->buffer_read_at_ = 0;
     this->buffer_[0] = 0;
   }
-  auto intr = std::bind(&RemoteReceiverComponent::gpio_intr, this);
-  attachInterrupt(this->pin_->get_pin(), intr, CHANGE);
+  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR {
+    this->gpio_intr();
+  }, CHANGE);
 }
 void RemoteReceiverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Receiver:");

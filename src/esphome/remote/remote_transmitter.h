@@ -90,6 +90,7 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
     void set_nec(uint16_t address, uint16_t command);
     void set_panasonic(uint16_t address, uint32_t command);
     void set_raw(std::vector<int32_t> data);
+    void set_rc5(uint8_t address, uint8_t command, bool toggle);
     void set_rc_switch_raw(uint32_t code, uint8_t nbits,
                            RCSwitchProtocol protocol = rc_switch_protocols[1]);
     void set_rc_switch_raw(const char *code,

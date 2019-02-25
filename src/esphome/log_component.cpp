@@ -79,27 +79,36 @@ LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size, UARTSelect
 }
 
 void LogComponent::pre_setup() {
-  switch (this->uart_) {
-    case UART_SELECTION_UART0:
+  if (this->baud_rate_ > 0) {
+    switch (this->uart_) {
+      case UART_SELECTION_UART0:
 #ifdef ARDUINO_ARCH_ESP8266
-    case UART_SELECTION_UART0_SWAP:
+        case UART_SELECTION_UART0_SWAP:
 #endif
-      this->hw_serial_ = &Serial;
-      break;
-    case UART_SELECTION_UART1:
-      this->hw_serial_ = &Serial1;
-      break;
+        this->hw_serial_ = &Serial;
+        break;
+      case UART_SELECTION_UART1:
+        this->hw_serial_ = &Serial1;
+        break;
 #ifdef ARDUINO_ARCH_ESP32
-    case UART_SELECTION_UART2:
-      this->hw_serial_ = &Serial2;
-      break;
+      case UART_SELECTION_UART2:
+        this->hw_serial_ = &Serial2;
+        break;
+#endif
+    }
+
+    this->hw_serial_->begin(this->baud_rate_);
+#ifdef ARDUINO_ARCH_ESP8266
+    if (this->uart_ == UART_SELECTION_UART0_SWAP) {
+      this->hw_serial_->swap();
+    }
+    this->hw_serial_->setDebugOutput(this->global_log_level_ >= ESPHOME_LOG_LEVEL_VERBOSE);
 #endif
   }
-
-  this->hw_serial_->begin(this->baud_rate_);
 #ifdef ARDUINO_ARCH_ESP8266
-  if (this->uart_ == UART_SELECTION_UART0_SWAP)
-    this->hw_serial_->swap();
+  else {
+    uart_set_debug(UART_NO);
+  }
 #endif
 
   global_log_component = this;
@@ -107,12 +116,6 @@ void LogComponent::pre_setup() {
   esp_log_set_vprintf(esp_idf_log_vprintf_);
   if (this->global_log_level_ >= ESPHOME_LOG_LEVEL_VERBOSE) {
     esp_log_level_set("*", ESP_LOG_VERBOSE);
-  }
-#endif
-#ifdef ARDUINO_ARCH_ESP8266
-  if (this->global_log_level_ >= ESPHOME_LOG_LEVEL_VERBOSE) {
-    if (this->baud_rate_ > 0)
-      this->hw_serial_->setDebugOutput(true);
   }
 #endif
 

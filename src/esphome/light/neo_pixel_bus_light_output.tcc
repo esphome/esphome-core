@@ -13,11 +13,6 @@ namespace light {
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 const char* NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::TAG = "light.neo_pixel_bus";
 
-template<typename T_METHOD, typename T_COLOR_FEATURE>
-void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::schedule_show() {
-  this->next_show_ = true;
-}
-
 #ifdef USE_OUTPUT
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::set_power_supply(PowerSupplyComponent *power_supply) {
@@ -30,25 +25,9 @@ NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *NeoPixelBusLightOutputBase<T_METHOD, T_C
   return this->controller_;
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::set_correction(float red,
-                                                                           float green,
-                                                                           float blue,
-                                                                           float white) {
-  this->correction_.set_max_brightness(ESPColor(
-      uint8_t(roundf(red * 255.0f)),
-      uint8_t(roundf(green * 255.0f)),
-      uint8_t(roundf(blue * 255.0f)),
-      uint8_t(roundf(white * 255.0f))
-  ));
-}
-template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::clear_effect_data() {
   for (int i = 0; i < this->size(); i++)
     this->effect_data_[i] = 0;
-}
-template<typename T_METHOD, typename T_COLOR_FEATURE>
-void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup_state(LightState *state) {
-  this->correction_.calculate_gamma_table(state->get_gamma_correct());
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(uint16_t count_pixels, uint8_t pin) {
@@ -70,30 +49,6 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(NeoPixelBus
   this->controller_->Begin();
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::write_state(LightState *state) {
-  LightColorValues value = state->get_current_values();
-  uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
-  this->correction_.set_local_brightness(max_brightness);
-
-  if (this->is_effect_active())
-    return;
-
-  auto val = state->get_current_values();
-  // don't use LightState helper, gamma correction+brightness is handled by ESPColorView
-  ESPColor color = ESPColor(
-      uint8_t(roundf(val.get_red()   * 255.0f)),
-      uint8_t(roundf(val.get_green() * 255.0f)),
-      uint8_t(roundf(val.get_blue()  * 255.0f)),
-      uint8_t(roundf(val.get_white() * 255.0f))
-  );
-
-  for (int i = 0; i < this->size(); i++) {
-    (*this)[i] = color;
-  }
-
-  this->schedule_show();
-}
-template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
   ESP_LOGCONFIG(TAG, "Setting up NeoPixelBus light...");
   for (int i = 0; i < this->size(); i++) {
@@ -110,10 +65,10 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::dump_config() {
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
-  if (!this->next_show_ && !this->is_effect_active())
+  if (!this->should_show_())
     return;
 
-  this->next_show_ = false;
+  this->mark_shown_();
   this->controller_->Dirty();
 
 #ifdef USE_OUTPUT

@@ -230,6 +230,9 @@ const ESPColorView &ESPColorView::operator=(const ESPHSVColor &rhs) const {
   this->set(rhs);
   return *this;
 }
+void ESPColorView::set_color_correction_(const ESPColorCorrection *color_correction) {
+  this->color_correction_ = color_correction;
+}
 
 ESPColor ESPColorCorrection::color_correct(ESPColor color) const {
   // corrected = (uncorrected * max_brightness * local_brightness) ^ gamma

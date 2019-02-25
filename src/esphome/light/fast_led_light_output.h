@@ -36,8 +36,6 @@ namespace light {
  */
 class FastLEDLightOutputComponent : public Component, public AddressableLight {
  public:
-  void schedule_show();
-
   /// Only for custom effects: Get the internal controller.
   CLEDController *get_controller() const;
 
@@ -48,11 +46,9 @@ class FastLEDLightOutputComponent : public Component, public AddressableLight {
   /// Set a maximum refresh rate in µs as some lights do not like being updated too often.
   void set_max_refresh_rate(uint32_t interval_us);
 
+#ifdef USE_OUTPUT
   void set_power_supply(PowerSupplyComponent *power_supply);
-
-  void set_correction(float red, float green, float blue);
-
-  void setup_state(LightState *state) override;
+#endif
 
   /// Add some LEDS, can only be called once.
   CLEDController &add_leds(CLEDController *controller, int num_leds);
@@ -325,7 +321,6 @@ class FastLEDLightOutputComponent : public Component, public AddressableLight {
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   LightTraits get_traits() override;
-  void write_state(LightState *state) override;
   void setup() override;
   void dump_config() override;
   void loop() override;
@@ -336,7 +331,6 @@ class FastLEDLightOutputComponent : public Component, public AddressableLight {
  protected:
   CLEDController *controller_{nullptr};
   CRGB *leds_{nullptr};
-  ESPColorCorrection correction_{};
   uint8_t *effect_data_{nullptr};
   int num_leds_{0};
   uint32_t last_refresh_{0};

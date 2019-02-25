@@ -76,7 +76,7 @@ void TemplateCover::write_command(CoverCommand command) {
   }
 }
 void TemplateCover::dump_config() {
-  LOG_COVER("Template Cover", "", this);
+  LOG_COVER("", "Template Cover", this);
 }
 
 } // namespace cover

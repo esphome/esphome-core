@@ -89,7 +89,7 @@ bool LGReceiver::matches(RemoteReceiveData *data) {
   if (!res.valid)
     return false;
 
-  return this->data_ == data_ && this->nbits_ == res.nbits;
+  return this->data_ == res.data && this->nbits_ == res.nbits;
 }
 
 bool LGDumper::dump(RemoteReceiveData *data) {

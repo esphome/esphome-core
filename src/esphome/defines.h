@@ -1,7 +1,7 @@
 #ifndef ESPHOME_DEFINES_H
 #define ESPHOME_DEFINES_H
 
-#define ESPHOME_VERSION "1.11.0-dev"
+#define ESPHOME_VERSION "1.12.0-dev"
 
 #define HOT __attribute__ ((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
@@ -132,6 +132,7 @@
   #define USE_HOMEASSISTANT_TEXT_SENSOR
   #define USE_HOMEASSISTANT_BINARY_SENSOR
   #define USE_APDS9960
+  #define USE_MPR121
   #define USE_MQTT
 #endif
 
@@ -209,6 +210,12 @@
   #ifndef USE_SENSOR
     #define USE_SENSOR
   #endif
+  #ifndef USE_BINARY_SENSOR
+    #define USE_BINARY_SENSOR
+  #endif
+#endif
+
+#ifdef USE_MPR121
   #ifndef USE_BINARY_SENSOR
     #define USE_BINARY_SENSOR
   #endif

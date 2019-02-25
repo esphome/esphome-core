@@ -6,10 +6,6 @@
 #include "esphome/helpers.h"
 #include "esphome/log.h"
 
-#ifdef ARDUINO_ARCH_ESP8266
-  #include "FunctionalInterrupt.h"
-#endif
-
 ESPHOME_NAMESPACE_BEGIN
 
 static const char *TAG = "uart";
@@ -263,8 +259,9 @@ void ESP8266SoftwareSerial::setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_ra
     this->rx_mask_ = (1U << rx_pin);
     pinMode(rx_pin, INPUT);
     this->rx_buffer_ = new uint8_t[this->rx_buffer_size_];
-    auto f = std::bind(&ESP8266SoftwareSerial::gpio_intr_, this);
-    attachInterrupt(rx_pin, f, FALLING);
+    attach_functional_interrupt(rx_pin, [this]() ICACHE_RAM_ATTR {
+      this->gpio_intr_();
+    }, FALLING);
   }
 }
 

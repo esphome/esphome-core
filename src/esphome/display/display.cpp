@@ -297,9 +297,32 @@ void DisplayBuffer::printf(int x, int y, Font *font, const char *format, ...) {
 void DisplayBuffer::set_writer(display_writer_t &&writer) {
   this->writer_ = std::move(writer);
 }
+void DisplayBuffer::set_pages(std::vector<DisplayPage *> pages) {
+  for (auto *page : pages)
+    page->set_parent(this);
+
+  for (int i = 0; i < pages.size() - 1; i++) {
+    pages[i]->set_next(pages[i + 1]);
+    pages[i + 1]->set_prev(pages[i]);
+  }
+  pages[0]->set_prev(pages[pages.size() - 1]);
+  pages[pages.size() - 1]->set_next(pages[0]);
+  this->show_page(pages[0]);
+}
+void DisplayBuffer::show_page(DisplayPage *page) {
+  this->page_ = page;
+}
+void DisplayBuffer::show_next_page() {
+  this->page_->show_next();
+}
+void DisplayBuffer::show_prev_page() {
+  this->page_->show_prev();
+}
 void DisplayBuffer::do_update() {
-  if (this->writer_.has_value()) {
-    this->clear();
+  this->clear();
+  if (this->page_ != nullptr) {
+    this->page_->get_writer()(*this);
+  } else if (this->writer_.has_value()) {
     (*this->writer_)(*this);
   }
 }
@@ -437,6 +460,15 @@ int Image::get_height() const {
 }
 Image::Image(const uint8_t *data_start, int width, int height)
     : width_(width), height_(height), data_start_(data_start) {}
+
+DisplayPage::DisplayPage(const display_writer_t &writer) : writer_(writer) {}
+void DisplayPage::show() { this->parent_->show_page(this); }
+void DisplayPage::show_next() { this->next_->show(); }
+void DisplayPage::show_prev() { this->prev_->show(); }
+void DisplayPage::set_parent(DisplayBuffer *parent) { this->parent_ = parent; }
+void DisplayPage::set_prev(DisplayPage *prev) { this->prev_ = prev; }
+void DisplayPage::set_next(DisplayPage *next) { this->next_ = next; }
+const display_writer_t &DisplayPage::get_writer() const { return this->writer_; }
 
 } // namespace display
 

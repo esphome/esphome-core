@@ -14,28 +14,6 @@ static const char *TAG = "light.fast_led";
 LightTraits FastLEDLightOutputComponent::get_traits() {
   return {true, true, false, false};
 }
-void FastLEDLightOutputComponent::write_state(LightState *state) {
-  LightColorValues value = state->get_current_values();
-  uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
-  this->correction_.set_local_brightness(max_brightness);
-
-  if (this->is_effect_active())
-    return;
-
-  auto val = state->get_current_values();
-  // don't use LightState helper, gamma correction+brightness is handled by ESPColorView
-  ESPColor color = ESPColor(
-      uint8_t(roundf(val.get_red() * 255.0f)),
-      uint8_t(roundf(val.get_green() * 255.0f)),
-      uint8_t(roundf(val.get_blue() * 255.0f))
-  );
-
-  for (int i = 0; i < this->size(); i++) {
-    (*this)[i] = color;
-  }
-
-  this->schedule_show();
-}
 void FastLEDLightOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up FastLED light...");
   this->controller_->init();
@@ -51,7 +29,7 @@ void FastLEDLightOutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  Max refresh rate: %u", *this->max_refresh_rate_);
 }
 void FastLEDLightOutputComponent::loop() {
-  if (!this->next_show_ && !this->is_effect_active())
+  if (!this->should_show_())
     return;
 
   uint32_t now = micros();
@@ -60,7 +38,7 @@ void FastLEDLightOutputComponent::loop() {
     return;
   }
   this->last_refresh_ = now;
-  this->next_show_ = false;
+  this->mark_shown_();
 
   ESP_LOGVV(TAG, "Writing RGB values to bus...");
 
@@ -86,9 +64,6 @@ void FastLEDLightOutputComponent::loop() {
 #endif
   this->controller_->showLeds();
 }
-void FastLEDLightOutputComponent::schedule_show() {
-  this->next_show_ = true;
-}
 CLEDController &FastLEDLightOutputComponent::add_leds(CLEDController *controller, int num_leds) {
   this->controller_ = controller;
   this->num_leds_ = num_leds;
@@ -112,14 +87,8 @@ float FastLEDLightOutputComponent::get_setup_priority() const {
 void FastLEDLightOutputComponent::set_power_supply(PowerSupplyComponent *power_supply) {
   this->power_supply_ = power_supply;
 }
-void FastLEDLightOutputComponent::set_correction(float red, float green, float blue) {
-  this->correction_.set_max_brightness(ESPColor(
-      uint8_t(roundf(red * 255.0f)),
-      uint8_t(roundf(green * 255.0f)),
-      uint8_t(roundf(blue * 255.0f)),
-      0
-  ));
-}
+#endif
+
 ESPColorView FastLEDLightOutputComponent::operator[](int32_t index) const {
   return ESPColorView(&this->leds_[index].r, &this->leds_[index].g, &this->leds_[index].b, nullptr,
                       &this->effect_data_[index], &this->correction_);
@@ -127,15 +96,11 @@ ESPColorView FastLEDLightOutputComponent::operator[](int32_t index) const {
 int32_t FastLEDLightOutputComponent::size() const {
   return this->num_leds_;
 }
-void FastLEDLightOutputComponent::setup_state(LightState *state) {
-  this->correction_.calculate_gamma_table(state->get_gamma_correct());
-}
 void FastLEDLightOutputComponent::clear_effect_data() {
   for (int i = 0; i < this->size(); i++)
     this->effect_data_[i] = 0;
 }
 
-#endif
 
 } // namespace light
 
