@@ -234,16 +234,6 @@ uint32_t OrFilter::expected_interval(uint32_t input) {
 
   return min_interval;
 }
-
-// UniqueFilter
-optional<float> UniqueFilter::new_value(float value) {
-  if (isnan(this->last_value_) || value != this->last_value_) {
-    return this->last_value_ = value;
-  }
-
-  return {};
-}
-
 // DebounceFilter
 optional<float> DebounceFilter::new_value(float value) {
   this->set_timeout("debounce", this->time_period_, [this, value](){
@@ -289,6 +279,11 @@ void HeartbeatFilter::setup() {
 float HeartbeatFilter::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
+
+optional<float> CalibrateLinearFilter::new_value(float value) {
+  return value * this->slope_ + this->bias_;
+}
+CalibrateLinearFilter::CalibrateLinearFilter(float slope, float bias) : slope_(slope), bias_(bias) {}
 
 } // namespace sensor
 

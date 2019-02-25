@@ -248,12 +248,13 @@ class OrFilter : public Filter {
   PhiNode phi_;
 };
 
-class UniqueFilter : public Filter {
+class CalibrateLinearFilter : public Filter {
  public:
+  CalibrateLinearFilter(float slope, float bias);
   optional<float> new_value(float value) override;
-
  protected:
-  float last_value_{NAN};
+  float slope_;
+  float bias_;
 };
 
 } // namespace sensor
