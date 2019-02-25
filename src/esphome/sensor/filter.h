@@ -167,12 +167,6 @@ class FilterOutValueFilter : public Filter {
   float value_to_filter_out_;
 };
 
-/// A simple filter that only forwards the filter chain if it doesn't receive `nan`.
-class FilterOutNANFilter : public Filter {
- public:
-  optional<float> new_value(float value) override;
-};
-
 class ThrottleFilter : public Filter {
  public:
   explicit ThrottleFilter(uint32_t min_time_between_inputs);

@@ -155,19 +155,15 @@ FilterOutValueFilter::FilterOutValueFilter(float value_to_filter_out)
 }
 
 optional<float> FilterOutValueFilter::new_value(float value) {
-  if (value == this->value_to_filter_out_)
-    return {};
-  return value;
+  if (isnan(this->value_to_filter_out_)) {
+    if (isnan(value)) return {};
+    else return value;
+  } else {
+    if (value == this->value_to_filter_out_) return {};
+    else return value;
+  }
 }
 
-// FilterOutNANFilter
-optional<float> FilterOutNANFilter::new_value(float value) {
-  ESP_LOGVV(TAG, "FilterOutNANFilter(%p)::new_value(%f) -> %s", this, value, YESNO(isnan(value)));
-  if (isnan(value)) {
-    return {};
-  }
-  return value;
-}
 
 // ThrottleFilter
 ThrottleFilter::ThrottleFilter(uint32_t min_time_between_inputs)
