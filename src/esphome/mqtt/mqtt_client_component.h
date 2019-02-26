@@ -347,6 +347,8 @@ class MQTTPublishJsonAction : public Action<Ts...> {
   void play(Ts... x) override;
 
  protected:
+  void encode_(Ts... x, JsonObject &root);
+
   TemplatableValue<std::string, Ts...> topic_;
   std::function<void(Ts..., JsonObject &)> payload_;
   uint8_t qos_{0};
@@ -369,9 +371,13 @@ void MQTTPublishJsonAction<Ts...>::set_retain(bool retain) {
 }
 template<typename... Ts>
 void MQTTPublishJsonAction<Ts...>::play(Ts... x) {
-  auto f = std::bind(&MQTTPublishAction<Ts...>::payload_, this, x..., std::placeholders::_1);
+  auto f = std::bind(&MQTTPublishJsonAction<Ts...>::encode_, this, x..., std::placeholders::_1);
   global_mqtt_client->publish_json(this->topic_.value(x...), f, this->qos_, this->retain_);
   this->play_next(x...);
+}
+template<typename... Ts>
+void MQTTPublishJsonAction<Ts...>::encode_(Ts... x, JsonObject &root) {
+  this->payload_(x..., root);
 }
 template<typename... Ts>
 MQTTPublishJsonAction<Ts...>::MQTTPublishJsonAction() = default;
