@@ -41,6 +41,12 @@ class Nextion : public PollingComponent, public UARTDevice {
    */
   void set_component_value(const char *component, int value);
   /**
+   * Set the picture of an image component.
+   * @param component The component name.
+   * @param value The picture name.
+   */
+  void set_component_picture(const char *component, const char *picture);
+  /**
    * Set the background color of a component.
    * @param component The component name.
    * @param color The color (as a string).

@@ -75,6 +75,9 @@ void Nextion::set_component_text(const char *component, const char *text) {
 void Nextion::set_component_value(const char *component, int value) {
   this->send_command_printf_("%s.val=%d", component, value);
 }
+void Nextion::set_component_picture(const char *component, const char *picture) {
+  this->send_command_printf_("%s.pic=\"%s\"", component, picture);
+}
 void Nextion::set_component_background_color(const char *component, const char *color) {
   this->send_command_printf_("%s.bco=\"%s\"", component, color);
 }
