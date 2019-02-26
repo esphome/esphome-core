@@ -59,7 +59,6 @@ void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscover
       effect_list.add(effect->get_name());
     effect_list.add("None");
   }
-  config.platform = "mqtt_json";
 }
 bool MQTTJSONLightComponent::send_initial_state() {
   return this->publish_state();
