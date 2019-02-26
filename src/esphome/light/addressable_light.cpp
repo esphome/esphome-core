@@ -176,7 +176,7 @@ void AddressableLight::mark_shown_() {
 }
 
 int32_t PartitionLightOutput::size() const {
-  auto last_seg = this->segments_[this->segments_.size() - 1];
+  auto &last_seg = this->segments_[this->segments_.size() - 1];
   return last_seg.get_dst_offset() + last_seg.get_size();
 }
 ESPColorView PartitionLightOutput::operator[](int32_t index) const {
@@ -194,14 +194,17 @@ ESPColorView PartitionLightOutput::operator[](int32_t index) const {
       lo = hi = mid;
     }
   }
-  auto seg = this->segments_[lo];
-  int32_t off = index - seg.get_dst_offset();
-  auto view = (*seg.get_src())[seg.get_src_offset() + off];
+  auto &seg = this->segments_[lo];
+  // offset within the segment
+  int32_t seg_off = index - seg.get_dst_offset();
+  // offset within the src
+  int32_t src_off = seg.get_src_offset() + seg_off;
+  auto view = (*seg.get_src())[src_off];
   view.set_color_correction_(&this->correction_);
   return view;
 }
 void PartitionLightOutput::clear_effect_data() {
-  for (auto seg : this->segments_) {
+  for (auto &seg : this->segments_) {
     seg.get_src()->clear_effect_data();
   }
 }
@@ -210,7 +213,7 @@ LightTraits PartitionLightOutput::get_traits() {
 }
 PartitionLightOutput::PartitionLightOutput(const std::vector<AddressableSegment> &segments) : segments_(segments) {
   int32_t off = 0;
-  for (auto seg : this->segments_) {
+  for (auto &seg : this->segments_) {
     seg.set_dst_offset(off);
     off += seg.get_size();
   }
