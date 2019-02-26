@@ -282,12 +282,7 @@ void Nameable::set_internal(bool internal) {
 void Nameable::calc_object_id_() {
   this->object_id_ = sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
   // FNV-1 hash
-  uint32_t hash = 2166136261UL;
-  for (char c : this->object_id_) {
-    hash *= 16777619UL;
-    hash ^= c;
-  }
-  this->object_id_hash_ = hash;
+  this->object_id_hash_ = fnv1_hash(this->object_id_) ^ this->hash_base_();
 }
 uint32_t Nameable::get_object_id_hash() {
   return this->object_id_hash_;

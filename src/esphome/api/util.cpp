@@ -3,6 +3,8 @@
 #ifdef USE_API
 
 #include "esphome/api/util.h"
+#include "esphome/api/api_server.h"
+#include "esphome/api/user_services.h"
 #include "esphome/log.h"
 
 ESPHOME_NAMESPACE_BEGIN
@@ -143,7 +145,7 @@ void APIBuffer::end_nested(size_t begin_index) {
   this->buffer_->insert(this->buffer_->begin() + begin_index, var.begin(), var.end());
 }
 
-optional<uint32_t> proto_decode_varuint32(uint8_t *buf, size_t len, uint32_t *consumed) {
+optional<uint32_t> proto_decode_varuint32(const uint8_t *buf, size_t len, uint32_t *consumed) {
   if (len == 0)
     return {};
 
@@ -185,7 +187,7 @@ float as_float(uint32_t val) {
   return x.value;
 }
 
-ComponentIterator::ComponentIterator(StoringController *controller) : controller_(controller) {
+ComponentIterator::ComponentIterator(APIServer *server) : server_(server) {
 
 }
 void ComponentIterator::begin() {
@@ -208,10 +210,10 @@ void ComponentIterator::advance() {
       break;
 #ifdef USE_BINARY_SENSOR
     case IteratorState::BINARY_SENSOR:
-      if (this->at_ >= this->controller_->binary_sensors_.size()) {
+      if (this->at_ >= this->server_->binary_sensors_.size()) {
         advance_platform = true;
       } else {
-        auto *binary_sensor = this->controller_->binary_sensors_[this->at_];
+        auto *binary_sensor = this->server_->binary_sensors_[this->at_];
         if (binary_sensor->is_internal()) {
           success = true;
           break;
@@ -223,10 +225,10 @@ void ComponentIterator::advance() {
 #endif
 #ifdef USE_COVER
     case IteratorState::COVER:
-      if (this->at_ >= this->controller_->covers_.size()) {
+      if (this->at_ >= this->server_->covers_.size()) {
         advance_platform = true;
       } else {
-        auto *cover = this->controller_->covers_[this->at_];
+        auto *cover = this->server_->covers_[this->at_];
         if (cover->is_internal()) {
           success = true;
           break;
@@ -238,10 +240,10 @@ void ComponentIterator::advance() {
 #endif
 #ifdef USE_FAN
     case IteratorState::FAN:
-      if (this->at_ >= this->controller_->fans_.size()) {
+      if (this->at_ >= this->server_->fans_.size()) {
         advance_platform = true;
       } else {
-        auto *fan = this->controller_->fans_[this->at_];
+        auto *fan = this->server_->fans_[this->at_];
         if (fan->is_internal()) {
           success = true;
           break;
@@ -253,10 +255,10 @@ void ComponentIterator::advance() {
 #endif
 #ifdef USE_LIGHT
     case IteratorState::LIGHT:
-      if (this->at_ >= this->controller_->lights_.size()) {
+      if (this->at_ >= this->server_->lights_.size()) {
         advance_platform = true;
       } else {
-        auto *light = this->controller_->lights_[this->at_];
+        auto *light = this->server_->lights_[this->at_];
         if (light->is_internal()) {
           success = true;
           break;
@@ -268,10 +270,10 @@ void ComponentIterator::advance() {
 #endif
 #ifdef USE_SENSOR
     case IteratorState::SENSOR:
-      if (this->at_ >= this->controller_->sensors_.size()) {
+      if (this->at_ >= this->server_->sensors_.size()) {
         advance_platform = true;
       } else {
-        auto *sensor = this->controller_->sensors_[this->at_];
+        auto *sensor = this->server_->sensors_[this->at_];
         if (sensor->is_internal()) {
           success = true;
           break;
@@ -283,10 +285,10 @@ void ComponentIterator::advance() {
 #endif
 #ifdef USE_SWITCH
     case IteratorState::SWITCH:
-      if (this->at_ >= this->controller_->switches_.size()) {
+      if (this->at_ >= this->server_->switches_.size()) {
         advance_platform = true;
       } else {
-        auto *switch_ = this->controller_->switches_[this->at_];
+        auto *switch_ = this->server_->switches_[this->at_];
         if (switch_->is_internal()) {
           success = true;
           break;
@@ -298,10 +300,10 @@ void ComponentIterator::advance() {
 #endif
 #ifdef USE_TEXT_SENSOR
     case IteratorState::TEXT_SENSOR:
-      if (this->at_ >= this->controller_->text_sensors_.size()) {
+      if (this->at_ >= this->server_->text_sensors_.size()) {
         advance_platform = true;
       } else {
-        auto *text_sensor = this->controller_->text_sensors_[this->at_];
+        auto *text_sensor = this->server_->text_sensors_[this->at_];
         if (text_sensor->is_internal()) {
           success = true;
           break;
@@ -311,6 +313,14 @@ void ComponentIterator::advance() {
       }
       break;
 #endif
+    case IteratorState ::SERVICE:
+      if (this->at_ >= this->server_->get_user_services().size()) {
+        advance_platform = true;
+      } else {
+        auto *service = this->server_->get_user_services()[this->at_];
+        success = this->on_service(service);
+      }
+      break;
     case IteratorState::MAX:
       if (this->on_end()) {
         this->state_ = IteratorState::NONE;
@@ -330,6 +340,9 @@ bool ComponentIterator::on_end() {
 }
 bool ComponentIterator::on_begin() {
   return true;
+}
+bool ComponentIterator::on_service(UserServiceDescriptor *service) {
+
 }
 
 } // namespace api

@@ -41,15 +41,18 @@ class APIBuffer {
   std::vector<uint8_t> *buffer_;
 };
 
-optional<uint32_t> proto_decode_varuint32(uint8_t *buf, size_t len, uint32_t *consumed = nullptr);
+optional<uint32_t> proto_decode_varuint32(const uint8_t *buf, size_t len, uint32_t *consumed = nullptr);
 
 std::string as_string(const uint8_t *value, size_t len);
 int32_t as_sint32(uint32_t val);
 float as_float(uint32_t val);
 
+class APIServer;
+class UserServiceDescriptor;
+
 class ComponentIterator {
  public:
-  ComponentIterator(StoringController *controller);
+  ComponentIterator(APIServer *server);
 
   void begin();
   void advance();
@@ -75,6 +78,7 @@ class ComponentIterator {
 #ifdef USE_TEXT_SENSOR
   virtual bool on_text_sensor(text_sensor::TextSensor *text_sensor) = 0;
 #endif
+  virtual bool on_service(UserServiceDescriptor *service);
   virtual bool on_end();
 
  protected:
@@ -102,11 +106,12 @@ class ComponentIterator {
 #ifdef USE_TEXT_SENSOR
     TEXT_SENSOR,
 #endif
+    SERVICE,
     MAX,
   } state_{IteratorState::NONE};
   size_t at_{0};
 
-  StoringController *controller_;
+  APIServer *server_;
 };
 
 } // namespace api

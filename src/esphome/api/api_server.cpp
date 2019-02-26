@@ -495,6 +495,12 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
       this->on_home_assistant_state_response(req);
       break;
     }
+    case APIMessageType::EXECUTE_SERVICE_REQUEST: {
+      ExecuteServiceRequest req;
+      req.decode(msg, size);
+      this->on_execute_service(req);
+      break;
+    }
   }
 }
 void APIConnection::on_hello_request_(const HelloRequest &req) {
@@ -606,7 +612,6 @@ void APIConnection::on_subscribe_logs_request_(const SubscribeLogsRequest &req) 
   }
 }
 
-
 void APIConnection::fatal_error_() {
   this->client_->close();
   this->remove_ = true;
@@ -715,6 +720,7 @@ void APIConnection::loop() {
 
   this->list_entities_iterator_.advance();
   this->initial_state_iterator_.advance();
+
   const uint32_t keepalive = 60000;
   if (this->sent_ping_) {
     if (millis() - this->last_traffic_ > (keepalive * 3) / 2) {
@@ -1007,6 +1013,19 @@ void APIConnection::on_home_assistant_state_response(const HomeAssistantStateRes
     }
   }
 }
+void APIConnection::on_execute_service(const ExecuteServiceRequest &req) {
+  ESP_LOGVV(TAG, "on_execute_service");
+  bool found = false;
+  for (auto *service : this->parent_->get_user_services()) {
+    if (service->execute_service(req)) {
+      found = true;
+    }
+  }
+  if (!found) {
+    ESP_LOGV(TAG, "Could not find matching service!");
+  }
+}
+
 APIBuffer APIConnection::get_buffer() {
   this->send_buffer_.clear();
   return APIBuffer(&this->send_buffer_);
