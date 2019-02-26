@@ -56,6 +56,7 @@ LightTransitionTransformer::LightTransitionTransformer(uint32_t start_time,
     LightTransformer(start_time, length, start_values, target_values) {
   // When turning light on from off state, use colors from new.
   if (!this->start_values_.is_on() && this->target_values_.is_on()) {
+    this->start_values_.set_brightness(0.0f);
     this->start_values_.set_red(target_values.get_red());
     this->start_values_.set_green(target_values.get_green());
     this->start_values_.set_blue(target_values.get_blue());
