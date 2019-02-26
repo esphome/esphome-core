@@ -15,11 +15,11 @@ class Condition {
  public:
   virtual bool check(Ts... x) = 0;
 
-  bool check(const std::tuple<Ts...> &tuple);
+  bool check_tuple(const std::tuple<Ts...> &tuple);
 
  protected:
   template<int... S>
-  bool check(const std::tuple<Ts...> &tuple, seq<S...>);
+  bool check_tuple(const std::tuple<Ts...> &tuple, seq<S...>);
 };
 
 template<typename... Ts>

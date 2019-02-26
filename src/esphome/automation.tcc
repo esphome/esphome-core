@@ -3,12 +3,12 @@
 ESPHOME_NAMESPACE_BEGIN
 
 template<typename... Ts>
-bool Condition<Ts...>::check(const std::tuple<Ts...> &tuple) {
-  return this->check(tuple, typename gens<sizeof...(Ts)>::type());
+bool Condition<Ts...>::check_tuple(const std::tuple<Ts...> &tuple) {
+  return this->check_tuple(tuple, typename gens<sizeof...(Ts)>::type());
 }
 template<typename... Ts>
 template<int... S>
-bool Condition<Ts...>::check(const std::tuple<Ts...> &tuple, seq<S...>) {
+bool Condition<Ts...>::check_tuple(const std::tuple<Ts...> &tuple, seq<S...>) {
   return this->check(std::get<S>(tuple) ...);
 }
 
@@ -378,7 +378,7 @@ void WaitUntilAction<Ts...>::loop() {
     return;
 
   for (auto *condition : this->conditions_) {
-    if (!condition->check(this->var_)) {
+    if (!condition->check_tuple(this->var_)) {
       return;
     }
   }
