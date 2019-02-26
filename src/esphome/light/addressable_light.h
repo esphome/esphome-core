@@ -186,7 +186,6 @@ class PartitionLightOutput : public AddressableLight, public Component {
 
  protected:
   std::vector<AddressableSegment> segments_;
-  ESPColorCorrection correction_{};
 };
 
 } // namespace light
