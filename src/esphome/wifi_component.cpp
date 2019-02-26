@@ -616,7 +616,7 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
     conf.bssid_set = 0;
   }
 
-  if (ap.get_ssid().empty()) {
+  if (ap.get_password().empty()) {
     conf.threshold.authmode = AUTH_OPEN;
   } else {
     conf.threshold.authmode = AUTH_WPA_PSK;
