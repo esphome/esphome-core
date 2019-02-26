@@ -386,47 +386,64 @@ class Image {
   const uint8_t *data_start_;
 };
 
-template<typename T>
-class DisplayPageShowAction : public Action<T> {
+template<typename... Ts>
+class DisplayPageShowAction : public Action<Ts...> {
  public:
-  DisplayPageShowAction() {}
+  DisplayPageShowAction();
   template<typename V>
   void set_page(V page) { this->page_ = page; }
-  void play(T x) override {
-    auto *page = this->page_.value(x);
-    if (page != nullptr) {
-      page->show();
-    }
-    this->play_next(x);
-  }
+  void play(Ts... x) override;
  protected:
-  TemplatableValue<DisplayPage *, T> page_;
+  TemplatableValue<DisplayPage *, Ts...> page_;
 };
 
-template<typename T>
-class DisplayPageShowNextAction : public Action<T> {
+template<typename... Ts>
+class DisplayPageShowNextAction : public Action<Ts...> {
  public:
-  DisplayPageShowNextAction(DisplayBuffer *buffer) : buffer_(buffer) {}
-  void play(T x) override {
-    this->buffer_->show_next_page();
-    this->play_next(x);
-  }
+  DisplayPageShowNextAction(DisplayBuffer *buffer);
+  void play(Ts... x) override;
  protected:
   DisplayBuffer *buffer_;
 };
 
-template<typename T>
-class DisplayPageShowPrevAction : public Action<T> {
+template<typename... Ts>
+class DisplayPageShowPrevAction : public Action<Ts...> {
  public:
-  DisplayPageShowPrevAction(DisplayBuffer *buffer) : buffer_(buffer) {}
-  DisplayPageShowPrevAction() {}
-  void play(T x) override {
-    this->buffer_->show_prev_page();
-    this->play_next(x);
-  }
+  DisplayPageShowPrevAction(DisplayBuffer *buffer);
+  DisplayPageShowPrevAction();
+  void play(Ts... x) override;
  protected:
   DisplayBuffer *buffer_;
 };
+
+
+template<typename... Ts>
+DisplayPageShowPrevAction<Ts...>::DisplayPageShowPrevAction() {}
+template<typename... Ts>
+DisplayPageShowPrevAction<Ts...>::DisplayPageShowPrevAction(DisplayBuffer *buffer) : buffer_(buffer) {}
+template<typename... Ts>
+void DisplayPageShowPrevAction<Ts...>::play(Ts... x) {
+  this->buffer_->show_prev_page();
+  this->play_next(x...);
+}
+
+template<typename... Ts>
+DisplayPageShowAction<Ts...>::DisplayPageShowAction() {}
+template<typename... Ts>
+void DisplayPageShowAction<Ts...>::play(Ts... x) {
+  auto *page = this->page_.value(x...);
+  if (page != nullptr) {
+    page->show();
+  }
+  this->play_next(x...);
+}
+template<typename... Ts>
+DisplayPageShowNextAction<Ts...>::DisplayPageShowNextAction(DisplayBuffer *buffer) : buffer_(buffer) {}
+template<typename... Ts>
+void DisplayPageShowNextAction<Ts...>::play(Ts... x) {
+  this->buffer_->show_next_page();
+  this->play_next(x...);
+}
 
 } // namespace display
 

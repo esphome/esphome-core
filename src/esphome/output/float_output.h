@@ -12,7 +12,7 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace output {
 
-template<typename T>
+template<typename... Ts>
 class SetLevelAction;
 
 #define LOG_FLOAT_OUTPUT(this) \
@@ -66,8 +66,8 @@ class FloatOutput : public BinaryOutput {
   /// Implement BinarySensor's write_enabled; this should never be called.
   void write_state(bool value) override;
 
-  template<typename T>
-  SetLevelAction<T> *make_set_level_action();
+  template<typename... Ts>
+  SetLevelAction<Ts...> *make_set_level_action();
 
  protected:
   virtual void write_state(float state) = 0;
@@ -76,32 +76,32 @@ class FloatOutput : public BinaryOutput {
   float min_power_{0.0f};
 };
 
-template<typename T>
-class SetLevelAction : public Action<T> {
+template<typename... Ts>
+class SetLevelAction : public Action<Ts...> {
  public:
   SetLevelAction(FloatOutput *output);
 
   template<typename V>
   void set_level(V level) { this->level_ = level; }
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   FloatOutput *output_;
-  TemplatableValue<float, T> level_;
+  TemplatableValue<float, Ts...> level_;
 };
 
-template<typename T>
-SetLevelAction<T>::SetLevelAction(FloatOutput *output) : output_(output) {}
+template<typename... Ts>
+SetLevelAction<Ts...>::SetLevelAction(FloatOutput *output) : output_(output) {}
 
-template<typename T>
-void SetLevelAction<T>::play(T x) {
-  this->output_->set_level(this->level_.value(x));
-  this->play_next(x);
+template<typename... Ts>
+void SetLevelAction<Ts...>::play(Ts... x) {
+  this->output_->set_level(this->level_.value(x...));
+  this->play_next(x...);
 }
 
-template<typename T>
-SetLevelAction<T> *FloatOutput::make_set_level_action() {
-  return new SetLevelAction<T>(this);
+template<typename... Ts>
+SetLevelAction<Ts...> *FloatOutput::make_set_level_action() {
+  return new SetLevelAction<Ts...>(this);
 }
 
 } // namespace output

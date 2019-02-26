@@ -355,8 +355,8 @@ class Application {
    *  /_/    \_\____/   |_|  \____/|_|  |_/_/    \_\_|  |_____\____/|_| \_|
    */
 
-  template<typename T>
-  Automation<T> *make_automation(Trigger<T> *trigger);
+  template<typename... Ts>
+  Automation<Ts...> *make_automation(Trigger<Ts...> *trigger);
 
   StartupTrigger *make_startup_trigger();
 
@@ -1285,9 +1285,9 @@ C *Application::register_controller(C *c) {
   return c;
 }
 
-template<typename T>
-Automation<T> *Application::make_automation(Trigger<T> *trigger) {
-  return new Automation<T>(trigger);
+template<typename... Ts>
+Automation<Ts...> *Application::make_automation(Trigger<Ts...> *trigger) {
+  return new Automation<Ts...>(trigger);
 }
 
 template<typename T>

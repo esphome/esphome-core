@@ -22,10 +22,10 @@ class ClickTrigger;
 class DoubleClickTrigger;
 class MultiClickTrigger;
 class StateTrigger;
-template<typename T>
+template<typename... Ts>
 class BinarySensorCondition;
 class Filter;
-template<typename T>
+template<typename... Ts>
 class BinarySensorPublishAction;
 
 struct MultiClickTriggerEvent {
@@ -98,12 +98,12 @@ class BinarySensor : public Nameable {
   DoubleClickTrigger *make_double_click_trigger(uint32_t min_length, uint32_t max_length);
   MultiClickTrigger *make_multi_click_trigger(const std::vector<MultiClickTriggerEvent> &timing);
   StateTrigger *make_state_trigger();
-  template<typename T>
-  BinarySensorCondition<T> *make_binary_sensor_is_on_condition();
-  template<typename T>
-  BinarySensorCondition<T> *make_binary_sensor_is_off_condition();
-  template<typename T>
-  BinarySensorPublishAction<T> *make_binary_sensor_publish_action();
+  template<typename... Ts>
+  BinarySensorCondition<Ts...> *make_binary_sensor_is_on_condition();
+  template<typename... Ts>
+  BinarySensorCondition<Ts...> *make_binary_sensor_is_off_condition();
+  template<typename... Ts>
+  BinarySensorPublishAction<Ts...> *make_binary_sensor_publish_action();
 
   void add_filter(Filter *filter);
   void add_filters(std::vector<Filter *> filters);
@@ -141,17 +141,17 @@ class BinarySensor : public Nameable {
 #endif
 };
 
-class PressTrigger : public Trigger<NoArg> {
+class PressTrigger : public Trigger<> {
  public:
   explicit PressTrigger(BinarySensor *parent);
 };
 
-class ReleaseTrigger : public Trigger<NoArg> {
+class ReleaseTrigger : public Trigger<> {
  public:
   explicit ReleaseTrigger(BinarySensor *parent);
 };
 
-class ClickTrigger : public Trigger<NoArg> {
+class ClickTrigger : public Trigger<> {
  public:
   explicit ClickTrigger(BinarySensor *parent, uint32_t min_length, uint32_t max_length);
 
@@ -161,7 +161,7 @@ class ClickTrigger : public Trigger<NoArg> {
   uint32_t max_length_; /// Maximum length of click. 0 means no maximum.
 };
 
-class DoubleClickTrigger : public Trigger<NoArg> {
+class DoubleClickTrigger : public Trigger<> {
  public:
   explicit DoubleClickTrigger(BinarySensor *parent, uint32_t min_length, uint32_t max_length);
 
@@ -172,7 +172,7 @@ class DoubleClickTrigger : public Trigger<NoArg> {
   uint32_t max_length_; /// Maximum length of click. 0 means no maximum.
 };
 
-class MultiClickTrigger : public Trigger<NoArg>, public Component {
+class MultiClickTrigger : public Trigger<>, public Component {
  public:
   explicit MultiClickTrigger(BinarySensor *parent, const std::vector<MultiClickTriggerEvent> &timing);
 
@@ -203,56 +203,56 @@ class StateTrigger : public Trigger<bool> {
   explicit StateTrigger(BinarySensor *parent);
 };
 
-template<typename T>
-class BinarySensorCondition : public Condition<T> {
+template<typename... Ts>
+class BinarySensorCondition : public Condition<Ts...> {
  public:
   BinarySensorCondition(BinarySensor *parent, bool state);
-  bool check(T x) override;
+  bool check(Ts... x) override;
  protected:
   BinarySensor *parent_;
   bool state_;
 };
 
-template<typename T>
-class BinarySensorPublishAction : public Action<T> {
+template<typename... Ts>
+class BinarySensorPublishAction : public Action<Ts...> {
  public:
   BinarySensorPublishAction(BinarySensor *sensor);
   template<typename V>
   void set_state(V value) { this->state_ = value; }
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   BinarySensor *sensor_;
-  TemplatableValue<bool, T> state_;
+  TemplatableValue<bool, Ts...> state_;
 };
 
-template<typename T>
-BinarySensorCondition<T>::BinarySensorCondition(BinarySensor *parent, bool state) : parent_(parent), state_(state) {
+template<typename... Ts>
+BinarySensorCondition<Ts...>::BinarySensorCondition(BinarySensor *parent, bool state) : parent_(parent), state_(state) {
 
 }
-template<typename T>
-bool BinarySensorCondition<T>::check(T x) {
+template<typename... Ts>
+bool BinarySensorCondition<Ts...>::check(Ts... x) {
   return this->parent_->state == this->state_;
 }
 
-template<typename T>
-BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_on_condition() {
-  return new BinarySensorCondition<T>(this, true);
+template<typename... Ts>
+BinarySensorCondition<Ts...> *BinarySensor::make_binary_sensor_is_on_condition() {
+  return new BinarySensorCondition<Ts...>(this, true);
 }
-template<typename T>
-BinarySensorCondition<T> *BinarySensor::make_binary_sensor_is_off_condition() {
-  return new BinarySensorCondition<T>(this, false);
+template<typename... Ts>
+BinarySensorCondition<Ts...> *BinarySensor::make_binary_sensor_is_off_condition() {
+  return new BinarySensorCondition<Ts...>(this, false);
 }
-template<typename T>
-BinarySensorPublishAction<T>::BinarySensorPublishAction(BinarySensor *sensor) : sensor_(sensor) {}
-template<typename T>
-void BinarySensorPublishAction<T>::play(T x) {
-  auto val = this->state_.value(x);
+template<typename... Ts>
+BinarySensorPublishAction<Ts...>::BinarySensorPublishAction(BinarySensor *sensor) : sensor_(sensor) {}
+template<typename... Ts>
+void BinarySensorPublishAction<Ts...>::play(Ts... x) {
+  auto val = this->state_.value(x...);
   this->sensor_->publish_state(val);
-  this->play_next(x);
+  this->play_next(x...);
 }
-template<typename T>
-BinarySensorPublishAction<T> *BinarySensor::make_binary_sensor_publish_action() {
-  return new BinarySensorPublishAction<T>(this);
+template<typename... Ts>
+BinarySensorPublishAction<Ts...> *BinarySensor::make_binary_sensor_publish_action() {
+  return new BinarySensorPublishAction<Ts...>(this);
 }
 
 } // namespace binary_sensor

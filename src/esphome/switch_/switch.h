@@ -13,15 +13,15 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace switch_ {
 
-template<typename T>
+template<typename... Ts>
 class ToggleAction;
-template<typename T>
+template<typename... Ts>
 class TurnOffAction;
-template<typename T>
+template<typename... Ts>
 class TurnOnAction;
-template<typename T>
+template<typename... Ts>
 class SwitchCondition;
-template<typename T>
+template<typename... Ts>
 class SwitchPublishAction;
 class SwitchTurnOnTrigger;
 class SwitchTurnOffTrigger;
@@ -102,18 +102,18 @@ class Switch : public Nameable {
   /// Get the icon for this switch. Using icon() if not manually set
   std::string get_icon();
 
-  template<typename T>
-  ToggleAction<T> *make_toggle_action();
-  template<typename T>
-  TurnOffAction<T> *make_turn_off_action();
-  template<typename T>
-  TurnOnAction<T> *make_turn_on_action();
-  template<typename T>
-  SwitchCondition<T> *make_switch_is_on_condition();
-  template<typename T>
-  SwitchCondition<T> *make_switch_is_off_condition();
-  template<typename T>
-  SwitchPublishAction<T> *make_switch_publish_action();
+  template<typename... Ts>
+  ToggleAction<Ts...> *make_toggle_action();
+  template<typename... Ts>
+  TurnOffAction<Ts...> *make_turn_off_action();
+  template<typename... Ts>
+  TurnOnAction<Ts...> *make_turn_on_action();
+  template<typename... Ts>
+  SwitchCondition<Ts...> *make_switch_is_on_condition();
+  template<typename... Ts>
+  SwitchCondition<Ts...> *make_switch_is_off_condition();
+  template<typename... Ts>
+  SwitchPublishAction<Ts...> *make_switch_publish_action();
   SwitchTurnOnTrigger *make_switch_turn_on_trigger();
   SwitchTurnOffTrigger *make_switch_turn_off_trigger();
 
@@ -171,144 +171,128 @@ class Switch : public Nameable {
 #endif
 };
 
-template<typename T>
-class TurnOnAction : public Action<T> {
+template<typename... Ts>
+class TurnOnAction : public Action<Ts...> {
  public:
   explicit TurnOnAction(Switch *a_switch);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Switch *switch_;
 };
 
-template<typename T>
-class TurnOffAction : public Action<T> {
+template<typename... Ts>
+class TurnOffAction : public Action<Ts...> {
  public:
   explicit TurnOffAction(Switch *a_switch);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Switch *switch_;
 };
 
-template<typename T>
-class ToggleAction : public Action<T> {
+template<typename... Ts>
+class ToggleAction : public Action<Ts...> {
  public:
   explicit ToggleAction(Switch *a_switch);
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Switch *switch_;
 };
 
-template<typename T>
-class SwitchCondition : public Condition<T> {
+template<typename... Ts>
+class SwitchCondition : public Condition<Ts...> {
  public:
   SwitchCondition(Switch *parent, bool state);
-  bool check(T x) override;
+  bool check(Ts... x) override;
  protected:
   Switch *parent_;
   bool state_;
 };
 
-class SwitchTurnOnTrigger : public Trigger<NoArg> {
+class SwitchTurnOnTrigger : public Trigger<> {
  public:
   SwitchTurnOnTrigger(Switch *switch_);
 };
 
-class SwitchTurnOffTrigger : public Trigger<NoArg> {
+class SwitchTurnOffTrigger : public Trigger<> {
  public:
   SwitchTurnOffTrigger(Switch *switch_);
 };
 
-template<typename T>
-class SwitchPublishAction : public Action<T> {
+template<typename... Ts>
+class SwitchPublishAction : public Action<Ts...> {
  public:
   SwitchPublishAction(Switch *sensor);
   template<typename V>
   void set_state(V state) { this->state_ = state; }
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   Switch *switch_;
-  TemplatableValue<bool, T> state_;
+  TemplatableValue<bool, Ts...> state_;
 };
 
 // =============== TEMPLATE DEFINITIONS ===============
 
-template<typename T>
-TurnOnAction<T>::TurnOnAction(Switch *a_switch) : switch_(a_switch) {}
+template<typename... Ts>
+TurnOnAction<Ts...>::TurnOnAction(Switch *a_switch) : switch_(a_switch) {}
 
-template<typename T>
-void TurnOnAction<T>::play(T x) {
+template<typename... Ts>
+void TurnOnAction<Ts...>::play(Ts... x) {
   this->switch_->turn_on();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
-template<typename T>
-TurnOffAction<T>::TurnOffAction(Switch *a_switch) : switch_(a_switch) {}
+template<typename... Ts>
+TurnOffAction<Ts...>::TurnOffAction(Switch *a_switch) : switch_(a_switch) {}
 
-template<typename T>
-void TurnOffAction<T>::play(T x) {
+template<typename... Ts>
+void TurnOffAction<Ts...>::play(Ts... x) {
   this->switch_->turn_off();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
-template<typename T>
-ToggleAction<T>::ToggleAction(Switch *a_switch) : switch_(a_switch) {}
+template<typename... Ts>
+ToggleAction<Ts...>::ToggleAction(Switch *a_switch) : switch_(a_switch) {}
 
-template<typename T>
-void ToggleAction<T>::play(T x) {
+template<typename... Ts>
+void ToggleAction<Ts...>::play(Ts... x) {
   this->switch_->toggle();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
-template<typename T>
-ToggleAction<T> *Switch::make_toggle_action() {
-  return new ToggleAction<T>(this);
-}
+template<typename... Ts>
+ToggleAction<Ts...> *Switch::make_toggle_action() { return new ToggleAction<Ts...>(this); }
+template<typename... Ts>
+TurnOffAction<Ts...> *Switch::make_turn_off_action() { return new TurnOffAction<Ts...>(this); }
+template<typename... Ts>
+TurnOnAction<Ts...> *Switch::make_turn_on_action() { return new TurnOnAction<Ts...>(this); }
 
-template<typename T>
-TurnOffAction<T> *Switch::make_turn_off_action() {
-  return new TurnOffAction<T>(this);
-}
-
-template<typename T>
-TurnOnAction<T> *Switch::make_turn_on_action() {
-  return new TurnOnAction<T>(this);
-}
-
-template<typename T>
-SwitchCondition<T>::SwitchCondition(Switch *parent, bool state) : parent_(parent), state_(state) {
-
-}
-template<typename T>
-bool SwitchCondition<T>::check(T x) {
+template<typename... Ts>
+SwitchCondition<Ts...>::SwitchCondition(Switch *parent, bool state) : parent_(parent), state_(state) { }
+template<typename... Ts>
+bool SwitchCondition<Ts...>::check(Ts... x) {
   return this->parent_->state == this->state_;
 }
 
-template<typename T>
-SwitchCondition<T> *Switch::make_switch_is_on_condition() {
-  return new SwitchCondition<T>(this, true);
-}
-template<typename T>
-SwitchCondition<T> *Switch::make_switch_is_off_condition() {
-  return new SwitchCondition<T>(this, false);
-}
+template<typename... Ts>
+SwitchCondition<Ts...> *Switch::make_switch_is_on_condition() { return new SwitchCondition<Ts...>(this, true); }
+template<typename... Ts>
+SwitchCondition<Ts...> *Switch::make_switch_is_off_condition() { return new SwitchCondition<Ts...>(this, false); }
 
-template<typename T>
-SwitchPublishAction<T>::SwitchPublishAction(Switch *switch_) : switch_(switch_) {}
-template<typename T>
-void SwitchPublishAction<T>::play(T x) {
-  this->switch_->publish_state(this->state_.value(x));
-  this->play_next(x);
+template<typename... Ts>
+SwitchPublishAction<Ts...>::SwitchPublishAction(Switch *switch_) : switch_(switch_) {}
+template<typename... Ts>
+void SwitchPublishAction<Ts...>::play(Ts... x) {
+  this->switch_->publish_state(this->state_.value(x...));
+  this->play_next(x...);
 }
-template<typename T>
-SwitchPublishAction<T> *Switch::make_switch_publish_action() {
-  return new SwitchPublishAction<T>(this);
-}
+template<typename... Ts>
+SwitchPublishAction<Ts...> *Switch::make_switch_publish_action() { return new SwitchPublishAction<Ts...>(this); }
 
 } // namespace switch_
 

@@ -12,8 +12,8 @@ namespace cover {
 static const char *TAG = "cover.template";
 
 TemplateCover::TemplateCover(const std::string &name)
-    : Cover(name), open_trigger_(new Trigger<NoArg>()), close_trigger_(new Trigger<NoArg>),
-      stop_trigger_(new Trigger<NoArg>()) {
+    : Cover(name), open_trigger_(new Trigger<>()), close_trigger_(new Trigger<>),
+      stop_trigger_(new Trigger<>()) {
 
 }
 void TemplateCover::loop() {
@@ -40,13 +40,13 @@ void TemplateCover::set_state_lambda(std::function<optional<CoverState>()> &&f) 
 float TemplateCover::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-Trigger<NoArg> *TemplateCover::get_open_trigger() const {
+Trigger<> *TemplateCover::get_open_trigger() const {
   return this->open_trigger_;
 }
-Trigger<NoArg> *TemplateCover::get_close_trigger() const {
+Trigger<> *TemplateCover::get_close_trigger() const {
   return this->close_trigger_;
 }
-Trigger<NoArg> *TemplateCover::get_stop_trigger() const {
+Trigger<> *TemplateCover::get_stop_trigger() const {
   return this->stop_trigger_;
 }
 void TemplateCover::write_command(CoverCommand command) {
