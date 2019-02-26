@@ -15,6 +15,7 @@ void Nextion::setup() {
   this->send_command_("");
   this->ack_();
   this->goto_page("0");
+  this->send_command_printf_("bkcmd=3");
 }
 float Nextion::get_setup_priority() const {
   return setup_priority::POST_HARDWARE;
@@ -73,6 +74,9 @@ void Nextion::set_component_text(const char *component, const char *text) {
 }
 void Nextion::set_component_value(const char *component, int value) {
   this->send_command_printf_("%s.val=%d", component, value);
+}
+void Nextion::set_component_picture(const char *component, const char *picture) {
+  this->send_command_printf_("%s.pic=\"%s\"", component, picture);
 }
 void Nextion::set_component_background_color(const char *component, const char *color) {
   this->send_command_printf_("%s.bco=\"%s\"", component, color);
@@ -243,6 +247,13 @@ void Nextion::set_nextion_rtc_time(time::ESPTime time) {
   this->send_command_printf_("rtc5=%u", time.second);
 }
 #endif
+
+void Nextion::set_backlight_brightness(uint8_t brightness) {
+  this->send_command_printf_("dim=%u", brightness);
+}
+void Nextion::set_touch_sleep_timeout(uint16_t timeout) {
+  this->send_command_printf_("thsp=%u", timeout);
+}
 
 NextionTouchComponent *Nextion::make_touch_component(const std::string &name, uint8_t page_id, uint8_t component_id) {
   auto *ret = new NextionTouchComponent(name, page_id, component_id);
