@@ -12,7 +12,7 @@ namespace switch_ {
 static const char *TAG = "switch.template";
 
 TemplateSwitch::TemplateSwitch(const std::string &name)
-    : Switch(name), Component(), turn_on_trigger_(new Trigger<NoArg>()), turn_off_trigger_(new Trigger<NoArg>()) {
+    : Switch(name), Component(), turn_on_trigger_(new Trigger<>()), turn_off_trigger_(new Trigger<>()) {
 
 }
 void TemplateSwitch::loop() {
@@ -52,10 +52,10 @@ void TemplateSwitch::set_state_lambda(std::function<optional<bool>()> &&f) {
 float TemplateSwitch::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
-Trigger<NoArg> *TemplateSwitch::get_turn_on_trigger() const {
+Trigger<> *TemplateSwitch::get_turn_on_trigger() const {
   return this->turn_on_trigger_;
 }
-Trigger<NoArg> *TemplateSwitch::get_turn_off_trigger() const {
+Trigger<> *TemplateSwitch::get_turn_off_trigger() const {
   return this->turn_off_trigger_;
 }
 void TemplateSwitch::setup() {

@@ -75,7 +75,7 @@ using EsphomelibTime = ESPTime;
 
 class RealTimeClockComponent;
 
-class CronTrigger : public Trigger<NoArg>, public Component {
+class CronTrigger : public Trigger<>, public Component {
  public:
   explicit CronTrigger(RealTimeClockComponent *rtc);
   void add_second(uint8_t second);

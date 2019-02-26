@@ -32,6 +32,7 @@ enum class APIMessageType {
   LIST_ENTITIES_SENSOR_RESPONSE = 16,
   LIST_ENTITIES_SWITCH_RESPONSE = 17,
   LIST_ENTITIES_TEXT_SENSOR_RESPONSE = 18,
+  LIST_SERVICES_SERVICE_RESPONSE = 41,
   LIST_ENTITIES_DONE_RESPONSE = 19,
 
   SUBSCRIBE_STATES_REQUEST = 20,
@@ -59,11 +60,13 @@ enum class APIMessageType {
   SUBSCRIBE_HOME_ASSISTANT_STATES_REQUEST = 38,
   SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE = 39,
   HOME_ASSISTANT_STATE_RESPONSE = 40,
+
+  EXECUTE_SERVICE_REQUEST = 42,
 };
 
 class APIMessage {
  public:
-  void decode(uint8_t *buffer, size_t length);
+  void decode(const uint8_t *buffer, size_t length);
   virtual bool decode_varint(uint32_t field_id, uint32_t value);
   virtual bool decode_length_delimited(uint32_t field_id, const uint8_t *value, size_t len);
   virtual bool decode_32bit(uint32_t field_id, uint32_t value);

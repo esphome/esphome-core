@@ -17,9 +17,9 @@ class TemplateCover : public Cover, public Component {
   explicit TemplateCover(const std::string &name);
 
   void set_state_lambda(std::function<optional<CoverState>()> &&f);
-  Trigger<NoArg> *get_open_trigger() const;
-  Trigger<NoArg> *get_close_trigger() const;
-  Trigger<NoArg> *get_stop_trigger() const;
+  Trigger<> *get_open_trigger() const;
+  Trigger<> *get_close_trigger() const;
+  Trigger<> *get_stop_trigger() const;
   void set_optimistic(bool optimistic);
   void set_assumed_state(bool assumed_state);
 
@@ -35,10 +35,10 @@ class TemplateCover : public Cover, public Component {
   optional<std::function<optional<CoverState>()>> f_;
   bool assumed_state_{false};
   bool optimistic_{false};
-  Trigger<NoArg> *open_trigger_;
-  Trigger<NoArg> *close_trigger_;
-  Trigger<NoArg> *stop_trigger_;
-  Trigger<NoArg> *prev_trigger_{nullptr};
+  Trigger<> *open_trigger_;
+  Trigger<> *close_trigger_;
+  Trigger<> *stop_trigger_;
+  Trigger<> *prev_trigger_{nullptr};
 };
 
 } // namespace cover

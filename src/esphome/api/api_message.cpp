@@ -23,7 +23,7 @@ bool APIMessage::decode_32bit(uint32_t field_id, uint32_t value) {
 void APIMessage::encode(APIBuffer &buffer) {
 
 }
-void APIMessage::decode(uint8_t *buffer, size_t length) {
+void APIMessage::decode(const uint8_t *buffer, size_t length) {
   uint32_t i = 0;
   bool error = false;
   while (i < length) {

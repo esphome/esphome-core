@@ -155,19 +155,15 @@ FilterOutValueFilter::FilterOutValueFilter(float value_to_filter_out)
 }
 
 optional<float> FilterOutValueFilter::new_value(float value) {
-  if (value == this->value_to_filter_out_)
-    return {};
-  return value;
+  if (isnan(this->value_to_filter_out_)) {
+    if (isnan(value)) return {};
+    else return value;
+  } else {
+    if (value == this->value_to_filter_out_) return {};
+    else return value;
+  }
 }
 
-// FilterOutNANFilter
-optional<float> FilterOutNANFilter::new_value(float value) {
-  ESP_LOGVV(TAG, "FilterOutNANFilter(%p)::new_value(%f) -> %s", this, value, YESNO(isnan(value)));
-  if (isnan(value)) {
-    return {};
-  }
-  return value;
-}
 
 // ThrottleFilter
 ThrottleFilter::ThrottleFilter(uint32_t min_time_between_inputs)
@@ -234,16 +230,6 @@ uint32_t OrFilter::expected_interval(uint32_t input) {
 
   return min_interval;
 }
-
-// UniqueFilter
-optional<float> UniqueFilter::new_value(float value) {
-  if (isnan(this->last_value_) || value != this->last_value_) {
-    return this->last_value_ = value;
-  }
-
-  return {};
-}
-
 // DebounceFilter
 optional<float> DebounceFilter::new_value(float value) {
   this->set_timeout("debounce", this->time_period_, [this, value](){
@@ -289,6 +275,11 @@ void HeartbeatFilter::setup() {
 float HeartbeatFilter::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
+
+optional<float> CalibrateLinearFilter::new_value(float value) {
+  return value * this->slope_ + this->bias_;
+}
+CalibrateLinearFilter::CalibrateLinearFilter(float slope, float bias) : slope_(slope), bias_(bias) {}
 
 } // namespace sensor
 

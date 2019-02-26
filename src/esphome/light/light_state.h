@@ -24,11 +24,11 @@ using light_send_callback_t = std::function<void()>;
 class LightEffect;
 class LightOutput;
 
-template<typename T>
+template<typename... Ts>
 class ToggleAction;
-template<typename T>
+template<typename... Ts>
 class TurnOffAction;
-template<typename T>
+template<typename... Ts>
 class TurnOnAction;
 
 #ifdef USE_MQTT_LIGHT
@@ -96,12 +96,12 @@ class LightState : public Nameable, public Component {
 
   LightTraits get_traits();
 
-  template<typename T>
-  ToggleAction<T> *make_toggle_action();
-  template<typename T>
-  TurnOffAction<T> *make_turn_off_action();
-  template<typename T>
-  TurnOnAction<T> *make_turn_on_action();
+  template<typename... Ts>
+  ToggleAction<Ts...> *make_toggle_action();
+  template<typename... Ts>
+  TurnOffAction<Ts...> *make_turn_off_action();
+  template<typename... Ts>
+  TurnOnAction<Ts...> *make_turn_on_action();
 
   class StateCall {
    public:
@@ -250,38 +250,38 @@ class LightOutput {
   virtual void write_state(LightState *state) = 0;
 };
 
-template<typename T>
-class ToggleAction : public Action<T> {
+template<typename... Ts>
+class ToggleAction : public Action<Ts...> {
  public:
   explicit ToggleAction(LightState *state);
 
   template<typename V>
   void set_transition_length(V value) { this->transition_length_ = value; }
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   LightState *state_;
-  TemplatableValue<uint32_t, T> transition_length_;
+  TemplatableValue<uint32_t, Ts...> transition_length_;
 };
 
-template<typename T>
-class TurnOffAction : public Action<T> {
+template<typename... Ts>
+class TurnOffAction : public Action<Ts...> {
  public:
   explicit TurnOffAction(LightState *state);
 
   template<typename V>
   void set_transition_length(V value) { this->transition_length_ = value; }
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   LightState *state_;
-  TemplatableValue<uint32_t, T> transition_length_;
+  TemplatableValue<uint32_t, Ts...> transition_length_;
 };
 
-template<typename T>
-class TurnOnAction : public Action<T> {
+template<typename... Ts>
+class TurnOnAction : public Action<Ts...> {
  public:
   explicit TurnOnAction(LightState *state) : state_(state) {}
 
@@ -304,90 +304,90 @@ class TurnOnAction : public Action<T> {
   template<typename V>
   void set_effect(V value) { this->effect_ = value; }
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   LightState *state_;
-  TemplatableValue<float, T> brightness_;
-  TemplatableValue<float, T> red_;
-  TemplatableValue<float, T> green_;
-  TemplatableValue<float, T> blue_;
-  TemplatableValue<float, T> white_;
-  TemplatableValue<float, T> color_temperature_;
-  TemplatableValue<uint32_t, T> transition_length_;
-  TemplatableValue<uint32_t, T> flash_length_;
-  TemplatableValue<std::string, T> effect_;
+  TemplatableValue<float, Ts...> brightness_;
+  TemplatableValue<float, Ts...> red_;
+  TemplatableValue<float, Ts...> green_;
+  TemplatableValue<float, Ts...> blue_;
+  TemplatableValue<float, Ts...> white_;
+  TemplatableValue<float, Ts...> color_temperature_;
+  TemplatableValue<uint32_t, Ts...> transition_length_;
+  TemplatableValue<uint32_t, Ts...> flash_length_;
+  TemplatableValue<std::string, Ts...> effect_;
 };
 
 // =============== TEMPLATE DEFINITIONS ===============
-template<typename T>
-ToggleAction<T> *LightState::make_toggle_action() {
-  return new ToggleAction<T>(this);
+template<typename... Ts>
+ToggleAction<Ts...> *LightState::make_toggle_action() {
+  return new ToggleAction<Ts...>(this);
 }
-template<typename T>
-TurnOffAction<T> *LightState::make_turn_off_action() {
-  return new TurnOffAction<T>(this);
+template<typename... Ts>
+TurnOffAction<Ts...> *LightState::make_turn_off_action() {
+  return new TurnOffAction<Ts...>(this);
 }
-template<typename T>
-TurnOnAction<T> *LightState::make_turn_on_action() {
-  return new TurnOnAction<T>(this);
+template<typename... Ts>
+TurnOnAction<Ts...> *LightState::make_turn_on_action() {
+  return new TurnOnAction<Ts...>(this);
 }
 
-template<typename T>
-ToggleAction<T>::ToggleAction(LightState *state) : state_(state) {}
+template<typename... Ts>
+ToggleAction<Ts...>::ToggleAction(LightState *state) : state_(state) {}
 
-template<typename T>
-void ToggleAction<T>::play(T x) {
+template<typename... Ts>
+void ToggleAction<Ts...>::play(Ts... x) {
   auto call = this->state_->toggle();
   if (this->transition_length_.has_value()) {
-    call.set_transition_length(this->transition_length_.value(x));
+    call.set_transition_length(this->transition_length_.value(x...));
   }
   call.perform();
-  this->play_next(x);
+  this->play_next(x...);
 }
-template<typename T>
-TurnOffAction<T>::TurnOffAction(LightState *state) : state_(state) {}
-template<typename T>
-void TurnOffAction<T>::play(T x) {
+template<typename... Ts>
+TurnOffAction<Ts...>::TurnOffAction(LightState *state) : state_(state) {}
+template<typename... Ts>
+void TurnOffAction<Ts...>::play(Ts... x) {
   auto call = this->state_->turn_off();
   if (this->transition_length_.has_value()) {
-    call.set_transition_length(this->transition_length_.value(x));
+    call.set_transition_length(this->transition_length_.value(x...));
   }
   call.perform();
-  this->play_next(x);
+  this->play_next(x...);
 }
-template<typename T>
-void TurnOnAction<T>::play(T x) {
+template<typename... Ts>
+void TurnOnAction<Ts...>::play(Ts... x) {
   auto call = this->state_->turn_on();
   if (this->brightness_.has_value()) {
-    call.set_brightness(this->brightness_.value(x));
+    call.set_brightness(this->brightness_.value(x...));
   }
   if (this->red_.has_value()) {
-    call.set_red(this->red_.value(x));
+    call.set_red(this->red_.value(x...));
   }
   if (this->green_.has_value()) {
-    call.set_green(this->green_.value(x));
+    call.set_green(this->green_.value(x...));
   }
   if (this->blue_.has_value()) {
-    call.set_blue(this->blue_.value(x));
+    call.set_blue(this->blue_.value(x...));
   }
   if (this->white_.has_value()) {
-    call.set_white(this->white_.value(x));
+    call.set_white(this->white_.value(x...));
   }
   if (this->color_temperature_.has_value()) {
-    call.set_color_temperature(this->color_temperature_.value(x));
+    call.set_color_temperature(this->color_temperature_.value(x...));
   }
   if (this->effect_.has_value()) {
-    call.set_effect(this->effect_.value(x));
+    call.set_effect(this->effect_.value(x...));
   }
   if (this->flash_length_.has_value()) {
-    call.set_flash_length(this->flash_length_.value(x));
+    call.set_flash_length(this->flash_length_.value(x...));
   }
   if (this->transition_length_.has_value()) {
-    call.set_transition_length(this->transition_length_.value(x));
+    call.set_transition_length(this->transition_length_.value(x...));
   }
   call.perform();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
 } // namespace light

@@ -47,8 +47,18 @@ float HLW8012Component::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
 void HLW8012Component::update() {
-  float cf_hz = this->cf_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
-  float cf1_hz = this->cf1_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
+  pulse_counter_t raw_cf = this->cf_.read_raw_value_();
+  pulse_counter_t raw_cf1 = this->cf1_.read_raw_value_();
+  float cf_hz = raw_cf / (this->get_update_interval() / 1000.0f);
+  if (raw_cf <= 1) {
+    // don't count single pulse as power
+    cf_hz = 0.0f;
+  }
+  float cf1_hz = raw_cf1 / (this->get_update_interval() / 1000.0f);
+  if (cf1_hz <= 1) {
+    // don't count single pulse as anything
+    cf1_hz = 0.0f;
+  }
 
   if (this->nth_value_++ < 2) {
     return;

@@ -3,25 +3,6 @@
 
 ESPHOME_NAMESPACE_BEGIN
 
-void Trigger<NoArg>::trigger() {
-  if (this->parent_ == nullptr)
-    return;
-  this->parent_->process_trigger_(false);
-}
-void Trigger<NoArg>::trigger(bool arg) {
-  if (this->parent_ == nullptr)
-    return;
-  this->parent_->process_trigger_(arg);
-}
-void Trigger<NoArg>::stop() {
-  if (this->parent_ == nullptr)
-    return;
-  this->parent_->stop();
-}
-void Trigger<NoArg>::set_parent(Automation<NoArg> *parent) {
-  this->parent_ = parent;
-}
-
 void StartupTrigger::setup() {
   this->trigger();
 }
