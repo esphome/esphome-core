@@ -35,6 +35,8 @@ class RotaryEncoderSensor : public Sensor, public Component {
   void set_resolution(RotaryEncoderResolution mode);
 
   void set_reset_pin(const GPIOInputPin &pin_i);
+  void set_min_value(int32_t min_value);
+  void set_max_value(int32_t max_value);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -62,6 +64,8 @@ class RotaryEncoderSensor : public Sensor, public Component {
   volatile bool has_changed_{true};
   uint16_t state_{0};
   RotaryEncoderResolution resolution_{ROTARY_ENCODER_1_PULSE_PER_CYCLE};
+  int32_t min_value_{INT32_MIN};
+  int32_t max_value_{INT32_MAX};
 };
 
 /// Global storage for having multiple rotary encoders with a single ISR

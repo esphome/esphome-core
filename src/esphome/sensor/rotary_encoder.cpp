@@ -122,11 +122,11 @@ void ICACHE_RAM_ATTR RotaryEncoderSensor::process_state_machine_() {
     bool counter_change = false;
 
     if ((this->state_ & QEIx4_IS_INC) != 0) {
-      this->counter_++;
+      this->counter_ = std::min(this->counter_ + 1, this->max_value_);
       counter_change = true;
     }
     if ((this->state_ & QEIx4_IS_DEC) != 0) {
-      this->counter_--;
+      this->counter_ = std::max(this->counter_ - 1, this->min_value_);
       counter_change = true;
     }
 
@@ -164,6 +164,8 @@ std::vector<RotaryEncoderSensor *> global_rotary_encoders_;
 float RotaryEncoderSensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
 }
+void RotaryEncoderSensor::set_min_value(int32_t min_value) { this->min_value_ = min_value; }
+void RotaryEncoderSensor::set_max_value(int32_t max_value) { this->max_value_ = max_value; }
 
 } // namespace sensor
 
