@@ -56,8 +56,8 @@ bool InitialStateIterator::on_text_sensor(text_sensor::TextSensor *text_sensor) 
   return this->client_->send_text_sensor_state(text_sensor, text_sensor->state);
 }
 #endif
-InitialStateIterator::InitialStateIterator(StoringController *controller, APIConnection *client)
-    : ComponentIterator(controller), client_(client) {
+InitialStateIterator::InitialStateIterator(APIServer *server, APIConnection *client)
+    : ComponentIterator(server), client_(client) {
 
 }
 

@@ -235,6 +235,12 @@ class ExponentialMovingAverage {
   float accumulator_;
 };
 
+// https://stackoverflow.com/questions/7858817/unpacking-a-tuple-to-call-a-matching-function-pointer/7858971#7858971
+template<int ...> struct seq {};
+template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};
+template<int ...S> struct gens<0, S...>{ typedef seq<S...> type; };
+
+
 template<typename... X> class CallbackManager;
 
 
@@ -269,21 +275,21 @@ struct is_callable
 template<bool B, class T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
 
-template<typename T, typename X>
+template<typename T, typename... X>
 class TemplatableValue {
  public:
   TemplatableValue() : type_(EMPTY) {
 
   }
 
-  template <typename F, typename U = X,
-      enable_if_t<!is_callable<F, U>::value, int> = 0>
+  template <typename F,
+      enable_if_t<!is_callable<F, X...>::value, int> = 0>
   TemplatableValue(F value) : type_(VALUE), value_(value) {
 
   }
 
-  template <typename F, typename U = X,
-      enable_if_t<is_callable<F, U>::value, int> = 0>
+  template <typename F,
+      enable_if_t<is_callable<F, X...>::value, int> = 0>
   TemplatableValue(F f) : type_(LAMBDA), f_(f) {
 
   }
@@ -292,9 +298,9 @@ class TemplatableValue {
     return this->type_ != EMPTY;
   }
 
-  T value(X x) {
+  T value(X... x) {
     if (this->type_ == LAMBDA) {
-      return this->f_(x);
+      return this->f_(x...);
     } else {
       // return value also when empty
       return this->value_;
@@ -309,7 +315,7 @@ class TemplatableValue {
   } type_;
 
   T value_;
-  std::function<T(X)> f_;
+  std::function<T(X...)> f_;
 };
 
 extern CallbackManager<void(const char *)> shutdown_hooks;
@@ -370,6 +376,8 @@ class Deduplicator {
   bool has_value_{false};
   T last_value_{};
 };
+
+uint32_t fnv1_hash(const std::string &str);
 
 // ================================================
 //                 Definitions

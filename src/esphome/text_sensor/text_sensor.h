@@ -14,7 +14,7 @@ ESPHOME_NAMESPACE_BEGIN
 namespace text_sensor {
 
 class TextSensorStateTrigger;
-template<typename T>
+template<typename... Ts>
 class TextSensorPublishAction;
 
 #define LOG_TEXT_SENSOR(prefix, type, obj) \
@@ -54,8 +54,8 @@ class TextSensor : public Nameable {
   virtual std::string unique_id();
 
   TextSensorStateTrigger *make_state_trigger();
-  template<typename T>
-  TextSensorPublishAction<T> *make_text_sensor_publish_action();
+  template<typename... Ts>
+  TextSensorPublishAction<Ts...> *make_text_sensor_publish_action();
 
   bool has_state();
 
@@ -80,28 +80,28 @@ class TextSensorStateTrigger : public Trigger<std::string> {
   explicit TextSensorStateTrigger(TextSensor *parent);
 };
 
-template<typename T>
-class TextSensorPublishAction : public Action<T> {
+template<typename... Ts>
+class TextSensorPublishAction : public Action<Ts...> {
  public:
   TextSensorPublishAction(TextSensor *sensor);
   template<typename V>
   void set_state(V state) { this->state_ = state; }
-  void play(T x) override;
+  void play(Ts... x) override;
  protected:
   TextSensor *sensor_;
-  TemplatableValue<std::string, T> state_;
+  TemplatableValue<std::string, Ts...> state_;
 };
 
-template<typename T>
-TextSensorPublishAction<T>::TextSensorPublishAction(TextSensor *sensor) : sensor_(sensor) {}
-template<typename T>
-void TextSensorPublishAction<T>::play(T x) {
-  this->sensor_->publish_state(this->state_.value(x));
-  this->play_next(x);
+template<typename... Ts>
+TextSensorPublishAction<Ts...>::TextSensorPublishAction(TextSensor *sensor) : sensor_(sensor) {}
+template<typename... Ts>
+void TextSensorPublishAction<Ts...>::play(Ts... x) {
+  this->sensor_->publish_state(this->state_.value(x...));
+  this->play_next(x...);
 }
-template<typename T>
-TextSensorPublishAction<T> *TextSensor::make_text_sensor_publish_action() {
-  return new TextSensorPublishAction<T>(this);
+template<typename... Ts>
+TextSensorPublishAction<Ts...> *TextSensor::make_text_sensor_publish_action() {
+  return new TextSensorPublishAction<Ts...>(this);
 }
 
 } // namespace text_sensor

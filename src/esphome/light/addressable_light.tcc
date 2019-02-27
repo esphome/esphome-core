@@ -260,7 +260,8 @@ uint8_t ESPColorCorrection::color_correct_blue(uint8_t blue) const {
 }
 
 uint8_t ESPColorCorrection::color_correct_white(uint8_t white) const {
-  uint8_t res = esp_scale8(esp_scale8(white, this->max_brightness_.white), this->local_brightness_);
+  // do not scale white value with brightness
+  uint8_t res = esp_scale8(white, this->max_brightness_.white);
   return this->gamma_table_[res];
 }
 
@@ -299,10 +300,10 @@ uint8_t ESPColorCorrection::color_uncorrect_blue(uint8_t blue) const {
 }
 
 uint8_t ESPColorCorrection::color_uncorrect_white(uint8_t white) const {
-  if (this->max_brightness_.white == 0 || this->local_brightness_ == 0)
+  if (this->max_brightness_.white == 0)
     return 0;
   uint16_t uncorrected = this->gamma_reverse_table_[white] * 255UL;
-  uint8_t res = ((uncorrected / this->max_brightness_.white) * 255UL) / this->local_brightness_;
+  uint8_t res = uncorrected / this->max_brightness_.white;
   return res;
 }
 
