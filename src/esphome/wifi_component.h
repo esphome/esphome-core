@@ -14,6 +14,7 @@
   #include <ESP8266WiFi.h>
 #endif
 
+#include "esphome/automation.h"
 #include "esphome/component.h"
 #include "esphome/helpers.h"
 #include "esphome/defines.h"
@@ -227,7 +228,17 @@ class WiFiComponent : public Component {
   bool ap_setup_{false};
 };
 
+template<typename... Ts>
+class WiFiConnectedCondition : public Condition<Ts...> {
+ public:
+  bool check(Ts... x) override;
+};
+
 extern WiFiComponent *global_wifi_component;
+
+
+template<typename... Ts>
+bool WiFiConnectedCondition<Ts...>::check(Ts... x) { return global_wifi_component->is_connected(); }
 
 ESPHOME_NAMESPACE_END
 
