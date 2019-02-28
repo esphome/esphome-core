@@ -18,7 +18,7 @@ ESP32HallSensor::ESP32HallSensor(const std::string &name, uint32_t update_interv
 }
 void ESP32HallSensor::update() {
   float value = (hallRead() / 4095.0f) * 10000.0f;
-  ESP_LOGCONFIG(TAG, "'%s': Got reading %.0f µT", this->name_.c_str(), value);
+  ESP_LOGD(TAG, "'%s': Got reading %.0f µT", this->name_.c_str(), value);
   this->publish_state(value);
 }
 std::string ESP32HallSensor::unit_of_measurement() {
