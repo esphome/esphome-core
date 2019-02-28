@@ -18,10 +18,10 @@ enum {
 
 class MPR121SensorChannel {
  public:
-  MPR121SensorChannel(uint8_t channel_num = 0, uint8_t value = 0);
+  MPR121SensorChannel(uint8_t channel_num = 0, float value = 0.0);
 
   uint8_t channel = 0;
-  uint8_t value = 0;
+  float value = 0.0;
 };
 
 class MPR121Sensor : public sensor::Sensor {
@@ -29,7 +29,7 @@ class MPR121Sensor : public sensor::Sensor {
   MPR121Sensor(const std::string &name);
   void process(uint16_t *data, uint16_t *last_data);
   void set_sensor_type(uint8_t sensor_type);
-  void add_sensor_channel(uint8_t channel, uint8_t value);
+  void add_sensor_channel(uint8_t channel, float value);
   static const uint8_t MPR121_SENSOR_TYPE_SLIDER = 0;
 
  protected:

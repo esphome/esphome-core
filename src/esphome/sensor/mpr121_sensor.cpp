@@ -10,7 +10,7 @@ namespace sensor {
 
 static const char *TAG = "sensor.mpr121";
 
-MPR121SensorChannel::MPR121SensorChannel(uint8_t channel, uint8_t value) {
+MPR121SensorChannel::MPR121SensorChannel(uint8_t channel, float value) {
   this->channel = channel;
   this->value = value;
 }
@@ -22,6 +22,7 @@ void MPR121Sensor::process(uint16_t *data, uint16_t *last_data) {
   for(auto *chan : this->channels_) {
     if ((*data & (1 << chan->channel)) && !(*last_data & (1 << chan->channel))) {
       this->publish_state(chan->value);
+      ESP_LOGD(TAG,"process channel value %.2f",chan->value);
     }
   }
 }
@@ -30,7 +31,7 @@ void MPR121Sensor::set_sensor_type(uint8_t sensor_type) {
   this->sensor_type_ = sensor_type;
 }
 
-void MPR121Sensor::add_sensor_channel(uint8_t channel, uint8_t value) {
+void MPR121Sensor::add_sensor_channel(uint8_t channel, float value) {
     this->channels_.push_back(new sensor::MPR121SensorChannel(channel,value));
 }
 
