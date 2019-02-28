@@ -108,6 +108,7 @@
 #include "esphome/sensor/max31855_sensor.h"
 #include "esphome/sensor/max6675_sensor.h"
 #include "esphome/sensor/mhz19_component.h"
+#include "esphome/sensor/mpr121_sensor.h"
 #include "esphome/sensor/mpu6050_component.h"
 #include "esphome/sensor/mqtt_sensor_component.h"
 #include "esphome/sensor/mqtt_subscribe_sensor.h"

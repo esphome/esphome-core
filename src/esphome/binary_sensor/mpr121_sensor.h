@@ -6,6 +6,7 @@
 #ifdef USE_MPR121
 
 #include "esphome/binary_sensor/binary_sensor.h"
+#include "esphome/sensor/mpr121_sensor.h"
 #include "esphome/i2c_component.h"
 #include "esphome/component.h"
 
@@ -64,6 +65,7 @@ class MPR121Component : public Component, public I2CDevice {
  public:
   MPR121Component(I2CComponent *parent, uint8_t address = 0x5A);
   binary_sensor::MPR121Channel *add_channel(binary_sensor::MPR121Channel *channel);
+  sensor::MPR121Sensor *make_sensor(const std::string &name);
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
@@ -71,6 +73,7 @@ class MPR121Component : public Component, public I2CDevice {
 
  protected:
   std::vector<MPR121Channel *> channels_{};
+  std::vector<sensor::MPR121Sensor *> sensors_{};
   uint16_t lasttouched_ = 0;
   uint16_t currtouched_ = 0;
   enum ErrorCode {

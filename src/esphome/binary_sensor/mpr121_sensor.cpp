@@ -26,6 +26,12 @@ void MPR121Channel::process(uint16_t *data, uint16_t *last_data) {
 MPR121Component::MPR121Component(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {
 }
 
+sensor::MPR121Sensor *MPR121Component::make_sensor(const std::string &name) {
+  sensor::MPR121Sensor *sensor = new sensor::MPR121Sensor(name);
+  this->sensors_.push_back(sensor);
+  return sensor;
+}
+
 void MPR121Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MPR121...");
   // soft reset device
@@ -93,6 +99,9 @@ MPR121Channel *MPR121Component::add_channel(binary_sensor::MPR121Channel *channe
 void MPR121Component::process_(uint16_t *data, uint16_t *last_data) {
   for (auto *channel : this->channels_) {
     channel->process(data, last_data);
+  }
+  for(auto *sensor : this->sensors_) {
+    sensor->process(data, last_data);
   }
 }
 
