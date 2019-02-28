@@ -135,7 +135,7 @@ ListEntitiesIterator::ListEntitiesIterator(APIServer *server, APIConnection *cli
 bool ListEntitiesIterator::on_service(UserServiceDescriptor *service) {
   auto buffer = this->client_->get_buffer();
   service->encode_list_service_response(buffer);
-  return this->client_->send_buffer(APIMessageType::LIST_SERVICES_SERVICE_RESPONSE);
+  return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE);
 }
 
 APIMessageType ListEntitiesRequest::message_type() const {

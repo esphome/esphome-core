@@ -26,6 +26,40 @@ void UltrasonicSensorComponent::setup() {
   this->trigger_pin_->setup();
   this->trigger_pin_->digital_write(false);
 }
+void ICACHE_RAM_ATTR UltrasonicSensorStore::gpio_intr_(UltrasonicSensorStore *arg) {
+  if (arg->has_echo || !arg->has_triggered)
+    // already have echo or no trigger
+    return;
+
+  arg->has_echo = true;
+  arg->echo_at = micros();
+}
+void UltrasonicSensorComponent::update() {
+  this->trigger_pin_->digital_write(true);
+  delayMicroseconds(this->pulse_time_us_);
+  this->trigger_pin_->digital_write(false);
+
+  this->store_.has_triggered = true;
+  this->store_.has_echo = false;
+  this->store_.triggered_at = micros();
+}
+void UltrasonicSensorComponent::loop() {
+  if (this->store_.has_triggered && this->store_.has_echo) {
+    this->store_.has_triggered = false;
+    uint32_t d_us = this->store_.echo_at - this->store_.triggered_at;
+
+    float result = us_to_m(d_us);
+    ESP_LOGD(TAG, "Got distance: %.1f m", result);
+    this->publish_state(result);
+  }
+  uint32_t now = micros();
+  if (this->store_.has_triggered && !this->store_.has_echo &&
+      now - this->store_.triggered_at > this->timeout_us_) {
+    // timeout
+    ESP_LOGD(TAG, "Distance measurement timed out!");
+    this->publish_state(NAN);
+  }
+}
 void UltrasonicSensorComponent::dump_config() {
   LOG_SENSOR("", "Ultrasonic Sensor", this);
   LOG_PIN("  Echo Pin: ", this->echo_pin_);
@@ -34,51 +68,12 @@ void UltrasonicSensorComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "    Timeout: %u µs", this->timeout_us_);
   LOG_UPDATE_INTERVAL(this);
 }
-void UltrasonicSensorComponent::update() {
-  this->trigger_pin_->digital_write(true);
-  delayMicroseconds(this->pulse_time_us_);
-  this->trigger_pin_->digital_write(false);
-  disable_interrupts();
-  uint32_t time = pulseIn(this->echo_pin_->get_pin(),
-                          uint8_t(!this->echo_pin_->is_inverted()),
-                          this->timeout_us_);
-  enable_interrupts();
-
-  float result = 0;
-  if (time == 0)
-    result = NAN;
-  else
-    result = us_to_m(time);
-
-  ESP_LOGV(TAG, "Echo took %uµs (%fm)", time, result);
-
-  this->publish_state(result);
-}
-uint32_t UltrasonicSensorComponent::get_timeout_us() const {
-  return this->timeout_us_;
-}
-void UltrasonicSensorComponent::set_timeout_us(uint32_t timeout_us) {
-  this->timeout_us_ = timeout_us;
-}
-void UltrasonicSensorComponent::set_timeout_m(float timeout_m) {
-  this->set_timeout_us(m_to_us(timeout_m));
-}
 float UltrasonicSensorComponent::us_to_m(uint32_t us) {
   // The ultrasonic sound wave needs to travel both ways.
   return (SPEED_OF_SOUND_M_PER_US/2.0f) * us;
 }
-uint32_t UltrasonicSensorComponent::m_to_us(float m) {
-  // The ultrasonic sound wave needs to travel both ways.
-  return static_cast<uint32_t>(m / (SPEED_OF_SOUND_M_PER_US/2.0f));
-}
-float UltrasonicSensorComponent::get_timeout_m() const {
-  return us_to_m(this->get_timeout_us());
-}
 float UltrasonicSensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
-}
-uint32_t UltrasonicSensorComponent::get_pulse_time_us() const {
-  return this->pulse_time_us_;
 }
 void UltrasonicSensorComponent::set_pulse_time_us(uint32_t pulse_time_us) {
   this->pulse_time_us_ = pulse_time_us;

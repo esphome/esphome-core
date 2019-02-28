@@ -275,44 +275,47 @@ void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-void ICACHE_RAM_ATTR HOT RemoteReceiverComponent::gpio_intr() {
+void ICACHE_RAM_ATTR HOT RemoteReceiverComponentStore::gpio_intr(RemoteReceiverComponentStore *arg) {
   const uint32_t now = micros();
   // If the lhs is 1 (rising edge) we should write to an uneven index and vice versa
-  const uint32_t next = (this->buffer_write_at_ + 1) % this->buffer_size_;
-  if (uint32_t(this->pin_->digital_read()) != next % 2)
+  const uint32_t next = (arg->buffer_write_at + 1) % arg->buffer_size;
+  if (uint32_t(arg->pin->digital_read()) != next % 2)
     return;
-  const uint32_t last_change = this->buffer_[this->buffer_write_at_];
-  if (now - last_change <= this->filter_us_)
+  const uint32_t last_change = arg->buffer[arg->buffer_write_at];
+  if (now - last_change <= arg->filter_us)
     return;
 
-  this->buffer_[this->buffer_write_at_ = next] = now;
+  arg->buffer[arg->buffer_write_at = next] = now;
 
-  if (next == this->buffer_read_at_) {
-    this->overflow_ = true;
+  if (next == arg->buffer_read_at) {
+    arg->overflow = true;
   }
 }
 
 void RemoteReceiverComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Remote Receiver...");
   this->pin_->setup();
+  auto &s = this->store_;
+  s.filter_us = this->filter_us_;
+  s.pin = this->pin_->to_isr();
+  s.buffer_size = this->buffer_size_;
+
   this->high_freq_.start();
-  if (this->buffer_size_ % 2 != 0) {
+  if (s.buffer_size % 2 != 0) {
     // Make sure divisible by two. This way, we know that every 0bxxx0 index is a space and every 0bxxx1 index is a mark
-    this->buffer_size_++;
+    s.buffer_size++;
   }
-  this->buffer_ = new uint32_t[this->buffer_size_];
+  s.buffer = new uint32_t[s.buffer_size];
   // First index is a space.
   if (this->pin_->digital_read()) {
-    this->buffer_write_at_ = this->buffer_read_at_ = 1;
-    this->buffer_[1] = 0;
-    this->buffer_[0] = 0;
+    s.buffer_write_at = s.buffer_read_at = 1;
+    s.buffer[1] = 0;
+    s.buffer[0] = 0;
   } else {
-    this->buffer_write_at_ = this->buffer_read_at_ = 0;
-    this->buffer_[0] = 0;
+    s.buffer_write_at = s.buffer_read_at = 0;
+    s.buffer[0] = 0;
   }
-  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR {
-    this->gpio_intr();
-  }, CHANGE);
+  this->pin_->attach_interrupt(RemoteReceiverComponentStore::gpio_intr, &this->store_, CHANGE);
 }
 void RemoteReceiverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Receiver:");
@@ -332,21 +335,22 @@ void RemoteReceiverComponent::dump_config() {
 }
 
 void RemoteReceiverComponent::loop() {
-  if (this->overflow_) {
-    this->buffer_read_at_ = this->buffer_write_at_;
-    this->overflow_ = false;
+  auto &s = this->store_;
+  if (s.buffer) {
+    s.buffer_read_at = s.buffer_write_at;
+    s.overflow = false;
     ESP_LOGW(TAG, "Data is coming in too fast! Try increasing the buffer size.");
     return;
   }
 
   // copy write at to local variables, as it's volatile
-  const uint32_t write_at = this->buffer_write_at_;
-  const uint32_t dist = (this->buffer_size_ + write_at - this->buffer_read_at_) % this->buffer_size_;
+  const uint32_t write_at = s.buffer_write_at;
+  const uint32_t dist = (s.buffer_size + write_at - s.buffer_read_at) % s.buffer_size;
   // signals must at least one rising and one leading edge
   if (dist <= 1)
     return;
   const uint32_t now = micros();
-  if (now - this->buffer_[write_at] < this->idle_us_)
+  if (now - s.buffer[write_at] < this->idle_us_)
     // The last change was fewer than the configured idle time ago.
     // TODO: Handle case when loop() is not called quickly enough to catch idle
     return;
@@ -355,16 +359,16 @@ void RemoteReceiverComponent::loop() {
       this->buffer_read_at_, write_at, dist, now, this->buffer_[write_at]);
 
   // Skip first value, it's from the previous idle level
-  this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
-  uint32_t prev = this->buffer_read_at_;
-  this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
-  const uint32_t reserve_size = 1 + (this->buffer_size_ + write_at - this->buffer_read_at_) % this->buffer_size_;
+  s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;
+  uint32_t prev = s.buffer_read_at;
+  s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;
+  const uint32_t reserve_size = 1 + (s.buffer_size + write_at - s.buffer_read_at) % s.buffer_size;
   this->temp_.clear();
   this->temp_.reserve(reserve_size);
-  int32_t multiplier = this->buffer_read_at_ % 2 == 0 ? 1 : -1;
+  int32_t multiplier = s.buffer_read_at % 2 == 0 ? 1 : -1;
 
   for (uint32_t i = 0; prev != write_at; i++) {
-    int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
+    int32_t delta = s.buffer[s.buffer_read_at] -  s.buffer[prev];
     if (uint32_t(delta) >= this->idle_us_) {
       // already found a space longer than idle. There must have been two pulses
       break;
@@ -373,11 +377,11 @@ void RemoteReceiverComponent::loop() {
     ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d",
         i, this->buffer_read_at_, this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
     this->temp_.push_back(multiplier * delta);
-    prev = this->buffer_read_at_;
-    this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
+    prev = s.buffer_read_at;
+    s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;
     multiplier *= -1;
   }
-  this->buffer_read_at_ = (this->buffer_size_ + this->buffer_read_at_ - 1) % this->buffer_size_;
+  s.buffer_read_at = (s.buffer_size + s.buffer_read_at - 1) % s.buffer_size;
   this->temp_.push_back(this->idle_us_ * multiplier);
 
   RemoteReceiveData data(this, &this->temp_);

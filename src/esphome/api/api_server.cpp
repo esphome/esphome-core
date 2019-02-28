@@ -402,6 +402,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::LIST_ENTITIES_SENSOR_RESPONSE:
     case APIMessageType::LIST_ENTITIES_SWITCH_RESPONSE:
     case APIMessageType::LIST_ENTITIES_TEXT_SENSOR_RESPONSE:
+    case APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE:
     case APIMessageType::LIST_ENTITIES_DONE_RESPONSE:
       // Invalid
       break;

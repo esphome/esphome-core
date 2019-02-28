@@ -9,8 +9,6 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace api {
 
-static const char *TAG = "api.UserServices";
-
 template<>
 bool ExecuteServiceArgument::get_value<bool>() { return this->value_bool_; }
 template<>
