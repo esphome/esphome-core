@@ -61,11 +61,11 @@ class RotaryEncoderSensor : public Sensor, public Component {
   GPIOPin *pin_i_{nullptr}; /// Index pin, if this is not nullptr, the counter will reset to 0 once this pin is HIGH.
 
   volatile int32_t counter_{0}; /// The internal counter for steps
-  volatile bool has_changed_{true};
-  uint16_t state_{0};
   RotaryEncoderResolution resolution_{ROTARY_ENCODER_1_PULSE_PER_CYCLE};
   int32_t min_value_{INT32_MIN};
   int32_t max_value_{INT32_MAX};
+  int32_t last_read_{0};
+  uint8_t state_{0};
 };
 
 /// Global storage for having multiple rotary encoders with a single ISR
