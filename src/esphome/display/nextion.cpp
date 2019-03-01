@@ -13,7 +13,6 @@ static const char *TAG = "display.nextion";
 
 void Nextion::setup() {
   this->send_command_("");
-  this->ack_();
   this->goto_page("0");
   this->send_command_printf_("bkcmd=3");
 }
