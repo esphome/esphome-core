@@ -36,7 +36,7 @@ class ESP8266SoftwareSerial {
   size_t rx_buffer_size_{64};
   volatile size_t rx_in_pos_{0};
   size_t rx_out_pos_{0};
-  ISRInternalGPIOPin *tx_pin_{nullptr};
+  GPIOPin *tx_pin_{nullptr};
   ISRInternalGPIOPin *rx_pin_{nullptr};
 };
 #endif

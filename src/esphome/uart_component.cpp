@@ -251,9 +251,8 @@ void UARTComponent::flush() {
 void ESP8266SoftwareSerial::setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate) {
   this->bit_time_ = F_CPU / baud_rate;
   if (tx_pin != -1) {
-    auto pin = GPIOOutputPin(tx_pin);
-    pin.setup();
-    this->tx_pin_ = pin.to_isr();
+    this->tx_pin_ = GPIOOutputPin(tx_pin).copy();
+    this->tx_pin_->setup();
     this->tx_pin_->digital_write(true);
   }
   if (rx_pin != -1) {

@@ -171,6 +171,19 @@ GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted)
 GPIOInputPin::GPIOInputPin(uint8_t pin, uint8_t mode, bool inverted)
     : GPIOPin(pin, mode, inverted) {}
 
+#ifdef ARDUINO_ARCH_ESP8266
+struct ESPHomeInterruptFuncInfo {
+  void (*func)(void *);
+  void *arg;
+};
+
+void ICACHE_RAM_ATTR interrupt_handler(void *arg) {
+  ArgStructure* as = static_cast<ArgStructure *>(arg);
+  auto *info = static_cast<ESPHomeInterruptFuncInfo *>(as->functionInfo);
+  info->func(info->arg);
+}
+#endif
+
 void GPIOPin::attach_interrupt_(void (*func)(void *), void *arg, int mode) const {
   if (this->inverted_) {
     if (mode == RISING) {
@@ -182,9 +195,13 @@ void GPIOPin::attach_interrupt_(void (*func)(void *), void *arg, int mode) const
 #ifdef ARDUINO_ARCH_ESP8266
   ArgStructure* as = new ArgStructure;
   as->interruptInfo = nullptr;
-  as->functionInfo = arg;
 
-  __attachInterruptArg(this->pin_, func, as, mode);
+  as->functionInfo = new ESPHomeInterruptFuncInfo {
+    .func = func,
+    .arg = arg,
+  };
+
+  __attachInterruptArg(this->pin_, interrupt_handler, as, mode);
 #endif
 #ifdef ARDUINO_ARCH_ESP32
   // work around issue https://github.com/espressif/arduino-esp32/pull/1776 in arduino core
