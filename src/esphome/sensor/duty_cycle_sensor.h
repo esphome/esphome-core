@@ -39,6 +39,7 @@ class DutyCycleSensor : public PollingSensorComponent {
   GPIOPin *pin_;
 
   DutyCycleSensorStore store_;
+  uint32_t last_update_;
 };
 
 } // namespace sensor

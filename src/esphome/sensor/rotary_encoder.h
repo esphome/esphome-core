@@ -24,7 +24,6 @@ enum RotaryEncoderResolution {
 struct RotaryEncoderSensorStore {
   ISRInternalGPIOPin *pin_a;
   ISRInternalGPIOPin *pin_b;
-  ISRInternalGPIOPin *pin_i;
 
   volatile int32_t counter{0};
   RotaryEncoderResolution resolution{ROTARY_ENCODER_1_PULSE_PER_CYCLE};

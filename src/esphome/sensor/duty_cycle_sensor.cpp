@@ -21,6 +21,7 @@ void DutyCycleSensor::setup() {
   this->pin_->setup();
   this->store_.pin = this->pin_->to_isr();
   this->store_.last_level = this->pin_->digital_read();
+  this->last_update_ = micros();
 
   this->pin_->attach_interrupt(DutyCycleSensorStore::gpio_intr, &this->store_, CHANGE);
 }
@@ -38,7 +39,7 @@ void DutyCycleSensor::update() {
   if (level)
     on_time += now - last_interrupt;
 
-  const float total_time = this->get_update_interval() * 1000.0f;
+  const float total_time = float(now - this->last_update_);
 
   const float value = (on_time / total_time) * 100.0f;
   ESP_LOGD(TAG, "'%s' Got duty cycle=%.1f%%", this->get_name().c_str(), value);
@@ -46,6 +47,7 @@ void DutyCycleSensor::update() {
 
   this->store_.on_time = 0;
   this->store_.last_interrupt = now;
+  this->last_update_ = now;
 }
 
 std::string DutyCycleSensor::unit_of_measurement() {

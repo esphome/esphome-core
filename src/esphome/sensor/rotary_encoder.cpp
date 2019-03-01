@@ -98,10 +98,6 @@ void ICACHE_RAM_ATTR HOT RotaryEncoderSensorStore::gpio_intr(RotaryEncoderSensor
       arg->counter--;
   }
 
-  if (arg->pin_i != nullptr && arg->pin_i->digital_read()) {
-    arg->counter = 0;
-  }
-
   arg->state = new_state;
 }
 RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a, GPIOPin *pin_b)
@@ -130,6 +126,9 @@ void RotaryEncoderSensor::dump_config() {
   LOG_PIN("  Pin I: ", this->pin_i_);
 }
 void RotaryEncoderSensor::loop() {
+  if (this->pin_i_ != nullptr && this->pin_i_->digital_read()) {
+    this->store_.counter = 0;
+  }
   int counter = this->store_.counter;
   if (this->store_.last_read != counter) {
     this->store_.last_read = counter;

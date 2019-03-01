@@ -56,6 +56,7 @@ void UltrasonicSensorComponent::loop() {
   if (this->store_.has_triggered && !this->store_.has_echo &&
       now - this->store_.triggered_at > this->timeout_us_) {
     // timeout
+    this->store_.has_triggered = false;
     ESP_LOGD(TAG, "Distance measurement timed out!");
     this->publish_state(NAN);
   }
