@@ -88,9 +88,7 @@ void HMC5883LComponent::dump_config() {
   LOG_SENSOR("  ", "Z Axis", this->z_sensor_);
   LOG_SENSOR("  ", "Heading", this->heading_sensor_);
 }
-float HMC5883LComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float HMC5883LComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void HMC5883LComponent::update() {
   uint16_t raw_x, raw_y, raw_z;
   if (!this->read_byte_16(HMC5883L_REGISTER_DATA_X_MSB, &raw_x) ||
@@ -102,15 +100,32 @@ void HMC5883LComponent::update() {
 
   float mg_per_bit;
   switch (this->range_) {
-    case HMC5883L_RANGE_88_UT: mg_per_bit = 0.073f; break;
-    case HMC5883L_RANGE_130_UT: mg_per_bit = 0.92f; break;
-    case HMC5883L_RANGE_190_UT: mg_per_bit = 1.22f; break;
-    case HMC5883L_RANGE_250_UT: mg_per_bit = 1.52f; break;
-    case HMC5883L_RANGE_400_UT: mg_per_bit = 2.27f; break;
-    case HMC5883L_RANGE_470_UT: mg_per_bit = 2.56f; break;
-    case HMC5883L_RANGE_560_UT: mg_per_bit = 3.03f; break;
-    case HMC5883L_RANGE_810_UT: mg_per_bit = 4.35f; break;
-    default: mg_per_bit = NAN;
+    case HMC5883L_RANGE_88_UT:
+      mg_per_bit = 0.073f;
+      break;
+    case HMC5883L_RANGE_130_UT:
+      mg_per_bit = 0.92f;
+      break;
+    case HMC5883L_RANGE_190_UT:
+      mg_per_bit = 1.22f;
+      break;
+    case HMC5883L_RANGE_250_UT:
+      mg_per_bit = 1.52f;
+      break;
+    case HMC5883L_RANGE_400_UT:
+      mg_per_bit = 2.27f;
+      break;
+    case HMC5883L_RANGE_470_UT:
+      mg_per_bit = 2.56f;
+      break;
+    case HMC5883L_RANGE_560_UT:
+      mg_per_bit = 3.03f;
+      break;
+    case HMC5883L_RANGE_810_UT:
+      mg_per_bit = 4.35f;
+      break;
+    default:
+      mg_per_bit = NAN;
   }
 
   // in µT
@@ -119,8 +134,7 @@ void HMC5883LComponent::update() {
   const float z = int16_t(raw_z) * mg_per_bit * 0.1f;
 
   float heading = atan2f(0.0f - x, y) * 180.0f / M_PI;
-  ESP_LOGD(TAG, "Got x=%0.02fµT y=%0.02fµT z=%0.02fµT heading=%0.01f°",
-      x, y, z, heading);
+  ESP_LOGD(TAG, "Got x=%0.02fµT y=%0.02fµT z=%0.02fµT heading=%0.01f°", x, y, z, heading);
 
   if (this->x_sensor_ != nullptr)
     this->x_sensor_->publish_state(x);
@@ -145,12 +159,10 @@ HMC5883LFieldStrengthSensor *HMC5883LComponent::make_z_sensor(const std::string 
 HMC5883LHeadingSensor *HMC5883LComponent::make_heading_sensor(const std::string &name) {
   return this->heading_sensor_ = new HMC5883LHeadingSensor(name, this);
 }
-void HMC5883LComponent::set_range(HMC5883LRange range) {
-  this->range_ = range;
-}
+void HMC5883LComponent::set_range(HMC5883LRange range) { this->range_ = range; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HMC5883L
+#endif  // USE_HMC5883L

@@ -23,8 +23,7 @@ static const uint8_t TSL2561_REGISTER_ID = 0x0A;
 static const uint8_t TSL2561_REGISTER_DATA_0 = 0x0C;
 static const uint8_t TSL2561_REGISTER_DATA_1 = 0x0E;
 
-TSL2561Sensor::TSL2561Sensor(I2CComponent *parent, const std::string &name,
-                             uint8_t address, uint32_t update_interval)
+TSL2561Sensor::TSL2561Sensor(I2CComponent *parent, const std::string &name, uint8_t address, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), I2CDevice(parent, address) {}
 
 void TSL2561Sensor::setup() {
@@ -73,9 +72,7 @@ void TSL2561Sensor::update() {
   // Make sure the data is there when we will read it.
   auto timeout = static_cast<uint32_t>(this->get_integration_time_ms_() + 20);
 
-  this->set_timeout("illuminance", timeout, [this]() {
-    this->read_data_();
-  });
+  this->set_timeout("illuminance", timeout, [this]() { this->read_data_(); });
 }
 
 float TSL2561Sensor::calculate_lx_(uint16_t ch0, uint16_t ch1) {
@@ -142,35 +139,26 @@ void TSL2561Sensor::read_data_() {
   this->publish_state(lx);
   this->status_clear_warning();
 }
-std::string TSL2561Sensor::unit_of_measurement() {
-  return UNIT_LX;
-}
-std::string TSL2561Sensor::icon() {
-  return ICON_BRIGHTNESS_5;
-}
-int8_t TSL2561Sensor::accuracy_decimals() {
-  return 1;
-}
+std::string TSL2561Sensor::unit_of_measurement() { return UNIT_LX; }
+std::string TSL2561Sensor::icon() { return ICON_BRIGHTNESS_5; }
+int8_t TSL2561Sensor::accuracy_decimals() { return 1; }
 float TSL2561Sensor::get_integration_time_ms_() {
   switch (this->integration_time_) {
-    case TSL2561_INTEGRATION_14MS: return 13.7f;
-    case TSL2561_INTEGRATION_101MS: return 100.0f;
-    case TSL2561_INTEGRATION_402MS: return 402.0f;
+    case TSL2561_INTEGRATION_14MS:
+      return 13.7f;
+    case TSL2561_INTEGRATION_101MS:
+      return 100.0f;
+    case TSL2561_INTEGRATION_402MS:
+      return 402.0f;
   }
   return 0.0f;
 }
 void TSL2561Sensor::set_integration_time(TSL2561IntegrationTime integration_time) {
   this->integration_time_ = integration_time;
 }
-void TSL2561Sensor::set_gain(TSL2561Gain gain) {
-  this->gain_ = gain;
-}
-void TSL2561Sensor::set_is_cs_package(bool package_cs) {
-  this->package_cs_ = package_cs;
-}
-float TSL2561Sensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+void TSL2561Sensor::set_gain(TSL2561Gain gain) { this->gain_ = gain; }
+void TSL2561Sensor::set_is_cs_package(bool package_cs) { this->package_cs_ = package_cs; }
+float TSL2561Sensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 bool TSL2561Sensor::tsl2561_write_byte(uint8_t register_, uint8_t value) {
   return this->write_byte(register_ | TSL2561_COMMAND_BIT, value);
 }
@@ -187,8 +175,8 @@ bool TSL2561Sensor::tsl2561_read_byte(uint8_t register_, uint8_t *value) {
   return this->read_byte(register_ | TSL2561_COMMAND_BIT, value);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TSL2561
+#endif  // USE_TSL2561

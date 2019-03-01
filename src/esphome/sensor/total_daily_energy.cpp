@@ -25,24 +25,12 @@ void TotalDailyEnergy::setup() {
   auto f = std::bind(&TotalDailyEnergy::process_new_state_, this, std::placeholders::_1);
   this->parent_->add_on_state_callback(f);
 }
-void TotalDailyEnergy::dump_config() {
-  LOG_SENSOR("", "Total Daily Energy", this);
-}
-float TotalDailyEnergy::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
-uint32_t TotalDailyEnergy::update_interval() {
-  return this->parent_->update_interval();
-}
-std::string TotalDailyEnergy::unit_of_measurement() {
-  return this->parent_->get_unit_of_measurement() + "h";
-}
-std::string TotalDailyEnergy::icon() {
-  return this->parent_->get_icon();
-}
-int8_t TotalDailyEnergy::accuracy_decimals() {
-  return this->parent_->get_accuracy_decimals() + 1;
-}
+void TotalDailyEnergy::dump_config() { LOG_SENSOR("", "Total Daily Energy", this); }
+float TotalDailyEnergy::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
+uint32_t TotalDailyEnergy::update_interval() { return this->parent_->update_interval(); }
+std::string TotalDailyEnergy::unit_of_measurement() { return this->parent_->get_unit_of_measurement() + "h"; }
+std::string TotalDailyEnergy::icon() { return this->parent_->get_icon(); }
+int8_t TotalDailyEnergy::accuracy_decimals() { return this->parent_->get_accuracy_decimals() + 1; }
 void TotalDailyEnergy::process_new_state_(float state) {
   if (isnan(state))
     return;
@@ -73,12 +61,10 @@ void TotalDailyEnergy::publish_state_and_save_(float state) {
   this->publish_state(state);
 }
 TotalDailyEnergy::TotalDailyEnergy(const std::string &name, time::RealTimeClockComponent *time, Sensor *parent)
-    : Sensor(name), time_(time), parent_(parent) {
+    : Sensor(name), time_(time), parent_(parent) {}
 
-}
-
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TOTAL_DAILY_ENERGY_SENSOR
+#endif  // USE_TOTAL_DAILY_ENERGY_SENSOR

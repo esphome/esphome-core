@@ -52,27 +52,15 @@ int32_t Stepper::should_step_() {
 
   return 0;
 }
-void Stepper::set_target(int32_t steps) {
-  this->target_position = steps;
-}
-void Stepper::report_position(int32_t steps) {
-  this->current_position = steps;
-}
-void Stepper::set_acceleration(float acceleration) {
-  this->acceleration_ = acceleration;
-}
-void Stepper::set_deceleration(float deceleration) {
-  this->deceleration_ = deceleration;
-}
-void Stepper::set_max_speed(float max_speed) {
-  this->max_speed_ = max_speed;
-}
-bool Stepper::has_reached_target() {
-  return this->current_position == this->target_position;
-}
+void Stepper::set_target(int32_t steps) { this->target_position = steps; }
+void Stepper::report_position(int32_t steps) { this->current_position = steps; }
+void Stepper::set_acceleration(float acceleration) { this->acceleration_ = acceleration; }
+void Stepper::set_deceleration(float deceleration) { this->deceleration_ = deceleration; }
+void Stepper::set_max_speed(float max_speed) { this->max_speed_ = max_speed; }
+bool Stepper::has_reached_target() { return this->current_position == this->target_position; }
 
-} // namespace stepper
+}  // namespace stepper
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_STEPPER
+#endif  // USE_STEPPER

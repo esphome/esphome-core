@@ -25,12 +25,8 @@ void DisplayBuffer::init_internal_(uint32_t buffer_length) {
   }
   this->clear();
 }
-void DisplayBuffer::fill(int color) {
-  this->filled_rectangle(0, 0, this->get_width(), this->get_height(), color);
-}
-void DisplayBuffer::clear() {
-  this->fill(COLOR_OFF);
-}
+void DisplayBuffer::fill(int color) { this->filled_rectangle(0, 0, this->get_width(), this->get_height(), color); }
+void DisplayBuffer::clear() { this->fill(COLOR_OFF); }
 int DisplayBuffer::get_width() {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_90_DEGREES:
@@ -53,12 +49,11 @@ int DisplayBuffer::get_height() {
       return this->get_width_internal_();
   }
 }
-void DisplayBuffer::set_rotation(DisplayRotation rotation) {
-  this->rotation_ = rotation;
-}
+void DisplayBuffer::set_rotation(DisplayRotation rotation) { this->rotation_ = rotation; }
 void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
   switch (this->rotation_) {
-    case DISPLAY_ROTATION_0_DEGREES:break;
+    case DISPLAY_ROTATION_0_DEGREES:
+      break;
     case DISPLAY_ROTATION_90_DEGREES:
       std::swap(x, y);
       x = this->get_width_internal_() - x - 1;
@@ -222,9 +217,8 @@ void DisplayBuffer::image(int x, int y, Image *image) {
     }
   }
 }
-void DisplayBuffer::get_text_bounds(int x, int y,
-                                    const char *text, Font *font, TextAlign align,
-                                    int *x1, int *y1, int *width, int *height) {
+void DisplayBuffer::get_text_bounds(int x, int y, const char *text, Font *font, TextAlign align, int *x1, int *y1,
+                                    int *width, int *height) {
   int x_offset, baseline;
   font->measure(text, width, &x_offset, &baseline, height);
 
@@ -236,7 +230,7 @@ void DisplayBuffer::get_text_bounds(int x, int y,
       *x1 = x - *width;
       break;
     case TextAlign::CENTER_HORIZONTAL:
-      *x1 = x - (*width)/2;
+      *x1 = x - (*width) / 2;
       break;
     case TextAlign::LEFT:
     default:
@@ -253,7 +247,7 @@ void DisplayBuffer::get_text_bounds(int x, int y,
       *y1 = y - baseline;
       break;
     case TextAlign::CENTER_VERTICAL:
-      *y1 = y - (*height)/2;
+      *y1 = y - (*height) / 2;
       break;
     case TextAlign::TOP:
     default:
@@ -294,9 +288,7 @@ void DisplayBuffer::printf(int x, int y, Font *font, const char *format, ...) {
   this->vprintf_(x, y, font, COLOR_ON, TextAlign::CENTER_LEFT, format, arg);
   va_end(arg);
 }
-void DisplayBuffer::set_writer(display_writer_t &&writer) {
-  this->writer_ = writer;
-}
+void DisplayBuffer::set_writer(display_writer_t &&writer) { this->writer_ = writer; }
 void DisplayBuffer::set_pages(std::vector<DisplayPage *> pages) {
   for (auto *page : pages)
     page->set_parent(this);
@@ -309,15 +301,9 @@ void DisplayBuffer::set_pages(std::vector<DisplayPage *> pages) {
   pages[pages.size() - 1]->set_next(pages[0]);
   this->show_page(pages[0]);
 }
-void DisplayBuffer::show_page(DisplayPage *page) {
-  this->page_ = page;
-}
-void DisplayBuffer::show_next_page() {
-  this->page_->show_next();
-}
-void DisplayBuffer::show_prev_page() {
-  this->page_->show_prev();
-}
+void DisplayBuffer::show_page(DisplayPage *page) { this->page_ = page; }
+void DisplayBuffer::show_next_page() { this->page_->show_next(); }
+void DisplayBuffer::show_prev_page() { this->page_->show_prev(); }
 void DisplayBuffer::do_update() {
   this->clear();
   if (this->page_ != nullptr) {
@@ -345,10 +331,14 @@ void DisplayBuffer::strftime(int x, int y, Font *font, const char *format, time:
 }
 #endif
 
-Glyph::Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width, int height)
-    : char_(aChar), data_(data_start + offset), offset_x(offset_x), offset_y(offset_y), width_(width), height_(height) {
-
-}
+Glyph::Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width,
+             int height)
+    : char_(aChar),
+      data_(data_start + offset),
+      offset_x(offset_x),
+      offset_y(offset_y),
+      width_(width),
+      height_(height) {}
 bool Glyph::get_pixel(int x, int y) const {
   const int x_data = x - this->offset_x;
   const int y_data = y - this->offset_y;
@@ -358,9 +348,7 @@ bool Glyph::get_pixel(int x, int y) const {
   const uint32_t pos = x_data + y_data * width_8;
   return pgm_read_byte(this->data_ + (pos / 8u)) & (0x80 >> (pos % 8u));
 }
-const char *Glyph::get_char() const {
-  return this->char_;
-}
+const char *Glyph::get_char() const { return this->char_; }
 bool Glyph::compare_to(const char *str) const {
   // 1 -> this->char_
   // 2 -> str
@@ -439,9 +427,7 @@ void Font::measure(const char *str, int *width, int *x_offset, int *baseline, in
   *x_offset = min_x;
   *width = x - min_x;
 }
-const std::vector<Glyph> &Font::get_glyphs() const {
-  return this->glyphs_;
-}
+const std::vector<Glyph> &Font::get_glyphs() const { return this->glyphs_; }
 Font::Font(std::vector<Glyph> &&glyphs, int baseline, int bottom)
     : glyphs_(std::move(glyphs)), baseline_(baseline), bottom_(bottom) {}
 
@@ -452,12 +438,8 @@ bool Image::get_pixel(int x, int y) const {
   const uint32_t pos = x + y * width_8;
   return pgm_read_byte(this->data_start_ + (pos / 8u)) & (0x80 >> (pos % 8u));
 }
-int Image::get_width() const {
-  return this->width_;
-}
-int Image::get_height() const {
-  return this->height_;
-}
+int Image::get_width() const { return this->width_; }
+int Image::get_height() const { return this->height_; }
 Image::Image(const uint8_t *data_start, int width, int height)
     : width_(width), height_(height), data_start_(data_start) {}
 
@@ -470,8 +452,8 @@ void DisplayPage::set_prev(DisplayPage *prev) { this->prev_ = prev; }
 void DisplayPage::set_next(DisplayPage *next) { this->next_ = next; }
 const display_writer_t &DisplayPage::get_writer() const { return this->writer_; }
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DISPLAY
+#endif  // USE_DISPLAY

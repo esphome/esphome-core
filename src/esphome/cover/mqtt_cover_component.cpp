@@ -13,9 +13,7 @@ static const char *TAG = "cover.mqtt";
 
 MQTTCoverComponent::MQTTCoverComponent(Cover *cover) : cover_(cover) {}
 void MQTTCoverComponent::setup() {
-  this->cover_->add_on_publish_state_callback([this](CoverState state) {
-    this->publish_state(state);
-  });
+  this->cover_->add_on_publish_state_callback([this](CoverState state) { this->publish_state(state); });
   this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {
     if (strcasecmp(payload.c_str(), "OPEN") == 0) {
       ESP_LOGD(TAG, "'%s': Opening cover...", this->friendly_name().c_str());
@@ -41,12 +39,8 @@ void MQTTCoverComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCon
     root["optimistic"] = true;
 }
 
-std::string MQTTCoverComponent::component_type() const {
-  return "cover";
-}
-std::string MQTTCoverComponent::friendly_name() const {
-  return this->cover_->get_name();
-}
+std::string MQTTCoverComponent::component_type() const { return "cover"; }
+std::string MQTTCoverComponent::friendly_name() const { return this->cover_->get_name(); }
 bool MQTTCoverComponent::send_initial_state() {
   if (this->cover_->has_state()) {
     return this->publish_state(this->cover_->state);
@@ -54,14 +48,16 @@ bool MQTTCoverComponent::send_initial_state() {
     return true;
   }
 }
-bool MQTTCoverComponent::is_internal() {
-  return this->cover_->is_internal();
-}
+bool MQTTCoverComponent::is_internal() { return this->cover_->is_internal(); }
 bool MQTTCoverComponent::publish_state(cover::CoverState state) {
   const char *state_s;
   switch (state) {
-    case COVER_OPEN: state_s = "open"; break;
-    case COVER_CLOSED: state_s = "closed"; break;
+    case COVER_OPEN:
+      state_s = "open";
+      break;
+    case COVER_CLOSED:
+      state_s = "closed";
+      break;
     default: {
       ESP_LOGW(TAG, "Unknown cover state.");
       return true;
@@ -71,8 +67,8 @@ bool MQTTCoverComponent::publish_state(cover::CoverState state) {
   return this->publish(this->get_state_topic(), state_s);
 }
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_COVER
+#endif  // USE_MQTT_COVER

@@ -82,13 +82,9 @@ void INA3221Component::dump_config() {
   LOG_SENSOR("  ", "Power #3", this->channels[2].power_sensor_);
 }
 
-inline uint8_t ina3221_bus_voltage_register(int channel) {
-  return 0x02 + channel * 2;
-}
+inline uint8_t ina3221_bus_voltage_register(int channel) { return 0x02 + channel * 2; }
 
-inline uint8_t ina3221_shunt_voltage_register(int channel) {
-  return 0x01 + channel * 2;
-}
+inline uint8_t ina3221_shunt_voltage_register(int channel) { return 0x01 + channel * 2; }
 
 void INA3221Component::update() {
   for (int i = 0; i < 3; i++) {
@@ -122,9 +118,7 @@ void INA3221Component::update() {
   }
 }
 
-float INA3221Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float INA3221Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void INA3221Component::set_shunt_resistance(int channel, float resistance_ohm) {
   this->channels[channel].shunt_resistance_ = resistance_ohm;
 }
@@ -144,7 +138,8 @@ INA3221Component::INA3221Component(I2CComponent *parent, uint8_t address, uint32
     : PollingComponent(update_interval), I2CDevice(parent, address) {}
 
 bool INA3221Component::INA3221Channel::exists() {
-  return this->bus_voltage_sensor_ != nullptr || this->shunt_voltage_sensor_ != nullptr || this->current_sensor_ != nullptr || this->power_sensor_ != nullptr;
+  return this->bus_voltage_sensor_ != nullptr || this->shunt_voltage_sensor_ != nullptr ||
+         this->current_sensor_ != nullptr || this->power_sensor_ != nullptr;
 }
 bool INA3221Component::INA3221Channel::should_measure_shunt_voltage() {
   return this->shunt_voltage_sensor_ != nullptr || this->current_sensor_ != nullptr || this->power_sensor_ != nullptr;
@@ -152,8 +147,8 @@ bool INA3221Component::INA3221Channel::should_measure_shunt_voltage() {
 bool INA3221Component::INA3221Channel::should_measure_bus_voltage() {
   return this->bus_voltage_sensor_ != nullptr || this->power_sensor_ != nullptr;
 }
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_INA3221
+#endif  // USE_INA3221

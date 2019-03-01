@@ -38,9 +38,7 @@ void CSE7766Component::loop() {
     this->raw_data_index_ = (this->raw_data_index_ + 1) % 24;
   }
 }
-float CSE7766Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float CSE7766Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 bool CSE7766Component::check_byte_() {
   uint8_t index = this->raw_data_index_;
   uint8_t byte = this->raw_data_[index];
@@ -102,8 +100,8 @@ bool CSE7766Component::check_byte_() {
 void CSE7766Component::parse_data_() {
   ESP_LOGVV(TAG, "CSE7766 Data: ");
   for (uint8_t i = 0; i < 23; i++) {
-    ESP_LOGVV(TAG, "  i=%u: 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)",
-        i, BYTE_TO_BINARY(this->raw_data_[i]), this->raw_data_[i]);
+    ESP_LOGVV(TAG, "  i=%u: 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", i, BYTE_TO_BINARY(this->raw_data_[i]),
+              this->raw_data_[i]);
   }
   const uint32_t now = micros();
   const float d = (now - this->last_reading_) / 1000.0f;
@@ -143,8 +141,7 @@ void CSE7766Component::update() {
   float voltage = this->voltage_acc_ / d;
   float current = this->current_acc_ / d;
   float power = this->power_acc_ / d;
-  ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW",
-      voltage, current, power);
+  ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW", voltage, current, power);
 
   if (this->voltage_ != nullptr)
     this->voltage_->publish_state(voltage);
@@ -160,15 +157,12 @@ void CSE7766Component::setup() {
   this->last_update_ = millis();
 }
 uint32_t CSE7766Component::get_24_bit_uint(uint8_t start_index) {
-  return (uint32_t(this->raw_data_[start_index]) << 16) |
-      (uint32_t(this->raw_data_[start_index + 1]) << 8) |
-      uint32_t(this->raw_data_[start_index + 2]);
+  return (uint32_t(this->raw_data_[start_index]) << 16) | (uint32_t(this->raw_data_[start_index + 1]) << 8) |
+         uint32_t(this->raw_data_[start_index + 2]);
 }
 
 CSE7766Component::CSE7766Component(UARTComponent *parent, uint32_t update_interval)
-    : UARTDevice(parent), PollingComponent(update_interval) {
-
-}
+    : UARTDevice(parent), PollingComponent(update_interval) {}
 CSE7766VoltageSensor *CSE7766Component::make_voltage_sensor(const std::string &name) {
   return this->voltage_ = new CSE7766VoltageSensor(name);
 }
@@ -186,8 +180,8 @@ void CSE7766Component::dump_config() {
   LOG_SENSOR("  ", "Power", this->power_);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CSE7766
+#endif  // USE_CSE7766

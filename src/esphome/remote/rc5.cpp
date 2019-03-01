@@ -53,9 +53,7 @@ RC5DecodeData decode_rc5(RemoteReceiveData *data) {
   out.address = 0;
   out.command = 0;
   data->expect_space(BIT_TIME_US);
-  if (!data->expect_mark(BIT_TIME_US) ||
-      !data->expect_space(BIT_TIME_US) ||
-      !data->expect_mark(BIT_TIME_US)) {
+  if (!data->expect_mark(BIT_TIME_US) || !data->expect_space(BIT_TIME_US) || !data->expect_mark(BIT_TIME_US)) {
     return out;
   }
 
@@ -98,8 +96,8 @@ bool RC5Dumper::dump(RemoteReceiveData *data) {
 }
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE

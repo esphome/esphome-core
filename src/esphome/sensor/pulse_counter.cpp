@@ -17,26 +17,22 @@ static const char *TAG = "sensor.pulse_counter";
 PulseCounterBase::PulseCounterBase(GPIOPin *pin) : pin_(pin) {
 #ifdef ARDUINO_ARCH_ESP32
   this->pcnt_unit_ = next_pcnt_unit;
-  next_pcnt_unit = pcnt_unit_t(int(next_pcnt_unit) + 1); // NOLINT
+  next_pcnt_unit = pcnt_unit_t(int(next_pcnt_unit) + 1);  // NOLINT
 #endif
 }
 
-PulseCounterSensorComponent::PulseCounterSensorComponent(const std::string &name,
-                                                         GPIOPin *pin,
+PulseCounterSensorComponent::PulseCounterSensorComponent(const std::string &name, GPIOPin *pin,
                                                          uint32_t update_interval)
-  : PollingSensorComponent(name, update_interval), PulseCounterBase(pin) {
-
-}
-void PulseCounterSensorComponent::set_edge_mode(PulseCounterCountMode rising_edge_mode, PulseCounterCountMode falling_edge_mode) {
+    : PollingSensorComponent(name, update_interval), PulseCounterBase(pin) {}
+void PulseCounterSensorComponent::set_edge_mode(PulseCounterCountMode rising_edge_mode,
+                                                PulseCounterCountMode falling_edge_mode) {
   this->rising_edge_mode_ = rising_edge_mode;
   this->falling_edge_mode_ = falling_edge_mode;
 }
 
 const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
 
-GPIOPin *PulseCounterBase::get_pin() {
-  return this->pin_;
-}
+GPIOPin *PulseCounterBase::get_pin() { return this->pin_; }
 
 #ifdef ARDUINO_ARCH_ESP8266
 void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
@@ -60,9 +56,7 @@ void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
 }
 bool PulseCounterBase::pulse_counter_setup_() {
   this->pin_->setup();
-  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR {
-    this->gpio_intr();
-  }, CHANGE);
+  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR { this->gpio_intr(); }, CHANGE);
   return true;
 }
 pulse_counter_t PulseCounterBase::read_raw_value_() {
@@ -79,14 +73,26 @@ bool PulseCounterBase::pulse_counter_setup_() {
 
   pcnt_count_mode_t rising = PCNT_COUNT_DIS, falling = PCNT_COUNT_DIS;
   switch (this->rising_edge_mode_) {
-    case PULSE_COUNTER_DISABLE: rising = PCNT_COUNT_DIS; break;
-    case PULSE_COUNTER_INCREMENT: rising = PCNT_COUNT_INC; break;
-    case PULSE_COUNTER_DECREMENT: rising = PCNT_COUNT_DEC; break;
+    case PULSE_COUNTER_DISABLE:
+      rising = PCNT_COUNT_DIS;
+      break;
+    case PULSE_COUNTER_INCREMENT:
+      rising = PCNT_COUNT_INC;
+      break;
+    case PULSE_COUNTER_DECREMENT:
+      rising = PCNT_COUNT_DEC;
+      break;
   }
   switch (this->falling_edge_mode_) {
-    case PULSE_COUNTER_DISABLE: falling = PCNT_COUNT_DIS; break;
-    case PULSE_COUNTER_INCREMENT: falling = PCNT_COUNT_INC; break;
-    case PULSE_COUNTER_DECREMENT: falling = PCNT_COUNT_DEC; break;
+    case PULSE_COUNTER_DISABLE:
+      falling = PCNT_COUNT_DIS;
+      break;
+    case PULSE_COUNTER_INCREMENT:
+      falling = PCNT_COUNT_INC;
+      break;
+    case PULSE_COUNTER_DECREMENT:
+      falling = PCNT_COUNT_DEC;
+      break;
   }
 
   pcnt_config_t pcnt_config = {
@@ -166,34 +172,24 @@ void PulseCounterSensorComponent::dump_config() {
 
 void PulseCounterSensorComponent::update() {
   pulse_counter_t raw = this->read_raw_value_();
-  float value = (60000.0f * raw) / float(this->get_update_interval()); // per minute
+  float value = (60000.0f * raw) / float(this->get_update_interval());  // per minute
 
   ESP_LOGD(TAG, "'%s': Retrieved counter: %0.2f pulses/min", this->get_name().c_str(), value);
   this->publish_state(value);
 }
 
-float PulseCounterSensorComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
-std::string PulseCounterSensorComponent::unit_of_measurement() {
-  return "pulses/min";
-}
-std::string PulseCounterSensorComponent::icon() {
-  return "mdi:pulse";
-}
-int8_t PulseCounterSensorComponent::accuracy_decimals() {
-  return 2;
-}
-void PulseCounterSensorComponent::set_filter_us(uint32_t filter_us) {
-  this->filter_us_ = filter_us;
-}
+float PulseCounterSensorComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
+std::string PulseCounterSensorComponent::unit_of_measurement() { return "pulses/min"; }
+std::string PulseCounterSensorComponent::icon() { return "mdi:pulse"; }
+int8_t PulseCounterSensorComponent::accuracy_decimals() { return 2; }
+void PulseCounterSensorComponent::set_filter_us(uint32_t filter_us) { this->filter_us_ = filter_us; }
 
 #ifdef ARDUINO_ARCH_ESP32
 pcnt_unit_t next_pcnt_unit = PCNT_UNIT_0;
 #endif
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PULSE_COUNTER_SENSOR
+#endif  // USE_PULSE_COUNTER_SENSOR

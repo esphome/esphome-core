@@ -129,21 +129,17 @@ bool ListEntitiesIterator::on_end() {
   return this->client_->send_empty_message(APIMessageType::LIST_ENTITIES_DONE_RESPONSE);
 }
 ListEntitiesIterator::ListEntitiesIterator(APIServer *server, APIConnection *client)
-    : ComponentIterator(server), client_(client) {
-
-}
+    : ComponentIterator(server), client_(client) {}
 bool ListEntitiesIterator::on_service(UserServiceDescriptor *service) {
   auto buffer = this->client_->get_buffer();
   service->encode_list_service_response(buffer);
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE);
 }
 
-APIMessageType ListEntitiesRequest::message_type() const {
-  return APIMessageType::LIST_ENTITIES_REQUEST;
-}
+APIMessageType ListEntitiesRequest::message_type() const { return APIMessageType::LIST_ENTITIES_REQUEST; }
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

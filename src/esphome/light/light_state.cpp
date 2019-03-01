@@ -18,11 +18,9 @@ namespace light {
 static const char *TAG = "light.state";
 
 void LightState::start_transition(const LightColorValues &target, uint32_t length) {
-
   if (this->get_traits().has_brightness()) {
-    this->transformer_ = make_unique<LightTransitionTransformer>(millis(), length,
-                                                                 this->get_current_values_lazy(),
-                                                                 target);
+    this->transformer_ =
+        make_unique<LightTransitionTransformer>(millis(), length, this->get_current_values_lazy(), target);
     this->remote_values_ = this->transformer_->get_remote_values();
   } else {
     this->set_immediately(target);
@@ -46,10 +44,7 @@ void LightState::start_flash(const LightColorValues &target, uint32_t length) {
   this->transformer_ = make_unique<LightFlashTransformer>(millis(), length, end_colors, target);
 }
 
-LightState::LightState(const std::string &name, LightOutput *output)
-  : Nameable(name), output_(output) {
-
-}
+LightState::LightState(const std::string &name, LightOutput *output) : Nameable(name), output_(output) {}
 
 void LightState::set_immediately_without_sending(const LightColorValues &target) {
   this->transformer_ = nullptr;
@@ -88,9 +83,7 @@ LightColorValues LightState::get_remote_values() {
   return out;
 }
 
-const LightColorValues &LightState::get_current_values_lazy() {
-  return this->values_;
-}
+const LightColorValues &LightState::get_current_values_lazy() { return this->values_; }
 
 std::string LightState::get_effect_name() {
   if (this->active_effect_ != nullptr)
@@ -109,9 +102,7 @@ void LightState::start_effect(uint32_t effect_index) {
   this->active_effect_->start_();
 }
 
-bool LightState::supports_effects() {
-  return !this->effects_.empty();
-}
+bool LightState::supports_effects() { return !this->effects_.empty(); }
 void LightState::set_transformer(std::unique_ptr<LightTransformer> transformer) {
   this->transformer_ = std::move(transformer);
 }
@@ -125,9 +116,7 @@ void LightState::stop_effect() {
 void LightState::set_default_transition_length(uint32_t default_transition_length) {
   this->default_transition_length_ = default_transition_length;
 }
-uint32_t LightState::get_default_transition_length() const {
-  return this->default_transition_length_;
-}
+uint32_t LightState::get_default_transition_length() const { return this->default_transition_length_; }
 void LightState::dump_json(JsonObject &root) {
   if (this->supports_effects())
     root["effect"] = this->get_effect_name();
@@ -169,21 +158,11 @@ void LightState::setup() {
   call.set_effect(recovered.effect);
   call.perform();
 }
-float LightState::get_setup_priority() const {
-  return setup_priority::HARDWARE - 1.0f;
-}
-LightOutput *LightState::get_output() const {
-  return this->output_;
-}
-float LightState::get_gamma_correct() const {
-  return this->gamma_correct_;
-}
-void LightState::set_gamma_correct(float gamma_correct) {
-  this->gamma_correct_ = gamma_correct;
-}
-void LightState::current_values_as_binary(bool *binary) {
-  this->get_current_values().as_binary(binary);
-}
+float LightState::get_setup_priority() const { return setup_priority::HARDWARE - 1.0f; }
+LightOutput *LightState::get_output() const { return this->output_; }
+float LightState::get_gamma_correct() const { return this->gamma_correct_; }
+void LightState::set_gamma_correct(float gamma_correct) { this->gamma_correct_ = gamma_correct; }
+void LightState::current_values_as_binary(bool *binary) { this->get_current_values().as_binary(binary); }
 void LightState::current_values_as_brightness(float *brightness) {
   this->get_current_values().as_brightness(brightness);
   *brightness = gamma_correct(*brightness, this->gamma_correct_);
@@ -201,27 +180,19 @@ void LightState::current_values_as_rgbw(float *red, float *green, float *blue, f
   *blue = gamma_correct(*blue, this->gamma_correct_);
   *white = gamma_correct(*white, this->gamma_correct_);
 }
-void LightState::current_values_as_rgbww(float color_temperature_cw,
-                                         float color_temperature_ww,
-                                         float *red,
-                                         float *green,
-                                         float *blue,
-                                         float *cold_white,
-                                         float *warm_white) {
-  this->get_current_values().as_rgbww(color_temperature_cw, color_temperature_ww,
-                                      red, green, blue, cold_white, warm_white);
+void LightState::current_values_as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red,
+                                         float *green, float *blue, float *cold_white, float *warm_white) {
+  this->get_current_values().as_rgbww(color_temperature_cw, color_temperature_ww, red, green, blue, cold_white,
+                                      warm_white);
   *red = gamma_correct(*red, this->gamma_correct_);
   *green = gamma_correct(*green, this->gamma_correct_);
   *blue = gamma_correct(*blue, this->gamma_correct_);
   *cold_white = gamma_correct(*cold_white, this->gamma_correct_);
   *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
 }
-void LightState::current_values_as_cwww(float color_temperature_cw,
-                                        float color_temperature_ww,
-                                        float *cold_white,
+void LightState::current_values_as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white,
                                         float *warm_white) {
-  this->get_current_values().as_cwww(color_temperature_cw, color_temperature_ww,
-                                     cold_white, warm_white);
+  this->get_current_values().as_cwww(color_temperature_cw, color_temperature_ww, cold_white, warm_white);
   *cold_white = gamma_correct(*cold_white, this->gamma_correct_);
   *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
 }
@@ -235,33 +206,21 @@ void LightState::loop() {
     this->next_write_ = false;
   }
 }
-LightTraits LightState::get_traits() {
-  return this->output_->get_traits();
-}
-const std::vector<LightEffect *> &LightState::get_effects() const {
-  return this->effects_;
-}
+LightTraits LightState::get_traits() { return this->output_->get_traits(); }
+const std::vector<LightEffect *> &LightState::get_effects() const { return this->effects_; }
 void LightState::add_effects(const std::vector<LightEffect *> effects) {
   this->effects_.reserve(this->effects_.size() + effects.size());
   for (auto *effect : effects) {
     this->effects_.push_back(effect);
   }
 }
-LightState::StateCall LightState::turn_on() {
-  return this->make_call().set_state(true);
-}
-LightState::StateCall LightState::turn_off() {
-  return this->make_call().set_state(false);
-}
+LightState::StateCall LightState::turn_on() { return this->make_call().set_state(true); }
+LightState::StateCall LightState::turn_off() { return this->make_call().set_state(false); }
 LightState::StateCall LightState::toggle() {
   return this->make_call().set_state(this->get_remote_values().get_state() == 0.0f);
 }
-LightState::StateCall LightState::make_call() {
-  return LightState::StateCall(this);
-}
-uint32_t LightState::hash_base_() {
-  return 1114400283;
-}
+LightState::StateCall LightState::make_call() { return LightState::StateCall(this); }
+uint32_t LightState::hash_base_() { return 1114400283; }
 void LightState::dump_config() {
   ESP_LOGCONFIG(TAG, "Light '%s'", this->get_name().c_str());
   if (this->get_traits().has_brightness()) {
@@ -274,12 +233,8 @@ void LightState::dump_config() {
   }
 }
 #ifdef USE_MQTT_LIGHT
-MQTTJSONLightComponent *LightState::get_mqtt() const {
-  return this->mqtt_;
-}
-void LightState::set_mqtt(MQTTJSONLightComponent *mqtt) {
-  this->mqtt_ = mqtt;
-}
+MQTTJSONLightComponent *LightState::get_mqtt() const { return this->mqtt_; }
+void LightState::set_mqtt(MQTTJSONLightComponent *mqtt) { this->mqtt_ = mqtt; }
 #endif
 
 LightState::StateCall &LightState::StateCall::set_state(bool state) {
@@ -381,7 +336,7 @@ LightState::StateCall &LightState::StateCall::set_effect(const std::string &effe
   }
   return *this;
 }
-LightState::StateCall &LightState::StateCall::set_effect(optional<std::string > effect) {
+LightState::StateCall &LightState::StateCall::set_effect(optional<std::string> effect) {
   if (effect.has_value()) {
     this->set_effect(*effect);
   }
@@ -404,7 +359,8 @@ LightState::StateCall &LightState::StateCall::parse_color_json(JsonObject &root)
       case PARSE_TOGGLE:
         this->set_state(this->state_->get_remote_values().get_state() == 0.0f);
         break;
-      case PARSE_NONE:break;
+      case PARSE_NONE:
+        break;
     }
   }
 
@@ -479,19 +435,18 @@ void LightState::StateCall::perform() const {
 
   if (traits.has_color_temperature() && this->color_temperature_.has_value()) {
     v.set_color_temperature(*this->color_temperature_);
-    ESP_LOGD(TAG, "  Color Temperature: %.1f mireds",
-             v.get_color_temperature());
+    ESP_LOGD(TAG, "  Color Temperature: %.1f mireds", v.get_color_temperature());
   }
 
   v.normalize_color(this->state_->output_->get_traits());
 
   if (traits.has_rgb() && (this->red_.has_value() || this->green_.has_value() || this->blue_.has_value())) {
     if (traits.has_rgb_white_value() && this->white_.has_value()) {
-      ESP_LOGD(TAG, "  Red=%.0f%%, Green=%.0f%%, Blue=%.0f%%, White=%.0f%%",
-               v.get_red() * 100.0f, v.get_green() * 100.0f, v.get_blue() * 100.0f, v.get_white() * 100.0f);
+      ESP_LOGD(TAG, "  Red=%.0f%%, Green=%.0f%%, Blue=%.0f%%, White=%.0f%%", v.get_red() * 100.0f,
+               v.get_green() * 100.0f, v.get_blue() * 100.0f, v.get_white() * 100.0f);
     } else {
-      ESP_LOGD(TAG, "  Red=%.0f%%, Green=%.0f%%, Blue=%.0f%%",
-               v.get_red() * 100.0f, v.get_green() * 100.0f, v.get_blue() * 100.0f);
+      ESP_LOGD(TAG, "  Red=%.0f%%, Green=%.0f%%, Blue=%.0f%%", v.get_red() * 100.0f, v.get_green() * 100.0f,
+               v.get_blue() * 100.0f);
     }
   }
 
@@ -525,17 +480,12 @@ void LightState::StateCall::perform() const {
   this->state_->rtc_.save(&saved);
   this->state_->send_values();
 }
-LightState::StateCall::StateCall(LightState *state)
-    : state_(state) {
+LightState::StateCall::StateCall(LightState *state) : state_(state) {}
 
-}
+void LightOutput::setup_state(LightState *state) {}
 
-void LightOutput::setup_state(LightState *state) {
-
-}
-
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT

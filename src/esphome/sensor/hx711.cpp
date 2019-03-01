@@ -26,9 +26,7 @@ void HX711Sensor::dump_config() {
   LOG_PIN("  SCK Pin: ", this->sck_pin_);
   LOG_UPDATE_INTERVAL(this);
 }
-float HX711Sensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float HX711Sensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void HX711Sensor::update() {
   uint32_t result;
   if (this->read_sensor_(&result)) {
@@ -69,23 +67,15 @@ std::string HX711Sensor::unit_of_measurement() {
   // datasheet gives no unit
   return "";
 }
-std::string HX711Sensor::icon() {
-  return "mdi:scale";
-}
-int8_t HX711Sensor::accuracy_decimals() {
-  return 0;
-}
+std::string HX711Sensor::icon() { return "mdi:scale"; }
+int8_t HX711Sensor::accuracy_decimals() { return 0; }
 HX711Sensor::HX711Sensor(const std::string &name, GPIOPin *dout, GPIOPin *sck, uint32_t update_interval)
-: PollingSensorComponent(name, update_interval), dout_pin_(dout), sck_pin_(sck) {
+    : PollingSensorComponent(name, update_interval), dout_pin_(dout), sck_pin_(sck) {}
 
-}
+void HX711Sensor::set_gain(HX711Gain gain) { this->gain_ = gain; }
 
-void HX711Sensor::set_gain(HX711Gain gain) {
-  this->gain_ = gain;
-}
-
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HX711
+#endif  // USE_HX711

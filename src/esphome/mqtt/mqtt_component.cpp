@@ -20,19 +20,17 @@ namespace mqtt {
 static const char *TAG = "mqtt.component";
 #endif
 
-void MQTTComponent::set_retain(bool retain) {
-  this->retain_ = retain;
-}
+void MQTTComponent::set_retain(bool retain) { this->retain_ = retain; }
 
 std::string MQTTComponent::get_discovery_topic(const MQTTDiscoveryInfo &discovery_info) const {
   std::string sanitized_name = sanitize_string_whitelist(get_app_name(), HOSTNAME_CHARACTER_WHITELIST);
   return discovery_info.prefix + "/" + this->component_type() + "/" + sanitized_name + "/" +
-      this->get_default_object_id() + "/config";
+         this->get_default_object_id() + "/config";
 }
 
 std::string MQTTComponent::get_default_topic_for(const std::string &suffix) const {
-  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id()
-      + "/" + suffix;
+  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id() +
+         "/" + suffix;
 }
 
 const std::string MQTTComponent::get_state_topic() const {
@@ -69,65 +67,66 @@ bool MQTTComponent::send_discovery_() {
 
   ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
 
-  return global_mqtt_client->publish_json(this->get_discovery_topic(discovery_info), [this](JsonObject &root) {
-    SendDiscoveryConfig config;
-    config.state_topic = true;
-    config.command_topic = true;
-    config.platform = "mqtt";
+  return global_mqtt_client->publish_json(
+      this->get_discovery_topic(discovery_info),
+      [this](JsonObject &root) {
+        SendDiscoveryConfig config;
+        config.state_topic = true;
+        config.command_topic = true;
+        config.platform = "mqtt";
 
-    this->send_discovery(root, config);
+        this->send_discovery(root, config);
 
-    std::string name = this->friendly_name();
-    root["name"] = name;
-    if (strcmp(config.platform, "mqtt") != 0)
-      root["platform"] = config.platform;
-    if (config.state_topic)
-      root["state_topic"] = this->get_state_topic();
-    if (config.command_topic)
-      root["command_topic"] = this->get_command_topic();
+        std::string name = this->friendly_name();
+        root["name"] = name;
+        if (strcmp(config.platform, "mqtt") != 0)
+          root["platform"] = config.platform;
+        if (config.state_topic)
+          root["state_topic"] = this->get_state_topic();
+        if (config.command_topic)
+          root["command_topic"] = this->get_command_topic();
 
-    if (this->availability_ == nullptr) {
-      root["availability_topic"] = global_mqtt_client->get_availability().topic;
-      if (global_mqtt_client->get_availability().payload_available != "online")
-        root["payload_available"] = global_mqtt_client->get_availability().payload_available;
-      if (global_mqtt_client->get_availability().payload_not_available != "offline")
-        root["payload_not_available"] = global_mqtt_client->get_availability().payload_not_available;
-    } else if (!this->availability_->topic.empty()) {
-      root["availability_topic"] = this->availability_->topic;
-      if (this->availability_->payload_available != "online")
-        root["payload_available"] = this->availability_->payload_available;
-      if (this->availability_->payload_not_available != "offline")
-        root["payload_not_available"] = this->availability_->payload_not_available;
-    }
+        if (this->availability_ == nullptr) {
+          root["availability_topic"] = global_mqtt_client->get_availability().topic;
+          if (global_mqtt_client->get_availability().payload_available != "online")
+            root["payload_available"] = global_mqtt_client->get_availability().payload_available;
+          if (global_mqtt_client->get_availability().payload_not_available != "offline")
+            root["payload_not_available"] = global_mqtt_client->get_availability().payload_not_available;
+        } else if (!this->availability_->topic.empty()) {
+          root["availability_topic"] = this->availability_->topic;
+          if (this->availability_->payload_available != "online")
+            root["payload_available"] = this->availability_->payload_available;
+          if (this->availability_->payload_not_available != "offline")
+            root["payload_not_available"] = this->availability_->payload_not_available;
+        }
 
-    const std::string &node_name = get_app_name();
-    std::string unique_id = this->unique_id();
-    if (!unique_id.empty()) {
-      root["unique_id"] = unique_id;
-    } else {
-      // default to almost-unique ID. It's a hack but the only way to get that
-      // gorgeous device registry view.
-      root["unique_id"] = "ESP" + this->component_type() + this->get_default_object_id();
-    }
+        const std::string &node_name = get_app_name();
+        std::string unique_id = this->unique_id();
+        if (!unique_id.empty()) {
+          root["unique_id"] = unique_id;
+        } else {
+          // default to almost-unique ID. It's a hack but the only way to get that
+          // gorgeous device registry view.
+          root["unique_id"] = "ESP" + this->component_type() + this->get_default_object_id();
+        }
 
-    JsonObject &device_info = root.createNestedObject("device");
-    device_info["identifiers"] = get_mac_address();
-    device_info["name"] = node_name;
-    if (get_app_compilation_time().empty()) {
-      device_info["sw_version"] = "esphome v" ESPHOME_VERSION;
-    } else {
-      device_info["sw_version"] = "esphome v" ESPHOME_VERSION " " + get_app_compilation_time();
-    }
+        JsonObject &device_info = root.createNestedObject("device");
+        device_info["identifiers"] = get_mac_address();
+        device_info["name"] = node_name;
+        if (get_app_compilation_time().empty()) {
+          device_info["sw_version"] = "esphome v" ESPHOME_VERSION;
+        } else {
+          device_info["sw_version"] = "esphome v" ESPHOME_VERSION " " + get_app_compilation_time();
+        }
 #ifdef ARDUINO_BOARD
-    device_info["model"] = ARDUINO_BOARD;
+        device_info["model"] = ARDUINO_BOARD;
 #endif
-    device_info["manufacturer"] = "espressif";
-  }, 0, discovery_info.retain);
+        device_info["manufacturer"] = "espressif";
+      },
+      0, discovery_info.retain);
 }
 
-bool MQTTComponent::get_retain() const {
-  return this->retain_;
-}
+bool MQTTComponent::get_retain() const { return this->retain_; }
 
 bool MQTTComponent::is_discovery_enabled() const {
   return this->discovery_enabled_ && global_mqtt_client->is_discovery_enabled();
@@ -147,12 +146,8 @@ void MQTTComponent::subscribe_json(const std::string &topic, mqtt_json_callback_
 
 MQTTComponent::MQTTComponent() = default;
 
-float MQTTComponent::get_setup_priority() const {
-  return setup_priority::MQTT_COMPONENT;
-}
-void MQTTComponent::disable_discovery() {
-  this->discovery_enabled_ = false;
-}
+float MQTTComponent::get_setup_priority() const { return setup_priority::MQTT_COMPONENT; }
+void MQTTComponent::disable_discovery() { this->discovery_enabled_ = false; }
 void MQTTComponent::set_custom_state_topic(const std::string &custom_state_topic) {
   this->custom_state_topic_ = custom_state_topic;
 }
@@ -160,8 +155,7 @@ void MQTTComponent::set_custom_command_topic(const std::string &custom_command_t
   this->custom_command_topic_ = custom_command_topic;
 }
 
-void MQTTComponent::set_availability(std::string topic,
-                                     std::string payload_available,
+void MQTTComponent::set_availability(std::string topic, std::string payload_available,
                                      std::string payload_not_available) {
   delete this->availability_;
   this->availability_ = new Availability();
@@ -169,9 +163,7 @@ void MQTTComponent::set_availability(std::string topic,
   this->availability_->payload_available = std::move(payload_available);
   this->availability_->payload_not_available = std::move(payload_not_available);
 }
-void MQTTComponent::disable_availability() {
-  this->set_availability("", "", "");
-}
+void MQTTComponent::disable_availability() { this->set_availability("", "", ""); }
 void MQTTComponent::setup_() {
   // Call component internal setup.
   this->setup_internal();
@@ -218,18 +210,12 @@ void MQTTComponent::loop_() {
     this->schedule_resend_state();
   }
 }
-void MQTTComponent::schedule_resend_state() {
-  this->resend_state_ = true;
-}
-std::string MQTTComponent::unique_id() {
-  return "";
-}
-bool MQTTComponent::is_connected() const {
-  return global_mqtt_client->is_connected();
-}
+void MQTTComponent::schedule_resend_state() { this->resend_state_ = true; }
+std::string MQTTComponent::unique_id() { return ""; }
+bool MQTTComponent::is_connected() const { return global_mqtt_client->is_connected(); }
 
-} // namespace mqtt
+}  // namespace mqtt
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT
+#endif  // USE_MQTT

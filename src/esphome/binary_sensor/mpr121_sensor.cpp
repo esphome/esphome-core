@@ -10,9 +10,7 @@ namespace binary_sensor {
 
 static const char *TAG = "binary_sensor.mpr121";
 
-MPR121Channel::MPR121Channel(const std::string &name, int channel_num) : BinarySensor(name) {
-  channel_ = channel_num;
-}
+MPR121Channel::MPR121Channel(const std::string &name, int channel_num) : BinarySensor(name) { channel_ = channel_num; }
 
 void MPR121Channel::process(const uint16_t *data, const uint16_t *last_data) {
   if ((*data & (1 << this->channel_)) && !(*last_data & (1 << this->channel_))) {
@@ -23,8 +21,7 @@ void MPR121Channel::process(const uint16_t *data, const uint16_t *last_data) {
   }
 }
 
-MPR121Component::MPR121Component(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {
-}
+MPR121Component::MPR121Component(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {}
 
 void MPR121Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MPR121...");
@@ -61,7 +58,7 @@ void MPR121Component::setup() {
   this->write_byte(MPR121_CONFIG1, 0x10);
   // 0.5uS encoding, 1ms period
   this->write_byte(MPR121_CONFIG2, 0x20);
- // start with first 5 bits of baseline tracking
+  // start with first 5 bits of baseline tracking
   this->write_byte(MPR121_ECR, 0x8F);
 }
 
@@ -81,9 +78,7 @@ void MPR121Component::dump_config() {
   }
 }
 
-float MPR121Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float MPR121Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 MPR121Channel *MPR121Component::add_channel(binary_sensor::MPR121Channel *channel) {
   this->channels_.push_back(channel);
@@ -101,7 +96,7 @@ uint16_t MPR121Component::read_mpr121_channels_() {
   this->read_byte_16(MPR121_TOUCHSTATUS_L, &val);
   uint8_t lsb = val >> 8;
   uint8_t msb = val;
-  val = ((uint16_t)msb) << 8;
+  val = ((uint16_t) msb) << 8;
   val |= lsb;
   return val;
 }

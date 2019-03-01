@@ -14,7 +14,7 @@
 #include "esphome/remote/sony.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <soc/rmt_struct.h>
+#include <soc/rmt_struct.h>
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -51,9 +51,7 @@ bool RemoteReceiveData::peek_space(uint32_t length, uint32_t offset) {
 bool RemoteReceiveData::peek_item(uint32_t mark, uint32_t space, uint32_t offset) {
   return this->peek_mark(mark, offset) && this->peek_space(space, offset + 1);
 }
-void RemoteReceiveData::advance(uint32_t amount) {
-  this->index_ += amount;
-}
+void RemoteReceiveData::advance(uint32_t amount) { this->index_ += amount; }
 bool RemoteReceiveData::expect_mark(uint32_t length) {
   if (this->peek_mark(length)) {
     this->advance();
@@ -75,12 +73,8 @@ bool RemoteReceiveData::expect_item(uint32_t mark, uint32_t space) {
   }
   return false;
 }
-void RemoteReceiveData::reset_index() {
-  this->index_ = 0;
-}
-int32_t RemoteReceiveData::peek(uint32_t offset) {
-  return (*this)[this->index_ + offset];
-}
+void RemoteReceiveData::reset_index() { this->index_ = 0; }
+int32_t RemoteReceiveData::peek(uint32_t offset) { return (*this)[this->index_ + offset]; }
 bool RemoteReceiveData::peek_space_at_least(uint32_t length, uint32_t offset) {
   if (int32_t(this->index_ + offset) >= this->size())
     return false;
@@ -88,43 +82,20 @@ bool RemoteReceiveData::peek_space_at_least(uint32_t length, uint32_t offset) {
   const int32_t lo = this->lower_bound_(length);
   return value <= 0 && lo <= -value;
 }
-int32_t RemoteReceiveData::operator[](uint32_t index) const {
-  return this->pos(index);
-}
-int32_t RemoteReceiveData::pos(uint32_t index) const {
-  return (*this->data_)[index];
-}
+int32_t RemoteReceiveData::operator[](uint32_t index) const { return this->pos(index); }
+int32_t RemoteReceiveData::pos(uint32_t index) const { return (*this->data_)[index]; }
 
-int32_t RemoteReceiveData::size() const {
-  return this->data_->size();
-}
-JVCDecodeData RemoteReceiveData::decode_jvc() {
-  return remote::decode_jvc(this);
-}
-LGDecodeData RemoteReceiveData::decode_lg() {
-  return remote::decode_lg(this);
-}
-NECDecodeData RemoteReceiveData::decode_nec() {
-  return remote::decode_nec(this);
-}
-PanasonicDecodeData RemoteReceiveData::decode_panasonic() {
-  return remote::decode_panasonic(this);
-}
-SamsungDecodeData RemoteReceiveData::decode_samsung() {
-  return remote::decode_samsung(this);
-}
-SonyDecodeData RemoteReceiveData::decode_sony() {
-  return remote::decode_sony(this);
-}
+int32_t RemoteReceiveData::size() const { return this->data_->size(); }
+JVCDecodeData RemoteReceiveData::decode_jvc() { return remote::decode_jvc(this); }
+LGDecodeData RemoteReceiveData::decode_lg() { return remote::decode_lg(this); }
+NECDecodeData RemoteReceiveData::decode_nec() { return remote::decode_nec(this); }
+PanasonicDecodeData RemoteReceiveData::decode_panasonic() { return remote::decode_panasonic(this); }
+SamsungDecodeData RemoteReceiveData::decode_samsung() { return remote::decode_samsung(this); }
+SonyDecodeData RemoteReceiveData::decode_sony() { return remote::decode_sony(this); }
 
-RemoteReceiverComponent::RemoteReceiverComponent(GPIOPin *pin)
-    : RemoteControlComponentBase(pin) {
+RemoteReceiverComponent::RemoteReceiverComponent(GPIOPin *pin) : RemoteControlComponentBase(pin) {}
 
-}
-
-float RemoteReceiverComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float RemoteReceiverComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 #ifdef ARDUINO_ARCH_ESP32
 void RemoteReceiverComponent::setup() {
@@ -200,7 +171,7 @@ void RemoteReceiverComponent::loop() {
     this->process_(&data);
   }
 }
-void  RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
+void RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
   bool prev_level = false;
   uint32_t prev_length = 0;
   this->temp_.clear();
@@ -310,9 +281,7 @@ void RemoteReceiverComponent::setup() {
     this->buffer_write_at_ = this->buffer_read_at_ = 0;
     this->buffer_[0] = 0;
   }
-  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR {
-    this->gpio_intr();
-  }, CHANGE);
+  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR { this->gpio_intr(); }, CHANGE);
 }
 void RemoteReceiverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Receiver:");
@@ -351,8 +320,8 @@ void RemoteReceiverComponent::loop() {
     // TODO: Handle case when loop() is not called quickly enough to catch idle
     return;
 
-  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u",
-      this->buffer_read_at_, write_at, dist, now, this->buffer_[write_at]);
+  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u", this->buffer_read_at_, write_at, dist, now,
+            this->buffer_[write_at]);
 
   // Skip first value, it's from the previous idle level
   this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
@@ -364,14 +333,14 @@ void RemoteReceiverComponent::loop() {
   int32_t multiplier = this->buffer_read_at_ % 2 == 0 ? 1 : -1;
 
   for (uint32_t i = 0; prev != write_at; i++) {
-    int32_t delta = this->buffer_[this->buffer_read_at_] -  this->buffer_[prev];
+    int32_t delta = this->buffer_[this->buffer_read_at_] - this->buffer_[prev];
     if (uint32_t(delta) >= this->idle_us_) {
       // already found a space longer than idle. There must have been two pulses
       break;
     }
 
-    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d",
-        i, this->buffer_read_at_, this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
+    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d", i, this->buffer_read_at_,
+              this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
     this->temp_.push_back(multiplier * delta);
     prev = this->buffer_read_at_;
     this->buffer_read_at_ = (this->buffer_read_at_ + 1) % this->buffer_size_;
@@ -389,21 +358,11 @@ RemoteReceiver *RemoteReceiverComponent::add_decoder(RemoteReceiver *decoder) {
   this->decoders_.push_back(decoder);
   return decoder;
 }
-void RemoteReceiverComponent::add_dumper(RemoteReceiveDumper *dumper) {
-  this->dumpers_.push_back(dumper);
-}
-void RemoteReceiverComponent::set_buffer_size(uint32_t buffer_size) {
-  this->buffer_size_ = buffer_size;
-}
-void RemoteReceiverComponent::set_tolerance(uint8_t tolerance) {
-  this->tolerance_ = tolerance;
-}
-void RemoteReceiverComponent::set_filter_us(uint8_t filter_us) {
-  this->filter_us_ = filter_us;
-}
-void RemoteReceiverComponent::set_idle_us(uint32_t idle_us) {
-  this->idle_us_ = idle_us;
-}
+void RemoteReceiverComponent::add_dumper(RemoteReceiveDumper *dumper) { this->dumpers_.push_back(dumper); }
+void RemoteReceiverComponent::set_buffer_size(uint32_t buffer_size) { this->buffer_size_ = buffer_size; }
+void RemoteReceiverComponent::set_tolerance(uint8_t tolerance) { this->tolerance_ = tolerance; }
+void RemoteReceiverComponent::set_filter_us(uint8_t filter_us) { this->filter_us_ = filter_us; }
+void RemoteReceiverComponent::set_idle_us(uint32_t idle_us) { this->idle_us_ = idle_us; }
 void RemoteReceiverComponent::process_(RemoteReceiveData *data) {
   bool found_decoder = false;
   for (auto *decoder : this->decoders_) {
@@ -430,10 +389,7 @@ void RemoteReceiverComponent::process_(RemoteReceiveData *data) {
   }
 }
 
-RemoteReceiver::RemoteReceiver(const std::string &name)
-    : BinarySensor(name) {
-
-}
+RemoteReceiver::RemoteReceiver(const std::string &name) : BinarySensor(name) {}
 
 bool RemoteReceiver::process_(RemoteReceiveData *data) {
   data->reset_index();
@@ -445,17 +401,15 @@ bool RemoteReceiver::process_(RemoteReceiveData *data) {
   }
   return false;
 }
-bool RemoteReceiveDumper::secondary_() {
-  return false;
-}
+bool RemoteReceiveDumper::secondary_() { return false; }
 
 bool RemoteReceiveDumper::process_(RemoteReceiveData *data) {
   data->reset_index();
   return this->dump(data);
 }
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE_RECEIVER
+#endif  // USE_REMOTE_RECEIVER

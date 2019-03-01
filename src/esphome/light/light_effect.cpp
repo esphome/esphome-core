@@ -33,36 +33,22 @@ RandomLightEffect::RandomLightEffect(const std::string &name) : LightEffect(name
 void RandomLightEffect::set_transition_length(uint32_t transition_length) {
   this->transition_length_ = transition_length;
 }
-void RandomLightEffect::set_update_interval(uint32_t update_interval) {
-  this->update_interval_ = update_interval;
-}
+void RandomLightEffect::set_update_interval(uint32_t update_interval) { this->update_interval_ = update_interval; }
 
 LightEffect::LightEffect(const std::string &name) : name_(name) {}
 
-void LightEffect::start() {
-
-}
-void LightEffect::start_() {
-  this->start();
-}
-void LightEffect::stop() {
-
-}
-const std::string &LightEffect::get_name() {
-  return this->name_;
-}
-void LightEffect::init() {
-
-}
+void LightEffect::start() {}
+void LightEffect::start_() { this->start(); }
+void LightEffect::stop() {}
+const std::string &LightEffect::get_name() { return this->name_; }
+void LightEffect::init() {}
 void LightEffect::init_(LightState *state) {
   this->state_ = state;
   this->init();
 }
 
 LambdaLightEffect::LambdaLightEffect(const std::string &name, const std::function<void()> &f, uint32_t update_interval)
-    : LightEffect(name), f_(f), update_interval_(update_interval) {
-
-}
+    : LightEffect(name), f_(f), update_interval_(update_interval) {}
 
 void LambdaLightEffect::apply() {
   const uint32_t now = millis();
@@ -83,23 +69,17 @@ void StrobeLightEffect::apply() {
 }
 StrobeLightEffect::StrobeLightEffect(const std::string &name) : LightEffect(name) {
   this->colors_.reserve(2);
-  this->colors_.push_back(StrobeLightEffectColor{
-    .color = LightColorValues(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-    .duration = 500
-  });
-  this->colors_.push_back(StrobeLightEffectColor{
-    .color = LightColorValues(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f),
-    .duration = 500
-  });
+  this->colors_.push_back(
+      StrobeLightEffectColor{.color = LightColorValues(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f), .duration = 500});
+  this->colors_.push_back(
+      StrobeLightEffectColor{.color = LightColorValues(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f), .duration = 500});
 }
 
-void StrobeLightEffect::set_colors(const std::vector<StrobeLightEffectColor> &colors) {
-  this->colors_ = colors;
-}
+void StrobeLightEffect::set_colors(const std::vector<StrobeLightEffectColor> &colors) { this->colors_ = colors; }
 
 inline float random_cubic_float() {
   const float r = random_float() * 2.0f - 1.0f;
-  return r*r*r;
+  return r * r * r;
 }
 
 void FlickerLightEffect::apply() {
@@ -109,7 +89,8 @@ void FlickerLightEffect::apply() {
   const float alpha = this->alpha_;
   const float beta = 1.0f - alpha;
   out.set_state(remote.get_state());
-  out.set_brightness(remote.get_brightness() * beta + current.get_brightness() * alpha + (random_cubic_float() * this->intensity_));
+  out.set_brightness(remote.get_brightness() * beta + current.get_brightness() * alpha +
+                     (random_cubic_float() * this->intensity_));
   out.set_red(remote.get_red() * beta + current.get_red() * alpha + (random_cubic_float() * this->intensity_));
   out.set_green(remote.get_green() * beta + current.get_green() * alpha + (random_cubic_float() * this->intensity_));
   out.set_blue(remote.get_blue() * beta + current.get_blue() * alpha + (random_cubic_float() * this->intensity_));
@@ -117,16 +98,12 @@ void FlickerLightEffect::apply() {
 
   this->state_->set_immediately_without_sending(out);
 }
-void FlickerLightEffect::set_alpha(float alpha) {
-  this->alpha_ = alpha;
-}
-void FlickerLightEffect::set_intensity(float intensity) {
-  this->intensity_ = intensity;
-}
+void FlickerLightEffect::set_alpha(float alpha) { this->alpha_ = alpha; }
+void FlickerLightEffect::set_intensity(float intensity) { this->intensity_ = intensity; }
 FlickerLightEffect::FlickerLightEffect(const std::string &name) : LightEffect(name) {}
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT

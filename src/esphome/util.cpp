@@ -6,10 +6,10 @@
 #include "esphome/application.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <ESPmDNS.h>
+#include <ESPmDNS.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  #include <ESP8266mDNS.h>
+#include <ESP8266mDNS.h>
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -98,12 +98,8 @@ std::string network_get_address() {
   return "";
 }
 
-std::string get_app_name() {
-  return App.get_name();
-}
+std::string get_app_name() { return App.get_name(); }
 
-std::string get_app_compilation_time() {
-  return App.get_compilation_time();
-}
+std::string get_app_compilation_time() { return App.get_compilation_time(); }
 
 ESPHOME_NAMESPACE_END

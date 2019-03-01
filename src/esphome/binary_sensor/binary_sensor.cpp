@@ -41,31 +41,17 @@ void BinarySensor::send_state_internal_(bool state, bool is_initial) {
     this->state_callback_.call(state);
   }
 }
-std::string BinarySensor::device_class() {
-  return "";
-}
-BinarySensor::BinarySensor(const std::string &name)
-  : Nameable(name), state(false) {
-
-}
-BinarySensor::BinarySensor()
-  : BinarySensor("") {
-
-}
-void BinarySensor::set_device_class(const std::string &device_class) {
-  this->device_class_ = device_class;
-}
+std::string BinarySensor::device_class() { return ""; }
+BinarySensor::BinarySensor(const std::string &name) : Nameable(name), state(false) {}
+BinarySensor::BinarySensor() : BinarySensor("") {}
+void BinarySensor::set_device_class(const std::string &device_class) { this->device_class_ = device_class; }
 std::string BinarySensor::get_device_class() {
   if (this->device_class_.has_value())
     return *this->device_class_;
   return this->device_class();
 }
-PressTrigger *BinarySensor::make_press_trigger() {
-  return new PressTrigger(this);
-}
-ReleaseTrigger *BinarySensor::make_release_trigger() {
-  return new ReleaseTrigger(this);
-}
+PressTrigger *BinarySensor::make_press_trigger() { return new PressTrigger(this); }
+ReleaseTrigger *BinarySensor::make_release_trigger() { return new ReleaseTrigger(this); }
 ClickTrigger *BinarySensor::make_click_trigger(uint32_t min_length, uint32_t max_length) {
   return new ClickTrigger(this, min_length, max_length);
 }
@@ -88,9 +74,7 @@ void BinarySensor::add_filters(std::vector<Filter *> filters) {
     this->add_filter(filter);
   }
 }
-bool BinarySensor::has_state() const {
-  return this->has_state_;
-}
+bool BinarySensor::has_state() const { return this->has_state_; }
 PressTrigger::PressTrigger(BinarySensor *parent) {
   parent->add_on_state_callback([this](bool state) {
     if (state)
@@ -149,36 +133,22 @@ DoubleClickTrigger::DoubleClickTrigger(BinarySensor *parent, uint32_t min_length
 MultiClickTrigger *BinarySensor::make_multi_click_trigger(const std::vector<MultiClickTriggerEvent> &timing) {
   return new MultiClickTrigger(this, timing);
 }
-uint32_t BinarySensor::hash_base_() {
-  return 1210250844UL;
-}
-StateTrigger *BinarySensor::make_state_trigger() {
-  return new StateTrigger(this);
-}
-bool BinarySensor::is_status_binary_sensor() const {
-  return false;
-}
+uint32_t BinarySensor::hash_base_() { return 1210250844UL; }
+StateTrigger *BinarySensor::make_state_trigger() { return new StateTrigger(this); }
+bool BinarySensor::is_status_binary_sensor() const { return false; }
 #ifdef USE_MQTT_BINARY_SENSOR
-MQTTBinarySensorComponent *BinarySensor::get_mqtt() const {
-  return this->mqtt_;
-}
-void BinarySensor::set_mqtt(MQTTBinarySensorComponent *mqtt) {
-  this->mqtt_ = mqtt;
-}
+MQTTBinarySensorComponent *BinarySensor::get_mqtt() const { return this->mqtt_; }
+void BinarySensor::set_mqtt(MQTTBinarySensorComponent *mqtt) { this->mqtt_ = mqtt; }
 #endif
 
 MultiClickTrigger::MultiClickTrigger(BinarySensor *parent, const std::vector<MultiClickTriggerEvent> &timing)
-    : parent_(parent), timing_(timing) {
-
-}
+    : parent_(parent), timing_(timing) {}
 void MultiClickTrigger::setup() {
   this->last_state_ = this->parent_->state;
   auto f = std::bind(&MultiClickTrigger::on_state_, this, std::placeholders::_1);
   this->parent_->add_on_state_callback(f);
 }
-float MultiClickTrigger::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float MultiClickTrigger::get_setup_priority() const { return setup_priority::HARDWARE; }
 void MultiClickTrigger::on_state_(bool state) {
   // Handle duplicate events
   if (state == this->last_state_) {
@@ -199,9 +169,7 @@ void MultiClickTrigger::on_state_(bool state) {
       ESP_LOGV(TAG, "Multi Click: Starting multi click action!");
       this->at_index_ = 1;
       if (this->timing_.size() == 1 && evt.max_length == 4294967294UL) {
-        this->set_timeout("trigger", evt.min_length, [this]() {
-          this->trigger_();
-        });
+        this->set_timeout("trigger", evt.min_length, [this]() { this->trigger_(); });
       } else {
         this->schedule_is_valid_(evt.min_length);
         this->schedule_is_not_valid_(evt.max_length);
@@ -237,16 +205,12 @@ void MultiClickTrigger::on_state_(bool state) {
     ESP_LOGV(TAG, "C i=%u min=%u", *this->at_index_, evt.min_length);
     this->is_valid_ = false;
     this->cancel_timeout("is_not_valid");
-    this->set_timeout("trigger", evt.min_length, [this]() {
-      this->trigger_();
-    });
+    this->set_timeout("trigger", evt.min_length, [this]() { this->trigger_(); });
   }
 
   *this->at_index_ = *this->at_index_ + 1;
 }
-void MultiClickTrigger::set_invalid_cooldown(uint32_t invalid_cooldown) {
-  this->invalid_cooldown_ = invalid_cooldown;
-}
+void MultiClickTrigger::set_invalid_cooldown(uint32_t invalid_cooldown) { this->invalid_cooldown_ = invalid_cooldown; }
 void MultiClickTrigger::schedule_cooldown_() {
   ESP_LOGV(TAG, "Multi Click: Invalid length of press, starting cooldown of %u ms...", this->invalid_cooldown_);
   this->is_in_cooldown_ = true;
@@ -283,13 +247,11 @@ void MultiClickTrigger::trigger_() {
 }
 
 StateTrigger::StateTrigger(BinarySensor *parent) {
-  parent->add_on_state_callback([this](bool state) {
-    this->trigger(state);
-  });
+  parent->add_on_state_callback([this](bool state) { this->trigger(state); });
 }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BINARY_SENSOR
+#endif  // USE_BINARY_SENSOR

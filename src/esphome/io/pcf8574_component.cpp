@@ -120,48 +120,30 @@ PCF8574GPIOInputPin PCF8574Component::make_input_pin(uint8_t pin, uint8_t mode, 
 PCF8574GPIOOutputPin PCF8574Component::make_output_pin(uint8_t pin, bool inverted) {
   return {this, pin, PCF8574_OUTPUT, inverted};
 }
-float PCF8574Component::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float PCF8574Component::get_setup_priority() const { return setup_priority::HARDWARE; }
 
-void PCF8574GPIOInputPin::setup() {
-  this->pin_mode(this->mode_);
-}
-bool PCF8574GPIOInputPin::digital_read() {
-  return this->parent_->digital_read_(this->pin_) != this->inverted_;
-}
+void PCF8574GPIOInputPin::setup() { this->pin_mode(this->mode_); }
+bool PCF8574GPIOInputPin::digital_read() { return this->parent_->digital_read_(this->pin_) != this->inverted_; }
 void PCF8574GPIOInputPin::digital_write(bool value) {
   this->parent_->digital_write_(this->pin_, value != this->inverted_);
 }
 PCF8574GPIOInputPin::PCF8574GPIOInputPin(PCF8574Component *parent, uint8_t pin, uint8_t mode, bool inverted)
     : GPIOInputPin(pin, mode, inverted), parent_(parent) {}
-GPIOPin *PCF8574GPIOInputPin::copy() const {
-  return new PCF8574GPIOInputPin(*this);
-}
-void PCF8574GPIOInputPin::pin_mode(uint8_t mode) {
-  this->parent_->pin_mode_(this->pin_, mode);
-}
+GPIOPin *PCF8574GPIOInputPin::copy() const { return new PCF8574GPIOInputPin(*this); }
+void PCF8574GPIOInputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode_(this->pin_, mode); }
 
-void PCF8574GPIOOutputPin::setup() {
-  this->pin_mode(this->mode_);
-}
-bool PCF8574GPIOOutputPin::digital_read() {
-  return this->parent_->digital_read_(this->pin_) != this->inverted_;
-}
+void PCF8574GPIOOutputPin::setup() { this->pin_mode(this->mode_); }
+bool PCF8574GPIOOutputPin::digital_read() { return this->parent_->digital_read_(this->pin_) != this->inverted_; }
 void PCF8574GPIOOutputPin::digital_write(bool value) {
   this->parent_->digital_write_(this->pin_, value != this->inverted_);
 }
 PCF8574GPIOOutputPin::PCF8574GPIOOutputPin(PCF8574Component *parent, uint8_t pin, uint8_t mode, bool inverted)
     : GPIOOutputPin(pin, mode, inverted), parent_(parent) {}
-GPIOPin *PCF8574GPIOOutputPin::copy() const {
-  return new PCF8574GPIOOutputPin(*this);
-}
-void PCF8574GPIOOutputPin::pin_mode(uint8_t mode) {
-  this->parent_->pin_mode_(this->pin_, mode);
-}
+GPIOPin *PCF8574GPIOOutputPin::copy() const { return new PCF8574GPIOOutputPin(*this); }
+void PCF8574GPIOOutputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode_(this->pin_, mode); }
 
-} // namespace io
+}  // namespace io
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PCF8574
+#endif  // USE_PCF8574

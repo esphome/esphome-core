@@ -13,9 +13,7 @@ namespace text_sensor {
 static const char *TAG = "text_sensor.homeassistant";
 
 HomeassistantTextSensor::HomeassistantTextSensor(const std::string &name, const std::string &entity_id)
-    : TextSensor(name), entity_id_(entity_id) {
-
-}
+    : TextSensor(name), entity_id_(entity_id) {}
 void HomeassistantTextSensor::dump_config() {
   LOG_TEXT_SENSOR("", "Homeassistant Text Sensor", this);
   ESP_LOGCONFIG(TAG, "  Entity ID: '%s'", this->entity_id_.c_str());
@@ -27,8 +25,8 @@ void HomeassistantTextSensor::setup() {
   });
 }
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HOMEASSISTANT_TEXT_SENSOR
+#endif  // USE_HOMEASSISTANT_TEXT_SENSOR

@@ -14,10 +14,7 @@ namespace output {
 
 static const char *TAG = "output.esp8266_pwm";
 
-ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin)
-    : pin_(pin) {
-
-}
+ESP8266PWMOutput::ESP8266PWMOutput(const GPIOOutputPin &pin) : pin_(pin) {}
 
 void ESP8266PWMOutput::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ESP8266 PWM Output...");
@@ -50,15 +47,11 @@ void HOT ESP8266PWMOutput::write_state(float state) {
     startWaveform(this->pin_.get_pin(), duty_on, duty_off, 0);
   }
 }
-float ESP8266PWMOutput::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
-void ESP8266PWMOutput::set_frequency(float frequency) {
-  this->frequency_ = frequency;
-}
+float ESP8266PWMOutput::get_setup_priority() const { return setup_priority::HARDWARE; }
+void ESP8266PWMOutput::set_frequency(float frequency) { this->frequency_ = frequency; }
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ESP8266_PWM_OUTPUT
+#endif  // USE_ESP8266_PWM_OUTPUT

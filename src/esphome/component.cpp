@@ -20,7 +20,7 @@ const float MQTT_CLIENT = 7.5f;
 const float MQTT_COMPONENT = -5.0f;
 const float LATE = -10.0f;
 
-} // namespace setup_priority
+}  // namespace setup_priority
 
 const uint32_t COMPONENT_STATE_MASK = 0xFF;
 const uint32_t COMPONENT_STATE_CONSTRUCTION = 0x00;
@@ -34,21 +34,13 @@ const uint32_t STATUS_LED_ERROR = 0x0200;
 
 uint32_t global_state = 0;
 
-float Component::get_loop_priority() const {
-  return 0.0f;
-}
+float Component::get_loop_priority() const { return 0.0f; }
 
-float Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-void Component::setup() {
+void Component::setup() {}
 
-}
-
-void Component::loop() {
-
-}
+void Component::loop() {}
 
 void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {
   const uint32_t now = millis();
@@ -118,21 +110,20 @@ void Component::setup_() {
   this->setup_internal();
   this->setup();
 }
-uint32_t Component::get_component_state() const {
-  return this->component_state_;
-}
+uint32_t Component::get_component_state() const { return this->component_state_; }
 void Component::loop_internal() {
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_LOOP;
 
-  for (unsigned int i = 0; i < this->time_functions_.size(); i++) { // NOLINT
+  for (unsigned int i = 0; i < this->time_functions_.size(); i++) {  // NOLINT
     const uint32_t now = millis();
     TimeFunction *tf = &this->time_functions_[i];
     if (tf->should_run(now)) {
 #ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
-      const char *type = tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
-      ESP_LOGVV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)",
-                type, tf->name.c_str(), i, tf->interval, tf->last_execution, now);
+      const char *type =
+          tf->type == TimeFunction::INTERVAL ? "interval" : (tf->type == TimeFunction::TIMEOUT ? "timeout" : "defer");
+      ESP_LOGVV(TAG, "Running %s '%s':%u with interval=%u last_execution=%u (now=%u)", type, tf->name.c_str(), i,
+                tf->interval, tf->last_execution, now);
 #endif
 
       tf->f();
@@ -148,13 +139,9 @@ void Component::loop_internal() {
     }
   }
 
-  this->time_functions_.erase(
-      std::remove_if(this->time_functions_.begin(), this->time_functions_.end(),
-                     [](const TimeFunction &tf) -> bool {
-                       return tf.remove;
-                     }),
-      this->time_functions_.end()
-  );
+  this->time_functions_.erase(std::remove_if(this->time_functions_.begin(), this->time_functions_.end(),
+                                             [](const TimeFunction &tf) -> bool { return tf.remove; }),
+                              this->time_functions_.end());
 }
 void Component::setup_internal() {
   this->component_state_ &= ~COMPONENT_STATE_MASK;
@@ -166,12 +153,8 @@ void Component::mark_failed() {
   this->component_state_ |= COMPONENT_STATE_FAILED;
   this->status_set_error();
 }
-void Component::defer(std::function<void()> &&f) {
-  this->defer("", std::move(f));
-}
-bool Component::cancel_defer(const std::string &name) {
-  return this->cancel_time_function(name, TimeFunction::DEFER);
-}
+void Component::defer(std::function<void()> &&f) { this->defer("", std::move(f)); }
+bool Component::cancel_defer(const std::string &name) { return this->cancel_time_function(name, TimeFunction::DEFER); }
 void Component::defer(const std::string &name, std::function<void()> &&f) {
   if (!name.empty()) {
     this->cancel_defer(name);
@@ -192,54 +175,29 @@ void Component::set_timeout(uint32_t timeout, std::function<void()> &&f) {
 void Component::set_interval(uint32_t interval, std::function<void()> &&f) {
   this->set_interval("", interval, std::move(f));
 }
-bool Component::is_failed() {
-  return (this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_FAILED;
-}
-bool Component::can_proceed() {
-  return true;
-}
-bool Component::status_has_warning() {
-  return this->component_state_ &  STATUS_LED_WARNING;
-}
-bool Component::status_has_error() {
-  return this->component_state_ & STATUS_LED_ERROR;
-}
-void Component::status_set_warning() {
-  this->component_state_ |= STATUS_LED_WARNING;
-}
-void Component::status_set_error() {
-  this->component_state_ |= STATUS_LED_ERROR;
-}
-void Component::status_clear_warning() {
-  this->component_state_ &= ~STATUS_LED_WARNING;
-}
-void Component::status_clear_error() {
-  this->component_state_ &= ~STATUS_LED_ERROR;
-}
+bool Component::is_failed() { return (this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_FAILED; }
+bool Component::can_proceed() { return true; }
+bool Component::status_has_warning() { return this->component_state_ & STATUS_LED_WARNING; }
+bool Component::status_has_error() { return this->component_state_ & STATUS_LED_ERROR; }
+void Component::status_set_warning() { this->component_state_ |= STATUS_LED_WARNING; }
+void Component::status_set_error() { this->component_state_ |= STATUS_LED_ERROR; }
+void Component::status_clear_warning() { this->component_state_ &= ~STATUS_LED_WARNING; }
+void Component::status_clear_error() { this->component_state_ &= ~STATUS_LED_ERROR; }
 void Component::status_momentary_warning(const std::string &name, uint32_t length) {
   this->status_set_warning();
-  this->set_timeout(name, length, [this]() {
-    this->status_clear_warning();
-  });
+  this->set_timeout(name, length, [this]() { this->status_clear_warning(); });
 }
 void Component::status_momentary_error(const std::string &name, uint32_t length) {
   this->status_set_error();
-  this->set_timeout(name, length, [this]() {
-    this->status_clear_error();
-  });
+  this->set_timeout(name, length, [this]() { this->status_clear_error(); });
 }
-void Component::dump_config() {
-
-}
+void Component::dump_config() {}
 float Component::get_actual_setup_priority() const {
   return this->setup_priority_override_.value_or(this->get_setup_priority());
 }
-void Component::set_setup_priority(float priority) {
-  this->setup_priority_override_ = priority;
-}
+void Component::set_setup_priority(float priority) { this->setup_priority_override_ = priority; }
 
-PollingComponent::PollingComponent(uint32_t update_interval)
-    : Component(), update_interval_(update_interval) {}
+PollingComponent::PollingComponent(uint32_t update_interval) : Component(), update_interval_(update_interval) {}
 
 void PollingComponent::setup_() {
   // Call component internal setup.
@@ -252,42 +210,25 @@ void PollingComponent::setup_() {
   this->set_interval("update", this->get_update_interval(), [this]() { this->update(); });
 }
 
-uint32_t PollingComponent::get_update_interval() const {
-  return this->update_interval_;
-}
-void PollingComponent::set_update_interval(uint32_t update_interval) {
-  this->update_interval_ = update_interval;
-}
+uint32_t PollingComponent::get_update_interval() const { return this->update_interval_; }
+void PollingComponent::set_update_interval(uint32_t update_interval) { this->update_interval_ = update_interval; }
 
-const std::string &Nameable::get_name() const {
-  return this->name_;
-}
+const std::string &Nameable::get_name() const { return this->name_; }
 void Nameable::set_name(const std::string &name) {
   this->name_ = name;
   this->calc_object_id_();
 }
-Nameable::Nameable(const std::string &name)
-    : name_(name) {
-  this->calc_object_id_();
-}
+Nameable::Nameable(const std::string &name) : name_(name) { this->calc_object_id_(); }
 
-const std::string &Nameable::get_object_id() {
-  return this->object_id_;
-}
-bool Nameable::is_internal() const {
-  return this->internal_;
-}
-void Nameable::set_internal(bool internal) {
-  this->internal_ = internal;
-}
+const std::string &Nameable::get_object_id() { return this->object_id_; }
+bool Nameable::is_internal() const { return this->internal_; }
+void Nameable::set_internal(bool internal) { this->internal_ = internal; }
 void Nameable::calc_object_id_() {
   this->object_id_ = sanitize_string_whitelist(to_lowercase_underscore(this->name_), HOSTNAME_CHARACTER_WHITELIST);
   // FNV-1 hash
   this->object_id_hash_ = fnv1_hash(this->object_id_);
 }
-uint32_t Nameable::get_object_id_hash() {
-  return this->object_id_hash_;
-}
+uint32_t Nameable::get_object_id_hash() { return this->object_id_hash_; }
 
 bool Component::TimeFunction::should_run(uint32_t now) const {
   if (this->remove)

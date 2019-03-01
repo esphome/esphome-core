@@ -11,16 +11,9 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace api {
 
-APIBuffer::APIBuffer(std::vector<uint8_t> *buffer)
-  : buffer_(buffer) {
-
-}
-size_t APIBuffer::get_length() const {
-  return this->buffer_->size();
-}
-void APIBuffer::write(uint8_t value) {
-  this->buffer_->push_back(value);
-}
+APIBuffer::APIBuffer(std::vector<uint8_t> *buffer) : buffer_(buffer) {}
+size_t APIBuffer::get_length() const { return this->buffer_->size(); }
+void APIBuffer::write(uint8_t value) { this->buffer_->push_back(value); }
 void APIBuffer::encode_uint32(uint32_t field, uint32_t value) {
   if (value == 0)
     return;
@@ -187,9 +180,7 @@ float as_float(uint32_t val) {
   return x.value;
 }
 
-ComponentIterator::ComponentIterator(APIServer *server) : server_(server) {
-
-}
+ComponentIterator::ComponentIterator(APIServer *server) : server_(server) {}
 void ComponentIterator::begin() {
   this->state_ = IteratorState::BEGIN;
   this->at_ = 0;
@@ -335,18 +326,12 @@ void ComponentIterator::advance() {
     this->at_++;
   }
 }
-bool ComponentIterator::on_end() {
-  return true;
-}
-bool ComponentIterator::on_begin() {
-  return true;
-}
-bool ComponentIterator::on_service(UserServiceDescriptor *service) {
-  return true;
-}
+bool ComponentIterator::on_end() { return true; }
+bool ComponentIterator::on_begin() { return true; }
+bool ComponentIterator::on_service(UserServiceDescriptor *service) { return true; }
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

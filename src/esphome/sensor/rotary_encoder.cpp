@@ -35,52 +35,33 @@ static const uint16_t QEIx4_IS_DEC = 0x7000;
 
 static uint16_t state_lookup_table[32] = {
     // act state S0 in CCW direction
-    QEIx4_CCW | QEIx4_S0,
-    QEIx4_CW  | QEIx4_S1 | QEIx4_A  | QEIx4_4x_INC | QEIx4_DIR,
-    QEIx4_CCW | QEIx4_S0 | QEIx4_B,
+    QEIx4_CCW | QEIx4_S0, QEIx4_CW | QEIx4_S1 | QEIx4_A | QEIx4_4x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S0 | QEIx4_B,
     QEIx4_CCW | QEIx4_S3 | QEIx4_AB | QEIx4_1x_DEC,
     // act state S1 in CCW direction
-    QEIx4_CCW | QEIx4_S1,
-    QEIx4_CCW | QEIx4_S1 | QEIx4_A,
-    QEIx4_CCW | QEIx4_S0 | QEIx4_B  | QEIx4_4x_DEC,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC | QEIx4_DIR,
+    QEIx4_CCW | QEIx4_S1, QEIx4_CCW | QEIx4_S1 | QEIx4_A, QEIx4_CCW | QEIx4_S0 | QEIx4_B | QEIx4_4x_DEC,
+    QEIx4_CW | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC | QEIx4_DIR,
     // act state S2 in CCW direction
-    QEIx4_CCW | QEIx4_S1 |            QEIx4_2x_DEC,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_A,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_B  | QEIx4_4x_INC | QEIx4_DIR,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_AB,
+    QEIx4_CCW | QEIx4_S1 | QEIx4_2x_DEC, QEIx4_CCW | QEIx4_S2 | QEIx4_A,
+    QEIx4_CW | QEIx4_S3 | QEIx4_B | QEIx4_4x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S2 | QEIx4_AB,
     // act state S3 in CCW direction
-    QEIx4_CW  | QEIx4_S0 |            QEIx4_2x_INC | QEIx4_DIR,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_A  | QEIx4_4x_DEC,
-    QEIx4_CCW | QEIx4_S3 | QEIx4_B,
-    QEIx4_CCW | QEIx4_S3 | QEIx4_AB,
+    QEIx4_CW | QEIx4_S0 | QEIx4_2x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S2 | QEIx4_A | QEIx4_4x_DEC,
+    QEIx4_CCW | QEIx4_S3 | QEIx4_B, QEIx4_CCW | QEIx4_S3 | QEIx4_AB,
 
     // act state S0 in CW direction
-    QEIx4_CW  | QEIx4_S0,
-    QEIx4_CW  | QEIx4_S1 | QEIx4_A  | QEIx4_4x_INC,
-    QEIx4_CW  | QEIx4_S0 | QEIx4_B,
+    QEIx4_CW | QEIx4_S0, QEIx4_CW | QEIx4_S1 | QEIx4_A | QEIx4_4x_INC, QEIx4_CW | QEIx4_S0 | QEIx4_B,
     QEIx4_CCW | QEIx4_S3 | QEIx4_AB | QEIx4_1x_DEC | QEIx4_DIR,
     // act state S1 in CW direction
-    QEIx4_CW  | QEIx4_S1,
-    QEIx4_CW  | QEIx4_S1 | QEIx4_A,
-    QEIx4_CCW | QEIx4_S0 | QEIx4_B  | QEIx4_4x_DEC | QEIx4_DIR,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC,
+    QEIx4_CW | QEIx4_S1, QEIx4_CW | QEIx4_S1 | QEIx4_A, QEIx4_CCW | QEIx4_S0 | QEIx4_B | QEIx4_4x_DEC | QEIx4_DIR,
+    QEIx4_CW | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC,
     // act state S2 in CW direction
-    QEIx4_CCW | QEIx4_S1 |            QEIx4_2x_DEC | QEIx4_DIR,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_A,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_B  | QEIx4_4x_INC,
-    QEIx4_CW  | QEIx4_S2 | QEIx4_AB,
+    QEIx4_CCW | QEIx4_S1 | QEIx4_2x_DEC | QEIx4_DIR, QEIx4_CW | QEIx4_S2 | QEIx4_A,
+    QEIx4_CW | QEIx4_S3 | QEIx4_B | QEIx4_4x_INC, QEIx4_CW | QEIx4_S2 | QEIx4_AB,
     // act state S3 in CW direction
-    QEIx4_CW  | QEIx4_S0 |            QEIx4_2x_INC,
-    QEIx4_CCW | QEIx4_S2 | QEIx4_A  | QEIx4_4x_DEC | QEIx4_DIR,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_B,
-    QEIx4_CW  | QEIx4_S3 | QEIx4_AB
-};
+    QEIx4_CW | QEIx4_S0 | QEIx4_2x_INC, QEIx4_CCW | QEIx4_S2 | QEIx4_A | QEIx4_4x_DEC | QEIx4_DIR,
+    QEIx4_CW | QEIx4_S3 | QEIx4_B, QEIx4_CW | QEIx4_S3 | QEIx4_AB};
 
 RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a, GPIOPin *pin_b)
-    : Sensor(name), Component(), pin_a_(pin_a), pin_b_(pin_b) {
-
-}
+    : Sensor(name), Component(), pin_a_(pin_a), pin_b_(pin_b) {}
 void RotaryEncoderSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder '%s'...", this->name_.c_str());
   int interrupt_a = digitalPinToInterrupt(this->pin_a_->get_pin());
@@ -143,32 +124,20 @@ void RotaryEncoderSensor::loop() {
     this->publish_state(this->counter_);
   }
 }
-std::string RotaryEncoderSensor::unit_of_measurement() {
-  return "steps";
-}
-std::string RotaryEncoderSensor::icon() {
-  return "mdi:rotate-right";
-}
-int8_t RotaryEncoderSensor::accuracy_decimals() {
-  return 0;
-}
-void RotaryEncoderSensor::set_resolution(RotaryEncoderResolution mode) {
-  this->resolution_ = mode;
-}
-void RotaryEncoderSensor::set_reset_pin(const GPIOInputPin &pin_i) {
-  this->pin_i_ = pin_i.copy();
-}
+std::string RotaryEncoderSensor::unit_of_measurement() { return "steps"; }
+std::string RotaryEncoderSensor::icon() { return "mdi:rotate-right"; }
+int8_t RotaryEncoderSensor::accuracy_decimals() { return 0; }
+void RotaryEncoderSensor::set_resolution(RotaryEncoderResolution mode) { this->resolution_ = mode; }
+void RotaryEncoderSensor::set_reset_pin(const GPIOInputPin &pin_i) { this->pin_i_ = pin_i.copy(); }
 
 std::vector<RotaryEncoderSensor *> global_rotary_encoders_;
 
-float RotaryEncoderSensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float RotaryEncoderSensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void RotaryEncoderSensor::set_min_value(int32_t min_value) { this->min_value_ = min_value; }
 void RotaryEncoderSensor::set_max_value(int32_t max_value) { this->max_value_ = max_value; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ROTARY_ENCODER_SENSOR
+#endif  // USE_ROTARY_ENCODER_SENSOR
