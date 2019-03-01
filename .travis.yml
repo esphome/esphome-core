@@ -10,17 +10,17 @@ cache:
 matrix:
   fast_finish: true
   include:
-  - env: BUILD_TARGET=livingroom
-    script: &run_script
-      - python travis/travis.py
-      - platformio run -e $BUILD_TARGET
-  - env: BUILD_TARGET=livingroom8266
-    script: *run_script
-  - env: BUILD_TARGET=custombmp180
-    script: *run_script
-  - env: BUILD_TARGET=fastled
-    script: *run_script
-    if: branch = dev AND type = push
+  #- env: BUILD_TARGET=livingroom
+  #  script: &run_script
+  #    - python travis/travis.py
+  #    - platformio run -e $BUILD_TARGET
+  #- env: BUILD_TARGET=livingroom8266
+  #  script: *run_script
+  #- env: BUILD_TARGET=custombmp180
+  #  script: *run_script
+  #- env: BUILD_TARGET=fastled
+  #  script: *run_script
+  #  if: branch = dev AND type = push
   - dist: trusty
     sudo: require
     addons:
