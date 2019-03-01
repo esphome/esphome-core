@@ -37,5 +37,7 @@ matrix:
       - patch -p0 < travis/neopixelbus.patch
       - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
     script:
+      - clang-tidy -version
+      - clang-format -version
       - python travis/run-clang-tidy.py
       - python travis/run-clang-format.py -i
