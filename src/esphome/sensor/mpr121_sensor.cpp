@@ -3,6 +3,7 @@
 
 #include "esphome/sensor/mpr121_sensor.h"
 #include "esphome/log.h"
+#include <bitset>
 
 ESPHOME_NAMESPACE_BEGIN
 
@@ -49,17 +50,18 @@ void MPR121Sensor::process_slider_(uint16_t *data) {
 }
 
 void MPR121Sensor::process_rotary_(uint16_t *data, uint16_t *last_data) {
-  uint8_t count = 0;
+  std::bitset<16> bits = 0;
+  std::bitset<16> last_bits = 0;
   float value = 0;
-  for(auto *chan : this->channels_) {
-    if (*data & (1 << chan->channel)) {
-      value = this->get_state() + chan->value;
-      count = 1;
-    }
-  }
-  if(count > 0) {
-    this->publish_state(value);
-    ESP_LOGD(TAG, "'%s': Sending new state %f", this->name_.c_str(), state);
+  // get the bit value for all channels
+  bits |= (*data & this->mask_);
+  last_bits |= (*last_data & this->mask_);
+
+  ESP_LOGD(TAG, "'%s': bits %s", this->name_.c_str(), bits.to_string().c_str());
+  if(last_bits._Find_first() <= bits._Find_first()) {
+    this->publish_state(this->get_state() + this->step_size_);
+  } else {
+    this->publish_state(this->get_state() - this->step_size_ * 2);
   }
 }
 
@@ -68,8 +70,15 @@ void MPR121Sensor::set_sensor_type(uint8_t sensor_type) {
   this->sensor_type_ = sensor_type;
 }
 
+void MPR121Sensor::set_step_size(uint8_t step_size) {
+  ESP_LOGD(TAG, "'%s': Set step size %d", this->name_.c_str(), step_size);
+  this->step_size_ = step_size;
+}
+
 void MPR121Sensor::add_sensor_channel(uint8_t channel, float value) {
   ESP_LOGD(TAG, "'%s': add_sensor_channel %d value %f", this->name_.c_str(), channel, value);
+  this->mask_ |= (1 << channel);
+  ESP_LOGD(TAG, "'%s': bitmask %s", this->name_.c_str(), std::bitset<16>(this->mask_).to_string().c_str());
   this->channels_.push_back(new sensor::MPR121SensorChannel(channel,value));
 }
 

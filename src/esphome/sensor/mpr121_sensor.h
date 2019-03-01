@@ -42,11 +42,14 @@ class MPR121Sensor : public sensor::Sensor {
   MPR121Sensor(const std::string &name);
   void process(uint16_t *data, uint16_t *last_data);
   void set_sensor_type(uint8_t sensor_type);
-  void add_sensor_channel(uint8_t channel, float value);
+  void add_sensor_channel(uint8_t channel, float value = 0);
+  void set_step_size(uint8_t step_size);
 
  protected:
   std::vector<MPR121SensorChannel *> channels_{};
   uint8_t sensor_type_ = MPR121_SENSOR_TYPE_SLIDER;
+  uint16_t mask_ = 0;
+  uint8_t step_size_ = 1;
   void process_slider_(uint16_t *data);
   void process_rotary_(uint16_t *data, uint16_t *last_data);
 };
