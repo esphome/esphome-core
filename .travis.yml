@@ -39,5 +39,7 @@ matrix:
     script:
       - clang-tidy -version
       - clang-format -version
+      - clang-tidy-7 -version
+      - clang-format-7 -version
       - python travis/run-clang-tidy.py
       - python travis/run-clang-format.py -i
