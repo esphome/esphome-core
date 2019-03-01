@@ -11,6 +11,10 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
 
+enum {
+  MPR121_SENSOR_TYPE_SLIDER = 0x00,
+  MPR121_SENSOR_TYPE_ROTARY = 0x01,
+}; 
 
 /** SensorChannel class just a placeholder for each mpr121 sensor channel.
  *
@@ -33,10 +37,7 @@ class MPR121SensorChannel {
  */
 class MPR121Sensor : public sensor::Sensor {
  public:
-  enum {
-    MPR121_SENSOR_TYPE_SLIDER = 0x00,
-    MPR121_SENSOR_TYPE_ROTARY = 0x01,
-  }; 
+
 
   MPR121Sensor(const std::string &name);
   void process(uint16_t *data, uint16_t *last_data);
