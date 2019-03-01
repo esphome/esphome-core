@@ -30,8 +30,8 @@ matrix:
           - llvm-toolchain-trusty-7
         packages:
           - cmake
-          - clang-tidy-7.0
-          - clang-format-7.0
+          - clang-tidy-7
+          - clang-format-7
     before_script:
       - pio init --ide clion
       - patch -p0 < travis/neopixelbus.patch
