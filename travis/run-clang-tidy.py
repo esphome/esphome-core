@@ -17,7 +17,6 @@ import tempfile
 import threading
 import traceback
 
-import yaml
 
 is_py2 = sys.version[0] == '2'
 
