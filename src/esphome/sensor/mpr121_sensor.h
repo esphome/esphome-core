@@ -48,6 +48,7 @@ class MPR121Sensor : public sensor::Sensor {
   std::vector<MPR121SensorChannel *> channels_{};
   uint8_t sensor_type_ = MPR121_SENSOR_TYPE_SLIDER;
   void process_slider_(uint16_t *data);
+  void process_rotary_(uint16_t *data, uint16_t *last_data);
 };
 
 }  // namespace binary_sensor
