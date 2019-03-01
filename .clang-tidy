@@ -1,6 +1,6 @@
 ---
 Checks: ''
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
 HeaderFilterRegex: '^.*/src/esphome/.*'
 AnalyzeTemporaryDtors: false
 FormatStyle:     google
