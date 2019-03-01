@@ -22,7 +22,7 @@
 
 ESPHOME_NAMESPACE_BEGIN
 
-#define LOG_PIN(prefix, pin) if (pin != nullptr) {ESP_LOGCONFIG(TAG, prefix LOG_PIN_PATTERN, LOG_PIN_ARGS(pin));}
+#define LOG_PIN(prefix, pin) if ((pin) != nullptr) {ESP_LOGCONFIG(TAG, prefix LOG_PIN_PATTERN, LOG_PIN_ARGS(pin));}
 #define LOG_PIN_PATTERN "GPIO%u (Mode: %s%s)"
 #define LOG_PIN_ARGS(pin) (pin)->get_pin(), (pin)->get_pin_mode_name(), ((pin)->is_inverted() ? ", INVERTED" : "")
 

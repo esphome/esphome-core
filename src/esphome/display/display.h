@@ -410,15 +410,12 @@ template<typename... Ts>
 class DisplayPageShowPrevAction : public Action<Ts...> {
  public:
   DisplayPageShowPrevAction(DisplayBuffer *buffer);
-  DisplayPageShowPrevAction();
   void play(Ts... x) override;
  protected:
   DisplayBuffer *buffer_;
 };
 
 
-template<typename... Ts>
-DisplayPageShowPrevAction<Ts...>::DisplayPageShowPrevAction() {}
 template<typename... Ts>
 DisplayPageShowPrevAction<Ts...>::DisplayPageShowPrevAction(DisplayBuffer *buffer) : buffer_(buffer) {}
 template<typename... Ts>

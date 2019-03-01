@@ -530,10 +530,10 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
         call.set_color_temperature(request->getParam("color_temp")->value().toFloat());
 
       if (request->hasParam("flash"))
-        call.set_flash_length(request->getParam("flash")->value().toFloat() * 1000);
+        call.set_flash_length((uint32_t) request->getParam("flash")->value().toFloat() * 1000);
 
       if (request->hasParam("transition"))
-        call.set_transition_length(request->getParam("transition")->value().toFloat() * 1000);
+        call.set_transition_length((uint32_t) request->getParam("transition")->value().toFloat() * 1000);
 
       if (request->hasParam("effect")) {
         const char *effect = request->getParam("effect")->value().c_str();
@@ -547,7 +547,7 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
     } else if (match.method == "turn_off") {
       auto call = obj->turn_off();
       if (request->hasParam("transition")) {
-        uint32_t length = request->getParam("transition")->value().toFloat() * 1000;
+        auto length = (uint32_t) request->getParam("transition")->value().toFloat() * 1000;
         call.set_transition_length(length);
       }
       this->defer([call] () {

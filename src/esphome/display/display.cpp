@@ -295,7 +295,7 @@ void DisplayBuffer::printf(int x, int y, Font *font, const char *format, ...) {
   va_end(arg);
 }
 void DisplayBuffer::set_writer(display_writer_t &&writer) {
-  this->writer_ = std::move(writer);
+  this->writer_ = writer;
 }
 void DisplayBuffer::set_pages(std::vector<DisplayPage *> pages) {
   for (auto *page : pages)

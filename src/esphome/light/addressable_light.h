@@ -43,7 +43,7 @@ struct ESPColor {
   inline ESPColor(const ESPColor& rhs) ALWAYS_INLINE;
   inline bool is_on() ALWAYS_INLINE;
   inline ESPColor& operator= (const ESPColor& rhs) ALWAYS_INLINE;
-  inline ESPColor& operator= (const uint32_t colorcode) ALWAYS_INLINE;
+  inline ESPColor& operator= (uint32_t colorcode) ALWAYS_INLINE;
   inline uint8_t &operator[] (uint8_t x) ALWAYS_INLINE;
   inline ESPColor operator* (uint8_t scale) const ALWAYS_INLINE;
   inline ESPColor &operator*= (uint8_t scale) ALWAYS_INLINE;

@@ -71,7 +71,7 @@ void TSL2561Sensor::update() {
   }
 
   // Make sure the data is there when we will read it.
-  uint32_t timeout = this->get_integration_time_ms_() + 20.0f;
+  auto timeout = static_cast<uint32_t>(this->get_integration_time_ms_() + 20);
 
   this->set_timeout("illuminance", timeout, [this]() {
     this->read_data_();

@@ -79,7 +79,7 @@ class MY9231OutputComponent : public Component {
 
  protected:
   void set_channel_value(uint8_t channel, uint16_t value);
-  void init_chips(uint8_t cmd);
+  void init_chips(uint8_t command);
   void write_word(uint16_t value, uint8_t bits);
   void send_di_pulses(uint8_t count);
 

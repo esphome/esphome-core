@@ -81,7 +81,7 @@ class UserService : public UserServiceDescriptor, public Trigger<Ts...> {
   void execute_(std::vector<ExecuteServiceArgument> args, seq<S...>);
 
   std::string name_;
-  uint32_t key_;
+  uint32_t key_{0};
   std::array<ServiceTypeArgument, sizeof...(Ts)> args_;
 };
 

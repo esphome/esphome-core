@@ -129,7 +129,7 @@ class Nextion : public PollingComponent, public UARTDevice {
    * @param x1 The x coordinate.
    * @param y1 The y coordniate.
    */
-  void display_picture(int picture_id, int x1, int y1);
+  void display_picture(int picture_id, int x_start, int y_start);
   /**
    * Fill a rectangle with a color.
    * @param x1 The starting x coordinate.

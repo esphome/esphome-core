@@ -115,7 +115,7 @@ bool APIServer::check_password(const std::string &password) const {
   }
 
   for (size_t i = 0; i < length; i++) {
-    result |= *left++ ^ *right++;
+    result |= *left++ ^ *right++; // NOLINT
   }
 
   return result == 0;
@@ -402,6 +402,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::LIST_ENTITIES_SENSOR_RESPONSE:
     case APIMessageType::LIST_ENTITIES_SWITCH_RESPONSE:
     case APIMessageType::LIST_ENTITIES_TEXT_SENSOR_RESPONSE:
+    case APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE:
     case APIMessageType::LIST_ENTITIES_DONE_RESPONSE:
       // Invalid
       break;

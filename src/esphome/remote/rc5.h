@@ -25,7 +25,7 @@ class RC5Transmitter : public RemoteTransmitter {
   bool toggle_{false};
 };
 
-void encode_rc5(RemoteTransmitData *data, uint8_t data_, uint8_t command, bool toggle);
+void encode_rc5(RemoteTransmitData *data, uint8_t address, uint8_t command, bool toggle);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER

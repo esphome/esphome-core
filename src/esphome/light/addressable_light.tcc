@@ -13,22 +13,22 @@ inline static uint8_t esp_scale8(uint8_t i, uint8_t scale) {
   return (uint16_t(i) * (1 + uint16_t(scale))) / 256;
 }
 
-ESPColor::ESPColor() {
+ESPColor::ESPColor() : r(0), g(0), b(0), w(0) { // NOLINT
 }
 
-ESPColor::ESPColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t white)
+ESPColor::ESPColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t white) // NOLINT
     : r(red), g(green), b(blue), w(white) {
 }
 
-ESPColor::ESPColor(uint8_t red, uint8_t green, uint8_t blue)
+ESPColor::ESPColor(uint8_t red, uint8_t green, uint8_t blue) // NOLINT
     : r(red), g(green), b(blue), w(0) {
 }
 
-ESPColor::ESPColor(uint32_t colorcode)
+ESPColor::ESPColor(uint32_t colorcode) // NOLINT
     : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF), w((colorcode >> 24) & 0xFF) {
 }
 
-ESPColor::ESPColor(const ESPColor &rhs) {
+ESPColor::ESPColor(const ESPColor &rhs) { // NOLINT
   this->r = rhs.r;
   this->g = rhs.g;
   this->b = rhs.b;
@@ -43,7 +43,7 @@ ESPColor &ESPColor::operator=(const ESPColor &rhs) {
   return *this;
 }
 
-ESPColor &ESPColor::operator=(const uint32_t colorcode) {
+ESPColor &ESPColor::operator=(uint32_t colorcode) {
   this->w = (colorcode >> 24) & 0xFF;
   this->r = (colorcode >> 16) & 0xFF;
   this->g = (colorcode >> 8) & 0xFF;
@@ -307,10 +307,10 @@ uint8_t ESPColorCorrection::color_uncorrect_white(uint8_t white) const {
   return res;
 }
 
-ESPHSVColor::ESPHSVColor() {
+ESPHSVColor::ESPHSVColor() : h(0), s(0), v(0) { // NOLINT
 }
 
-ESPHSVColor::ESPHSVColor(uint8_t hue, uint8_t saturation, uint8_t value)
+ESPHSVColor::ESPHSVColor(uint8_t hue, uint8_t saturation, uint8_t value) // NOLINT
     : hue(hue), saturation(saturation), value(value) {
 }
 

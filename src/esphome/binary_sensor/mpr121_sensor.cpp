@@ -14,7 +14,7 @@ MPR121Channel::MPR121Channel(const std::string &name, int channel_num) : BinaryS
   channel_ = channel_num;
 }
 
-void MPR121Channel::process(uint16_t *data, uint16_t *last_data) {
+void MPR121Channel::process(const uint16_t *data, const uint16_t *last_data) {
   if ((*data & (1 << this->channel_)) && !(*last_data & (1 << this->channel_))) {
     this->publish_state(true);
   }

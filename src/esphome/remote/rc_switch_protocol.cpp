@@ -233,7 +233,7 @@ void RCSwitchProtocol::type_d_code(uint8_t group, uint8_t device, bool state, ui
   *out_nbits = 24;
 }
 
-} // namespace something
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 

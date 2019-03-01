@@ -61,7 +61,7 @@ class PN532BinarySensor : public binary_sensor::BinarySensor {
  public:
   PN532BinarySensor(const std::string &name, const std::vector<uint8_t> &uid, uint32_t update_interval);
 
-  bool process(uint8_t *data, uint8_t len);
+  bool process(const uint8_t *data, uint8_t len);
  protected:
   std::vector<uint8_t> uid_;
 };

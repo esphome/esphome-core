@@ -165,7 +165,7 @@ float SlidingWindowMovingAverage::next_value(float value) {
 }
 
 float SlidingWindowMovingAverage::calculate_average() {
-  if (this->queue_.size() == 0)
+  if (this->queue_.empty())
     return 0;
   else
     return this->sum_ / this->queue_.size();
@@ -482,7 +482,7 @@ const char *VectorJsonBuffer::String::c_str() const {
 }
 void VectorJsonBuffer::clear() {
   for (char *block : this->free_blocks_)
-    free(block);
+    free(block); // NOLINT
 
   this->size_ = 0;
   this->free_blocks_.clear();

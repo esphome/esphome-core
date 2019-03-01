@@ -28,7 +28,7 @@ float TemplateBinarySensor::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 void TemplateBinarySensor::set_template(std::function<optional<bool>()> &&f) {
-  this->f_ = std::move(f);
+  this->f_ = f;
 }
 void TemplateBinarySensor::dump_config() {
   LOG_BINARY_SENSOR("", "Template Binary Sensor", this);

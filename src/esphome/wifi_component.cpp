@@ -128,7 +128,7 @@ IPAddress WiFiComponent::get_ip_address() {
     return this->wifi_sta_ip_();
   if (this->has_ap())
     return this->wifi_soft_ap_ip_();
-  return IPAddress();
+  return {};
 }
 std::string WiFiComponent::get_use_address() const {
   if (this->use_address_.empty()) {

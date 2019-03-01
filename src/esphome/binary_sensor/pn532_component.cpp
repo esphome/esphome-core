@@ -117,7 +117,7 @@ void PN532Component::loop() {
   }
 }
 
-bool PN532BinarySensor::process(uint8_t *data, uint8_t len) {
+bool PN532BinarySensor::process(const uint8_t *data, uint8_t len) {
   if (len != this->uid_.size())
     return false;
 

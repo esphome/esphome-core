@@ -107,7 +107,7 @@ void ESPColorCorrection::set_max_brightness(const ESPColor &max_brightness) {
 void ESPColorCorrection::calculate_gamma_table(float gamma) {
   for (uint16_t i = 0; i < 256; i++) {
     // corrected = val ^ gamma
-    uint8_t corrected = roundf(255.0f * gamma_correct(i / 255.0f, gamma));
+    auto corrected = static_cast<uint8_t>(roundf(255.0f * gamma_correct(i / 255.0f, gamma)));
     this->gamma_table_[i] = corrected;
   }
   if (gamma == 0.0f) {
@@ -117,7 +117,7 @@ void ESPColorCorrection::calculate_gamma_table(float gamma) {
   }
   for (uint16_t i = 0; i < 256; i++) {
     // val = corrected ^ (1/gamma)
-    uint8_t uncorrected = roundf(255.0f * powf(i / 255.0f, 1.0f / gamma));
+    auto uncorrected = static_cast<uint8_t>(roundf(255.0f * powf(i / 255.0f, 1.0f / gamma)));
     this->gamma_reverse_table_[i] = uncorrected;
   }
 }
@@ -133,7 +133,7 @@ void AddressableLight::set_effect_active(bool effect_active) {
 }
 void AddressableLight::write_state(LightState *state) {
   LightColorValues value = state->get_current_values();
-  uint8_t max_brightness = roundf(value.get_brightness() * value.get_state() * 255.0f);
+  auto max_brightness = static_cast<uint8_t>(roundf(value.get_brightness() * value.get_state() * 255.0f));
   this->correction_.set_local_brightness(max_brightness);
 
   if (this->is_effect_active())

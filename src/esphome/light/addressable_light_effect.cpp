@@ -31,10 +31,10 @@ void AddressableLightEffect::apply() {
   LightColorValues color = this->state_->get_remote_values();
   // not using any color correction etc. that will be handled by the addressable layer
   ESPColor current_color = ESPColor(
-      color.get_red() * 255,
-      color.get_green() * 255,
-      color.get_blue() * 255,
-      color.get_white() * 255
+      static_cast<uint8_t>(color.get_red() * 255),
+      static_cast<uint8_t>(color.get_green() * 255),
+      static_cast<uint8_t>(color.get_blue() * 255),
+      static_cast<uint8_t>(color.get_white() * 255)
   );
   this->apply(*this->get_addressable_(), current_color);
 }
@@ -358,7 +358,7 @@ void AddressableFlickerEffect::set_update_interval(uint32_t update_interval) {
 }
 
 void AddressableFlickerEffect::set_intensity(float intensity) {
-  this->intensity_ = roundf(intensity * 255.0f);
+  this->intensity_ = static_cast<uint8_t>(roundf(intensity * 255.0f));
 }
 
 } // namespace light

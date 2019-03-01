@@ -125,7 +125,7 @@ class Sensor : public Nameable {
    *
    * Note: deprecated, please use publish_state.
    */
-  void push_new_value(float value) ESPDEPRECATED("push_new_value is deprecated. Please use .publish_state instead");
+  void push_new_value(float state) ESPDEPRECATED("push_new_value is deprecated. Please use .publish_state instead");
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

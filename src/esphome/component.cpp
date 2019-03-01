@@ -104,6 +104,7 @@ void Component::loop_() {
 }
 
 bool Component::cancel_time_function(const std::string &name, TimeFunction::Type type) {
+  // NOLINTNEXTLINE
   for (auto iter = this->time_functions_.begin(); iter != this->time_functions_.end(); iter++) {
     if (!iter->remove && iter->name == name && iter->type == type) {
       ESP_LOGVV(TAG, "Removing old time function %s.", iter->name.c_str());

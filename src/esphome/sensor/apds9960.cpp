@@ -253,7 +253,7 @@ void APDS9960::read_gesture_data_() {
   }
 
   for (uint32_t i = 0; i < fifo_level * 4; i += 4) {
-    const int up = buf[i + 0];
+    const int up = buf[i + 0]; // NOLINT
     const int down = buf[i + 1];
     const int left = buf[i + 2];
     const int right = buf[i + 3];

@@ -20,6 +20,13 @@
   #include <driver/rmt.h>
 #endif
 
+#ifdef CLANG_TIDY
+#undef ICACHE_RAM_ATTR
+#define ICACHE_RAM_ATTR
+#undef ICACHE_RODATA_ATTR
+#define ICACHE_RODATA_ATTR
+#endif
+
 ESPHOME_NAMESPACE_BEGIN
 
 /// Callback function typedef for parsing JsonObjects.
@@ -238,7 +245,7 @@ class ExponentialMovingAverage {
 // https://stackoverflow.com/questions/7858817/unpacking-a-tuple-to-call-a-matching-function-pointer/7858971#7858971
 template<int ...> struct seq {};
 template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};
-template<int ...S> struct gens<0, S...>{ typedef seq<S...> type; };
+template<int ...S> struct gens<0, S...>{ using type = seq<S...>; };
 
 
 template<typename... X> class CallbackManager;
@@ -301,10 +308,9 @@ class TemplatableValue {
   T value(X... x) {
     if (this->type_ == LAMBDA) {
       return this->f_(x...);
-    } else {
-      // return value also when empty
-      return this->value_;
     }
+    // return value also when empty
+    return this->value_;
   }
 
  protected:

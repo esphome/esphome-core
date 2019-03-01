@@ -39,16 +39,14 @@ const nullopt_t nullopt((nullopt_t::init()));
 template<typename T>
 class optional {
  private:
-  typedef void (optional::*safe_bool)() const;
+  using safe_bool = void (optional::*)() const;
 
  public:
-  typedef T value_type;
+  using value_type = T;
 
-  optional()
-      : has_value_(false) {}
+  optional() {}
 
-  optional(nullopt_t)
-      : has_value_(false) {}
+  optional(nullopt_t) {}
 
   optional(T const &arg)
       : has_value_(true), value_(arg) {}
@@ -71,12 +69,12 @@ class optional {
 
   void swap(optional &rhs) {
     using std::swap;
-    if (has_value() == true && rhs.has_value() == true) { swap(**this, *rhs); }
-    else if (has_value() == false && rhs.has_value() == true) {
+    if (has_value() && rhs.has_value()) { swap(**this, *rhs); }
+    else if (!has_value() && rhs.has_value()) {
       initialize(*rhs);
       rhs.reset();
     }
-    else if (has_value() == true && rhs.has_value() == false) {
+    else if (has_value() && !rhs.has_value()) {
       rhs.initialize(**this);
       reset();
     }
@@ -137,7 +135,7 @@ class optional {
   }
 
  private:
-  bool has_value_;
+  bool has_value_{false};
   value_type value_;
 };
 
@@ -145,7 +143,7 @@ class optional {
 
 template<typename T, typename U>
 inline bool operator==(optional<T> const &x, optional<U> const &y) {
-  return bool(x) != bool(y) ? false : bool(x) == false ? true : *x == *y;
+  return bool(x) != bool(y) ? false : !bool(x) ? true : *x == *y;
 }
 
 template<typename T, typename U>

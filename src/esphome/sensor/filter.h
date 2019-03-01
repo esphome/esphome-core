@@ -71,7 +71,7 @@ class SlidingWindowMovingAverageFilter : public Filter {
    *   on startup being published on the first *raw* value, so with no filter applied. Must be less than or equal to
    *   send_every.
    */
-  explicit SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every, uint32_t send_first_at = 1);
+  explicit SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every, size_t send_first_at = 1);
 
   optional<float> new_value(float value) override;
 
@@ -159,7 +159,7 @@ class MultiplyFilter : public Filter {
 /// A simple filter that only forwards the filter chain if it doesn't receive `value_to_filter_out`.
 class FilterOutValueFilter : public Filter {
  public:
-  explicit FilterOutValueFilter(float values_to_filter_out);
+  explicit FilterOutValueFilter(float value_to_filter_out);
 
   optional<float> new_value(float value) override;
 

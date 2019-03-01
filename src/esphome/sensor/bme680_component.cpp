@@ -438,7 +438,7 @@ uint32_t BME680Component::calc_gas_resistance_(uint16_t raw_gas, uint8_t range) 
 
   calc_gas_res = 1.0f / (var3 * 0.000000125f * float(1 << range) * (((float(raw_gas) - 512.0f) / var2) + 1.0f));
 
-  return calc_gas_res;
+  return static_cast<uint32_t>(calc_gas_res);
 }
 uint32_t BME680Component::calc_meas_duration_() {
   uint32_t tph_dur; // Calculate in us

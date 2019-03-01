@@ -64,7 +64,7 @@ class FloatOutput : public BinaryOutput {
   float get_min_power() const;
 
   /// Implement BinarySensor's write_enabled; this should never be called.
-  void write_state(bool value) override;
+  void write_state(bool state) override;
 
   template<typename... Ts>
   SetLevelAction<Ts...> *make_set_level_action();

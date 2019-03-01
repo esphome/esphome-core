@@ -62,7 +62,7 @@ void PCA9685OutputComponent::setup() {
     return;
   }
 
-  int pre_scaler = (25000000 / (4096 * this->frequency_)) - 1;
+  int pre_scaler = static_cast<int>((25000000 / (4096 * this->frequency_)) - 1);
   if (pre_scaler > 255) pre_scaler = 255;
   if (pre_scaler < 3) pre_scaler = 3;
 

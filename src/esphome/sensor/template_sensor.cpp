@@ -28,7 +28,7 @@ float TemplateSensor::get_setup_priority() const {
   return setup_priority::HARDWARE;
 }
 void TemplateSensor::set_template(std::function<optional<float>()> &&f) {
-  this->f_ = std::move(f);
+  this->f_ = f;
 }
 void TemplateSensor::dump_config() {
   LOG_SENSOR("", "Template Sensor", this);

@@ -84,7 +84,7 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
  protected:
   NeoPixelBus<T_COLOR_FEATURE, T_METHOD> *controller_{nullptr};
   uint8_t *effect_data_{nullptr};
-  uint8_t rgb_offsets_[4];
+  uint8_t rgb_offsets_[4]{0, 1, 2, 3};
 #ifdef USE_OUTPUT
   PowerSupplyComponent *power_supply_{nullptr};
   bool has_requested_high_power_{false};

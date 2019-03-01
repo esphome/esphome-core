@@ -1,0 +1,50 @@
+---
+Checks: >-
+  *,
+  -android-*,-boost-*,-clang-analyzer-osx.*,-objc-*,-zircon-*,-mpi-*,
+  -llvm-header-guard,-llvm-include-order,
+  -fuchsia-default-arguments,-fuchsia-overloaded-operator,-fuchsia-statically-constructed-objects,-fuchsia-multiple-inheritance,
+  -google-runtime-int,-google-explicit-constructor,-google-readability-braces-around-statements,-google-runtime-references,-google-readability-casting,
+  -cppcoreguidelines-pro-type-varar,-cppcoreguidelines-pro-type-vararg,-cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-pro-type-cstyle-cast,
+  -cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-owning-memory,-cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-c-copy-assignment-signature,-cppcoreguidelines-special-member-functions,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -readability-named-parameter,-readability-braces-around-statements,-readability-implicit-bool-conversion,-readability-else-after-return,
+  -hicpp-*,-abseil-*,-fuchsia-*,
+  -cert-err58-cpp,-cppcoreguidelines-pro-type-member-init,-cert-dcl50-cpp,
+  -modernize-use-equals-default,-modernize-deprecated-headers,-modernize-use-auto,-modernize-pass-by-value,
+  -bugprone-macro-parentheses,
+  -misc-unused-parameters,-misc-unconventional-assign-operator,
+  -performance-unnecessary-value-param,
+  -modernize-pass-by-value,-modernize-return-braced-init-list,-cppcoreguidelines-pro-type-const-cast,
+  -clang-analyzer-security.*,
+  -google-readability-todo,
+  -readability-redundant-member-init,-modernize-use-default-member-init,
+  -cppcoreguidelines-pro-type-static-cast-downcast,-warnings-as-errors,
+  -google-build-using-namespace
+WarningsAsErrors: '*'
+HeaderFilterRegex: '^.*/src/esphome/.*'
+AnalyzeTemporaryDtors: false
+FormatStyle:     google
+CheckOptions:
+  - key:             google-readability-braces-around-statements.ShortStatementLines
+    value:           '1'
+  - key:             google-readability-function-size.StatementThreshold
+    value:           '800'
+  - key:             google-readability-namespace-comments.ShortNamespaceLines
+    value:           '10'
+  - key:             google-readability-namespace-comments.SpacesBeforeComments
+    value:           '2'
+  - key:             modernize-loop-convert.MaxCopySize
+    value:           '16'
+  - key:             modernize-loop-convert.MinConfidence
+    value:           reasonable
+  - key:             modernize-loop-convert.NamingStyle
+    value:           CamelCase
+  - key:             modernize-pass-by-value.IncludeStyle
+    value:           llvm
+  - key:             modernize-replace-auto-ptr.IncludeStyle
+    value:           llvm
+  - key:             modernize-use-nullptr.NullMacros
+    value:           'NULL'

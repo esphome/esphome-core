@@ -342,7 +342,7 @@ bool ComponentIterator::on_begin() {
   return true;
 }
 bool ComponentIterator::on_service(UserServiceDescriptor *service) {
-
+  return true;
 }
 
 } // namespace api

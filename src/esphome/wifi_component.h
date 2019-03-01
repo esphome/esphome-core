@@ -199,7 +199,7 @@ class WiFiComponent : public Component {
   IPAddress wifi_soft_ap_ip_();
 
 #ifdef ARDUINO_ARCH_ESP8266
-  static void wifi_event_callback_(System_Event_t *arg);
+  static void wifi_event_callback_(System_Event_t *event);
   void wifi_scan_done_callback_(void *arg, STATUS status);
   static void s_wifi_scan_done_callback_(void *arg, STATUS status);
 #endif

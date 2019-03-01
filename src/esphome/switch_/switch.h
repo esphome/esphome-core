@@ -227,7 +227,7 @@ class SwitchTurnOffTrigger : public Trigger<> {
 template<typename... Ts>
 class SwitchPublishAction : public Action<Ts...> {
  public:
-  SwitchPublishAction(Switch *sensor);
+  SwitchPublishAction(Switch *switch_);
   template<typename V>
   void set_state(V state) { this->state_ = state; }
   void play(Ts... x) override;

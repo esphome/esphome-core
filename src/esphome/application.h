@@ -480,7 +480,7 @@ class Application {
   sensor::DHTComponent *make_dht_sensor(const std::string &temperature_friendly_name,
                                         const std::string &humidity_friendly_name,
                                         const GPIOOutputPin &pin,
-                                        uint32_t update_interval = 60000);
+                                        uint32_t check_interval = 60000);
 #endif
 
 #ifdef USE_DALLAS_SENSOR

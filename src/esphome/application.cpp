@@ -98,8 +98,7 @@ void Application::dump_config() {
     ESP_LOGI(TAG, "esphome-core version " ESPHOME_VERSION " compiled on %s", this->compilation_time_.c_str());
   }
 
-  for (uint32_t i = 0; i < this->components_.size(); i++) {
-    Component *component = this->components_[i];
+  for (auto component : this->components_) {
     component->dump_config();
   }
 }
@@ -1140,7 +1139,7 @@ text_sensor::MQTTSubscribeTextSensor *Application::make_mqtt_subscribe_text_sens
 #ifdef USE_HOMEASSISTANT_TEXT_SENSOR
 text_sensor::HomeassistantTextSensor *Application::make_homeassistant_text_sensor(const std::string &name,
                                                                                      std::string entity_id) {
-  auto *sensor = this->register_component(new HomeassistantTextSensor(name, std::move(entity_id)));
+  auto *sensor = this->register_component(new HomeassistantTextSensor(name, entity_id));
   this->register_text_sensor(sensor);
   return sensor;
 }
@@ -1165,7 +1164,7 @@ sensor::MQTTSubscribeSensor *Application::make_mqtt_subscribe_sensor(const std::
 #ifdef USE_HOMEASSISTANT_SENSOR
 sensor::HomeassistantSensor *Application::make_homeassistant_sensor(const std::string &name,
                                                                     std::string entity_id) {
-  auto *sensor = this->register_component(new HomeassistantSensor(name, std::move(entity_id)));
+  auto *sensor = this->register_component(new HomeassistantSensor(name, entity_id));
   this->register_sensor(sensor);
   return sensor;
 }
@@ -1174,7 +1173,7 @@ sensor::HomeassistantSensor *Application::make_homeassistant_sensor(const std::s
 #ifdef USE_HOMEASSISTANT_BINARY_SENSOR
 binary_sensor::HomeassistantBinarySensor *Application::make_homeassistant_binary_sensor(
     const std::string &name, std::string entity_id) {
-  auto *sensor = this->register_component(new HomeassistantBinarySensor(name, std::move(entity_id)));
+  auto *sensor = this->register_component(new HomeassistantBinarySensor(name, entity_id));
   this->register_binary_sensor(sensor);
   return sensor;
 }

@@ -223,7 +223,7 @@ uint8_t MAX7219Component::printf(const char *format, ...) {
   return 0;
 }
 void MAX7219Component::set_writer(max7219_writer_t &&writer) {
-  this->writer_ = std::move(writer);
+  this->writer_ = writer;
 }
 void MAX7219Component::set_intensity(uint8_t intensity) {
   this->intensity_ = intensity;

@@ -80,9 +80,9 @@ bool MQTTClientComponent::can_proceed() {
 }
 
 void MQTTClientComponent::start_dnslookup() {
-  for (size_t i = 0; i < this->subscriptions_.size(); i++) {
-    this->subscriptions_[i].subscribed = false;
-    this->subscriptions_[i].resubscribe_timeout = 0;
+  for (auto & subscription : this->subscriptions_) {
+    subscription.subscribed = false;
+    subscription.resubscribe_timeout = 0;
   }
 
   this->status_set_warning();
@@ -94,7 +94,7 @@ void MQTTClientComponent::start_dnslookup() {
                                          LWIP_DNS_ADDRTYPE_IPV4);
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  err_t err = dns_gethostbyname(this->credentials_.address.c_str(), &addr, this->dns_found_callback_, this);
+  err_t err = dns_gethostbyname(this->credentials_.address.c_str(), &addr, esphome::mqtt::MQTTClientComponent::dns_found_callback_, this);
 #endif
   switch (err) {
     case ERR_OK: {
@@ -328,8 +328,8 @@ void MQTTClientComponent::resubscribe_subscription_(MQTTSubscription *sub) {
   }
 }
 void MQTTClientComponent::resubscribe_subscriptions_() {
-  for (size_t i = 0; i < this->subscriptions_.size(); i++) {
-    this->resubscribe_subscription_(&this->subscriptions_[i]);
+  for (auto & subscription : this->subscriptions_) {
+    this->resubscribe_subscription_(&subscription);
   }
 }
 
