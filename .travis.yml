@@ -27,7 +27,7 @@ matrix:
       apt:
         sources:
           - ubuntu-toolchain-r-test
-          - lvm-toolchain-trusty-7
+          - llvm-toolchain-trusty-7
         packages:
           - cmake
           - clang-tidy-7.0
