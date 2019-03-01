@@ -37,7 +37,7 @@ def make_absolute(f, directory):
 
 def get_tidy_invocation(f, inplace):
     """Gets a command line for clang-tidy."""
-    start = ['clang-format']
+    start = ['clang-format-7']
     if inplace:
         start.append('-i')
     start.append(f)
