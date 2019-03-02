@@ -159,20 +159,20 @@ void TSL2561Sensor::set_integration_time(TSL2561IntegrationTime integration_time
 void TSL2561Sensor::set_gain(TSL2561Gain gain) { this->gain_ = gain; }
 void TSL2561Sensor::set_is_cs_package(bool package_cs) { this->package_cs_ = package_cs; }
 float TSL2561Sensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
-bool TSL2561Sensor::tsl2561_write_byte(uint8_t register_, uint8_t value) {
-  return this->write_byte(register_ | TSL2561_COMMAND_BIT, value);
+bool TSL2561Sensor::tsl2561_write_byte(uint8_t a_register, uint8_t value) {
+  return this->write_byte(a_register | TSL2561_COMMAND_BIT, value);
 }
-bool TSL2561Sensor::tsl2561_read_uint(uint8_t register_, uint16_t *value) {
+bool TSL2561Sensor::tsl2561_read_uint(uint8_t a_register, uint16_t *value) {
   uint8_t data[2];
-  if (!this->read_bytes(register_ | TSL2561_COMMAND_BIT, data, 2))
+  if (!this->read_bytes(a_register | TSL2561_COMMAND_BIT, data, 2))
     return false;
   const uint16_t hi = data[1];
   const uint16_t lo = data[0];
   *value = (hi << 8) | lo;
   return true;
 }
-bool TSL2561Sensor::tsl2561_read_byte(uint8_t register_, uint8_t *value) {
-  return this->read_byte(register_ | TSL2561_COMMAND_BIT, value);
+bool TSL2561Sensor::tsl2561_read_byte(uint8_t a_register, uint8_t *value) {
+  return this->read_byte(a_register | TSL2561_COMMAND_BIT, value);
 }
 
 }  // namespace sensor
