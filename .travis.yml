@@ -47,6 +47,6 @@ matrix:
       - clang-apply-replacements -version
       - clang-apply-replacements-7 -version
     script:
-      - python travis/run-clang-tidy.py -j 1
+      - python travis/run-clang-tidy.py -j 1 --fix
       - python travis/run-clang-format.py -i -j 1
       - travis/suggest-changes.sh
