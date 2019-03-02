@@ -29,6 +29,7 @@ else:
 HEADER_FILTER = r'^.*/src/esphome/.*'
 EXTRA_ARG = ['-DCLANG_TIDY']
 
+
 def make_absolute(f, directory):
     if os.path.isabs(f):
         return f
@@ -56,12 +57,7 @@ def get_tidy_invocation(f, tmpdir, quiet):
 
 def apply_fixes(args, tmpdir):
     """Calls clang-apply-fixes on a given directory."""
-    invocation = ['clang-apply-replacements-7']
-    if args.format:
-        invocation.append('-format')
-    if args.style:
-        invocation.append('-style=' + args.style)
-    invocation.append(tmpdir)
+    invocation = ['clang-apply-replacements-7', tmpdir]
     subprocess.call(invocation)
 
 

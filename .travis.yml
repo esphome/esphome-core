@@ -43,7 +43,6 @@ matrix:
       - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
       - clang-tidy-7 -version
       - clang-format-7 -version
-      - clang-apply-replacements -version
       - clang-apply-replacements-7 -version
     script:
       - python travis/run-clang-tidy.py -j 1 --fix
