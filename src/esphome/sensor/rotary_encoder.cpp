@@ -12,53 +12,53 @@ namespace sensor {
 static const char *TAG = "sensor.rotary_encoder";
 
 // copied from https://github.com/jkDesignDE/MechInputs/blob/master/QEIx4.cpp
-static const uint16_t QEIx4_MASK = 0x1C;
-static const uint16_t QEIx4_1x_INC = 0x0100;
-static const uint16_t QEIx4_2x_INC = 0x0200;
-static const uint16_t QEIx4_4x_INC = 0x0400;
-static const uint16_t QEIx4_1x_DEC = 0x1000;
-static const uint16_t QEIx4_2x_DEC = 0x2000;
-static const uint16_t QEIx4_4x_DEC = 0x4000;
-static const uint16_t QEIx4_DIR = 0x20;
-static const uint16_t QEIx4_A = 1;
-static const uint16_t QEIx4_B = 2;
-static const uint16_t QEIx4_AB = 3;
-static const uint16_t QEIx4_S0 = 0x0;
-static const uint16_t QEIx4_S1 = 0x4;
-static const uint16_t QEIx4_S2 = 0x8;
-static const uint16_t QEIx4_S3 = 0xC;
-static const uint16_t QEIx4_CCW = 0;
-static const uint16_t QEIx4_CW = 0x10;
-static const uint16_t QEIx4_IS_CHG = 0x7700;
-static const uint16_t QEIx4_IS_INC = 0x0700;
-static const uint16_t QEIx4_IS_DEC = 0x7000;
+static const uint16_t QE_IX4_MASK = 0x1C;
+static const uint16_t QE_IX4_1X_INC = 0x0100;
+static const uint16_t QE_IX4_2X_INC = 0x0200;
+static const uint16_t QE_IX4_4X_INC = 0x0400;
+static const uint16_t QE_IX4_1X_DEC = 0x1000;
+static const uint16_t QE_IX4_2X_DEC = 0x2000;
+static const uint16_t QE_IX4_4X_DEC = 0x4000;
+static const uint16_t QE_IX4_DIR = 0x20;
+static const uint16_t QE_IX4_A = 1;
+static const uint16_t QE_IX4_B = 2;
+static const uint16_t QE_IX4_AB = 3;
+static const uint16_t QE_IX4_S0 = 0x0;
+static const uint16_t QE_IX4_S1 = 0x4;
+static const uint16_t QE_IX4_S2 = 0x8;
+static const uint16_t QE_IX4_S3 = 0xC;
+static const uint16_t QE_IX4_CCW = 0;
+static const uint16_t QE_IX4_CW = 0x10;
+static const uint16_t QE_IX4_IS_CHG = 0x7700;
+static const uint16_t QE_IX4_IS_INC = 0x0700;
+static const uint16_t QE_IX4_IS_DEC = 0x7000;
 
 static uint16_t state_lookup_table[32] = {
     // act state S0 in CCW direction
-    QEIx4_CCW | QEIx4_S0, QEIx4_CW | QEIx4_S1 | QEIx4_A | QEIx4_4x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S0 | QEIx4_B,
-    QEIx4_CCW | QEIx4_S3 | QEIx4_AB | QEIx4_1x_DEC,
+    QE_IX4_CCW | QE_IX4_S0, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A | QE_IX4_4X_INC | QE_IX4_DIR, QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B,
+    QE_IX4_CCW | QE_IX4_S3 | QE_IX4_AB | QE_IX4_1X_DEC,
     // act state S1 in CCW direction
-    QEIx4_CCW | QEIx4_S1, QEIx4_CCW | QEIx4_S1 | QEIx4_A, QEIx4_CCW | QEIx4_S0 | QEIx4_B | QEIx4_4x_DEC,
-    QEIx4_CW | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC | QEIx4_DIR,
+    QE_IX4_CCW | QE_IX4_S1, QE_IX4_CCW | QE_IX4_S1 | QE_IX4_A, QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B | QE_IX4_4X_DEC,
+    QE_IX4_CW | QE_IX4_S2 | QE_IX4_AB | QE_IX4_1X_INC | QE_IX4_DIR,
     // act state S2 in CCW direction
-    QEIx4_CCW | QEIx4_S1 | QEIx4_2x_DEC, QEIx4_CCW | QEIx4_S2 | QEIx4_A,
-    QEIx4_CW | QEIx4_S3 | QEIx4_B | QEIx4_4x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S2 | QEIx4_AB,
+    QE_IX4_CCW | QE_IX4_S1 | QE_IX4_2X_DEC, QE_IX4_CCW | QE_IX4_S2 | QE_IX4_A,
+    QE_IX4_CW | QE_IX4_S3 | QE_IX4_B | QE_IX4_4X_INC | QE_IX4_DIR, QE_IX4_CCW | QE_IX4_S2 | QE_IX4_AB,
     // act state S3 in CCW direction
-    QEIx4_CW | QEIx4_S0 | QEIx4_2x_INC | QEIx4_DIR, QEIx4_CCW | QEIx4_S2 | QEIx4_A | QEIx4_4x_DEC,
-    QEIx4_CCW | QEIx4_S3 | QEIx4_B, QEIx4_CCW | QEIx4_S3 | QEIx4_AB,
+    QE_IX4_CW | QE_IX4_S0 | QE_IX4_2X_INC | QE_IX4_DIR, QE_IX4_CCW | QE_IX4_S2 | QE_IX4_A | QE_IX4_4X_DEC,
+    QE_IX4_CCW | QE_IX4_S3 | QE_IX4_B, QE_IX4_CCW | QE_IX4_S3 | QE_IX4_AB,
 
     // act state S0 in CW direction
-    QEIx4_CW | QEIx4_S0, QEIx4_CW | QEIx4_S1 | QEIx4_A | QEIx4_4x_INC, QEIx4_CW | QEIx4_S0 | QEIx4_B,
-    QEIx4_CCW | QEIx4_S3 | QEIx4_AB | QEIx4_1x_DEC | QEIx4_DIR,
+    QE_IX4_CW | QE_IX4_S0, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A | QE_IX4_4X_INC, QE_IX4_CW | QE_IX4_S0 | QE_IX4_B,
+    QE_IX4_CCW | QE_IX4_S3 | QE_IX4_AB | QE_IX4_1X_DEC | QE_IX4_DIR,
     // act state S1 in CW direction
-    QEIx4_CW | QEIx4_S1, QEIx4_CW | QEIx4_S1 | QEIx4_A, QEIx4_CCW | QEIx4_S0 | QEIx4_B | QEIx4_4x_DEC | QEIx4_DIR,
-    QEIx4_CW | QEIx4_S2 | QEIx4_AB | QEIx4_1x_INC,
+    QE_IX4_CW | QE_IX4_S1, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A, QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B | QE_IX4_4X_DEC | QE_IX4_DIR,
+    QE_IX4_CW | QE_IX4_S2 | QE_IX4_AB | QE_IX4_1X_INC,
     // act state S2 in CW direction
-    QEIx4_CCW | QEIx4_S1 | QEIx4_2x_DEC | QEIx4_DIR, QEIx4_CW | QEIx4_S2 | QEIx4_A,
-    QEIx4_CW | QEIx4_S3 | QEIx4_B | QEIx4_4x_INC, QEIx4_CW | QEIx4_S2 | QEIx4_AB,
+    QE_IX4_CCW | QE_IX4_S1 | QE_IX4_2X_DEC | QE_IX4_DIR, QE_IX4_CW | QE_IX4_S2 | QE_IX4_A,
+    QE_IX4_CW | QE_IX4_S3 | QE_IX4_B | QE_IX4_4X_INC, QE_IX4_CW | QE_IX4_S2 | QE_IX4_AB,
     // act state S3 in CW direction
-    QEIx4_CW | QEIx4_S0 | QEIx4_2x_INC, QEIx4_CCW | QEIx4_S2 | QEIx4_A | QEIx4_4x_DEC | QEIx4_DIR,
-    QEIx4_CW | QEIx4_S3 | QEIx4_B, QEIx4_CW | QEIx4_S3 | QEIx4_AB};
+    QE_IX4_CW | QE_IX4_S0 | QE_IX4_2X_INC, QE_IX4_CCW | QE_IX4_S2 | QE_IX4_A | QE_IX4_4X_DEC | QE_IX4_DIR,
+    QE_IX4_CW | QE_IX4_S3 | QE_IX4_B, QE_IX4_CW | QE_IX4_S3 | QE_IX4_AB};
 
 RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a, GPIOPin *pin_b)
     : Sensor(name), Component(), pin_a_(pin_a), pin_b_(pin_b) {}
@@ -90,23 +90,23 @@ void ICACHE_RAM_ATTR RotaryEncoderSensor::encoder_isr_() {
   }
 }
 void ICACHE_RAM_ATTR RotaryEncoderSensor::process_state_machine_() {
-  this->state_ &= QEIx4_MASK;
+  this->state_ &= QE_IX4_MASK;
   if (this->pin_a_->digital_read())
-    this->state_ |= QEIx4_A;
+    this->state_ |= QE_IX4_A;
   if (this->pin_b_->digital_read())
-    this->state_ |= QEIx4_B;
+    this->state_ |= QE_IX4_B;
 
   this->state_ = state_lookup_table[this->state_];
   this->state_ &= this->resolution_;
 
-  if ((this->state_ & QEIx4_IS_CHG) != 0) {
+  if ((this->state_ & QE_IX4_IS_CHG) != 0) {
     bool counter_change = false;
 
-    if ((this->state_ & QEIx4_IS_INC) != 0) {
+    if ((this->state_ & QE_IX4_IS_INC) != 0) {
       this->counter_ = std::min(this->counter_ + 1, this->max_value_);
       counter_change = true;
     }
-    if ((this->state_ & QEIx4_IS_DEC) != 0) {
+    if ((this->state_ & QE_IX4_IS_DEC) != 0) {
       this->counter_ = std::max(this->counter_ - 1, this->min_value_);
       counter_change = true;
     }

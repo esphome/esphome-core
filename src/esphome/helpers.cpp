@@ -352,16 +352,16 @@ void tick_status_led() {
 #endif
 }
 void ICACHE_RAM_ATTR HOT feed_wdt() {
-  static uint32_t last_feed = 0;
+  static uint32_t LAST_FEED = 0;
   uint32_t now = millis();
-  if (now - last_feed > 3) {
+  if (now - LAST_FEED > 3) {
 #ifdef ARDUINO_ARCH_ESP8266
     ESP.wdtFeed();
 #endif
 #ifdef ARDUINO_ARCH_ESP32
     yield();
 #endif
-    last_feed = now;
+    LAST_FEED = now;
   }
 }
 std::string build_json(const json_build_t &f) {

@@ -832,7 +832,7 @@ wl_status_t WiFiComponent::wifi_sta_status_() {
   }
 }
 bool WiFiComponent::wifi_scan_start_() {
-  static bool first_scan = false;
+  static bool FIRST_SCAN = false;
 
   // enable STA
   if (!this->wifi_mode_(true, {}))
@@ -850,14 +850,14 @@ bool WiFiComponent::wifi_scan_start_() {
   config.channel = 0;
   config.show_hidden = 1;
   config.scan_type = WIFI_SCAN_TYPE_ACTIVE;
-  if (first_scan) {
+  if (FIRST_SCAN) {
     config.scan_time.active.min = 100;
     config.scan_time.active.max = 200;
   } else {
     config.scan_time.active.min = 400;
     config.scan_time.active.max = 500;
   }
-  first_scan = false;
+  FIRST_SCAN = false;
   bool ret = wifi_station_scan(&config, &WiFiComponent::s_wifi_scan_done_callback_);
   if (!ret) {
     ESP_LOGV(TAG, "wifi_station_scan failed!");
