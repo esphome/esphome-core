@@ -473,17 +473,17 @@ void OTAComponent::start_safe_mode(uint8_t num_attempts, uint32_t enable_time) {
 
 #ifdef USE_STATUS_LED
     if (global_status_led != nullptr) {
-      global_status_led->setup_();
+      global_status_led->call_setup();
     }
 #endif
     global_state = STATUS_LED_ERROR;
     network_setup();
-    this->setup_();
+    this->call_setup();
 
     ESP_LOGI(TAG, "Waiting for OTA attempt.");
     uint32_t begin = millis();
     while ((millis() - begin) < enable_time) {
-      this->loop_();
+      this->call_loop();
       network_tick();
       tick_status_led();
       yield();

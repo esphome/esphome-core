@@ -76,7 +76,7 @@ SonyDecodeData decode_sony(RemoteReceiveData *data) {
 SonyReceiver::SonyReceiver(const std::string &name, uint32_t data, uint8_t nbits)
     : RemoteReceiver(name), data_(data), nbits_(nbits) {}
 
-bool SonyReceiver::matches(RemoteReceiveData *data) {
+bool SonyReceiver::matches_(RemoteReceiveData *data) {
   auto decode = decode_sony(data);
   return decode.valid && this->data_ == decode.data && this->nbits_ == decode.nbits;
 }

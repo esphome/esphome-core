@@ -49,13 +49,17 @@ CheckOptions:
     value:           'NO_PRIVATE_MEMBERS_ALWAYS_USE_PROTECTED'
   - key:             readability-identifier-naming.PrivateMethodPrefix
     value:           'NO_PRIVATE_METHODS_ALWAYS_USE_PROTECTED'
-  #- key:             readability-identifier-naming.FunctionCase
-  #  value:           'lower_case'
   - key:             readability-identifier-naming.ClassMemberCase
     value:           'lower_case'
   - key:             readability-identifier-naming.ProtectedMemberSuffix
     value:           '_'
-  #- key:             readability-identifier-naming.ClassMethodCase
-  #  value:           'lower_case'
-  #- key:             readability-identifier-naming.ProtectedMethodSuffix
-  #  value:           '_'
+  - key:             readability-identifier-naming.FunctionCase
+    value:           'lower_case'
+  - key:             readability-identifier-naming.ClassMethodCase
+    value:           'lower_case'
+  - key:             readability-identifier-naming.ProtectedMethodSuffix
+    value:           '_'
+  - key:             readability-identifier-naming.VirtualMethodCase
+    value:           'lower_case'
+  - key:             readability-identifier-naming.VirtualMethodSuffix
+    value:           ''

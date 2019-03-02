@@ -84,7 +84,7 @@ LGDecodeData decode_lg(RemoteReceiveData *data) {
 LGReceiver::LGReceiver(const std::string &name, uint32_t data, uint8_t nbits)
     : RemoteReceiver(name), data_(data), nbits_(nbits) {}
 
-bool LGReceiver::matches(RemoteReceiveData *data) {
+bool LGReceiver::matches_(RemoteReceiveData *data) {
   auto res = decode_lg(data);
   if (!res.valid)
     return false;

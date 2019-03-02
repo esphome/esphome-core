@@ -32,7 +32,7 @@ class TemplateSwitch : public Switch, public Component {
  protected:
   bool assumed_state() override;
 
-  void write_state(bool state) override;
+  void write_state_(bool state) override;
 
   optional<std::function<optional<bool>()>> f_;
   bool optimistic_{false};

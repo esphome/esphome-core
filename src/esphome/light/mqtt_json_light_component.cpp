@@ -15,21 +15,21 @@ static const char *TAG = "light.mqtt_json";
 std::string MQTTJSONLightComponent::component_type() const { return "light"; }
 
 void MQTTJSONLightComponent::setup() {
-  this->subscribe_json(this->get_command_topic(), [this](const std::string &topic, JsonObject &root) {
+  this->subscribe_json(this->get_command_topic_(), [this](const std::string &topic, JsonObject &root) {
     this->state_->make_call().parse_json(root).perform();
   });
 
-  auto f = std::bind(&MQTTJSONLightComponent::publish_state, this);
+  auto f = std::bind(&MQTTJSONLightComponent::publish_state_, this);
   this->state_->add_new_remote_values_callback([this, f]() { this->defer("send", f); });
 }
 
 MQTTJSONLightComponent::MQTTJSONLightComponent(LightState *state) : MQTTComponent(), state_(state) {}
 
-bool MQTTJSONLightComponent::publish_state() {
-  return this->publish_json(this->get_state_topic(), [this](JsonObject &root) { this->state_->dump_json(root); });
+bool MQTTJSONLightComponent::publish_state_() {
+  return this->publish_json(this->get_state_topic_(), [this](JsonObject &root) { this->state_->dump_json(root); });
 }
 LightState *MQTTJSONLightComponent::get_state() const { return this->state_; }
-std::string MQTTJSONLightComponent::friendly_name() const { return this->state_->get_name(); }
+std::string MQTTJSONLightComponent::friendly_name_() const { return this->state_->get_name(); }
 void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (this->state_->get_traits().has_brightness())
     root["brightness"] = true;
@@ -48,7 +48,7 @@ void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscover
   }
   config.platform = "mqtt_json";
 }
-bool MQTTJSONLightComponent::send_initial_state() { return this->publish_state(); }
+bool MQTTJSONLightComponent::send_initial_state() { return this->publish_state_(); }
 bool MQTTJSONLightComponent::is_internal() { return this->state_->is_internal(); }
 void MQTTJSONLightComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT Light '%s':", this->state_->get_name().c_str());

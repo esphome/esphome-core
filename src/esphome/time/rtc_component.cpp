@@ -25,8 +25,8 @@ ESPTime RealTimeClockComponent::utcnow() {
   return ESPTime::from_tm(c_tm, t);
 }
 CronTrigger *RealTimeClockComponent::make_cron_trigger() { return new CronTrigger(this); }
-void RealTimeClockComponent::setup_() {
-  this->setup_internal();
+void RealTimeClockComponent::call_setup() {
+  this->setup_internal_();
   setenv("TZ", this->timezone_.c_str(), 1);
   tzset();
   this->setup();

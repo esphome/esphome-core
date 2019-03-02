@@ -66,11 +66,11 @@ void RotaryEncoderSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder '%s'...", this->name_.c_str());
   int interrupt_a = digitalPinToInterrupt(this->pin_a_->get_pin());
   this->pin_a_->setup();
-  attachInterrupt(interrupt_a, RotaryEncoderSensor::encoder_isr_, CHANGE);
+  attachInterrupt(interrupt_a, RotaryEncoderSensor::encoder_isr, CHANGE);
 
   int interrupt_b = digitalPinToInterrupt(this->pin_b_->get_pin());
   this->pin_b_->setup();
-  attachInterrupt(interrupt_b, RotaryEncoderSensor::encoder_isr_, CHANGE);
+  attachInterrupt(interrupt_b, RotaryEncoderSensor::encoder_isr, CHANGE);
 
   if (this->pin_i_ != nullptr) {
     this->pin_i_->setup();
@@ -84,7 +84,7 @@ void RotaryEncoderSensor::dump_config() {
   LOG_PIN("  Pin B: ", this->pin_b_);
   LOG_PIN("  Pin I: ", this->pin_i_);
 }
-void ICACHE_RAM_ATTR RotaryEncoderSensor::encoder_isr_() {
+void ICACHE_RAM_ATTR RotaryEncoderSensor::encoder_isr() {
   for (auto *encoder : global_rotary_encoders_) {
     encoder->process_state_machine_();
   }

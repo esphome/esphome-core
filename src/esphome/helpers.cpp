@@ -347,7 +347,7 @@ uint16_t reverse_bits_16(uint16_t x) {
 void tick_status_led() {
 #ifdef USE_STATUS_LED
   if (global_status_led != nullptr) {
-    global_status_led->loop_();
+    global_status_led->call_loop();
   }
 #endif
 }

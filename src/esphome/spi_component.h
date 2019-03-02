@@ -64,9 +64,9 @@ class SPIDevice {
   void write_array(uint8_t *data, size_t length);
 
  protected:
-  virtual bool msb_first() = 0;
+  virtual bool is_device_msb_first() = 0;
 
-  virtual bool high_speed();
+  virtual bool is_device_high_speed();
 
   SPIComponent *parent_;
   GPIOPin *cs_;

@@ -59,11 +59,11 @@ void I2CComponent::dump_config() {
 }
 float I2CComponent::get_setup_priority() const { return setup_priority::PRE_HARDWARE; }
 
-void I2CComponent::begin_transmission_(uint8_t address) {
+void I2CComponent::raw_begin_transmission(uint8_t address) {
   ESP_LOGVV(TAG, "Beginning Transmission to 0x%02X:", address);
   this->wire_->beginTransmission(address);
 }
-bool I2CComponent::end_transmission_(uint8_t address) {
+bool I2CComponent::raw_end_transmission(uint8_t address) {
   uint8_t status = this->wire_->endTransmission();
   ESP_LOGVV(TAG, "    Transmission ended. Status code: 0x%02X", status);
 
@@ -86,7 +86,7 @@ bool I2CComponent::end_transmission_(uint8_t address) {
 
   return status == 0;
 }
-bool I2CComponent::request_from_(uint8_t address, uint8_t len) {
+bool I2CComponent::raw_request_from(uint8_t address, uint8_t len) {
   ESP_LOGVV(TAG, "Requesting %u bytes from 0x%02X:", len, address);
   uint8_t ret = this->wire_->requestFrom(address, len);
   if (ret != len) {
@@ -95,14 +95,14 @@ bool I2CComponent::request_from_(uint8_t address, uint8_t len) {
   }
   return true;
 }
-void HOT I2CComponent::write_(uint8_t address, const uint8_t *data, uint8_t len) {
+void HOT I2CComponent::raw_write(uint8_t address, const uint8_t *data, uint8_t len) {
   for (size_t i = 0; i < len; i++) {
     ESP_LOGVV(TAG, "    Writing 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", BYTE_TO_BINARY(data[i]), data[i]);
     this->wire_->write(data[i]);
     feed_wdt();
   }
 }
-void HOT I2CComponent::write_16_(uint8_t address, const uint16_t *data, uint8_t len) {
+void HOT I2CComponent::raw_write_16(uint8_t address, const uint16_t *data, uint8_t len) {
   for (size_t i = 0; i < len; i++) {
     ESP_LOGVV(TAG, "    Writing 0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN " (0x%04X)",
               BYTE_TO_BINARY(data[i] >> 8), BYTE_TO_BINARY(data[i]), data[i]);
@@ -112,8 +112,8 @@ void HOT I2CComponent::write_16_(uint8_t address, const uint16_t *data, uint8_t 
   }
 }
 
-bool I2CComponent::receive_(uint8_t address, uint8_t *data, uint8_t len) {
-  if (!this->request_from_(address, len))
+bool I2CComponent::raw_receive(uint8_t address, uint8_t *data, uint8_t len) {
+  if (!this->raw_request_from(address, len))
     return false;
   for (uint8_t i = 0; i < len; i++) {
     data[i] = this->wire_->read();
@@ -122,8 +122,8 @@ bool I2CComponent::receive_(uint8_t address, uint8_t *data, uint8_t len) {
   }
   return true;
 }
-bool I2CComponent::receive_16_(uint8_t address, uint16_t *data, uint8_t len) {
-  if (!this->request_from_(address, len * 2))
+bool I2CComponent::raw_receive_16(uint8_t address, uint16_t *data, uint8_t len) {
+  if (!this->raw_request_from(address, len * 2))
     return false;
   auto *data_8 = reinterpret_cast<uint8_t *>(data);
   for (uint8_t i = 0; i < len; i++) {
@@ -140,7 +140,7 @@ bool I2CComponent::read_bytes(uint8_t address, uint8_t a_register, uint8_t *data
 
   if (conversion > 0)
     delay(conversion);
-  return this->receive_(address, data, len);
+  return this->raw_receive(address, data, len);
 }
 bool I2CComponent::read_bytes_16(uint8_t address, uint8_t a_register, uint16_t *data, uint8_t len, uint32_t conversion) {
   if (!this->write_bytes(address, a_register, nullptr, 0))
@@ -148,7 +148,7 @@ bool I2CComponent::read_bytes_16(uint8_t address, uint8_t a_register, uint16_t *
 
   if (conversion > 0)
     delay(conversion);
-  return this->receive_16_(address, data, len);
+  return this->raw_receive_16(address, data, len);
 }
 bool I2CComponent::read_byte(uint8_t address, uint8_t a_register, uint8_t *data, uint32_t conversion) {
   return this->read_bytes(address, a_register, data, 1, conversion);
@@ -157,16 +157,16 @@ bool I2CComponent::read_byte_16(uint8_t address, uint8_t a_register, uint16_t *d
   return this->read_bytes_16(address, a_register, data, 1, conversion);
 }
 bool I2CComponent::write_bytes(uint8_t address, uint8_t a_register, const uint8_t *data, uint8_t len) {
-  this->begin_transmission_(address);
-  this->write_(address, &a_register, 1);
-  this->write_(address, data, len);
-  return this->end_transmission_(address);
+  this->raw_begin_transmission(address);
+  this->raw_write(address, &a_register, 1);
+  this->raw_write(address, data, len);
+  return this->raw_end_transmission(address);
 }
 bool I2CComponent::write_bytes_16(uint8_t address, uint8_t a_register, const uint16_t *data, uint8_t len) {
-  this->begin_transmission_(address);
-  this->write_(address, &a_register, 1);
-  this->write_16_(address, data, len);
-  return this->end_transmission_(address);
+  this->raw_begin_transmission(address);
+  this->raw_write(address, &a_register, 1);
+  this->raw_write_16(address, data, len);
+  return this->raw_end_transmission(address);
 }
 bool I2CComponent::write_byte(uint8_t address, uint8_t a_register, uint8_t data) {
   return this->write_bytes(address, a_register, &data, 1);

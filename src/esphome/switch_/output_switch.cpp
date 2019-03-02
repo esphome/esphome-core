@@ -12,7 +12,7 @@ namespace switch_ {
 static const char *TAG = "switch.output";
 
 OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output) : Switch(name), output_(output) {}
-void OutputSwitch::write_state(bool state) {
+void OutputSwitch::write_state_(bool state) {
   if (state) {
     this->output_->turn_on();
   } else {

@@ -51,10 +51,10 @@ class LCDDisplay : public PollingComponent {
 
  protected:
   virtual bool is_four_bit_mode_() = 0;
-  virtual void write_n_bits(uint8_t value, uint8_t n) = 0;
-  virtual void send(uint8_t value, bool rs) = 0;
+  virtual void write_n_bits_(uint8_t value, uint8_t n) = 0;
+  virtual void send_(uint8_t value, bool rs) = 0;
 
-  void command(uint8_t value);
+  void command_(uint8_t value);
 
   uint8_t columns_;
   uint8_t rows_;
@@ -81,8 +81,8 @@ class GPIOLCDDisplay : public LCDDisplay {
   void dump_config() override;
  protected:
   bool is_four_bit_mode_() override;
-  void write_n_bits(uint8_t value, uint8_t n) override;
-  void send(uint8_t value, bool rs) override;
+  void write_n_bits_(uint8_t value, uint8_t n) override;
+  void send_(uint8_t value, bool rs) override;
   GPIOPin *rs_pin_{nullptr};
   GPIOPin *rw_pin_{nullptr};
   GPIOPin *enable_pin_{nullptr};
@@ -97,8 +97,8 @@ class PCF8574LCDDisplay : public LCDDisplay, public I2CDevice {
   void dump_config() override;
  protected:
   bool is_four_bit_mode_() override;
-  void write_n_bits(uint8_t value, uint8_t n) override;
-  void send(uint8_t value, bool rs) override;
+  void write_n_bits_(uint8_t value, uint8_t n) override;
+  void send_(uint8_t value, bool rs) override;
 };
 #endif
 

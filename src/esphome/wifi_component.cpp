@@ -47,7 +47,7 @@ void WiFiComponent::setup() {
       this->start_scanning();
     }
   } else if (this->has_ap()) {
-    this->setup_ap_config();
+    this->setup_ap_config_();
   }
 
   this->wifi_apply_hostname_();
@@ -127,7 +127,7 @@ std::string WiFiComponent::get_use_address() const {
   return this->use_address_;
 }
 void WiFiComponent::set_use_address(const std::string &use_address) { this->use_address_ = use_address; }
-void WiFiComponent::setup_ap_config() {
+void WiFiComponent::setup_ap_config_() {
   this->wifi_mode_({}, true);
 
   if (this->ap_setup_)
@@ -403,7 +403,7 @@ void WiFiComponent::retry_connect() {
   }
 
   if (this->has_ap()) {
-    this->setup_ap_config();
+    this->setup_ap_config_();
   }
   this->state_ = WIFI_COMPONENT_STATE_COOLDOWN;
   this->action_started_ = millis();
@@ -739,7 +739,7 @@ const char *get_disconnect_reason_str(uint8_t reason) {
   }
 }
 
-void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
+void WiFiComponent::wifi_event_callback(System_Event_t *event) {
   switch (event->event) {
     case EVENT_STAMODE_CONNECTED: {
       auto it = event->event_info.connected;
@@ -813,7 +813,7 @@ void WiFiComponent::wifi_event_callback_(System_Event_t *event) {
   WiFiMockClass::_event_callback(event);
 }
 
-void WiFiComponent::wifi_register_callbacks_() { wifi_set_event_handler_cb(&WiFiComponent::wifi_event_callback_); }
+void WiFiComponent::wifi_register_callbacks_() { wifi_set_event_handler_cb(&WiFiComponent::wifi_event_callback); }
 wl_status_t WiFiComponent::wifi_sta_status_() {
   station_status_t status = wifi_station_get_connect_status();
   switch (status) {
@@ -858,7 +858,7 @@ bool WiFiComponent::wifi_scan_start_() {
     config.scan_time.active.max = 500;
   }
   FIRST_SCAN = false;
-  bool ret = wifi_station_scan(&config, &WiFiComponent::s_wifi_scan_done_callback_);
+  bool ret = wifi_station_scan(&config, &WiFiComponent::s_wifi_scan_done_callback);
   if (!ret) {
     ESP_LOGV(TAG, "wifi_station_scan failed!");
     return false;
@@ -866,7 +866,7 @@ bool WiFiComponent::wifi_scan_start_() {
 
   return ret;
 }
-void WiFiComponent::s_wifi_scan_done_callback_(void *arg, STATUS status) {
+void WiFiComponent::s_wifi_scan_done_callback(void *arg, STATUS status) {
   global_wifi_component->wifi_scan_done_callback_(arg, status);
 }
 

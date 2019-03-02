@@ -230,7 +230,7 @@ const ESPColorView &ESPColorView::operator=(const ESPHSVColor &rhs) const {
   this->set(rhs);
   return *this;
 }
-void ESPColorView::set_color_correction_(const ESPColorCorrection *color_correction) {
+void ESPColorView::raw_set_color_correction(const ESPColorCorrection *color_correction) {
   this->color_correction_ = color_correction;
 }
 

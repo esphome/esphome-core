@@ -38,11 +38,11 @@ void RandomLightEffect::set_update_interval(uint32_t update_interval) { this->up
 LightEffect::LightEffect(const std::string &name) : name_(name) {}
 
 void LightEffect::start() {}
-void LightEffect::start_() { this->start(); }
+void LightEffect::start_internal() { this->start(); }
 void LightEffect::stop() {}
 const std::string &LightEffect::get_name() { return this->name_; }
 void LightEffect::init() {}
-void LightEffect::init_(LightState *state) {
+void LightEffect::init_internal(LightState *state) {
   this->state_ = state;
   this->init();
 }

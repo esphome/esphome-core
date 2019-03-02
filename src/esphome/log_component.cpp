@@ -13,7 +13,7 @@ ESPHOME_NAMESPACE_BEGIN
 static const char *TAG = "logger";
 
 int HOT LogComponent::log_vprintf_(int level, const char *tag, const char *format, va_list args) {
-  if (level > this->level_for_(tag))
+  if (level > this->level_for(tag))
     return 0;
 
   int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(), format, args);
@@ -47,7 +47,7 @@ int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHe
 }
 #endif
 
-int HOT LogComponent::level_for_(const char *tag) {
+int HOT LogComponent::level_for(const char *tag) {
   // Uses std::vector<> for low memory footprint, though the vector
   // could be sorted to minimize lookup times. This feature isn't used that
   // much anyway so it doesn't matter too much.

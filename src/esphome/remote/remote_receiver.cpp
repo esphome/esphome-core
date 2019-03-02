@@ -246,7 +246,7 @@ void RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-void ICACHE_RAM_ATTR HOT RemoteReceiverComponent::gpio_intr() {
+void ICACHE_RAM_ATTR HOT RemoteReceiverComponent::gpio_intr_() {
   const uint32_t now = micros();
   // If the lhs is 1 (rising edge) we should write to an uneven index and vice versa
   const uint32_t next = (this->buffer_write_at_ + 1) % this->buffer_size_;
@@ -281,7 +281,7 @@ void RemoteReceiverComponent::setup() {
     this->buffer_write_at_ = this->buffer_read_at_ = 0;
     this->buffer_[0] = 0;
   }
-  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR { this->gpio_intr(); }, CHANGE);
+  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR { this->gpio_intr_(); }, CHANGE);
 }
 void RemoteReceiverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Receiver:");
@@ -366,7 +366,7 @@ void RemoteReceiverComponent::set_idle_us(uint32_t idle_us) { this->idle_us_ = i
 void RemoteReceiverComponent::process_(RemoteReceiveData *data) {
   bool found_decoder = false;
   for (auto *decoder : this->decoders_) {
-    if (decoder->process_(data))
+    if (decoder->process(data))
       found_decoder = true;
   }
 
@@ -374,16 +374,16 @@ void RemoteReceiverComponent::process_(RemoteReceiveData *data) {
     bool found = false;
 
     for (auto *dumper : this->dumpers_) {
-      if (!dumper->secondary_()) {
-        if (dumper->process_(data)) {
+      if (!dumper->is_secondary()) {
+        if (dumper->process(data)) {
           found = true;
         }
       }
     }
 
     for (auto *dumper : this->dumpers_) {
-      if (!found && dumper->secondary_()) {
-        dumper->process_(data);
+      if (!found && dumper->is_secondary()) {
+        dumper->process(data);
       }
     }
   }
@@ -391,9 +391,9 @@ void RemoteReceiverComponent::process_(RemoteReceiveData *data) {
 
 RemoteReceiver::RemoteReceiver(const std::string &name) : BinarySensor(name) {}
 
-bool RemoteReceiver::process_(RemoteReceiveData *data) {
+bool RemoteReceiver::process(RemoteReceiveData *data) {
   data->reset_index();
-  if (this->matches(data)) {
+  if (this->matches_(data)) {
     this->publish_state(true);
     yield();
     this->publish_state(false);
@@ -401,9 +401,9 @@ bool RemoteReceiver::process_(RemoteReceiveData *data) {
   }
   return false;
 }
-bool RemoteReceiveDumper::secondary_() { return false; }
+bool RemoteReceiveDumper::is_secondary() { return false; }
 
-bool RemoteReceiveDumper::process_(RemoteReceiveData *data) {
+bool RemoteReceiveDumper::process(RemoteReceiveData *data) {
   data->reset_index();
   return this->dump(data);
 }

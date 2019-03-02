@@ -96,7 +96,7 @@ void MAX31855Sensor::read_data_() {
 MAX31855Sensor::MAX31855Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), SPIDevice(parent, cs) {}
 
-bool MAX31855Sensor::msb_first() { return true; }
+bool MAX31855Sensor::is_device_msb_first() { return true; }
 
 }  // namespace sensor
 

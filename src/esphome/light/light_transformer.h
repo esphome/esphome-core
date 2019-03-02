@@ -36,11 +36,11 @@ class LightTransformer {
 
  protected:
   /// Get the completion of this transformer, 0 to 1.
-  float get_progress();
+  float get_progress_();
 
-  const LightColorValues &get_start_values() const;
+  const LightColorValues &get_start_values_() const;
 
-  const LightColorValues &get_target_values() const;
+  const LightColorValues &get_target_values_() const;
 
   uint32_t start_time_;
   uint32_t length_;

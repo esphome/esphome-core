@@ -65,7 +65,7 @@ void Component::set_interval(const std::string &name, uint32_t interval, std::fu
 }
 
 bool Component::cancel_interval(const std::string &name) {
-  return this->cancel_time_function(name, TimeFunction::INTERVAL);
+  return this->cancel_time_function_(name, TimeFunction::INTERVAL);
 }
 
 void Component::set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f) {
@@ -87,15 +87,15 @@ void Component::set_timeout(const std::string &name, uint32_t timeout, std::func
 }
 
 bool Component::cancel_timeout(const std::string &name) {
-  return this->cancel_time_function(name, TimeFunction::TIMEOUT);
+  return this->cancel_time_function_(name, TimeFunction::TIMEOUT);
 }
 
-void Component::loop_() {
-  this->loop_internal();
+void Component::call_loop() {
+  this->loop_internal_();
   this->loop();
 }
 
-bool Component::cancel_time_function(const std::string &name, TimeFunction::Type type) {
+bool Component::cancel_time_function_(const std::string &name, TimeFunction::Type type) {
   // NOLINTNEXTLINE
   for (auto iter = this->time_functions_.begin(); iter != this->time_functions_.end(); iter++) {
     if (!iter->remove && iter->name == name && iter->type == type) {
@@ -106,12 +106,12 @@ bool Component::cancel_time_function(const std::string &name, TimeFunction::Type
   }
   return false;
 }
-void Component::setup_() {
-  this->setup_internal();
+void Component::call_setup() {
+  this->setup_internal_();
   this->setup();
 }
 uint32_t Component::get_component_state() const { return this->component_state_; }
-void Component::loop_internal() {
+void Component::loop_internal_() {
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_LOOP;
 
@@ -143,7 +143,7 @@ void Component::loop_internal() {
                                              [](const TimeFunction &tf) -> bool { return tf.remove; }),
                               this->time_functions_.end());
 }
-void Component::setup_internal() {
+void Component::setup_internal_() {
   this->component_state_ &= ~COMPONENT_STATE_MASK;
   this->component_state_ |= COMPONENT_STATE_SETUP;
 }
@@ -154,7 +154,7 @@ void Component::mark_failed() {
   this->status_set_error();
 }
 void Component::defer(std::function<void()> &&f) { this->defer("", std::move(f)); }
-bool Component::cancel_defer(const std::string &name) { return this->cancel_time_function(name, TimeFunction::DEFER); }
+bool Component::cancel_defer(const std::string &name) { return this->cancel_time_function_(name, TimeFunction::DEFER); }
 void Component::defer(const std::string &name, std::function<void()> &&f) {
   if (!name.empty()) {
     this->cancel_defer(name);
@@ -199,9 +199,9 @@ void Component::set_setup_priority(float priority) { this->setup_priority_overri
 
 PollingComponent::PollingComponent(uint32_t update_interval) : Component(), update_interval_(update_interval) {}
 
-void PollingComponent::setup_() {
+void PollingComponent::call_setup() {
   // Call component internal setup.
-  this->setup_internal();
+  this->setup_internal_();
 
   // Let the polling component subclass setup their HW.
   this->setup();

@@ -61,7 +61,7 @@ void MAX6675Sensor::read_data_() {
 MAX6675Sensor::MAX6675Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), SPIDevice(parent, cs) {}
 
-bool MAX6675Sensor::msb_first() { return true; }
+bool MAX6675Sensor::is_device_msb_first() { return true; }
 
 }  // namespace sensor
 

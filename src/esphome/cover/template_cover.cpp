@@ -30,7 +30,7 @@ float TemplateCover::get_setup_priority() const { return setup_priority::HARDWAR
 Trigger<> *TemplateCover::get_open_trigger() const { return this->open_trigger_; }
 Trigger<> *TemplateCover::get_close_trigger() const { return this->close_trigger_; }
 Trigger<> *TemplateCover::get_stop_trigger() const { return this->stop_trigger_; }
-void TemplateCover::write_command(CoverCommand command) {
+void TemplateCover::write_command_(CoverCommand command) {
   if (this->prev_trigger_ != nullptr) {
     this->prev_trigger_->stop();
   }

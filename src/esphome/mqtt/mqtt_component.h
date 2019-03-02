@@ -20,8 +20,8 @@ struct SendDiscoveryConfig {
 };
 
 #define LOG_MQTT_COMPONENT(state_topic, command_topic) \
-    if (state_topic) { ESP_LOGCONFIG(TAG, "  State Topic: '%s'", this->get_state_topic().c_str()); } \
-    if (command_topic) { ESP_LOGCONFIG(TAG, "  Command Topic: '%s'", this->get_command_topic().c_str()); } \
+    if (state_topic) { ESP_LOGCONFIG(TAG, "  State Topic: '%s'", this->get_state_topic_().c_str()); } \
+    if (command_topic) { ESP_LOGCONFIG(TAG, "  Command Topic: '%s'", this->get_command_topic_().c_str()); } \
 
 
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
@@ -46,9 +46,9 @@ class MQTTComponent : public Component {
   explicit MQTTComponent();
 
   /// Override setup_ so that we can call send_discovery() when needed.
-  void setup_() override;
+  void call_setup() override;
 
-  void loop_() override;
+  void call_loop() override;
 
   /// Send discovery info the Home Assistant, override this.
   virtual void send_discovery(JsonObject &root, SendDiscoveryConfig &config) = 0;
@@ -85,44 +85,12 @@ class MQTTComponent : public Component {
 
   /// Internal method for the MQTT client base to schedule a resend of the state on reconnect.
   void schedule_resend_state();
-  
- protected:
-  /// Helper method to get the discovery topic for this component.
-  virtual std::string get_discovery_topic(const MQTTDiscoveryInfo &discovery_info) const;
 
-  /** Get this components state/command/... topic.
-   *
-   * @param suffix The suffix/key such as "state" or "command".
-   * @return The full topic.
-   */
-  virtual std::string get_default_topic_for(const std::string &suffix) const;
-
-  /// Get the friendly name of this MQTT component.
-  virtual std::string friendly_name() const = 0;
-
-  /** A unique ID for this MQTT component, empty for no unique id. See unique ID requirements:
-   * https://developers.home-assistant.io/docs/en/entity_registry_index.html#unique-id-requirements
-   *
-   * @return The unique id as a string.
-   */
-  virtual std::string unique_id();
-
-  /// Get the MQTT topic that new states will be shared to.
-  const std::string get_state_topic() const;
-
-  /// Get the MQTT topic for listening to commands.
-  const std::string get_command_topic() const;
-
-  bool is_connected() const;
-
-  /// Internal method to start sending discovery info, this will call send_discovery().
-  bool send_discovery_();
-
-  /** Send a MQTT message.
-   *
-   * @param topic The topic.
-   * @param payload The payload.
-   */
+ /** Send a MQTT message.
+  *
+  * @param topic The topic.
+  * @param payload The payload.
+  */
   bool publish(const std::string &topic, const std::string &payload);
 
   /** Construct and send a JSON MQTT message.
@@ -149,11 +117,43 @@ class MQTTComponent : public Component {
    * @param qos The MQTT quality of service. Defaults to 0.
    */
   void subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos = 0);
+  
+ protected:
+  /// Helper method to get the discovery topic for this component.
+  std::string get_discovery_topic_(const MQTTDiscoveryInfo &discovery_info) const;
+
+  /** Get this components state/command/... topic.
+   *
+   * @param suffix The suffix/key such as "state" or "command".
+   * @return The full topic.
+   */
+  std::string get_default_topic_for_(const std::string &suffix) const;
+
+  /// Get the friendly name of this MQTT component.
+  virtual std::string friendly_name_() const = 0;
+
+  /** A unique ID for this MQTT component, empty for no unique id. See unique ID requirements:
+   * https://developers.home-assistant.io/docs/en/entity_registry_index.html#unique-id-requirements
+   *
+   * @return The unique id as a string.
+   */
+  virtual std::string unique_id_();
+
+  /// Get the MQTT topic that new states will be shared to.
+  const std::string get_state_topic_() const;
+
+  /// Get the MQTT topic for listening to commands.
+  const std::string get_command_topic_() const;
+
+  bool is_connected_() const;
+
+  /// Internal method to start sending discovery info, this will call send_discovery().
+  bool send_discovery_();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Generate the Home Assistant MQTT discovery object id by automatically transforming the friendly name.
-  std::string get_default_object_id() const;
+  std::string get_default_object_id_() const;
 
  protected:
   std::string custom_state_topic_{};

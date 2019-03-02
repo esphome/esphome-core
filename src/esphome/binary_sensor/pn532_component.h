@@ -34,16 +34,16 @@ class PN532Component : public PollingComponent, public SPIDevice {
   PN532Trigger *make_trigger();
 
  protected:
-  bool msb_first() override;
+  bool is_device_msb_first() override;
 
   void pn532_write_command_(uint8_t len);
   bool pn532_write_command_check_ack_(uint8_t len, bool ignore = false);
 
   void pn532_read_data_(uint8_t len);
 
-  bool is_ready();
+  bool is_ready_();
 
-  bool read_ack();
+  bool read_ack_();
 
   uint8_t buffer_[32];
   bool requested_read_{false};

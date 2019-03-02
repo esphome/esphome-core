@@ -33,8 +33,8 @@ class SHT3XDComponent : public PollingComponent, public I2CDevice {
   void update() override;
 
  protected:
-  bool write_command(uint16_t command);
-  bool read_data(uint16_t *data, uint8_t len);
+  bool write_command_(uint16_t command);
+  bool read_data_(uint16_t *data, uint8_t len);
 
   SHT3XDTemperatureSensor *temperature_sensor_;
   SHT3XDHumiditySensor *humidity_sensor_;

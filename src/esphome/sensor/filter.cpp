@@ -25,7 +25,7 @@ void Filter::input(float value) {
 void Filter::output(float value) {
   if (this->next_ == nullptr) {
     ESP_LOGVV(TAG, "Filter(%p)::output(%f) -> SENSOR", this, value);
-    this->parent_->send_state_to_frontend_internal_(value);
+    this->parent_->internal_send_state_to_frontend(value);
   } else {
     ESP_LOGVV(TAG, "Filter(%p)::output(%f) -> %p", this, value, this->next_);
     this->next_->input(value);

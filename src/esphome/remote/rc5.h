@@ -36,7 +36,7 @@ class RC5Receiver : public RemoteReceiver {
   RC5Receiver(const std::string &name, uint8_t address, uint8_t command);
 
  protected:
-  bool matches(RemoteReceiveData *data) override;
+  bool matches_(RemoteReceiveData *data) override;
 
   uint8_t address_;
   uint8_t command_;

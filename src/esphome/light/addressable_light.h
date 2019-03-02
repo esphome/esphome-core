@@ -127,7 +127,7 @@ class ESPColorView {
   inline uint8_t get_blue() const ALWAYS_INLINE;
   inline uint8_t get_white() const ALWAYS_INLINE;
   inline uint8_t get_effect_data() const ALWAYS_INLINE;
-  inline void set_color_correction_(const ESPColorCorrection *color_correction) ALWAYS_INLINE;
+  inline void raw_set_color_correction(const ESPColorCorrection *color_correction) ALWAYS_INLINE;
  protected:
   uint8_t *const red_;
   uint8_t *const green_;

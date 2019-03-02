@@ -107,12 +107,12 @@ void CSE7766Component::parse_data_() {
   const float d = (now - this->last_reading_) / 1000.0f;
   this->last_reading_ = now;
 
-  uint32_t voltage_calib = this->get_24_bit_uint(2);
-  uint32_t voltage_cycle = this->get_24_bit_uint(5);
-  uint32_t current_calib = this->get_24_bit_uint(8);
-  uint32_t current_cycle = this->get_24_bit_uint(11);
-  uint32_t power_calib = this->get_24_bit_uint(14);
-  uint32_t power_cycle = this->get_24_bit_uint(17);
+  uint32_t voltage_calib = this->get_24_bit_uint_(2);
+  uint32_t voltage_cycle = this->get_24_bit_uint_(5);
+  uint32_t current_calib = this->get_24_bit_uint_(8);
+  uint32_t current_cycle = this->get_24_bit_uint_(11);
+  uint32_t power_calib = this->get_24_bit_uint_(14);
+  uint32_t power_cycle = this->get_24_bit_uint_(17);
 
   uint8_t adj = this->raw_data_[20];
 
@@ -156,7 +156,7 @@ void CSE7766Component::setup() {
   this->last_reading_ = micros();
   this->last_update_ = millis();
 }
-uint32_t CSE7766Component::get_24_bit_uint(uint8_t start_index) {
+uint32_t CSE7766Component::get_24_bit_uint_(uint8_t start_index) {
   return (uint32_t(this->raw_data_[start_index]) << 16) | (uint32_t(this->raw_data_[start_index + 1]) << 8) |
          uint32_t(this->raw_data_[start_index + 2]);
 }

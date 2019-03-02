@@ -15,7 +15,7 @@ namespace light {
 class AddressableLightEffect : public LightEffect {
  public:
   explicit AddressableLightEffect(const std::string &name);
-  void start_() override;
+  void start_internal() override;
   void stop() override;
   virtual void apply(AddressableLight &it, const ESPColor &current_color) = 0;
   void apply() override;

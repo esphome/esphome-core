@@ -4,11 +4,11 @@ ESPHOME_NAMESPACE_BEGIN
 
 template<typename... Ts>
 bool Condition<Ts...>::check_tuple(const std::tuple<Ts...> &tuple) {
-  return this->check_tuple(tuple, typename gens<sizeof...(Ts)>::type());
+  return this->check_tuple_(tuple, typename gens<sizeof...(Ts)>::type());
 }
 template<typename... Ts>
 template<int... S>
-bool Condition<Ts...>::check_tuple(const std::tuple<Ts...> &tuple, seq<S...>) {
+bool Condition<Ts...>::check_tuple_(const std::tuple<Ts...> &tuple, seq<S...>) {
   return this->check(std::get<S>(tuple) ...);
 }
 
@@ -52,7 +52,7 @@ template<typename... Ts>
 void Trigger<Ts...>::trigger(Ts... x) {
   if (this->parent_ == nullptr)
     return;
-  this->parent_->process_trigger_(x...);
+  this->parent_->trigger(x...);
 }
 template<typename... Ts>
 void Trigger<Ts...>::stop() {
@@ -79,11 +79,11 @@ void Action<Ts...>::stop_next() {
 }
 template<typename... Ts>
 void Action<Ts...>::play_next_tuple(const std::tuple<Ts...> &tuple) {
-  this->play_next_tuple(tuple, typename gens<sizeof...(Ts)>::type());
+  this->play_next_tuple_(tuple, typename gens<sizeof...(Ts)>::type());
 }
 template<typename... Ts>
 template<int... S>
-void Action<Ts...>::play_next_tuple(const std::tuple<Ts...> &tuple, seq<S...>) {
+void Action<Ts...>::play_next_tuple_(const std::tuple<Ts...> &tuple, seq<S...>) {
   this->play_next(std::get<S>(tuple) ...);
 }
 
@@ -129,7 +129,7 @@ void Automation<Ts...>::add_actions(const std::vector<Action<Ts...> *> &actions)
   this->actions_.add_actions(actions);
 }
 template<typename... Ts>
-void Automation<Ts...>::process_trigger_(Ts... x) {
+void Automation<Ts...>::trigger(Ts... x) {
   for (auto *condition : this->conditions_) {
     if (!condition->check(x...))
       return;

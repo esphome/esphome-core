@@ -183,7 +183,7 @@ class Sensor : public Nameable {
   /// Calculate the expected update interval for values that pass through all filters.
   uint32_t calculate_expected_filter_update_interval();
 
-  void send_state_to_frontend_internal_(float state);
+  void internal_send_state_to_frontend(float state);
 
 #ifdef USE_MQTT_SENSOR
   MQTTSensorComponent *get_mqtt() const;
@@ -197,7 +197,7 @@ class Sensor : public Nameable {
    *
    * @return The icon of this sensor, for example "°C".
    */
-  virtual std::string unit_of_measurement();
+  virtual std::string unit_of_measurement();  // NOLINT
 
   /** Override this to set the Home Assistant icon for this sensor.
    *
@@ -205,10 +205,10 @@ class Sensor : public Nameable {
    *
    * @return The icon of this sensor, for example "mdi:battery".
    */
-  virtual std::string icon();
+  virtual std::string icon();  // NOLINT
 
   /// Return the accuracy in decimals for this sensor.
-  virtual int8_t accuracy_decimals();
+  virtual int8_t accuracy_decimals();  // NOLINT
 
   uint32_t hash_base_() override;
 

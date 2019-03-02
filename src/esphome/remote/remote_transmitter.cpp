@@ -52,7 +52,7 @@ void RemoteTransmitter::set_repeat(uint32_t send_times, uint32_t send_wait) {
   this->send_times_ = send_times;
   this->send_wait_ = send_wait;
 }
-void RemoteTransmitter::write_state(bool state) {
+void RemoteTransmitter::write_state_(bool state) {
   if (!state) {
     this->publish_state(false);
     return;

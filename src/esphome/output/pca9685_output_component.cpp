@@ -149,7 +149,7 @@ void PCA9685OutputComponent::loop() {
 
 float PCA9685OutputComponent::get_setup_priority() const { return setup_priority::HARDWARE; }
 
-void PCA9685OutputComponent::set_channel_value(uint8_t channel, uint16_t value) {
+void PCA9685OutputComponent::set_channel_value_(uint8_t channel, uint16_t value) {
   if (this->pwm_amounts_[channel] != value)
     this->update_ = true;
   this->pwm_amounts_[channel] = value;
@@ -174,11 +174,11 @@ void PCA9685OutputComponent::set_mode(uint8_t mode) { this->mode_ = mode; }
 PCA9685OutputComponent::Channel::Channel(PCA9685OutputComponent *parent, uint8_t channel)
     : FloatOutput(), parent_(parent), channel_(channel) {}
 
-void PCA9685OutputComponent::Channel::write_state(float state) {
+void PCA9685OutputComponent::Channel::write_state_(float state) {
   const uint16_t max_duty = 4096;
   const float duty_rounded = roundf(state * max_duty);
   auto duty = static_cast<uint16_t>(duty_rounded);
-  this->parent_->set_channel_value(this->channel_, duty);
+  this->parent_->set_channel_value_(this->channel_, duty);
 }
 
 }  // namespace output

@@ -72,19 +72,21 @@ class LogComponent : public Component {
 
   size_t get_tx_buffer_size() const;
 
-  int log_vprintf_(int level, const char *tag, const char *format, va_list args);
-#ifdef USE_STORE_LOG_STR_IN_FLASH
-  int log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args);
-#endif
-  int level_for_(const char *tag);
-  void log_message_(int level, const char *tag, char *msg, int ret);
+  int level_for(const char *tag);
 
   /// Register a callback that will be called for every log message sent
   void add_on_log_callback(std::function<void(int, const char *, const char *)> &&callback);
 
   float get_setup_priority() const override;
 
+  int log_vprintf_(int level, const char *tag, const char *format, va_list args);  // NOLINT
+#ifdef USE_STORE_LOG_STR_IN_FLASH
+  int log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args);  // NOLINT
+#endif
+
  protected:
+  void log_message_(int level, const char *tag, char *msg, int ret);
+
   uint32_t baud_rate_;
   std::vector<char> tx_buffer_;
   int global_log_level_{ESPHOME_LOG_LEVEL};

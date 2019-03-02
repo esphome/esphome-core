@@ -196,17 +196,17 @@ class Nextion : public PollingComponent, public UARTDevice {
   void set_writer(const nextion_writer_t &writer);
 
   /**
-   * Manually send a raw command to the display.
+   * Manually send a raw command to the display and don't wait for an acknolwedgement packet.
    * @param command The command to write, for example "vis b0,0".
    */
-  void send_command_(const char *command);
+  void send_command_no_ack(const char *command);
   /**
    * Manually send a raw formatted command to the display.
    * @param format The printf-style command format, like "vis %s,0"
    * @param ... The format arguments
    * @return Whether the send was successful.
    */
-  bool send_command_printf_(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+  bool send_command_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
  protected:
   bool ack_();

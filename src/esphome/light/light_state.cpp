@@ -99,7 +99,7 @@ void LightState::start_effect(uint32_t effect_index) {
 
   this->active_effect_ = this->effects_[effect_index - 1];
   this->active_effect_index_ = effect_index;
-  this->active_effect_->start_();
+  this->active_effect_->start_internal();
 }
 
 bool LightState::supports_effects() { return !this->effects_.empty(); }
@@ -139,7 +139,7 @@ void LightState::setup() {
 
   this->output_->setup_state(this);
   for (auto *effect : this->effects_) {
-    effect->init_(this);
+    effect->init_internal(this);
   }
 
   this->rtc_ = global_preferences.make_preference<LightStateRTCState>(this->get_object_id_hash());

@@ -47,7 +47,7 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   bool is_internal() override;
 
  protected:
-  std::string friendly_name() const override;
+  std::string friendly_name_() const override;
 
   std::string custom_oscillation_command_topic_;
   std::string custom_oscillation_state_topic_;

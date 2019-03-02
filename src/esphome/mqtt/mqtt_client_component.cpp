@@ -56,7 +56,7 @@ void MQTTClientComponent::setup() {
   });
 
   this->last_connected_ = millis();
-  this->start_dnslookup();
+  this->start_dnslookup_();
 }
 void MQTTClientComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT:");
@@ -78,7 +78,7 @@ void MQTTClientComponent::dump_config() {
 }
 bool MQTTClientComponent::can_proceed() { return this->is_connected(); }
 
-void MQTTClientComponent::start_dnslookup() {
+void MQTTClientComponent::start_dnslookup_() {
   for (auto &subscription : this->subscriptions_) {
     subscription.subscribed = false;
     subscription.resubscribe_timeout = 0;
@@ -89,12 +89,12 @@ void MQTTClientComponent::start_dnslookup() {
   this->dns_resolved_ = false;
   ip_addr_t addr;
 #ifdef ARDUINO_ARCH_ESP32
-  err_t err = dns_gethostbyname_addrtype(this->credentials_.address.c_str(), &addr, this->dns_found_callback_, this,
+  err_t err = dns_gethostbyname_addrtype(this->credentials_.address.c_str(), &addr, this->dns_found_callback, this,
                                          LWIP_DNS_ADDRTYPE_IPV4);
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
   err_t err = dns_gethostbyname(this->credentials_.address.c_str(), &addr,
-                                esphome::mqtt::MQTTClientComponent::dns_found_callback_, this);
+                                esphome::mqtt::MQTTClientComponent::dns_found_callback, this);
 #endif
   switch (err) {
     case ERR_OK: {
@@ -106,7 +106,7 @@ void MQTTClientComponent::start_dnslookup() {
 #ifdef ARDUINO_ARCH_ESP8266
       this->ip_ = IPAddress(addr.addr);
 #endif
-      this->start_connect();
+      this->start_connect_();
       return;
     }
     case ERR_INPROGRESS: {
@@ -129,7 +129,7 @@ void MQTTClientComponent::start_dnslookup() {
   this->state_ = MQTT_CLIENT_RESOLVING_ADDRESS;
   this->connect_begin_ = millis();
 }
-void MQTTClientComponent::check_dnslookup() {
+void MQTTClientComponent::check_dnslookup_() {
   if (!this->dns_resolved_ && millis() - this->connect_begin_ > 20000) {
     this->dns_resolve_error_ = true;
   }
@@ -145,12 +145,12 @@ void MQTTClientComponent::check_dnslookup() {
   }
 
   ESP_LOGD(TAG, "Resolved broker IP address to %s", this->ip_.toString().c_str());
-  this->start_connect();
+  this->start_connect_();
 }
 #if defined(ARDUINO_ARCH_ESP8266) && LWIP_VERSION_MAJOR == 1
-void MQTTClientComponent::dns_found_callback_(const char *name, ip_addr_t *ipaddr, void *callback_arg) {
+void MQTTClientComponent::dns_found_callback(const char *name, ip_addr_t *ipaddr, void *callback_arg) {
 #else
-void MQTTClientComponent::dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
+void MQTTClientComponent::dns_found_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
 #endif
   auto *a_this = (MQTTClientComponent *) callback_arg;
   if (ipaddr == nullptr) {
@@ -166,7 +166,7 @@ void MQTTClientComponent::dns_found_callback_(const char *name, const ip_addr_t 
   }
 }
 
-void MQTTClientComponent::start_connect() {
+void MQTTClientComponent::start_connect_() {
   if (!network_is_connected())
     return;
 
@@ -202,7 +202,7 @@ void MQTTClientComponent::check_connected() {
   if (!this->mqtt_client_.connected()) {
     if (millis() - this->connect_begin_ > 60000) {
       this->state_ = MQTT_CLIENT_DISCONNECTED;
-      this->start_dnslookup();
+      this->start_dnslookup_();
     }
     return;
   }
@@ -264,11 +264,11 @@ void MQTTClientComponent::loop() {
   switch (this->state_) {
     case MQTT_CLIENT_DISCONNECTED:
       if (now - this->connect_begin_ > 5000) {
-        this->start_dnslookup();
+        this->start_dnslookup_();
       }
       break;
     case MQTT_CLIENT_RESOLVING_ADDRESS:
-      this->check_dnslookup();
+      this->check_dnslookup_();
       break;
     case MQTT_CLIENT_CONNECTING:
       this->check_connected();
@@ -277,7 +277,7 @@ void MQTTClientComponent::loop() {
       if (!this->mqtt_client_.connected()) {
         this->state_ = MQTT_CLIENT_DISCONNECTED;
         ESP_LOGW(TAG, "Lost MQTT Client connection!");
-        this->start_dnslookup();
+        this->start_dnslookup_();
       } else {
         if (!this->birth_message_.topic.empty() && !this->sent_birth_message_) {
           this->sent_birth_message_ = this->publish(this->birth_message_);
@@ -508,16 +508,16 @@ void MQTTClientComponent::set_topic_prefix(std::string topic_prefix) {
 const std::string &MQTTClientComponent::get_topic_prefix() const { return this->topic_prefix_; }
 void MQTTClientComponent::disable_birth_message() {
   this->birth_message_.topic = "";
-  this->recalculate_availability();
+  this->recalculate_availability_();
 }
 void MQTTClientComponent::disable_shutdown_message() {
   this->shutdown_message_.topic = "";
-  this->recalculate_availability();
+  this->recalculate_availability_();
 }
 bool MQTTClientComponent::is_discovery_enabled() const { return !this->discovery_info_.prefix.empty(); }
 void MQTTClientComponent::set_client_id(std::string client_id) { this->credentials_.client_id = std::move(client_id); }
 const Availability &MQTTClientComponent::get_availability() { return this->availability_; }
-void MQTTClientComponent::recalculate_availability() {
+void MQTTClientComponent::recalculate_availability_() {
   if (this->birth_message_.topic.empty() || this->birth_message_.topic != this->last_will_.topic) {
     this->availability_.topic = "";
     return;
@@ -529,12 +529,12 @@ void MQTTClientComponent::recalculate_availability() {
 
 void MQTTClientComponent::set_last_will(MQTTMessage &&message) {
   this->last_will_ = std::move(message);
-  this->recalculate_availability();
+  this->recalculate_availability_();
 }
 
 void MQTTClientComponent::set_birth_message(MQTTMessage &&message) {
   this->birth_message_ = std::move(message);
-  this->recalculate_availability();
+  this->recalculate_availability_();
 }
 
 void MQTTClientComponent::set_shutdown_message(MQTTMessage &&message) { this->shutdown_message_ = std::move(message); }

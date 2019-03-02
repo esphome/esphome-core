@@ -71,7 +71,7 @@ void PN532Component::update() {
   this->requested_read_ = true;
 }
 void PN532Component::loop() {
-  if (!this->requested_read_ || !this->is_ready())
+  if (!this->requested_read_ || !this->is_ready_())
     return;
 
   this->pn532_read_data_(20);
@@ -168,7 +168,7 @@ bool PN532Component::pn532_write_command_check_ack_(uint8_t len, bool ignore) {
   this->pn532_write_command_(len);
 
   uint32_t start_time = millis();
-  while (!this->is_ready()) {
+  while (!this->is_ready_()) {
     if (millis() - start_time > 100) {
       if (!ignore) {
         ESP_LOGE(TAG, "Timed out waiting for ACK from PN532!");
@@ -178,7 +178,7 @@ bool PN532Component::pn532_write_command_check_ack_(uint8_t len, bool ignore) {
     yield();
   }
 
-  if (!this->read_ack()) {
+  if (!this->read_ack_()) {
     if (!ignore) {
       ESP_LOGE(TAG, "Invalid ACK frame received from PN532!");
     }
@@ -212,7 +212,7 @@ PN532Trigger *PN532Component::make_trigger() {
   this->triggers_.push_back(trigger);
   return trigger;
 }
-bool PN532Component::is_ready() {
+bool PN532Component::is_ready_() {
   this->enable();
   // Mark we're reading state
   this->write_byte(0x02);
@@ -223,7 +223,7 @@ bool PN532Component::is_ready() {
   }
   return ret;
 }
-bool PN532Component::read_ack() {
+bool PN532Component::read_ack_() {
   ESP_LOGVV(TAG, "Reading ACK...");
   this->enable();
   // Mark we're reading
@@ -242,7 +242,7 @@ bool PN532Component::read_ack() {
 PN532Component::PN532Component(SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
     : PollingComponent(update_interval), SPIDevice(parent, cs) {}
 
-bool PN532Component::msb_first() { return false; }
+bool PN532Component::is_device_msb_first() { return false; }
 void PN532Component::dump_config() {
   ESP_LOGCONFIG(TAG, "PN532:");
   switch (this->error_code_) {

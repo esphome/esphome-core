@@ -62,7 +62,7 @@ class PCA9685OutputComponent : public Component, public I2CDevice {
    public:
     Channel(PCA9685OutputComponent *parent, uint8_t channel);
 
-    void write_state(float state) override;
+    void write_state_(float state) override;
 
    protected:
     PCA9685OutputComponent *parent_;
@@ -70,7 +70,7 @@ class PCA9685OutputComponent : public Component, public I2CDevice {
   };
 
  protected:
-  void set_channel_value(uint8_t channel, uint16_t value);
+  void set_channel_value_(uint8_t channel, uint16_t value);
 
   float frequency_;
   uint8_t mode_;

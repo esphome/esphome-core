@@ -13,7 +13,7 @@ void Filter::output(bool value, bool is_initial) {
     return;
 
   if (this->next_ == nullptr) {
-    this->parent_->send_state_internal_(value, is_initial);
+    this->parent_->send_state_internal(value, is_initial);
   } else {
     this->next_->input(value, is_initial);
   }

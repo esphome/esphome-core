@@ -32,14 +32,14 @@ using pulse_counter_t = int32_t;
 class PulseCounterBase {
  public:
   PulseCounterBase(GPIOPin *pin);
-  bool pulse_counter_setup_();
-  pulse_counter_t read_raw_value_();
+  bool pulse_counter_setup();
+  pulse_counter_t read_raw_value();
 
   GPIOPin *get_pin();
 
  protected:
 #ifdef ARDUINO_ARCH_ESP8266
-  void gpio_intr();
+  void gpio_intr_();
   volatile pulse_counter_t counter_{0};
   volatile uint32_t last_pulse_{0};
 #endif

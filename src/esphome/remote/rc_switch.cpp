@@ -138,7 +138,7 @@ void encode_rc_switch_type_d(RemoteTransmitData *data, char group, uint8_t devic
 RCSwitchRawReceiver::RCSwitchRawReceiver(const std::string &name, RCSwitchProtocol a_protocol, uint32_t code,
                                          uint8_t nbits)
     : RemoteReceiver(name), protocol_(a_protocol), code_(code), nbits_(nbits) {}
-bool RCSwitchRawReceiver::matches(RemoteReceiveData *data) {
+bool RCSwitchRawReceiver::matches_(RemoteReceiveData *data) {
   uint32_t decoded_code;
   uint8_t decoded_nbits;
   if (!this->protocol_.decode(data, &decoded_code, &decoded_nbits))

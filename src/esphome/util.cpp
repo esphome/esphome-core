@@ -36,7 +36,7 @@ void network_setup() {
 #endif
 
   if (global_wifi_component != nullptr) {
-    global_wifi_component->setup_();
+    global_wifi_component->call_setup();
     ready = false;
   }
 
@@ -48,7 +48,7 @@ void network_setup() {
     }
 #endif
     if (global_wifi_component != nullptr) {
-      global_wifi_component->loop_();
+      global_wifi_component->call_loop();
       ready = ready || global_wifi_component->can_proceed();
     }
     tick_status_led();
@@ -61,7 +61,7 @@ void network_tick() {
     global_eth_component->loop_();
 #endif
   if (global_wifi_component != nullptr)
-    global_wifi_component->loop_();
+    global_wifi_component->call_loop();
 }
 
 void network_setup_mdns() {

@@ -23,7 +23,7 @@ void MQTTBinarySensorComponent::dump_config() {
 }
 MQTTBinarySensorComponent::MQTTBinarySensorComponent(BinarySensor *binary_sensor)
     : MQTTComponent(), binary_sensor_(binary_sensor) {}
-std::string MQTTBinarySensorComponent::friendly_name() const { return this->binary_sensor_->get_name(); }
+std::string MQTTBinarySensorComponent::friendly_name_() const { return this->binary_sensor_->get_name(); }
 
 void MQTTBinarySensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->binary_sensor_->get_device_class().empty())
@@ -47,7 +47,7 @@ bool MQTTBinarySensorComponent::publish_state(bool state) {
     return true;
 
   const char *state_s = state ? "ON" : "OFF";
-  return this->publish(this->get_state_topic(), state_s);
+  return this->publish(this->get_state_topic_(), state_s);
 }
 void MQTTBinarySensorComponent::set_is_status(bool status) { this->is_status_ = status; }
 

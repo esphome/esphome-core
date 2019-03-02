@@ -78,7 +78,7 @@ int8_t BH1750Sensor::accuracy_decimals() { return 1; }
 float BH1750Sensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void BH1750Sensor::read_data_() {
   uint16_t raw_value;
-  if (!this->parent_->receive_16_(this->address_, &raw_value, 1)) {
+  if (!this->parent_->raw_receive_16(this->address_, &raw_value, 1)) {
     this->status_set_warning();
     return;
   }

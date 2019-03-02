@@ -16,7 +16,7 @@ static const char *TAG = "switch.shutdown";
 ShutdownSwitch::ShutdownSwitch(const std::string &name) : Switch(name) {}
 
 std::string ShutdownSwitch::icon() { return "mdi:power"; }
-void ShutdownSwitch::write_state(bool state) {
+void ShutdownSwitch::write_state_(bool state) {
   // Acknowledge
   this->publish_state(false);
 

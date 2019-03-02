@@ -85,19 +85,19 @@ void BMP280Component::setup() {
   }
 
   // Read calibration
-  this->calibration_.t1 = read_u16_le(0x88);
-  this->calibration_.t2 = read_s16_le(0x8A);
-  this->calibration_.t3 = read_s16_le(0x8C);
+  this->calibration_.t1 = this->read_u16_le_(0x88);
+  this->calibration_.t2 = this->read_s16_le_(0x8A);
+  this->calibration_.t3 = this->read_s16_le_(0x8C);
 
-  this->calibration_.p1 = read_u16_le(0x8E);
-  this->calibration_.p2 = read_s16_le(0x90);
-  this->calibration_.p3 = read_s16_le(0x92);
-  this->calibration_.p4 = read_s16_le(0x94);
-  this->calibration_.p5 = read_s16_le(0x96);
-  this->calibration_.p6 = read_s16_le(0x98);
-  this->calibration_.p7 = read_s16_le(0x9A);
-  this->calibration_.p8 = read_s16_le(0x9C);
-  this->calibration_.p9 = read_s16_le(0x9E);
+  this->calibration_.p1 = this->read_u16_le_(0x8E);
+  this->calibration_.p2 = this->read_s16_le_(0x90);
+  this->calibration_.p3 = this->read_s16_le_(0x92);
+  this->calibration_.p4 = this->read_s16_le_(0x94);
+  this->calibration_.p5 = this->read_s16_le_(0x96);
+  this->calibration_.p6 = this->read_s16_le_(0x98);
+  this->calibration_.p7 = this->read_s16_le_(0x9A);
+  this->calibration_.p8 = this->read_s16_le_(0x9C);
+  this->calibration_.p9 = this->read_s16_le_(0x9E);
 
   uint8_t config_register = 0;
   if (!this->read_byte(BMP280_REGISTER_CONFIG, &config_register)) {
@@ -240,17 +240,17 @@ void BMP280Component::set_pressure_oversampling(BMP280Oversampling pressure_over
   this->pressure_oversampling_ = pressure_over_sampling;
 }
 void BMP280Component::set_iir_filter(BMP280IIRFilter iir_filter) { this->iir_filter_ = iir_filter; }
-uint8_t BMP280Component::read_u8(uint8_t a_register) {
+uint8_t BMP280Component::read_u8_(uint8_t a_register) {
   uint8_t data = 0;
   this->read_byte(a_register, &data);
   return data;
 }
-uint16_t BMP280Component::read_u16_le(uint8_t a_register) {
+uint16_t BMP280Component::read_u16_le_(uint8_t a_register) {
   uint16_t data = 0;
   this->read_byte_16(a_register, &data);
   return (data >> 8) | (data << 8);
 }
-int16_t BMP280Component::read_s16_le(uint8_t a_register) { return this->read_u16_le(a_register); }
+int16_t BMP280Component::read_s16_le_(uint8_t a_register) { return this->read_u16_le_(a_register); }
 
 }  // namespace sensor
 

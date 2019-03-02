@@ -42,8 +42,8 @@ class SSD1306 : public PollingComponent, public DisplayBuffer {
   void fill(int color) override;
 
  protected:
-  virtual void command(uint8_t value) = 0;
-  virtual void write_display_data() = 0;
+  virtual void command_(uint8_t value) = 0;
+  virtual void write_display_data_() = 0;
   void init_reset_();
 
   bool is_sh1106_() const;
@@ -70,11 +70,11 @@ class SPISSD1306 : public SSD1306, public SPIDevice {
   void dump_config() override;
 
  protected:
-  void command(uint8_t value) override;
+  void command_(uint8_t value) override;
 
-  void write_display_data() override;
-  bool msb_first() override;
-  bool high_speed() override;
+  void write_display_data_() override;
+  bool is_device_msb_first() override;
+  bool is_device_high_speed() override;
 
   GPIOPin *dc_pin_;
 };
@@ -87,8 +87,8 @@ class I2CSSD1306 : public SSD1306, public I2CDevice {
   void setup() override;
   void dump_config() override;
  protected:
-  void command(uint8_t value) override;
-  void write_display_data() override;
+  void command_(uint8_t value) override;
+  void write_display_data_() override;
 
   enum ErrorCode {
     NONE = 0,

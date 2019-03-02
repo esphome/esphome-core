@@ -82,7 +82,7 @@ class RCSwitchRawReceiver : public RemoteReceiver {
  public:
   RCSwitchRawReceiver(const std::string &name, RCSwitchProtocol a_protocol, uint32_t code, uint8_t nbits);
 
-  bool matches(RemoteReceiveData *data) override;
+  bool matches_(RemoteReceiveData *data) override;
 
  protected:
   RCSwitchProtocol protocol_;

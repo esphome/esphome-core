@@ -238,7 +238,7 @@ void APIConnection::on_disconnect_() {
   // delete self, generally unsafe but not in this case.
   this->remove_ = true;
 }
-void APIConnection::on_timeout_(uint32_t time) { this->disconnect_client_(); }
+void APIConnection::on_timeout_(uint32_t time) { this->disconnect_client(); }
 void APIConnection::on_data_(uint8_t *buf, size_t len) {
   if (len == 0 || buf == nullptr)
     return;
@@ -446,7 +446,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::SUBSCRIBE_SERVICE_CALLS_REQUEST: {
       SubscribeServiceCallsRequest req;
       req.decode(msg, size);
-      this->on_subscribe_service_calls_request(req);
+      this->on_subscribe_service_calls_request_(req);
       break;
     }
     case APIMessageType::SERVICE_CALL_RESPONSE:
@@ -465,7 +465,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATES_REQUEST: {
       SubscribeHomeAssistantStatesRequest req;
       req.decode(msg, size);
-      this->on_subscribe_home_assistant_states_request(req);
+      this->on_subscribe_home_assistant_states_request_(req);
       break;
     }
     case APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE:
@@ -474,13 +474,13 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::HOME_ASSISTANT_STATE_RESPONSE: {
       HomeAssistantStateResponse req;
       req.decode(msg, size);
-      this->on_home_assistant_state_response(req);
+      this->on_home_assistant_state_response_(req);
       break;
     }
     case APIMessageType::EXECUTE_SERVICE_REQUEST: {
       ExecuteServiceRequest req;
       req.decode(msg, size);
-      this->on_execute_service(req);
+      this->on_execute_service_(req);
       break;
     }
   }
@@ -532,17 +532,17 @@ void APIConnection::on_connect_request_(const ConnectRequest &req) {
 }
 void APIConnection::on_disconnect_request_(const DisconnectRequest &req) {
   ESP_LOGVV(TAG, "on_disconnect_request_");
-  // remote initiated disconnect_client_
+  // remote initiated disconnect_client
   if (!this->send_empty_message(APIMessageType::DISCONNECT_RESPONSE)) {
     this->fatal_error_();
     return;
   }
-  this->disconnect_client_();
+  this->disconnect_client();
 }
 void APIConnection::on_disconnect_response_(const DisconnectResponse &req) {
   ESP_LOGVV(TAG, "on_disconnect_response_");
-  // we initiated disconnect_client_
-  this->disconnect_client_();
+  // we initiated disconnect_client
+  this->disconnect_client();
 }
 void APIConnection::on_ping_request_(const PingRequest &req) {
   ESP_LOGVV(TAG, "on_ping_request_");
@@ -629,7 +629,7 @@ bool APIConnection::send_empty_message(APIMessageType type) {
   return this->send_buffer(type);
 }
 
-void APIConnection::disconnect_client_() {
+void APIConnection::disconnect_client() {
   this->client_->close();
   this->remove_ = true;
 }
@@ -707,7 +707,7 @@ void APIConnection::loop() {
   if (this->sent_ping_) {
     if (millis() - this->last_traffic_ > (keepalive * 3) / 2) {
       ESP_LOGW(TAG, "'%s' didn't respond to ping request in time. Disconnecting...", this->client_info_.c_str());
-      this->disconnect_client_();
+      this->disconnect_client();
     }
   } else if (millis() - this->last_traffic_ > keepalive) {
     this->sent_ping_ = true;
@@ -968,7 +968,7 @@ void APIConnection::on_switch_command_request_(const SwitchCommandRequest &req) 
 }
 #endif
 
-void APIConnection::on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req) {
+void APIConnection::on_subscribe_service_calls_request_(const SubscribeServiceCallsRequest &req) {
   this->service_call_subscription_ = true;
 }
 void APIConnection::send_service_call(ServiceCallResponse &call) {
@@ -977,7 +977,7 @@ void APIConnection::send_service_call(ServiceCallResponse &call) {
 
   this->send_message(call);
 }
-void APIConnection::on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req) {
+void APIConnection::on_subscribe_home_assistant_states_request_(const SubscribeHomeAssistantStatesRequest &req) {
   for (auto &it : this->parent_->get_state_subs()) {
     auto buffer = this->get_buffer();
     // string entity_id = 1;
@@ -985,15 +985,15 @@ void APIConnection::on_subscribe_home_assistant_states_request(const SubscribeHo
     this->send_buffer(APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE);
   }
 }
-void APIConnection::on_home_assistant_state_response(const HomeAssistantStateResponse &req) {
+void APIConnection::on_home_assistant_state_response_(const HomeAssistantStateResponse &req) {
   for (auto &it : this->parent_->get_state_subs()) {
     if (it.entity_id == req.get_entity_id()) {
       it.callback(req.get_state());
     }
   }
 }
-void APIConnection::on_execute_service(const ExecuteServiceRequest &req) {
-  ESP_LOGVV(TAG, "on_execute_service");
+void APIConnection::on_execute_service_(const ExecuteServiceRequest &req) {
+  ESP_LOGVV(TAG, "on_execute_service_");
   bool found = false;
   for (auto *service : this->parent_->get_user_services()) {
     if (service->execute_service(req)) {

@@ -42,8 +42,8 @@ static const uint8_t PARTIAL_UPDATE_LUT[30] = {0x10, 0x18, 0x18, 0x08, 0x18, 0x1
                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                0x13, 0x14, 0x44, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-void WaveshareEPaper::setup_pins() {
-  this->init_internal_(this->get_buffer_length());
+void WaveshareEPaper::setup_pins_() {
+  this->init_internal_(this->get_buffer_length_());
   this->dc_pin_->setup();  // OUTPUT
   this->dc_pin_->digital_write(false);
   if (this->reset_pin_ != nullptr) {
@@ -74,7 +74,7 @@ void WaveshareEPaper::data(uint8_t value) {
   this->write_byte(value);
   this->end_data_();
 }
-bool WaveshareEPaper::msb_first() { return true; }
+bool WaveshareEPaper::is_device_msb_first() { return true; }
 bool WaveshareEPaper::wait_until_idle_() {
   if (this->busy_pin_ == nullptr) {
     return true;
@@ -93,13 +93,13 @@ bool WaveshareEPaper::wait_until_idle_() {
 void WaveshareEPaper::set_reset_pin(const GPIOOutputPin &reset) { this->reset_pin_ = reset.copy(); }
 void WaveshareEPaper::set_busy_pin(const GPIOInputPin &busy) { this->busy_pin_ = busy.copy(); }
 void WaveshareEPaper::update() {
-  this->do_update();
+  this->do_update_();
   this->display();
 }
 void WaveshareEPaper::fill(int color) {
   // flip logic
   const uint8_t fill = color ? 0x00 : 0xFF;
-  for (uint32_t i = 0; i < this->get_buffer_length(); i++)
+  for (uint32_t i = 0; i < this->get_buffer_length_(); i++)
     this->buffer_[i] = fill;
 }
 void HOT WaveshareEPaper::draw_absolute_pixel_internal_(int x, int y, int color) {
@@ -114,12 +114,12 @@ void HOT WaveshareEPaper::draw_absolute_pixel_internal_(int x, int y, int color)
   else
     this->buffer_[pos] &= ~(0x80 >> subpos);
 }
-uint32_t WaveshareEPaper::get_buffer_length() {
+uint32_t WaveshareEPaper::get_buffer_length_() {
   return this->get_width_internal_() * this->get_height_internal_() / 8u;
 }
 WaveshareEPaper::WaveshareEPaper(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : PollingComponent(update_interval), SPIDevice(parent, cs), dc_pin_(dc_pin) {}
-bool WaveshareEPaper::high_speed() { return true; }
+bool WaveshareEPaper::is_device_high_speed() { return true; }
 void WaveshareEPaper::start_command_() {
   this->dc_pin_->digital_write(false);
   this->enable();
@@ -136,7 +136,7 @@ void WaveshareEPaper::end_data_() { this->disable(); }
 // ========================================================
 
 void WaveshareEPaperTypeA::setup() {
-  this->setup_pins();
+  this->setup_pins_();
 
   this->command(WAVESHARE_EPAPER_COMMAND_DRIVER_OUTPUT_CONTROL);
   this->data(this->get_height_internal_() - 1);
@@ -217,7 +217,7 @@ void HOT WaveshareEPaperTypeA::display() {
 
   this->command(WAVESHARE_EPAPER_COMMAND_WRITE_RAM);
   this->start_data_();
-  this->write_array(this->buffer_, this->get_buffer_length());
+  this->write_array(this->buffer_, this->get_buffer_length_());
   this->end_data_();
 
   this->command(WAVESHARE_EPAPER_COMMAND_DISPLAY_UPDATE_CONTROL_2);
@@ -337,7 +337,7 @@ static const uint8_t LUT_BLACK_TO_BLACK_2_7[42] = {
 };
 
 void WaveshareEPaper2P7In::setup() {
-  this->setup_pins();
+  this->setup_pins_();
   // this->buffer_.init(this->get_width_(), this->get_height_());
 
   this->command(WAVESHARE_EPAPER_B_COMMAND_POWER_SETTING);
@@ -411,13 +411,13 @@ void HOT WaveshareEPaper2P7In::display() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
   delay(2);
   this->start_data_();
-  this->write_array(this->buffer_, this->get_buffer_length());
+  this->write_array(this->buffer_, this->get_buffer_length_());
   this->end_data_();
   delay(2);
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_2);
   delay(2);
   this->start_data_();
-  this->write_array(this->buffer_, this->get_buffer_length());
+  this->write_array(this->buffer_, this->get_buffer_length_());
   this->end_data_();
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
@@ -463,7 +463,7 @@ static const uint8_t LUT_WHITE_TO_BLACK_4_2[] = {
 };
 
 void WaveshareEPaper4P2In::setup() {
-  this->setup_pins();
+  this->setup_pins_();
 
   this->command(WAVESHARE_EPAPER_B_COMMAND_POWER_SETTING);
   this->data(0x03);  // VDS_EN, VDG_EN
@@ -520,13 +520,13 @@ void HOT WaveshareEPaper4P2In::display() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
   delay(2);
   this->start_data_();
-  this->write_array(this->buffer_, this->get_buffer_length());
+  this->write_array(this->buffer_, this->get_buffer_length_());
   this->end_data_();
   delay(2);
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_2);
   delay(2);
   this->start_data_();
-  this->write_array(this->buffer_, this->get_buffer_length());
+  this->write_array(this->buffer_, this->get_buffer_length_());
   this->end_data_();
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
@@ -544,7 +544,7 @@ void WaveshareEPaper4P2In::dump_config() {
 }
 
 void WaveshareEPaper7P5In::setup() {
-  this->setup_pins();
+  this->setup_pins_();
 
   this->command(WAVESHARE_EPAPER_B_COMMAND_POWER_SETTING);
   this->data(0x37);
@@ -591,7 +591,7 @@ void HOT WaveshareEPaper7P5In::display() {
   this->command(WAVESHARE_EPAPER_B_COMMAND_DATA_START_TRANSMISSION_1);
 
   this->start_data_();
-  for (size_t i = 0; i < this->get_buffer_length(); i++) {
+  for (size_t i = 0; i < this->get_buffer_length_(); i++) {
     uint8_t temp1 = this->buffer_[i];
     for (uint8_t j = 0; j < 8; j++) {
       uint8_t temp2;

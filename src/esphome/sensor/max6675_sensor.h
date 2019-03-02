@@ -27,7 +27,7 @@ class MAX6675Sensor : public PollingSensorComponent, public SPIDevice {
   int8_t accuracy_decimals() override;
 
  protected:
-  bool msb_first() override;
+  bool is_device_msb_first() override;
 
   void read_data_();
 };

@@ -27,7 +27,7 @@ void ESP8266PWMOutput::dump_config() {
   ESP_LOGCONFIG(TAG, "  Frequency: %.1f Hz", this->frequency_);
   LOG_FLOAT_OUTPUT(this);
 }
-void HOT ESP8266PWMOutput::write_state(float state) {
+void HOT ESP8266PWMOutput::write_state_(float state) {
   // Also check pin inversion
   if (this->pin_.is_inverted()) {
     state = 1.0f - state;

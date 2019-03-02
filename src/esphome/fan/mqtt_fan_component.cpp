@@ -16,19 +16,19 @@ MQTTFanComponent::MQTTFanComponent(FanState *state) : MQTTComponent(), state_(st
 FanState *MQTTFanComponent::get_state() const { return this->state_; }
 std::string MQTTFanComponent::component_type() const { return "fan"; }
 void MQTTFanComponent::setup() {
-  this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {
+  this->subscribe(this->get_command_topic_(), [this](const std::string &topic, const std::string &payload) {
     auto val = parse_on_off(payload.c_str());
     switch (val) {
       case PARSE_ON:
-        ESP_LOGD(TAG, "'%s' Turning Fan ON.", this->friendly_name().c_str());
+        ESP_LOGD(TAG, "'%s' Turning Fan ON.", this->friendly_name_().c_str());
         this->state_->turn_on().perform();
         break;
       case PARSE_OFF:
-        ESP_LOGD(TAG, "'%s' Turning Fan OFF.", this->friendly_name().c_str());
+        ESP_LOGD(TAG, "'%s' Turning Fan OFF.", this->friendly_name_().c_str());
         this->state_->turn_off().perform();
         break;
       case PARSE_TOGGLE:
-        ESP_LOGD(TAG, "'%s' Toggling Fan.", this->friendly_name().c_str());
+        ESP_LOGD(TAG, "'%s' Toggling Fan.", this->friendly_name_().c_str());
         this->state_->toggle().perform();
         break;
       case PARSE_NONE:
@@ -45,11 +45,11 @@ void MQTTFanComponent::setup() {
                       auto val = parse_on_off(payload.c_str(), "oscillate_on", "oscillate_off");
                       switch (val) {
                         case PARSE_ON:
-                          ESP_LOGD(TAG, "'%s': Setting oscillating ON", this->friendly_name().c_str());
+                          ESP_LOGD(TAG, "'%s': Setting oscillating ON", this->friendly_name_().c_str());
                           this->state_->make_call().set_oscillating(true).perform();
                           break;
                         case PARSE_OFF:
-                          ESP_LOGD(TAG, "'%s': Setting oscillating OFF", this->friendly_name().c_str());
+                          ESP_LOGD(TAG, "'%s': Setting oscillating OFF", this->friendly_name_().c_str());
                           this->state_->make_call().set_oscillating(false).perform();
                           break;
                         case PARSE_TOGGLE:
@@ -86,26 +86,26 @@ void MQTTFanComponent::set_custom_speed_state_topic(const std::string &topic) {
 }
 const std::string MQTTFanComponent::get_oscillation_command_topic() const {
   if (this->custom_oscillation_command_topic_.empty())
-    return this->get_default_topic_for("oscillation/command");
+    return this->get_default_topic_for_("oscillation/command");
   return this->custom_oscillation_command_topic_;
 }
 const std::string MQTTFanComponent::get_oscillation_state_topic() const {
   if (this->custom_oscillation_state_topic_.empty())
-    return this->get_default_topic_for("oscillation/state");
+    return this->get_default_topic_for_("oscillation/state");
   return this->custom_oscillation_state_topic_;
 }
 const std::string MQTTFanComponent::get_speed_command_topic() const {
   if (this->custom_speed_command_topic_.empty())
-    return this->get_default_topic_for("speed/command");
+    return this->get_default_topic_for_("speed/command");
   return this->custom_speed_command_topic_;
 }
 const std::string MQTTFanComponent::get_speed_state_topic() const {
   if (this->custom_speed_state_topic_.empty())
-    return this->get_default_topic_for("speed/state");
+    return this->get_default_topic_for_("speed/state");
   return this->custom_speed_state_topic_;
 }
 bool MQTTFanComponent::send_initial_state() { return this->publish_state(); }
-std::string MQTTFanComponent::friendly_name() const { return this->state_->get_name(); }
+std::string MQTTFanComponent::friendly_name_() const { return this->state_->get_name(); }
 void MQTTFanComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (this->state_->get_traits().supports_oscillation()) {
     root["oscillation_command_topic"] = this->get_oscillation_command_topic();
@@ -120,7 +120,7 @@ bool MQTTFanComponent::is_internal() { return this->state_->is_internal(); }
 bool MQTTFanComponent::publish_state() {
   const char *state_s = this->state_->state ? "ON" : "OFF";
   ESP_LOGD(TAG, "'%s' Sending state %s.", this->state_->get_name().c_str(), state_s);
-  this->publish(this->get_state_topic(), state_s);
+  this->publish(this->get_state_topic_(), state_s);
   bool failed = false;
   if (this->state_->get_traits().supports_oscillation()) {
     bool success = this->publish(this->get_oscillation_state_topic(),

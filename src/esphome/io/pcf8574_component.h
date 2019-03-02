@@ -57,11 +57,11 @@ class PCF8574Component : public Component, public I2CDevice {
   /// Check i2c availability and setup masks
   void setup() override;
   /// Helper function to read the value of a pin.
-  bool digital_read_(uint8_t pin);
+  bool digital_read(uint8_t pin);
   /// Helper function to write the value of a pin.
-  void digital_write_(uint8_t pin, bool value);
+  void digital_write(uint8_t pin, bool value);
   /// Helper function to set the pin mode of a pin.
-  void pin_mode_(uint8_t pin, uint8_t mode);
+  void pin_mode(uint8_t pin, uint8_t mode);
 
   float get_setup_priority() const override;
 

@@ -172,7 +172,7 @@ ESPColorView PartitionLightOutput::operator[](int32_t index) const {
   // offset within the src
   int32_t src_off = seg.get_src_offset() + seg_off;
   auto view = (*seg.get_src())[src_off];
-  view.set_color_correction_(&this->correction_);
+  view.raw_set_color_correction(&this->correction_);
   return view;
 }
 void PartitionLightOutput::clear_effect_data() {

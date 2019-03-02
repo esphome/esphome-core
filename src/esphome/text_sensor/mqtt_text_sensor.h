@@ -32,7 +32,7 @@ class MQTTTextSensor : public mqtt::MQTTComponent {
  protected:
   std::string component_type() const override;
 
-  std::string friendly_name() const override;
+  std::string friendly_name_() const override;
 
   TextSensor *sensor_;
 };

@@ -20,7 +20,7 @@ void Sensor::publish_state(float state) {
   ESP_LOGV(TAG, "'%s': Received new state %f", this->name_.c_str(), state);
 
   if (this->filter_list_ == nullptr) {
-    this->send_state_to_frontend_internal_(state);
+    this->internal_send_state_to_frontend(state);
   } else {
     this->filter_list_->input(state);
   }
@@ -92,7 +92,7 @@ float Sensor::get_raw_value() const { return this->raw_state; }
 float Sensor::get_raw_state() const { return this->raw_state; }
 std::string Sensor::unique_id() { return ""; }
 
-void Sensor::send_state_to_frontend_internal_(float state) {
+void Sensor::internal_send_state_to_frontend(float state) {
   this->has_state_ = true;
   this->state = state;
   if (this->filter_list_ != nullptr) {

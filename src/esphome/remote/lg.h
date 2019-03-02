@@ -35,7 +35,7 @@ class LGReceiver : public RemoteReceiver {
   LGReceiver(const std::string &name, uint32_t data, uint8_t nbits);
 
  protected:
-  bool matches(RemoteReceiveData *data) override;
+  bool matches_(RemoteReceiveData *data) override;
 
   uint32_t data_;
   uint8_t nbits_;

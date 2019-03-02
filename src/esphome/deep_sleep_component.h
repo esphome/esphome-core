@@ -69,7 +69,7 @@ class DeepSleepComponent : public Component {
   float get_setup_priority() const override;
 
   /// Helper to enter deep sleep mode
-  void begin_sleep_(bool manual = false);
+  void begin_sleep(bool manual = false);
 
   template<typename... Ts>
   EnterDeepSleepAction<Ts...> *make_enter_deep_sleep_action();
@@ -118,7 +118,7 @@ EnterDeepSleepAction<Ts...>::EnterDeepSleepAction(DeepSleepComponent *deep_sleep
 
 template<typename... Ts>
 void EnterDeepSleepAction<Ts...>::play(Ts... x) {
-  this->deep_sleep_->begin_sleep_(true);
+  this->deep_sleep_->begin_sleep(true);
   // no need to call play_next. We should be done with execution by now.
 }
 

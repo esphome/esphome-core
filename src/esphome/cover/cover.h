@@ -83,7 +83,7 @@ class Cover : public Nameable {
 #endif
 
  protected:
-  virtual void write_command(CoverCommand command) = 0;
+  virtual void write_command_(CoverCommand command) = 0;
 
   uint32_t hash_base_() override;
 

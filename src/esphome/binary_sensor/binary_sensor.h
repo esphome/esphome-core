@@ -110,7 +110,7 @@ class BinarySensor : public Nameable {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  void send_state_internal_(bool state, bool is_initial);
+  void send_state_internal(bool state, bool is_initial);
 
   /// Return whether this binary sensor has outputted a state.
   bool has_state() const;
@@ -122,12 +122,12 @@ class BinarySensor : public Nameable {
   void set_mqtt(MQTTBinarySensorComponent *mqtt);
 #endif
 
- protected:
   // ========== OVERRIDE METHODS ==========
   // (You'll only need this when creating your own custom binary sensor)
   /// Get the default device class for this sensor, or empty string for no default.
   virtual std::string device_class();
 
+ protected:
   uint32_t hash_base_() override;
 
   CallbackManager<void(bool)> state_callback_{};

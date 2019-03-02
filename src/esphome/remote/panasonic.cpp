@@ -82,7 +82,7 @@ PanasonicDecodeData decode_panasonic(RemoteReceiveData *data) {
   return out;
 }
 
-bool PanasonicReceiver::matches(RemoteReceiveData *data) {
+bool PanasonicReceiver::matches_(RemoteReceiveData *data) {
   auto decode = decode_panasonic(data);
 
   return decode.valid && this->address_ == decode.address && this->command_ == decode.command;

@@ -59,7 +59,7 @@ class MAX7219Component : public PollingComponent, public SPIDevice {
  protected:
   void send_byte_(uint8_t a_register, uint8_t data);
   void send_to_all_(uint8_t a_register, uint8_t data);
-  bool msb_first() override;
+  bool is_device_msb_first() override;
 
   uint8_t intensity_{15}; /// Intensity of the display from 0 to 15 (most)
   uint8_t num_chips_{1};

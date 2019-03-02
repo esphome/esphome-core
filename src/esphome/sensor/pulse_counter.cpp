@@ -35,7 +35,7 @@ const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
 GPIOPin *PulseCounterBase::get_pin() { return this->pin_; }
 
 #ifdef ARDUINO_ARCH_ESP8266
-void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
+void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr_() {
   const uint32_t now = micros();
   const bool discard = now - this->last_pulse_ < this->filter_us_;
   this->last_pulse_ = now;
@@ -54,12 +54,12 @@ void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr() {
       break;
   }
 }
-bool PulseCounterBase::pulse_counter_setup_() {
+bool PulseCounterBase::pulse_counter_setup() {
   this->pin_->setup();
-  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR { this->gpio_intr(); }, CHANGE);
+  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR { this->gpio_intr_(); }, CHANGE);
   return true;
 }
-pulse_counter_t PulseCounterBase::read_raw_value_() {
+pulse_counter_t PulseCounterBase::read_raw_value() {
   pulse_counter_t counter = this->counter_;
   pulse_counter_t ret = counter - this->last_value_;
   this->last_value_ = counter;
@@ -156,7 +156,7 @@ pulse_counter_t PulseCounterBase::read_raw_value_() {
 
 void PulseCounterSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up pulse counter '%s'...", this->name_.c_str());
-  if (!this->pulse_counter_setup_()) {
+  if (!this->pulse_counter_setup()) {
     this->mark_failed();
     return;
   }
@@ -171,7 +171,7 @@ void PulseCounterSensorComponent::dump_config() {
 }
 
 void PulseCounterSensorComponent::update() {
-  pulse_counter_t raw = this->read_raw_value_();
+  pulse_counter_t raw = this->read_raw_value();
   float value = (60000.0f * raw) / float(this->get_update_interval());  // per minute
 
   ESP_LOGD(TAG, "'%s': Retrieved counter: %0.2f pulses/min", this->get_name().c_str(), value);

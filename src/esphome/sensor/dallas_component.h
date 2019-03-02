@@ -94,12 +94,12 @@ class DallasTemperatureSensor : public EmptyPollingParentSensor<1, ICON_EMPTY, U
   /// Set the resolution for this sensor.
   void set_resolution(uint8_t resolution);
   /// Get the number of milliseconds we have to wait for the conversion phase.
-  uint16_t millis_to_wait_for_conversion_() const;
+  uint16_t millis_to_wait_for_conversion() const;
 
-  bool setup_sensor_();
-  bool read_scratch_pad_();
+  bool setup_sensor();
+  bool read_scratch_pad();
 
-  bool check_scratch_pad_();
+  bool check_scratch_pad();
 
   float get_temp_c();
 

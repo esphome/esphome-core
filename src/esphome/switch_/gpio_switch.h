@@ -35,7 +35,7 @@ class GPIOSwitch : public Switch, public Component {
   void set_interlock(const std::vector<Switch *> &interlock);
 
  protected:
-  void write_state(bool state) override;
+  void write_state_(bool state) override;
 
   GPIOPin *const pin_;
   GPIOSwitchRestoreMode restore_mode_{GPIO_SWITCH_RESTORE_DEFAULT_OFF};

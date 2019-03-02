@@ -101,8 +101,8 @@ class Component {
    *
    * Basically, it handles stuff like interval/timeout functions and eventually calls loop().
    */
-  virtual void loop_();
-  virtual void setup_();
+  virtual void call_loop();
+  virtual void call_setup();
 
   uint32_t get_component_state() const;
 
@@ -135,11 +135,6 @@ class Component {
   void status_momentary_error(const std::string &name, uint32_t length = 5000);
 
  protected:
-  void loop_internal();
-  void setup_internal();
-
-  void set_interval(uint32_t interval, std::function<void()> &&f);
-
   /** Set an interval function with a unique name. Empty name means no cancelling possible.
    *
    * This will call f every interval ms. Can be cancelled via CancelInterval().
@@ -155,16 +150,18 @@ class Component {
    *
    * @see cancel_interval()
    */
-  void set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f);
+  void set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f);  // NOLINT
+
+  void set_interval(uint32_t interval, std::function<void()> &&f);  // NOLINT
 
   /** Cancel an interval function.
    *
    * @param name The identifier for this interval function.
    * @return Whether an interval functions was deleted.
    */
-  bool cancel_interval(const std::string &name);
+  bool cancel_interval(const std::string &name);  // NOLINT
 
-  void set_timeout(uint32_t timeout, std::function<void()> &&f);
+  void set_timeout(uint32_t timeout, std::function<void()> &&f);  // NOLINT
 
   /** Set a timeout function with a unique name.
    *
@@ -180,14 +177,14 @@ class Component {
    *
    * @see cancel_timeout()
    */
-  void set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f);
+  void set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f);  // NOLINT
 
   /** Cancel a timeout function.
    *
    * @param name The identifier for this timeout function.
    * @return Whether a timeout functions was deleted.
    */
-  bool cancel_timeout(const std::string &name);
+  bool cancel_timeout(const std::string &name);  // NOLINT
 
   /** Defer a callback to the next loop() call.
    *
@@ -196,13 +193,16 @@ class Component {
    * @param name The name of the defer function.
    * @param f The callback.
    */
-  void defer(const std::string &name, std::function<void()> &&f);
+  void defer(const std::string &name, std::function<void()> &&f);  // NOLINT
 
   /// Defer a callback to the next loop() call.
-  void defer(std::function<void()> &&f);
+  void defer(std::function<void()> &&f);  // NOLINT
 
   /// Cancel a defer callback using the specified name, name must not be empty.
-  bool cancel_defer(const std::string &name);
+  bool cancel_defer(const std::string &name);  // NOLINT
+
+  void loop_internal_();
+  void setup_internal_();
 
   /// Internal struct for storing timeout/interval functions.
   struct TimeFunction {
@@ -218,7 +218,7 @@ class Component {
   };
 
   /// Cancel an only time function. If name is empty, won't do anything.
-  bool cancel_time_function(const std::string &name, TimeFunction::Type type);
+  bool cancel_time_function_(const std::string &name, TimeFunction::Type type);
 
   /** Storage for interval/timeout functions.
    *
@@ -259,7 +259,7 @@ class PollingComponent : public Component {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  void setup_() override;
+  void call_setup() override;
 
   /// Get the update interval in ms of this sensor
   virtual uint32_t get_update_interval() const;

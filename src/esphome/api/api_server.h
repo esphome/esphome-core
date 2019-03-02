@@ -36,7 +36,7 @@ class APIConnection {
   APIConnection(AsyncClient *client, APIServer *parent);
   ~APIConnection();
 
-  void disconnect_client_();
+  void disconnect_client();
   APIBuffer get_buffer();
   bool send_buffer(APIMessageType type);
   bool send_message(APIMessage &msg);
@@ -107,10 +107,10 @@ class APIConnection {
 #ifdef USE_SWITCH
   void on_switch_command_request_(const SwitchCommandRequest &req);
 #endif
-  void on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req);
-  void on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req);
-  void on_home_assistant_state_response(const HomeAssistantStateResponse &req);
-  void on_execute_service(const ExecuteServiceRequest &req);
+  void on_subscribe_service_calls_request_(const SubscribeServiceCallsRequest &req);
+  void on_subscribe_home_assistant_states_request_(const SubscribeHomeAssistantStatesRequest &req);
+  void on_home_assistant_state_response_(const HomeAssistantStateResponse &req);
+  void on_execute_service_(const ExecuteServiceRequest &req);
 
   enum class ConnectionState {
     WAITING_FOR_HELLO,

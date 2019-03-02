@@ -29,7 +29,7 @@ class TemplateCover : public Cover, public Component {
   float get_setup_priority() const override;
 
  protected:
-  void write_command(CoverCommand command) override;
+  void write_command_(CoverCommand command) override;
   bool assumed_state() override;
 
   optional<std::function<optional<CoverState>()>> f_;

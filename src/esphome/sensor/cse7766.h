@@ -37,7 +37,7 @@ class CSE7766Component : public PollingComponent, public UARTDevice {
  protected:
   bool check_byte_();
   void parse_data_();
-  uint32_t get_24_bit_uint(uint8_t start_index);
+  uint32_t get_24_bit_uint_(uint8_t start_index);
 
   uint8_t raw_data_[24];
   uint8_t raw_data_index_{0};

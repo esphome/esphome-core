@@ -68,11 +68,11 @@ int esp_log_printf_(int level, const char *tag, const char *format, ...) __attri
 #ifdef USE_STORE_LOG_STR_IN_FLASH
   int esp_log_printf_(int level, const char *tag, const __FlashStringHelper *format, ...);
 #endif
-int esp_log_vprintf_(int level, const char *tag, const char *format, va_list args);
+int esp_log_vprintf_(int level, const char *tag, const char *format, va_list args);  // NOLINT
 #ifdef USE_STORE_LOG_STR_IN_FLASH
   int esp_log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args);
 #endif
-int esp_idf_log_vprintf_(const char *format, va_list args);
+int esp_idf_log_vprintf_(const char *format, va_list args);  // NOLINT
 
 #ifdef USE_STORE_LOG_STR_IN_FLASH
   #define ESPHOME_LOG_FORMAT(tag, letter, format)  F(ESPHOME_LOG_COLOR_ ## letter "[" #letter "][%s:%03u]: " format ESPHOME_LOG_RESET_COLOR), tag, __LINE__

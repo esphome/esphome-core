@@ -32,7 +32,7 @@ class RawReceiver : public RemoteReceiver {
  public:
   RawReceiver(const std::string &name, const int32_t *data, size_t len);
 
-  bool matches(RemoteReceiveData *data) override;
+  bool matches_(RemoteReceiveData *data) override;
 
  protected:
   const int32_t *data_;
@@ -43,7 +43,7 @@ class RawDumper : public RemoteReceiveDumper {
  public:
   bool dump(RemoteReceiveData *data) override;
 
-  bool secondary_() override;
+  bool is_secondary() override;
 };
 #endif
 

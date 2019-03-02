@@ -30,7 +30,7 @@ void MQTTTextSensor::dump_config() {
   LOG_MQTT_COMPONENT(true, false);
 }
 
-bool MQTTTextSensor::publish_state(const std::string &value) { return this->publish(this->get_state_topic(), value); }
+bool MQTTTextSensor::publish_state(const std::string &value) { return this->publish(this->get_state_topic_(), value); }
 bool MQTTTextSensor::send_initial_state() {
   if (this->sensor_->has_state()) {
     return this->publish_state(this->sensor_->state);
@@ -40,7 +40,7 @@ bool MQTTTextSensor::send_initial_state() {
 }
 bool MQTTTextSensor::is_internal() { return this->sensor_->is_internal(); }
 std::string MQTTTextSensor::component_type() const { return "sensor"; }
-std::string MQTTTextSensor::friendly_name() const { return this->sensor_->get_name(); }
+std::string MQTTTextSensor::friendly_name_() const { return this->sensor_->get_name(); }
 
 }  // namespace text_sensor
 

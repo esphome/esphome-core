@@ -78,7 +78,7 @@ RC5DecodeData decode_rc5(RemoteReceiveData *data) {
 RC5Receiver::RC5Receiver(const std::string &name, uint8_t address, uint8_t command)
     : RemoteReceiver(name), address_(address), command_(command) {}
 
-bool RC5Receiver::matches(RemoteReceiveData *data) {
+bool RC5Receiver::matches_(RemoteReceiveData *data) {
   auto res = decode_rc5(data);
   if (!res.valid)
     return false;

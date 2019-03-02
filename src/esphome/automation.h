@@ -19,7 +19,7 @@ class Condition {
 
  protected:
   template<int... S>
-  bool check_tuple(const std::tuple<Ts...> &tuple, seq<S...>);
+  bool check_tuple_(const std::tuple<Ts...> &tuple, seq<S...>);
 };
 
 template<typename... Ts>
@@ -143,7 +143,7 @@ class Action {
   friend ActionList<Ts...>;
 
   template<int... S>
-  void play_next_tuple(const std::tuple<Ts...> &tuple, seq<S...>);
+  void play_next_tuple_(const std::tuple<Ts...> &tuple, seq<S...>);
 
   Action<Ts...> *next_ = nullptr;
 };
@@ -281,9 +281,9 @@ class Automation {
   Action<Ts...> *add_action(Action<Ts...> *action);
   void add_actions(const std::vector<Action<Ts...> *> &actions);
 
-  void process_trigger_(Ts... x);
-
   void stop();
+
+  void trigger(Ts... x);
 
  protected:
   Trigger<Ts...> *trigger_;

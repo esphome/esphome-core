@@ -129,7 +129,7 @@ class RealTimeClockComponent : public Component {
 
   CronTrigger *make_cron_trigger();
 
-  void setup_() override;
+  void call_setup() override;
  protected:
   std::string timezone_{};
 };

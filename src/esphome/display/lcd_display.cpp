@@ -53,57 +53,57 @@ void LCDDisplay::setup() {
     delay(40u - now);
 
   if (this->is_four_bit_mode_()) {
-    this->write_n_bits(0x03, 4);
+    this->write_n_bits_(0x03, 4);
     delay(5);  // 4.1ms
-    this->write_n_bits(0x03, 4);
+    this->write_n_bits_(0x03, 4);
     delay(5);
-    this->write_n_bits(0x03, 4);
+    this->write_n_bits_(0x03, 4);
     delayMicroseconds(150);
-    this->write_n_bits(0x02, 4);
+    this->write_n_bits_(0x02, 4);
   } else {
-    this->command(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
+    this->command_(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
     delay(5);  // 4.1ms
-    this->command(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
+    this->command_(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
     delayMicroseconds(150);
-    this->command(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
+    this->command_(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
   }
 
-  this->command(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
+  this->command_(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
   uint8_t display_control = LCD_DISPLAY_DISPLAY_ON;
-  this->command(LCD_DISPLAY_COMMAND_DISPLAY_CONTROL | display_control);
+  this->command_(LCD_DISPLAY_COMMAND_DISPLAY_CONTROL | display_control);
 
   // clear display, also sets DDRAM address to 0 (home)
-  this->command(LCD_DISPLAY_COMMAND_CLEAR_DISPLAY);
+  this->command_(LCD_DISPLAY_COMMAND_CLEAR_DISPLAY);
   delay(2);  // 1.52ms
 
   uint8_t entry_mode = LCD_DISPLAY_ENTRY_LEFT;
-  this->command(LCD_DISPLAY_COMMAND_ENTRY_MODE_SET | entry_mode);  // 37µs
+  this->command_(LCD_DISPLAY_COMMAND_ENTRY_MODE_SET | entry_mode);  // 37µs
 
-  this->command(LCD_DISPLAY_COMMAND_RETURN_HOME);
+  this->command_(LCD_DISPLAY_COMMAND_RETURN_HOME);
   delay(2);  // 1.52ms
 }
 
 float LCDDisplay::get_setup_priority() const { return setup_priority::POST_HARDWARE; }
 void HOT LCDDisplay::display() {
-  this->command(LCD_DISPLAY_COMMAND_SET_DDRAM_ADDR | 0);
+  this->command_(LCD_DISPLAY_COMMAND_SET_DDRAM_ADDR | 0);
 
   for (uint8_t i = 0; i < this->columns_; i++)
-    this->send(this->buffer_[i], true);
+    this->send_(this->buffer_[i], true);
 
   if (this->rows_ >= 3) {
     for (uint8_t i = 0; i < this->columns_; i++)
-      this->send(this->buffer_[this->columns_ * 2 + i], true);
+      this->send_(this->buffer_[this->columns_ * 2 + i], true);
   }
 
   if (this->rows_ >= 1) {
-    this->command(LCD_DISPLAY_COMMAND_SET_DDRAM_ADDR | 0x40);
+    this->command_(LCD_DISPLAY_COMMAND_SET_DDRAM_ADDR | 0x40);
 
     for (uint8_t i = 0; i < this->columns_; i++)
-      this->send(this->buffer_[this->columns_ + i], true);
+      this->send_(this->buffer_[this->columns_ + i], true);
 
     if (this->rows_ >= 4) {
       for (uint8_t i = 0; i < this->columns_; i++)
-        this->send(this->buffer_[this->columns_ * 3 + i], true);
+        this->send_(this->buffer_[this->columns_ * 3 + i], true);
     }
   }
 }
@@ -114,7 +114,7 @@ void LCDDisplay::update() {
   this->writer_(*this);
   this->display();
 }
-void LCDDisplay::command(uint8_t value) { this->send(value, false); }
+void LCDDisplay::command_(uint8_t value) { this->send_(value, false); }
 void LCDDisplay::print(uint8_t column, uint8_t row, const char *str) {
   uint8_t pos = column + row * this->columns_;
   for (; *str != '\0'; str++) {
@@ -218,7 +218,7 @@ void GPIOLCDDisplay::set_enable_pin(const GPIOOutputPin &enable) { this->enable_
 void GPIOLCDDisplay::set_rs_pin(const GPIOOutputPin &rs) { this->rs_pin_ = rs.copy(); }
 void GPIOLCDDisplay::set_rw_pin(const GPIOOutputPin &rw) { this->rw_pin_ = rw.copy(); }
 bool GPIOLCDDisplay::is_four_bit_mode_() { return this->data_pins_[4] == nullptr; }
-void GPIOLCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
+void GPIOLCDDisplay::write_n_bits_(uint8_t value, uint8_t n) {
   for (uint8_t i = 0; i < n; i++)
     this->data_pins_[i]->digital_write(value & (1 << i));
 
@@ -227,14 +227,14 @@ void GPIOLCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
   this->enable_pin_->digital_write(false);
   delayMicroseconds(40);  // >37us
 }
-void GPIOLCDDisplay::send(uint8_t value, bool rs) {
+void GPIOLCDDisplay::send_(uint8_t value, bool rs) {
   this->rs_pin_->digital_write(rs);
 
   if (this->is_four_bit_mode_()) {
-    this->write_n_bits(value >> 4, 4);
-    this->write_n_bits(value, 4);
+    this->write_n_bits_(value >> 4, 4);
+    this->write_n_bits_(value, 4);
   } else {
-    this->write_n_bits(value, 8);
+    this->write_n_bits_(value, 8);
   }
 }
 GPIOLCDDisplay::GPIOLCDDisplay(uint8_t columns, uint8_t rows, uint32_t update_interval)
@@ -260,7 +260,7 @@ void PCF8574LCDDisplay::dump_config() {
   }
 }
 bool PCF8574LCDDisplay::is_four_bit_mode_() { return true; }
-void PCF8574LCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
+void PCF8574LCDDisplay::write_n_bits_(uint8_t value, uint8_t n) {
   if (n == 4) {
     // Ugly fix: in the super setup() with n == 4 value needs to be shifted left
     value <<= 4;
@@ -273,9 +273,9 @@ void PCF8574LCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
   this->write_bytes(data, nullptr, 0);
   delayMicroseconds(100);  // >37us
 }
-void PCF8574LCDDisplay::send(uint8_t value, bool rs) {
-  this->write_n_bits((value & 0xF0) | rs, 0);
-  this->write_n_bits(((value << 4) & 0xF0) | rs, 0);
+void PCF8574LCDDisplay::send_(uint8_t value, bool rs) {
+  this->write_n_bits_((value & 0xF0) | rs, 0);
+  this->write_n_bits_(((value << 4) & 0xF0) | rs, 0);
 }
 PCF8574LCDDisplay::PCF8574LCDDisplay(I2CComponent *parent, uint8_t columns, uint8_t rows, uint8_t address,
                                      uint32_t update_interval)

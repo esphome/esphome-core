@@ -19,10 +19,9 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
   void set_reset_pin(const GPIOOutputPin &reset);
   void set_busy_pin(const GPIOInputPin &busy);
 
-  bool msb_first() override;
+  bool is_device_msb_first() override;
   void command(uint8_t value);
   void data(uint8_t value);
-  bool wait_until_idle_();
 
   virtual void display() = 0;
 
@@ -33,11 +32,13 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
  protected:
   void draw_absolute_pixel_internal_(int x, int y, int color) override;
 
-  void setup_pins();
+  bool wait_until_idle_();
 
-  uint32_t get_buffer_length();
+  void setup_pins_();
 
-  bool high_speed() override;
+  uint32_t get_buffer_length_();
+
+  bool is_device_high_speed() override;
 
   void start_command_();
   void end_command_();

@@ -51,7 +51,7 @@ class RotaryEncoderSensor : public Sensor, public Component {
 
  protected:
   /// The ISR that handles pushing all interrupts to process_state_machine_ of all rotary encoders.
-  static void encoder_isr_();
+  static void encoder_isr();
 
   /// Process the state machine state of this rotary encoder. Called from encoder_isr_
   void process_state_machine_();

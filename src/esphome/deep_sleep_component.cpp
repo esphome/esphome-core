@@ -19,7 +19,7 @@ void DeepSleepComponent::setup() {
   global_has_deep_sleep = true;
 
   if (this->run_duration_.has_value())
-    this->set_timeout(*this->run_duration_, [this]() { this->begin_sleep_(); });
+    this->set_timeout(*this->run_duration_, [this]() { this->begin_sleep(); });
 }
 void DeepSleepComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Setting up Deep Sleep...");
@@ -37,7 +37,7 @@ void DeepSleepComponent::dump_config() {
 }
 void DeepSleepComponent::loop() {
   if (this->next_enter_deep_sleep_)
-    this->begin_sleep_();
+    this->begin_sleep();
 }
 float DeepSleepComponent::get_loop_priority() const {
   return -100.0f;  // run after everything else is ready
@@ -51,7 +51,7 @@ void DeepSleepComponent::set_wakeup_pin_mode(WakeupPinMode wakeup_pin_mode) {
 void DeepSleepComponent::set_ext1_wakeup(Ext1Wakeup ext1_wakeup) { this->ext1_wakeup_ = ext1_wakeup; }
 #endif
 void DeepSleepComponent::set_run_duration(uint32_t time_ms) { this->run_duration_ = time_ms; }
-void DeepSleepComponent::begin_sleep_(bool manual) {
+void DeepSleepComponent::begin_sleep(bool manual) {
   if (this->prevent_ && !manual) {
     this->next_enter_deep_sleep_ = true;
     return;

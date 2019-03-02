@@ -25,7 +25,7 @@ void HLW8012Component::setup() {
   this->sel_pin_->setup();
   this->sel_pin_->digital_write(this->current_mode_);
 
-  if (!this->cf_.pulse_counter_setup_() || !this->cf1_.pulse_counter_setup_()) {
+  if (!this->cf_.pulse_counter_setup() || !this->cf1_.pulse_counter_setup()) {
     this->mark_failed();
     return;
   }
@@ -45,8 +45,8 @@ void HLW8012Component::dump_config() {
 }
 float HLW8012Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void HLW8012Component::update() {
-  pulse_counter_t raw_cf = this->cf_.read_raw_value_();
-  pulse_counter_t raw_cf1 = this->cf1_.read_raw_value_();
+  pulse_counter_t raw_cf = this->cf_.read_raw_value();
+  pulse_counter_t raw_cf1 = this->cf1_.read_raw_value();
   float cf_hz = raw_cf / (this->get_update_interval() / 1000.0f);
   if (raw_cf <= 1) {
     // don't count single pulse as power

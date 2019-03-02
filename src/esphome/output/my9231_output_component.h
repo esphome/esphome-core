@@ -70,7 +70,7 @@ class MY9231OutputComponent : public Component {
    public:
     Channel(MY9231OutputComponent *parent, uint8_t channel);
 
-    void write_state(float state) override;
+    void write_state_(float state) override;
 
    protected:
     MY9231OutputComponent *parent_;
@@ -78,10 +78,10 @@ class MY9231OutputComponent : public Component {
   };
 
  protected:
-  void set_channel_value(uint8_t channel, uint16_t value);
-  void init_chips(uint8_t command);
-  void write_word(uint16_t value, uint8_t bits);
-  void send_di_pulses(uint8_t count);
+  void set_channel_value_(uint8_t channel, uint16_t value);
+  void init_chips_(uint8_t command);
+  void write_word_(uint16_t value, uint8_t bits);
+  void send_di_pulses_(uint8_t count);
 
   GPIOPin *pin_di_;
   GPIOPin *pin_dcki_;

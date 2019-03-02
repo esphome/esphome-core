@@ -34,7 +34,7 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
   bool publish_state(bool state);
 
  protected:
-  std::string friendly_name() const override;
+  std::string friendly_name_() const override;
 
   /// "switch" component type.
   std::string component_type() const override;

@@ -181,7 +181,7 @@ class WiFiComponent : public Component {
   void set_use_address(const std::string &use_address);
 
  protected:
-  void setup_ap_config();
+  void setup_ap_config_();
   void print_connect_params_();
 
   bool wifi_mode_(optional<bool> sta, optional<bool> ap);
@@ -199,9 +199,9 @@ class WiFiComponent : public Component {
   IPAddress wifi_soft_ap_ip_();
 
 #ifdef ARDUINO_ARCH_ESP8266
-  static void wifi_event_callback_(System_Event_t *event);
+  static void wifi_event_callback(System_Event_t *event);
   void wifi_scan_done_callback_(void *arg, STATUS status);
-  static void s_wifi_scan_done_callback_(void *arg, STATUS status);
+  static void s_wifi_scan_done_callback(void *arg, STATUS status);
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32

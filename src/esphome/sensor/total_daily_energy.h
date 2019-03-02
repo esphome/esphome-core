@@ -26,7 +26,7 @@ class TotalDailyEnergy : public Sensor, public Component {
   int8_t accuracy_decimals() override;
   void loop() override;
 
-  void publish_state_and_save_(float state);
+  void publish_state_and_save(float state);
 
  protected:
   void process_new_state_(float state);

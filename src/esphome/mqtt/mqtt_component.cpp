@@ -22,26 +22,26 @@ static const char *TAG = "mqtt.component";
 
 void MQTTComponent::set_retain(bool retain) { this->retain_ = retain; }
 
-std::string MQTTComponent::get_discovery_topic(const MQTTDiscoveryInfo &discovery_info) const {
+std::string MQTTComponent::get_discovery_topic_(const MQTTDiscoveryInfo &discovery_info) const {
   std::string sanitized_name = sanitize_string_whitelist(get_app_name(), HOSTNAME_CHARACTER_WHITELIST);
   return discovery_info.prefix + "/" + this->component_type() + "/" + sanitized_name + "/" +
-         this->get_default_object_id() + "/config";
+      this->get_default_object_id_() + "/config";
 }
 
-std::string MQTTComponent::get_default_topic_for(const std::string &suffix) const {
-  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id() +
+std::string MQTTComponent::get_default_topic_for_(const std::string &suffix) const {
+  return global_mqtt_client->get_topic_prefix() + "/" + this->component_type() + "/" + this->get_default_object_id_() +
          "/" + suffix;
 }
 
-const std::string MQTTComponent::get_state_topic() const {
+const std::string MQTTComponent::get_state_topic_() const {
   if (this->custom_state_topic_.empty())
-    return this->get_default_topic_for("state");
+    return this->get_default_topic_for_("state");
   return this->custom_state_topic_;
 }
 
-const std::string MQTTComponent::get_command_topic() const {
+const std::string MQTTComponent::get_command_topic_() const {
   if (this->custom_command_topic_.empty())
-    return this->get_default_topic_for("command");
+    return this->get_default_topic_for_("command");
   return this->custom_command_topic_;
 }
 
@@ -61,14 +61,14 @@ bool MQTTComponent::send_discovery_() {
   const MQTTDiscoveryInfo &discovery_info = global_mqtt_client->get_discovery_info();
 
   if (discovery_info.clean) {
-    ESP_LOGV(TAG, "'%s': Cleaning discovery...", this->friendly_name().c_str());
-    return global_mqtt_client->publish(this->get_discovery_topic(discovery_info), "", 0, 0, true);
+    ESP_LOGV(TAG, "'%s': Cleaning discovery...", this->friendly_name_().c_str());
+    return global_mqtt_client->publish(this->get_discovery_topic_(discovery_info), "", 0, 0, true);
   }
 
-  ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
+  ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name_().c_str());
 
   return global_mqtt_client->publish_json(
-      this->get_discovery_topic(discovery_info),
+      this->get_discovery_topic_(discovery_info),
       [this](JsonObject &root) {
         SendDiscoveryConfig config;
         config.state_topic = true;
@@ -77,14 +77,14 @@ bool MQTTComponent::send_discovery_() {
 
         this->send_discovery(root, config);
 
-        std::string name = this->friendly_name();
+        std::string name = this->friendly_name_();
         root["name"] = name;
         if (strcmp(config.platform, "mqtt") != 0)
           root["platform"] = config.platform;
         if (config.state_topic)
-          root["state_topic"] = this->get_state_topic();
+          root["state_topic"] = this->get_state_topic_();
         if (config.command_topic)
-          root["command_topic"] = this->get_command_topic();
+          root["command_topic"] = this->get_command_topic_();
 
         if (this->availability_ == nullptr) {
           root["availability_topic"] = global_mqtt_client->get_availability().topic;
@@ -101,13 +101,13 @@ bool MQTTComponent::send_discovery_() {
         }
 
         const std::string &node_name = get_app_name();
-        std::string unique_id = this->unique_id();
+        std::string unique_id = this->unique_id_();
         if (!unique_id.empty()) {
           root["unique_id"] = unique_id;
         } else {
           // default to almost-unique ID. It's a hack but the only way to get that
           // gorgeous device registry view.
-          root["unique_id"] = "ESP" + this->component_type() + this->get_default_object_id();
+          root["unique_id"] = "ESP" + this->component_type() + this->get_default_object_id_();
         }
 
         JsonObject &device_info = root.createNestedObject("device");
@@ -132,8 +132,8 @@ bool MQTTComponent::is_discovery_enabled() const {
   return this->discovery_enabled_ && global_mqtt_client->is_discovery_enabled();
 }
 
-std::string MQTTComponent::get_default_object_id() const {
-  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name()), HOSTNAME_CHARACTER_WHITELIST);
+std::string MQTTComponent::get_default_object_id_() const {
+  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name_()), HOSTNAME_CHARACTER_WHITELIST);
 }
 
 void MQTTComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
@@ -164,9 +164,9 @@ void MQTTComponent::set_availability(std::string topic, std::string payload_avai
   this->availability_->payload_not_available = std::move(payload_not_available);
 }
 void MQTTComponent::disable_availability() { this->set_availability("", "", ""); }
-void MQTTComponent::setup_() {
+void MQTTComponent::call_setup() {
   // Call component internal setup.
-  this->setup_internal();
+  this->setup_internal_();
 
   if (this->is_internal())
     return;
@@ -175,7 +175,7 @@ void MQTTComponent::setup_() {
 
   global_mqtt_client->register_mqtt_component(this);
 
-  if (!this->is_connected())
+  if (!this->is_connected_())
     return;
 
   if (this->is_discovery_enabled()) {
@@ -188,15 +188,15 @@ void MQTTComponent::setup_() {
   }
 }
 
-void MQTTComponent::loop_() {
-  this->loop_internal();
+void MQTTComponent::call_loop() {
+  this->loop_internal_();
 
   if (this->is_internal())
     return;
 
   this->loop();
 
-  if (!this->resend_state_ || !this->is_connected()) {
+  if (!this->resend_state_ || !this->is_connected_()) {
     return;
   }
 
@@ -211,8 +211,8 @@ void MQTTComponent::loop_() {
   }
 }
 void MQTTComponent::schedule_resend_state() { this->resend_state_ = true; }
-std::string MQTTComponent::unique_id() { return ""; }
-bool MQTTComponent::is_connected() const { return global_mqtt_client->is_connected(); }
+std::string MQTTComponent::unique_id_() { return ""; }
+bool MQTTComponent::is_connected_() const { return global_mqtt_client->is_connected(); }
 
 }  // namespace mqtt
 

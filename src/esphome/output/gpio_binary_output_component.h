@@ -40,7 +40,7 @@ class GPIOBinaryOutputComponent : public BinaryOutput, public Component {
   float get_setup_priority() const override;
 
   /// Override the BinaryOutput method for writing values to HW.
-  void write_state(bool state) override;
+  void write_state_(bool state) override;
 
  protected:
   GPIOPin *pin_;

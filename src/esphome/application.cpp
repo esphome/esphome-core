@@ -63,7 +63,7 @@ void Application::setup() {
     if (component->is_failed())
       continue;
 
-    component->setup_();
+    component->call_setup();
     if (component->can_proceed())
       continue;
 
@@ -74,7 +74,7 @@ void Application::setup() {
       uint32_t new_global_state = STATUS_LED_WARNING;
       for (uint32_t j = 0; j <= i; j++) {
         if (!this->components_[j]->is_failed()) {
-          this->components_[j]->loop_();
+          this->components_[j]->call_loop();
         }
         new_global_state |= this->components_[j]->get_component_state();
         global_state |= new_global_state;
@@ -113,7 +113,7 @@ void HOT Application::loop() {
   uint32_t new_global_state = 0;
   for (Component *component : this->components_) {
     if (!component->is_failed()) {
-      component->loop_();
+      component->call_loop();
     }
     new_global_state |= component->get_component_state();
     global_state |= new_global_state;

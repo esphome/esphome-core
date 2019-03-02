@@ -25,7 +25,7 @@ static const uint8_t DALLAS_COMMAND_START_CONVERSION = 0x44;
 static const uint8_t DALLAS_COMMAND_READ_SCRATCH_PAD = 0xBE;
 static const uint8_t DALLAS_COMMAND_WRITE_SCRATCH_PAD = 0x4E;
 
-uint16_t DallasTemperatureSensor::millis_to_wait_for_conversion_() const {
+uint16_t DallasTemperatureSensor::millis_to_wait_for_conversion() const {
   switch (this->resolution_) {
     case 9:
       return 94;
@@ -72,7 +72,7 @@ void DallasComponent::setup() {
       sensor->set_address(this->found_sensors_[*sensor->get_index()]);
     }
 
-    if (!sensor->setup_sensor_()) {
+    if (!sensor->setup_sensor()) {
       this->status_set_error();
     }
   }
@@ -140,16 +140,16 @@ void DallasComponent::update() {
   }
 
   for (auto *sensor : this->sensors_) {
-    this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion_(), [this, sensor] {
+    this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion(), [this, sensor] {
       disable_interrupts();
-      bool res = sensor->read_scratch_pad_();
+      bool res = sensor->read_scratch_pad();
       enable_interrupts();
 
       if (!res) {
         this->status_set_warning();
         return;
       }
-      if (!sensor->check_scratch_pad_()) {
+      if (!sensor->check_scratch_pad()) {
         this->status_set_warning();
         return;
       }
@@ -184,7 +184,7 @@ const std::string &DallasTemperatureSensor::get_address_name() {
 
   return this->address_name_;
 }
-bool DallasTemperatureSensor::read_scratch_pad_() {
+bool DallasTemperatureSensor::read_scratch_pad() {
   ESPOneWire *wire = this->parent_->get_one_wire();
   if (!wire->reset()) {
     return false;
@@ -198,16 +198,16 @@ bool DallasTemperatureSensor::read_scratch_pad_() {
   }
   return true;
 }
-bool DallasTemperatureSensor::setup_sensor_() {
+bool DallasTemperatureSensor::setup_sensor() {
   disable_interrupts();
-  bool r = this->read_scratch_pad_();
+  bool r = this->read_scratch_pad();
   enable_interrupts();
 
   if (!r) {
     ESP_LOGE(TAG, "Reading scratchpad failed: reset");
     return false;
   }
-  if (!this->check_scratch_pad_())
+  if (!this->check_scratch_pad())
     return false;
 
   if (this->scratch_pad_[4] == this->resolution_)
@@ -255,7 +255,7 @@ bool DallasTemperatureSensor::setup_sensor_() {
   wire->reset();
   return true;
 }
-bool DallasTemperatureSensor::check_scratch_pad_() {
+bool DallasTemperatureSensor::check_scratch_pad() {
 #ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
   ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)", this->scratch_pad_[0],
             this->scratch_pad_[1], this->scratch_pad_[2], this->scratch_pad_[3], this->scratch_pad_[4],

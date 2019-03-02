@@ -112,26 +112,26 @@ void BME280Component::setup() {
   }
 
   // Read calibration
-  this->calibration_.t1 = read_u16_le(BME280_REGISTER_DIG_T1);
-  this->calibration_.t2 = read_s16_le(BME280_REGISTER_DIG_T2);
-  this->calibration_.t3 = read_s16_le(BME280_REGISTER_DIG_T3);
+  this->calibration_.t1 = read_u16_le_(BME280_REGISTER_DIG_T1);
+  this->calibration_.t2 = read_s16_le_(BME280_REGISTER_DIG_T2);
+  this->calibration_.t3 = read_s16_le_(BME280_REGISTER_DIG_T3);
 
-  this->calibration_.p1 = read_u16_le(BME280_REGISTER_DIG_P1);
-  this->calibration_.p2 = read_s16_le(BME280_REGISTER_DIG_P2);
-  this->calibration_.p3 = read_s16_le(BME280_REGISTER_DIG_P3);
-  this->calibration_.p4 = read_s16_le(BME280_REGISTER_DIG_P4);
-  this->calibration_.p5 = read_s16_le(BME280_REGISTER_DIG_P5);
-  this->calibration_.p6 = read_s16_le(BME280_REGISTER_DIG_P6);
-  this->calibration_.p7 = read_s16_le(BME280_REGISTER_DIG_P7);
-  this->calibration_.p8 = read_s16_le(BME280_REGISTER_DIG_P8);
-  this->calibration_.p9 = read_s16_le(BME280_REGISTER_DIG_P9);
+  this->calibration_.p1 = read_u16_le_(BME280_REGISTER_DIG_P1);
+  this->calibration_.p2 = read_s16_le_(BME280_REGISTER_DIG_P2);
+  this->calibration_.p3 = read_s16_le_(BME280_REGISTER_DIG_P3);
+  this->calibration_.p4 = read_s16_le_(BME280_REGISTER_DIG_P4);
+  this->calibration_.p5 = read_s16_le_(BME280_REGISTER_DIG_P5);
+  this->calibration_.p6 = read_s16_le_(BME280_REGISTER_DIG_P6);
+  this->calibration_.p7 = read_s16_le_(BME280_REGISTER_DIG_P7);
+  this->calibration_.p8 = read_s16_le_(BME280_REGISTER_DIG_P8);
+  this->calibration_.p9 = read_s16_le_(BME280_REGISTER_DIG_P9);
 
-  this->calibration_.h1 = read_u8(BME280_REGISTER_DIG_H1);
-  this->calibration_.h2 = read_s16_le(BME280_REGISTER_DIG_H2);
-  this->calibration_.h3 = read_u8(BME280_REGISTER_DIG_H3);
-  this->calibration_.h4 = read_u8(BME280_REGISTER_DIG_H4) << 4 | (read_u8(BME280_REGISTER_DIG_H4 + 1) & 0x0F);
-  this->calibration_.h5 = read_u8(BME280_REGISTER_DIG_H5 + 1) << 4 | (read_u8(BME280_REGISTER_DIG_H5) >> 4);
-  this->calibration_.h6 = read_u8(BME280_REGISTER_DIG_H6);
+  this->calibration_.h1 = read_u8_(BME280_REGISTER_DIG_H1);
+  this->calibration_.h2 = read_s16_le_(BME280_REGISTER_DIG_H2);
+  this->calibration_.h3 = read_u8_(BME280_REGISTER_DIG_H3);
+  this->calibration_.h4 = read_u8_(BME280_REGISTER_DIG_H4) << 4 | (read_u8_(BME280_REGISTER_DIG_H4 + 1) & 0x0F);
+  this->calibration_.h5 = read_u8_(BME280_REGISTER_DIG_H5 + 1) << 4 | (read_u8_(BME280_REGISTER_DIG_H5) >> 4);
+  this->calibration_.h6 = read_u8_(BME280_REGISTER_DIG_H6);
 
   uint8_t humid_register = 0;
   if (!this->read_byte(BME280_REGISTER_CONTROLHUMID, &humid_register)) {
@@ -322,17 +322,17 @@ void BME280Component::set_humidity_oversampling(BME280Oversampling humidity_over
   this->humidity_oversampling_ = humidity_over_sampling;
 }
 void BME280Component::set_iir_filter(BME280IIRFilter iir_filter) { this->iir_filter_ = iir_filter; }
-uint8_t BME280Component::read_u8(uint8_t a_register) {
+uint8_t BME280Component::read_u8_(uint8_t a_register) {
   uint8_t data = 0;
   this->read_byte(a_register, &data);
   return data;
 }
-uint16_t BME280Component::read_u16_le(uint8_t a_register) {
+uint16_t BME280Component::read_u16_le_(uint8_t a_register) {
   uint16_t data = 0;
   this->read_byte_16(a_register, &data);
   return (data >> 8) | (data << 8);
 }
-int16_t BME280Component::read_s16_le(uint8_t a_register) { return this->read_u16_le(a_register); }
+int16_t BME280Component::read_s16_le_(uint8_t a_register) { return this->read_u16_le_(a_register); }
 
 }  // namespace sensor
 

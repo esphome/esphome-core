@@ -356,14 +356,14 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
 
   void clear();
 
-  String startString();
+  String startString();  // NOLINT
 
  protected:
-  void *do_alloc(size_t bytes);
+  void *do_alloc(size_t bytes);  // NOLINT
 
-  void resize(size_t size);
+  void resize(size_t size);  // NOLINT
 
-  void reserve(size_t size);
+  void reserve(size_t size);  // NOLINT
 
   char *buffer_{nullptr};
   size_t size_{0};

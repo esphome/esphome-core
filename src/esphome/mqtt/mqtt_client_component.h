@@ -237,17 +237,17 @@ class MQTTClientComponent : public Component {
 
  protected:
   /// Reconnect to the MQTT broker if not already connected.
-  void start_connect();
-  void start_dnslookup();
-  void check_dnslookup();
+  void start_connect_();
+  void start_dnslookup_();
+  void check_dnslookup_();
 #if defined(ARDUINO_ARCH_ESP8266) && LWIP_VERSION_MAJOR == 1
-  static void dns_found_callback_(const char *name, ip_addr_t *ipaddr, void *callback_arg);
+  static void dns_found_callback(const char *name, ip_addr_t *ipaddr, void *callback_arg);
 #else
-  static void dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+  static void dns_found_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
 #endif
 
   /// Re-calculate the availability property.
-  void recalculate_availability();
+  void recalculate_availability_();
 
   bool subscribe_(const char* topic, uint8_t qos);
   void resubscribe_subscription_(MQTTSubscription *sub);
