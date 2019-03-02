@@ -83,8 +83,8 @@ void SDS011Component::setup() {
 void SDS011Component::dump_config() {
   ESP_LOGCONFIG(TAG, "SDS011:");
   ESP_LOGCONFIG(TAG, "  Update interval: %u ms", this->update_interval_);
-  ESP_LOGCONFIG(TAG, "  RX-only mode: %u", this->rx_mode_only_);
-  ESP_LOGCONFIG(TAG, "  Query mode: %u", this->query_mode_);
+  ESP_LOGCONFIG(TAG, "  RX-only mode: %s", ONOFF(this->rx_mode_only_));
+  ESP_LOGCONFIG(TAG, "  Query mode: %s", ONOFF(this->query_mode_));
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
   LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
 }
@@ -93,12 +93,12 @@ void SDS011Component::loop() {
   const uint32_t now = millis();
   if ((now - this->last_transmission_ >= 500) && this->data_index_) {
     // last transmission too long ago. Reset RX index.
-    ESP_LOGD(TAG, "last transmission too long ago. Reset RX index.");
+    ESP_LOGV(TAG, "Last transmission too long ago. Reset RX index.");
     this->data_index_ = 0;
   }
 
   if ((this->data_index_ == 0) && this->force_query_) {
-    ESP_LOGD(TAG, "Request new value.");
+    ESP_LOGV(TAG, "Request new value.");
     uint8_t command_data[SDS011_DATA_REQUEST_LENGTH] = {0};
     command_data[0] = SDS011_COMMAND_QUERY_DATA;
     command_data[13] = 0xff;
@@ -121,7 +121,7 @@ void SDS011Component::loop() {
       this->data_index_ = 0;
     } else if (!*check) {
       // wrong data
-      ESP_LOGD(TAG, "Wrong data.");
+      ESP_LOGV(TAG, "Byte %i of received data frame is invalid.", this->data_index_);
       this->data_index_ = 0;
     } else {
       // next byte
