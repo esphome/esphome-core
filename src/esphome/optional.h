@@ -24,8 +24,8 @@ ESPHOME_NAMESPACE_BEGIN
 
 // type for nullopt
 
-struct nullopt_t {
-  struct init {};
+struct nullopt_t {  // NOLINT
+  struct init {};  // NOLINT
   nullopt_t(init) {}
 };
 
@@ -37,7 +37,7 @@ const nullopt_t nullopt((nullopt_t::init()));
 // Simplistic optional: requires T to be default constructible, copyable.
 
 template<typename T>
-class optional {
+class optional {  // NOLINT
  private:
   using safe_bool = void (optional::*)() const;
 
