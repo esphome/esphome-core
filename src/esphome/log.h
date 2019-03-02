@@ -64,7 +64,7 @@
   #define ESPHOME_LOG_RESET_COLOR
 #endif
 
-int esp_log_printf_(int level, const char *tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+int esp_log_printf_(int level, const char *tag, const char *format, ...) __attribute__ ((format (printf, 3, 4)));  // NOLINT
 #ifdef USE_STORE_LOG_STR_IN_FLASH
   int esp_log_printf_(int level, const char *tag, const __FlashStringHelper *format, ...);
 #endif
