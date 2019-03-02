@@ -90,7 +90,7 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
   bool has_requested_high_power_{false};
 #endif
 
-  static const char* TAG;
+  static const char* TAG;  // NOLINT
 };
 
 template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbFeature>

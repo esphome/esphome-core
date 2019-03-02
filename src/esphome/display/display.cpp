@@ -199,7 +199,7 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
       }
     }
 
-    x_at += glyph.width_ + glyph.offset_x;
+    x_at += glyph.width_ + glyph.offset_x_;
 
     i += match_length;
   }
@@ -335,13 +335,13 @@ Glyph::Glyph(const char *a_char, const uint8_t *data_start, uint32_t offset, int
              int height)
     : char_(a_char),
       data_(data_start + offset),
-      offset_x(offset_x),
-      offset_y(offset_y),
+      offset_x_(offset_x),
+      offset_y_(offset_y),
       width_(width),
       height_(height) {}
 bool Glyph::get_pixel(int x, int y) const {
-  const int x_data = x - this->offset_x;
-  const int y_data = y - this->offset_y;
+  const int x_data = x - this->offset_x_;
+  const int y_data = y - this->offset_y_;
   if (x_data < 0 || x_data >= this->width_ || y_data < 0 || y_data >= this->height_)
     return false;
   const uint32_t width_8 = ((this->width_ + 7u) / 8u) * 8u;
@@ -376,8 +376,8 @@ int Glyph::match_length(const char *str) const {
   return 0;
 }
 void Glyph::scan_area(int *x1, int *y1, int *width, int *height) const {
-  *x1 = this->offset_x;
-  *y1 = this->offset_y;
+  *x1 = this->offset_x_;
+  *y1 = this->offset_y_;
   *width = this->width_;
   *height = this->height_;
 }
@@ -416,10 +416,10 @@ void Font::measure(const char *str, int *width, int *x_offset, int *baseline, in
 
     const Glyph &glyph = this->glyphs_[glyph_n];
     if (!has_char)
-      min_x = glyph.offset_x;
+      min_x = glyph.offset_x_;
     else
-      min_x = std::min(min_x, x + glyph.offset_x);
-    x += glyph.width_ + glyph.offset_x;
+      min_x = std::min(min_x, x + glyph.offset_x_);
+    x += glyph.width_ + glyph.offset_x_;
 
     i += match_length;
     has_char = true;

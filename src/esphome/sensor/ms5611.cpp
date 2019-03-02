@@ -26,7 +26,7 @@ void MS5611Component::setup() {
   }
   delay(100);
   for (uint8_t offset = 0; offset < 6; offset++) {
-    if (!this->read_byte_16(MS5611_CMD_READ_PROM + (offset * 2), &this->prom[offset])) {
+    if (!this->read_byte_16(MS5611_CMD_READ_PROM + (offset * 2), &this->prom_[offset])) {
       this->mark_failed();
       return;
     }
@@ -80,11 +80,11 @@ void MS5611Component::read_pressure_(uint32_t raw_temperature) {
   this->calculate_values(raw_temperature, raw_pressure);
 }
 void MS5611Component::calculate_values(uint32_t raw_temperature, uint32_t raw_pressure) {
-  const int32_t d_t = int32_t(raw_temperature) - (uint32_t(this->prom[4]) << 8);
-  float temperature = (2000 + (int64_t(d_t) * this->prom[5]) / 8388608.0f) / 100.0f;
+  const int32_t d_t = int32_t(raw_temperature) - (uint32_t(this->prom_[4]) << 8);
+  float temperature = (2000 + (int64_t(d_t) * this->prom_[5]) / 8388608.0f) / 100.0f;
 
-  float pressure_offset = (uint32_t(this->prom[1]) << 16) + ((this->prom[3] * d_t) >> 7);
-  float pressure_sensitivity = (uint32_t(this->prom[0]) << 15) + ((this->prom[2] * d_t) >> 8);
+  float pressure_offset = (uint32_t(this->prom_[1]) << 16) + ((this->prom_[3] * d_t) >> 7);
+  float pressure_sensitivity = (uint32_t(this->prom_[0]) << 15) + ((this->prom_[2] * d_t) >> 8);
 
   if (temperature < 20.0f) {
     const float t2 = (d_t * d_t) / 2147483648.0f;

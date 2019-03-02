@@ -35,7 +35,7 @@ class MS5611Component : public PollingComponent, public I2CDevice {
 
   MS5611TemperatureSensor *temperature_sensor_;
   MS5611PressureSensor *pressure_sensor_;
-  uint16_t prom[6];
+  uint16_t prom_[6];
 };
 
 } // namespace sensor

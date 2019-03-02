@@ -345,8 +345,8 @@ class Glyph {
 
   const char *char_;
   const uint8_t *data_;
-  int offset_x;
-  int offset_y;
+  int offset_x_;
+  int offset_y_;
   int width_;
   int height_;
 };

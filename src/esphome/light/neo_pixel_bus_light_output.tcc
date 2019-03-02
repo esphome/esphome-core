@@ -11,7 +11,7 @@ ESPHOME_NAMESPACE_BEGIN
 namespace light {
 
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-const char* NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::TAG = "light.neo_pixel_bus";
+const char* NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::TAG = "light.neo_pixel_bus";  // NOLINT
 
 #ifdef USE_OUTPUT
 template<typename T_METHOD, typename T_COLOR_FEATURE>
