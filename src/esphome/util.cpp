@@ -30,7 +30,7 @@ void network_setup() {
   bool ready = true;
 #ifdef USE_ETHERNET
   if (global_eth_component != nullptr) {
-    global_eth_component->setup_();
+    global_eth_component->call_setup();
     ready = false;
   }
 #endif
@@ -43,7 +43,7 @@ void network_setup() {
   while (!ready) {
 #ifdef USE_ETHERNET
     if (global_eth_component != nullptr) {
-      global_eth_component->loop_();
+      global_eth_component->call_loop();
       ready = ready || global_eth_component->can_proceed();
     }
 #endif
@@ -58,7 +58,7 @@ void network_setup() {
 void network_tick() {
 #ifdef USE_ETHERNET
   if (global_eth_component != nullptr)
-    global_eth_component->loop_();
+    global_eth_component->call_loop();
 #endif
   if (global_wifi_component != nullptr)
     global_wifi_component->call_loop();

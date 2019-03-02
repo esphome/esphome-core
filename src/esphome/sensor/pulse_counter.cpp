@@ -68,7 +68,7 @@ pulse_counter_t PulseCounterBase::read_raw_value() {
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
-bool PulseCounterBase::pulse_counter_setup_() {
+bool PulseCounterBase::pulse_counter_setup() {
   ESP_LOGCONFIG(TAG, "    PCNT Unit Number: %u", this->pcnt_unit_);
 
   pcnt_count_mode_t rising = PCNT_COUNT_DIS, falling = PCNT_COUNT_DIS;
@@ -145,7 +145,7 @@ bool PulseCounterBase::pulse_counter_setup_() {
   }
   return true;
 }
-pulse_counter_t PulseCounterBase::read_raw_value_() {
+pulse_counter_t PulseCounterBase::read_raw_value() {
   pulse_counter_t counter;
   pcnt_get_counter_value(this->pcnt_unit_, &counter);
   pulse_counter_t ret = counter - this->last_value_;
