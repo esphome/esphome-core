@@ -31,7 +31,7 @@ struct nullopt_t {  // NOLINT
 
 // extra parenthesis to prevent the most vexing parse:
 
-const nullopt_t nullopt((nullopt_t::init()));
+const nullopt_t nullopt((nullopt_t::init()));  // NOLINT
 
 
 // Simplistic optional: requires T to be default constructible, copyable.

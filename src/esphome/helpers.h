@@ -276,7 +276,7 @@ struct is_callable  // NOLINT
 
   template<class U> static auto test(...) -> decltype(std::false_type());
 
-  static constexpr auto value = decltype(test<T>(nullptr))::value;
+  static constexpr auto value = decltype(test<T>(nullptr))::value;  // NOLINT
 };
 
 template<bool B, class T = void>

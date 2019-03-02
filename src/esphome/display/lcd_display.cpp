@@ -30,7 +30,7 @@ static const uint8_t LCD_DISPLAY_DISPLAY_ON = 0x04;
 
 static const uint8_t LCD_DISPLAY_FUNCTION_8_BIT_MODE = 0x10;
 static const uint8_t LCD_DISPLAY_FUNCTION_2_LINE = 0x08;
-static const uint8_t LCD_DISPLAY_FUNCTION_5x10_DOTS = 0x04;
+static const uint8_t LCD_DISPLAY_FUNCTION_5X10_DOTS = 0x04;
 
 void LCDDisplay::setup() {
   this->buffer_ = new uint8_t[this->rows_ * this->columns_];
