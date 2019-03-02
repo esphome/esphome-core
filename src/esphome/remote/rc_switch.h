@@ -16,7 +16,7 @@ namespace remote {
 #ifdef USE_REMOTE_TRANSMITTER
 class RCSwitchRawTransmitter : public RemoteTransmitter {
  public:
-  RCSwitchRawTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint32_t code, uint8_t nbits);
+  RCSwitchRawTransmitter(const std::string &name, RCSwitchProtocol a_protocol, uint32_t code, uint8_t nbits);
 
   void to_data(RemoteTransmitData *data) override;
  protected:
@@ -36,7 +36,7 @@ void encode_rc_switch_raw_tristate(RemoteTransmitData *data, const char *code,
 
 class RCSwitchTypeATransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeATransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t switch_group, uint8_t switch_device, bool state);
+  RCSwitchTypeATransmitter(const std::string &name, RCSwitchProtocol a_protocol, uint8_t switch_group, uint8_t switch_device, bool state);
 };
 
 void encode_rc_switch_type_a(RemoteTransmitData *data, uint8_t switch_group, uint8_t switch_device, bool state,
@@ -47,7 +47,7 @@ void encode_rc_switch_type_a(RemoteTransmitData *data, const char *switch_group,
 
 class RCSwitchTypeBTransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeBTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t address_code, uint8_t channel_code, bool state);
+  RCSwitchTypeBTransmitter(const std::string &name, RCSwitchProtocol a_protocol, uint8_t address_code, uint8_t channel_code, bool state);
 };
 
 void encode_rc_switch_type_b(RemoteTransmitData *data, uint8_t address, uint8_t channel, bool state,
@@ -55,7 +55,7 @@ void encode_rc_switch_type_b(RemoteTransmitData *data, uint8_t address, uint8_t 
 
 class RCSwitchTypeCTransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeCTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t family, uint8_t group, uint8_t device, bool state);
+  RCSwitchTypeCTransmitter(const std::string &name, RCSwitchProtocol a_protocol, uint8_t family, uint8_t group, uint8_t device, bool state);
 };
 
 void encode_rc_switch_type_c(RemoteTransmitData *data, uint8_t family, uint8_t group, uint8_t device, bool state,
@@ -66,7 +66,7 @@ void encode_rc_switch_type_c(RemoteTransmitData *data, char family, uint8_t grou
 
 class RCSwitchTypeDTransmitter : public RCSwitchRawTransmitter {
  public:
-  RCSwitchTypeDTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t group, uint8_t device, bool state);
+  RCSwitchTypeDTransmitter(const std::string &name, RCSwitchProtocol a_protocol, uint8_t group, uint8_t device, bool state);
 };
 
 void encode_rc_switch_type_d(RemoteTransmitData *data, uint8_t group, uint8_t device, bool state,
@@ -80,7 +80,7 @@ void encode_rc_switch_type_d(RemoteTransmitData *data, char group, uint8_t devic
 #ifdef USE_REMOTE_RECEIVER
 class RCSwitchRawReceiver : public RemoteReceiver {
  public:
-  RCSwitchRawReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint32_t code, uint8_t nbits);
+  RCSwitchRawReceiver(const std::string &name, RCSwitchProtocol a_protocol, uint32_t code, uint8_t nbits);
 
   bool matches(RemoteReceiveData *data) override;
 
@@ -92,22 +92,22 @@ class RCSwitchRawReceiver : public RemoteReceiver {
 
 class RCSwitchTypeAReceiver : public RCSwitchRawReceiver {
  public:
-  RCSwitchTypeAReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t switch_group, uint8_t switch_device, bool state);
+  RCSwitchTypeAReceiver(const std::string &name, RCSwitchProtocol a_protocol, uint8_t switch_group, uint8_t switch_device, bool state);
 };
 
 class RCSwitchTypeBReceiver : public RCSwitchRawReceiver {
  public:
-  RCSwitchTypeBReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t address_code, uint8_t channel_code, bool state);
+  RCSwitchTypeBReceiver(const std::string &name, RCSwitchProtocol a_protocol, uint8_t address_code, uint8_t channel_code, bool state);
 };
 
 class RCSwitchTypeCReceiver : public RCSwitchRawReceiver {
  public:
-  RCSwitchTypeCReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t family, uint8_t group, uint8_t device, bool state);
+  RCSwitchTypeCReceiver(const std::string &name, RCSwitchProtocol a_protocol, uint8_t family, uint8_t group, uint8_t device, bool state);
 };
 
 class RCSwitchTypeDReceiver : public RCSwitchRawReceiver {
  public:
-  RCSwitchTypeDReceiver(const std::string &name, RCSwitchProtocol aProtocol, uint8_t group, uint8_t device, bool state);
+  RCSwitchTypeDReceiver(const std::string &name, RCSwitchProtocol a_protocol, uint8_t group, uint8_t device, bool state);
 };
 
 class RCSwitchDumper : public RemoteReceiveDumper {
