@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# custom run-clang-tidy.py from llvm project for esphome
 
 from __future__ import print_function
 
@@ -50,7 +49,8 @@ def run_tidy(args, queue, lock):
         name = queue.get()
         invocation = get_tidy_invocation(name, args.inplace)
 
-        proc = subprocess.Popen(invocation, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(invocation, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
         output, err = proc.communicate()
         with lock:
             if proc.returncode != 0:
@@ -67,15 +67,14 @@ def progress_bar_show(value):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Runs clang-tidy over all files '
-                                                 'in a compilation database. Requires '
-                                                 'clang-tidy and clang-apply-replacements in '
-                                                 '$PATH.')
-    parser.add_argument('-j', '--jobs', type=int, default=multiprocessing.cpu_count(),
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-j', '--jobs', type=int,
+                        default=multiprocessing.cpu_count(),
                         help='number of tidy instances to be run in parallel.')
     parser.add_argument('files', nargs='*', default=['src/esphome'],
                         help='files to be processed (regex on path)')
-    parser.add_argument('-i', '--inplace', action='store_true', help='apply fix-its')
+    parser.add_argument('-i', '--inplace', action='store_true',
+                        help='apply fix-its')
     parser.add_argument('-q', '--quiet', action='store_false',
                         help='Run clang-tidy in quiet mode')
     args = parser.parse_args()

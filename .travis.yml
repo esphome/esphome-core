@@ -41,3 +41,4 @@ matrix:
     script:
       - python travis/run-clang-tidy.py
       - python travis/run-clang-format.py -i
+      - travis/suggest-changes.sh
