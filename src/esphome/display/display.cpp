@@ -331,9 +331,9 @@ void DisplayBuffer::strftime(int x, int y, Font *font, const char *format, time:
 }
 #endif
 
-Glyph::Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width,
+Glyph::Glyph(const char *a_char, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width,
              int height)
-    : char_(aChar),
+    : char_(a_char),
       data_(data_start + offset),
       offset_x(offset_x),
       offset_y(offset_y),

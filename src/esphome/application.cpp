@@ -516,8 +516,8 @@ switch_::ShutdownSwitch *Application::make_shutdown_switch(const std::string &fr
 #endif
 
 #ifdef USE_ESP8266_PWM_OUTPUT
-ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin_) {
-  return this->register_component(new ESP8266PWMOutput(pin_));
+ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {
+  return this->register_component(new ESP8266PWMOutput(pin));
 }
 #endif
 

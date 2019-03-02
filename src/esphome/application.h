@@ -913,7 +913,7 @@ class Application {
    * @param pin The pin for this PWM output, supported pins are 0-16.
    * @return The PWM output channel, use this for advanced settings and using it with lights.
    */
-  output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin_);
+  output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin);
 #endif
 
 #ifdef USE_MY9231_OUTPUT
