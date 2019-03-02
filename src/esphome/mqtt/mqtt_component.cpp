@@ -61,11 +61,11 @@ bool MQTTComponent::send_discovery_() {
   const MQTTDiscoveryInfo &discovery_info = global_mqtt_client->get_discovery_info();
 
   if (discovery_info.clean) {
-    ESP_LOGV(TAG, "'%s': Cleaning discovery...", this->friendly_name_().c_str());
+    ESP_LOGV(TAG, "'%s': Cleaning discovery...", this->friendly_name().c_str());
     return global_mqtt_client->publish(this->get_discovery_topic_(discovery_info), "", 0, 0, true);
   }
 
-  ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name_().c_str());
+  ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
 
   return global_mqtt_client->publish_json(
       this->get_discovery_topic_(discovery_info),
@@ -77,7 +77,7 @@ bool MQTTComponent::send_discovery_() {
 
         this->send_discovery(root, config);
 
-        std::string name = this->friendly_name_();
+        std::string name = this->friendly_name();
         root["name"] = name;
         if (strcmp(config.platform, "mqtt") != 0)
           root["platform"] = config.platform;
@@ -101,7 +101,7 @@ bool MQTTComponent::send_discovery_() {
         }
 
         const std::string &node_name = get_app_name();
-        std::string unique_id = this->unique_id_();
+        std::string unique_id = this->unique_id();
         if (!unique_id.empty()) {
           root["unique_id"] = unique_id;
         } else {
@@ -133,7 +133,7 @@ bool MQTTComponent::is_discovery_enabled() const {
 }
 
 std::string MQTTComponent::get_default_object_id_() const {
-  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name_()), HOSTNAME_CHARACTER_WHITELIST);
+  return sanitize_string_whitelist(to_lowercase_underscore(this->friendly_name()), HOSTNAME_CHARACTER_WHITELIST);
 }
 
 void MQTTComponent::subscribe(const std::string &topic, mqtt_callback_t callback, uint8_t qos) {
@@ -211,7 +211,7 @@ void MQTTComponent::call_loop() {
   }
 }
 void MQTTComponent::schedule_resend_state() { this->resend_state_ = true; }
-std::string MQTTComponent::unique_id_() { return ""; }
+std::string MQTTComponent::unique_id() { return ""; }
 bool MQTTComponent::is_connected_() const { return global_mqtt_client->is_connected(); }
 
 }  // namespace mqtt

@@ -43,7 +43,7 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
 
  protected:
   /// Return the friendly name of this binary sensor.
-  std::string friendly_name_() const override;
+  std::string friendly_name() const override;
   /// "binary_sensor" component type.
   std::string component_type() const override;
 

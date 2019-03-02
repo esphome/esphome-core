@@ -30,7 +30,7 @@ void MQTTSwitchComponent::setup() {
         break;
       case PARSE_NONE:
       default:
-        ESP_LOGW(TAG, "'%s': Received unknown status payload: %s", this->friendly_name_().c_str(), payload.c_str());
+        ESP_LOGW(TAG, "'%s': Received unknown status payload: %s", this->friendly_name().c_str(), payload.c_str());
         this->status_momentary_warning("state", 5000);
         break;
     }
@@ -52,7 +52,7 @@ void MQTTSwitchComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCo
 }
 bool MQTTSwitchComponent::send_initial_state() { return this->publish_state(this->switch_->state); }
 bool MQTTSwitchComponent::is_internal() { return this->switch_->is_internal(); }
-std::string MQTTSwitchComponent::friendly_name_() const { return this->switch_->get_name(); }
+std::string MQTTSwitchComponent::friendly_name() const { return this->switch_->get_name(); }
 bool MQTTSwitchComponent::publish_state(bool state) {
   const char *state_s = state ? "ON" : "OFF";
   return this->publish(this->get_state_topic_(), state_s);

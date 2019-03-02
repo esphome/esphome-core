@@ -16,16 +16,16 @@ void MQTTCoverComponent::setup() {
   this->cover_->add_on_publish_state_callback([this](CoverState state) { this->publish_state(state); });
   this->subscribe(this->get_command_topic_(), [this](const std::string &topic, const std::string &payload) {
     if (strcasecmp(payload.c_str(), "OPEN") == 0) {
-      ESP_LOGD(TAG, "'%s': Opening cover...", this->friendly_name_().c_str());
+      ESP_LOGD(TAG, "'%s': Opening cover...", this->friendly_name().c_str());
       this->cover_->open();
     } else if (strcasecmp(payload.c_str(), "CLOSE") == 0) {
-      ESP_LOGD(TAG, "'%s': Closing cover...", this->friendly_name_().c_str());
+      ESP_LOGD(TAG, "'%s': Closing cover...", this->friendly_name().c_str());
       this->cover_->close();
     } else if (strcasecmp(payload.c_str(), "STOP") == 0) {
-      ESP_LOGD(TAG, "'%s': Stopping cover...", this->friendly_name_().c_str());
+      ESP_LOGD(TAG, "'%s': Stopping cover...", this->friendly_name().c_str());
       this->cover_->stop();
     } else {
-      ESP_LOGW(TAG, "'%s': Received unknown payload '%s'...", this->friendly_name_().c_str(), payload.c_str());
+      ESP_LOGW(TAG, "'%s': Received unknown payload '%s'...", this->friendly_name().c_str(), payload.c_str());
     }
   });
 }
@@ -40,7 +40,7 @@ void MQTTCoverComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryCon
 }
 
 std::string MQTTCoverComponent::component_type() const { return "cover"; }
-std::string MQTTCoverComponent::friendly_name_() const { return this->cover_->get_name(); }
+std::string MQTTCoverComponent::friendly_name() const { return this->cover_->get_name(); }
 bool MQTTCoverComponent::send_initial_state() {
   if (this->cover_->has_state()) {
     return this->publish_state(this->cover_->state);
@@ -63,7 +63,7 @@ bool MQTTCoverComponent::publish_state(cover::CoverState state) {
       return true;
     }
   }
-  ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name_().c_str(), state_s);
+  ESP_LOGD(TAG, "'%s': Sending state %s", this->friendly_name().c_str(), state_s);
   return this->publish(this->get_state_topic_(), state_s);
 }
 

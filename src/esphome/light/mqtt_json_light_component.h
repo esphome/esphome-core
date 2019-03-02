@@ -29,7 +29,7 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
   bool is_internal() override;
 
  protected:
-  std::string friendly_name_() const override;
+  std::string friendly_name() const override;
   std::string component_type() const override;
 
   bool publish_state_();

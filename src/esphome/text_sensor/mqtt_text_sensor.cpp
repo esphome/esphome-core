@@ -40,7 +40,7 @@ bool MQTTTextSensor::send_initial_state() {
 }
 bool MQTTTextSensor::is_internal() { return this->sensor_->is_internal(); }
 std::string MQTTTextSensor::component_type() const { return "sensor"; }
-std::string MQTTTextSensor::friendly_name_() const { return this->sensor_->get_name(); }
+std::string MQTTTextSensor::friendly_name() const { return this->sensor_->get_name(); }
 
 }  // namespace text_sensor
 

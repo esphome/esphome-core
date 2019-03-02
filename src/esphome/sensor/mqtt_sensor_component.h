@@ -51,9 +51,9 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   /// Override for MQTTComponent, returns "sensor".
   std::string component_type() const override;
 
-  std::string friendly_name_() const override;
+  std::string friendly_name() const override;
 
-  std::string unique_id_() override;
+  std::string unique_id() override;
 
   Sensor *sensor_;
   optional<uint32_t> expire_after_; // Override the expire after advertised to Home Assistant

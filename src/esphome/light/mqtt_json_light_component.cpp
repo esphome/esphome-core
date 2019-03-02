@@ -29,7 +29,7 @@ bool MQTTJSONLightComponent::publish_state_() {
   return this->publish_json(this->get_state_topic_(), [this](JsonObject &root) { this->state_->dump_json(root); });
 }
 LightState *MQTTJSONLightComponent::get_state() const { return this->state_; }
-std::string MQTTJSONLightComponent::friendly_name_() const { return this->state_->get_name(); }
+std::string MQTTJSONLightComponent::friendly_name() const { return this->state_->get_name(); }
 void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (this->state_->get_traits().has_brightness())
     root["brightness"] = true;

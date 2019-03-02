@@ -20,15 +20,15 @@ void MQTTFanComponent::setup() {
     auto val = parse_on_off(payload.c_str());
     switch (val) {
       case PARSE_ON:
-        ESP_LOGD(TAG, "'%s' Turning Fan ON.", this->friendly_name_().c_str());
+        ESP_LOGD(TAG, "'%s' Turning Fan ON.", this->friendly_name().c_str());
         this->state_->turn_on().perform();
         break;
       case PARSE_OFF:
-        ESP_LOGD(TAG, "'%s' Turning Fan OFF.", this->friendly_name_().c_str());
+        ESP_LOGD(TAG, "'%s' Turning Fan OFF.", this->friendly_name().c_str());
         this->state_->turn_off().perform();
         break;
       case PARSE_TOGGLE:
-        ESP_LOGD(TAG, "'%s' Toggling Fan.", this->friendly_name_().c_str());
+        ESP_LOGD(TAG, "'%s' Toggling Fan.", this->friendly_name().c_str());
         this->state_->toggle().perform();
         break;
       case PARSE_NONE:
@@ -45,11 +45,11 @@ void MQTTFanComponent::setup() {
                       auto val = parse_on_off(payload.c_str(), "oscillate_on", "oscillate_off");
                       switch (val) {
                         case PARSE_ON:
-                          ESP_LOGD(TAG, "'%s': Setting oscillating ON", this->friendly_name_().c_str());
+                          ESP_LOGD(TAG, "'%s': Setting oscillating ON", this->friendly_name().c_str());
                           this->state_->make_call().set_oscillating(true).perform();
                           break;
                         case PARSE_OFF:
-                          ESP_LOGD(TAG, "'%s': Setting oscillating OFF", this->friendly_name_().c_str());
+                          ESP_LOGD(TAG, "'%s': Setting oscillating OFF", this->friendly_name().c_str());
                           this->state_->make_call().set_oscillating(false).perform();
                           break;
                         case PARSE_TOGGLE:
@@ -105,7 +105,7 @@ const std::string MQTTFanComponent::get_speed_state_topic() const {
   return this->custom_speed_state_topic_;
 }
 bool MQTTFanComponent::send_initial_state() { return this->publish_state(); }
-std::string MQTTFanComponent::friendly_name_() const { return this->state_->get_name(); }
+std::string MQTTFanComponent::friendly_name() const { return this->state_->get_name(); }
 void MQTTFanComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (this->state_->get_traits().supports_oscillation()) {
     root["oscillation_command_topic"] = this->get_oscillation_command_topic();
