@@ -11,18 +11,8 @@ cache:
 matrix:
   fast_finish: true
   include:
-  - env: BUILD_TARGET=livingroom
-    script: &run_script
-      - python travis/travis.py
-      - platformio run -e $BUILD_TARGET --disable-auto-clean
-  - env: BUILD_TARGET=livingroom8266
-    script: *run_script
-  - env: BUILD_TARGET=custombmp180
-    script: *run_script
-  - env: BUILD_TARGET=fastled
-    script: *run_script
-    if: branch = dev AND type = push
-  - dist: trusty
+  - env: TARGET=lint
+    dist: trusty
     sudo: required
     addons:
       apt:
@@ -47,3 +37,14 @@ matrix:
       - python travis/run-clang-tidy.py -j 1 --fix
       - python travis/run-clang-format.py -i -j 1
       - travis/suggest-changes.sh
+  - env: TARGET=livingroom
+    script: &run_script
+      - python travis/travis.py
+      - platformio run -e $TARGET --disable-auto-clean
+  - env: TARGET=livingroom8266
+    script: *run_script
+  - env: TARGET=custombmp180
+    script: *run_script
+  - env: TARGET=fastled
+    script: *run_script
+    if: branch = dev AND type = push
