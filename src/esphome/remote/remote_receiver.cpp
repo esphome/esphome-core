@@ -393,7 +393,7 @@ RemoteReceiver::RemoteReceiver(const std::string &name) : BinarySensor(name) {}
 
 bool RemoteReceiver::process(RemoteReceiveData *data) {
   data->reset_index();
-  if (this->matches_(data)) {
+  if (this->matches(data)) {
     this->publish_state(true);
     yield();
     this->publish_state(false);

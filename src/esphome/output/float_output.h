@@ -68,8 +68,8 @@ class FloatOutput : public BinaryOutput {
 
  protected:
   /// Implement BinarySensor's write_enabled; this should never be called.
-  void write_state_(bool state) override;
-  virtual void write_state_(float state) = 0;
+  void write_state(bool state) override;
+  virtual void write_state(float state) = 0;
 
   float max_power_{1.0f};
   float min_power_{0.0f};

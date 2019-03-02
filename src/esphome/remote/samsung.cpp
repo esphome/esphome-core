@@ -69,7 +69,7 @@ SamsungDecodeData decode_samsung(RemoteReceiveData *data) {
 
 SamsungReceiver::SamsungReceiver(const std::string &name, uint32_t data) : RemoteReceiver(name), data_(data) {}
 
-bool SamsungReceiver::matches_(RemoteReceiveData *data) {
+bool SamsungReceiver::matches(RemoteReceiveData *data) {
   auto decode = decode_samsung(data);
   if (!decode.valid)
     return false;

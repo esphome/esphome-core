@@ -32,9 +32,9 @@ class RawReceiver : public RemoteReceiver {
  public:
   RawReceiver(const std::string &name, const int32_t *data, size_t len);
 
-  bool matches_(RemoteReceiveData *data) override;
-
  protected:
+  bool matches(RemoteReceiveData *data) override;
+
   const int32_t *data_;
   size_t len_;
 };

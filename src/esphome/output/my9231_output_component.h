@@ -70,9 +70,9 @@ class MY9231OutputComponent : public Component {
    public:
     Channel(MY9231OutputComponent *parent, uint8_t channel);
 
-    void write_state_(float state) override;
-
    protected:
+    void write_state(float state) override;
+
     MY9231OutputComponent *parent_;
     uint8_t channel_;
   };

@@ -42,16 +42,16 @@ class SSD1306 : public PollingComponent, public DisplayBuffer {
   void fill(int color) override;
 
  protected:
-  virtual void command_(uint8_t value) = 0;
-  virtual void write_display_data_() = 0;
+  virtual void command(uint8_t value) = 0;
+  virtual void write_display_data() = 0;
   void init_reset_();
 
   bool is_sh1106_() const;
 
-  void draw_absolute_pixel_internal_(int x, int y, int color) override;
+  void draw_absolute_pixel_internal(int x, int y, int color) override;
 
-  int get_height_internal_() override;
-  int get_width_internal_() override;
+  int get_height_internal() override;
+  int get_width_internal() override;
   size_t get_buffer_length_();
   const char *model_str_();
 
@@ -70,9 +70,9 @@ class SPISSD1306 : public SSD1306, public SPIDevice {
   void dump_config() override;
 
  protected:
-  void command_(uint8_t value) override;
+  void command(uint8_t value) override;
 
-  void write_display_data_() override;
+  void write_display_data() override;
   bool is_device_msb_first() override;
   bool is_device_high_speed() override;
 
@@ -87,8 +87,8 @@ class I2CSSD1306 : public SSD1306, public I2CDevice {
   void setup() override;
   void dump_config() override;
  protected:
-  void command_(uint8_t value) override;
-  void write_display_data_() override;
+  void command(uint8_t value) override;
+  void write_display_data() override;
 
   enum ErrorCode {
     NONE = 0,

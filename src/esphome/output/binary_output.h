@@ -66,7 +66,7 @@ class BinaryOutput {
   TurnOnAction<Ts...> *make_turn_on_action();
 
  protected:
-  virtual void write_state_(bool state) = 0;
+  virtual void write_state(bool state) = 0;
 
   bool inverted_{false};
   PowerSupplyComponent *power_supply_{nullptr};

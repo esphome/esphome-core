@@ -43,7 +43,7 @@ void FanState::setup() {
   call.perform();
 }
 float FanState::get_setup_priority() const { return setup_priority::HARDWARE - 1.0f; }
-uint32_t FanState::hash_base_() { return 418001110UL; }
+uint32_t FanState::hash_base() { return 418001110UL; }
 #ifdef USE_MQTT_FAN
 MQTTFanComponent *FanState::get_mqtt() const { return this->mqtt_; }
 void FanState::set_mqtt(MQTTFanComponent *mqtt) { this->mqtt_ = mqtt; }

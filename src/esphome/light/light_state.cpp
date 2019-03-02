@@ -220,7 +220,7 @@ LightState::StateCall LightState::toggle() {
   return this->make_call().set_state(this->get_remote_values().get_state() == 0.0f);
 }
 LightState::StateCall LightState::make_call() { return LightState::StateCall(this); }
-uint32_t LightState::hash_base_() { return 1114400283; }
+uint32_t LightState::hash_base() { return 1114400283; }
 void LightState::dump_config() {
   ESP_LOGCONFIG(TAG, "Light '%s'", this->get_name().c_str());
   if (this->get_traits().has_brightness()) {

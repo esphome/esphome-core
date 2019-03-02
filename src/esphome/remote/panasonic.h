@@ -34,9 +34,9 @@ class PanasonicReceiver : public RemoteReceiver {
  public:
   PanasonicReceiver(const std::string &name, uint16_t address, uint32_t command);
 
-  bool matches_(RemoteReceiveData *data) override;
-
  protected:
+  bool matches(RemoteReceiveData *data) override;
+
   uint16_t address_;
   uint32_t command_;
 };

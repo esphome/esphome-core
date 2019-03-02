@@ -174,7 +174,7 @@ void PCA9685OutputComponent::set_mode(uint8_t mode) { this->mode_ = mode; }
 PCA9685OutputComponent::Channel::Channel(PCA9685OutputComponent *parent, uint8_t channel)
     : FloatOutput(), parent_(parent), channel_(channel) {}
 
-void PCA9685OutputComponent::Channel::write_state_(float state) {
+void PCA9685OutputComponent::Channel::write_state(float state) {
   const uint16_t max_duty = 4096;
   const float duty_rounded = roundf(state * max_duty);
   auto duty = static_cast<uint16_t>(duty_rounded);

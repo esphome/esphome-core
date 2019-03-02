@@ -281,7 +281,7 @@ class Nameable {
   void set_internal(bool internal);
 
  protected:
-  virtual uint32_t hash_base_() = 0;
+  virtual uint32_t hash_base() = 0;
 
   void calc_object_id_();
 

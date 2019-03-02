@@ -30,7 +30,7 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
   void fill(int color) override;
 
  protected:
-  void draw_absolute_pixel_internal_(int x, int y, int color) override;
+  void draw_absolute_pixel_internal(int x, int y, int color) override;
 
   bool wait_until_idle_();
 
@@ -72,9 +72,9 @@ class WaveshareEPaperTypeA : public WaveshareEPaper {
  protected:
   void write_lut_(const uint8_t *lut);
 
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 
   uint32_t full_update_every_{30};
   uint32_t at_update_{0};
@@ -97,9 +97,9 @@ class WaveshareEPaper2P7In : public WaveshareEPaper {
   void dump_config() override;
 
  protected:
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 };
 
 class WaveshareEPaper4P2In : public WaveshareEPaper {
@@ -112,9 +112,9 @@ class WaveshareEPaper4P2In : public WaveshareEPaper {
   void dump_config() override;
 
  protected:
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 };
 
 class WaveshareEPaper7P5In : public WaveshareEPaper {
@@ -127,9 +127,9 @@ class WaveshareEPaper7P5In : public WaveshareEPaper {
   void dump_config() override;
 
  protected:
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 };
 
 } // namespace display

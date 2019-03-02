@@ -220,7 +220,7 @@ class LightState : public Nameable, public Component {
 #endif
 
  protected:
-  uint32_t hash_base_() override;
+  uint32_t hash_base() override;
 
   ESPPreferenceObject rtc_;
   uint32_t default_transition_length_{1000};

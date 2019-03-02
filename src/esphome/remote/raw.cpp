@@ -70,7 +70,7 @@ bool RawDumper::dump(RemoteReceiveData *data) {
   return true;
 }
 bool RawDumper::is_secondary() { return true; }
-bool RawReceiver::matches_(RemoteReceiveData *data) {
+bool RawReceiver::matches(RemoteReceiveData *data) {
   for (size_t i = 0; i < this->len_; i++) {
     auto val = this->data_[i];
     if (val < 0) {

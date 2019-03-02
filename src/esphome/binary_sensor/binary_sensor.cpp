@@ -133,7 +133,7 @@ DoubleClickTrigger::DoubleClickTrigger(BinarySensor *parent, uint32_t min_length
 MultiClickTrigger *BinarySensor::make_multi_click_trigger(const std::vector<MultiClickTriggerEvent> &timing) {
   return new MultiClickTrigger(this, timing);
 }
-uint32_t BinarySensor::hash_base_() { return 1210250844UL; }
+uint32_t BinarySensor::hash_base() { return 1210250844UL; }
 StateTrigger *BinarySensor::make_state_trigger() { return new StateTrigger(this); }
 bool BinarySensor::is_status_binary_sensor() const { return false; }
 #ifdef USE_MQTT_BINARY_SENSOR

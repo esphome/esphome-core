@@ -109,7 +109,7 @@ class RemoteReceiver : public binary_sensor::BinarySensor {
   bool process(RemoteReceiveData *data);
 
  protected:
-  virtual bool matches_(RemoteReceiveData *data) = 0;
+  virtual bool matches(RemoteReceiveData *data) = 0;
 };
 
 class RemoteReceiveDumper {

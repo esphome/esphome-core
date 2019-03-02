@@ -82,7 +82,7 @@ NECDecodeData decode_nec(RemoteReceiveData *data) {
 
 NECReceiver::NECReceiver(const std::string &name, uint16_t address, uint16_t command)
     : RemoteReceiver(name), address_(address), command_(command) {}
-bool NECReceiver::matches_(RemoteReceiveData *data) {
+bool NECReceiver::matches(RemoteReceiveData *data) {
   auto decode = decode_nec(data);
   if (!decode.valid)
     return false;

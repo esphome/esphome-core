@@ -22,7 +22,7 @@ void TemplateSwitch::loop() {
 
   this->publish_state(*s);
 }
-void TemplateSwitch::write_state_(bool state) {
+void TemplateSwitch::write_state(bool state) {
   if (this->prev_trigger_ != nullptr) {
     this->prev_trigger_->stop();
   }

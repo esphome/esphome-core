@@ -35,9 +35,8 @@ class SonyReceiver : public RemoteReceiver {
   SonyReceiver(const std::string &name, uint32_t data, uint8_t nbits);
 
  protected:
-  bool matches_(RemoteReceiveData *data) override;
+  bool matches(RemoteReceiveData *data) override;
 
- protected:
   uint32_t data_;
   uint8_t nbits_;
 };

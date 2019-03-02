@@ -148,7 +148,7 @@ class Switch : public Nameable {
    *
    * @param state The state to write. Inversion is already applied if user specified it.
    */
-  virtual void write_state_(bool state) = 0;
+  virtual void write_state(bool state) = 0;
 
   /** Override this to set the Home Assistant icon for this switch.
    *
@@ -158,7 +158,7 @@ class Switch : public Nameable {
    */
   virtual std::string icon();  // NOLINT
 
-  uint32_t hash_base_() override;
+  uint32_t hash_base() override;
 
   optional<std::string> icon_{}; ///< The icon shown here. Not set means use default from switch. Empty means no icon.
 

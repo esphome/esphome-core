@@ -17,14 +17,14 @@ void BinaryOutput::turn_on() {
     this->power_supply_->request_high_power();
     this->has_requested_high_power_ = true;
   }
-  this->write_state_(!this->inverted_);
+  this->write_state(!this->inverted_);
 }
 void BinaryOutput::turn_off() {
   if (this->power_supply_ != nullptr && this->has_requested_high_power_) {
     this->power_supply_->unrequest_high_power();
     this->has_requested_high_power_ = false;
   }
-  this->write_state_(this->inverted_);
+  this->write_state(this->inverted_);
 }
 
 }  // namespace output

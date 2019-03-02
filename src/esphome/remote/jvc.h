@@ -34,9 +34,8 @@ class JVCReceiver : public RemoteReceiver {
   JVCReceiver(const std::string &name, uint32_t data);
 
  protected:
-  bool matches_(RemoteReceiveData *data) override;
+  bool matches(RemoteReceiveData *data) override;
 
- protected:
   uint32_t data_;
 };
 

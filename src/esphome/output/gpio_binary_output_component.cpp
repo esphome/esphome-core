@@ -13,7 +13,7 @@ namespace output {
 
 static const char *TAG = "output.gpio";
 
-void GPIOBinaryOutputComponent::write_state_(bool state) { this->pin_->digital_write(state); }
+void GPIOBinaryOutputComponent::write_state(bool state) { this->pin_->digital_write(state); }
 
 void GPIOBinaryOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO Binary Output...");

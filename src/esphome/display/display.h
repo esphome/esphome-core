@@ -292,11 +292,11 @@ class DisplayBuffer {
  protected:
   void vprintf_(int x, int y, Font *font, int color, TextAlign align, const char *format, va_list arg);
 
-  virtual void draw_absolute_pixel_internal_(int x, int y, int color) = 0;
+  virtual void draw_absolute_pixel_internal(int x, int y, int color) = 0;
 
-  virtual int get_height_internal_() = 0;
+  virtual int get_height_internal() = 0;
 
-  virtual int get_width_internal_() = 0;
+  virtual int get_width_internal() = 0;
 
   void init_internal_(uint32_t buffer_length);
 

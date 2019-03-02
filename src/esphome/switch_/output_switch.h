@@ -25,7 +25,7 @@ class OutputSwitch : public Switch, public Component {
   float get_setup_priority() const override;
   void dump_config() override;
  protected:
-  void write_state_(bool state) override;
+  void write_state(bool state) override;
 
   output::BinaryOutput *output_;
 };

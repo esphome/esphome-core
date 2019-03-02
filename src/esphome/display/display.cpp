@@ -31,22 +31,22 @@ int DisplayBuffer::get_width() {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_90_DEGREES:
     case DISPLAY_ROTATION_270_DEGREES:
-      return this->get_height_internal_();
+      return this->get_height_internal();
     case DISPLAY_ROTATION_0_DEGREES:
     case DISPLAY_ROTATION_180_DEGREES:
     default:
-      return this->get_width_internal_();
+      return this->get_width_internal();
   }
 }
 int DisplayBuffer::get_height() {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_0_DEGREES:
     case DISPLAY_ROTATION_180_DEGREES:
-      return this->get_height_internal_();
+      return this->get_height_internal();
     case DISPLAY_ROTATION_90_DEGREES:
     case DISPLAY_ROTATION_270_DEGREES:
     default:
-      return this->get_width_internal_();
+      return this->get_width_internal();
   }
 }
 void DisplayBuffer::set_rotation(DisplayRotation rotation) { this->rotation_ = rotation; }
@@ -56,18 +56,18 @@ void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
       break;
     case DISPLAY_ROTATION_90_DEGREES:
       std::swap(x, y);
-      x = this->get_width_internal_() - x - 1;
+      x = this->get_width_internal() - x - 1;
       break;
     case DISPLAY_ROTATION_180_DEGREES:
-      x = this->get_width_internal_() - x - 1;
-      y = this->get_height_internal_() - y - 1;
+      x = this->get_width_internal() - x - 1;
+      y = this->get_height_internal() - y - 1;
       break;
     case DISPLAY_ROTATION_270_DEGREES:
       std::swap(x, y);
-      y = this->get_height_internal_() - y - 1;
+      y = this->get_height_internal() - y - 1;
       break;
   }
-  this->draw_absolute_pixel_internal_(x, y, color);
+  this->draw_absolute_pixel_internal(x, y, color);
   feed_wdt();
 }
 void HOT DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {

@@ -62,9 +62,9 @@ class PCA9685OutputComponent : public Component, public I2CDevice {
    public:
     Channel(PCA9685OutputComponent *parent, uint8_t channel);
 
-    void write_state_(float state) override;
-
    protected:
+    void write_state(float state) override;
+
     PCA9685OutputComponent *parent_;
     uint8_t channel_;
   };

@@ -101,7 +101,7 @@ class FanState : public Nameable, public Component {
 #endif
 
  protected:
-  uint32_t hash_base_() override;
+  uint32_t hash_base() override;
 
   FanTraits traits_{};
   CallbackManager<void()> state_callback_{};

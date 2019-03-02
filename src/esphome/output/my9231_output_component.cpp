@@ -162,7 +162,7 @@ void MY9231OutputComponent::send_di_pulses_(uint8_t count) {
 MY9231OutputComponent::Channel::Channel(MY9231OutputComponent *parent, uint8_t channel)
     : FloatOutput(), parent_(parent), channel_(channel) {}
 
-void MY9231OutputComponent::Channel::write_state_(float state) {
+void MY9231OutputComponent::Channel::write_state(float state) {
   auto amount = uint16_t(state * this->parent_->get_max_amount());
   this->parent_->set_channel_value_(this->channel_, amount);
 }

@@ -58,7 +58,7 @@ class RemoteTransmitter : public switch_::Switch {
   uint32_t get_send_wait() const;
 
  protected:
-  void write_state_(bool state) override;
+  void write_state(bool state) override;
 
   RemoteTransmitterComponent *parent_;
   uint32_t send_times_{1}; ///< How many times to send the data

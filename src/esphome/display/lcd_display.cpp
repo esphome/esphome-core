@@ -39,7 +39,7 @@ void LCDDisplay::setup() {
 
   uint8_t display_function = 0;
 
-  if (!this->is_four_bit_mode_())
+  if (!this->is_four_bit_mode())
     display_function |= LCD_DISPLAY_FUNCTION_8_BIT_MODE;
 
   if (this->rows_ > 1)
@@ -52,14 +52,14 @@ void LCDDisplay::setup() {
   if (now < 40)
     delay(40u - now);
 
-  if (this->is_four_bit_mode_()) {
-    this->write_n_bits_(0x03, 4);
+  if (this->is_four_bit_mode()) {
+    this->write_n_bits(0x03, 4);
     delay(5);  // 4.1ms
-    this->write_n_bits_(0x03, 4);
+    this->write_n_bits(0x03, 4);
     delay(5);
-    this->write_n_bits_(0x03, 4);
+    this->write_n_bits(0x03, 4);
     delayMicroseconds(150);
-    this->write_n_bits_(0x02, 4);
+    this->write_n_bits(0x02, 4);
   } else {
     this->command_(LCD_DISPLAY_COMMAND_FUNCTION_SET | display_function);
     delay(5);  // 4.1ms
@@ -88,22 +88,22 @@ void HOT LCDDisplay::display() {
   this->command_(LCD_DISPLAY_COMMAND_SET_DDRAM_ADDR | 0);
 
   for (uint8_t i = 0; i < this->columns_; i++)
-    this->send_(this->buffer_[i], true);
+    this->send(this->buffer_[i], true);
 
   if (this->rows_ >= 3) {
     for (uint8_t i = 0; i < this->columns_; i++)
-      this->send_(this->buffer_[this->columns_ * 2 + i], true);
+      this->send(this->buffer_[this->columns_ * 2 + i], true);
   }
 
   if (this->rows_ >= 1) {
     this->command_(LCD_DISPLAY_COMMAND_SET_DDRAM_ADDR | 0x40);
 
     for (uint8_t i = 0; i < this->columns_; i++)
-      this->send_(this->buffer_[this->columns_ + i], true);
+      this->send(this->buffer_[this->columns_ + i], true);
 
     if (this->rows_ >= 4) {
       for (uint8_t i = 0; i < this->columns_; i++)
-        this->send_(this->buffer_[this->columns_ * 3 + i], true);
+        this->send(this->buffer_[this->columns_ * 3 + i], true);
     }
   }
 }
@@ -114,7 +114,7 @@ void LCDDisplay::update() {
   this->writer_(*this);
   this->display();
 }
-void LCDDisplay::command_(uint8_t value) { this->send_(value, false); }
+void LCDDisplay::command_(uint8_t value) { this->send(value, false); }
 void LCDDisplay::print(uint8_t column, uint8_t row, const char *str) {
   uint8_t pos = column + row * this->columns_;
   for (; *str != '\0'; str++) {
@@ -176,7 +176,7 @@ void GPIOLCDDisplay::setup() {
   this->enable_pin_->setup();  // OUTPUT
   this->enable_pin_->digital_write(false);
 
-  for (uint8_t i = 0; i < (this->is_four_bit_mode_() ? 4 : 8); i++) {
+  for (uint8_t i = 0; i < (this->is_four_bit_mode() ? 4 : 8); i++) {
     this->data_pins_[i]->setup();  // OUTPUT
     this->data_pins_[i]->digital_write(false);
   }
@@ -189,7 +189,7 @@ void GPIOLCDDisplay::dump_config() {
   LOG_PIN("  RW Pin: ", this->rw_pin_);
   LOG_PIN("  Enable Pin: ", this->enable_pin_);
 
-  for (uint8_t i = 0; i < (this->is_four_bit_mode_() ? 4 : 8); i++) {
+  for (uint8_t i = 0; i < (this->is_four_bit_mode() ? 4 : 8); i++) {
     ESP_LOGCONFIG(TAG, "  Data Pin %u" LOG_PIN_PATTERN, i, LOG_PIN_ARGS(this->data_pins_[i]));
   }
 
@@ -217,8 +217,8 @@ void GPIOLCDDisplay::set_data_pins(const GPIOOutputPin &d0, const GPIOOutputPin 
 void GPIOLCDDisplay::set_enable_pin(const GPIOOutputPin &enable) { this->enable_pin_ = enable.copy(); }
 void GPIOLCDDisplay::set_rs_pin(const GPIOOutputPin &rs) { this->rs_pin_ = rs.copy(); }
 void GPIOLCDDisplay::set_rw_pin(const GPIOOutputPin &rw) { this->rw_pin_ = rw.copy(); }
-bool GPIOLCDDisplay::is_four_bit_mode_() { return this->data_pins_[4] == nullptr; }
-void GPIOLCDDisplay::write_n_bits_(uint8_t value, uint8_t n) {
+bool GPIOLCDDisplay::is_four_bit_mode() { return this->data_pins_[4] == nullptr; }
+void GPIOLCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
   for (uint8_t i = 0; i < n; i++)
     this->data_pins_[i]->digital_write(value & (1 << i));
 
@@ -227,14 +227,14 @@ void GPIOLCDDisplay::write_n_bits_(uint8_t value, uint8_t n) {
   this->enable_pin_->digital_write(false);
   delayMicroseconds(40);  // >37us
 }
-void GPIOLCDDisplay::send_(uint8_t value, bool rs) {
+void GPIOLCDDisplay::send(uint8_t value, bool rs) {
   this->rs_pin_->digital_write(rs);
 
-  if (this->is_four_bit_mode_()) {
-    this->write_n_bits_(value >> 4, 4);
-    this->write_n_bits_(value, 4);
+  if (this->is_four_bit_mode()) {
+    this->write_n_bits(value >> 4, 4);
+    this->write_n_bits(value, 4);
   } else {
-    this->write_n_bits_(value, 8);
+    this->write_n_bits(value, 8);
   }
 }
 GPIOLCDDisplay::GPIOLCDDisplay(uint8_t columns, uint8_t rows, uint32_t update_interval)
@@ -259,8 +259,8 @@ void PCF8574LCDDisplay::dump_config() {
     ESP_LOGE(TAG, "Communication with LCD Display failed!");
   }
 }
-bool PCF8574LCDDisplay::is_four_bit_mode_() { return true; }
-void PCF8574LCDDisplay::write_n_bits_(uint8_t value, uint8_t n) {
+bool PCF8574LCDDisplay::is_four_bit_mode() { return true; }
+void PCF8574LCDDisplay::write_n_bits(uint8_t value, uint8_t n) {
   if (n == 4) {
     // Ugly fix: in the super setup() with n == 4 value needs to be shifted left
     value <<= 4;
@@ -273,9 +273,9 @@ void PCF8574LCDDisplay::write_n_bits_(uint8_t value, uint8_t n) {
   this->write_bytes(data, nullptr, 0);
   delayMicroseconds(100);  // >37us
 }
-void PCF8574LCDDisplay::send_(uint8_t value, bool rs) {
-  this->write_n_bits_((value & 0xF0) | rs, 0);
-  this->write_n_bits_(((value << 4) & 0xF0) | rs, 0);
+void PCF8574LCDDisplay::send(uint8_t value, bool rs) {
+  this->write_n_bits((value & 0xF0) | rs, 0);
+  this->write_n_bits(((value << 4) & 0xF0) | rs, 0);
 }
 PCF8574LCDDisplay::PCF8574LCDDisplay(I2CComponent *parent, uint8_t columns, uint8_t rows, uint8_t address,
                                      uint32_t update_interval)

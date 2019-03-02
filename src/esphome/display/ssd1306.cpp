@@ -36,108 +36,108 @@ static const uint8_t SSD1306_NORMAL_DISPLAY = 0xA6;
 void SSD1306::setup() {
   this->init_internal_(this->get_buffer_length_());
 
-  this->command_(SSD1306_COMMAND_DISPLAY_OFF);
-  this->command_(SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV);
-  this->command_(0x80);  // suggested ratio
+  this->command(SSD1306_COMMAND_DISPLAY_OFF);
+  this->command(SSD1306_COMMAND_SET_DISPLAY_CLOCK_DIV);
+  this->command(0x80);  // suggested ratio
 
-  this->command_(SSD1306_COMMAND_SET_MULTIPLEX);
-  this->command_(this->get_height_internal_() - 1);
+  this->command(SSD1306_COMMAND_SET_MULTIPLEX);
+  this->command(this->get_height_internal() - 1);
 
-  this->command_(SSD1306_COMMAND_SET_DISPLAY_OFFSET);
-  this->command_(0x00);                                   // no offset
-  this->command_(SSD1306_COMMAND_SET_START_LINE | 0x00);  // start at line 0
-  this->command_(SSD1306_COMMAND_CHARGE_PUMP);
+  this->command(SSD1306_COMMAND_SET_DISPLAY_OFFSET);
+  this->command(0x00);                                   // no offset
+  this->command(SSD1306_COMMAND_SET_START_LINE | 0x00);  // start at line 0
+  this->command(SSD1306_COMMAND_CHARGE_PUMP);
   if (this->external_vcc_)
-    this->command_(0x10);
+    this->command(0x10);
   else
-    this->command_(0x14);
+    this->command(0x14);
 
-  this->command_(SSD1306_COMMAND_MEMORY_MODE);
-  this->command_(0x00);
-  this->command_(SSD1306_COMMAND_SEGRE_MAP | 0x01);
-  this->command_(SSD1306_COMMAND_COM_SCAN_DEC);
+  this->command(SSD1306_COMMAND_MEMORY_MODE);
+  this->command(0x00);
+  this->command(SSD1306_COMMAND_SEGRE_MAP | 0x01);
+  this->command(SSD1306_COMMAND_COM_SCAN_DEC);
 
-  this->command_(SSD1306_COMMAND_SET_COM_PINS);
+  this->command(SSD1306_COMMAND_SET_COM_PINS);
   switch (this->model_) {
     case SSD1306_MODEL_128_32:
     case SH1106_MODEL_128_32:
     case SSD1306_MODEL_96_16:
     case SH1106_MODEL_96_16:
-      this->command_(0x02);
+      this->command(0x02);
       break;
     case SSD1306_MODEL_128_64:
     case SH1106_MODEL_128_64:
     case SSD1306_MODEL_64_48:
     case SH1106_MODEL_64_48:
-      this->command_(0x12);
+      this->command(0x12);
       break;
   }
 
-  this->command_(SSD1306_COMMAND_SET_CONTRAST);
+  this->command(SSD1306_COMMAND_SET_CONTRAST);
   switch (this->model_) {
     case SSD1306_MODEL_128_32:
     case SH1106_MODEL_128_32:
-      this->command_(0x8F);
+      this->command(0x8F);
       break;
     case SSD1306_MODEL_128_64:
     case SH1106_MODEL_128_64:
     case SSD1306_MODEL_64_48:
     case SH1106_MODEL_64_48:
       if (this->external_vcc_)
-        this->command_(0x9F);
+        this->command(0x9F);
       else
-        this->command_(0xCF);
+        this->command(0xCF);
       break;
     case SSD1306_MODEL_96_16:
     case SH1106_MODEL_96_16:
       if (this->external_vcc_)
-        this->command_(0x10);
+        this->command(0x10);
       else
-        this->command_(0xAF);
+        this->command(0xAF);
       break;
   }
 
-  this->command_(SSD1306_COMMAND_SET_PRE_CHARGE);
+  this->command(SSD1306_COMMAND_SET_PRE_CHARGE);
   if (this->external_vcc_)
-    this->command_(0x22);
+    this->command(0x22);
   else
-    this->command_(0xF1);
+    this->command(0xF1);
 
-  this->command_(SSD1306_COMMAND_SET_VCOM_DETECT);
-  this->command_(0x40);
+  this->command(SSD1306_COMMAND_SET_VCOM_DETECT);
+  this->command(0x40);
 
-  this->command_(SSD1306_COMMAND_DISPLAY_ALL_ON_RESUME);
-  this->command_(SSD1306_NORMAL_DISPLAY);
+  this->command(SSD1306_COMMAND_DISPLAY_ALL_ON_RESUME);
+  this->command(SSD1306_NORMAL_DISPLAY);
 
-  this->command_(SSD1306_COMMAND_DEACTIVATE_SCROLL);
+  this->command(SSD1306_COMMAND_DEACTIVATE_SCROLL);
 
-  this->command_(SSD1306_COMMAND_DISPLAY_ON);
+  this->command(SSD1306_COMMAND_DISPLAY_ON);
 }
 void SSD1306::display() {
   if (this->is_sh1106_()) {
-    this->write_display_data_();
+    this->write_display_data();
     return;
   }
 
-  this->command_(SSD1306_COMMAND_COLUMN_ADDRESS);
+  this->command(SSD1306_COMMAND_COLUMN_ADDRESS);
   switch (this->model_) {
     case SSD1306_MODEL_64_48:
-      this->command_(0x20);
-      this->command_(0x20 + this->get_width_internal_() - 1);
+      this->command(0x20);
+      this->command(0x20 + this->get_width_internal() - 1);
       break;
     default:
-      this->command_(0);  // Page start address, 0
-      this->command_(this->get_width_internal_() - 1);
+      this->command(0);  // Page start address, 0
+      this->command(this->get_width_internal() - 1);
       break;
   }
 
-  this->command_(SSD1306_COMMAND_PAGE_ADDRESS);
+  this->command(SSD1306_COMMAND_PAGE_ADDRESS);
   // Page start address, 0
-  this->command_(0);
+  this->command(0);
   // Page end address:
-  this->command_((this->get_height_internal_() / 8) - 1);
+  this->command((this->get_height_internal() / 8) - 1);
 
-  this->write_display_data_();
+  this->write_display_data();
 }
 bool SSD1306::is_sh1106_() const {
   return this->model_ == SH1106_MODEL_96_16 || this->model_ == SH1106_MODEL_128_32 ||
@@ -150,7 +150,7 @@ void SSD1306::update() {
 void SSD1306::set_model(SSD1306Model model) { this->model_ = model; }
 void SSD1306::set_reset_pin(const GPIOOutputPin &reset_pin) { this->reset_pin_ = reset_pin.copy(); }
 void SSD1306::set_external_vcc(bool external_vcc) { this->external_vcc_ = external_vcc; }
-int SSD1306::get_height_internal_() {
+int SSD1306::get_height_internal() {
   switch (this->model_) {
     case SSD1306_MODEL_128_32:
     case SH1106_MODEL_128_32:
@@ -168,7 +168,7 @@ int SSD1306::get_height_internal_() {
       return 0;
   }
 }
-int SSD1306::get_width_internal_() {
+int SSD1306::get_width_internal() {
   switch (this->model_) {
     case SSD1306_MODEL_128_32:
     case SH1106_MODEL_128_32:
@@ -186,15 +186,15 @@ int SSD1306::get_width_internal_() {
   }
 }
 size_t SSD1306::get_buffer_length_() {
-  return size_t(this->get_width_internal_()) * size_t(this->get_height_internal_()) / 8u;
+  return size_t(this->get_width_internal()) * size_t(this->get_height_internal()) / 8u;
 }
 SSD1306::SSD1306(uint32_t update_interval) : PollingComponent(update_interval) {}
 
-void HOT SSD1306::draw_absolute_pixel_internal_(int x, int y, int color) {
-  if (x >= this->get_width_internal_() || x < 0 || y >= this->get_height_internal_() || y < 0)
+void HOT SSD1306::draw_absolute_pixel_internal(int x, int y, int color) {
+  if (x >= this->get_width_internal() || x < 0 || y >= this->get_height_internal() || y < 0)
     return;
 
-  uint16_t pos = x + (y / 8) * this->get_width_internal_();
+  uint16_t pos = x + (y / 8) * this->get_width_internal();
   uint8_t subpos = y & 0x07;
   if (color) {
     this->buffer_[pos] |= (1 << subpos);
@@ -262,22 +262,22 @@ void SPISSD1306::dump_config() {
   ESP_LOGCONFIG(TAG, "  External VCC: %s", YESNO(this->external_vcc_));
   LOG_UPDATE_INTERVAL(this);
 }
-void SPISSD1306::command_(uint8_t value) {
+void SPISSD1306::command(uint8_t value) {
   this->dc_pin_->digital_write(false);
   this->enable();
   this->write_byte(value);
   this->disable();
 }
-void HOT SPISSD1306::write_display_data_() {
+void HOT SPISSD1306::write_display_data() {
   if (this->is_sh1106_()) {
-    for (uint8_t y = 0; y < this->get_height_internal_() / 8; y++) {
-      this->command_(0xB0 + y);
-      this->command_(0x02);
-      this->command_(0x10);
+    for (uint8_t y = 0; y < this->get_height_internal() / 8; y++) {
+      this->command(0xB0 + y);
+      this->command(0x02);
+      this->command(0x10);
       this->dc_pin_->digital_write(true);
-      for (uint8_t x = 0; x < this->get_width_internal_(); x++) {
+      for (uint8_t x = 0; x < this->get_width_internal(); x++) {
         this->enable();
-        this->write_byte(this->buffer_[x + y * this->get_width_internal_()]);
+        this->write_byte(this->buffer_[x + y * this->get_width_internal()]);
         this->disable();
         feed_wdt();
       }
@@ -320,16 +320,16 @@ void I2CSSD1306::dump_config() {
     ESP_LOGE(TAG, "Communication with SSD1306 failed!");
   }
 }
-void I2CSSD1306::command_(uint8_t value) { this->write_byte(0x00, value); }
-void HOT I2CSSD1306::write_display_data_() {
+void I2CSSD1306::command(uint8_t value) { this->write_byte(0x00, value); }
+void HOT I2CSSD1306::write_display_data() {
   if (this->is_sh1106_()) {
     uint32_t i = 0;
-    for (uint8_t page = 0; page < this->get_height_internal_() / 8; page++) {
-      this->command_(0xB0 + page);  // row
-      this->command_(0x02);         // lower column
-      this->command_(0x10);         // higher column
+    for (uint8_t page = 0; page < this->get_height_internal() / 8; page++) {
+      this->command(0xB0 + page);  // row
+      this->command(0x02);         // lower column
+      this->command(0x10);         // higher column
 
-      for (uint8_t x = 0; x < this->get_width_internal_() / 16; x++) {
+      for (uint8_t x = 0; x < this->get_width_internal() / 16; x++) {
         uint8_t data[16];
         for (uint8_t &j : data)
           j = this->buffer_[i++];

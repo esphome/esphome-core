@@ -65,7 +65,7 @@ class TextSensor : public Nameable {
 #endif
 
  protected:
-  uint32_t hash_base_() override;
+  uint32_t hash_base() override;
 
   CallbackManager<void(std::string)> callback_;
   optional<std::string> icon_;

@@ -65,7 +65,7 @@ JVCDecodeData decode_jvc(RemoteReceiveData *data) {
 
 JVCReceiver::JVCReceiver(const std::string &name, uint32_t data) : RemoteReceiver(name), data_(data) {}
 
-bool JVCReceiver::matches_(RemoteReceiveData *data) {
+bool JVCReceiver::matches(RemoteReceiveData *data) {
   auto decode = decode_jvc(data);
   if (!decode.valid)
     return false;

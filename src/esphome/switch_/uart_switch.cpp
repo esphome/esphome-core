@@ -14,7 +14,7 @@ static const char *TAG = "switch.uart";
 UARTSwitch::UARTSwitch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data)
     : Switch(name), UARTDevice(parent), data_(data) {}
 
-void UARTSwitch::write_state_(bool state) {
+void UARTSwitch::write_state(bool state) {
   if (!state) {
     this->publish_state(false);
     return;

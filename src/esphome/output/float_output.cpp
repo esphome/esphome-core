@@ -42,10 +42,10 @@ void FloatOutput::set_level(float state) {
   float adjusted_value = (state * (this->max_power_ - this->min_power_)) + this->min_power_;
   if (this->is_inverted())
     adjusted_value = 1.0f - adjusted_value;
-  this->write_state_(adjusted_value);
+  this->write_state(adjusted_value);
 }
 
-void FloatOutput::write_state_(bool state) { this->set_level(state != this->inverted_ ? 1.0f : 0.0f); }
+void FloatOutput::write_state(bool state) { this->set_level(state != this->inverted_ ? 1.0f : 0.0f); }
 
 }  // namespace output
 

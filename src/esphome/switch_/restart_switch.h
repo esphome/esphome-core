@@ -20,7 +20,7 @@ class RestartSwitch : public Switch, public Component {
   void dump_config() override;
 
  protected:
-  void write_state_(bool state) override;
+  void write_state(bool state) override;
 };
 
 } // namespace switch_

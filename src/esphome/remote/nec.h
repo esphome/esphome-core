@@ -34,9 +34,9 @@ class NECReceiver : public RemoteReceiver {
  public:
   NECReceiver(const std::string &name, uint16_t address, uint16_t command);
 
-  bool matches_(RemoteReceiveData *data) override;
-
  protected:
+  bool matches(RemoteReceiveData *data) override;
+
   uint16_t address_;
   uint16_t command_;
 };

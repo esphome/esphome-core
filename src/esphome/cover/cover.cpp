@@ -22,10 +22,10 @@ void Cover::publish_state(CoverState state) {
 bool Cover::assumed_state() { return false; }
 bool Cover::has_state() const { return this->dedup_.has_value(); }
 
-void Cover::open() { this->write_command_(COVER_COMMAND_OPEN); }
-void Cover::close() { this->write_command_(COVER_COMMAND_CLOSE); }
-void Cover::stop() { this->write_command_(COVER_COMMAND_STOP); }
-uint32_t Cover::hash_base_() { return 1727367479UL; }
+void Cover::open() { this->write_command(COVER_COMMAND_OPEN); }
+void Cover::close() { this->write_command(COVER_COMMAND_CLOSE); }
+void Cover::stop() { this->write_command(COVER_COMMAND_STOP); }
+uint32_t Cover::hash_base() { return 1727367479UL; }
 #ifdef USE_MQTT_COVER
 MQTTCoverComponent *Cover::get_mqtt() const { return this->mqtt_; }
 void Cover::set_mqtt(MQTTCoverComponent *mqtt) { this->mqtt_ = mqtt; }

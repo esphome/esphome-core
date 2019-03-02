@@ -102,11 +102,11 @@ void WaveshareEPaper::fill(int color) {
   for (uint32_t i = 0; i < this->get_buffer_length_(); i++)
     this->buffer_[i] = fill;
 }
-void HOT WaveshareEPaper::draw_absolute_pixel_internal_(int x, int y, int color) {
-  if (x >= this->get_width_internal_() || y >= this->get_height_internal_() || x < 0 || y < 0)
+void HOT WaveshareEPaper::draw_absolute_pixel_internal(int x, int y, int color) {
+  if (x >= this->get_width_internal() || y >= this->get_height_internal() || x < 0 || y < 0)
     return;
 
-  const uint32_t pos = (x + y * this->get_width_internal_()) / 8u;
+  const uint32_t pos = (x + y * this->get_width_internal()) / 8u;
   const uint8_t subpos = x & 0x07;
   // flip logic
   if (!color)
@@ -115,7 +115,7 @@ void HOT WaveshareEPaper::draw_absolute_pixel_internal_(int x, int y, int color)
     this->buffer_[pos] &= ~(0x80 >> subpos);
 }
 uint32_t WaveshareEPaper::get_buffer_length_() {
-  return this->get_width_internal_() * this->get_height_internal_() / 8u;
+  return this->get_width_internal() * this->get_height_internal() / 8u;
 }
 WaveshareEPaper::WaveshareEPaper(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : PollingComponent(update_interval), SPIDevice(parent, cs), dc_pin_(dc_pin) {}
@@ -139,8 +139,8 @@ void WaveshareEPaperTypeA::setup() {
   this->setup_pins_();
 
   this->command(WAVESHARE_EPAPER_COMMAND_DRIVER_OUTPUT_CONTROL);
-  this->data(this->get_height_internal_() - 1);
-  this->data((this->get_height_internal_() - 1) >> 8);
+  this->data(this->get_height_internal() - 1);
+  this->data((this->get_height_internal() - 1) >> 8);
   this->data(0x00);  // ? GD = 0, SM = 0, TB = 0
 
   this->command(WAVESHARE_EPAPER_COMMAND_BOOSTER_SOFT_START_CONTROL);  // ?
@@ -197,12 +197,12 @@ void HOT WaveshareEPaperTypeA::display() {
   // Set x & y regions we want to write to (full)
   this->command(WAVESHARE_EPAPER_COMMAND_SET_RAM_X_ADDRESS_START_END_POSITION);
   this->data(0x00);
-  this->data((this->get_width_internal_() - 1) >> 3);
+  this->data((this->get_width_internal() - 1) >> 3);
   this->command(WAVESHARE_EPAPER_COMMAND_SET_RAM_Y_ADDRESS_START_END_POSITION);
   this->data(0x00);
   this->data(0x00);
-  this->data(this->get_height_internal_() - 1);
-  this->data((this->get_height_internal_() - 1) >> 8);
+  this->data(this->get_height_internal() - 1);
+  this->data((this->get_height_internal() - 1) >> 8);
 
   this->command(WAVESHARE_EPAPER_COMMAND_SET_RAM_X_ADDRESS_COUNTER);
   this->data(0x00);
@@ -227,7 +227,7 @@ void HOT WaveshareEPaperTypeA::display() {
 
   this->status_clear_warning();
 }
-int WaveshareEPaperTypeA::get_width_internal_() {
+int WaveshareEPaperTypeA::get_width_internal() {
   switch (this->model_) {
     case WAVESHARE_EPAPER_1_54_IN:
       return 200;
@@ -238,7 +238,7 @@ int WaveshareEPaperTypeA::get_width_internal_() {
   }
   return 0;
 }
-int WaveshareEPaperTypeA::get_height_internal_() {
+int WaveshareEPaperTypeA::get_height_internal() {
   switch (this->model_) {
     case WAVESHARE_EPAPER_1_54_IN:
       return 200;
@@ -421,8 +421,8 @@ void HOT WaveshareEPaper2P7In::display() {
   this->end_data_();
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
-int WaveshareEPaper2P7In::get_width_internal_() { return 176; }
-int WaveshareEPaper2P7In::get_height_internal_() { return 264; }
+int WaveshareEPaper2P7In::get_width_internal() { return 176; }
+int WaveshareEPaper2P7In::get_height_internal() { return 264; }
 WaveshareEPaper2P7In::WaveshareEPaper2P7In(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : WaveshareEPaper(parent, cs, dc_pin, update_interval) {}
 void WaveshareEPaper2P7In::dump_config() {
@@ -530,8 +530,8 @@ void HOT WaveshareEPaper4P2In::display() {
   this->end_data_();
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
-int WaveshareEPaper4P2In::get_width_internal_() { return 400; }
-int WaveshareEPaper4P2In::get_height_internal_() { return 300; }
+int WaveshareEPaper4P2In::get_width_internal() { return 400; }
+int WaveshareEPaper4P2In::get_height_internal() { return 300; }
 WaveshareEPaper4P2In::WaveshareEPaper4P2In(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : WaveshareEPaper(parent, cs, dc_pin, update_interval) {}
 void WaveshareEPaper4P2In::dump_config() {
@@ -617,8 +617,8 @@ void HOT WaveshareEPaper7P5In::display() {
 
   this->command(WAVESHARE_EPAPER_B_COMMAND_DISPLAY_REFRESH);
 }
-int WaveshareEPaper7P5In::get_width_internal_() { return 640; }
-int WaveshareEPaper7P5In::get_height_internal_() { return 384; }
+int WaveshareEPaper7P5In::get_width_internal() { return 640; }
+int WaveshareEPaper7P5In::get_height_internal() { return 384; }
 WaveshareEPaper7P5In::WaveshareEPaper7P5In(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : WaveshareEPaper(parent, cs, dc_pin, update_interval) {}
 void WaveshareEPaper7P5In::dump_config() {
