@@ -151,14 +151,14 @@ void MAX7219Component::display() {
     this->disable();
   }
 }
-void MAX7219Component::send_byte_(uint8_t register_, uint8_t data) {
-  this->write_byte(register_);
+void MAX7219Component::send_byte_(uint8_t a_register, uint8_t data) {
+  this->write_byte(a_register);
   this->write_byte(data);
 }
-void MAX7219Component::send_to_all_(uint8_t register_, uint8_t data) {
+void MAX7219Component::send_to_all_(uint8_t a_register, uint8_t data) {
   this->enable();
   for (uint8_t i = 0; i < this->num_chips_; i++)
-    this->send_byte_(register_, data);
+    this->send_byte_(a_register, data);
   this->disable();
 }
 bool MAX7219Component::msb_first() { return true; }

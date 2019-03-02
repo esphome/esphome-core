@@ -240,17 +240,17 @@ void BMP280Component::set_pressure_oversampling(BMP280Oversampling pressure_over
   this->pressure_oversampling_ = pressure_over_sampling;
 }
 void BMP280Component::set_iir_filter(BMP280IIRFilter iir_filter) { this->iir_filter_ = iir_filter; }
-uint8_t BMP280Component::read_u8(uint8_t register_) {
+uint8_t BMP280Component::read_u8(uint8_t a_register) {
   uint8_t data = 0;
-  this->read_byte(register_, &data);
+  this->read_byte(a_register, &data);
   return data;
 }
-uint16_t BMP280Component::read_u16_le(uint8_t register_) {
+uint16_t BMP280Component::read_u16_le(uint8_t a_register) {
   uint16_t data = 0;
-  this->read_byte_16(register_, &data);
+  this->read_byte_16(a_register, &data);
   return (data >> 8) | (data << 8);
 }
-int16_t BMP280Component::read_s16_le(uint8_t register_) { return this->read_u16_le(register_); }
+int16_t BMP280Component::read_s16_le(uint8_t a_register) { return this->read_u16_le(a_register); }
 
 }  // namespace sensor
 

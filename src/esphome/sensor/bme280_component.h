@@ -101,9 +101,9 @@ class BME280Component : public PollingComponent, public I2CDevice {
   float read_pressure_(int32_t t_fine);
   /// Read the humidity value in % using the provided t_fine value.
   float read_humidity_(int32_t t_fine);
-  uint8_t read_u8(uint8_t register_);
-  uint16_t read_u16_le(uint8_t register_);
-  int16_t read_s16_le(uint8_t register_);
+  uint8_t read_u8(uint8_t a_register);
+  uint16_t read_u16_le(uint8_t a_register);
+  int16_t read_s16_le(uint8_t a_register);
 
   BME280CalibrationData calibration_;
   BME280Oversampling temperature_oversampling_{BME280_OVERSAMPLING_16X};
