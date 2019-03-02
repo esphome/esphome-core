@@ -34,7 +34,6 @@ matrix:
           - cmake
           - clang-tidy-7
           - clang-format-7
-          - clang-apply-replacements-7
     before_script:
       - pio init --ide clion
       - |
