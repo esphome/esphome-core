@@ -6,21 +6,23 @@ install:
 cache:
   directories:
     - "~/.platformio"
+    - "$TRAVIS_BUILD_DIR/.pioenvs"
+    - "$TRAVIS_BUILD_DIR/.piolibdeps"
 
 matrix:
   fast_finish: true
   include:
-  #- env: BUILD_TARGET=livingroom
-  #  script: &run_script
-  #    - python travis/travis.py
-  #    - platformio run -e $BUILD_TARGET
-  #- env: BUILD_TARGET=livingroom8266
-  #  script: *run_script
-  #- env: BUILD_TARGET=custombmp180
-  #  script: *run_script
-  #- env: BUILD_TARGET=fastled
-  #  script: *run_script
-  #  if: branch = dev AND type = push
+  - env: BUILD_TARGET=livingroom
+    script: &run_script
+      - python travis/travis.py
+      - platformio run -e $BUILD_TARGET --disable-auto-clean
+  - env: BUILD_TARGET=livingroom8266
+    script: *run_script
+  - env: BUILD_TARGET=custombmp180
+    script: *run_script
+  - env: BUILD_TARGET=fastled
+    script: *run_script
+    if: branch = dev AND type = push
   - dist: trusty
     sudo: required
     addons:
@@ -34,11 +36,14 @@ matrix:
           - clang-format-7
     before_script:
       - pio init --ide clion
-      - patch -p0 < travis/neopixelbus.patch
+      - |
+        if ! patch -R -p0 -s -f --dry-run <travis/neopixelbus.patch; then
+          patch -p0 < travis/neopixelbus.patch
+        fi
       - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
       - clang-tidy-7 -version
       - clang-format-7 -version
     script:
-      - python travis/run-clang-tidy.py
-      - python travis/run-clang-format.py -i
+      - python travis/run-clang-tidy.py -j 1
+      - python travis/run-clang-format.py -i -j 1
       - travis/suggest-changes.sh
