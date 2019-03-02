@@ -501,17 +501,17 @@ StatusBinarySensor *Application::make_status_binary_sensor(const std::string &fr
 
 #ifdef USE_RESTART_SWITCH
 switch_::RestartSwitch *Application::make_restart_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new RestartSwitch(friendly_name));
-  this->register_switch(switch_);
-  return switch_;
+  auto *a_switch = this->register_component(new RestartSwitch(friendly_name));
+  this->register_switch(a_switch);
+  return a_switch;
 }
 #endif
 
 #ifdef USE_SHUTDOWN_SWITCH
 switch_::ShutdownSwitch *Application::make_shutdown_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new ShutdownSwitch(friendly_name));
-  this->register_switch(switch_);
-  return switch_;
+  auto *a_switch = this->register_component(new ShutdownSwitch(friendly_name));
+  this->register_switch(a_switch);
+  return a_switch;
 }
 #endif
 
@@ -709,9 +709,9 @@ ShutdownTrigger *Application::make_shutdown_trigger() { return new ShutdownTrigg
 
 #ifdef USE_TEMPLATE_SENSOR
 sensor::TemplateSensor *Application::make_template_sensor(const std::string &name, uint32_t update_interval) {
-  auto *template_ = this->register_component(new TemplateSensor(name, update_interval));
-  this->register_sensor(template_);
-  return template_;
+  auto *a_template = this->register_component(new TemplateSensor(name, update_interval));
+  this->register_sensor(a_template);
+  return a_template;
 }
 #endif
 
@@ -735,17 +735,17 @@ sensor::MAX6675Sensor *Application::make_max6675_sensor(const std::string &name,
 
 #ifdef USE_TEMPLATE_BINARY_SENSOR
 binary_sensor::TemplateBinarySensor *Application::make_template_binary_sensor(const std::string &name) {
-  auto *template_ = this->register_component(new TemplateBinarySensor(name));
-  this->register_binary_sensor(template_);
-  return template_;
+  auto *a_template = this->register_component(new TemplateBinarySensor(name));
+  this->register_binary_sensor(a_template);
+  return a_template;
 }
 #endif
 
 #ifdef USE_TEMPLATE_SWITCH
 switch_::TemplateSwitch *Application::make_template_switch(const std::string &name) {
-  auto *template_ = this->register_component(new TemplateSwitch(name));
-  this->register_switch(template_);
-  return template_;
+  auto *a_template = this->register_component(new TemplateSwitch(name));
+  this->register_switch(a_template);
+  return a_template;
 }
 #endif
 
@@ -1075,9 +1075,9 @@ binary_sensor::HomeassistantBinarySensor *Application::make_homeassistant_binary
 #ifdef USE_TEMPLATE_TEXT_SENSOR
 text_sensor::TemplateTextSensor *Application::make_template_text_sensor(const std::string &name,
                                                                         uint32_t update_interval) {
-  auto *template_ = this->register_component(new TemplateTextSensor(name, update_interval));
-  this->register_text_sensor(template_);
-  return template_;
+  auto *a_template = this->register_component(new TemplateTextSensor(name, update_interval));
+  this->register_text_sensor(a_template);
+  return a_template;
 }
 #endif
 

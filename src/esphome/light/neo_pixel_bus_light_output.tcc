@@ -106,11 +106,11 @@ int32_t NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::size() const {
 
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::set_pixel_order(ESPNeoPixelOrder order) {
-  uint8_t order_ = static_cast<uint8_t>(order);
-  this->rgb_offsets_[0] = (order_ >> 6) & 0b11;
-  this->rgb_offsets_[1] = (order_ >> 4) & 0b11;
-  this->rgb_offsets_[2] = (order_ >> 2) & 0b11;
-  this->rgb_offsets_[3] = (order_ >> 0) & 0b11;
+  uint8_t u_order = static_cast<uint8_t>(order);
+  this->rgb_offsets_[0] = (u_order >> 6) & 0b11;
+  this->rgb_offsets_[1] = (u_order >> 4) & 0b11;
+  this->rgb_offsets_[2] = (u_order >> 2) & 0b11;
+  this->rgb_offsets_[3] = (u_order >> 0) & 0b11;
 }
 
 template<typename T_METHOD, typename T_COLOR_FEATURE>
