@@ -147,9 +147,9 @@ GPIOInputPin::GPIOInputPin(uint8_t pin, uint8_t mode, bool inverted) : GPIOPin(p
 
 #ifdef ARDUINO_ARCH_ESP8266
 void ICACHE_RAM_ATTR custom_interrupt_functional(void* arg) {
-  ArgStructure* localArg = (ArgStructure*) arg;
-  if (localArg->functionInfo->reqFunction) {
-    localArg->functionInfo->reqFunction();
+  ArgStructure* local_arg = (ArgStructure*) arg;
+  if (local_arg->functionInfo->reqFunction) {
+    local_arg->functionInfo->reqFunction();
   }
 }
 

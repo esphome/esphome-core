@@ -176,11 +176,11 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
       // Unknown char, skip
       ESP_LOGW(TAG, "Encountered character without representation in font: '%c'", text[i]);
       if (!font->get_glyphs().empty()) {
-        uint8_t width_ = font->get_glyphs()[0].width_;
-        for (int x_ = 0; x_ < width_; x_++)
-          for (int y_ = 0; y_ < height; y_++)
-            this->draw_pixel_at(x_ + x_at, y_ + y_start, color);
-        x_at += width_;
+        uint8_t glyph_width = font->get_glyphs()[0].width_;
+        for (int glyph_x = 0; glyph_x < glyph_width; glyph_x++)
+          for (int glyph_y = 0; glyph_y < height; glyph_y++)
+            this->draw_pixel_at(glyph_x + x_at, glyph_y + y_start, color);
+        x_at += glyph_width;
       }
 
       i++;
@@ -191,10 +191,10 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
     int scan_x1, scan_y1, scan_width, scan_height;
     glyph.scan_area(&scan_x1, &scan_y1, &scan_width, &scan_height);
 
-    for (int x_ = scan_x1; x_ < scan_x1 + scan_width; x_++) {
-      for (int y_ = scan_y1; y_ < scan_y1 + scan_height; y_++) {
-        if (glyph.get_pixel(x_, y_)) {
-          this->draw_pixel_at(x_ + x_at, y_ + y_start, color);
+    for (int glyph_x = scan_x1; glyph_x < scan_x1 + scan_width; glyph_x++) {
+      for (int glyph_y = scan_y1; glyph_y < scan_y1 + scan_height; glyph_y++) {
+        if (glyph.get_pixel(glyph_x, glyph_y)) {
+          this->draw_pixel_at(glyph_x + x_at, glyph_y + y_start, color);
         }
       }
     }
@@ -211,9 +211,9 @@ void DisplayBuffer::vprintf_(int x, int y, Font *font, int color, TextAlign alig
     this->print(x, y, font, color, align, buffer);
 }
 void DisplayBuffer::image(int x, int y, Image *image) {
-  for (int x_ = 0; x_ < image->get_width(); x_++) {
-    for (int y_ = 0; y_ < image->get_height(); y_++) {
-      this->draw_pixel_at(x + x_, y + y_, image->get_pixel(x_, y_) ? COLOR_ON : COLOR_OFF);
+  for (int img_x = 0; img_x < image->get_width(); img_x++) {
+    for (int img_y = 0; img_y < image->get_height(); img_y++) {
+      this->draw_pixel_at(x + img_x, y + img_y, image->get_pixel(img_x, img_y) ? COLOR_ON : COLOR_OFF);
     }
   }
 }

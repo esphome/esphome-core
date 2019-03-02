@@ -134,73 +134,73 @@ bool I2CComponent::receive_16_(uint8_t address, uint16_t *data, uint8_t len) {
   }
   return true;
 }
-bool I2CComponent::read_bytes(uint8_t address, uint8_t register_, uint8_t *data, uint8_t len, uint32_t conversion) {
-  if (!this->write_bytes(address, register_, nullptr, 0))
+bool I2CComponent::read_bytes(uint8_t address, uint8_t a_register, uint8_t *data, uint8_t len, uint32_t conversion) {
+  if (!this->write_bytes(address, a_register, nullptr, 0))
     return false;
 
   if (conversion > 0)
     delay(conversion);
   return this->receive_(address, data, len);
 }
-bool I2CComponent::read_bytes_16(uint8_t address, uint8_t register_, uint16_t *data, uint8_t len, uint32_t conversion) {
-  if (!this->write_bytes(address, register_, nullptr, 0))
+bool I2CComponent::read_bytes_16(uint8_t address, uint8_t a_register, uint16_t *data, uint8_t len, uint32_t conversion) {
+  if (!this->write_bytes(address, a_register, nullptr, 0))
     return false;
 
   if (conversion > 0)
     delay(conversion);
   return this->receive_16_(address, data, len);
 }
-bool I2CComponent::read_byte(uint8_t address, uint8_t register_, uint8_t *data, uint32_t conversion) {
-  return this->read_bytes(address, register_, data, 1, conversion);
+bool I2CComponent::read_byte(uint8_t address, uint8_t a_register, uint8_t *data, uint32_t conversion) {
+  return this->read_bytes(address, a_register, data, 1, conversion);
 }
-bool I2CComponent::read_byte_16(uint8_t address, uint8_t register_, uint16_t *data, uint32_t conversion) {
-  return this->read_bytes_16(address, register_, data, 1, conversion);
+bool I2CComponent::read_byte_16(uint8_t address, uint8_t a_register, uint16_t *data, uint32_t conversion) {
+  return this->read_bytes_16(address, a_register, data, 1, conversion);
 }
-bool I2CComponent::write_bytes(uint8_t address, uint8_t register_, const uint8_t *data, uint8_t len) {
+bool I2CComponent::write_bytes(uint8_t address, uint8_t a_register, const uint8_t *data, uint8_t len) {
   this->begin_transmission_(address);
-  this->write_(address, &register_, 1);
+  this->write_(address, &a_register, 1);
   this->write_(address, data, len);
   return this->end_transmission_(address);
 }
-bool I2CComponent::write_bytes_16(uint8_t address, uint8_t register_, const uint16_t *data, uint8_t len) {
+bool I2CComponent::write_bytes_16(uint8_t address, uint8_t a_register, const uint16_t *data, uint8_t len) {
   this->begin_transmission_(address);
-  this->write_(address, &register_, 1);
+  this->write_(address, &a_register, 1);
   this->write_16_(address, data, len);
   return this->end_transmission_(address);
 }
-bool I2CComponent::write_byte(uint8_t address, uint8_t register_, uint8_t data) {
-  return this->write_bytes(address, register_, &data, 1);
+bool I2CComponent::write_byte(uint8_t address, uint8_t a_register, uint8_t data) {
+  return this->write_bytes(address, a_register, &data, 1);
 }
-bool I2CComponent::write_byte_16(uint8_t address, uint8_t register_, uint16_t data) {
-  return this->write_bytes_16(address, register_, &data, 1);
+bool I2CComponent::write_byte_16(uint8_t address, uint8_t a_register, uint16_t data) {
+  return this->write_bytes_16(address, a_register, &data, 1);
 }
 
 I2CDevice::I2CDevice(I2CComponent *parent, uint8_t address) : address_(address), parent_(parent) {}
 
 void I2CDevice::set_address(uint8_t address) { this->address_ = address; }
-bool I2CDevice::read_bytes(uint8_t register_, uint8_t *data, uint8_t len, uint32_t conversion) {
-  return this->parent_->read_bytes(this->address_, register_, data, len, conversion);
+bool I2CDevice::read_bytes(uint8_t a_register, uint8_t *data, uint8_t len, uint32_t conversion) {
+  return this->parent_->read_bytes(this->address_, a_register, data, len, conversion);
 }
-bool I2CDevice::read_byte(uint8_t register_, uint8_t *data, uint32_t conversion) {
-  return this->parent_->read_byte(this->address_, register_, data, conversion);
+bool I2CDevice::read_byte(uint8_t a_register, uint8_t *data, uint32_t conversion) {
+  return this->parent_->read_byte(this->address_, a_register, data, conversion);
 }
-bool I2CDevice::write_bytes(uint8_t register_, const uint8_t *data, uint8_t len) {
-  return this->parent_->write_bytes(this->address_, register_, data, len);
+bool I2CDevice::write_bytes(uint8_t a_register, const uint8_t *data, uint8_t len) {
+  return this->parent_->write_bytes(this->address_, a_register, data, len);
 }
-bool I2CDevice::write_byte(uint8_t register_, uint8_t data) {
-  return this->parent_->write_byte(this->address_, register_, data);
+bool I2CDevice::write_byte(uint8_t a_register, uint8_t data) {
+  return this->parent_->write_byte(this->address_, a_register, data);
 }
-bool I2CDevice::read_bytes_16(uint8_t register_, uint16_t *data, uint8_t len, uint32_t conversion) {
-  return this->parent_->read_bytes_16(this->address_, register_, data, len, conversion);
+bool I2CDevice::read_bytes_16(uint8_t a_register, uint16_t *data, uint8_t len, uint32_t conversion) {
+  return this->parent_->read_bytes_16(this->address_, a_register, data, len, conversion);
 }
-bool I2CDevice::read_byte_16(uint8_t register_, uint16_t *data, uint32_t conversion) {
-  return this->parent_->read_byte_16(this->address_, register_, data, conversion);
+bool I2CDevice::read_byte_16(uint8_t a_register, uint16_t *data, uint32_t conversion) {
+  return this->parent_->read_byte_16(this->address_, a_register, data, conversion);
 }
-bool I2CDevice::write_bytes_16(uint8_t register_, const uint16_t *data, uint8_t len) {
-  return this->parent_->write_bytes_16(this->address_, register_, data, len);
+bool I2CDevice::write_bytes_16(uint8_t a_register, const uint16_t *data, uint8_t len) {
+  return this->parent_->write_bytes_16(this->address_, a_register, data, len);
 }
-bool I2CDevice::write_byte_16(uint8_t register_, uint16_t data) {
-  return this->parent_->write_byte_16(this->address_, register_, data);
+bool I2CDevice::write_byte_16(uint8_t a_register, uint16_t data) {
+  return this->parent_->write_byte_16(this->address_, a_register, data);
 }
 void I2CDevice::set_parent(I2CComponent *parent) { this->parent_ = parent; }
 

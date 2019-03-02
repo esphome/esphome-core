@@ -25,35 +25,35 @@ void encode_rc_switch_raw(RemoteTransmitData *data, uint32_t code, uint8_t nbits
   protocol.transmit(data, code, nbits);
 }
 void encode_rc_switch_raw(RemoteTransmitData *data, const char *code, RCSwitchProtocol protocol) {
-  uint32_t code_ = 0;
+  uint32_t the_code = 0;
   uint8_t nbits = 0;
   for (; code[nbits] != '\0'; nbits++) {
-    code_ <<= 1UL;
-    code_ |= (code[nbits] != '0');
+    the_code <<= 1UL;
+    the_code |= (code[nbits] != '0');
   }
 
-  protocol.transmit(data, code_, nbits);
+  protocol.transmit(data, the_code, nbits);
 }
 void encode_rc_switch_raw_tristate(RemoteTransmitData *data, const char *code, RCSwitchProtocol protocol) {
-  uint32_t code_ = 0;
+  uint32_t the_code = 0;
   uint8_t nbits = 0;
   for (; code[nbits] != '\0'; nbits++) {
-    code_ <<= 2UL;
+    the_code <<= 2UL;
     switch (code[nbits]) {
       case 'F':
-        code_ |= 0b01UL;
+        the_code |= 0b01UL;
         break;
       case '1':
-        code_ |= 0b11UL;
+        the_code |= 0b11UL;
         break;
       case '0':
       default:
-        code_ |= 0b00UL;
+        the_code |= 0b00UL;
         break;
     }
   }
 
-  protocol.transmit(data, code_, nbits += 2);
+  protocol.transmit(data, the_code, nbits * 2);
 }
 RCSwitchTypeATransmitter::RCSwitchTypeATransmitter(const std::string &name, RCSwitchProtocol aProtocol,
                                                    uint8_t switch_group, uint8_t switch_device, bool state)
@@ -80,10 +80,10 @@ uint32_t decode_string(const char *str, uint8_t len) {
 
 void encode_rc_switch_type_a(RemoteTransmitData *data, const char *switch_group, const char *switch_device, bool state,
                              RCSwitchProtocol protocol) {
-  uint8_t switch_group_ = decode_string(switch_group, 5);
-  uint8_t switch_device_ = decode_string(switch_device, 5);
+  uint8_t u_switch_group = decode_string(switch_group, 5);
+  uint8_t u_switch_device = decode_string(switch_device, 5);
 
-  encode_rc_switch_type_a(data, switch_group_, switch_device_, state, protocol);
+  encode_rc_switch_type_a(data, u_switch_group, u_switch_device, state, protocol);
 }
 
 RCSwitchTypeBTransmitter::RCSwitchTypeBTransmitter(const std::string &name, RCSwitchProtocol aProtocol,
@@ -112,8 +112,8 @@ void encode_rc_switch_type_c(RemoteTransmitData *data, uint8_t family, uint8_t g
 }
 void encode_rc_switch_type_c(RemoteTransmitData *data, char family, uint8_t group, uint8_t device, bool state,
                              RCSwitchProtocol protocol) {
-  uint8_t family_ = static_cast<uint8_t>(family - 'a');
-  encode_rc_switch_type_c(data, family_, group, device, state, protocol);
+  uint8_t u_family = static_cast<uint8_t>(family - 'a');
+  encode_rc_switch_type_c(data, u_family, group, device, state, protocol);
 }
 RCSwitchTypeDTransmitter::RCSwitchTypeDTransmitter(const std::string &name, RCSwitchProtocol aProtocol, uint8_t group,
                                                    uint8_t device, bool state)
@@ -129,8 +129,8 @@ void encode_rc_switch_type_d(RemoteTransmitData *data, uint8_t group, uint8_t de
 }
 void encode_rc_switch_type_d(RemoteTransmitData *data, char group, uint8_t device, bool state,
                              RCSwitchProtocol protocol) {
-  uint8_t group_ = static_cast<uint8_t>(group - 'a');
-  encode_rc_switch_type_d(data, group_, device, state, protocol);
+  uint8_t u_group = static_cast<uint8_t>(group - 'a');
+  encode_rc_switch_type_d(data, u_group, device, state, protocol);
 }
 #endif
 

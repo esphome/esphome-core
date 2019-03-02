@@ -447,30 +447,30 @@ bool WiFiComponent::wifi_mode_(optional<bool> sta, optional<bool> ap) {
   uint8_t current_mode = wifi_get_opmode();
   bool current_sta = current_mode & 0b01;
   bool current_ap = current_mode & 0b10;
-  bool sta_ = sta.value_or(current_sta);
-  bool ap_ = ap.value_or(current_ap);
-  if (current_sta == sta_ && current_ap == ap_)
+  bool target_sta = sta.value_or(current_sta);
+  bool target_ap = ap.value_or(current_ap);
+  if (current_sta == target_sta && current_ap == target_ap)
     return true;
 
-  if (sta_ && !current_sta) {
+  if (target_sta && !current_sta) {
     ESP_LOGV(TAG, "Enabling STA.");
-  } else if (!sta_ && current_sta) {
+  } else if (!target_sta && current_sta) {
     ESP_LOGV(TAG, "Disabling STA.");
     // Stop DHCP client when disabling STA
     // See https://github.com/esp8266/Arduino/pull/5703
     wifi_station_dhcpc_stop();
   }
-  if (ap_ && !current_ap) {
+  if (target_ap && !current_ap) {
     ESP_LOGV(TAG, "Enabling AP.");
-  } else if (!ap_ && current_ap) {
+  } else if (!target_ap && current_ap) {
     ESP_LOGV(TAG, "Disabling AP.");
   }
 
   ETS_UART_INTR_DISABLE();
   uint8_t mode = 0;
-  if (sta_)
+  if (target_sta)
     mode |= 0b01;
-  if (ap_)
+  if (target_ap)
     mode |= 0b10;
   bool ret = wifi_set_opmode_current(mode);
   ETS_UART_INTR_ENABLE();

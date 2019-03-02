@@ -16,9 +16,9 @@ ESPColor HOT ESPColor::random_color() {
   uint8_t r = rand >> 16;
   uint8_t g = rand >> 8;
   uint8_t b = rand >> 0;
-  const uint16_t max_ = std::max(r, std::max(g, b));
-  return ESPColor(uint8_t((uint16_t(r) * 255U / max_)), uint8_t((uint16_t(g) * 255U / max_)),
-                  uint8_t((uint16_t(b) * 255U / max_)), w);
+  const uint16_t max_rgb = std::max(r, std::max(g, b));
+  return ESPColor(uint8_t((uint16_t(r) * 255U / max_rgb)), uint8_t((uint16_t(g) * 255U / max_rgb)),
+                  uint8_t((uint16_t(b) * 255U / max_rgb)), w);
 }
 
 // based on FastLED's hsv rainbow to rgb
