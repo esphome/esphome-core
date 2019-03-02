@@ -24,7 +24,7 @@ class SonyTransmitter : public RemoteTransmitter {
   uint8_t nbits_;
 };
 
-void encode_sony(RemoteTransmitData *data, uint32_t data_, uint8_t nbits);
+void encode_sony(RemoteTransmitData *data, uint32_t sony_data, uint8_t nbits);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER

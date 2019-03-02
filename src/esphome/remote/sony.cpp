@@ -22,14 +22,14 @@ SonyTransmitter::SonyTransmitter(const std::string &name, uint32_t data, uint8_t
     : RemoteTransmitter(name), data_(data), nbits_(nbits) {}
 void SonyTransmitter::to_data(RemoteTransmitData *data) { encode_sony(data, this->data_, this->nbits_); }
 
-void encode_sony(RemoteTransmitData *data, uint32_t data_, uint8_t nbits) {
+void encode_sony(RemoteTransmitData *data, uint32_t sony_data, uint8_t nbits) {
   data->set_carrier_frequency(40000);
   data->reserve(2 + nbits * 2u);
 
   data->item(HEADER_HIGH_US, HEADER_LOW_US);
 
   for (uint32_t mask = 1UL << (nbits - 1); mask != 0; mask >>= 1) {
-    if (data_ & mask)
+    if (sony_data & mask)
       data->item(BIT_ONE_HIGH_US, BIT_LOW_US);
     else
       data->item(BIT_ZERO_HIGH_US, BIT_LOW_US);

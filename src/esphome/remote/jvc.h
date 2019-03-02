@@ -23,7 +23,7 @@ class JVCTransmitter : public RemoteTransmitter {
   uint32_t data_;
 };
 
-void encode_jvc(RemoteTransmitData *data, uint32_t data_);
+void encode_jvc(RemoteTransmitData *data, uint32_t jvc_data);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER

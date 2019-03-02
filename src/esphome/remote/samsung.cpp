@@ -27,14 +27,14 @@ SamsungTransmitter::SamsungTransmitter(const std::string &name, uint32_t data) :
 
 void SamsungTransmitter::to_data(RemoteTransmitData *data) { encode_samsung(data, this->data_); }
 
-void encode_samsung(RemoteTransmitData *data, uint32_t data_) {
+void encode_samsung(RemoteTransmitData *data, uint32_t samsung_data) {
   data->set_carrier_frequency(38000);
   data->reserve(4 + NBITS * 2u);
 
   data->item(HEADER_HIGH_US, HEADER_LOW_US);
 
   for (uint32_t mask = 1UL << (NBITS - 1); mask != 0; mask >>= 1) {
-    if (data_ & mask)
+    if (samsung_data & mask)
       data->item(BIT_HIGH_US, BIT_ONE_LOW_US);
     else
       data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);

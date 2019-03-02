@@ -23,7 +23,7 @@ class SamsungTransmitter : public RemoteTransmitter {
   uint32_t data_;
 };
 
-void encode_samsung(RemoteTransmitData *data, uint32_t data_);
+void encode_samsung(RemoteTransmitData *data, uint32_t samsung_data);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
