@@ -86,6 +86,16 @@ def progress_bar_show(value):
     return os.path.relpath(value, os.path.join(os.getcwd(), 'src', 'esphome'))
 
 
+def get_output(*args):
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, err = proc.communicate()
+    return output.decode('utf-8')
+
+
+def splitlines_no_ends(string):
+    return [s.strip() for s in string.splitlines()]
+
+
 def main():
     parser = argparse.ArgumentParser(description='Runs clang-tidy over all files '
                                                  'in a compilation database. Requires '
@@ -98,6 +108,8 @@ def main():
     parser.add_argument('--fix', action='store_true', help='apply fix-its')
     parser.add_argument('-q', '--quiet', action='store_false',
                         help='Run clang-tidy in quiet mode')
+    parser.add_argument('-c', '--changed', action='store_true',
+                        help='Only run on changed files')
     args = parser.parse_args()
 
     # Load the database and extract all files.
@@ -106,6 +118,17 @@ def main():
     files = [make_absolute(entry['file'], entry['directory'])
              for entry in database]
     files = sorted([f for f in files if file_name_re.search(f)])
+    if args.changed:
+        try:
+            merge_base = splitlines_no_ends(get_output('git', 'merge-base', 'upstream/dev', 'HEAD'))[0]
+        except:
+            merge_base = splitlines_no_ends(get_output('git', 'merge-base', 'origin/dev', 'HEAD'))[0]
+        changed = splitlines_no_ends(get_output('git', 'diff', merge_base, '--name-only'))
+        changed = [make_absolute(f, os.getcwd()) for f in changed]
+        print("Changed Files:")
+        files = [file for file in files if file in changed]
+        for file in files:
+            print("  {}".format(file))
     max_task = args.jobs
 
     tmpdir = None
