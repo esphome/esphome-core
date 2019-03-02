@@ -152,17 +152,17 @@ void MQTTClientComponent::dns_found_callback_(const char *name, ip_addr_t *ipadd
 #else
 void MQTTClientComponent::dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
 #endif
-  auto *this_ = (MQTTClientComponent *) callback_arg;
+  auto *a_this = (MQTTClientComponent *) callback_arg;
   if (ipaddr == nullptr) {
-    this_->dns_resolve_error_ = true;
+    a_this->dns_resolve_error_ = true;
   } else {
 #ifdef ARDUINO_ARCH_ESP32
-    this_->ip_ = IPAddress(ipaddr->u_addr.ip4.addr);
+    a_this->ip_ = IPAddress(ipaddr->u_addr.ip4.addr);
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-    this_->ip_ = IPAddress(ipaddr->addr);
+    a_this->ip_ = IPAddress(ipaddr->addr);
 #endif
-    this_->dns_resolved_ = true;
+    a_this->dns_resolved_ = true;
   }
 }
 

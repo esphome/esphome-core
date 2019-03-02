@@ -31,8 +31,8 @@ void APIServer::setup() {
 
         // can't print here because in lwIP thread
         // ESP_LOGD(TAG, "New client connected from %s", client->remoteIP().toString().c_str());
-        auto *this_ = (APIServer *) s;
-        this_->clients_.push_back(new APIConnection(client, this_));
+        auto *a_this = (APIServer *) s;
+        a_this->clients_.push_back(new APIConnection(client, a_this));
       },
       this);
   if (global_log_component != nullptr) {
