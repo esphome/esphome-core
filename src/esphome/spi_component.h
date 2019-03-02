@@ -72,10 +72,8 @@ class SPIDevice {
   GPIOPin *cs_;
 };
 
-
-
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SPI
+#endif  // USE_SPI
 
-#endif //ESPHOME_SPI_COMPONENT_H
+#endif  // ESPHOME_SPI_COMPONENT_H

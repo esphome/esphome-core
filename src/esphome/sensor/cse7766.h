@@ -52,10 +52,10 @@ class CSE7766Component : public PollingComponent, public UARTDevice {
   uint32_t last_update_{0};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CSE7766
+#endif  // USE_CSE7766
 
-#endif //ESPHOME_SENSOR_CSE7766_H
+#endif  // ESPHOME_SENSOR_CSE7766_H

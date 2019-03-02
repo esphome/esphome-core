@@ -62,6 +62,7 @@ class PN532BinarySensor : public binary_sensor::BinarySensor {
   PN532BinarySensor(const std::string &name, const std::vector<uint8_t> &uid, uint32_t update_interval);
 
   bool process(const uint8_t *data, uint8_t len);
+
  protected:
   std::vector<uint8_t> uid_;
 };
@@ -71,10 +72,10 @@ class PN532Trigger : public Trigger<std::string> {
   void process(uint8_t *uid, uint8_t uid_length);
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PN532
+#endif  // USE_PN532
 
-#endif //ESPHOME_PN_532_COMPONENT_H
+#endif  // ESPHOME_PN_532_COMPONENT_H

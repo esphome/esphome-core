@@ -14,15 +14,18 @@ namespace mqtt {
 
 /// Simple Helper struct used for Home Assistant MQTT send_discovery().
 struct SendDiscoveryConfig {
-  bool state_topic{true}; ///< If the state topic should be included. Defaults to true.
-  bool command_topic{true}; ///< If the command topic should be included. Default to true.
-  const char *platform{"mqtt"}; ///< The platform of this component. Defaults to "mqtt".
+  bool state_topic{true};        ///< If the state topic should be included. Defaults to true.
+  bool command_topic{true};      ///< If the command topic should be included. Default to true.
+  const char *platform{"mqtt"};  ///< The platform of this component. Defaults to "mqtt".
 };
 
 #define LOG_MQTT_COMPONENT(state_topic, command_topic) \
-    if (state_topic) { ESP_LOGCONFIG(TAG, "  State Topic: '%s'", this->get_state_topic_().c_str()); } \
-    if (command_topic) { ESP_LOGCONFIG(TAG, "  Command Topic: '%s'", this->get_command_topic_().c_str()); } \
-
+  if (state_topic) { \
+    ESP_LOGCONFIG(TAG, "  State Topic: '%s'", this->get_state_topic_().c_str()); \
+  } \
+  if (command_topic) { \
+    ESP_LOGCONFIG(TAG, "  Command Topic: '%s'", this->get_command_topic_().c_str()); \
+  }
 
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
@@ -86,11 +89,11 @@ class MQTTComponent : public Component {
   /// Internal method for the MQTT client base to schedule a resend of the state on reconnect.
   void schedule_resend_state();
 
- /** Send a MQTT message.
-  *
-  * @param topic The topic.
-  * @param payload The payload.
-  */
+  /** Send a MQTT message.
+   *
+   * @param topic The topic.
+   * @param payload The payload.
+   */
   bool publish(const std::string &topic, const std::string &payload);
 
   /** Construct and send a JSON MQTT message.
@@ -113,11 +116,12 @@ class MQTTComponent : public Component {
    * If an invalid JSON payload is received, the callback will not be called.
    *
    * @param topic The topic. Wildcards are currently not supported.
-   * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
+   * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is
+   * received.
    * @param qos The MQTT quality of service. Defaults to 0.
    */
   void subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos = 0);
-  
+
  protected:
   /// Helper method to get the discovery topic for this component.
   std::string get_discovery_topic_(const MQTTDiscoveryInfo &discovery_info) const;
@@ -164,10 +168,10 @@ class MQTTComponent : public Component {
   bool resend_state_{false};
 };
 
-} // namespace mqtt
+}  // namespace mqtt
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT
+#endif  // USE_MQTT
 
-#endif //ESPHOME_MQTT_MQTT_COMPONENT_H
+#endif  // ESPHOME_MQTT_MQTT_COMPONENT_H

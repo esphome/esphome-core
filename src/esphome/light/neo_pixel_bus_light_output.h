@@ -17,21 +17,27 @@ namespace light {
 
 enum class ESPNeoPixelOrder {
   GBWR = 0b11000110,
-  GBRW = 0b10000111, GBR = 0b10000111,
+  GBRW = 0b10000111,
+  GBR = 0b10000111,
   GWBR = 0b11001001,
-  GRBW = 0b01001011, GRB = 0b01001011,
+  GRBW = 0b01001011,
+  GRB = 0b01001011,
   GWRB = 0b10001101,
   GRWB = 0b01001110,
   BGWR = 0b11010010,
-  BGRW = 0b10010011, BGR = 0b10010011,
+  BGRW = 0b10010011,
+  BGR = 0b10010011,
   WGBR = 0b11011000,
-  RGBW = 0b00011011, RGB = 0b00011011,
+  RGBW = 0b00011011,
+  RGB = 0b00011011,
   WGRB = 0b10011100,
   RGWB = 0b00011110,
   BWGR = 0b11100001,
-  BRGW = 0b01100011, BRG = 0b01100011,
+  BRGW = 0b01100011,
+  BRG = 0b01100011,
   WBGR = 0b11100100,
-  RBGW = 0b00100111, RBG = 0b00100111,
+  RBGW = 0b00100111,
+  RBG = 0b00100111,
   WRGB = 0b01101100,
   RWGB = 0b00101101,
   BWRG = 0b10110001,
@@ -90,7 +96,7 @@ class NeoPixelBusLightOutputBase : public Component, public AddressableLight {
   bool has_requested_high_power_{false};
 #endif
 
-  static const char* TAG;  // NOLINT
+  static const char *TAG;  // NOLINT
 };
 
 template<typename T_METHOD, typename T_COLOR_FEATURE = NeoRgbFeature>
@@ -115,6 +121,6 @@ ESPHOME_NAMESPACE_END
 
 #include "esphome/light/neo_pixel_bus_light_output.tcc"
 
-#endif //USE_NEO_PIXEL_BUS_LIGHT
+#endif  // USE_NEO_PIXEL_BUS_LIGHT
 
-#endif //ESPHOME_LIGHT_NEO_PIXEL_BUS_LIGHT_OUTPUT_H
+#endif  // ESPHOME_LIGHT_NEO_PIXEL_BUS_LIGHT_OUTPUT_H

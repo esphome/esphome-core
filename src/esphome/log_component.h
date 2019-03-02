@@ -28,10 +28,9 @@ enum UARTSelection {
   UART_SELECTION_UART2
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  UART_SELECTION_UART0_SWAP
+      UART_SELECTION_UART0_SWAP
 #endif
 };
-
 
 /** A simple component that enables logging to Serial via the ESP_LOG* macros.
  *
@@ -45,7 +44,8 @@ class LogComponent : public Component {
    * @param baud_rate The baud_rate for the serial interface. 0 to disable UART logging.
    * @param tx_buffer_size The buffer size (in bytes) used for constructing log messages.
    */
-  explicit LogComponent(uint32_t baud_rate = 115200, size_t tx_buffer_size = 512, UARTSelection uart = UART_SELECTION_UART0);
+  explicit LogComponent(uint32_t baud_rate = 115200, size_t tx_buffer_size = 512,
+                        UARTSelection uart = UART_SELECTION_UART0);
 
   /// Manually set the baud rate for serial, set to 0 to disable.
   void set_baud_rate(uint32_t baud_rate);
@@ -104,4 +104,4 @@ extern LogComponent *global_log_component;
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_LOG_COMPONENT_H
+#endif  // ESPHOME_LOG_COMPONENT_H

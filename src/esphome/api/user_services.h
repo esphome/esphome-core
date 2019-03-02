@@ -67,8 +67,7 @@ class UserServiceDescriptor {
   virtual bool execute_service(const ExecuteServiceRequest &req) = 0;
 };
 
-template<typename... Ts>
-class UserService : public UserServiceDescriptor, public Trigger<Ts...> {
+template<typename... Ts> class UserService : public UserServiceDescriptor, public Trigger<Ts...> {
  public:
   UserService(const std::string &name, const std::array<ServiceTypeArgument, sizeof...(Ts)> &args);
 
@@ -77,8 +76,7 @@ class UserService : public UserServiceDescriptor, public Trigger<Ts...> {
   bool execute_service(const ExecuteServiceRequest &req) override;
 
  protected:
-  template<int... S>
-  void execute_(std::vector<ExecuteServiceArgument> args, seq<S...>);
+  template<int... S> void execute_(std::vector<ExecuteServiceArgument> args, seq<S...>);
 
   std::string name_;
   uint32_t key_{0};
@@ -90,8 +88,7 @@ template<int... S>
 void UserService<Ts...>::execute_(std::vector<ExecuteServiceArgument> args, seq<S...>) {
   this->trigger((args[S].get_value<Ts>())...);
 }
-template<typename... Ts>
-void UserService<Ts...>::encode_list_service_response(APIBuffer &buffer) {
+template<typename... Ts> void UserService<Ts...>::encode_list_service_response(APIBuffer &buffer) {
   // string name = 1;
   buffer.encode_string(1, this->name_);
   // fixed32 key = 2;
@@ -107,8 +104,7 @@ void UserService<Ts...>::encode_list_service_response(APIBuffer &buffer) {
     buffer.end_nested(nested);
   }
 }
-template<typename... Ts>
-bool UserService<Ts...>::execute_service(const ExecuteServiceRequest &req) {
+template<typename... Ts> bool UserService<Ts...>::execute_service(const ExecuteServiceRequest &req) {
   if (req.get_key() != this->key_)
     return false;
 
@@ -130,10 +126,10 @@ template<> int ExecuteServiceArgument::get_value<int>();
 template<> float ExecuteServiceArgument::get_value<float>();
 template<> std::string ExecuteServiceArgument::get_value<std::string>();
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_CORE_API_USER_SERVICES_H
+#endif  // ESPHOME_CORE_API_USER_SERVICES_H

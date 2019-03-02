@@ -75,10 +75,10 @@ class APIMessage {
   virtual void encode(APIBuffer &buffer);
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_API_MESSAGE_H
+#endif  // ESPHOME_API_API_MESSAGE_H

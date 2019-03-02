@@ -60,17 +60,18 @@ class HomeAssistantStateResponse : public APIMessage {
   APIMessageType message_type() const override;
   const std::string &get_entity_id() const;
   const std::string &get_state() const;
+
  protected:
   std::string entity_id_;
   std::string state_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/api/api_server.h"
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_SUBSCRIBE_STATE_H
+#endif  // ESPHOME_SUBSCRIBE_STATE_H

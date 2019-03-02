@@ -113,10 +113,10 @@ class ComponentIterator {
   APIServer *server_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_UTIL_H
+#endif  // ESPHOME_API_UTIL_H

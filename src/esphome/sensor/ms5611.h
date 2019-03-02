@@ -38,10 +38,10 @@ class MS5611Component : public PollingComponent, public I2CDevice {
   uint16_t prom_[6];
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MS5611
+#endif  // USE_MS5611
 
-#endif //ESPHOME_SENSOR_MS5611_H
+#endif  // ESPHOME_SENSOR_MS5611_H

@@ -84,11 +84,11 @@ def main():
     files = []
     for root, dirnames, filenames in os.walk(os.path.join('src', 'esphome')):
         for filename in fnmatch.filter(filenames, '*.cpp'):
-            files.append(make_absolute(filename, root))
+            files.append(os.path.normpath(os.path.join(os.getcwd(), root, filename)))
         for filename in fnmatch.filter(filenames, '*.h'):
-            files.append(make_absolute(filename, root))
+            files.append(os.path.normpath(os.path.join(os.getcwd(), root, filename)))
         for filename in fnmatch.filter(filenames, '*.tcc'):
-            files.append(make_absolute(filename, root))
+            files.append(os.path.normpath(os.path.join(os.getcwd(), root, filename)))
     files = sorted([f for f in files if file_name_re.search(f)])
     max_task = args.jobs
 

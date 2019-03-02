@@ -50,9 +50,7 @@ class LightTransformer {
 
 class LightTransitionTransformer : public LightTransformer {
  public:
-  LightTransitionTransformer(uint32_t start_time,
-                             uint32_t length,
-                             const LightColorValues &start_values,
+  LightTransitionTransformer(uint32_t start_time, uint32_t length, const LightColorValues &start_values,
                              const LightColorValues &target_values);
 
   LightColorValues get_values() override;
@@ -72,10 +70,10 @@ class LightFlashTransformer : public LightTransformer {
   bool is_continuous() override;
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOME_LIGHT_LIGHT_TRANSFORMER_H
+#endif  // ESPHOME_LIGHT_LIGHT_TRANSFORMER_H

@@ -37,10 +37,10 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
   LightState *state_;
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_LIGHT
+#endif  // USE_MQTT_LIGHT
 
-#endif //ESPHOME_LIGHT_MQTT_JSON_LIGHT_COMPONENT
+#endif  // ESPHOME_LIGHT_MQTT_JSON_LIGHT_COMPONENT

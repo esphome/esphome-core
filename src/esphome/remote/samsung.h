@@ -45,10 +45,10 @@ class SamsungDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_REMOTE_SAMSUNG_H
+#endif  // ESPHOME_REMOTE_SAMSUNG_H

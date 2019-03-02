@@ -75,11 +75,10 @@ class ESPOneWire {
   uint8_t last_family_discrepancy_{0};
   bool last_device_flag_{false};
   uint64_t rom_number_{0};
-
 };
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ONE_WIRE
+#endif  // USE_ONE_WIRE
 
-#endif //ESPHOME_ONE_WIRE_H
+#endif  // ESPHOME_ONE_WIRE_H

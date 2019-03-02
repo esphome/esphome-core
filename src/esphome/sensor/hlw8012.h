@@ -19,6 +19,7 @@ class HLW8012VoltageSensor : public EmptySensor<1, ICON_FLASH, UNIT_V> {
  public:
   HLW8012VoltageSensor(const std::string &name, HLW8012Component *parent);
   uint32_t update_interval() override;
+
  protected:
   HLW8012Component *parent_;
 };
@@ -26,6 +27,7 @@ class HLW8012CurrentSensor : public EmptySensor<1, ICON_FLASH, UNIT_A> {
  public:
   HLW8012CurrentSensor(const std::string &name, HLW8012Component *parent);
   uint32_t update_interval() override;
+
  protected:
   HLW8012Component *parent_;
 };
@@ -65,10 +67,10 @@ class HLW8012Component : public PollingComponent {
   HLW8012PowerSensor *power_sensor_{nullptr};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HLW8012
+#endif  // USE_HLW8012
 
-#endif //ESPHOME_HLW_8012_H
+#endif  // ESPHOME_HLW_8012_H

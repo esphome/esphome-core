@@ -55,10 +55,10 @@ class HMC5883LComponent : public PollingComponent, public I2CDevice {
   } error_code_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HMC5883L
+#endif  // USE_HMC5883L
 
-#endif //ESPHOME_HMC_5883_L_H
+#endif  // ESPHOME_HMC_5883_L_H

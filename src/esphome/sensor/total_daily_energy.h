@@ -39,10 +39,10 @@ class TotalDailyEnergy : public Sensor, public Component {
   float total_energy_{0.0f};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TOTAL_DAILY_ENERGY_SENSOR
+#endif  // USE_TOTAL_DAILY_ENERGY_SENSOR
 
-#endif //ESPHOME_SENSOR_TOTAL_DAILY_ENERGY_H
+#endif  // ESPHOME_SENSOR_TOTAL_DAILY_ENERGY_H

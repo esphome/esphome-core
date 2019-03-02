@@ -11,16 +11,17 @@ ESPHOME_NAMESPACE_BEGIN
 /// default setup priorities for components of different types.
 namespace setup_priority {
 
-extern const float PRE_HARDWARE; ///< only for internal components that are necessary for hardware component initialization (like i2c bus)
-extern const float HARDWARE; ///< for hardware initialization, but only where it's really necessary (like outputs)
+extern const float PRE_HARDWARE;  ///< only for internal components that are necessary for hardware component
+                                  ///< initialization (like i2c bus)
+extern const float HARDWARE;      ///< for hardware initialization, but only where it's really necessary (like outputs)
 extern const float POST_HARDWARE;
 extern const float HARDWARE_LATE;
-extern const float WIFI; ///< for WiFi initialization
-extern const float MQTT_CLIENT; ///< for the MQTT client initialization
-extern const float MQTT_COMPONENT; ///< for MQTT component initialization
+extern const float WIFI;            ///< for WiFi initialization
+extern const float MQTT_CLIENT;     ///< for the MQTT client initialization
+extern const float MQTT_COMPONENT;  ///< for MQTT component initialization
 extern const float LATE;
 
-} // namespace setup_priority
+}  // namespace setup_priority
 
 extern const uint32_t COMPONENT_STATE_MASK;
 extern const uint32_t COMPONENT_STATE_CONSTRUCTION;
@@ -206,12 +207,12 @@ class Component {
 
   /// Internal struct for storing timeout/interval functions.
   struct TimeFunction {
-    std::string name; ///< The name/id of this TimeFunction.
-    enum Type { TIMEOUT, INTERVAL, DEFER } type; ///< The type of this TimeFunction. Either TIMEOUT, INTERVAL or DEFER.
-    uint32_t interval; ///< The interval/timeout of this function.
+    std::string name;                             ///< The name/id of this TimeFunction.
+    enum Type { TIMEOUT, INTERVAL, DEFER } type;  ///< The type of this TimeFunction. Either TIMEOUT, INTERVAL or DEFER.
+    uint32_t interval;                            ///< The interval/timeout of this function.
     /// The last execution for interval functions and the time, SetInterval was called, for timeout functions.
     uint32_t last_execution;
-    std::function<void()> f; ///< The function (or callback) itself.
+    std::function<void()> f;  ///< The function (or callback) itself.
     bool remove;
 
     bool should_run(uint32_t now) const;
@@ -227,7 +228,7 @@ class Component {
    */
   std::vector<TimeFunction> time_functions_;
 
-  uint32_t component_state_{0x0000}; ///< State of this component.
+  uint32_t component_state_{0x0000};  ///< State of this component.
   optional<float> setup_priority_override_;
 };
 
@@ -263,6 +264,7 @@ class PollingComponent : public Component {
 
   /// Get the update interval in ms of this sensor
   virtual uint32_t get_update_interval() const;
+
  protected:
   uint32_t update_interval_;
 };
@@ -293,4 +295,4 @@ class Nameable {
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_COMPONENT_H
+#endif  // ESPHOME_COMPONENT_H

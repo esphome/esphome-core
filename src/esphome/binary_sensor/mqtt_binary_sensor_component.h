@@ -51,10 +51,10 @@ class MQTTBinarySensorComponent : public mqtt::MQTTComponent {
   bool is_status_{false};
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_BINARY_SENSOR
+#endif  // USE_MQTT_BINARY_SENSOR
 
-#endif //ESPHOME_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H
+#endif  // ESPHOME_BINARY_SENSOR_MQTT_BINARY_SENSOR_COMPONENT_H

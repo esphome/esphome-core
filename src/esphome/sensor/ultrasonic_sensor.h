@@ -40,8 +40,7 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
    * @param echo_pin The echo pin where the echo is listened for.
    * @param update_interval The interval in ms the sensor should check for new values.
    */
-  UltrasonicSensorComponent(const std::string &name,
-                            GPIOPin *trigger_pin, GPIOPin *echo_pin,
+  UltrasonicSensorComponent(const std::string &name, GPIOPin *trigger_pin, GPIOPin *echo_pin,
                             uint32_t update_interval = 5000);
 
   /// Set the timeout for waiting for the echo in µs.
@@ -82,14 +81,14 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
 
   GPIOPin *trigger_pin_;
   GPIOPin *echo_pin_;
-  uint32_t timeout_us_{11662}; /// 2 meters.
+  uint32_t timeout_us_{11662};  /// 2 meters.
   uint32_t pulse_time_us_{10};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ULTRASONIC_SENSOR
+#endif  // USE_ULTRASONIC_SENSOR
 
-#endif //ESPHOME_SENSOR_ULTRASONIC_SENSOR_H
+#endif  // ESPHOME_SENSOR_ULTRASONIC_SENSOR_H

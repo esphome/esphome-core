@@ -81,10 +81,9 @@ using BME680GasResistanceSensor = sensor::EmptyPollingParentSensor<1, ICON_GAS_C
 
 class BME680Component : public PollingComponent, public I2CDevice {
  public:
-  BME680Component(I2CComponent *parent,
-                  const std::string &temperature_name, const std::string &pressure_name,
-                  const std::string &humidity_name, const std::string &gas_resistance_name,
-                  uint8_t address = 0x76, uint32_t update_interval = 60000);
+  BME680Component(I2CComponent *parent, const std::string &temperature_name, const std::string &pressure_name,
+                  const std::string &humidity_name, const std::string &gas_resistance_name, uint8_t address = 0x76,
+                  uint32_t update_interval = 60000);
 
   /// Set the temperature oversampling value. Defaults to 16X.
   void set_temperature_oversampling(BME680Oversampling temperature_oversampling);
@@ -151,10 +150,10 @@ class BME680Component : public PollingComponent, public I2CDevice {
   BME680GasResistanceSensor *gas_resistance_sensor_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BME680
+#endif  // USE_BME680
 
-#endif //ESPHOME_SENSOR_BME680_COMPONENT_H
+#endif  // ESPHOME_SENSOR_BME680_COMPONENT_H

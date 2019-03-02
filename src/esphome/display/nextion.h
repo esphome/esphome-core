@@ -33,7 +33,7 @@ class Nextion : public PollingComponent, public UARTDevice {
    * @param format The printf-style format string.
    * @param ... The arguments to the format.
    */
-  void set_component_text_printf(const char *component, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+  void set_component_text_printf(const char *component, const char *format, ...) __attribute__((format(printf, 3, 4)));
   /**
    * Set the integer value of a component
    * @param component The component name.
@@ -206,7 +206,7 @@ class Nextion : public PollingComponent, public UARTDevice {
    * @param ... The format arguments
    * @return Whether the send was successful.
    */
-  bool send_command_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+  bool send_command_printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
  protected:
   bool ack_();
@@ -218,15 +218,16 @@ class NextionTouchComponent : public binary_sensor::BinarySensor {
  public:
   NextionTouchComponent(const std::string &name, uint8_t page_id, uint8_t component_id);
   void process(uint8_t page_id, uint8_t component_id, bool on);
+
  protected:
   uint8_t page_id_;
   uint8_t component_id_;
 };
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_NEXTION
+#endif  // USE_NEXTION
 
-#endif //ESPHOME_DISPLAY_NEXTION_H
+#endif  // ESPHOME_DISPLAY_NEXTION_H

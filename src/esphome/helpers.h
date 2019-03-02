@@ -13,11 +13,11 @@
 #include "esphome/optional.h"
 
 #ifndef JSON_BUFFER_SIZE
-  #define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(16))
+#define JSON_BUFFER_SIZE (JSON_OBJECT_SIZE(16))
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <driver/rmt.h>
+#include <driver/rmt.h>
 #endif
 
 #ifdef CLANG_TIDY
@@ -73,13 +73,13 @@ std::string truncate_string(const std::string &s, size_t length);
 bool is_empty(const IPAddress &address);
 
 /// Force a shutdown (and reboot) of the ESP, calling any registered shutdown hooks.
-void reboot(const char *cause) __attribute__ ((noreturn));
+void reboot(const char *cause) __attribute__((noreturn));
 
 /// Add a shutdown callback.
 void add_shutdown_hook(std::function<void(const char *)> &&f);
 
 /// Create a safe shutdown (and reboot) of the ESP, calling any registered shutdown and safe shutdown hooks.
-void safe_reboot(const char *cause) __attribute__ ((noreturn));
+void safe_reboot(const char *cause) __attribute__((noreturn));
 
 /// Run shutdown hooks.
 void run_shutdown_hooks(const char *cause);
@@ -107,6 +107,7 @@ class HighFrequencyLoopRequester {
   void stop();
 
   static bool is_high_frequency();
+
  protected:
   bool started_{false};
 };
@@ -119,8 +120,7 @@ class HighFrequencyLoopRequester {
  * @param val The value.
  * @return val clamped in between min and max.
  */
-template<typename T>
-T clamp(T min, T max, T val);
+template<typename T> T clamp(T min, T max, T val);
 
 /** Linearly interpolate between end start and end by completion.
  *
@@ -130,12 +130,10 @@ T clamp(T min, T max, T val);
  * @param completion The completion. 0 is start value, 1 is end value.
  * @return The linearly interpolated value.
  */
-template<typename T>
-T lerp(T start, T end, T completion);
+template<typename T> T lerp(T start, T end, T completion);
 
 /// std::make_unique
-template<typename T, typename ...Args>
-std::unique_ptr<T> make_unique(Args &&...args);
+template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args &&... args);
 
 /// Return a random 32 bit unsigned integer.
 uint32_t random_uint32();
@@ -243,20 +241,17 @@ class ExponentialMovingAverage {
 };
 
 // https://stackoverflow.com/questions/7858817/unpacking-a-tuple-to-call-a-matching-function-pointer/7858971#7858971
-template<int ...> struct seq {};  // NOLINT
-template<int N, int ...S> struct gens : gens<N-1, N-1, S...> {};  // NOLINT
-template<int ...S> struct gens<0, S...>{ using type = seq<S...>; };  // NOLINT
-
+template<int...> struct seq {};                                       // NOLINT
+template<int N, int... S> struct gens : gens<N - 1, N - 1, S...> {};  // NOLINT
+template<int... S> struct gens<0, S...> { using type = seq<S...>; };  // NOLINT
 
 template<typename... X> class CallbackManager;
-
 
 /** Simple helper class to allow having multiple subscribers to a signal.
  *
  * @tparam Ts The arguments for the callback, wrapped in void().
  */
-template<typename... Ts>
-class CallbackManager<void(Ts...)> {
+template<typename... Ts> class CallbackManager<void(Ts...)> {
  public:
   /// Add a callback to the internal callback list.
   void add(std::function<void(Ts...)> &&callback);
@@ -269,41 +264,29 @@ class CallbackManager<void(Ts...)> {
 };
 
 // https://stackoverflow.com/a/37161919/8924614
-template<class T, class...Args>
+template<class T, class... Args>
 struct is_callable  // NOLINT
 {
-  template<class U> static auto test(U*p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
+  template<class U> static auto test(U *p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
 
   template<class U> static auto test(...) -> decltype(std::false_type());
 
   static constexpr auto value = decltype(test<T>(nullptr))::value;  // NOLINT
 };
 
-template<bool B, class T = void>
-using enable_if_t = typename std::enable_if<B, T>::type;
+template<bool B, class T = void> using enable_if_t = typename std::enable_if<B, T>::type;
 
-template<typename T, typename... X>
-class TemplatableValue {
+template<typename T, typename... X> class TemplatableValue {
  public:
-  TemplatableValue() : type_(EMPTY) {
+  TemplatableValue() : type_(EMPTY) {}
 
-  }
+  template<typename F, enable_if_t<!is_callable<F, X...>::value, int> = 0>
+  TemplatableValue(F value) : type_(VALUE), value_(value) {}
 
-  template <typename F,
-      enable_if_t<!is_callable<F, X...>::value, int> = 0>
-  TemplatableValue(F value) : type_(VALUE), value_(value) {
+  template<typename F, enable_if_t<is_callable<F, X...>::value, int> = 0>
+  TemplatableValue(F f) : type_(LAMBDA), f_(f) {}
 
-  }
-
-  template <typename F,
-      enable_if_t<is_callable<F, X...>::value, int> = 0>
-  TemplatableValue(F f) : type_(LAMBDA), f_(f) {
-
-  }
-
-  bool has_value() {
-    return this->type_ != EMPTY;
-  }
+  bool has_value() { return this->type_ != EMPTY; }
 
   T value(X... x) {
     if (this->type_ == LAMBDA) {
@@ -328,9 +311,9 @@ extern CallbackManager<void(const char *)> shutdown_hooks;
 extern CallbackManager<void(const char *)> safe_shutdown_hooks;
 
 #ifdef ARDUINO_ARCH_ESP32
-  extern rmt_channel_t next_rmt_channel;
+extern rmt_channel_t next_rmt_channel;
 
-  rmt_channel_t select_next_rmt_channel();
+rmt_channel_t select_next_rmt_channel();
 #endif
 
 void delay_microseconds_accurate(uint32_t usec);
@@ -339,18 +322,18 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
  public:
   class String {
    public:
-    String(VectorJsonBuffer* parent);
+    String(VectorJsonBuffer *parent);
 
     void append(char c) const;
 
-    const char* c_str() const;
+    const char *c_str() const;
 
    protected:
-    VectorJsonBuffer* parent_;
+    VectorJsonBuffer *parent_;
     uint32_t start_;
   };
 
-  void* alloc(size_t bytes) override;
+  void *alloc(size_t bytes) override;
 
   size_t size() const;
 
@@ -373,11 +356,11 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
 
 extern VectorJsonBuffer global_json_buffer;
 
-template<typename T>
-class Deduplicator {
+template<typename T> class Deduplicator {
  public:
   bool next(T value);
   bool has_value() const;
+
  protected:
   bool has_value_{false};
   T last_value_{};
@@ -389,36 +372,31 @@ uint32_t fnv1_hash(const std::string &str);
 //                 Definitions
 // ================================================
 
-template<typename T>
-T clamp(T min, T max, T val) {
-  if (min > max) std::swap(min, max);
-  if (val < min) return min;
-  if (val > max) return max;
+template<typename T> T clamp(T min, T max, T val) {
+  if (min > max)
+    std::swap(min, max);
+  if (val < min)
+    return min;
+  if (val > max)
+    return max;
   return val;
 }
 
-template<typename T>
-T lerp(T start, T end, T completion) {
-  return start + (end - start) * completion;
-}
+template<typename T> T lerp(T start, T end, T completion) { return start + (end - start) * completion; }
 
-template<typename T, typename ...Args>
-std::unique_ptr<T> make_unique(Args &&...args) {
+template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args &&... args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
-template<typename... Ts>
-void CallbackManager<void(Ts...)>::add(std::function<void(Ts...)> &&callback) {
+template<typename... Ts> void CallbackManager<void(Ts...)>::add(std::function<void(Ts...)> &&callback) {
   this->callbacks_.push_back(std::move(callback));
 }
-template<typename... Ts>
-void CallbackManager<void(Ts...)>::call(Ts... args) {
+template<typename... Ts> void CallbackManager<void(Ts...)>::call(Ts... args) {
   for (auto &cb : this->callbacks_)
     cb(args...);
 }
 
-template<typename T>
-bool Deduplicator<T>::next(T value) {
+template<typename T> bool Deduplicator<T>::next(T value) {
   if (this->has_value_) {
     if (this->last_value_ == value)
       return false;
@@ -427,11 +405,8 @@ bool Deduplicator<T>::next(T value) {
   this->last_value_ = value;
   return true;
 }
-template<typename T>
-bool Deduplicator<T>::has_value() const {
-  return this->has_value_;
-}
+template<typename T> bool Deduplicator<T>::has_value() const { return this->has_value_; }
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_HELPERS_H
+#endif  // ESPHOME_HELPERS_H

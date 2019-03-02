@@ -76,10 +76,10 @@ class UniqueFilter : public Filter {
   optional<bool> last_value_{};
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BINARY_SENSOR
+#endif  // USE_BINARY_SENSOR
 
-#endif //ESPHOME_FILTER_H
+#endif  // ESPHOME_FILTER_H

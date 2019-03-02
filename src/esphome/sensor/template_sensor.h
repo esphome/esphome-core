@@ -28,10 +28,10 @@ class TemplateSensor : public PollingSensorComponent {
   optional<std::function<optional<float>()>> f_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TEMPLATE_SENSOR
+#endif  // USE_TEMPLATE_SENSOR
 
-#endif //ESPHOME_SENSOR_TEMPLATE_SENSOR_H
+#endif  // ESPHOME_SENSOR_TEMPLATE_SENSOR_H

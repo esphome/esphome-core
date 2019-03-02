@@ -45,16 +45,17 @@ class ListEntitiesIterator : public ComponentIterator {
 #endif
   bool on_service(UserServiceDescriptor *service) override;
   bool on_end() override;
+
  protected:
   APIConnection *client_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/api/api_server.h"
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_LIST_ENTITIES_H
+#endif  // ESPHOME_LIST_ENTITIES_H

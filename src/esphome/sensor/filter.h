@@ -234,6 +234,7 @@ class OrFilter : public Filter {
    public:
     PhiNode(OrFilter *parent);
     optional<float> new_value(float value) override;
+
    protected:
     OrFilter *parent_;
   };
@@ -246,15 +247,16 @@ class CalibrateLinearFilter : public Filter {
  public:
   CalibrateLinearFilter(float slope, float bias);
   optional<float> new_value(float value) override;
+
  protected:
   float slope_;
   float bias_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif  // USE_SENSOR
 
-#endif //ESPHOME_SENSOR_FILTER_H
+#endif  // ESPHOME_SENSOR_FILTER_H

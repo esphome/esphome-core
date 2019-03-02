@@ -67,6 +67,6 @@ extern EthernetComponent *global_eth_component;
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ETHERNET
+#endif  // USE_ETHERNET
 
-#endif //ESPHOME_ETHERNET_COMPONENT_H
+#endif  // ESPHOME_ETHERNET_COMPONENT_H

@@ -25,7 +25,7 @@ ESPHOME_NAMESPACE_BEGIN
 // type for nullopt
 
 struct nullopt_t {  // NOLINT
-  struct init {};  // NOLINT
+  struct init {};   // NOLINT
   nullopt_t(init) {}
 };
 
@@ -33,11 +33,9 @@ struct nullopt_t {  // NOLINT
 
 const nullopt_t nullopt((nullopt_t::init()));  // NOLINT
 
-
 // Simplistic optional: requires T to be default constructible, copyable.
 
-template<typename T>
-class optional {  // NOLINT
+template<typename T> class optional {  // NOLINT
  private:
   using safe_bool = void (optional::*)() const;
 
@@ -48,20 +46,16 @@ class optional {  // NOLINT
 
   optional(nullopt_t) {}
 
-  optional(T const &arg)
-      : has_value_(true), value_(arg) {}
+  optional(T const &arg) : has_value_(true), value_(arg) {}
 
-  template<class U>
-  optional(optional<U> const &other)
-      : has_value_(other.has_value()), value_(other.value()) {}
+  template<class U> optional(optional<U> const &other) : has_value_(other.has_value()), value_(other.value()) {}
 
   optional &operator=(nullopt_t) {
     reset();
     return *this;
   }
 
-  template<class U>
-  optional &operator=(optional<U> const &other) {
+  template<class U> optional &operator=(optional<U> const &other) {
     has_value_ = other.has_value();
     value_ = other.value();
     return *this;
@@ -69,12 +63,12 @@ class optional {  // NOLINT
 
   void swap(optional &rhs) {
     using std::swap;
-    if (has_value() && rhs.has_value()) { swap(**this, *rhs); }
-    else if (!has_value() && rhs.has_value()) {
+    if (has_value() && rhs.has_value()) {
+      swap(**this, *rhs);
+    } else if (!has_value() && rhs.has_value()) {
       initialize(*rhs);
       rhs.reset();
-    }
-    else if (has_value() && !rhs.has_value()) {
+    } else if (has_value() && !rhs.has_value()) {
       rhs.initialize(**this);
       reset();
     }
@@ -82,233 +76,145 @@ class optional {  // NOLINT
 
   // observers
 
-  value_type const *operator->() const {
-    return &value_;
-  }
+  value_type const *operator->() const { return &value_; }
 
-  value_type *operator->() {
-    return &value_;
-  }
+  value_type *operator->() { return &value_; }
 
-  value_type const &operator*() const {
-    return value_;
-  }
+  value_type const &operator*() const { return value_; }
 
-  value_type &operator*() {
-    return value_;
-  }
+  value_type &operator*() { return value_; }
 
-  operator safe_bool() const {
-    return has_value() ? &optional::this_type_does_not_support_comparisons : 0;
-  }
+  operator safe_bool() const { return has_value() ? &optional::this_type_does_not_support_comparisons : 0; }
 
-  bool has_value() const {
-    return has_value_;
-  }
+  bool has_value() const { return has_value_; }
 
-  value_type const &value() const {
-    return value_;
-  }
+  value_type const &value() const { return value_; }
 
-  value_type &value() {
-    return value_;
-  }
+  value_type &value() { return value_; }
 
-  template<class U>
-  value_type value_or(U const &v) const {
-    return has_value() ? value() : static_cast<value_type>( v );
-  }
+  template<class U> value_type value_or(U const &v) const { return has_value() ? value() : static_cast<value_type>(v); }
 
   // modifiers
 
-  void reset() {
-    has_value_ = false;
-  }
+  void reset() { has_value_ = false; }
 
  private:
   void this_type_does_not_support_comparisons() const {}  // NOLINT
 
-  template<typename V>
-  void initialize(V const &value) {  // NOLINT
+  template<typename V> void initialize(V const &value) {  // NOLINT
     value_ = value;
     has_value_ = true;
   }
 
  private:
   bool has_value_{false};  // NOLINT
-  value_type value_;  // NOLINT
+  value_type value_;       // NOLINT
 };
 
 // Relational operators
 
-template<typename T, typename U>
-inline bool operator==(optional<T> const &x, optional<U> const &y) {
+template<typename T, typename U> inline bool operator==(optional<T> const &x, optional<U> const &y) {
   return bool(x) != bool(y) ? false : !bool(x) ? true : *x == *y;
 }
 
-template<typename T, typename U>
-inline bool operator!=(optional<T> const &x, optional<U> const &y) {
+template<typename T, typename U> inline bool operator!=(optional<T> const &x, optional<U> const &y) {
   return !(x == y);
 }
 
-template<typename T, typename U>
-inline bool operator<(optional<T> const &x, optional<U> const &y) {
+template<typename T, typename U> inline bool operator<(optional<T> const &x, optional<U> const &y) {
   return (!y) ? false : (!x) ? true : *x < *y;
 }
 
-template<typename T, typename U>
-inline bool operator>(optional<T> const &x, optional<U> const &y) {
-  return (y < x);
-}
+template<typename T, typename U> inline bool operator>(optional<T> const &x, optional<U> const &y) { return (y < x); }
 
-template<typename T, typename U>
-inline bool operator<=(optional<T> const &x, optional<U> const &y) {
-  return !(y < x);
-}
+template<typename T, typename U> inline bool operator<=(optional<T> const &x, optional<U> const &y) { return !(y < x); }
 
-template<typename T, typename U>
-inline bool operator>=(optional<T> const &x, optional<U> const &y) {
-  return !(x < y);
-}
+template<typename T, typename U> inline bool operator>=(optional<T> const &x, optional<U> const &y) { return !(x < y); }
 
 // Comparison with nullopt
 
-template<typename T>
-inline bool operator==(optional<T> const &x, nullopt_t) {
-  return (!x);
-}
+template<typename T> inline bool operator==(optional<T> const &x, nullopt_t) { return (!x); }
 
-template<typename T>
-inline bool operator==(nullopt_t, optional<T> const &x) {
-  return (!x);
-}
+template<typename T> inline bool operator==(nullopt_t, optional<T> const &x) { return (!x); }
 
-template<typename T>
-inline bool operator!=(optional<T> const &x, nullopt_t) {
-  return bool(x);
-}
+template<typename T> inline bool operator!=(optional<T> const &x, nullopt_t) { return bool(x); }
 
-template<typename T>
-inline bool operator!=(nullopt_t, optional<T> const &x) {
-  return bool(x);
-}
+template<typename T> inline bool operator!=(nullopt_t, optional<T> const &x) { return bool(x); }
 
-template<typename T>
-inline bool operator<(optional<T> const &, nullopt_t) {
-  return false;
-}
+template<typename T> inline bool operator<(optional<T> const &, nullopt_t) { return false; }
 
-template<typename T>
-inline bool operator<(nullopt_t, optional<T> const &x) {
-  return bool(x);
-}
+template<typename T> inline bool operator<(nullopt_t, optional<T> const &x) { return bool(x); }
 
-template<typename T>
-inline bool operator<=(optional<T> const &x, nullopt_t) {
-  return (!x);
-}
+template<typename T> inline bool operator<=(optional<T> const &x, nullopt_t) { return (!x); }
 
-template<typename T>
-inline bool operator<=(nullopt_t, optional<T> const &) {
-  return true;
-}
+template<typename T> inline bool operator<=(nullopt_t, optional<T> const &) { return true; }
 
-template<typename T>
-inline bool operator>(optional<T> const &x, nullopt_t) {
-  return bool(x);
-}
+template<typename T> inline bool operator>(optional<T> const &x, nullopt_t) { return bool(x); }
 
-template<typename T>
-inline bool operator>(nullopt_t, optional<T> const &) {
-  return false;
-}
+template<typename T> inline bool operator>(nullopt_t, optional<T> const &) { return false; }
 
-template<typename T>
-inline bool operator>=(optional<T> const &, nullopt_t) {
-  return true;
-}
+template<typename T> inline bool operator>=(optional<T> const &, nullopt_t) { return true; }
 
-template<typename T>
-inline bool operator>=(nullopt_t, optional<T> const &x) {
-  return (!x);
-}
+template<typename T> inline bool operator>=(nullopt_t, optional<T> const &x) { return (!x); }
 
 // Comparison with T
 
-template<typename T, typename U>
-inline bool operator==(optional<T> const &x, U const &v) {
+template<typename T, typename U> inline bool operator==(optional<T> const &x, U const &v) {
   return bool(x) ? *x == v : false;
 }
 
-template<typename T, typename U>
-inline bool operator==(U const &v, optional<T> const &x) {
+template<typename T, typename U> inline bool operator==(U const &v, optional<T> const &x) {
   return bool(x) ? v == *x : false;
 }
 
-template<typename T, typename U>
-inline bool operator!=(optional<T> const &x, U const &v) {
+template<typename T, typename U> inline bool operator!=(optional<T> const &x, U const &v) {
   return bool(x) ? *x != v : true;
 }
 
-template<typename T, typename U>
-inline bool operator!=(U const &v, optional<T> const &x) {
+template<typename T, typename U> inline bool operator!=(U const &v, optional<T> const &x) {
   return bool(x) ? v != *x : true;
 }
 
-template<typename T, typename U>
-inline bool operator<(optional<T> const &x, U const &v) {
+template<typename T, typename U> inline bool operator<(optional<T> const &x, U const &v) {
   return bool(x) ? *x < v : true;
 }
 
-template<typename T, typename U>
-inline bool operator<(U const &v, optional<T> const &x) {
+template<typename T, typename U> inline bool operator<(U const &v, optional<T> const &x) {
   return bool(x) ? v < *x : false;
 }
 
-template<typename T, typename U>
-inline bool operator<=(optional<T> const &x, U const &v) {
+template<typename T, typename U> inline bool operator<=(optional<T> const &x, U const &v) {
   return bool(x) ? *x <= v : true;
 }
 
-template<typename T, typename U>
-inline bool operator<=(U const &v, optional<T> const &x) {
+template<typename T, typename U> inline bool operator<=(U const &v, optional<T> const &x) {
   return bool(x) ? v <= *x : false;
 }
 
-template<typename T, typename U>
-inline bool operator>(optional<T> const &x, U const &v) {
+template<typename T, typename U> inline bool operator>(optional<T> const &x, U const &v) {
   return bool(x) ? *x > v : false;
 }
 
-template<typename T, typename U>
-inline bool operator>(U const &v, optional<T> const &x) {
+template<typename T, typename U> inline bool operator>(U const &v, optional<T> const &x) {
   return bool(x) ? v > *x : true;
 }
 
-template<typename T, typename U>
-inline bool operator>=(optional<T> const &x, U const &v) {
+template<typename T, typename U> inline bool operator>=(optional<T> const &x, U const &v) {
   return bool(x) ? *x >= v : false;
 }
 
-template<typename T, typename U>
-inline bool operator>=(U const &v, optional<T> const &x) {
+template<typename T, typename U> inline bool operator>=(U const &v, optional<T> const &x) {
   return bool(x) ? v >= *x : true;
 }
 
 // Specialized algorithms
 
-template<typename T>
-void swap(optional<T> &x, optional<T> &y) {
-  x.swap(y);
-}
+template<typename T> void swap(optional<T> &x, optional<T> &y) { x.swap(y); }
 
 // Convenience function to create an optional.
 
-template<typename T>
-inline optional<T> make_optional(T const &v) {
-  return optional<T>(v);
-}
+template<typename T> inline optional<T> make_optional(T const &v) { return optional<T>(v); }
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_OPTIONAL_H
+#endif  // ESPHOME_OPTIONAL_H
