@@ -2,7 +2,7 @@
 
 #include "esphome/log_component.h"
 
-int HOT esp_log_printf_(int level, const char *tag, const char *format, ...) {
+int HOT esp_log_printf_(int level, const char *tag, const char *format, ...) {  // NOLINT
   va_list arg;
   va_start(arg, format);
   int ret = esp_log_vprintf_(level, tag, format, arg);
@@ -19,7 +19,7 @@ int HOT esp_log_printf_(int level, const char *tag, const __FlashStringHelper *f
 }
 #endif
 
-int HOT esp_log_vprintf_(int level, const char *tag, const char *format, va_list args) {
+int HOT esp_log_vprintf_(int level, const char *tag, const char *format, va_list args) {  // NOLINT
   auto *log = esphome::global_log_component;
   if (log == nullptr)
     return 0;
@@ -28,7 +28,7 @@ int HOT esp_log_vprintf_(int level, const char *tag, const char *format, va_list
 }
 
 #ifdef USE_STORE_LOG_STR_IN_FLASH
-int HOT esp_log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {
+int HOT esp_log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {  // NOLINT
   auto *log = esphome::global_log_component;
   if (log == nullptr)
     return 0;
@@ -37,7 +37,7 @@ int HOT esp_log_vprintf_(int level, const char *tag, const __FlashStringHelper *
 }
 #endif
 
-int HOT esp_idf_log_vprintf_(const char *format, va_list args) {
+int HOT esp_idf_log_vprintf_(const char *format, va_list args) {  // NOLINT
   auto *log = esphome::global_log_component;
   if (log == nullptr)
     return 0;

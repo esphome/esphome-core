@@ -136,11 +136,11 @@ def main():
         tmpdir = tempfile.mkdtemp()
 
     return_code = 0
+    failed_files = []
     try:
         # Spin up a bunch of tidy-launching threads.
         task_queue = queue.Queue(max_task)
         # List of files with a non-zero return code.
-        failed_files = []
         lock = threading.Lock()
         for _ in range(max_task):
             t = threading.Thread(target=run_tidy,
@@ -166,7 +166,7 @@ def main():
             shutil.rmtree(tmpdir)
         os.kill(0, 9)
 
-    if args.fix:
+    if args.fix and failed_files:
         print('Applying fixes ...')
         try:
             apply_fixes(args, tmpdir)

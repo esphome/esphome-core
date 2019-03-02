@@ -42,7 +42,7 @@ void Component::setup() {}
 
 void Component::loop() {}
 
-void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {
+void Component::set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f) {  // NOLINT
   const uint32_t now = millis();
   // only put offset in lower half
   uint32_t offset = 0;
@@ -64,11 +64,11 @@ void Component::set_interval(const std::string &name, uint32_t interval, std::fu
   this->time_functions_.push_back(function);
 }
 
-bool Component::cancel_interval(const std::string &name) {
+bool Component::cancel_interval(const std::string &name) {  // NOLINT
   return this->cancel_time_function_(name, TimeFunction::INTERVAL);
 }
 
-void Component::set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f) {
+void Component::set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f) {  // NOLINT
   const uint32_t now = millis();
   ESP_LOGVV(TAG, "set_timeout(name='%s', timeout=%u)", name.c_str(), timeout);
 
@@ -86,7 +86,7 @@ void Component::set_timeout(const std::string &name, uint32_t timeout, std::func
   this->time_functions_.push_back(function);
 }
 
-bool Component::cancel_timeout(const std::string &name) {
+bool Component::cancel_timeout(const std::string &name) {  // NOLINT
   return this->cancel_time_function_(name, TimeFunction::TIMEOUT);
 }
 
@@ -153,9 +153,11 @@ void Component::mark_failed() {
   this->component_state_ |= COMPONENT_STATE_FAILED;
   this->status_set_error();
 }
-void Component::defer(std::function<void()> &&f) { this->defer("", std::move(f)); }
-bool Component::cancel_defer(const std::string &name) { return this->cancel_time_function_(name, TimeFunction::DEFER); }
-void Component::defer(const std::string &name, std::function<void()> &&f) {
+void Component::defer(std::function<void()> &&f) { this->defer("", std::move(f)); }  // NOLINT
+bool Component::cancel_defer(const std::string &name) {   // NOLINT
+  return this->cancel_time_function_(name, TimeFunction::DEFER);
+}
+void Component::defer(const std::string &name, std::function<void()> &&f) {  // NOLINT
   if (!name.empty()) {
     this->cancel_defer(name);
   }
@@ -169,10 +171,10 @@ void Component::defer(const std::string &name, std::function<void()> &&f) {
   };
   this->time_functions_.push_back(function);
 }
-void Component::set_timeout(uint32_t timeout, std::function<void()> &&f) {
+void Component::set_timeout(uint32_t timeout, std::function<void()> &&f) {  // NOLINT
   this->set_timeout("", timeout, std::move(f));
 }
-void Component::set_interval(uint32_t interval, std::function<void()> &&f) {
+void Component::set_interval(uint32_t interval, std::function<void()> &&f) {  // NOLINT
   this->set_interval("", interval, std::move(f));
 }
 bool Component::is_failed() { return (this->component_state_ & COMPONENT_STATE_MASK) == COMPONENT_STATE_FAILED; }

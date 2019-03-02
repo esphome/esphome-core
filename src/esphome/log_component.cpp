@@ -12,7 +12,7 @@ ESPHOME_NAMESPACE_BEGIN
 
 static const char *TAG = "logger";
 
-int HOT LogComponent::log_vprintf_(int level, const char *tag, const char *format, va_list args) {
+int HOT LogComponent::log_vprintf_(int level, const char *tag, const char *format, va_list args) {  // NOLINT
   if (level > this->level_for(tag))
     return 0;
 
@@ -21,7 +21,7 @@ int HOT LogComponent::log_vprintf_(int level, const char *tag, const char *forma
   return ret;
 }
 #ifdef USE_STORE_LOG_STR_IN_FLASH
-int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {
+int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {  // NOLINT
   if (level > this->level_for_(tag))
     return 0;
 

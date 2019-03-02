@@ -409,7 +409,7 @@ bool MQTTClientComponent::publish_json(const std::string &topic, const json_buil
  * @param past_separator Are we past the first '/' topic separator.
  * @return true if the subscription topic matches the message topic, false otherwise.
  */
-static bool topic_match_(const char *message, const char *subscription, bool is_normal, bool past_separator) {
+static bool topic_match(const char *message, const char *subscription, bool is_normal, bool past_separator) {
   // Reached end of both strings at the same time, this means we have a successful match
   if (*message == '\0' && *subscription == '\0')
     return true;
@@ -430,7 +430,7 @@ static bool topic_match_(const char *message, const char *subscription, bool is_
     }
     // after this, both pointers will point to a '/' or to the end of the string
 
-    return topic_match_(message, subscription, is_normal, true);
+    return topic_match(message, subscription, is_normal, true);
   }
 
   if (*subscription == '#' && do_wildcards) {
@@ -448,11 +448,11 @@ static bool topic_match_(const char *message, const char *subscription, bool is_
   subscription++;
   message++;
 
-  return topic_match_(message, subscription, is_normal, past_separator);
+  return topic_match(message, subscription, is_normal, past_separator);
 }
 
 static bool topic_match(const char *message, const char *subscription) {
-  return topic_match_(message, subscription, *message != '\0' && *message != '$', false);
+  return topic_match(message, subscription, *message != '\0' && *message != '$', false);
 }
 
 void MQTTClientComponent::on_message(const std::string &topic, const std::string &payload) {

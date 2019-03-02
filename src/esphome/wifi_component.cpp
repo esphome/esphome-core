@@ -638,7 +638,7 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
 
 class WiFiMockClass : public ESP8266WiFiGenericClass {
  public:
-  static void _event_callback(void *event) { ESP8266WiFiGenericClass::_eventCallback(event); }
+  static void _event_callback(void *event) { ESP8266WiFiGenericClass::_eventCallback(event); }  // NOLINT
 };
 
 const char *get_auth_mode_str(uint8_t mode) {

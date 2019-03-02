@@ -35,7 +35,7 @@ void AddressableLightEffect::apply() {
   this->apply(*this->get_addressable_(), current_color);
 }
 
-inline static int16_t sin16_C(uint16_t theta) {
+inline static int16_t sin16_c(uint16_t theta) {
   static const uint16_t BASE[] = {0, 6393, 12539, 18204, 23170, 27245, 30273, 32137};
   static const uint8_t SLOPE[] = {49, 48, 44, 38, 31, 23, 14, 4};
   uint16_t offset = (theta & 0x3FFF) >> 3;  // 0..2047
@@ -52,7 +52,7 @@ inline static int16_t sin16_C(uint16_t theta) {
   return y;
 }
 
-inline static uint8_t half_sin8(uint8_t v) { return sin16_C(uint16_t(v) * 128u) >> 8; }
+inline static uint8_t half_sin8(uint8_t v) { return sin16_c(uint16_t(v) * 128u) >> 8; }
 
 AddressableLambdaLightEffect::AddressableLambdaLightEffect(const std::string &name,
                                                            const std::function<void(AddressableLight &)> &f,

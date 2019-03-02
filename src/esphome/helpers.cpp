@@ -452,19 +452,19 @@ void VectorJsonBuffer::clear() {
   this->size_ = 0;
   this->free_blocks_.clear();
 }
-VectorJsonBuffer::String VectorJsonBuffer::startString() { return {this}; }
+VectorJsonBuffer::String VectorJsonBuffer::startString() { return {this}; }  // NOLINT
 void *VectorJsonBuffer::alloc(size_t bytes) {
   // Make sure memory addresses are aligned
   uint32_t new_size = round_size_up(this->size_);
   this->resize(new_size);
   return this->do_alloc(bytes);
 }
-void *VectorJsonBuffer::do_alloc(size_t bytes) {
+void *VectorJsonBuffer::do_alloc(size_t bytes) {  // NOLINT
   const uint32_t begin = this->size_;
   this->resize(begin + bytes);
   return &this->buffer_[begin];
 }
-void VectorJsonBuffer::resize(size_t size) {
+void VectorJsonBuffer::resize(size_t size) {  // NOLINT
   if (size <= this->size_) {
     this->size_ = size;
     return;
@@ -473,7 +473,7 @@ void VectorJsonBuffer::resize(size_t size) {
   this->reserve(size);
   this->size_ = size;
 }
-void VectorJsonBuffer::reserve(size_t size) {
+void VectorJsonBuffer::reserve(size_t size) {  // NOLINT
   if (size <= this->capacity_)
     return;
 
