@@ -22,7 +22,7 @@ matrix:
   #  script: *run_script
   #  if: branch = dev AND type = push
   - dist: trusty
-    sudo: require
+    sudo: required
     addons:
       apt:
         sources:

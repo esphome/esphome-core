@@ -8,7 +8,9 @@ if git diff-index --quiet HEAD --; then
 else
     echo "========================================================="
     echo "Your formatting is not correct, ESPHome uses clang-format"
-    echo "To format all files, please apply these changes:"
+    echo "The following files are outdated:"
+    git diff HEAD --name-only | sed 's/^/  /'
+    echo "To format them, please apply these changes:"
     echo "========================================================="
     echo
     git diff HEAD
