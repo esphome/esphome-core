@@ -222,15 +222,6 @@
   #endif
 #endif
 
-#ifdef USE_SDS011
-  #ifndef USE_SENSOR
-    #define USE_SENSOR
-  #endif
-  #ifndef USE_UART
-    #define USE_UART
-  #endif
-#endif
-
 #if defined(USE_MQTT) && defined(USE_BINARY_SENSOR)
   #ifndef USE_MQTT_BINARY_SENSOR
     #define USE_MQTT_BINARY_SENSOR
