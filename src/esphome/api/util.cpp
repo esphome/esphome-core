@@ -279,12 +279,12 @@ void ComponentIterator::advance() {
       if (this->at_ >= this->server_->switches_.size()) {
         advance_platform = true;
       } else {
-        auto *switch_ = this->server_->switches_[this->at_];
-        if (switch_->is_internal()) {
+        auto *a_switch = this->server_->switches_[this->at_];
+        if (a_switch->is_internal()) {
           success = true;
           break;
         } else {
-          success = this->on_switch(switch_);
+          success = this->on_switch(a_switch);
         }
       }
       break;

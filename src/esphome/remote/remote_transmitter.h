@@ -80,7 +80,7 @@ class RemoteTransmitterComponent : public RemoteControlComponentBase, public Com
   void set_carrier_duty_percent(uint8_t carrier_duty_percent);
 
   /// Defer send of the switches remote code until next loop().
-  void deferred_send(RemoteTransmitter *switch_);
+  void deferred_send(RemoteTransmitter *a_switch);
 
   class TransmitCall {
    public:

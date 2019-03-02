@@ -287,13 +287,13 @@ void RemoteTransmitterComponent::set_carrier_duty_percent(uint8_t carrier_duty_p
   this->carrier_duty_percent_ = carrier_duty_percent;
 }
 RemoteTransmitterComponent::TransmitCall RemoteTransmitterComponent::transmit() { return TransmitCall(this); }
-void RemoteTransmitterComponent::deferred_send(RemoteTransmitter *switch_) {
-  this->defer([this, switch_]() {
-    switch_->publish_state(true);
+void RemoteTransmitterComponent::deferred_send(RemoteTransmitter *a_switch) {
+  this->defer([this, a_switch]() {
+    a_switch->publish_state(true);
     this->temp_.reset();
-    switch_->to_data(&this->temp_);
-    this->send_(&this->temp_, switch_->get_send_times(), switch_->get_send_wait());
-    switch_->publish_state(false);
+    a_switch->to_data(&this->temp_);
+    this->send_(&this->temp_, a_switch->get_send_times(), a_switch->get_send_wait());
+    a_switch->publish_state(false);
   });
 }
 

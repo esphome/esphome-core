@@ -98,15 +98,15 @@ bool ListEntitiesIterator::on_sensor(sensor::Sensor *sensor) {
 }
 #endif
 #ifdef USE_SWITCH
-bool ListEntitiesIterator::on_switch(switch_::Switch *switch_) {
+bool ListEntitiesIterator::on_switch(switch_::Switch *a_switch) {
   auto buffer = this->client_->get_buffer();
-  buffer.encode_nameable(switch_);
+  buffer.encode_nameable(a_switch);
   // string unique_id = 4;
-  buffer.encode_string(4, get_default_unique_id("switch", switch_));
+  buffer.encode_string(4, get_default_unique_id("switch", a_switch));
   // string icon = 5;
-  buffer.encode_string(5, switch_->get_icon());
+  buffer.encode_string(5, a_switch->get_icon());
   // bool assumed_state = 6;
-  buffer.encode_bool(6, switch_->assumed_state());
+  buffer.encode_bool(6, a_switch->assumed_state());
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_SWITCH_RESPONSE);
 }
 #endif

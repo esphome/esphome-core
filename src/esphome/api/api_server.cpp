@@ -831,13 +831,13 @@ bool APIConnection::send_sensor_state(sensor::Sensor *sensor, float state) {
 #endif
 
 #ifdef USE_SWITCH
-bool APIConnection::send_switch_state(switch_::Switch *switch_, bool state) {
+bool APIConnection::send_switch_state(switch_::Switch *a_switch, bool state) {
   if (!this->state_subscription_)
     return false;
 
   auto buffer = this->get_buffer();
   // fixed32 key = 1;
-  buffer.encode_fixed32(1, switch_->get_object_id_hash());
+  buffer.encode_fixed32(1, a_switch->get_object_id_hash());
   // bool state = 2;
   buffer.encode_bool(2, state);
   return this->send_buffer(APIMessageType::SWITCH_STATE_RESPONSE);
@@ -956,14 +956,14 @@ void APIConnection::on_light_command_request_(const LightCommandRequest &req) {
 #ifdef USE_SWITCH
 void APIConnection::on_switch_command_request_(const SwitchCommandRequest &req) {
   ESP_LOGVV(TAG, "on_switch_command_request_");
-  switch_::Switch *switch_ = this->parent_->get_switch_by_key(req.get_key());
-  if (switch_ == nullptr)
+  switch_::Switch *a_switch = this->parent_->get_switch_by_key(req.get_key());
+  if (a_switch == nullptr)
     return;
 
   if (req.get_state()) {
-    switch_->turn_on();
+    a_switch->turn_on();
   } else {
-    switch_->turn_off();
+    a_switch->turn_off();
   }
 }
 #endif

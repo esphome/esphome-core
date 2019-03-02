@@ -358,12 +358,12 @@ MQTTClientComponent *Application::get_mqtt_client() const { return this->mqtt_cl
 #endif
 
 #ifdef USE_SWITCH
-void Application::register_switch(switch_::Switch *switch_) {
+void Application::register_switch(switch_::Switch *a_switch) {
   for (auto *controller : this->controllers_)
-    controller->register_switch(switch_);
+    controller->register_switch(a_switch);
 #ifdef USE_MQTT_SWITCH
   if (this->mqtt_client_ != nullptr) {
-    switch_->set_mqtt(this->register_component(new MQTTSwitchComponent(switch_)));
+    a_switch->set_mqtt(this->register_component(new MQTTSwitchComponent(a_switch)));
   }
 #endif
 }

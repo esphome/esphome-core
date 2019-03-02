@@ -59,7 +59,7 @@ class APIConnection {
   bool send_sensor_state(sensor::Sensor *sensor, float state);
 #endif
 #ifdef USE_SWITCH
-  bool send_switch_state(switch_::Switch *switch_, bool state);
+  bool send_switch_state(switch_::Switch *a_switch, bool state);
 #endif
 #ifdef USE_TEXT_SENSOR
   bool send_text_sensor_state(text_sensor::TextSensor *text_sensor, std::string state);

@@ -14,7 +14,7 @@ namespace switch_ {
 
 static const char *TAG = "switch.mqtt";
 
-MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *switch_) : MQTTComponent(), switch_(switch_) {}
+MQTTSwitchComponent::MQTTSwitchComponent(switch_::Switch *a_switch) : MQTTComponent(), switch_(a_switch) {}
 
 void MQTTSwitchComponent::setup() {
   this->subscribe(this->get_command_topic(), [this](const std::string &topic, const std::string &payload) {

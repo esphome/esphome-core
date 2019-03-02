@@ -1052,7 +1052,7 @@ class Application {
    */
 #ifdef USE_SWITCH
   /// Register a Switch internally, creating a MQTT Switch if the MQTT client is set up
-  void register_switch(switch_::Switch *switch_);
+  void register_switch(switch_::Switch *a_switch);
 #endif
 
 #ifdef USE_GPIO_SWITCH

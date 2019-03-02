@@ -40,8 +40,8 @@ bool InitialStateIterator::on_sensor(sensor::Sensor *sensor) {
 }
 #endif
 #ifdef USE_SWITCH
-bool InitialStateIterator::on_switch(switch_::Switch *switch_) {
-  return this->client_->send_switch_state(switch_, switch_->state);
+bool InitialStateIterator::on_switch(switch_::Switch *a_switch) {
+  return this->client_->send_switch_state(a_switch, a_switch->state);
 }
 #endif
 #ifdef USE_TEXT_SENSOR

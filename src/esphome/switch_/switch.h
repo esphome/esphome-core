@@ -216,18 +216,18 @@ class SwitchCondition : public Condition<Ts...> {
 
 class SwitchTurnOnTrigger : public Trigger<> {
  public:
-  SwitchTurnOnTrigger(Switch *switch_);
+  SwitchTurnOnTrigger(Switch *a_switch);
 };
 
 class SwitchTurnOffTrigger : public Trigger<> {
  public:
-  SwitchTurnOffTrigger(Switch *switch_);
+  SwitchTurnOffTrigger(Switch *a_switch);
 };
 
 template<typename... Ts>
 class SwitchPublishAction : public Action<Ts...> {
  public:
-  SwitchPublishAction(Switch *switch_);
+  SwitchPublishAction(Switch *a_switch);
   template<typename V>
   void set_state(V state) { this->state_ = state; }
   void play(Ts... x) override;
@@ -285,7 +285,7 @@ template<typename... Ts>
 SwitchCondition<Ts...> *Switch::make_switch_is_off_condition() { return new SwitchCondition<Ts...>(this, false); }
 
 template<typename... Ts>
-SwitchPublishAction<Ts...>::SwitchPublishAction(Switch *switch_) : switch_(switch_) {}
+SwitchPublishAction<Ts...>::SwitchPublishAction(Switch *a_switch) : switch_(a_switch) {}
 template<typename... Ts>
 void SwitchPublishAction<Ts...>::play(Ts... x) {
   this->switch_->publish_state(this->state_.value(x...));

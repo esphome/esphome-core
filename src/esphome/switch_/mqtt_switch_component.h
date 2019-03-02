@@ -19,7 +19,7 @@ namespace switch_ {
  */
 class MQTTSwitchComponent : public mqtt::MQTTComponent {
  public:
-  explicit MQTTSwitchComponent(switch_::Switch *switch_);
+  explicit MQTTSwitchComponent(switch_::Switch *a_switch);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
