@@ -6,7 +6,6 @@ install:
 cache:
   directories:
     - "~/.platformio"
-    - "$TRAVIS_BUILD_DIR/.pioenvs"
     - "$TRAVIS_BUILD_DIR/.piolibdeps"
 
 matrix:

@@ -8,6 +8,7 @@ import glob
 import json
 import multiprocessing
 import os
+import fnmatch
 import re
 import shutil
 import subprocess
@@ -79,11 +80,15 @@ def main():
                         help='Run clang-tidy in quiet mode')
     args = parser.parse_args()
 
-    # Load the database and extract all files.
-    database = json.load(open('compile_commands.json'))
     file_name_re = re.compile('|'.join(args.files))
-    files = [make_absolute(entry['file'], entry['directory'])
-             for entry in database]
+    files = []
+    for root, dirnames, filenames in os.walk(os.path.join('src', 'esphome')):
+        for filename in fnmatch.filter(filenames, '*.cpp'):
+            files.append(make_absolute(filename, root))
+        for filename in fnmatch.filter(filenames, '*.h'):
+            files.append(make_absolute(filename, root))
+        for filename in fnmatch.filter(filenames, '*.tcc'):
+            files.append(make_absolute(filename, root))
     files = sorted([f for f in files if file_name_re.search(f)])
     max_task = args.jobs
 
