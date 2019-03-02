@@ -45,10 +45,10 @@ CheckOptions:
     value:           'UPPER_CASE'
   - key:             readability-identifier-naming.ParameterCase
     value:           'lower_case'
-  #- key:             readability-identifier-naming.PrivateMemberPrefix
-  #  value:           'NO_PRIVATE_MEMBERS_ALWAYS_USE_PROTECTED'
-  #- key:             readability-identifier-naming.PrivateMethodPrefix
-  #  value:           'NO_PRIVATE_METHODS_ALWAYS_USE_PROTECTED'
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           'NO_PRIVATE_MEMBERS_ALWAYS_USE_PROTECTED'
+  - key:             readability-identifier-naming.PrivateMethodPrefix
+    value:           'NO_PRIVATE_METHODS_ALWAYS_USE_PROTECTED'
   #- key:             readability-identifier-naming.FunctionCase
   #  value:           'lower_case'
   #- key:             readability-identifier-naming.ClassMemberCase

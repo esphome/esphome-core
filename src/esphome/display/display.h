@@ -327,7 +327,7 @@ class DisplayPage {
 
 class Glyph {
  public:
-  Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width, int height);
+  Glyph(const char *a_char, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width, int height);
 
   bool get_pixel(int x, int y) const;
 

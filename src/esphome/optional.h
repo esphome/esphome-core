@@ -126,17 +126,17 @@ class optional {  // NOLINT
   }
 
  private:
-  void this_type_does_not_support_comparisons() const {}
+  void this_type_does_not_support_comparisons() const {}  // NOLINT
 
   template<typename V>
-  void initialize(V const &value) {
+  void initialize(V const &value) {  // NOLINT
     value_ = value;
     has_value_ = true;
   }
 
  private:
-  bool has_value_{false};
-  value_type value_;
+  bool has_value_{false};  // NOLINT
+  value_type value_;  // NOLINT
 };
 
 // Relational operators

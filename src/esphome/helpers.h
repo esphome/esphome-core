@@ -345,7 +345,7 @@ class VectorJsonBuffer : public ArduinoJson::Internals::JsonBufferBase<VectorJso
 
     const char* c_str() const;
 
-   private:
+   protected:
     VectorJsonBuffer* parent_;
     uint32_t start_;
   };
