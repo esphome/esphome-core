@@ -114,9 +114,7 @@ void HOT WaveshareEPaper::draw_absolute_pixel_internal(int x, int y, int color) 
   else
     this->buffer_[pos] &= ~(0x80 >> subpos);
 }
-uint32_t WaveshareEPaper::get_buffer_length_() {
-  return this->get_width_internal() * this->get_height_internal() / 8u;
-}
+uint32_t WaveshareEPaper::get_buffer_length_() { return this->get_width_internal() * this->get_height_internal() / 8u; }
 WaveshareEPaper::WaveshareEPaper(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : PollingComponent(update_interval), SPIDevice(parent, cs), dc_pin_(dc_pin) {}
 bool WaveshareEPaper::is_device_high_speed() { return true; }

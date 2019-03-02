@@ -107,8 +107,9 @@ void SPIComponent::set_miso(const GPIOInputPin &miso) { this->miso_ = miso.copy(
 void SPIComponent::set_mosi(const GPIOOutputPin &mosi) { this->mosi_ = mosi.copy(); }
 
 SPIDevice::SPIDevice(SPIComponent *parent, GPIOPin *cs) : parent_(parent), cs_(cs) {}
-void HOT SPIDevice::enable() { this->parent_->enable(this->cs_, this->is_device_msb_first(),
-                                                     this->is_device_high_speed()); }
+void HOT SPIDevice::enable() {
+  this->parent_->enable(this->cs_, this->is_device_msb_first(), this->is_device_high_speed());
+}
 void HOT SPIDevice::disable() { this->parent_->disable(); }
 uint8_t HOT SPIDevice::read_byte() { return this->parent_->read_byte(); }
 void HOT SPIDevice::read_array(uint8_t *data, size_t length) { return this->parent_->read_array(data, length); }

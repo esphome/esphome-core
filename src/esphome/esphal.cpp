@@ -4,7 +4,8 @@
 
 #ifdef ARDUINO_ARCH_ESP8266
 #include "FunctionalInterrupt.h"
-extern "C" void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*user_func)(void*), void* fp, int mode);  // NOLINT
+extern "C" void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*user_func)(void*), void* fp,
+                                                     int mode);  // NOLINT
 #endif
 
 ESPHOME_NAMESPACE_BEGIN

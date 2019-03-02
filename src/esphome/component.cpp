@@ -154,7 +154,7 @@ void Component::mark_failed() {
   this->status_set_error();
 }
 void Component::defer(std::function<void()> &&f) { this->defer("", std::move(f)); }  // NOLINT
-bool Component::cancel_defer(const std::string &name) {   // NOLINT
+bool Component::cancel_defer(const std::string &name) {                              // NOLINT
   return this->cancel_time_function_(name, TimeFunction::DEFER);
 }
 void Component::defer(const std::string &name, std::function<void()> &&f) {  // NOLINT

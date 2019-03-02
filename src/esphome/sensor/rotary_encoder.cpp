@@ -35,8 +35,8 @@ static const uint16_t QE_IX4_IS_DEC = 0x7000;
 
 static uint16_t state_lookup_table[32] = {
     // act state S0 in CCW direction
-    QE_IX4_CCW | QE_IX4_S0, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A | QE_IX4_4X_INC | QE_IX4_DIR, QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B,
-    QE_IX4_CCW | QE_IX4_S3 | QE_IX4_AB | QE_IX4_1X_DEC,
+    QE_IX4_CCW | QE_IX4_S0, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A | QE_IX4_4X_INC | QE_IX4_DIR,
+    QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B, QE_IX4_CCW | QE_IX4_S3 | QE_IX4_AB | QE_IX4_1X_DEC,
     // act state S1 in CCW direction
     QE_IX4_CCW | QE_IX4_S1, QE_IX4_CCW | QE_IX4_S1 | QE_IX4_A, QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B | QE_IX4_4X_DEC,
     QE_IX4_CW | QE_IX4_S2 | QE_IX4_AB | QE_IX4_1X_INC | QE_IX4_DIR,
@@ -51,8 +51,8 @@ static uint16_t state_lookup_table[32] = {
     QE_IX4_CW | QE_IX4_S0, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A | QE_IX4_4X_INC, QE_IX4_CW | QE_IX4_S0 | QE_IX4_B,
     QE_IX4_CCW | QE_IX4_S3 | QE_IX4_AB | QE_IX4_1X_DEC | QE_IX4_DIR,
     // act state S1 in CW direction
-    QE_IX4_CW | QE_IX4_S1, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A, QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B | QE_IX4_4X_DEC | QE_IX4_DIR,
-    QE_IX4_CW | QE_IX4_S2 | QE_IX4_AB | QE_IX4_1X_INC,
+    QE_IX4_CW | QE_IX4_S1, QE_IX4_CW | QE_IX4_S1 | QE_IX4_A,
+    QE_IX4_CCW | QE_IX4_S0 | QE_IX4_B | QE_IX4_4X_DEC | QE_IX4_DIR, QE_IX4_CW | QE_IX4_S2 | QE_IX4_AB | QE_IX4_1X_INC,
     // act state S2 in CW direction
     QE_IX4_CCW | QE_IX4_S1 | QE_IX4_2X_DEC | QE_IX4_DIR, QE_IX4_CW | QE_IX4_S2 | QE_IX4_A,
     QE_IX4_CW | QE_IX4_S3 | QE_IX4_B | QE_IX4_4X_INC, QE_IX4_CW | QE_IX4_S2 | QE_IX4_AB,
