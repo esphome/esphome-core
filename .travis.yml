@@ -34,6 +34,7 @@ matrix:
           - cmake
           - clang-tidy-7
           - clang-format-7
+          - clang-apply-replacements-7
     before_script:
       - pio init --ide clion
       - |
@@ -43,6 +44,8 @@ matrix:
       - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
       - clang-tidy-7 -version
       - clang-format-7 -version
+      - clang-apply-replacements -version
+      - clang-apply-replacements-7 -version
     script:
       - python travis/run-clang-tidy.py -j 1
       - python travis/run-clang-format.py -i -j 1

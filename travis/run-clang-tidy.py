@@ -54,20 +54,9 @@ def get_tidy_invocation(f, tmpdir, quiet):
     return start
 
 
-def check_clang_apply_replacements_binary(args):
-    """Checks if invoking supplied clang-apply-replacements binary works."""
-    try:
-        subprocess.check_call([args.clang_apply_replacements_binary, '--version'])
-    except:
-        print('Unable to run clang-apply-replacements. Is clang-apply-replacements '
-              'binary correctly specified?', file=sys.stderr)
-        traceback.print_exc()
-        sys.exit(1)
-
-
 def apply_fixes(args, tmpdir):
     """Calls clang-apply-fixes on a given directory."""
-    invocation = [args.clang_apply_replacements_binary]
+    invocation = ['clang-apply-replacements-7']
     if args.format:
         invocation.append('-format')
     if args.style:
@@ -125,7 +114,6 @@ def main():
 
     tmpdir = None
     if args.fix:
-        check_clang_apply_replacements_binary(args)
         tmpdir = tempfile.mkdtemp()
 
     return_code = 0
