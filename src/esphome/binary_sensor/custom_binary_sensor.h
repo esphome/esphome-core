@@ -24,10 +24,10 @@ class CustomBinarySensorConstructor : public Component {
   std::vector<BinarySensor *> binary_sensors_;
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_BINARY_SENSOR
+#endif  // USE_CUSTOM_BINARY_SENSOR
 
-#endif //ESPHOME_BINARY_SENSOR_CUSTOM_BINARY_SENSOR_H
+#endif  // ESPHOME_BINARY_SENSOR_CUSTOM_BINARY_SENSOR_H

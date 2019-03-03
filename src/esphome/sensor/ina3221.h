@@ -41,13 +41,13 @@ class INA3221Component : public PollingComponent, public I2CDevice {
     bool exists();
     bool should_measure_shunt_voltage();
     bool should_measure_bus_voltage();
-  } channels[3];
+  } channels_[3];
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_INA3221
+#endif  // USE_INA3221
 
-#endif //ESPHOME_INA3221_H
+#endif  // ESPHOME_INA3221_H

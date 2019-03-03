@@ -26,7 +26,7 @@ class TotalDailyEnergy : public Sensor, public Component {
   int8_t accuracy_decimals() override;
   void loop() override;
 
-  void publish_state_and_save_(float state);
+  void publish_state_and_save(float state);
 
  protected:
   void process_new_state_(float state);
@@ -39,10 +39,10 @@ class TotalDailyEnergy : public Sensor, public Component {
   float total_energy_{0.0f};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TOTAL_DAILY_ENERGY_SENSOR
+#endif  // USE_TOTAL_DAILY_ENERGY_SENSOR
 
-#endif //ESPHOME_SENSOR_TOTAL_DAILY_ENERGY_H
+#endif  // ESPHOME_SENSOR_TOTAL_DAILY_ENERGY_H

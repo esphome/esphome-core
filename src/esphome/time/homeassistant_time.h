@@ -19,6 +19,7 @@ class HomeAssistantTime : public RealTimeClockComponent {
   void dump_config() override;
   void set_epoch_time(uint32_t epoch);
   float get_setup_priority() const override;
+
  protected:
 };
 
@@ -30,10 +31,10 @@ class GetTimeResponse : public api::APIMessage {
   api::APIMessageType message_type() const override;
 };
 
-} // namespace time
+}  // namespace time
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HOMEASSISTANT_TIME
+#endif  // USE_HOMEASSISTANT_TIME
 
-#endif //ESPHOME_HOMEASSISTANT_TIME_H
+#endif  // ESPHOME_HOMEASSISTANT_TIME_H

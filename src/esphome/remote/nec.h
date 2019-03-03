@@ -34,9 +34,9 @@ class NECReceiver : public RemoteReceiver {
  public:
   NECReceiver(const std::string &name, uint16_t address, uint16_t command);
 
+ protected:
   bool matches(RemoteReceiveData *data) override;
 
- protected:
   uint16_t address_;
   uint16_t command_;
 };
@@ -47,10 +47,10 @@ class NECDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_REMOTE_NEC_H
+#endif  // ESPHOME_REMOTE_NEC_H

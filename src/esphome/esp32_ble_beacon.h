@@ -16,7 +16,7 @@ typedef struct {
   uint8_t type;
   uint16_t company_id;
   uint16_t beacon_type;
-}__attribute__((packed)) esp_ble_ibeacon_head_t;
+} __attribute__((packed)) esp_ble_ibeacon_head_t;
 
 typedef struct {
   uint8_t proximity_uuid[16];
@@ -24,7 +24,6 @@ typedef struct {
   uint16_t minor;
   uint8_t measured_power;
 } __attribute__((packed)) esp_ble_ibeacon_vendor_t;
-
 
 typedef struct {
   esp_ble_ibeacon_head_t ibeacon_head;
@@ -55,6 +54,6 @@ extern ESP32BLEBeacon *global_esp32_ble_beacon;
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ESP32_BLE_BEACON
+#endif  // USE_ESP32_BLE_BEACON
 
-#endif //ESPHOME_ESP_32_BLE_BEACON_H
+#endif  // ESPHOME_ESP_32_BLE_BEACON_H

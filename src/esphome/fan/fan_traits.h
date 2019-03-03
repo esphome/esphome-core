@@ -31,10 +31,10 @@ class FanTraits {
   bool speed_;
 };
 
-} // namespace fan
+}  // namespace fan
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_FAN
+#endif  // USE_FAN
 
-#endif //ESPHOME_FAN_FAN_TRAITS_H
+#endif  // ESPHOME_FAN_FAN_TRAITS_H

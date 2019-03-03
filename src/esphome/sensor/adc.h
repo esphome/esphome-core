@@ -67,10 +67,10 @@ class ADCSensorComponent : public PollingSensorComponent {
 #endif
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ADC_SENSOR
+#endif  // USE_ADC_SENSOR
 
-#endif //ESPHOME_SENSOR_ADC_SENSOR_COMPONENT_H
+#endif  // ESPHOME_SENSOR_ADC_SENSOR_COMPONENT_H

@@ -62,14 +62,12 @@ void BMP085Component::dump_config() {
   LOG_SENSOR("  ", "Temperature", this->temperature_);
   LOG_SENSOR("  ", "Pressure", this->pressure_);
 }
-BMP085Component::BMP085Component(I2CComponent *parent,
-                                 const std::string &temperature_name, const std::string &pressure_name,
-                                 uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, BMP085_ADDRESS),
+BMP085Component::BMP085Component(I2CComponent *parent, const std::string &temperature_name,
+                                 const std::string &pressure_name, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, BMP085_ADDRESS),
       temperature_(new BMP085TemperatureSensor(temperature_name, this)),
-      pressure_(new BMP085PressureSensor(pressure_name, this)) {
-
-}
+      pressure_(new BMP085PressureSensor(pressure_name, this)) {}
 
 void BMP085Component::read_temperature_() {
   uint8_t buffer[2];
@@ -145,22 +143,16 @@ void BMP085Component::read_pressure_() {
   this->pressure_->publish_state(pressure);
   this->status_clear_warning();
 }
-BMP085TemperatureSensor *BMP085Component::get_temperature_sensor() const {
-  return this->temperature_;
-}
-BMP085PressureSensor *BMP085Component::get_pressure_sensor() const {
-  return this->pressure_;
-}
+BMP085TemperatureSensor *BMP085Component::get_temperature_sensor() const { return this->temperature_; }
+BMP085PressureSensor *BMP085Component::get_pressure_sensor() const { return this->pressure_; }
 bool BMP085Component::set_mode_(uint8_t mode) {
   ESP_LOGV(TAG, "Setting mode to 0x%02X...", mode);
   return this->write_byte(BMP085_REGISTER_CONTROL, mode);
 }
-float BMP085Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float BMP085Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BMP085_SENSOR
+#endif  // USE_BMP085_SENSOR

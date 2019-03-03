@@ -18,14 +18,15 @@ class HomeassistantSensor : public Sensor, public Component {
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
+
  protected:
   std::string entity_id_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HOMEASSISTANT_SENSOR
+#endif  // USE_HOMEASSISTANT_SENSOR
 
-#endif //ESPHOME_HOMEASSISTANT_SENSOR_H
+#endif  // ESPHOME_HOMEASSISTANT_SENSOR_H

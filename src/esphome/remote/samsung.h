@@ -23,7 +23,7 @@ class SamsungTransmitter : public RemoteTransmitter {
   uint32_t data_;
 };
 
-void encode_samsung(RemoteTransmitData *data, uint32_t data_);
+void encode_samsung(RemoteTransmitData *data, uint32_t samsung_data);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -45,10 +45,10 @@ class SamsungDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_REMOTE_SAMSUNG_H
+#endif  // ESPHOME_REMOTE_SAMSUNG_H

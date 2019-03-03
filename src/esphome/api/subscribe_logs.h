@@ -20,15 +20,16 @@ class SubscribeLogsRequest : public APIMessage {
   void set_level(uint32_t level);
   bool get_dump_config() const;
   void set_dump_config(bool dump_config);
+
  protected:
   uint32_t level_{6};
   bool dump_config_{false};
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_SUBSCRIBE_LOGS_H
+#endif  // ESPHOME_API_SUBSCRIBE_LOGS_H

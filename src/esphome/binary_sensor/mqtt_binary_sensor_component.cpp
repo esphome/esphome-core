@@ -11,14 +11,10 @@ namespace binary_sensor {
 
 static const char *TAG = "binary_sensor.mqtt";
 
-std::string MQTTBinarySensorComponent::component_type() const {
-  return "binary_sensor";
-}
+std::string MQTTBinarySensorComponent::component_type() const { return "binary_sensor"; }
 
 void MQTTBinarySensorComponent::setup() {
-  this->binary_sensor_->add_on_state_callback([this](bool state) {
-    this->publish_state(state);
-  });
+  this->binary_sensor_->add_on_state_callback([this](bool state) { this->publish_state(state); });
 }
 
 void MQTTBinarySensorComponent::dump_config() {
@@ -26,12 +22,8 @@ void MQTTBinarySensorComponent::dump_config() {
   LOG_MQTT_COMPONENT(true, false)
 }
 MQTTBinarySensorComponent::MQTTBinarySensorComponent(BinarySensor *binary_sensor)
-    : MQTTComponent(), binary_sensor_(binary_sensor) {
-
-}
-std::string MQTTBinarySensorComponent::friendly_name() const {
-  return this->binary_sensor_->get_name();
-}
+    : MQTTComponent(), binary_sensor_(binary_sensor) {}
+std::string MQTTBinarySensorComponent::friendly_name() const { return this->binary_sensor_->get_name(); }
 
 void MQTTBinarySensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->binary_sensor_->get_device_class().empty())
@@ -49,22 +41,18 @@ bool MQTTBinarySensorComponent::send_initial_state() {
     return true;
   }
 }
-bool MQTTBinarySensorComponent::is_internal() {
-  return this->binary_sensor_->is_internal();
-}
+bool MQTTBinarySensorComponent::is_internal() { return this->binary_sensor_->is_internal(); }
 bool MQTTBinarySensorComponent::publish_state(bool state) {
   if (this->is_status_)
     return true;
 
   const char *state_s = state ? "ON" : "OFF";
-  return this->publish(this->get_state_topic(), state_s);
+  return this->publish(this->get_state_topic_(), state_s);
 }
-void MQTTBinarySensorComponent::set_is_status(bool status) {
-  this->is_status_ = status;
-}
+void MQTTBinarySensorComponent::set_is_status(bool status) { this->is_status_ = status; }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_BINARY_SENSOR
+#endif  // USE_MQTT_BINARY_SENSOR

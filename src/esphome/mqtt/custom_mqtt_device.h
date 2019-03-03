@@ -55,14 +55,13 @@ class CustomMQTTDevice {
    * @param qos The Quality of Service to subscribe with. Defaults to 0.
    */
   template<typename T>
-  void subscribe(const std::string &topic, void(T::*callback)(const std::string &, const std::string &), uint8_t qos = 0);
+  void subscribe(const std::string &topic, void (T::*callback)(const std::string &, const std::string &),
+                 uint8_t qos = 0);
 
   template<typename T>
-  void subscribe(const std::string &topic, void(T::*callback)(const std::string &), uint8_t qos = 0);
+  void subscribe(const std::string &topic, void (T::*callback)(const std::string &), uint8_t qos = 0);
 
-  template<typename T>
-  void subscribe(const std::string &topic, void(T::*callback)(), uint8_t qos = 0);
-
+  template<typename T> void subscribe(const std::string &topic, void (T::*callback)(), uint8_t qos = 0);
 
   /** Subscribe to an MQTT topic and call the callback if the payload can be decoded
    * as JSON with the given Quality of Service.
@@ -97,10 +96,11 @@ class CustomMQTTDevice {
    * @param qos The Quality of Service to subscribe with. Defaults to 0.
    */
   template<typename T>
-  void subscribe_json(const std::string &topic, void(T::*callback)(const std::string &, JsonObject &), uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, void (T::*callback)(const std::string &, JsonObject &),
+                      uint8_t qos = 0);
 
   template<typename T>
-  void subscribe_json(const std::string &topic, void(T::*callback)(JsonObject &), uint8_t qos = 0);
+  void subscribe_json(const std::string &topic, void (T::*callback)(JsonObject &), uint8_t qos = 0);
 
   /** Publish an MQTT message with the given payload and QoS and retain settings.
    *
@@ -193,35 +193,36 @@ class CustomMQTTDevice {
 };
 
 template<typename T>
-void CustomMQTTDevice::subscribe(const std::string &topic, void(T::*callback)(const std::string &, const std::string &), uint8_t qos) {
+void CustomMQTTDevice::subscribe(const std::string &topic,
+                                 void (T::*callback)(const std::string &, const std::string &), uint8_t qos) {
   auto f = std::bind(callback, (T *) this, std::placeholders::_1, std::placeholders::_2);
   global_mqtt_client->subscribe(topic, f, qos);
 }
 template<typename T>
-void CustomMQTTDevice::subscribe(const std::string &topic, void(T::*callback)(const std::string &), uint8_t qos) {
+void CustomMQTTDevice::subscribe(const std::string &topic, void (T::*callback)(const std::string &), uint8_t qos) {
   auto f = std::bind(callback, (T *) this, std::placeholders::_2);
   global_mqtt_client->subscribe(topic, f, qos);
 }
-template<typename T>
-void CustomMQTTDevice::subscribe(const std::string &topic, void(T::*callback)(), uint8_t qos) {
+template<typename T> void CustomMQTTDevice::subscribe(const std::string &topic, void (T::*callback)(), uint8_t qos) {
   auto f = std::bind(callback, (T *) this);
   global_mqtt_client->subscribe(topic, f, qos);
 }
 template<typename T>
-void CustomMQTTDevice::subscribe_json(const std::string &topic, void(T::*callback)(const std::string &, JsonObject &), uint8_t qos) {
+void CustomMQTTDevice::subscribe_json(const std::string &topic, void (T::*callback)(const std::string &, JsonObject &),
+                                      uint8_t qos) {
   auto f = std::bind(callback, (T *) this, std::placeholders::_1, std::placeholders::_2);
   global_mqtt_client->subscribe_json(topic, f, qos);
 }
 template<typename T>
-void CustomMQTTDevice::subscribe_json(const std::string &topic, void(T::*callback)(JsonObject &), uint8_t qos) {
+void CustomMQTTDevice::subscribe_json(const std::string &topic, void (T::*callback)(JsonObject &), uint8_t qos) {
   auto f = std::bind(callback, (T *) this, std::placeholders::_2);
   global_mqtt_client->subscribe_json(topic, f, qos);
 }
 
-} // namespace mqtt
+}  // namespace mqtt
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_CUSTOM_COMPONENT
+#endif  // USE_MQTT_CUSTOM_COMPONENT
 
-#endif //ESPHOME_MQTT_CUSTOM_MQTT_DEVICE_H
+#endif  // ESPHOME_MQTT_CUSTOM_MQTT_DEVICE_H
