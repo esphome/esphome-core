@@ -29,12 +29,6 @@ void MPR121Sensor::process(uint16_t *data, uint16_t *last_data) {
       break;
   }
 }
-/** Proces the data from the touch sensor for Slider type
- *
- * In this method we check what channels where touched
- * Then publish the average value for all toched channels
- *
- * */
 void MPR121Sensor::process_slider_(uint16_t data) {
   uint8_t count = 0;
   float value = 0;
@@ -63,7 +57,7 @@ void MPR121Sensor::process_wheel_(uint16_t data, uint16_t last_data) {
   if (bits != 0) {
     last_bits |= (last_data & this->mask_);
 
-    if (getFirstSetBitPos(last_bits) <= getFirstSetBitPos(bits)) {
+    if (this->get_first_set_bit_pos_(last_bits) <= this->get_first_set_bit_pos_(bits)) {
       this->publish_state(this->get_state() + this->step_size_);
     } else {
       this->publish_state(this->get_state() - this->step_size_ * 2);
@@ -71,7 +65,7 @@ void MPR121Sensor::process_wheel_(uint16_t data, uint16_t last_data) {
   }
 }
 
-uint16_t MPR121Sensor::getFirstSetBitPos(uint16_t data) { return log2(data & -data) + 1; }
+uint16_t MPR121Sensor::get_first_set_bit_pos_(uint16_t data) { return log2(data & -data) + 1; }
 
 void MPR121Sensor::set_sensor_type(uint8_t sensor_type) {
   // TODO: no logging in setters

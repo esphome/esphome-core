@@ -45,10 +45,17 @@ class MPR121Sensor : public sensor::Sensor {
 
  protected:
   std::vector<MPR121SensorChannel *> channels_{};
-  uint8_t sensor_type_ = MPR121_SENSOR_TYPE_SLIDER;
-  uint16_t mask_ = 0;
-  uint8_t step_size_ = 1;
+  uint8_t sensor_type_{MPR121_SENSOR_TYPE_SLIDER};
+  uint16_t mask_{0};
+  uint8_t step_size_{1};
+
   uint16_t get_first_set_bit_pos_(uint16_t data);
+  /** Proces the data from the touch sensor for Slider type
+   *
+   * In this method we check what channels where touched
+   * Then publish the average value for all toched channels
+   *
+   * */
   void process_slider_(uint16_t data);
   void process_wheel_(uint16_t data, uint16_t last_data);
 };
