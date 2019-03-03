@@ -657,12 +657,21 @@ const char *get_auth_mode_str(uint8_t mode) {
       return "UNKNOWN";
   }
 }
+#ifdef ipv4_addr
+std::string format_ip_addr(struct ipv4_addr ip) {
+  char buf[20];
+  sprintf(buf, "%u.%u.%u.%u", uint8_t(ip.addr >> 0), uint8_t(ip.addr >> 8), uint8_t(ip.addr >> 16),
+          uint8_t(ip.addr >> 24));
+  return buf;
+}
+#else
 std::string format_ip_addr(struct ip_addr ip) {
   char buf[20];
   sprintf(buf, "%u.%u.%u.%u", uint8_t(ip.addr >> 0), uint8_t(ip.addr >> 8), uint8_t(ip.addr >> 16),
           uint8_t(ip.addr >> 24));
   return buf;
 }
+#endif
 const char *get_op_mode_str(uint8_t mode) {
   switch (mode) {
     case WIFI_OFF:
