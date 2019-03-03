@@ -22,7 +22,7 @@ int HOT LogComponent::log_vprintf_(int level, const char *tag, const char *forma
 }
 #ifdef USE_STORE_LOG_STR_IN_FLASH
 int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {  // NOLINT
-  if (level > this->level_for_(tag))
+  if (level > this->level_for(tag))
     return 0;
 
   // copy format string
