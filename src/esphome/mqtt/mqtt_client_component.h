@@ -345,13 +345,10 @@ template<typename... Ts> class MQTTPublishJsonAction : public Action<Ts...> {
   bool retain_{false};
 };
 
-template<typename... Ts>
-class MQTTConnectedCondition : public Condition<Ts...> {
+template<typename... Ts> class MQTTConnectedCondition : public Condition<Ts...> {
  public:
   bool check(Ts... x) override;
 };
-
-
 
 // =============== TEMPLATE DEFINITIONS ===============
 
@@ -386,8 +383,7 @@ template<typename... Ts> MQTTPublishAction<Ts...> *MQTTClientComponent::make_pub
   return new MQTTPublishAction<Ts...>();
 }
 
-template<typename... Ts>
-bool MQTTConnectedCondition<Ts...>::check(Ts... x) {
+template<typename... Ts> bool MQTTConnectedCondition<Ts...>::check(Ts... x) {
   return global_mqtt_client->is_connected();
 }
 

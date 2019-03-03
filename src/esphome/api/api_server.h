@@ -220,8 +220,7 @@ template<typename... Ts> class HomeAssistantServiceCallAction : public Action<Ts
   ServiceCallResponse resp_;
 };
 
-template<typename... Ts>
-class APIConnectedCondition : public Condition<Ts...> {
+template<typename... Ts> class APIConnectedCondition : public Condition<Ts...> {
  public:
   bool check(Ts... x) override;
 };
@@ -256,10 +255,7 @@ UserService<Ts...> *APIServer::make_user_service_trigger(const std::string &name
   return service;
 }
 
-template<typename... Ts>
-bool APIConnectedCondition<Ts...>::check(Ts... x) {
-  return global_api_server->is_connected();
-}
+template<typename... Ts> bool APIConnectedCondition<Ts...>::check(Ts... x) { return global_api_server->is_connected(); }
 
 }  // namespace api
 

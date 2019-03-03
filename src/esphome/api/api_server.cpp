@@ -211,9 +211,7 @@ void APIServer::request_time() {
   }
 }
 #endif
-bool APIServer::is_connected() const {
-  return !this->clients_.empty();
-}
+bool APIServer::is_connected() const { return !this->clients_.empty(); }
 
 // APIConnection
 APIConnection::APIConnection(AsyncClient *client, APIServer *parent)
