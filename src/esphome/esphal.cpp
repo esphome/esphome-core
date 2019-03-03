@@ -4,19 +4,19 @@
 
 #ifdef ARDUINO_ARCH_ESP8266
 extern "C" {
-  typedef struct {
-    void *interruptInfo;
-    void *functionInfo;
-  } ArgStructure;
+typedef struct {        // NOLINT
+  void *interruptInfo;  // NOLINT
+  void *functionInfo;   // NOLINT
+} ArgStructure;
 
-  void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*)(void*), void* fp,  // NOLINT
-                                            int mode);
+void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*)(void *), void *fp,  // NOLINT
+                                          int mode);
 };
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
 
-static const char* TAG = "esphal";
+static const char *TAG = "esphal";
 
 GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
     : pin_(pin),
@@ -35,8 +35,8 @@ GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
 {
 }
 
-const char* GPIOPin::get_pin_mode_name() const {
-  const char* mode_s;
+const char *GPIOPin::get_pin_mode_name() const {
+  const char *mode_s;
   switch (this->mode_) {
     case INPUT:
       mode_s = "INPUT";
@@ -175,14 +175,18 @@ ISRInternalGPIOPin::ISRInternalGPIOPin(uint8_t pin,
 #ifdef ARDUINO_ARCH_ESP32
                                        volatile uint32_t *gpio_clear, volatile uint32_t *gpio_set,
 #endif
-                                       volatile uint32_t *gpio_read,
-                                       uint32_t gpio_mask,
-                                       bool inverted)
-    : pin_(pin), gpio_read_(gpio_read), gpio_mask_(gpio_mask), inverted_(inverted)
+                                       volatile uint32_t *gpio_read, uint32_t gpio_mask, bool inverted)
+    : pin_(pin),
+      gpio_read_(gpio_read),
+      gpio_mask_(gpio_mask),
+      inverted_(inverted)
 #ifdef ARDUINO_ARCH_ESP32
-, gpio_clear_(gpio_clear), gpio_set_(gpio_set)
+      ,
+      gpio_clear_(gpio_clear),
+      gpio_set_(gpio_set)
 #endif
-{}
+{
+}
 void ICACHE_RAM_ATTR ISRInternalGPIOPin::clear_interrupt() {
 #ifdef ARDUINO_ARCH_ESP8266
   GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, this->gpio_mask_);
@@ -210,7 +214,7 @@ struct ESPHomeInterruptFuncInfo {
 };
 
 void ICACHE_RAM_ATTR interrupt_handler(void *arg) {
-  ArgStructure* as = static_cast<ArgStructure *>(arg);
+  ArgStructure *as = static_cast<ArgStructure *>(arg);
   auto *info = static_cast<ESPHomeInterruptFuncInfo *>(as->functionInfo);
   info->func(info->arg);
 }
@@ -225,12 +229,12 @@ void GPIOPin::attach_interrupt_(void (*func)(void *), void *arg, int mode) const
     }
   }
 #ifdef ARDUINO_ARCH_ESP8266
-  ArgStructure* as = new ArgStructure;
+  ArgStructure *as = new ArgStructure;
   as->interruptInfo = nullptr;
 
-  as->functionInfo = new ESPHomeInterruptFuncInfo {
-    .func = func,
-    .arg = arg,
+  as->functionInfo = new ESPHomeInterruptFuncInfo{
+      .func = func,
+      .arg = arg,
   };
 
   __attachInterruptArg(this->pin_, interrupt_handler, as, mode);
@@ -244,16 +248,11 @@ void GPIOPin::attach_interrupt_(void (*func)(void *), void *arg, int mode) const
 }
 
 ISRInternalGPIOPin *GPIOPin::to_isr() const {
-  return new ISRInternalGPIOPin(
-      this->pin_,
+  return new ISRInternalGPIOPin(this->pin_,
 #ifdef ARDUINO_ARCH_ESP32
-      this->gpio_clear_,
-      this->gpio_set_,
+                                this->gpio_clear_, this->gpio_set_,
 #endif
-      this->gpio_read_,
-      this->gpio_mask_,
-      this->inverted_
-  );
+                                this->gpio_read_, this->gpio_mask_, this->inverted_);
 }
 
 ESPHOME_NAMESPACE_END

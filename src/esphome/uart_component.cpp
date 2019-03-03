@@ -253,11 +253,11 @@ void ESP8266SoftwareSerial::setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_ra
     pin.setup();
     this->rx_pin_ = pin.to_isr();
     this->rx_buffer_ = new uint8_t[this->rx_buffer_size_];
-    pin.attach_interrupt(ESP8266SoftwareSerial::gpio_intr_, this, FALLING);
+    pin.attach_interrupt(ESP8266SoftwareSerial::gpio_intr, this, FALLING);
   }
 }
-void ICACHE_RAM_ATTR ESP8266SoftwareSerial::gpio_intr_(ESP8266SoftwareSerial *arg) {
-  uint32_t wait = arg->bit_time_ + arg->bit_time_/3 - 500;
+void ICACHE_RAM_ATTR ESP8266SoftwareSerial::gpio_intr(ESP8266SoftwareSerial *arg) {
+  uint32_t wait = arg->bit_time_ + arg->bit_time_ / 3 - 500;
   const uint32_t start = ESP.getCycleCount();
   uint8_t rec = 0;
   // Manually unroll the loop
@@ -301,7 +301,8 @@ void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
   enable_interrupts();
 }
 void ESP8266SoftwareSerial::wait_(uint32_t *wait, const uint32_t &start) {
-  while (ESP.getCycleCount() - start < *wait);
+  while (ESP.getCycleCount() - start < *wait)
+    ;
   *wait += this->bit_time_;
 }
 bool ESP8266SoftwareSerial::read_bit_(uint32_t *wait, const uint32_t &start) {

@@ -21,7 +21,7 @@ struct UltrasonicSensorStore {
   uint32_t echo_at{0};
   bool has_echo{false};
 
-  static void gpio_intr_(UltrasonicSensorStore *arg);
+  static void gpio_intr(UltrasonicSensorStore *arg);
 };
 
 class UltrasonicSensorComponent : public PollingSensorComponent {
@@ -36,7 +36,7 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
                             uint32_t update_interval = 60000);
 
   /// Set the timeout for waiting for the echo in µs.
-  void set_timeout_us(uint32_t timeout_us) { this->timeout_us_ = timeout_us; }
+  void set_timeout_us(uint32_t timeout_us);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)

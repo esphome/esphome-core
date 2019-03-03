@@ -246,7 +246,7 @@ void RemoteReceiverComponent::decode_rmt_(rmt_item32_t *item, size_t len) {
 
 #ifdef ARDUINO_ARCH_ESP8266
 
-void ICACHE_RAM_ATTR HOT RemoteReceiverComponentStore::gpio_intr_(RemoteReceiverComponentStore *arg) {
+void ICACHE_RAM_ATTR HOT RemoteReceiverComponentStore::gpio_intr(RemoteReceiverComponentStore *arg) {
   const uint32_t now = micros();
   // If the lhs is 1 (rising edge) we should write to an uneven index and vice versa
   const uint32_t next = (arg->buffer_write_at + 1) % arg->buffer_size;
@@ -286,7 +286,7 @@ void RemoteReceiverComponent::setup() {
     s.buffer_write_at = s.buffer_read_at = 0;
     s.buffer[0] = 0;
   }
-  this->pin_->attach_interrupt(RemoteReceiverComponentStore::gpio_intr_, &this->store_, CHANGE);
+  this->pin_->attach_interrupt(RemoteReceiverComponentStore::gpio_intr, &this->store_, CHANGE);
 }
 void RemoteReceiverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Remote Receiver:");
@@ -307,7 +307,7 @@ void RemoteReceiverComponent::dump_config() {
 
 void RemoteReceiverComponent::loop() {
   auto &s = this->store_;
-  if (s.buffer) {
+  if (s.overflow) {
     s.buffer_read_at = s.buffer_write_at;
     s.overflow = false;
     ESP_LOGW(TAG, "Data is coming in too fast! Try increasing the buffer size.");
@@ -326,8 +326,8 @@ void RemoteReceiverComponent::loop() {
     // TODO: Handle case when loop() is not called quickly enough to catch idle
     return;
 
-  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u",
-      this->buffer_read_at_, write_at, dist, now, this->buffer_[write_at]);
+  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u", this->buffer_read_at_, write_at, dist, now,
+            this->buffer_[write_at]);
 
   // Skip first value, it's from the previous idle level
   s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;
@@ -339,14 +339,14 @@ void RemoteReceiverComponent::loop() {
   int32_t multiplier = s.buffer_read_at % 2 == 0 ? 1 : -1;
 
   for (uint32_t i = 0; prev != write_at; i++) {
-    int32_t delta = s.buffer[s.buffer_read_at] -  s.buffer[prev];
+    int32_t delta = s.buffer[s.buffer_read_at] - s.buffer[prev];
     if (uint32_t(delta) >= this->idle_us_) {
       // already found a space longer than idle. There must have been two pulses
       break;
     }
 
-    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d",
-        i, this->buffer_read_at_, this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
+    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d", i, this->buffer_read_at_,
+              this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
     this->temp_.push_back(multiplier * delta);
     prev = s.buffer_read_at;
     s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;

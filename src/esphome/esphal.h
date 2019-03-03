@@ -34,12 +34,13 @@ class ISRInternalGPIOPin {
  public:
   ISRInternalGPIOPin(uint8_t pin,
 #ifdef ARDUINO_ARCH_ESP32
-      volatile uint32_t *gpio_clear, volatile uint32_t *gpio_set,
+                     volatile uint32_t *gpio_clear, volatile uint32_t *gpio_set,
 #endif
-      volatile uint32_t *gpio_read, uint32_t gpio_mask, bool inverted);
+                     volatile uint32_t *gpio_read, uint32_t gpio_mask, bool inverted);
   bool digital_read();
   void digital_write(bool value);
   void clear_interrupt();
+
  protected:
   const uint8_t pin_;
 #ifdef ARDUINO_ARCH_ESP32
@@ -87,8 +88,7 @@ class GPIOPin {
   /// Return whether this pin shall be treated as inverted. (for example active-low)
   bool is_inverted() const;
 
-  template<typename T>
-  void attach_interrupt(void (*func)(T *), T *arg, int mode) const;
+  template<typename T> void attach_interrupt(void (*func)(T *), T *arg, int mode) const;
 
   ISRInternalGPIOPin *to_isr() const;
 
@@ -128,8 +128,7 @@ class GPIOInputPin : public GPIOPin {
   GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false);  // NOLINT
 };
 
-template<typename T>
-void GPIOPin::attach_interrupt(void (*func)(T *), T *arg, int mode) const {
+template<typename T> void GPIOPin::attach_interrupt(void (*func)(T *), T *arg, int mode) const {
   this->attach_interrupt_(reinterpret_cast<void (*)(void *)>(func), arg, mode);
 }
 

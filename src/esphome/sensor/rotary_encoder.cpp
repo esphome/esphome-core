@@ -12,7 +12,7 @@ namespace sensor {
 static const char *TAG = "sensor.rotary_encoder";
 
 // based on https://github.com/jkDesignDE/MechInputs/blob/master/QEIx4.cpp
-static const uint8_t STATE_LUT_MASK = 0x1C; // clears upper counter increment/decrement bits and pin states
+static const uint8_t STATE_LUT_MASK = 0x1C;  // clears upper counter increment/decrement bits and pin states
 static const uint16_t STATE_PIN_A_HIGH = 0x01;
 static const uint16_t STATE_PIN_B_HIGH = 0x02;
 static const uint16_t STATE_S0 = 0x00;
@@ -23,12 +23,12 @@ static const uint16_t STATE_CCW = 0x00;
 static const uint16_t STATE_CW = 0x10;
 static const uint16_t STATE_HAS_INCREMENTED = 0x0700;
 static const uint16_t STATE_INCREMENT_COUNTER_4_2_1 = 0x0700;
-static const uint16_t STATE_INCREMENT_COUNTER_4_2   = 0x0300;
-static const uint16_t STATE_INCREMENT_COUNTER_4     = 0x0100;
+static const uint16_t STATE_INCREMENT_COUNTER_4_2 = 0x0300;
+static const uint16_t STATE_INCREMENT_COUNTER_4 = 0x0100;
 static const uint16_t STATE_HAS_DECREMENTED = 0x7000;
 static const uint16_t STATE_DECREMENT_COUNTER_4_2_1 = 0x7000;
-static const uint16_t STATE_DECREMENT_COUNTER_4_2   = 0x3000;
-static const uint16_t STATE_DECREMENT_COUNTER_4     = 0x1000;
+static const uint16_t STATE_DECREMENT_COUNTER_4_2 = 0x3000;
+static const uint16_t STATE_DECREMENT_COUNTER_4 = 0x1000;
 
 // State explanation: 8-bit uint
 // Bit 0 (0x01) encodes Pin A HIGH/LOW (reset before each read)
@@ -36,59 +36,59 @@ static const uint16_t STATE_DECREMENT_COUNTER_4     = 0x1000;
 // Bit 2&3 (0x0C) encodes state S0-S3
 // Bit 4 (0x10) encodes clockwise/counter-clockwise rotation
 
-static const uint16_t state_lookup_table[32] = {
+static const uint16_t STATE_LOOKUP_TABLE[32] = {
     // act state S0 in CCW direction
-    STATE_CCW | STATE_S0,                                 // 0x00: stay here
-    STATE_CW  | STATE_S1 | STATE_INCREMENT_COUNTER_4,     // 0x01: goto CW+S1 and increment counter (dir change)
-    STATE_CCW | STATE_S0,                                 // 0x02: stay here
-    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4_2_1, // 0x03: goto CCW+S3 and decrement counter
+    STATE_CCW | STATE_S0,                                  // 0x00: stay here
+    STATE_CW | STATE_S1 | STATE_INCREMENT_COUNTER_4,       // 0x01: goto CW+S1 and increment counter (dir change)
+    STATE_CCW | STATE_S0,                                  // 0x02: stay here
+    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4_2_1,  // 0x03: goto CCW+S3 and decrement counter
     // act state S1 in CCW direction
     STATE_CCW | STATE_S1,                                 // 0x04: stay here
     STATE_CCW | STATE_S1,                                 // 0x05: stay here
     STATE_CCW | STATE_S0 | STATE_DECREMENT_COUNTER_4,     // 0x06: goto CCW+S0 and decrement counter
-    STATE_CW  | STATE_S2 | STATE_INCREMENT_COUNTER_4_2_1, // 0x07: goto CW+S2 and increment counter (dir change)
+    STATE_CW | STATE_S2 | STATE_INCREMENT_COUNTER_4_2_1,  // 0x07: goto CW+S2 and increment counter (dir change)
     // act state S2 in CCW direction
-    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_4_2,   // 0x08: goto CCW+S1 and decrement counter
-    STATE_CCW | STATE_S2,                                 // 0x09: stay here
-    STATE_CW  | STATE_S3 | STATE_INCREMENT_COUNTER_4,     // 0x0A: goto CW+S3 and increment counter (dir change)
-    STATE_CCW | STATE_S2,                                 // 0x0B: stay here
+    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_4_2,  // 0x08: goto CCW+S1 and decrement counter
+    STATE_CCW | STATE_S2,                                // 0x09: stay here
+    STATE_CW | STATE_S3 | STATE_INCREMENT_COUNTER_4,     // 0x0A: goto CW+S3 and increment counter (dir change)
+    STATE_CCW | STATE_S2,                                // 0x0B: stay here
     // act state S3 in CCW direction
-    STATE_CW  | STATE_S0 | STATE_INCREMENT_COUNTER_4_2,   // 0x0C: goto CW+S0 and increment counter (dir change)
-    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_4,     // 0x0D: goto CCW+S2 and decrement counter
-    STATE_CCW | STATE_S3,                                 // 0x0E: stay here
-    STATE_CCW | STATE_S3,                                 // 0x0F: stay here
+    STATE_CW | STATE_S0 | STATE_INCREMENT_COUNTER_4_2,  // 0x0C: goto CW+S0 and increment counter (dir change)
+    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_4,   // 0x0D: goto CCW+S2 and decrement counter
+    STATE_CCW | STATE_S3,                               // 0x0E: stay here
+    STATE_CCW | STATE_S3,                               // 0x0F: stay here
 
     // act state S0 in CW direction
-    STATE_CW  | STATE_S0,                                 // 0x10: stay here
-    STATE_CW  | STATE_S1 | STATE_INCREMENT_COUNTER_4,     // 0x11: goto CW+S1 and increment counter
-    STATE_CW  | STATE_S0,                                 // 0x12: stay here
-    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4_2_1, // 0x13: goto CCW+S3 and decrement counter (dir change)
+    STATE_CW | STATE_S0,                                   // 0x10: stay here
+    STATE_CW | STATE_S1 | STATE_INCREMENT_COUNTER_4,       // 0x11: goto CW+S1 and increment counter
+    STATE_CW | STATE_S0,                                   // 0x12: stay here
+    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4_2_1,  // 0x13: goto CCW+S3 and decrement counter (dir change)
     // act state S1 in CW direction
-    STATE_CW  | STATE_S1,                                 // 0x14: stay here
-    STATE_CW  | STATE_S1,                                 // 0x15: stay here
+    STATE_CW | STATE_S1,                                  // 0x14: stay here
+    STATE_CW | STATE_S1,                                  // 0x15: stay here
     STATE_CCW | STATE_S0 | STATE_DECREMENT_COUNTER_4,     // 0x16: goto CCW+S0 and decrement counter (dir change)
-    STATE_CW  | STATE_S2 | STATE_INCREMENT_COUNTER_4_2_1, // 0x17: goto CW+S2 and increment counter
+    STATE_CW | STATE_S2 | STATE_INCREMENT_COUNTER_4_2_1,  // 0x17: goto CW+S2 and increment counter
     // act state S2 in CW direction
-    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_4_2,   // 0x18: goto CCW+S1 and decrement counter (dir change)
-    STATE_CW  | STATE_S2,                                 // 0x19: stay here
-    STATE_CW  | STATE_S3 | STATE_INCREMENT_COUNTER_4,     // 0x1A: goto CW+S3 and increment counter
-    STATE_CW  | STATE_S2,
+    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_4_2,  // 0x18: goto CCW+S1 and decrement counter (dir change)
+    STATE_CW | STATE_S2,                                 // 0x19: stay here
+    STATE_CW | STATE_S3 | STATE_INCREMENT_COUNTER_4,     // 0x1A: goto CW+S3 and increment counter
+    STATE_CW | STATE_S2,
     // act state S3 in CW direction
-    STATE_CW  | STATE_S0 | STATE_INCREMENT_COUNTER_4_2,   // 0x1C: goto CW+S0 and increment counter
-    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_4,     // 0x1D: goto CCW+S2 and decrement counter (dir change)
-    STATE_CW  | STATE_S3,                                 // 0x1E: stay here
-    STATE_CW  | STATE_S3                                  // 0x1F: stay here
+    STATE_CW | STATE_S0 | STATE_INCREMENT_COUNTER_4_2,  // 0x1C: goto CW+S0 and increment counter
+    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_4,   // 0x1D: goto CCW+S2 and decrement counter (dir change)
+    STATE_CW | STATE_S3,                                // 0x1E: stay here
+    STATE_CW | STATE_S3                                 // 0x1F: stay here
 };
 
 void ICACHE_RAM_ATTR HOT RotaryEncoderSensorStore::gpio_intr(RotaryEncoderSensorStore *arg) {
-// Forget upper bits and add pin states
+  // Forget upper bits and add pin states
   uint8_t input_state = arg->state & STATE_LUT_MASK;
   if (arg->pin_a->digital_read())
     input_state |= STATE_PIN_A_HIGH;
   if (arg->pin_b->digital_read())
     input_state |= STATE_PIN_B_HIGH;
 
-  uint8_t new_state = state_lookup_table[input_state];
+  uint8_t new_state = STATE_LOOKUP_TABLE[input_state];
   if ((new_state & arg->resolution & STATE_HAS_INCREMENTED) != 0) {
     if (arg->counter < arg->max_value)
       arg->counter++;
@@ -101,9 +101,7 @@ void ICACHE_RAM_ATTR HOT RotaryEncoderSensorStore::gpio_intr(RotaryEncoderSensor
   arg->state = new_state;
 }
 RotaryEncoderSensor::RotaryEncoderSensor(const std::string &name, GPIOPin *pin_a, GPIOPin *pin_b)
-    : Sensor(name), Component(), pin_a_(pin_a), pin_b_(pin_b) {
-
-}
+    : Sensor(name), Component(), pin_a_(pin_a), pin_b_(pin_b) {}
 
 void RotaryEncoderSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Rotary Encoder '%s'...", this->name_.c_str());
@@ -138,12 +136,9 @@ void RotaryEncoderSensor::loop() {
 std::string RotaryEncoderSensor::unit_of_measurement() { return "steps"; }
 std::string RotaryEncoderSensor::icon() { return "mdi:rotate-right"; }
 int8_t RotaryEncoderSensor::accuracy_decimals() { return 0; }
-void RotaryEncoderSensor::set_resolution(RotaryEncoderResolution mode) { this->resolution_ = mode; }
 void RotaryEncoderSensor::set_reset_pin(const GPIOInputPin &pin_i) { this->pin_i_ = pin_i.copy(); }
 
-float RotaryEncoderSensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float RotaryEncoderSensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void RotaryEncoderSensor::set_resolution(RotaryEncoderResolution mode) { this->store_.resolution = mode; }
 void RotaryEncoderSensor::set_min_value(int32_t min_value) { this->store_.min_value = min_value; }
 void RotaryEncoderSensor::set_max_value(int32_t max_value) { this->store_.max_value = max_value; }

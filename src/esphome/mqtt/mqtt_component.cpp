@@ -68,10 +68,11 @@ bool MQTTComponent::send_discovery_() {
   ESP_LOGV(TAG, "'%s': Sending discovery...", this->friendly_name().c_str());
 
   return global_mqtt_client->publish_json(
-      this->get_discovery_topic_(discovery_info), [this](JsonObject &root) {
-    SendDiscoveryConfig config;
-    config.state_topic = true;
-    config.command_topic = true;
+      this->get_discovery_topic_(discovery_info),
+      [this](JsonObject &root) {
+        SendDiscoveryConfig config;
+        config.state_topic = true;
+        config.command_topic = true;
 
         this->send_discovery(root, config);
 

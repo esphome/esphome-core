@@ -39,7 +39,7 @@ class PulseCounterBase {
 
  protected:
 #ifdef ARDUINO_ARCH_ESP8266
-  static void gpio_intr_(PulseCounterBase *arg);
+  static void gpio_intr(PulseCounterBase *arg);
   volatile pulse_counter_t counter_{0};
   volatile uint32_t last_pulse_{0};
 #endif

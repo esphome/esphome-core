@@ -34,8 +34,6 @@ class DutyCycleSensor : public PollingSensorComponent {
   int8_t accuracy_decimals() override;
 
  protected:
-  void gpio_intr();
-  static void gpio_intr_(DutyCycleSensor *arg);
   GPIOPin *pin_;
 
   DutyCycleSensorStore store_;
