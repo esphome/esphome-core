@@ -16,13 +16,8 @@ class RemoteReceiveData;
 
 class RCSwitchProtocol {
  public:
-  RCSwitchProtocol(uint32_t sync_high,
-                   uint32_t sync_low,
-                   uint32_t zero_high,
-                   uint32_t zero_low,
-                   uint32_t one_high,
-                   uint32_t one_low,
-                   bool inverted);
+  RCSwitchProtocol(uint32_t sync_high, uint32_t sync_low, uint32_t zero_high, uint32_t zero_low, uint32_t one_high,
+                   uint32_t one_low, bool inverted);
 
 #ifdef USE_REMOTE_TRANSMITTER
   void one(RemoteTransmitData *data) const;
@@ -46,11 +41,14 @@ class RCSwitchProtocol {
 
   static void simple_code_to_tristate(uint16_t code, uint8_t nbits, uint32_t *out_code);
 
-  static void type_a_code(uint8_t switch_group, uint8_t switch_device, bool state, uint32_t *out_code, uint8_t *out_nbits);
+  static void type_a_code(uint8_t switch_group, uint8_t switch_device, bool state, uint32_t *out_code,
+                          uint8_t *out_nbits);
 
-  static void type_b_code(uint8_t address_code, uint8_t channel_code, bool state, uint32_t *out_code, uint8_t *out_nbits);
+  static void type_b_code(uint8_t address_code, uint8_t channel_code, bool state, uint32_t *out_code,
+                          uint8_t *out_nbits);
 
-  static void type_c_code(uint8_t family, uint8_t group, uint8_t device, bool state, uint32_t *out_code, uint8_t *out_nbits);
+  static void type_c_code(uint8_t family, uint8_t group, uint8_t device, bool state, uint32_t *out_code,
+                          uint8_t *out_nbits);
 
   static void type_d_code(uint8_t group, uint8_t device, bool state, uint32_t *out_code, uint8_t *out_nbits);
 
@@ -66,13 +64,13 @@ class RCSwitchProtocol {
 
 extern RCSwitchProtocol rc_switch_protocols[8];
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/remote/remote_receiver.h"
 #include "esphome/remote/remote_transmitter.h"
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_RC_SWITCH_PROTOCOL_H
+#endif  // ESPHOME_RC_SWITCH_PROTOCOL_H

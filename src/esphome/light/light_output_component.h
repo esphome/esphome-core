@@ -35,9 +35,7 @@ class MonochromaticLightOutput : public LightOutput {
 
 class CWWWLightOutput : public LightOutput {
  public:
-  CWWWLightOutput(float cold_white_mireds,
-                  float warm_white_mireds,
-                  output::FloatOutput *cold_white,
+  CWWWLightOutput(float cold_white_mireds, float warm_white_mireds, output::FloatOutput *cold_white,
                   output::FloatOutput *warm_white);
 
   LightTraits get_traits() override;
@@ -64,9 +62,7 @@ class RGBLightOutput : public LightOutput {
 
 class RGBWLightOutput : public LightOutput {
  public:
-  RGBWLightOutput(output::FloatOutput *red,
-                  output::FloatOutput *green,
-                  output::FloatOutput *blue,
+  RGBWLightOutput(output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
                   output::FloatOutput *white);
   LightTraits get_traits() override;
   void write_state(LightState *state) override;
@@ -80,12 +76,8 @@ class RGBWLightOutput : public LightOutput {
 
 class RGBWWLightOutput : public LightOutput {
  public:
-  RGBWWLightOutput(float cold_white_mireds,
-                   float warm_white_mireds,
-                   output::FloatOutput *red,
-                   output::FloatOutput *green,
-                   output::FloatOutput *blue,
-                   output::FloatOutput *cold_white,
+  RGBWWLightOutput(float cold_white_mireds, float warm_white_mireds, output::FloatOutput *red,
+                   output::FloatOutput *green, output::FloatOutput *blue, output::FloatOutput *cold_white,
                    output::FloatOutput *warm_white);
 
   LightTraits get_traits() override;
@@ -101,10 +93,10 @@ class RGBWWLightOutput : public LightOutput {
   output::FloatOutput *warm_white_;
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOME_LIGHT_LIGHT_OUTPUT_COMPONENT_H
+#endif  // ESPHOME_LIGHT_LIGHT_OUTPUT_COMPONENT_H

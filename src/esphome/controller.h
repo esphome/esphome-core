@@ -36,7 +36,7 @@ class Controller {
 #endif
 
 #ifdef USE_COVER
- virtual void register_cover(cover::Cover *cover);
+  virtual void register_cover(cover::Cover *cover);
 #endif
 
 #ifdef USE_TEXT_SENSOR
@@ -164,4 +164,4 @@ class StoringUpdateListenerController : public StoringController {
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_CONTROLLER_H
+#endif  // ESPHOME_CONTROLLER_H

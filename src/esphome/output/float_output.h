@@ -12,13 +12,16 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace output {
 
-template<typename... Ts>
-class SetLevelAction;
+template<typename... Ts> class SetLevelAction;
 
 #define LOG_FLOAT_OUTPUT(this) \
   LOG_BINARY_OUTPUT(this) \
-  if (this->max_power_ != 1.0f) { ESP_LOGCONFIG(TAG, "  Max Power: %.1f%%", this->max_power_ * 100.0f); } \
-  if (this->min_power_ != 0.0f) { ESP_LOGCONFIG(TAG, "  Min Power: %.1f%%", this->min_power_ * 100.0f); }
+  if (this->max_power_ != 1.0f) { \
+    ESP_LOGCONFIG(TAG, "  Max Power: %.1f%%", this->max_power_ * 100.0f); \
+  } \
+  if (this->min_power_ != 0.0f) { \
+    ESP_LOGCONFIG(TAG, "  Min Power: %.1f%%", this->min_power_ * 100.0f); \
+  }
 
 /** Base class for all output components that can output a variable level, like PWM.
  *
@@ -63,26 +66,22 @@ class FloatOutput : public BinaryOutput {
   /// Get the minimum power output.
   float get_min_power() const;
 
-  /// Implement BinarySensor's write_enabled; this should never be called.
-  void write_state(bool value) override;
-
-  template<typename... Ts>
-  SetLevelAction<Ts...> *make_set_level_action();
+  template<typename... Ts> SetLevelAction<Ts...> *make_set_level_action();
 
  protected:
+  /// Implement BinarySensor's write_enabled; this should never be called.
+  void write_state(bool state) override;
   virtual void write_state(float state) = 0;
 
   float max_power_{1.0f};
   float min_power_{0.0f};
 };
 
-template<typename... Ts>
-class SetLevelAction : public Action<Ts...> {
+template<typename... Ts> class SetLevelAction : public Action<Ts...> {
  public:
   SetLevelAction(FloatOutput *output);
 
-  template<typename V>
-  void set_level(V level) { this->level_ = level; }
+  template<typename V> void set_level(V level) { this->level_ = level; }
   void play(Ts... x) override;
 
  protected:
@@ -90,24 +89,21 @@ class SetLevelAction : public Action<Ts...> {
   TemplatableValue<float, Ts...> level_;
 };
 
-template<typename... Ts>
-SetLevelAction<Ts...>::SetLevelAction(FloatOutput *output) : output_(output) {}
+template<typename... Ts> SetLevelAction<Ts...>::SetLevelAction(FloatOutput *output) : output_(output) {}
 
-template<typename... Ts>
-void SetLevelAction<Ts...>::play(Ts... x) {
+template<typename... Ts> void SetLevelAction<Ts...>::play(Ts... x) {
   this->output_->set_level(this->level_.value(x...));
   this->play_next(x...);
 }
 
-template<typename... Ts>
-SetLevelAction<Ts...> *FloatOutput::make_set_level_action() {
+template<typename... Ts> SetLevelAction<Ts...> *FloatOutput::make_set_level_action() {
   return new SetLevelAction<Ts...>(this);
 }
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_OUTPUT
+#endif  // USE_OUTPUT
 
-#endif //ESPHOME_OUTPUT_FLOAT_OUTPUT_H
+#endif  // ESPHOME_OUTPUT_FLOAT_OUTPUT_H

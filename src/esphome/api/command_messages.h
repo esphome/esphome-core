@@ -20,6 +20,7 @@ class CoverCommandRequest : public APIMessage {
   APIMessageType message_type() const override;
   uint32_t get_key() const;
   optional<cover::CoverCommand> get_command() const;
+
  protected:
   uint32_t key_{0};
   bool has_state_{false};
@@ -99,16 +100,17 @@ class SwitchCommandRequest : public APIMessage {
   APIMessageType message_type() const override;
   uint32_t get_key() const;
   bool get_state() const;
+
  protected:
   uint32_t key_{0};
   bool state_{false};
 };
 #endif
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_COMMAND_MESSAGES_H
+#endif  // ESPHOME_API_COMMAND_MESSAGES_H

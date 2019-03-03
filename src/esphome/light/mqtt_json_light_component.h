@@ -32,15 +32,15 @@ class MQTTJSONLightComponent : public mqtt::MQTTComponent {
   std::string friendly_name() const override;
   std::string component_type() const override;
 
-  bool publish_state();
+  bool publish_state_();
 
   LightState *state_;
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_LIGHT
+#endif  // USE_MQTT_LIGHT
 
-#endif //ESPHOME_LIGHT_MQTT_JSON_LIGHT_COMPONENT
+#endif  // ESPHOME_LIGHT_MQTT_JSON_LIGHT_COMPONENT

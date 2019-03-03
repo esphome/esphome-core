@@ -1,5 +1,6 @@
 // Based on:
-//   - http://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FHPC199_6%7FA6%7Fpdf%7FEnglish%7FENG_DS_HPC199_6_A6.pdf%7FCAT-HSC0004
+//   -
+//   http://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FHPC199_6%7FA6%7Fpdf%7FEnglish%7FENG_DS_HPC199_6_A6.pdf%7FCAT-HSC0004
 //   - https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/HTU21D
 
 #include "esphome/defines.h"
@@ -21,14 +22,12 @@ static const uint8_t HTU21D_REGISTER_TEMPERATURE = 0xE3;
 static const uint8_t HTU21D_REGISTER_HUMIDITY = 0xE5;
 static const uint8_t HTU21D_REGISTER_STATUS = 0xE7;
 
-HTU21DComponent::HTU21DComponent(I2CComponent *parent,
-                                 const std::string &temperature_name, const std::string &humidity_name,
-                                 uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, HTU21D_ADDRESS),
+HTU21DComponent::HTU21DComponent(I2CComponent *parent, const std::string &temperature_name,
+                                 const std::string &humidity_name, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, HTU21D_ADDRESS),
       temperature_(new HTU21DTemperatureSensor(temperature_name, this)),
-      humidity_(new HTU21DHumiditySensor(humidity_name, this)) {
-
-}
+      humidity_(new HTU21DHumiditySensor(humidity_name, this)) {}
 void HTU21DComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HTU21D...");
 
@@ -72,18 +71,12 @@ void HTU21DComponent::update() {
   this->humidity_->publish_state(humidity);
   this->status_clear_warning();
 }
-HTU21DTemperatureSensor *HTU21DComponent::get_temperature_sensor() const {
-  return this->temperature_;
-}
-HTU21DHumiditySensor *HTU21DComponent::get_humidity_sensor() const {
-  return this->humidity_;
-}
-float HTU21DComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+HTU21DTemperatureSensor *HTU21DComponent::get_temperature_sensor() const { return this->temperature_; }
+HTU21DHumiditySensor *HTU21DComponent::get_humidity_sensor() const { return this->humidity_; }
+float HTU21DComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HTU21D_SENSOR
+#endif  // USE_HTU21D_SENSOR

@@ -31,17 +31,17 @@ class MS5611Component : public PollingComponent, public I2CDevice {
  protected:
   void read_temperature_();
   void read_pressure_(uint32_t raw_temperature);
-  void calculate_values(uint32_t raw_temperature, uint32_t raw_pressure);
+  void calculate_values_(uint32_t raw_temperature, uint32_t raw_pressure);
 
   MS5611TemperatureSensor *temperature_sensor_;
   MS5611PressureSensor *pressure_sensor_;
-  uint16_t prom[6];
+  uint16_t prom_[6];
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MS5611
+#endif  // USE_MS5611
 
-#endif //ESPHOME_SENSOR_MS5611_H
+#endif  // ESPHOME_SENSOR_MS5611_H

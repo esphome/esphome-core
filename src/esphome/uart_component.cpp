@@ -14,14 +14,9 @@ static const char *TAG = "uart";
 uint8_t next_uart_num = 1;
 #endif
 
-UARTComponent::UARTComponent(uint32_t baud_rate)
-    : baud_rate_(baud_rate) {
+UARTComponent::UARTComponent(uint32_t baud_rate) : baud_rate_(baud_rate) {}
 
-}
-
-float UARTComponent::get_setup_priority() const {
-  return setup_priority::PRE_HARDWARE;
-}
+float UARTComponent::get_setup_priority() const { return setup_priority::PRE_HARDWARE; }
 
 #ifdef ARDUINO_ARCH_ESP32
 void UARTComponent::setup() {
@@ -104,14 +99,12 @@ bool UARTComponent::check_read_timeout_(size_t len) {
   }
   return true;
 }
-int UARTComponent::available() {
-  return this->hw_serial_->available();
-}
+int UARTComponent::available() { return this->hw_serial_->available(); }
 void UARTComponent::flush() {
   ESP_LOGVV(TAG, "    Flushing...");
   this->hw_serial_->flush();
 }
-#endif //ESP32
+#endif  // ESP32
 
 #ifdef ARDUINO_ARCH_ESP8266
 void UARTComponent::setup() {
@@ -251,43 +244,41 @@ void UARTComponent::flush() {
 void ESP8266SoftwareSerial::setup(int8_t tx_pin, int8_t rx_pin, uint32_t baud_rate) {
   this->bit_time_ = F_CPU / baud_rate;
   if (tx_pin != -1) {
-    this->tx_mask_ = (1U << tx_pin);
-    pinMode(tx_pin, OUTPUT);
-    this->tx_high_();
+    this->tx_pin_ = GPIOOutputPin(tx_pin).copy();
+    this->tx_pin_->setup();
+    this->tx_pin_->digital_write(true);
   }
   if (rx_pin != -1) {
-    this->rx_mask_ = (1U << rx_pin);
-    pinMode(rx_pin, INPUT);
+    auto pin = GPIOInputPin(rx_pin);
+    pin.setup();
+    this->rx_pin_ = pin.to_isr();
     this->rx_buffer_ = new uint8_t[this->rx_buffer_size_];
-    attach_functional_interrupt(rx_pin, [this]() ICACHE_RAM_ATTR {
-      this->gpio_intr_();
-    }, FALLING);
+    pin.attach_interrupt(ESP8266SoftwareSerial::gpio_intr, this, FALLING);
   }
 }
-
-void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::gpio_intr_() {
-  uint32_t wait = this->bit_time_ + this->bit_time_/3 - 500;
+void ICACHE_RAM_ATTR ESP8266SoftwareSerial::gpio_intr(ESP8266SoftwareSerial *arg) {
+  uint32_t wait = arg->bit_time_ + arg->bit_time_ / 3 - 500;
   const uint32_t start = ESP.getCycleCount();
   uint8_t rec = 0;
   // Manually unroll the loop
-  rec |= this->read_bit_(wait, start) << 0;
-  rec |= this->read_bit_(wait, start) << 1;
-  rec |= this->read_bit_(wait, start) << 2;
-  rec |= this->read_bit_(wait, start) << 3;
-  rec |= this->read_bit_(wait, start) << 4;
-  rec |= this->read_bit_(wait, start) << 5;
-  rec |= this->read_bit_(wait, start) << 6;
-  rec |= this->read_bit_(wait, start) << 7;
+  rec |= arg->read_bit_(&wait, start) << 0;
+  rec |= arg->read_bit_(&wait, start) << 1;
+  rec |= arg->read_bit_(&wait, start) << 2;
+  rec |= arg->read_bit_(&wait, start) << 3;
+  rec |= arg->read_bit_(&wait, start) << 4;
+  rec |= arg->read_bit_(&wait, start) << 5;
+  rec |= arg->read_bit_(&wait, start) << 6;
+  rec |= arg->read_bit_(&wait, start) << 7;
   // Stop bit
-  this->wait_(wait, start);
+  arg->wait_(&wait, start);
 
-  this->rx_buffer_[this->rx_in_pos_] = rec;
-  this->rx_in_pos_ = (this->rx_in_pos_ + 1) % this->rx_buffer_size_;
+  arg->rx_buffer_[arg->rx_in_pos_] = rec;
+  arg->rx_in_pos_ = (arg->rx_in_pos_ + 1) % arg->rx_buffer_size_;
   // Clear RX pin so that the interrupt doesn't re-trigger right away again.
-  GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, this->rx_mask_);
+  arg->rx_pin_->clear_interrupt();
 }
 void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
-  if (this->tx_mask_ == 0) {
+  if (this->tx_pin_ == nullptr) {
     ESP_LOGE(TAG, "UART doesn't have TX pins set!");
     return;
   }
@@ -296,40 +287,31 @@ void ICACHE_RAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
   uint32_t wait = this->bit_time_;
   const uint32_t start = ESP.getCycleCount();
   // Start bit
-  this->write_bit_(false, wait, start);
-  this->write_bit_(data & (1 << 0), wait, start);
-  this->write_bit_(data & (1 << 1), wait, start);
-  this->write_bit_(data & (1 << 2), wait, start);
-  this->write_bit_(data & (1 << 3), wait, start);
-  this->write_bit_(data & (1 << 4), wait, start);
-  this->write_bit_(data & (1 << 5), wait, start);
-  this->write_bit_(data & (1 << 6), wait, start);
-  this->write_bit_(data & (1 << 7), wait, start);
+  this->write_bit_(false, &wait, start);
+  this->write_bit_(data & (1 << 0), &wait, start);
+  this->write_bit_(data & (1 << 1), &wait, start);
+  this->write_bit_(data & (1 << 2), &wait, start);
+  this->write_bit_(data & (1 << 3), &wait, start);
+  this->write_bit_(data & (1 << 4), &wait, start);
+  this->write_bit_(data & (1 << 5), &wait, start);
+  this->write_bit_(data & (1 << 6), &wait, start);
+  this->write_bit_(data & (1 << 7), &wait, start);
   // Stop bit
-  this->write_bit_(true, wait, start);
+  this->write_bit_(true, &wait, start);
   enable_interrupts();
 }
-void ESP8266SoftwareSerial::wait_(uint32_t &wait, const uint32_t &start) {
-  while (ESP.getCycleCount() - start < wait);
-  wait += this->bit_time_;
+void ESP8266SoftwareSerial::wait_(uint32_t *wait, const uint32_t &start) {
+  while (ESP.getCycleCount() - start < *wait)
+    ;
+  *wait += this->bit_time_;
 }
-uint8_t ESP8266SoftwareSerial::read_bit_(uint32_t &wait, const uint32_t &start) {
+bool ESP8266SoftwareSerial::read_bit_(uint32_t *wait, const uint32_t &start) {
   this->wait_(wait, start);
-  return uint8_t((GPI & this->rx_mask_) != 0);
+  return this->rx_pin_->digital_read();
 }
-void ESP8266SoftwareSerial::write_bit_(bool bit, uint32_t &wait, const uint32_t &start) {
-  if (bit) {
-    this->tx_high_();
-  } else {
-    this->tx_low_();
-  }
+void ESP8266SoftwareSerial::write_bit_(bool bit, uint32_t *wait, const uint32_t &start) {
+  this->tx_pin_->digital_write(bit);
   this->wait_(wait, start);
-}
-void ESP8266SoftwareSerial::tx_high_() {
-  GPOS = this->tx_mask_;
-}
-void ESP8266SoftwareSerial::tx_low_() {
-  GPOC = this->tx_mask_;
 }
 uint8_t ESP8266SoftwareSerial::read_byte() {
   if (this->rx_in_pos_ == this->rx_out_pos_)
@@ -343,16 +325,14 @@ uint8_t ESP8266SoftwareSerial::peek_byte() {
     return 0;
   return this->rx_buffer_[this->rx_out_pos_];
 }
-void ESP8266SoftwareSerial::flush() {
-  this->rx_in_pos_ = this->rx_out_pos_ = 0;
-}
+void ESP8266SoftwareSerial::flush() { this->rx_in_pos_ = this->rx_out_pos_ = 0; }
 int ESP8266SoftwareSerial::available() {
   int avail = int(this->rx_in_pos_) - int(this->rx_out_pos_);
   if (avail < 0)
     return avail + this->rx_buffer_size_;
   return avail;
 }
-#endif //ESP8266
+#endif  // ESP8266
 
 size_t UARTComponent::write(uint8_t data) {
   this->write_byte(data);
@@ -370,50 +350,22 @@ int UARTComponent::peek() {
     return -1;
   return data;
 }
-void UARTComponent::set_tx_pin(uint8_t tx_pin) {
-  this->tx_pin_ = tx_pin;
-}
-void UARTComponent::set_rx_pin(uint8_t rx_pin) {
-  this->rx_pin_ = rx_pin;
-}
+void UARTComponent::set_tx_pin(uint8_t tx_pin) { this->tx_pin_ = tx_pin; }
+void UARTComponent::set_rx_pin(uint8_t rx_pin) { this->rx_pin_ = rx_pin; }
 
-void UARTDevice::write_byte(uint8_t data) {
-  this->parent_->write_byte(data);
-}
-void UARTDevice::write_array(const uint8_t *data, size_t len) {
-  this->parent_->write_array(data, len);
-}
-void UARTDevice::write_str(const char *str) {
-  this->parent_->write_str(str);
-}
-bool UARTDevice::read_byte(uint8_t *data) {
-  return this->parent_->read_byte(data);
-}
-bool UARTDevice::peek_byte(uint8_t *data) {
-  return this->parent_->peek_byte(data);
-}
-bool UARTDevice::read_array(uint8_t *data, size_t len) {
-  return this->parent_->read_array(data, len);
-}
-int UARTDevice::available() {
-  return this->parent_->available();
-}
-void UARTDevice::flush() {
-  return this->parent_->flush();
-}
-UARTDevice::UARTDevice(UARTComponent *parent) : parent_(parent) {
-
-}
-size_t UARTDevice::write(uint8_t data) {
-  return this->parent_->write(data);
-}
-int UARTDevice::read() {
-  return this->parent_->read();
-}
-int UARTDevice::peek() {
-  return this->parent_->peek();
-}
+void UARTDevice::write_byte(uint8_t data) { this->parent_->write_byte(data); }
+void UARTDevice::write_array(const uint8_t *data, size_t len) { this->parent_->write_array(data, len); }
+void UARTDevice::write_str(const char *str) { this->parent_->write_str(str); }
+bool UARTDevice::read_byte(uint8_t *data) { return this->parent_->read_byte(data); }
+bool UARTDevice::peek_byte(uint8_t *data) { return this->parent_->peek_byte(data); }
+bool UARTDevice::read_array(uint8_t *data, size_t len) { return this->parent_->read_array(data, len); }
+int UARTDevice::available() { return this->parent_->available(); }
+void UARTDevice::flush() { return this->parent_->flush(); }
+UARTDevice::UARTDevice(UARTComponent *parent) : parent_(parent) {}
+size_t UARTDevice::write(uint8_t data) { return this->parent_->write(data); }
+int UARTDevice::read() { return this->parent_->read(); }
+int UARTDevice::peek() { return this->parent_->peek(); }
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_UART
+#endif  // USE_UART

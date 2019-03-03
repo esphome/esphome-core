@@ -71,14 +71,15 @@ class APDS9960 : public PollingComponent, public I2CDevice {
 class APDS9960GestureDirectionBinarySensor : public binary_sensor::BinarySensor {
  public:
   APDS9960GestureDirectionBinarySensor(const std::string &name);
+
  protected:
   std::string device_class() override;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_APDS9960
+#endif  // USE_APDS9960
 
-#endif //ESPHOME_SENSOR_APDS9960_H
+#endif  // ESPHOME_SENSOR_APDS9960_H

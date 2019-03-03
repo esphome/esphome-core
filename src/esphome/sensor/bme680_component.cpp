@@ -33,39 +33,51 @@ static const uint8_t BME680_REGISTER_CHIPID = 0xD0;
 
 static const uint8_t BME680_REGISTER_FIELD0 = 0x1D;
 
-const float BME680_GAS_LOOKUP_TABLE_1[16] PROGMEM = {
-    0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, -0.8,
-    0.0, 0.0, -0.2, -0.5, 0.0, -1.0, 0.0, 0.0
-};
+const float BME680_GAS_LOOKUP_TABLE_1[16] PROGMEM = {0.0, 0.0, 0.0,  0.0,  0.0, -1.0, 0.0, -0.8,
+                                                     0.0, 0.0, -0.2, -0.5, 0.0, -1.0, 0.0, 0.0};
 
-const float BME680_GAS_LOOKUP_TABLE_2[16] PROGMEM = {
-    0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.0, -0.8,
-    -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-};
+const float BME680_GAS_LOOKUP_TABLE_2[16] PROGMEM = {0.0,  0.0, 0.0, 0.0, 0.1, 0.7, 0.0, -0.8,
+                                                     -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-static const char* oversampling_to_str(BME680Oversampling oversampling) {
+static const char *oversampling_to_str(BME680Oversampling oversampling) {
   switch (oversampling) {
-    case BME680_OVERSAMPLING_NONE: return "None";
-    case BME680_OVERSAMPLING_1X: return "1x";
-    case BME680_OVERSAMPLING_2X: return "2x";
-    case BME680_OVERSAMPLING_4X: return "4x";
-    case BME680_OVERSAMPLING_8X: return "8x";
-    case BME680_OVERSAMPLING_16X: return "16x";
-    default: return "UNKNOWN";
+    case BME680_OVERSAMPLING_NONE:
+      return "None";
+    case BME680_OVERSAMPLING_1X:
+      return "1x";
+    case BME680_OVERSAMPLING_2X:
+      return "2x";
+    case BME680_OVERSAMPLING_4X:
+      return "4x";
+    case BME680_OVERSAMPLING_8X:
+      return "8x";
+    case BME680_OVERSAMPLING_16X:
+      return "16x";
+    default:
+      return "UNKNOWN";
   }
 }
 
-static const char* iir_filter_to_str(BME680IIRFilter filter) {
+static const char *iir_filter_to_str(BME680IIRFilter filter) {
   switch (filter) {
-    case BME680_IIR_FILTER_OFF: return "OFF";
-    case BME680_IIR_FILTER_1X: return "1x";
-    case BME680_IIR_FILTER_3X: return "3x";
-    case BME680_IIR_FILTER_7X: return "7x";
-    case BME680_IIR_FILTER_15X: return "15x";
-    case BME680_IIR_FILTER_31X: return "31x";
-    case BME680_IIR_FILTER_63X: return "63x";
-    case BME680_IIR_FILTER_127X: return "127x";
-    default: return "UNKNOWN";
+    case BME680_IIR_FILTER_OFF:
+      return "OFF";
+    case BME680_IIR_FILTER_1X:
+      return "1x";
+    case BME680_IIR_FILTER_3X:
+      return "3x";
+    case BME680_IIR_FILTER_7X:
+      return "7x";
+    case BME680_IIR_FILTER_15X:
+      return "15x";
+    case BME680_IIR_FILTER_31X:
+      return "31x";
+    case BME680_IIR_FILTER_63X:
+      return "63x";
+    case BME680_IIR_FILTER_127X:
+      return "127x";
+    default:
+      return "UNKNOWN";
   }
 }
 
@@ -129,7 +141,7 @@ void BME680Component::setup() {
     return;
   }
 
-  this->calibration_.ambient_temperature = 25; // prime ambient temperature
+  this->calibration_.ambient_temperature = 25;  // prime ambient temperature
 
   // Config register
   uint8_t config_register;
@@ -165,7 +177,7 @@ void BME680Component::setup() {
   }
   gas1_control &= ~0b00011111;
   gas1_control |= 1 << 4;
-  gas1_control |= 0; // profile 0
+  gas1_control |= 0;  // profile 0
   if (!this->write_byte(BME680_REGISTER_CONTROL_GAS1, gas1_control)) {
     this->mark_failed();
     return;
@@ -223,33 +235,30 @@ void BME680Component::dump_config() {
   if (this->heater_duration_ == 0 || this->heater_temperature_ == 0) {
     ESP_LOGCONFIG(TAG, "  Heater OFF");
   } else {
-    ESP_LOGCONFIG(TAG, "  Heater temperature=%u°C duration=%ums",
-                  this->heater_temperature_, this->heater_duration_);
+    ESP_LOGCONFIG(TAG, "  Heater temperature=%u°C duration=%ums", this->heater_temperature_, this->heater_duration_);
   }
 }
 
-float BME680Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float BME680Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 void BME680Component::update() {
-  uint8_t meas_control = 0; // No need to fetch, we're setting all fields
+  uint8_t meas_control = 0;  // No need to fetch, we're setting all fields
   meas_control |= (this->temperature_oversampling_ & 0b111) << 5;
   meas_control |= (this->pressure_oversampling_ & 0b111) << 5;
-  meas_control |= 0b01; // forced mode
+  meas_control |= 0b01;  // forced mode
   if (!this->write_byte(BME680_REGISTER_CONTROL_MEAS, meas_control)) {
     this->status_set_warning();
     return;
   }
 
-  this->set_timeout("data", this->calc_meas_duration_(), [this]() {
-    this->read_data_();
-  });
+  this->set_timeout("data", this->calc_meas_duration_(), [this]() { this->read_data_(); });
 }
 
 uint8_t BME680Component::calc_heater_resistance_(uint16_t temperature) {
-  if (temperature < 200) temperature = 200;
-  if (temperature > 400) temperature = 400;
+  if (temperature < 200)
+    temperature = 200;
+  if (temperature > 400)
+    temperature = 400;
 
   const uint8_t ambient_temperature = this->calibration_.ambient_temperature;
   const int8_t gh1 = this->calibration_.gh1;
@@ -271,8 +280,8 @@ uint8_t BME680Component::calc_heater_resistance_(uint16_t temperature) {
   var3 = var1 + (var2 / 2);
   var4 = (var3 / (res_heat_range + 4));
   var5 = (131 * res_heat_val) + 65536;
-  heatr_res_x100 = (int32_t) (((var4 / var5) - 250) * 34);
-  heatr_res = (uint8_t) ((heatr_res_x100 + 50) / 100);
+  heatr_res_x100 = (int32_t)(((var4 / var5) - 250) * 34);
+  heatr_res = (uint8_t)((heatr_res_x100 + 50) / 100);
 
   return heatr_res;
 }
@@ -313,8 +322,8 @@ void BME680Component::read_data_() {
     gas_resistance = this->calc_gas_resistance_(raw_gas, gas_range);
   }
 
-  ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%% gas_resistance=%.1fΩ",
-           temperature, pressure, humidity, gas_resistance);
+  ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%% gas_resistance=%.1fΩ", temperature, pressure,
+           humidity, gas_resistance);
   this->temperature_sensor_->publish_state(temperature);
   this->pressure_sensor_->publish_state(pressure);
   this->humidity_sensor_->publish_state(humidity);
@@ -411,8 +420,8 @@ float BME680Component::calc_humidity_(uint16_t raw_humidity) {
   temp_comp = tfine / 5120.0f;
 
   var1 = float(raw_humidity) - (h1 * 16.0f + ((h3 / 2.0f) * temp_comp));
-  var2 = var1 * (((h2 / 262144.0f) * (1.0f + ((h4 / 16384.0f) * temp_comp) +
-      ((h5 / 1048576.0f) * temp_comp * temp_comp))));
+  var2 = var1 *
+         (((h2 / 262144.0f) * (1.0f + ((h4 / 16384.0f) * temp_comp) + ((h5 / 1048576.0f) * temp_comp * temp_comp))));
   var3 = h6 / 16384.0f;
   var4 = h7 / 2097152.0f;
 
@@ -438,10 +447,10 @@ uint32_t BME680Component::calc_gas_resistance_(uint16_t raw_gas, uint8_t range) 
 
   calc_gas_res = 1.0f / (var3 * 0.000000125f * float(1 << range) * (((float(raw_gas) - 512.0f) / var2) + 1.0f));
 
-  return calc_gas_res;
+  return static_cast<uint32_t>(calc_gas_res);
 }
 uint32_t BME680Component::calc_meas_duration_() {
-  uint32_t tph_dur; // Calculate in us
+  uint32_t tph_dur;  // Calculate in us
   uint32_t meas_cycles;
   const uint8_t os_to_meas_cycles[6] = {0, 1, 2, 4, 8, 16};
 
@@ -451,44 +460,31 @@ uint32_t BME680Component::calc_meas_duration_() {
 
   /* TPH measurement duration */
   tph_dur = meas_cycles * 1963u;
-  tph_dur += 477 * 4; // TPH switching duration
-  tph_dur += 477 * 5; // Gas measurement duration
-  tph_dur += 500; // Get it to the closest whole number.
-  tph_dur /= 1000; // Convert to ms
+  tph_dur += 477 * 4;  // TPH switching duration
+  tph_dur += 477 * 5;  // Gas measurement duration
+  tph_dur += 500;      // Get it to the closest whole number.
+  tph_dur /= 1000;     // Convert to ms
 
-  tph_dur += 1; // Wake up duration of 1ms
+  tph_dur += 1;  // Wake up duration of 1ms
 
   /* The remaining time should be used for heating */
   tph_dur += this->heater_duration_;
 
   return tph_dur;
 }
-BME680Component::BME680Component(I2CComponent *parent,
-                                 const std::string &temperature_name,
-                                 const std::string &pressure_name,
-                                 const std::string &humidity_name,
-                                 const std::string &gas_resistance_name,
-                                 uint8_t address,
-                                 uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, address),
+BME680Component::BME680Component(I2CComponent *parent, const std::string &temperature_name,
+                                 const std::string &pressure_name, const std::string &humidity_name,
+                                 const std::string &gas_resistance_name, uint8_t address, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, address),
       temperature_sensor_(new BME680TemperatureSensor(temperature_name, this)),
       pressure_sensor_(new BME680PressureSensor(pressure_name, this)),
       humidity_sensor_(new BME680HumiditySensor(humidity_name, this)),
-      gas_resistance_sensor_(new BME680GasResistanceSensor(gas_resistance_name, this)) {
-
-}
-BME680TemperatureSensor *BME680Component::get_temperature_sensor() const {
-  return this->temperature_sensor_;
-}
-BME680PressureSensor *BME680Component::get_pressure_sensor() const {
-  return this->pressure_sensor_;
-}
-BME680HumiditySensor *BME680Component::get_humidity_sensor() const {
-  return this->humidity_sensor_;
-}
-BME680GasResistanceSensor *BME680Component::get_gas_resistance_sensor() const {
-  return this->gas_resistance_sensor_;
-}
+      gas_resistance_sensor_(new BME680GasResistanceSensor(gas_resistance_name, this)) {}
+BME680TemperatureSensor *BME680Component::get_temperature_sensor() const { return this->temperature_sensor_; }
+BME680PressureSensor *BME680Component::get_pressure_sensor() const { return this->pressure_sensor_; }
+BME680HumiditySensor *BME680Component::get_humidity_sensor() const { return this->humidity_sensor_; }
+BME680GasResistanceSensor *BME680Component::get_gas_resistance_sensor() const { return this->gas_resistance_sensor_; }
 void BME680Component::set_temperature_oversampling(BME680Oversampling temperature_oversampling) {
   this->temperature_oversampling_ = temperature_oversampling;
 }
@@ -498,16 +494,14 @@ void BME680Component::set_pressure_oversampling(BME680Oversampling pressure_over
 void BME680Component::set_humidity_oversampling(BME680Oversampling humidity_oversampling) {
   this->humidity_oversampling_ = humidity_oversampling;
 }
-void BME680Component::set_iir_filter(BME680IIRFilter iir_filter) {
-  this->iir_filter_ = iir_filter;
-}
+void BME680Component::set_iir_filter(BME680IIRFilter iir_filter) { this->iir_filter_ = iir_filter; }
 void BME680Component::set_heater(uint16_t heater_temperature, uint16_t heater_duration) {
   this->heater_temperature_ = heater_temperature;
   this->heater_duration_ = heater_duration;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BME680
+#endif  // USE_BME680

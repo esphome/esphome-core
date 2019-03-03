@@ -63,19 +63,18 @@ void Application::setup() {
     if (component->is_failed())
       continue;
 
-    component->setup_();
+    component->call_setup();
     if (component->can_proceed())
       continue;
 
-    std::stable_sort(this->components_.begin(), this->components_.begin() + i + 1, [](Component *a, Component *b) {
-      return a->get_loop_priority() > b->get_loop_priority();
-    });
+    std::stable_sort(this->components_.begin(), this->components_.begin() + i + 1,
+                     [](Component *a, Component *b) { return a->get_loop_priority() > b->get_loop_priority(); });
 
     do {
       uint32_t new_global_state = STATUS_LED_WARNING;
       for (uint32_t j = 0; j <= i; j++) {
         if (!this->components_[j]->is_failed()) {
-          this->components_[j]->loop_();
+          this->components_[j]->call_loop();
         }
         new_global_state |= this->components_[j]->get_component_state();
         global_state |= new_global_state;
@@ -98,14 +97,11 @@ void Application::dump_config() {
     ESP_LOGI(TAG, "esphome-core version " ESPHOME_VERSION " compiled on %s", this->compilation_time_.c_str());
   }
 
-  for (uint32_t i = 0; i < this->components_.size(); i++) {
-    Component *component = this->components_[i];
+  for (auto component : this->components_) {
     component->dump_config();
   }
 }
-void Application::schedule_dump_config() {
-  this->dump_config_scheduled_ = true;
-}
+void Application::schedule_dump_config() { this->dump_config_scheduled_ = true; }
 
 void HOT Application::loop() {
   bool first_loop = this->application_state_ == COMPONENT_STATE_SETUP;
@@ -117,7 +113,7 @@ void HOT Application::loop() {
   uint32_t new_global_state = 0;
   for (Component *component : this->components_) {
     if (!component->is_failed()) {
-      component->loop_();
+      component->call_loop();
     }
     new_global_state |= component->get_component_state();
     global_state |= new_global_state;
@@ -167,22 +163,20 @@ void Application::set_name(const std::string &name) {
   global_preferences.begin(name);
 }
 
-void Application::set_compilation_datetime(const char *str) {
-  this->compilation_time_ = str;
-}
-const std::string &Application::get_compilation_time() const {
-  return this->compilation_time_;
-}
+void Application::set_compilation_datetime(const char *str) { this->compilation_time_ = str; }
+const std::string &Application::get_compilation_time() const { return this->compilation_time_; }
 
 #ifdef USE_MQTT
-MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port,
-                                            const std::string &username, const std::string &password) {
-  MQTTClientComponent *component = new MQTTClientComponent(MQTTCredentials{
-      .address = address,
-      .port = port,
-      .username = username,
-      .password = password,
-  }, this->get_name());
+MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t port, const std::string &username,
+                                            const std::string &password) {
+  MQTTClientComponent *component = new MQTTClientComponent(
+      MQTTCredentials{
+          .address = address,
+          .port = port,
+          .username = username,
+          .password = password,
+      },
+      this->get_name());
   this->mqtt_client_ = component;
 
   return this->register_component(component);
@@ -190,23 +184,20 @@ MQTTClientComponent *Application::init_mqtt(const std::string &address, uint16_t
 #endif
 
 #ifdef USE_MQTT
-MQTTClientComponent *Application::init_mqtt(const std::string &address,
-                                            const std::string &username, const std::string &password) {
+MQTTClientComponent *Application::init_mqtt(const std::string &address, const std::string &username,
+                                            const std::string &password) {
   return this->init_mqtt(address, 1883, username, password);
 }
 #endif
 
-LogComponent *Application::init_log(uint32_t baud_rate,
-                                    size_t tx_buffer_size,
-                                    UARTSelection uart) {
+LogComponent *Application::init_log(uint32_t baud_rate, size_t tx_buffer_size, UARTSelection uart) {
   auto *log = new LogComponent(baud_rate, tx_buffer_size, uart);
   log->pre_setup();
   return this->register_component(log);
 }
 
 #ifdef USE_OUTPUT
-PowerSupplyComponent *Application::make_power_supply(const GPIOOutputPin &pin,
-                                                     uint32_t enable_time,
+PowerSupplyComponent *Application::make_power_supply(const GPIOOutputPin &pin, uint32_t enable_time,
                                                      uint32_t keep_on_time) {
   auto *atx = new PowerSupplyComponent(pin.copy(), enable_time, keep_on_time);
   return this->register_component(atx);
@@ -238,8 +229,7 @@ GPIOBinarySensorComponent *Application::make_gpio_binary_sensor(const std::strin
 
 #ifdef USE_DHT_SENSOR
 DHTComponent *Application::make_dht_sensor(const std::string &temperature_friendly_name,
-                                           const std::string &humidity_friendly_name,
-                                           const GPIOOutputPin &pin,
+                                           const std::string &humidity_friendly_name, const GPIOOutputPin &pin,
                                            uint32_t check_interval) {
   auto *dht = new DHTComponent(temperature_friendly_name, humidity_friendly_name, pin.copy(), check_interval);
   this->register_component(dht);
@@ -276,26 +266,23 @@ PCA9685OutputComponent *Application::make_pca9685_component(float frequency) {
 #endif
 
 #ifdef USE_MY9231_OUTPUT
-MY9231OutputComponent *Application::make_my9231_component(const GPIOOutputPin &pin_di,
-                                                          const GPIOOutputPin &pin_dcki) {
+MY9231OutputComponent *Application::make_my9231_component(const GPIOOutputPin &pin_di, const GPIOOutputPin &pin_dcki) {
   auto *my9231 = new MY9231OutputComponent(pin_di.copy(), pin_dcki.copy());
   return this->register_component(my9231);
 }
 #endif
 
 #ifdef USE_LIGHT
-Application::MakeLight Application::make_rgb_light(const std::string &friendly_name,
-                                                   FloatOutput *red, FloatOutput *green, FloatOutput *blue) {
+Application::MakeLight Application::make_rgb_light(const std::string &friendly_name, FloatOutput *red,
+                                                   FloatOutput *green, FloatOutput *blue) {
   auto *out = new RGBLightOutput(red, green, blue);
   return this->make_light_for_light_output(friendly_name, out);
 }
 #endif
 
 #ifdef USE_LIGHT
-Application::MakeLight Application::make_rgbw_light(const std::string &friendly_name,
-                                                    output::FloatOutput *red,
-                                                    output::FloatOutput *green,
-                                                    output::FloatOutput *blue,
+Application::MakeLight Application::make_rgbw_light(const std::string &friendly_name, output::FloatOutput *red,
+                                                    output::FloatOutput *green, output::FloatOutput *blue,
                                                     output::FloatOutput *white) {
   auto *out = new RGBWLightOutput(red, green, blue, white);
   return this->make_light_for_light_output(friendly_name, out);
@@ -303,25 +290,18 @@ Application::MakeLight Application::make_rgbw_light(const std::string &friendly_
 #endif
 
 #ifdef USE_LIGHT
-Application::MakeLight Application::make_rgbww_light(const std::string &friendly_name,
-                                                     float cold_white_mireds,
-                                                     float warm_white_mireds,
-                                                     output::FloatOutput *red,
-                                                     output::FloatOutput *green,
-                                                     output::FloatOutput *blue,
-                                                     output::FloatOutput *cold_white,
-                                                     output::FloatOutput *warm_white) {
-  auto *out = new RGBWWLightOutput(cold_white_mireds, warm_white_mireds,
-                                   red, green, blue, cold_white, warm_white);
+Application::MakeLight Application::make_rgbww_light(const std::string &friendly_name, float cold_white_mireds,
+                                                     float warm_white_mireds, output::FloatOutput *red,
+                                                     output::FloatOutput *green, output::FloatOutput *blue,
+                                                     output::FloatOutput *cold_white, output::FloatOutput *warm_white) {
+  auto *out = new RGBWWLightOutput(cold_white_mireds, warm_white_mireds, red, green, blue, cold_white, warm_white);
   return this->make_light_for_light_output(friendly_name, out);
 }
 #endif
 
 #ifdef USE_LIGHT
-Application::MakeLight Application::make_cwww_light(const std::string &friendly_name,
-                                                    float cold_white_mireds,
-                                                    float warm_white_mireds,
-                                                    output::FloatOutput *cold_white,
+Application::MakeLight Application::make_cwww_light(const std::string &friendly_name, float cold_white_mireds,
+                                                    float warm_white_mireds, output::FloatOutput *cold_white,
                                                     output::FloatOutput *warm_white) {
   auto *out = new CWWWLightOutput(cold_white_mireds, warm_white_mireds, cold_white, warm_white);
   return this->make_light_for_light_output(friendly_name, out);
@@ -340,14 +320,10 @@ void Application::register_light(LightState *state) {
 }
 #endif
 
-WiFiComponent *Application::get_wifi() const {
-  return this->wifi_;
-}
+WiFiComponent *Application::get_wifi() const { return this->wifi_; }
 
 #ifdef USE_OTA
-OTAComponent *Application::init_ota() {
-  return this->register_component(new OTAComponent());
-}
+OTAComponent *Application::init_ota() { return this->register_component(new OTAComponent()); }
 #endif
 
 #ifdef USE_LIGHT
@@ -359,8 +335,7 @@ Application::MakeLight Application::make_monochromatic_light(const std::string &
 #endif
 
 #ifdef USE_LIGHT
-Application::MakeLight Application::make_binary_light(const std::string &friendly_name,
-                                                      output::BinaryOutput *binary) {
+Application::MakeLight Application::make_binary_light(const std::string &friendly_name, output::BinaryOutput *binary) {
   auto *out = new BinaryLightOutput(binary);
   return this->make_light_for_light_output(friendly_name, out);
 }
@@ -379,18 +354,16 @@ Application::MakeLight Application::make_light_for_light_output(const std::strin
 #endif
 
 #ifdef USE_MQTT
-MQTTClientComponent *Application::get_mqtt_client() const {
-  return this->mqtt_client_;
-}
+MQTTClientComponent *Application::get_mqtt_client() const { return this->mqtt_client_; }
 #endif
 
 #ifdef USE_SWITCH
-void Application::register_switch(switch_::Switch *switch_) {
+void Application::register_switch(switch_::Switch *a_switch) {
   for (auto *controller : this->controllers_)
-    controller->register_switch(switch_);
+    controller->register_switch(a_switch);
 #ifdef USE_MQTT_SWITCH
   if (this->mqtt_client_ != nullptr) {
-    switch_->set_mqtt(this->register_component(new MQTTSwitchComponent(switch_)));
+    a_switch->set_mqtt(this->register_component(new MQTTSwitchComponent(a_switch)));
   }
 #endif
 }
@@ -406,17 +379,14 @@ DallasComponent *Application::make_dallas_component(const GPIOOutputPin &pin, ui
 #endif
 
 #ifdef USE_GPIO_SWITCH
-switch_::GPIOSwitch *Application::make_gpio_switch(const std::string &friendly_name,
-                                                   const GPIOOutputPin &pin) {
+switch_::GPIOSwitch *Application::make_gpio_switch(const std::string &friendly_name, const GPIOOutputPin &pin) {
   auto gpio_switch = this->register_component(new GPIOSwitch(friendly_name, pin.copy()));
   this->register_switch(gpio_switch);
   return gpio_switch;
 }
 #endif
 
-const std::string &Application::get_name() const {
-  return this->name_;
-}
+const std::string &Application::get_name() const { return this->name_; }
 
 #ifdef USE_FAN
 Application::MakeFan Application::make_fan(const std::string &friendly_name) {
@@ -446,8 +416,7 @@ sensor::PulseCounterSensorComponent *Application::make_pulse_counter_sensor(cons
 #endif
 
 #ifdef USE_ADC_SENSOR
-sensor::ADCSensorComponent *Application::make_adc_sensor(const std::string &friendly_name,
-                                                         uint8_t pin,
+sensor::ADCSensorComponent *Application::make_adc_sensor(const std::string &friendly_name, uint8_t pin,
                                                          uint32_t update_interval) {
   auto *adc = this->register_component(new ADCSensorComponent(friendly_name, pin, update_interval));
   this->register_sensor(adc);
@@ -461,16 +430,14 @@ sensor::UltrasonicSensorComponent *Application::make_ultrasonic_sensor(const std
                                                                        const GPIOInputPin &echo_pin,
                                                                        uint32_t update_interval) {
   auto *ultrasonic = this->register_component(
-      new UltrasonicSensorComponent(friendly_name, trigger_pin.copy(), echo_pin.copy(), update_interval)
-  );
+      new UltrasonicSensorComponent(friendly_name, trigger_pin.copy(), echo_pin.copy(), update_interval));
   this->register_sensor(ultrasonic);
   return ultrasonic;
 }
 #endif
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
-sensor::WiFiSignalSensor *Application::make_wifi_signal_sensor(const std::string &name,
-                                                               uint32_t update_interval) {
+sensor::WiFiSignalSensor *Application::make_wifi_signal_sensor(const std::string &name, uint32_t update_interval) {
   auto *wifi = this->register_component(new WiFiSignalSensor(name, update_interval));
   this->register_sensor(wifi);
   return wifi;
@@ -488,10 +455,7 @@ sensor::BMP085Component *Application::make_bmp085_sensor(const std::string &temp
                                                          const std::string &pressure_friendly_name,
                                                          uint32_t update_interval) {
   auto *bmp = this->register_component(
-      new BMP085Component(this->i2c_,
-                          temperature_friendly_name, pressure_friendly_name,
-                          update_interval)
-  );
+      new BMP085Component(this->i2c_, temperature_friendly_name, pressure_friendly_name, update_interval));
   this->register_sensor(bmp->get_temperature_sensor());
   this->register_sensor(bmp->get_pressure_sensor());
   return bmp;
@@ -503,9 +467,7 @@ sensor::HTU21DComponent *Application::make_htu21d_sensor(const std::string &temp
                                                          const std::string &humidity_friendly_name,
                                                          uint32_t update_interval) {
   auto *htu21d = this->register_component(
-      new HTU21DComponent(this->i2c_, temperature_friendly_name, humidity_friendly_name,
-                          update_interval)
-  );
+      new HTU21DComponent(this->i2c_, temperature_friendly_name, humidity_friendly_name, update_interval));
   this->register_sensor(htu21d->get_temperature_sensor());
   this->register_sensor(htu21d->get_humidity_sensor());
   return htu21d;
@@ -539,23 +501,23 @@ StatusBinarySensor *Application::make_status_binary_sensor(const std::string &fr
 
 #ifdef USE_RESTART_SWITCH
 switch_::RestartSwitch *Application::make_restart_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new RestartSwitch(friendly_name));
-  this->register_switch(switch_);
-  return switch_;
+  auto *a_switch = this->register_component(new RestartSwitch(friendly_name));
+  this->register_switch(a_switch);
+  return a_switch;
 }
 #endif
 
 #ifdef USE_SHUTDOWN_SWITCH
 switch_::ShutdownSwitch *Application::make_shutdown_switch(const std::string &friendly_name) {
-  auto *switch_ = this->register_component(new ShutdownSwitch(friendly_name));
-  this->register_switch(switch_);
-  return switch_;
+  auto *a_switch = this->register_component(new ShutdownSwitch(friendly_name));
+  this->register_switch(a_switch);
+  return a_switch;
 }
 #endif
 
 #ifdef USE_ESP8266_PWM_OUTPUT
-ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin_) {
-  return this->register_component(new ESP8266PWMOutput(pin_));
+ESP8266PWMOutput *Application::make_esp8266_pwm_output(GPIOOutputPin pin) {
+  return this->register_component(new ESP8266PWMOutput(pin));
 }
 #endif
 
@@ -564,10 +526,7 @@ sensor::HDC1080Component *Application::make_hdc1080_sensor(const std::string &te
                                                            const std::string &humidity_friendly_name,
                                                            uint32_t update_interval) {
   auto *hdc1080 = this->register_component(
-      new HDC1080Component(this->i2c_,
-                           temperature_friendly_name, humidity_friendly_name,
-                           update_interval)
-  );
+      new HDC1080Component(this->i2c_, temperature_friendly_name, humidity_friendly_name, update_interval));
   this->register_sensor(hdc1080->get_temperature_sensor());
   this->register_sensor(hdc1080->get_humidity_sensor());
   return hdc1080;
@@ -575,9 +534,7 @@ sensor::HDC1080Component *Application::make_hdc1080_sensor(const std::string &te
 #endif
 
 #ifdef USE_DEBUG_COMPONENT
-DebugComponent *Application::make_debug_component() {
-  return this->register_component(new DebugComponent());
-}
+DebugComponent *Application::make_debug_component() { return this->register_component(new DebugComponent()); }
 #endif
 
 #ifdef USE_FAN
@@ -633,8 +590,7 @@ switch_::OutputSwitch *Application::make_output_switch(const std::string &friend
 #endif
 
 #ifdef USE_TSL2561
-sensor::TSL2561Sensor *Application::make_tsl2561_sensor(const std::string &name,
-                                                        uint8_t address,
+sensor::TSL2561Sensor *Application::make_tsl2561_sensor(const std::string &name, uint8_t address,
                                                         uint32_t update_interval) {
   auto *tsl = this->register_component(new TSL2561Sensor(this->i2c_, name, address, update_interval));
   this->register_sensor(tsl);
@@ -643,8 +599,7 @@ sensor::TSL2561Sensor *Application::make_tsl2561_sensor(const std::string &name,
 #endif
 
 #ifdef USE_BH1750
-sensor::BH1750Sensor *Application::make_bh1750_sensor(const std::string &name,
-                                                      uint8_t address,
+sensor::BH1750Sensor *Application::make_bh1750_sensor(const std::string &name, uint8_t address,
                                                       uint32_t update_interval) {
   auto *bh1750 = this->register_component(new BH1750Sensor(this->i2c_, name, address, update_interval));
   this->register_sensor(bh1750);
@@ -655,14 +610,10 @@ sensor::BH1750Sensor *Application::make_bh1750_sensor(const std::string &name,
 #ifdef USE_BME280
 sensor::BME280Component *Application::make_bme280_sensor(const std::string &temperature_name,
                                                          const std::string &pressure_name,
-                                                         const std::string &humidity_name,
-                                                         uint8_t address,
+                                                         const std::string &humidity_name, uint8_t address,
                                                          uint32_t update_interval) {
   auto *bme280 = this->register_component(
-      new BME280Component(this->i2c_,
-                          temperature_name, pressure_name, humidity_name,
-                          address, update_interval)
-  );
+      new BME280Component(this->i2c_, temperature_name, pressure_name, humidity_name, address, update_interval));
   this->register_sensor(bme280->get_temperature_sensor());
   this->register_sensor(bme280->get_pressure_sensor());
   this->register_sensor(bme280->get_humidity_sensor());
@@ -672,14 +623,10 @@ sensor::BME280Component *Application::make_bme280_sensor(const std::string &temp
 
 #ifdef USE_BMP280
 sensor::BMP280Component *Application::make_bmp280_sensor(const std::string &temperature_name,
-                                                         const std::string &pressure_name,
-                                                         uint8_t address,
+                                                         const std::string &pressure_name, uint8_t address,
                                                          uint32_t update_interval) {
   auto *bmp280 = this->register_component(
-      new BMP280Component(this->i2c_,
-                          temperature_name, pressure_name,
-                          address, update_interval)
-  );
+      new BMP280Component(this->i2c_, temperature_name, pressure_name, address, update_interval));
   this->register_sensor(bmp280->get_temperature_sensor());
   this->register_sensor(bmp280->get_pressure_sensor());
   return bmp280;
@@ -690,14 +637,10 @@ sensor::BMP280Component *Application::make_bmp280_sensor(const std::string &temp
 sensor::BME680Component *Application::make_bme680_sensor(const std::string &temperature_name,
                                                          const std::string &pressure_name,
                                                          const std::string &humidity_name,
-                                                         const std::string &gas_resistance_name,
-                                                         uint8_t address,
+                                                         const std::string &gas_resistance_name, uint8_t address,
                                                          uint32_t update_interval) {
-  auto *bme680 = this->register_component(
-      new BME680Component(this->i2c_,
-                          temperature_name, pressure_name, humidity_name, gas_resistance_name,
-                          address, update_interval)
-  );
+  auto *bme680 = this->register_component(new BME680Component(
+      this->i2c_, temperature_name, pressure_name, humidity_name, gas_resistance_name, address, update_interval));
   this->register_sensor(bme680->get_temperature_sensor());
   this->register_sensor(bme680->get_pressure_sensor());
   this->register_sensor(bme680->get_humidity_sensor());
@@ -708,14 +651,10 @@ sensor::BME680Component *Application::make_bme680_sensor(const std::string &temp
 
 #ifdef USE_SHT3XD
 sensor::SHT3XDComponent *Application::make_sht3xd_sensor(const std::string &temperature_name,
-                                                         const std::string &humidity_name,
-                                                         uint8_t address,
+                                                         const std::string &humidity_name, uint8_t address,
                                                          uint32_t update_interval) {
   auto *sht3xd = this->register_component(
-      new SHT3XDComponent(this->i2c_,
-                          temperature_name, humidity_name,
-                          address, update_interval)
-  );
+      new SHT3XDComponent(this->i2c_, temperature_name, humidity_name, address, update_interval));
   this->register_sensor(sht3xd->get_temperature_sensor());
   this->register_sensor(sht3xd->get_humidity_sensor());
   return sht3xd;
@@ -729,9 +668,7 @@ ESP32TouchComponent *Application::make_esp32_touch_component() {
 #endif
 
 #ifdef USE_ESP32_BLE_TRACKER
-ESP32BLETracker *Application::make_esp32_ble_tracker() {
-  return this->register_component(new ESP32BLETracker());
-}
+ESP32BLETracker *Application::make_esp32_ble_tracker() { return this->register_component(new ESP32BLETracker()); }
 #endif
 
 #ifdef USE_FAST_LED_LIGHT
@@ -748,11 +685,9 @@ Application::MakeFastLEDLight Application::make_fast_led_light(const std::string
 
 #ifdef USE_DHT12_SENSOR
 sensor::DHT12Component *Application::make_dht12_sensor(const std::string &temperature_name,
-                                                       const std::string &humidity_name,
-                                                       uint32_t update_interval) {
-  auto *dht12 = this->register_component(
-      new DHT12Component(this->i2c_, temperature_name, humidity_name, update_interval)
-  );
+                                                       const std::string &humidity_name, uint32_t update_interval) {
+  auto *dht12 =
+      this->register_component(new DHT12Component(this->i2c_, temperature_name, humidity_name, update_interval));
   this->register_sensor(dht12->get_temperature_sensor());
   this->register_sensor(dht12->get_humidity_sensor());
   return dht12;
@@ -760,8 +695,7 @@ sensor::DHT12Component *Application::make_dht12_sensor(const std::string &temper
 #endif
 
 #ifdef USE_ROTARY_ENCODER_SENSOR
-sensor::RotaryEncoderSensor *Application::make_rotary_encoder_sensor(const std::string &name,
-                                                                     const GPIOInputPin &pin_a,
+sensor::RotaryEncoderSensor *Application::make_rotary_encoder_sensor(const std::string &name, const GPIOInputPin &pin_a,
                                                                      const GPIOInputPin &pin_b) {
   auto *encoder = this->register_component(new RotaryEncoderSensor(name, pin_a.copy(), pin_b.copy()));
   this->register_sensor(encoder);
@@ -769,44 +703,31 @@ sensor::RotaryEncoderSensor *Application::make_rotary_encoder_sensor(const std::
 }
 #endif
 
-StartupTrigger *Application::make_startup_trigger() {
-  return this->register_component(new StartupTrigger());
-}
+StartupTrigger *Application::make_startup_trigger() { return this->register_component(new StartupTrigger()); }
 
-ShutdownTrigger *Application::make_shutdown_trigger() {
-  return new ShutdownTrigger();
-}
+ShutdownTrigger *Application::make_shutdown_trigger() { return new ShutdownTrigger(); }
 
 #ifdef USE_TEMPLATE_SENSOR
-sensor::TemplateSensor *Application::make_template_sensor(const std::string &name,
-                                                          uint32_t update_interval) {
-  auto *template_ = this->register_component(new TemplateSensor(name, update_interval));
-  this->register_sensor(template_);
-  return template_;
+sensor::TemplateSensor *Application::make_template_sensor(const std::string &name, uint32_t update_interval) {
+  auto *a_template = this->register_component(new TemplateSensor(name, update_interval));
+  this->register_sensor(a_template);
+  return a_template;
 }
 #endif
 
 #ifdef USE_MAX31855_SENSOR
-sensor::MAX31855Sensor *Application::make_max31855_sensor(const std::string &name,
-                                                          SPIComponent *spi_bus,
-                                                          const GPIOOutputPin &cs,
-                                                          uint32_t update_interval) {
-  auto *sensor = this->register_component(
-      new MAX31855Sensor(name, spi_bus, cs.copy(), update_interval)
-  );
+sensor::MAX31855Sensor *Application::make_max31855_sensor(const std::string &name, SPIComponent *spi_bus,
+                                                          const GPIOOutputPin &cs, uint32_t update_interval) {
+  auto *sensor = this->register_component(new MAX31855Sensor(name, spi_bus, cs.copy(), update_interval));
   this->register_sensor(sensor);
   return sensor;
 }
 #endif
 
 #ifdef USE_MAX6675_SENSOR
-sensor::MAX6675Sensor *Application::make_max6675_sensor(const std::string &name,
-                                                        SPIComponent *spi_bus,
-                                                        const GPIOOutputPin &cs,
-                                                        uint32_t update_interval) {
-  auto *sensor = this->register_component(
-      new MAX6675Sensor(name, spi_bus, cs.copy(), update_interval)
-  );
+sensor::MAX6675Sensor *Application::make_max6675_sensor(const std::string &name, SPIComponent *spi_bus,
+                                                        const GPIOOutputPin &cs, uint32_t update_interval) {
+  auto *sensor = this->register_component(new MAX6675Sensor(name, spi_bus, cs.copy(), update_interval));
   this->register_sensor(sensor);
   return sensor;
 }
@@ -814,17 +735,17 @@ sensor::MAX6675Sensor *Application::make_max6675_sensor(const std::string &name,
 
 #ifdef USE_TEMPLATE_BINARY_SENSOR
 binary_sensor::TemplateBinarySensor *Application::make_template_binary_sensor(const std::string &name) {
-  auto *template_ = this->register_component(new TemplateBinarySensor(name));
-  this->register_binary_sensor(template_);
-  return template_;
+  auto *a_template = this->register_component(new TemplateBinarySensor(name));
+  this->register_binary_sensor(a_template);
+  return a_template;
 }
 #endif
 
 #ifdef USE_TEMPLATE_SWITCH
 switch_::TemplateSwitch *Application::make_template_switch(const std::string &name) {
-  auto *template_ = this->register_component(new TemplateSwitch(name));
-  this->register_switch(template_);
-  return template_;
+  auto *a_template = this->register_component(new TemplateSwitch(name));
+  this->register_switch(a_template);
+  return a_template;
 }
 #endif
 
@@ -861,8 +782,7 @@ remote::RemoteReceiverComponent *Application::make_remote_receiver_component(con
 #endif
 
 #ifdef USE_DUTY_CYCLE_SENSOR
-sensor::DutyCycleSensor *Application::make_duty_cycle_sensor(const std::string &name,
-                                                             const GPIOInputPin &pin,
+sensor::DutyCycleSensor *Application::make_duty_cycle_sensor(const std::string &name, const GPIOInputPin &pin,
                                                              uint32_t update_interval) {
   auto *duty = this->register_component(new DutyCycleSensor(name, pin.copy(), update_interval));
   this->register_sensor(duty);
@@ -871,8 +791,7 @@ sensor::DutyCycleSensor *Application::make_duty_cycle_sensor(const std::string &
 #endif
 
 #ifdef USE_ESP32_HALL_SENSOR
-sensor::ESP32HallSensor *Application::make_esp32_hall_sensor(const std::string &name,
-                                                             uint32_t update_interval) {
+sensor::ESP32HallSensor *Application::make_esp32_hall_sensor(const std::string &name, uint32_t update_interval) {
   auto *hall = this->register_component(new ESP32HallSensor(name, update_interval));
   this->register_sensor(hall);
   return hall;
@@ -892,8 +811,7 @@ StatusLEDComponent *Application::make_status_led(const GPIOOutputPin &pin) {
 #endif
 
 #ifdef USE_MHZ19
-sensor::MHZ19Component *Application::make_mhz19_sensor(UARTComponent *parent,
-                                                       const std::string &co2_name,
+sensor::MHZ19Component *Application::make_mhz19_sensor(UARTComponent *parent, const std::string &co2_name,
                                                        uint32_t update_interval) {
   auto *mhz19 = this->register_component(new MHZ19Component(parent, co2_name, update_interval));
   this->register_sensor(mhz19->get_co2_sensor());
@@ -917,16 +835,14 @@ SPIComponent *Application::init_spi(const GPIOOutputPin &clk) {
 #endif
 
 #ifdef USE_PN532
-PN532Component *Application::make_pn532_component(SPIComponent *parent,
-                                                  const GPIOOutputPin &cs,
+PN532Component *Application::make_pn532_component(SPIComponent *parent, const GPIOOutputPin &cs,
                                                   uint32_t update_interval) {
   return this->register_component(new PN532Component(parent, cs.copy(), update_interval));
 }
 #endif
 
 #ifdef USE_UART_SWITCH
-switch_::UARTSwitch *Application::make_uart_switch(UARTComponent *parent,
-                                                   const std::string &name,
+switch_::UARTSwitch *Application::make_uart_switch(UARTComponent *parent, const std::string &name,
                                                    const std::vector<uint8_t> &data) {
   auto *uart = new UARTSwitch(parent, name, data);
   this->register_switch(uart);
@@ -943,17 +859,10 @@ sensor::UptimeSensor *Application::make_uptime_sensor(const std::string &name, u
 #endif
 
 #ifdef USE_INA219
-sensor::INA219Component *Application::make_ina219(float shunt_resistance_ohm,
-                                                  float max_current_a,
-                                                  float max_voltage_v,
-                                                  uint8_t address,
-                                                  uint32_t update_interval) {
-  return this->register_component(new INA219Component(this->i2c_,
-                                                      shunt_resistance_ohm,
-                                                      max_current_a,
-                                                      max_voltage_v,
-                                                      address,
-                                                      update_interval));
+sensor::INA219Component *Application::make_ina219(float shunt_resistance_ohm, float max_current_a, float max_voltage_v,
+                                                  uint8_t address, uint32_t update_interval) {
+  return this->register_component(
+      new INA219Component(this->i2c_, shunt_resistance_ohm, max_current_a, max_voltage_v, address, update_interval));
 }
 #endif
 
@@ -970,10 +879,8 @@ sensor::HMC5883LComponent *Application::make_hmc5883l(uint32_t update_interval) 
 #endif
 
 #ifdef USE_HX711
-sensor::HX711Sensor *Application::make_hx711_sensor(const std::string &name,
-                                                    const GPIOInputPin &dout,
-                                                    const GPIOOutputPin &sck,
-                                                    uint32_t update_interval) {
+sensor::HX711Sensor *Application::make_hx711_sensor(const std::string &name, const GPIOInputPin &dout,
+                                                    const GPIOOutputPin &sck, uint32_t update_interval) {
   auto *hx711 = this->register_component(new HX711Sensor(name, dout.copy(), sck.copy(), update_interval));
   this->register_sensor(hx711);
   return hx711;
@@ -982,11 +889,9 @@ sensor::HX711Sensor *Application::make_hx711_sensor(const std::string &name,
 
 #ifdef USE_MS5611
 sensor::MS5611Component *Application::make_ms5611_sensor(const std::string &temperature_name,
-                                                         const std::string &pressure_name,
-                                                         uint32_t update_interval) {
-  auto *ms5611 = this->register_component(
-      new MS5611Component(this->i2c_, temperature_name, pressure_name, update_interval)
-  );
+                                                         const std::string &pressure_name, uint32_t update_interval) {
+  auto *ms5611 =
+      this->register_component(new MS5611Component(this->i2c_, temperature_name, pressure_name, update_interval));
   this->register_sensor(ms5611->get_temperature_sensor());
   this->register_sensor(ms5611->get_pressure_sensor());
   return ms5611;
@@ -1009,17 +914,14 @@ sensor::TCS34725Component *Application::make_tcs34725(uint32_t update_interval) 
 #endif
 
 #ifdef USE_MAX7219
-display::MAX7219Component *Application::make_max7219(SPIComponent *parent,
-                                                     const GPIOOutputPin &cs,
+display::MAX7219Component *Application::make_max7219(SPIComponent *parent, const GPIOOutputPin &cs,
                                                      uint32_t update_interval) {
   return this->register_component(new display::MAX7219Component(parent, cs.copy(), update_interval));
 }
 #endif
 
 #ifdef USE_LCD_DISPLAY_PCF8574
-display::PCF8574LCDDisplay *Application::make_pcf8574_lcd_display(uint8_t columns,
-                                                                  uint8_t rows,
-                                                                  uint8_t address,
+display::PCF8574LCDDisplay *Application::make_pcf8574_lcd_display(uint8_t columns, uint8_t rows, uint8_t address,
                                                                   uint32_t update_interval) {
   return this->register_component(new display::PCF8574LCDDisplay(this->i2c_, columns, rows, address, update_interval));
 }
@@ -1027,10 +929,8 @@ display::PCF8574LCDDisplay *Application::make_pcf8574_lcd_display(uint8_t column
 
 #ifdef USE_SSD1306
 #ifdef USE_SPI
-display::SPISSD1306 *Application::make_spi_ssd1306(SPIComponent *parent,
-                                                   const GPIOOutputPin &cs,
-                                                   const GPIOOutputPin &dc,
-                                                   uint32_t update_interval) {
+display::SPISSD1306 *Application::make_spi_ssd1306(SPIComponent *parent, const GPIOOutputPin &cs,
+                                                   const GPIOOutputPin &dc, uint32_t update_interval) {
   return this->register_component(new display::SPISSD1306(parent, cs.copy(), dc.copy(), update_interval));
 }
 #endif
@@ -1043,18 +943,15 @@ display::I2CSSD1306 *Application::make_i2c_ssd1306(uint32_t update_interval) {
 #endif
 
 #ifdef USE_WAVESHARE_EPAPER
-display::WaveshareEPaperTypeA *Application::make_waveshare_epaper_type_a(SPIComponent *parent,
-                                                                         const GPIOOutputPin &cs,
+display::WaveshareEPaperTypeA *Application::make_waveshare_epaper_type_a(SPIComponent *parent, const GPIOOutputPin &cs,
                                                                          const GPIOOutputPin &dc_pin,
                                                                          display::WaveshareEPaperTypeAModel model,
                                                                          uint32_t update_interval) {
   return this->register_component(
-      new display::WaveshareEPaperTypeA(parent, cs.copy(), dc_pin.copy(), model, update_interval)
-  );
+      new display::WaveshareEPaperTypeA(parent, cs.copy(), dc_pin.copy(), model, update_interval));
 }
 
-display::WaveshareEPaper *Application::make_waveshare_epaper_type_b(SPIComponent *parent,
-                                                                    const GPIOOutputPin &cs,
+display::WaveshareEPaper *Application::make_waveshare_epaper_type_b(SPIComponent *parent, const GPIOOutputPin &cs,
                                                                     const GPIOOutputPin &dc_pin,
                                                                     display::WaveshareEPaperTypeBModel model,
                                                                     uint32_t update_interval) {
@@ -1090,9 +987,7 @@ display::GPIOLCDDisplay *Application::make_gpio_lcd_display(uint8_t columns, uin
 #endif
 
 #ifdef USE_SNTP_COMPONENT
-SNTPComponent *Application::make_sntp_component() {
-  return this->register_component(new SNTPComponent());
-}
+SNTPComponent *Application::make_sntp_component() { return this->register_component(new SNTPComponent()); }
 #endif
 
 #ifdef USE_HOMEASSISTANT_TIME
@@ -1102,9 +997,7 @@ HomeAssistantTime *Application::make_homeassistant_time_component() {
 #endif
 
 #ifdef USE_HLW8012
-sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin,
-                                                    uint8_t cf_pin,
-                                                    uint8_t cf1_pin,
+sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin,
                                                     uint32_t update_interval) {
   return this->register_component(new HLW8012Component(sel_pin.copy(), cf_pin, cf1_pin, update_interval));
 }
@@ -1139,8 +1032,8 @@ text_sensor::MQTTSubscribeTextSensor *Application::make_mqtt_subscribe_text_sens
 
 #ifdef USE_HOMEASSISTANT_TEXT_SENSOR
 text_sensor::HomeassistantTextSensor *Application::make_homeassistant_text_sensor(const std::string &name,
-                                                                                     std::string entity_id) {
-  auto *sensor = this->register_component(new HomeassistantTextSensor(name, std::move(entity_id)));
+                                                                                  std::string entity_id) {
+  auto *sensor = this->register_component(new HomeassistantTextSensor(name, entity_id));
   this->register_text_sensor(sensor);
   return sensor;
 }
@@ -1163,18 +1056,17 @@ sensor::MQTTSubscribeSensor *Application::make_mqtt_subscribe_sensor(const std::
 #endif
 
 #ifdef USE_HOMEASSISTANT_SENSOR
-sensor::HomeassistantSensor *Application::make_homeassistant_sensor(const std::string &name,
-                                                                    std::string entity_id) {
-  auto *sensor = this->register_component(new HomeassistantSensor(name, std::move(entity_id)));
+sensor::HomeassistantSensor *Application::make_homeassistant_sensor(const std::string &name, std::string entity_id) {
+  auto *sensor = this->register_component(new HomeassistantSensor(name, entity_id));
   this->register_sensor(sensor);
   return sensor;
 }
 #endif
 
 #ifdef USE_HOMEASSISTANT_BINARY_SENSOR
-binary_sensor::HomeassistantBinarySensor *Application::make_homeassistant_binary_sensor(
-    const std::string &name, std::string entity_id) {
-  auto *sensor = this->register_component(new HomeassistantBinarySensor(name, std::move(entity_id)));
+binary_sensor::HomeassistantBinarySensor *Application::make_homeassistant_binary_sensor(const std::string &name,
+                                                                                        std::string entity_id) {
+  auto *sensor = this->register_component(new HomeassistantBinarySensor(name, entity_id));
   this->register_binary_sensor(sensor);
   return sensor;
 }
@@ -1182,10 +1074,10 @@ binary_sensor::HomeassistantBinarySensor *Application::make_homeassistant_binary
 
 #ifdef USE_TEMPLATE_TEXT_SENSOR
 text_sensor::TemplateTextSensor *Application::make_template_text_sensor(const std::string &name,
-                                                                           uint32_t update_interval) {
-  auto *template_ = this->register_component(new TemplateTextSensor(name, update_interval));
-  this->register_text_sensor(template_);
-  return template_;
+                                                                        uint32_t update_interval) {
+  auto *a_template = this->register_component(new TemplateTextSensor(name, update_interval));
+  this->register_text_sensor(a_template);
+  return a_template;
 }
 #endif
 
@@ -1217,9 +1109,7 @@ sensor::TotalDailyEnergy *Application::make_total_daily_energy_sensor(const std:
 }
 #endif
 
-void Application::set_loop_interval(uint32_t loop_interval) {
-  this->loop_interval_ = loop_interval;
-}
+void Application::set_loop_interval(uint32_t loop_interval) { this->loop_interval_ = loop_interval; }
 
 void Application::register_component_(Component *comp) {
   if (comp == nullptr) {
@@ -1246,8 +1136,8 @@ api::APIServer *Application::init_api_server() {
 #endif
 
 #ifdef USE_CUSTOM_BINARY_SENSOR
-binary_sensor::CustomBinarySensorConstructor *Application::make_custom_binary_sensor(const std::function<std::vector<
-    BinarySensor *>()> &init) {
+binary_sensor::CustomBinarySensorConstructor *Application::make_custom_binary_sensor(
+    const std::function<std::vector<BinarySensor *>()> &init) {
   return this->register_component(new CustomBinarySensorConstructor(init));
 }
 #endif
@@ -1303,6 +1193,6 @@ io::MCP23017 *Application::make_mcp23017_component(uint8_t address) {
 }
 #endif
 
-Application App; // NOLINT
+Application App;  // NOLINT
 
 ESPHOME_NAMESPACE_END

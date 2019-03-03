@@ -42,10 +42,10 @@ class GPIOSwitch : public Switch, public Component {
   std::vector<Switch *> interlock_;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_GPIO_SWITCH
+#endif  // USE_GPIO_SWITCH
 
-#endif //ESPHOME_SWITCH_GPIO_SWITCH_H
+#endif  // ESPHOME_SWITCH_GPIO_SWITCH_H

@@ -8,15 +8,44 @@ cache:
     - "~/.platformio"
     - "$TRAVIS_BUILD_DIR/.piolibdeps"
 
-script:
-  - python travis.py
-  - platformio run -e $BUILD_TARGET
-
 matrix:
   fast_finish: true
   include:
-  - env: BUILD_TARGET=livingroom
-  - env: BUILD_TARGET=livingroom8266
-  - env: BUILD_TARGET=custombmp180
-  - env: BUILD_TARGET=fastled
+  - env: TARGET=lint
+    dist: trusty
+    sudo: required
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-trusty-7
+        packages:
+          - cmake
+          - clang-tidy-7
+          - clang-format-7
+    before_script:
+      - pio init --ide clion
+      - |
+        if ! patch -R -p0 -s -f --dry-run <travis/neopixelbus.patch; then
+          patch -p0 < travis/neopixelbus.patch
+        fi
+      - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+      - clang-tidy-7 -version
+      - clang-format-7 -version
+      - clang-apply-replacements-7 -version
+      - nproc
+    script:
+      - python travis/run-clang-tidy.py -j 2 --fix
+      - python travis/run-clang-format.py -i -j 2
+      - travis/suggest-changes.sh
+  - env: TARGET=livingroom
+    script: &run_script
+      - python travis/travis.py
+      - platformio run -e $TARGET --disable-auto-clean
+  - env: TARGET=livingroom8266
+    script: *run_script
+  - env: TARGET=custombmp180
+    script: *run_script
+  - env: TARGET=fastled
+    script: *run_script
     if: branch = dev AND type = push

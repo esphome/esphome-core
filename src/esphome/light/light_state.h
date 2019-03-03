@@ -24,12 +24,9 @@ using light_send_callback_t = std::function<void()>;
 class LightEffect;
 class LightOutput;
 
-template<typename... Ts>
-class ToggleAction;
-template<typename... Ts>
-class TurnOffAction;
-template<typename... Ts>
-class TurnOnAction;
+template<typename... Ts> class ToggleAction;
+template<typename... Ts> class TurnOffAction;
+template<typename... Ts> class TurnOnAction;
 
 #ifdef USE_MQTT_LIGHT
 class MQTTJSONLightComponent;
@@ -81,27 +78,17 @@ class LightState : public Nameable, public Component {
 
   void current_values_as_rgbw(float *red, float *green, float *blue, float *white);
 
-  void current_values_as_rgbww(float color_temperature_cw,
-                               float color_temperature_ww,
-                               float *red,
-                               float *green,
-                               float *blue,
-                               float *cold_white,
-                               float *warm_white);
+  void current_values_as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green,
+                               float *blue, float *cold_white, float *warm_white);
 
-  void current_values_as_cwww(float color_temperature_cw,
-                              float color_temperature_ww,
-                              float *cold_white,
+  void current_values_as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white,
                               float *warm_white);
 
   LightTraits get_traits();
 
-  template<typename... Ts>
-  ToggleAction<Ts...> *make_toggle_action();
-  template<typename... Ts>
-  TurnOffAction<Ts...> *make_turn_off_action();
-  template<typename... Ts>
-  TurnOnAction<Ts...> *make_turn_on_action();
+  template<typename... Ts> ToggleAction<Ts...> *make_toggle_action();
+  template<typename... Ts> TurnOffAction<Ts...> *make_turn_off_action();
+  template<typename... Ts> TurnOnAction<Ts...> *make_turn_on_action();
 
   class StateCall {
    public:
@@ -220,7 +207,7 @@ class LightState : public Nameable, public Component {
 #endif
 
  protected:
-  uint32_t hash_base_() override;
+  uint32_t hash_base() override;
 
   ESPPreferenceObject rtc_;
   uint32_t default_transition_length_{1000};
@@ -230,7 +217,7 @@ class LightState : public Nameable, public Component {
   LightColorValues values_{};
   LightColorValues remote_values_{};
   CallbackManager<void()> remote_values_callback_{};
-  LightOutput *output_; ///< Store the output to allow effects to have more access.
+  LightOutput *output_;  ///< Store the output to allow effects to have more access.
   bool next_write_{true};
   float gamma_correct_{2.8f};
   std::vector<LightEffect *> effects_;
@@ -250,13 +237,11 @@ class LightOutput {
   virtual void write_state(LightState *state) = 0;
 };
 
-template<typename... Ts>
-class ToggleAction : public Action<Ts...> {
+template<typename... Ts> class ToggleAction : public Action<Ts...> {
  public:
   explicit ToggleAction(LightState *state);
 
-  template<typename V>
-  void set_transition_length(V value) { this->transition_length_ = value; }
+  template<typename V> void set_transition_length(V value) { this->transition_length_ = value; }
 
   void play(Ts... x) override;
 
@@ -265,13 +250,11 @@ class ToggleAction : public Action<Ts...> {
   TemplatableValue<uint32_t, Ts...> transition_length_;
 };
 
-template<typename... Ts>
-class TurnOffAction : public Action<Ts...> {
+template<typename... Ts> class TurnOffAction : public Action<Ts...> {
  public:
   explicit TurnOffAction(LightState *state);
 
-  template<typename V>
-  void set_transition_length(V value) { this->transition_length_ = value; }
+  template<typename V> void set_transition_length(V value) { this->transition_length_ = value; }
 
   void play(Ts... x) override;
 
@@ -280,29 +263,19 @@ class TurnOffAction : public Action<Ts...> {
   TemplatableValue<uint32_t, Ts...> transition_length_;
 };
 
-template<typename... Ts>
-class TurnOnAction : public Action<Ts...> {
+template<typename... Ts> class TurnOnAction : public Action<Ts...> {
  public:
   explicit TurnOnAction(LightState *state) : state_(state) {}
 
-  template<typename V>
-  void set_transition_length(V value) { this->transition_length_ = value; }
-  template<typename V>
-  void set_flash_length(V value) { this->flash_length_ = value; }
-  template<typename V>
-  void set_brightness(V value) { this->brightness_ = value; }
-  template<typename V>
-  void set_red(V value) { this->red_ = value; }
-  template<typename V>
-  void set_green(V value) { this->green_ = value; }
-  template<typename V>
-  void set_blue(V value) { this->blue_ = value; }
-  template<typename V>
-  void set_white(V value) { this->white_ = value; }
-  template<typename V>
-  void set_color_temperature(V value) { this->color_temperature_ = value; }
-  template<typename V>
-  void set_effect(V value) { this->effect_ = value; }
+  template<typename V> void set_transition_length(V value) { this->transition_length_ = value; }
+  template<typename V> void set_flash_length(V value) { this->flash_length_ = value; }
+  template<typename V> void set_brightness(V value) { this->brightness_ = value; }
+  template<typename V> void set_red(V value) { this->red_ = value; }
+  template<typename V> void set_green(V value) { this->green_ = value; }
+  template<typename V> void set_blue(V value) { this->blue_ = value; }
+  template<typename V> void set_white(V value) { this->white_ = value; }
+  template<typename V> void set_color_temperature(V value) { this->color_temperature_ = value; }
+  template<typename V> void set_effect(V value) { this->effect_ = value; }
 
   void play(Ts... x) override;
 
@@ -320,24 +293,17 @@ class TurnOnAction : public Action<Ts...> {
 };
 
 // =============== TEMPLATE DEFINITIONS ===============
-template<typename... Ts>
-ToggleAction<Ts...> *LightState::make_toggle_action() {
-  return new ToggleAction<Ts...>(this);
-}
-template<typename... Ts>
-TurnOffAction<Ts...> *LightState::make_turn_off_action() {
+template<typename... Ts> ToggleAction<Ts...> *LightState::make_toggle_action() { return new ToggleAction<Ts...>(this); }
+template<typename... Ts> TurnOffAction<Ts...> *LightState::make_turn_off_action() {
   return new TurnOffAction<Ts...>(this);
 }
-template<typename... Ts>
-TurnOnAction<Ts...> *LightState::make_turn_on_action() {
+template<typename... Ts> TurnOnAction<Ts...> *LightState::make_turn_on_action() {
   return new TurnOnAction<Ts...>(this);
 }
 
-template<typename... Ts>
-ToggleAction<Ts...>::ToggleAction(LightState *state) : state_(state) {}
+template<typename... Ts> ToggleAction<Ts...>::ToggleAction(LightState *state) : state_(state) {}
 
-template<typename... Ts>
-void ToggleAction<Ts...>::play(Ts... x) {
+template<typename... Ts> void ToggleAction<Ts...>::play(Ts... x) {
   auto call = this->state_->toggle();
   if (this->transition_length_.has_value()) {
     call.set_transition_length(this->transition_length_.value(x...));
@@ -345,10 +311,8 @@ void ToggleAction<Ts...>::play(Ts... x) {
   call.perform();
   this->play_next(x...);
 }
-template<typename... Ts>
-TurnOffAction<Ts...>::TurnOffAction(LightState *state) : state_(state) {}
-template<typename... Ts>
-void TurnOffAction<Ts...>::play(Ts... x) {
+template<typename... Ts> TurnOffAction<Ts...>::TurnOffAction(LightState *state) : state_(state) {}
+template<typename... Ts> void TurnOffAction<Ts...>::play(Ts... x) {
   auto call = this->state_->turn_off();
   if (this->transition_length_.has_value()) {
     call.set_transition_length(this->transition_length_.value(x...));
@@ -356,8 +320,7 @@ void TurnOffAction<Ts...>::play(Ts... x) {
   call.perform();
   this->play_next(x...);
 }
-template<typename... Ts>
-void TurnOnAction<Ts...>::play(Ts... x) {
+template<typename... Ts> void TurnOnAction<Ts...>::play(Ts... x) {
   auto call = this->state_->turn_on();
   if (this->brightness_.has_value()) {
     call.set_brightness(this->brightness_.value(x...));
@@ -390,12 +353,12 @@ void TurnOnAction<Ts...>::play(Ts... x) {
   this->play_next(x...);
 }
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/light/mqtt_json_light_component.h"
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOME_LIGHT_LIGHT_STATE_H
+#endif  // ESPHOME_LIGHT_LIGHT_STATE_H

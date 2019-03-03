@@ -24,10 +24,10 @@ class CustomSensorConstructor : public Component {
   std::vector<Sensor *> sensors_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_SENSOR
+#endif  // USE_CUSTOM_SENSOR
 
-#endif //ESPHOME_SENSOR_CUSTOM_SENSOR_H
+#endif  // ESPHOME_SENSOR_CUSTOM_SENSOR_H

@@ -19,8 +19,7 @@ using HTU21DHumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNI
 class HTU21DComponent : public PollingComponent, public I2CDevice {
  public:
   /// Construct the HTU21D with the given update interval.
-  HTU21DComponent(I2CComponent *parent,
-                  const std::string &temperature_name, const std::string &humidity_name,
+  HTU21DComponent(I2CComponent *parent, const std::string &temperature_name, const std::string &humidity_name,
                   uint32_t update_interval = 60000);
 
   // ========== INTERNAL METHODS ==========
@@ -43,10 +42,10 @@ class HTU21DComponent : public PollingComponent, public I2CDevice {
   HTU21DHumiditySensor *humidity_{nullptr};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HTU21D_SENSOR
+#endif  // USE_HTU21D_SENSOR
 
-#endif //ESPHOME_SENSOR_HTU21D_COMPONENT_H
+#endif  // ESPHOME_SENSOR_HTU21D_COMPONENT_H
