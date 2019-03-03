@@ -24,7 +24,7 @@ class SonyTransmitter : public RemoteTransmitter {
   uint8_t nbits_;
 };
 
-void encode_sony(RemoteTransmitData *data, uint32_t data_, uint8_t nbits);
+void encode_sony(RemoteTransmitData *data, uint32_t sony_data, uint8_t nbits);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -37,7 +37,6 @@ class SonyReceiver : public RemoteReceiver {
  protected:
   bool matches(RemoteReceiveData *data) override;
 
- protected:
   uint32_t data_;
   uint8_t nbits_;
 };
@@ -48,10 +47,10 @@ class SonyDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_REMOTE_SONY_H
+#endif  // ESPHOME_REMOTE_SONY_H

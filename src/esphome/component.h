@@ -11,16 +11,17 @@ ESPHOME_NAMESPACE_BEGIN
 /// default setup priorities for components of different types.
 namespace setup_priority {
 
-extern const float PRE_HARDWARE; ///< only for internal components that are necessary for hardware component initialization (like i2c bus)
-extern const float HARDWARE; ///< for hardware initialization, but only where it's really necessary (like outputs)
+extern const float PRE_HARDWARE;  ///< only for internal components that are necessary for hardware component
+                                  ///< initialization (like i2c bus)
+extern const float HARDWARE;      ///< for hardware initialization, but only where it's really necessary (like outputs)
 extern const float POST_HARDWARE;
 extern const float HARDWARE_LATE;
-extern const float WIFI; ///< for WiFi initialization
-extern const float MQTT_CLIENT; ///< for the MQTT client initialization
-extern const float MQTT_COMPONENT; ///< for MQTT component initialization
+extern const float WIFI;            ///< for WiFi initialization
+extern const float MQTT_CLIENT;     ///< for the MQTT client initialization
+extern const float MQTT_COMPONENT;  ///< for MQTT component initialization
 extern const float LATE;
 
-} // namespace setup_priority
+}  // namespace setup_priority
 
 extern const uint32_t COMPONENT_STATE_MASK;
 extern const uint32_t COMPONENT_STATE_CONSTRUCTION;
@@ -101,8 +102,8 @@ class Component {
    *
    * Basically, it handles stuff like interval/timeout functions and eventually calls loop().
    */
-  virtual void loop_();
-  virtual void setup_();
+  virtual void call_loop();
+  virtual void call_setup();
 
   uint32_t get_component_state() const;
 
@@ -135,11 +136,6 @@ class Component {
   void status_momentary_error(const std::string &name, uint32_t length = 5000);
 
  protected:
-  void loop_internal();
-  void setup_internal();
-
-  void set_interval(uint32_t interval, std::function<void()> &&f);
-
   /** Set an interval function with a unique name. Empty name means no cancelling possible.
    *
    * This will call f every interval ms. Can be cancelled via CancelInterval().
@@ -155,16 +151,18 @@ class Component {
    *
    * @see cancel_interval()
    */
-  void set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f);
+  void set_interval(const std::string &name, uint32_t interval, std::function<void()> &&f);  // NOLINT
+
+  void set_interval(uint32_t interval, std::function<void()> &&f);  // NOLINT
 
   /** Cancel an interval function.
    *
    * @param name The identifier for this interval function.
    * @return Whether an interval functions was deleted.
    */
-  bool cancel_interval(const std::string &name);
+  bool cancel_interval(const std::string &name);  // NOLINT
 
-  void set_timeout(uint32_t timeout, std::function<void()> &&f);
+  void set_timeout(uint32_t timeout, std::function<void()> &&f);  // NOLINT
 
   /** Set a timeout function with a unique name.
    *
@@ -180,14 +178,14 @@ class Component {
    *
    * @see cancel_timeout()
    */
-  void set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f);
+  void set_timeout(const std::string &name, uint32_t timeout, std::function<void()> &&f);  // NOLINT
 
   /** Cancel a timeout function.
    *
    * @param name The identifier for this timeout function.
    * @return Whether a timeout functions was deleted.
    */
-  bool cancel_timeout(const std::string &name);
+  bool cancel_timeout(const std::string &name);  // NOLINT
 
   /** Defer a callback to the next loop() call.
    *
@@ -196,29 +194,32 @@ class Component {
    * @param name The name of the defer function.
    * @param f The callback.
    */
-  void defer(const std::string &name, std::function<void()> &&f);
+  void defer(const std::string &name, std::function<void()> &&f);  // NOLINT
 
   /// Defer a callback to the next loop() call.
-  void defer(std::function<void()> &&f);
+  void defer(std::function<void()> &&f);  // NOLINT
 
   /// Cancel a defer callback using the specified name, name must not be empty.
-  bool cancel_defer(const std::string &name);
+  bool cancel_defer(const std::string &name);  // NOLINT
+
+  void loop_internal_();
+  void setup_internal_();
 
   /// Internal struct for storing timeout/interval functions.
   struct TimeFunction {
-    std::string name; ///< The name/id of this TimeFunction.
-    enum Type { TIMEOUT, INTERVAL, DEFER } type; ///< The type of this TimeFunction. Either TIMEOUT, INTERVAL or DEFER.
-    uint32_t interval; ///< The interval/timeout of this function.
+    std::string name;                             ///< The name/id of this TimeFunction.
+    enum Type { TIMEOUT, INTERVAL, DEFER } type;  ///< The type of this TimeFunction. Either TIMEOUT, INTERVAL or DEFER.
+    uint32_t interval;                            ///< The interval/timeout of this function.
     /// The last execution for interval functions and the time, SetInterval was called, for timeout functions.
     uint32_t last_execution;
-    std::function<void()> f; ///< The function (or callback) itself.
+    std::function<void()> f;  ///< The function (or callback) itself.
     bool remove;
 
     bool should_run(uint32_t now) const;
   };
 
   /// Cancel an only time function. If name is empty, won't do anything.
-  bool cancel_time_function(const std::string &name, TimeFunction::Type type);
+  bool cancel_time_function_(const std::string &name, TimeFunction::Type type);
 
   /** Storage for interval/timeout functions.
    *
@@ -227,7 +228,7 @@ class Component {
    */
   std::vector<TimeFunction> time_functions_;
 
-  uint32_t component_state_{0x0000}; ///< State of this component.
+  uint32_t component_state_{0x0000};  ///< State of this component.
   optional<float> setup_priority_override_;
 };
 
@@ -259,10 +260,11 @@ class PollingComponent : public Component {
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
-  void setup_() override;
+  void call_setup() override;
 
   /// Get the update interval in ms of this sensor
   virtual uint32_t get_update_interval() const;
+
  protected:
   uint32_t update_interval_;
 };
@@ -281,7 +283,7 @@ class Nameable {
   void set_internal(bool internal);
 
  protected:
-  virtual uint32_t hash_base_() = 0;
+  virtual uint32_t hash_base() = 0;
 
   void calc_object_id_();
 
@@ -293,4 +295,4 @@ class Nameable {
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_COMPONENT_H
+#endif  // ESPHOME_COMPONENT_H

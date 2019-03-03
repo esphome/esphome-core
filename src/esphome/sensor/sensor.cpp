@@ -20,47 +20,25 @@ void Sensor::publish_state(float state) {
   ESP_LOGV(TAG, "'%s': Received new state %f", this->name_.c_str(), state);
 
   if (this->filter_list_ == nullptr) {
-    this->send_state_to_frontend_internal_(state);
+    this->internal_send_state_to_frontend(state);
   } else {
     this->filter_list_->input(state);
   }
 }
-void Sensor::push_new_value(float state) {
-  this->publish_state(state);
-}
-std::string Sensor::unit_of_measurement() {
-  return "";
-}
-std::string Sensor::icon() {
-  return "";
-}
-uint32_t Sensor::update_interval() {
-  return 0;
-}
-int8_t Sensor::accuracy_decimals() {
-  return 0;
-}
-Sensor::Sensor(const std::string &name)
-    : Nameable(name), state(NAN), raw_state(NAN) {
-
-}
-Sensor::Sensor()
-    : Sensor("") {
-
-}
+void Sensor::push_new_value(float state) { this->publish_state(state); }
+std::string Sensor::unit_of_measurement() { return ""; }
+std::string Sensor::icon() { return ""; }
+uint32_t Sensor::update_interval() { return 0; }
+int8_t Sensor::accuracy_decimals() { return 0; }
+Sensor::Sensor(const std::string &name) : Nameable(name), state(NAN), raw_state(NAN) {}
+Sensor::Sensor() : Sensor("") {}
 
 void Sensor::set_unit_of_measurement(const std::string &unit_of_measurement) {
   this->unit_of_measurement_ = unit_of_measurement;
 }
-void Sensor::set_icon(const std::string &icon) {
-  this->icon_ = icon;
-}
-void Sensor::set_accuracy_decimals(int8_t accuracy_decimals) {
-  this->accuracy_decimals_ = accuracy_decimals;
-}
-void Sensor::add_on_state_callback(std::function<void(float)> &&callback) {
-  this->callback_.add(std::move(callback));
-}
+void Sensor::set_icon(const std::string &icon) { this->icon_ = icon; }
+void Sensor::set_accuracy_decimals(int8_t accuracy_decimals) { this->accuracy_decimals_ = accuracy_decimals; }
+void Sensor::add_on_state_callback(std::function<void(float)> &&callback) { this->callback_.add(std::move(callback)); }
 void Sensor::add_on_raw_state_callback(std::function<void(float)> &&callback) {
   this->raw_callback_.add(std::move(callback));
 }
@@ -108,42 +86,25 @@ void Sensor::clear_filters() {
   }
   this->filter_list_ = nullptr;
 }
-float Sensor::get_value() const {
-  return this->state;
-}
-float Sensor::get_state() const {
-  return this->state;
-}
-float Sensor::get_raw_value() const {
-  return this->raw_state;
-}
-float Sensor::get_raw_state() const {
-  return this->raw_state;
-}
+float Sensor::get_value() const { return this->state; }
+float Sensor::get_state() const { return this->state; }
+float Sensor::get_raw_value() const { return this->raw_state; }
+float Sensor::get_raw_state() const { return this->raw_state; }
 std::string Sensor::unique_id() { return ""; }
 
-void Sensor::send_state_to_frontend_internal_(float state) {
+void Sensor::internal_send_state_to_frontend(float state) {
   this->has_state_ = true;
   this->state = state;
   if (this->filter_list_ != nullptr) {
-    ESP_LOGD(TAG, "'%s': Sending state %.5f %s with %d decimals of accuracy",
-             this->get_name().c_str(), state, this->get_unit_of_measurement().c_str(),
-             this->get_accuracy_decimals());
+    ESP_LOGD(TAG, "'%s': Sending state %.5f %s with %d decimals of accuracy", this->get_name().c_str(), state,
+             this->get_unit_of_measurement().c_str(), this->get_accuracy_decimals());
   }
   this->callback_.call(state);
 }
-SensorStateTrigger *Sensor::make_state_trigger() {
-  return new SensorStateTrigger(this);
-}
-SensorRawStateTrigger *Sensor::make_raw_state_trigger() {
-  return new SensorRawStateTrigger(this);
-}
-ValueRangeTrigger *Sensor::make_value_range_trigger() {
-  return new ValueRangeTrigger(this);
-}
-bool Sensor::has_state() const {
-  return this->has_state_;
-}
+SensorStateTrigger *Sensor::make_state_trigger() { return new SensorStateTrigger(this); }
+SensorRawStateTrigger *Sensor::make_raw_state_trigger() { return new SensorRawStateTrigger(this); }
+ValueRangeTrigger *Sensor::make_value_range_trigger() { return new ValueRangeTrigger(this); }
+bool Sensor::has_state() const { return this->has_state_; }
 uint32_t Sensor::calculate_expected_filter_update_interval() {
   uint32_t interval = this->update_interval();
   if (interval == 4294967295UL)
@@ -156,25 +117,17 @@ uint32_t Sensor::calculate_expected_filter_update_interval() {
 
   return this->filter_list_->calculate_remaining_interval(interval);
 }
-uint32_t Sensor::hash_base_() {
-  return 2455723294UL;
-}
+uint32_t Sensor::hash_base() { return 2455723294UL; }
 
 #ifdef USE_MQTT_SENSOR
-MQTTSensorComponent *Sensor::get_mqtt() const {
-  return this->mqtt_;
-}
-void Sensor::set_mqtt(MQTTSensorComponent *mqtt) {
-  this->mqtt_ = mqtt;
-}
+MQTTSensorComponent *Sensor::get_mqtt() const { return this->mqtt_; }
+void Sensor::set_mqtt(MQTTSensorComponent *mqtt) { this->mqtt_ = mqtt; }
 #endif
 
 PollingSensorComponent::PollingSensorComponent(const std::string &name, uint32_t update_interval)
     : PollingComponent(update_interval), Sensor(name) {}
 
-uint32_t PollingSensorComponent::update_interval() {
-  return this->get_update_interval();
-}
+uint32_t PollingSensorComponent::update_interval() { return this->get_update_interval(); }
 
 const char ICON_FLASH[] = "mdi:flash";
 const char UNIT_V[] = "V";
@@ -209,20 +162,14 @@ const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m^3";
 const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
 
 SensorStateTrigger::SensorStateTrigger(Sensor *parent) {
-  parent->add_on_state_callback([this](float value) {
-    this->trigger(value);
-  });
+  parent->add_on_state_callback([this](float value) { this->trigger(value); });
 }
 
 SensorRawStateTrigger::SensorRawStateTrigger(Sensor *parent) {
-  parent->add_on_raw_state_callback([this](float value) {
-    this->trigger(value);
-  });
+  parent->add_on_raw_state_callback([this](float value) { this->trigger(value); });
 }
 
-ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) : parent_(parent) {
-
-}
+ValueRangeTrigger::ValueRangeTrigger(Sensor *parent) : parent_(parent) {}
 void ValueRangeTrigger::on_state_(float state) {
   if (isnan(state))
     return;
@@ -255,16 +202,12 @@ void ValueRangeTrigger::setup() {
     this->previous_in_range_ = initial_state;
   }
 
-  this->parent_->add_on_state_callback([this](float state) {
-    this->on_state_(state);
-  });
+  this->parent_->add_on_state_callback([this](float state) { this->on_state_(state); });
 }
-float ValueRangeTrigger::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float ValueRangeTrigger::get_setup_priority() const { return setup_priority::HARDWARE; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif  // USE_SENSOR

@@ -18,15 +18,15 @@ class ShutdownSwitch : public Switch, public Component {
   std::string icon() override;
 
   void dump_config() override;
+
  protected:
   void write_state(bool state) override;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_RESTART_SWITCH
+#endif  // USE_RESTART_SWITCH
 
-
-#endif //ESPHOME_SWITCH_SHUTDOWN_SWITCH_H
+#endif  // ESPHOME_SWITCH_SHUTDOWN_SWITCH_H

@@ -56,10 +56,10 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   FanState *state_;
 };
 
-} // namespace fan
+}  // namespace fan
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_FAN
+#endif  // USE_MQTT_FAN
 
-#endif //ESPHOME_FAN_MQTT_FAN_COMPONENT_H
+#endif  // ESPHOME_FAN_MQTT_FAN_COMPONENT_H

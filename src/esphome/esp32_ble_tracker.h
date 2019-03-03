@@ -179,6 +179,7 @@ class XiaomiSensor : public sensor::Sensor {
   uint32_t update_interval() override;
   int8_t accuracy_decimals() override;
   std::string unique_id() override;
+
  protected:
   XiaomiDevice *parent_;
   Type type_;
@@ -258,7 +259,9 @@ class ESPBTDevice {
   const optional<ESPBTUUID> &get_service_data_uuid() const;
 
  protected:
-  esp_bd_addr_t address_{0, };
+  esp_bd_addr_t address_{
+      0,
+  };
   esp_ble_addr_type_t address_type_{BLE_ADDR_TYPE_PUBLIC};
   int rssi_{0};
   std::string name_{};
@@ -275,6 +278,6 @@ extern ESP32BLETracker *global_esp32_ble_tracker;
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ESP32_BLE_TRACKER
+#endif  // USE_ESP32_BLE_TRACKER
 
-#endif //ESPHOME_ESP32_BLE_TRACKER_H
+#endif  // ESPHOME_ESP32_BLE_TRACKER_H

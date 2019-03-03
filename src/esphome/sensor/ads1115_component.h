@@ -74,8 +74,7 @@ class ADS1115Component : public Component, public I2CDevice {
 /// Internal holder class that is in instance of Sensor so that the hub can create individual sensors.
 class ADS1115Sensor : public sensor::EmptySensor<3, ICON_FLASH, UNIT_V> {
  public:
-  ADS1115Sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain,
-                uint32_t update_interval);
+  ADS1115Sensor(const std::string &name, ADS1115Multiplexer multiplexer, ADS1115Gain gain, uint32_t update_interval);
 
   void set_multiplexer(ADS1115Multiplexer multiplexer);
   void set_gain(ADS1115Gain gain);
@@ -93,10 +92,10 @@ class ADS1115Sensor : public sensor::EmptySensor<3, ICON_FLASH, UNIT_V> {
   uint32_t update_interval_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ADS1115_SENSOR
+#endif  // USE_ADS1115_SENSOR
 
-#endif //ESPHOME_INPUT_ADS1115_COMPONENT_H
+#endif  // ESPHOME_INPUT_ADS1115_COMPONENT_H

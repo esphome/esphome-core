@@ -24,15 +24,17 @@ void APIServer::setup() {
   this->server_ = AsyncServer(this->port_);
   this->server_.setNoDelay(false);
   this->server_.begin();
-  this->server_.onClient([](void *s, AsyncClient *client) {
-    if (client == nullptr)
-      return;
+  this->server_.onClient(
+      [](void *s, AsyncClient *client) {
+        if (client == nullptr)
+          return;
 
-    // can't print here because in lwIP thread
-    // ESP_LOGD(TAG, "New client connected from %s", client->remoteIP().toString().c_str());
-    auto *this_ = (APIServer *) s;
-    this_->clients_.push_back(new APIConnection(client, this_));
-  }, this);
+        // can't print here because in lwIP thread
+        // ESP_LOGD(TAG, "New client connected from %s", client->remoteIP().toString().c_str());
+        auto *a_this = (APIServer *) s;
+        a_this->clients_.push_back(new APIConnection(client, a_this));
+      },
+      this);
   if (global_log_component != nullptr) {
     global_log_component->add_on_log_callback([this](int level, const char *tag, const char *message) {
       for (auto *c : this->clients_) {
@@ -42,7 +44,7 @@ void APIServer::setup() {
     });
   }
 
-  add_shutdown_hook([this] (const char *reason) {
+  add_shutdown_hook([this](const char *reason) {
     for (auto *c : this->clients_) {
       c->send_disconnect_request(reason);
     }
@@ -54,10 +56,8 @@ void APIServer::setup() {
 }
 void APIServer::loop() {
   // Partition clients into remove and active
-  auto new_end = std::partition(this->clients_.begin(), this->clients_.end(),
-                                [](APIConnection *conn) {
-                                  return !conn->remove_;
-                                });
+  auto new_end =
+      std::partition(this->clients_.begin(), this->clients_.end(), [](APIConnection *conn) { return !conn->remove_; });
   // print disconnection messages
   for (auto it = new_end; it != this->clients_.end(); ++it) {
     ESP_LOGD(TAG, "Disconnecting %s", (*it)->client_info_.c_str());
@@ -89,9 +89,7 @@ void APIServer::dump_config() {
   ESP_LOGCONFIG(TAG, "API Server:");
   ESP_LOGCONFIG(TAG, "  Address: %s:%u", network_get_address().c_str(), this->port_);
 }
-bool APIServer::uses_password() const {
-  return !this->password_.empty();
-}
+bool APIServer::uses_password() const { return !this->password_.empty(); }
 bool APIServer::check_password(const std::string &password) const {
   // depend only on input password length
   const char *a = this->password_.c_str();
@@ -115,17 +113,16 @@ bool APIServer::check_password(const std::string &password) const {
   }
 
   for (size_t i = 0; i < length; i++) {
-    result |= *left++ ^ *right++;
+    result |= *left++ ^ *right++;  // NOLINT
   }
 
   return result == 0;
 }
-void APIServer::handle_disconnect(APIConnection *conn) {
-
-}
+void APIServer::handle_disconnect(APIConnection *conn) {}
 #ifdef USE_BINARY_SENSOR
 void APIServer::on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool state) {
-  if (obj->is_internal()) return;
+  if (obj->is_internal())
+    return;
   for (auto *c : this->clients_)
     c->send_binary_sensor_state(obj, state);
 }
@@ -133,7 +130,8 @@ void APIServer::on_binary_sensor_update(binary_sensor::BinarySensor *obj, bool s
 
 #ifdef USE_COVER
 void APIServer::on_cover_update(cover::Cover *obj) {
-  if (obj->is_internal()) return;
+  if (obj->is_internal())
+    return;
   for (auto *c : this->clients_)
     c->send_cover_state(obj);
 }
@@ -141,7 +139,8 @@ void APIServer::on_cover_update(cover::Cover *obj) {
 
 #ifdef USE_FAN
 void APIServer::on_fan_update(fan::FanState *obj) {
-  if (obj->is_internal()) return;
+  if (obj->is_internal())
+    return;
   for (auto *c : this->clients_)
     c->send_fan_state(obj);
 }
@@ -149,7 +148,8 @@ void APIServer::on_fan_update(fan::FanState *obj) {
 
 #ifdef USE_LIGHT
 void APIServer::on_light_update(light::LightState *obj) {
-  if (obj->is_internal()) return;
+  if (obj->is_internal())
+    return;
   for (auto *c : this->clients_)
     c->send_light_state(obj);
 }
@@ -157,7 +157,8 @@ void APIServer::on_light_update(light::LightState *obj) {
 
 #ifdef USE_SENSOR
 void APIServer::on_sensor_update(sensor::Sensor *obj, float state) {
-  if (obj->is_internal()) return;
+  if (obj->is_internal())
+    return;
   for (auto *c : this->clients_)
     c->send_sensor_state(obj, state);
 }
@@ -165,7 +166,8 @@ void APIServer::on_sensor_update(sensor::Sensor *obj, float state) {
 
 #ifdef USE_SWITCH
 void APIServer::on_switch_update(switch_::Switch *obj, bool state) {
-  if (obj->is_internal()) return;
+  if (obj->is_internal())
+    return;
   for (auto *c : this->clients_)
     c->send_switch_state(obj, state);
 }
@@ -173,30 +175,23 @@ void APIServer::on_switch_update(switch_::Switch *obj, bool state) {
 
 #ifdef USE_TEXT_SENSOR
 void APIServer::on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) {
-  if (obj->is_internal()) return;
+  if (obj->is_internal())
+    return;
   for (auto *c : this->clients_)
     c->send_text_sensor_state(obj, state);
 }
 #endif
-float APIServer::get_setup_priority() const {
-  return setup_priority::WIFI - 1.0f;
-}
-void APIServer::set_port(uint16_t port) {
-  this->port_ = port;
-}
+float APIServer::get_setup_priority() const { return setup_priority::WIFI - 1.0f; }
+void APIServer::set_port(uint16_t port) { this->port_ = port; }
 APIServer *global_api_server = nullptr;
 
-void APIServer::set_password(const std::string &password) {
-  this->password_ = password;
-}
+void APIServer::set_password(const std::string &password) { this->password_ = password; }
 void APIServer::send_service_call(ServiceCallResponse &call) {
   for (auto *client : this->clients_) {
     client->send_service_call(call);
   }
 }
-APIServer::APIServer() {
-  global_api_server = this;
-}
+APIServer::APIServer() { global_api_server = this; }
 void APIServer::subscribe_home_assistant_state(std::string entity_id, std::function<void(std::string)> f) {
   this->state_subs_.push_back(HomeAssistantStateSubscription{
       .entity_id = entity_id,
@@ -206,12 +201,8 @@ void APIServer::subscribe_home_assistant_state(std::string entity_id, std::funct
 const std::vector<APIServer::HomeAssistantStateSubscription> &APIServer::get_state_subs() const {
   return this->state_subs_;
 }
-uint16_t APIServer::get_port() const {
-  return this->port_;
-}
-void APIServer::set_reboot_timeout(uint32_t reboot_timeout) {
-  this->reboot_timeout_ = reboot_timeout;
-}
+uint16_t APIServer::get_port() const { return this->port_; }
+void APIServer::set_reboot_timeout(uint32_t reboot_timeout) { this->reboot_timeout_ = reboot_timeout; }
 #ifdef USE_HOMEASSISTANT_TIME
 void APIServer::request_time() {
   for (auto *client : this->clients_) {
@@ -226,29 +217,21 @@ bool APIServer::is_connected() const {
 
 // APIConnection
 APIConnection::APIConnection(AsyncClient *client, APIServer *parent)
-    : client_(client), parent_(parent), initial_state_iterator_(parent, this),
-      list_entities_iterator_(parent, this) {
-  this->client_->onError([](void *s, AsyncClient *c, int8_t error) {
-    ((APIConnection *) s)->on_error_(error);
-  }, this);
-  this->client_->onDisconnect([](void *s, AsyncClient *c) {
-    ((APIConnection *) s)->on_disconnect_();
-  }, this);
-  this->client_->onTimeout([](void *s, AsyncClient *c, uint32_t time) {
-    ((APIConnection *) s)->on_timeout_(time);
-  }, this);
-  this->client_->onData([](void *s, AsyncClient *c, void *buf, size_t len) {
-    ((APIConnection *) s)->on_data_(reinterpret_cast<uint8_t *>(buf), len);
-  }, this);
+    : client_(client), parent_(parent), initial_state_iterator_(parent, this), list_entities_iterator_(parent, this) {
+  this->client_->onError([](void *s, AsyncClient *c, int8_t error) { ((APIConnection *) s)->on_error_(error); }, this);
+  this->client_->onDisconnect([](void *s, AsyncClient *c) { ((APIConnection *) s)->on_disconnect_(); }, this);
+  this->client_->onTimeout([](void *s, AsyncClient *c, uint32_t time) { ((APIConnection *) s)->on_timeout_(time); },
+                           this);
+  this->client_->onData([](void *s, AsyncClient *c, void *buf,
+                           size_t len) { ((APIConnection *) s)->on_data_(reinterpret_cast<uint8_t *>(buf), len); },
+                        this);
 
   this->send_buffer_.reserve(64);
   this->recv_buffer_.reserve(32);
   this->client_info_ = this->client_->remoteIP().toString().c_str();
   this->last_traffic_ = millis();
 }
-APIConnection::~APIConnection() {
-  delete this->client_;
-}
+APIConnection::~APIConnection() { delete this->client_; }
 void APIConnection::on_error_(int8_t error) {
   ESP_LOGD(TAG, "Error from client '%s': %d", this->client_info_.c_str(), error);
   // disconnect will also be called, nothing to do here
@@ -258,9 +241,7 @@ void APIConnection::on_disconnect_() {
   // delete self, generally unsafe but not in this case.
   this->remove_ = true;
 }
-void APIConnection::on_timeout_(uint32_t time) {
-  this->disconnect_client_();
-}
+void APIConnection::on_timeout_(uint32_t time) { this->disconnect_client(); }
 void APIConnection::on_data_(uint8_t *buf, size_t len) {
   if (len == 0 || buf == nullptr)
     return;
@@ -405,6 +386,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::LIST_ENTITIES_SENSOR_RESPONSE:
     case APIMessageType::LIST_ENTITIES_SWITCH_RESPONSE:
     case APIMessageType::LIST_ENTITIES_TEXT_SENSOR_RESPONSE:
+    case APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE:
     case APIMessageType::LIST_ENTITIES_DONE_RESPONSE:
       // Invalid
       break;
@@ -467,7 +449,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::SUBSCRIBE_SERVICE_CALLS_REQUEST: {
       SubscribeServiceCallsRequest req;
       req.decode(msg, size);
-      this->on_subscribe_service_calls_request(req);
+      this->on_subscribe_service_calls_request_(req);
       break;
     }
     case APIMessageType::SERVICE_CALL_RESPONSE:
@@ -486,7 +468,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATES_REQUEST: {
       SubscribeHomeAssistantStatesRequest req;
       req.decode(msg, size);
-      this->on_subscribe_home_assistant_states_request(req);
+      this->on_subscribe_home_assistant_states_request_(req);
       break;
     }
     case APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE:
@@ -495,13 +477,13 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::HOME_ASSISTANT_STATE_RESPONSE: {
       HomeAssistantStateResponse req;
       req.decode(msg, size);
-      this->on_home_assistant_state_response(req);
+      this->on_home_assistant_state_response_(req);
       break;
     }
     case APIMessageType::EXECUTE_SERVICE_REQUEST: {
       ExecuteServiceRequest req;
       req.decode(msg, size);
-      this->on_execute_service(req);
+      this->on_execute_service_(req);
       break;
     }
   }
@@ -553,17 +535,17 @@ void APIConnection::on_connect_request_(const ConnectRequest &req) {
 }
 void APIConnection::on_disconnect_request_(const DisconnectRequest &req) {
   ESP_LOGVV(TAG, "on_disconnect_request_");
-  // remote initiated disconnect_client_
+  // remote initiated disconnect_client
   if (!this->send_empty_message(APIMessageType::DISCONNECT_RESPONSE)) {
     this->fatal_error_();
     return;
   }
-  this->disconnect_client_();
+  this->disconnect_client();
 }
 void APIConnection::on_disconnect_response_(const DisconnectResponse &req) {
   ESP_LOGVV(TAG, "on_disconnect_response_");
-  // we initiated disconnect_client_
-  this->disconnect_client_();
+  // we initiated disconnect_client
+  this->disconnect_client();
 }
 void APIConnection::on_ping_request_(const PingRequest &req) {
   ESP_LOGVV(TAG, "on_ping_request_");
@@ -650,7 +632,7 @@ bool APIConnection::send_empty_message(APIMessageType type) {
   return this->send_buffer(type);
 }
 
-void APIConnection::disconnect_client_() {
+void APIConnection::disconnect_client() {
   this->client_->close();
   this->remove_ = true;
 }
@@ -694,19 +676,19 @@ bool APIConnection::send_buffer(APIMessageType type) {
     }
   }
 
-//  char buffer[512];
-//  uint32_t offset = 0;
-//  for (int j = 0; j < header_len; j++) {
-//    offset += snprintf(buffer + offset, 512 - offset, "0x%02X ", header[j]);
-//  }
-//  offset += snprintf(buffer + offset, 512 - offset, "| ");
-//  for (auto &it : this->send_buffer_) {
-//    int i = snprintf(buffer + offset, 512 - offset, "0x%02X ", it);
-//    if (i <= 0)
-//      break;
-//    offset += i;
-//  }
-//  ESP_LOGVV(TAG, "SEND %s", buffer);
+  //  char buffer[512];
+  //  uint32_t offset = 0;
+  //  for (int j = 0; j < header_len; j++) {
+  //    offset += snprintf(buffer + offset, 512 - offset, "0x%02X ", header[j]);
+  //  }
+  //  offset += snprintf(buffer + offset, 512 - offset, "| ");
+  //  for (auto &it : this->send_buffer_) {
+  //    int i = snprintf(buffer + offset, 512 - offset, "0x%02X ", it);
+  //    if (i <= 0)
+  //      break;
+  //    offset += i;
+  //  }
+  //  ESP_LOGVV(TAG, "SEND %s", buffer);
 
   this->client_->add(reinterpret_cast<char *>(header), header_len);
   this->client_->add(reinterpret_cast<char *>(this->send_buffer_.data()), this->send_buffer_.size());
@@ -727,9 +709,8 @@ void APIConnection::loop() {
   const uint32_t keepalive = 60000;
   if (this->sent_ping_) {
     if (millis() - this->last_traffic_ > (keepalive * 3) / 2) {
-      ESP_LOGW(TAG, "'%s' didn't respond to ping request in time. Disconnecting...",
-               this->client_info_.c_str());
-      this->disconnect_client_();
+      ESP_LOGW(TAG, "'%s' didn't respond to ping request in time. Disconnecting...", this->client_info_.c_str());
+      this->disconnect_client();
     }
   } else if (millis() - this->last_traffic_ > keepalive) {
     this->sent_ping_ = true;
@@ -853,13 +834,13 @@ bool APIConnection::send_sensor_state(sensor::Sensor *sensor, float state) {
 #endif
 
 #ifdef USE_SWITCH
-bool APIConnection::send_switch_state(switch_::Switch *switch_, bool state) {
+bool APIConnection::send_switch_state(switch_::Switch *a_switch, bool state) {
   if (!this->state_subscription_)
     return false;
 
   auto buffer = this->get_buffer();
   // fixed32 key = 1;
-  buffer.encode_fixed32(1, switch_->get_object_id_hash());
+  buffer.encode_fixed32(1, a_switch->get_object_id_hash());
   // bool state = 2;
   buffer.encode_bool(2, state);
   return this->send_buffer(APIMessageType::SWITCH_STATE_RESPONSE);
@@ -880,9 +861,7 @@ bool APIConnection::send_text_sensor_state(text_sensor::TextSensor *text_sensor,
 }
 #endif
 
-bool APIConnection::send_log_message(int level,
-                                     const char *tag,
-                                     const char *line) {
+bool APIConnection::send_log_message(int level, const char *tag, const char *line) {
   if (this->log_subscription_ < level)
     return false;
 
@@ -980,19 +959,19 @@ void APIConnection::on_light_command_request_(const LightCommandRequest &req) {
 #ifdef USE_SWITCH
 void APIConnection::on_switch_command_request_(const SwitchCommandRequest &req) {
   ESP_LOGVV(TAG, "on_switch_command_request_");
-  switch_::Switch *switch_ = this->parent_->get_switch_by_key(req.get_key());
-  if (switch_ == nullptr)
+  switch_::Switch *a_switch = this->parent_->get_switch_by_key(req.get_key());
+  if (a_switch == nullptr)
     return;
 
   if (req.get_state()) {
-    switch_->turn_on();
+    a_switch->turn_on();
   } else {
-    switch_->turn_off();
+    a_switch->turn_off();
   }
 }
 #endif
 
-void APIConnection::on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req) {
+void APIConnection::on_subscribe_service_calls_request_(const SubscribeServiceCallsRequest &req) {
   this->service_call_subscription_ = true;
 }
 void APIConnection::send_service_call(ServiceCallResponse &call) {
@@ -1001,7 +980,7 @@ void APIConnection::send_service_call(ServiceCallResponse &call) {
 
   this->send_message(call);
 }
-void APIConnection::on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req) {
+void APIConnection::on_subscribe_home_assistant_states_request_(const SubscribeHomeAssistantStatesRequest &req) {
   for (auto &it : this->parent_->get_state_subs()) {
     auto buffer = this->get_buffer();
     // string entity_id = 1;
@@ -1009,15 +988,15 @@ void APIConnection::on_subscribe_home_assistant_states_request(const SubscribeHo
     this->send_buffer(APIMessageType::SUBSCRIBE_HOME_ASSISTANT_STATE_RESPONSE);
   }
 }
-void APIConnection::on_home_assistant_state_response(const HomeAssistantStateResponse &req) {
+void APIConnection::on_home_assistant_state_response_(const HomeAssistantStateResponse &req) {
   for (auto &it : this->parent_->get_state_subs()) {
     if (it.entity_id == req.get_entity_id()) {
       it.callback(req.get_state());
     }
   }
 }
-void APIConnection::on_execute_service(const ExecuteServiceRequest &req) {
-  ESP_LOGVV(TAG, "on_execute_service");
+void APIConnection::on_execute_service_(const ExecuteServiceRequest &req) {
+  ESP_LOGVV(TAG, "on_execute_service_");
   bool found = false;
   for (auto *service : this->parent_->get_user_services()) {
     if (service->execute_service(req)) {
@@ -1034,13 +1013,11 @@ APIBuffer APIConnection::get_buffer() {
   return APIBuffer(&this->send_buffer_);
 }
 #ifdef USE_HOMEASSISTANT_TIME
-void APIConnection::send_time_request() {
-  this->send_empty_message(APIMessageType::GET_TIME_REQUEST);
-}
+void APIConnection::send_time_request() { this->send_empty_message(APIMessageType::GET_TIME_REQUEST); }
 #endif
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

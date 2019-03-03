@@ -12,11 +12,15 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace output {
 
-extern const uint8_t PCA9685_MODE_INVERTED; // Inverts polarity of channel output signal
-extern const uint8_t PCA9685_MODE_OUTPUT_ONACK; // Channel update happens upon ACK (post-set) rather than on STOP (endTransmission)
-extern const uint8_t PCA9685_MODE_OUTPUT_TOTEM_POLE; // Use a totem-pole (push-pull) style output rather than an open-drain structure.
-extern const uint8_t PCA9685_MODE_OUTNE_HIGHZ; // For active low output enable, sets channel output to high-impedance state
-extern const uint8_t PCA9685_MODE_OUTNE_LOW; // Similarly, sets channel output to high if in totem-pole mode, otherwise high-impedance state
+extern const uint8_t PCA9685_MODE_INVERTED;  // Inverts polarity of channel output signal
+extern const uint8_t
+    PCA9685_MODE_OUTPUT_ONACK;  // Channel update happens upon ACK (post-set) rather than on STOP (endTransmission)
+extern const uint8_t
+    PCA9685_MODE_OUTPUT_TOTEM_POLE;  // Use a totem-pole (push-pull) style output rather than an open-drain structure.
+extern const uint8_t
+    PCA9685_MODE_OUTNE_HIGHZ;  // For active low output enable, sets channel output to high-impedance state
+extern const uint8_t PCA9685_MODE_OUTNE_LOW;  // Similarly, sets channel output to high if in totem-pole mode, otherwise
+                                              // high-impedance state
 
 /// PCA9685 float output component.
 class PCA9685OutputComponent : public Component, public I2CDevice {
@@ -62,15 +66,15 @@ class PCA9685OutputComponent : public Component, public I2CDevice {
    public:
     Channel(PCA9685OutputComponent *parent, uint8_t channel);
 
+   protected:
     void write_state(float state) override;
 
-   protected:
     PCA9685OutputComponent *parent_;
     uint8_t channel_;
   };
 
  protected:
-  void set_channel_value(uint8_t channel, uint16_t value);
+  void set_channel_value_(uint8_t channel, uint16_t value);
 
   float frequency_;
   uint8_t mode_;
@@ -81,10 +85,10 @@ class PCA9685OutputComponent : public Component, public I2CDevice {
   bool update_;
 };
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PCA9685_OUTPUT
+#endif  // USE_PCA9685_OUTPUT
 
-#endif //ESPHOME_OUTPUT_PCA9685_OUTPUT_COMPONENT_H
+#endif  // ESPHOME_OUTPUT_PCA9685_OUTPUT_COMPONENT_H

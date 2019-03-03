@@ -29,10 +29,10 @@ class A4988 : public Stepper, public Component {
   HighFrequencyLoopRequester high_freq_;
 };
 
-} // namespace stepper
+}  // namespace stepper
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_A4988
+#endif  // USE_A4988
 
-#endif //ESPHOME_STEPPER_A4988_H
+#endif  // ESPHOME_STEPPER_A4988_H

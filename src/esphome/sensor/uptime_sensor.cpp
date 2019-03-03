@@ -12,9 +12,7 @@ namespace sensor {
 static const char *TAG = "sensor.uptime";
 
 UptimeSensor::UptimeSensor(const std::string &name, uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval) {
-
-}
+    : PollingSensorComponent(name, update_interval) {}
 void UptimeSensor::update() {
   const uint32_t ms = millis();
   const uint64_t ms_mask = (1ULL << 32) - 1ULL;
@@ -33,24 +31,14 @@ void UptimeSensor::update() {
   const float seconds = float(seconds_int) + (this->uptime_ % 1000ULL) / 1000.0f;
   this->publish_state(seconds);
 }
-std::string UptimeSensor::unit_of_measurement() {
-  return "s";
-}
-std::string UptimeSensor::icon() {
-  return "mdi:timer";
-}
-int8_t UptimeSensor::accuracy_decimals() {
-  return 0;
-}
-std::string UptimeSensor::unique_id() {
-  return get_mac_address() + "-uptime";
-}
-float UptimeSensor::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+std::string UptimeSensor::unit_of_measurement() { return "s"; }
+std::string UptimeSensor::icon() { return "mdi:timer"; }
+int8_t UptimeSensor::accuracy_decimals() { return 0; }
+std::string UptimeSensor::unique_id() { return get_mac_address() + "-uptime"; }
+float UptimeSensor::get_setup_priority() const { return setup_priority::HARDWARE; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_UPTIME_SENSOR
+#endif  // USE_UPTIME_SENSOR

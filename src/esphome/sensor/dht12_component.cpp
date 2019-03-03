@@ -17,14 +17,12 @@ static const char *TAG = "sensor.dht12";
 
 static const uint8_t DHT12_I2C_ADDRESS = 0x5C;
 
-DHT12Component::DHT12Component(I2CComponent *parent,
-                               const std::string &temperature_name, const std::string &humidity_name,
-                               uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, DHT12_I2C_ADDRESS),
+DHT12Component::DHT12Component(I2CComponent *parent, const std::string &temperature_name,
+                               const std::string &humidity_name, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, DHT12_I2C_ADDRESS),
       temperature_sensor_(new DHT12TemperatureSensor(temperature_name, this)),
-      humidity_sensor_(new DHT12HumiditySensor(humidity_name, this)) {
-
-}
+      humidity_sensor_(new DHT12HumiditySensor(humidity_name, this)) {}
 
 void DHT12Component::update() {
   uint8_t data[5];
@@ -64,9 +62,7 @@ void DHT12Component::dump_config() {
   LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
   LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
 }
-float DHT12Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float DHT12Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 bool DHT12Component::read_data_(uint8_t *data) {
   if (!this->read_bytes(0, data, 5)) {
     ESP_LOGW(TAG, "Updating DHT12 failed!");
@@ -81,15 +77,11 @@ bool DHT12Component::read_data_(uint8_t *data) {
 
   return true;
 }
-DHT12TemperatureSensor *DHT12Component::get_temperature_sensor() const {
-  return this->temperature_sensor_;
-}
-DHT12HumiditySensor *DHT12Component::get_humidity_sensor() const {
-  return this->humidity_sensor_;
-}
+DHT12TemperatureSensor *DHT12Component::get_temperature_sensor() const { return this->temperature_sensor_; }
+DHT12HumiditySensor *DHT12Component::get_humidity_sensor() const { return this->humidity_sensor_; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DHT12_SENSOR
+#endif  // USE_DHT12_SENSOR

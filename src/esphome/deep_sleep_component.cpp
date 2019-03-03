@@ -19,9 +19,7 @@ void DeepSleepComponent::setup() {
   global_has_deep_sleep = true;
 
   if (this->run_duration_.has_value())
-    this->set_timeout(*this->run_duration_, [this](){
-      this->begin_sleep_();
-    });
+    this->set_timeout(*this->run_duration_, [this]() { this->begin_sleep(); });
 }
 void DeepSleepComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Setting up Deep Sleep...");
@@ -39,36 +37,28 @@ void DeepSleepComponent::dump_config() {
 }
 void DeepSleepComponent::loop() {
   if (this->next_enter_deep_sleep_)
-    this->begin_sleep_();
+    this->begin_sleep();
 }
 float DeepSleepComponent::get_loop_priority() const {
-  return -100.0f; // run after everything else is ready
+  return -100.0f;  // run after everything else is ready
 }
-void DeepSleepComponent::set_sleep_duration(uint32_t time_ms) {
-  this->sleep_duration_ = uint64_t(time_ms) * 1000;
-}
+void DeepSleepComponent::set_sleep_duration(uint32_t time_ms) { this->sleep_duration_ = uint64_t(time_ms) * 1000; }
 #ifdef ARDUINO_ARCH_ESP32
-void DeepSleepComponent::set_wakeup_pin(const GPIOInputPin &pin) {
-  this->wakeup_pin_ = pin.copy();
-}
+void DeepSleepComponent::set_wakeup_pin(const GPIOInputPin &pin) { this->wakeup_pin_ = pin.copy(); }
 void DeepSleepComponent::set_wakeup_pin_mode(WakeupPinMode wakeup_pin_mode) {
   this->wakeup_pin_mode_ = wakeup_pin_mode;
 }
-void DeepSleepComponent::set_ext1_wakeup(Ext1Wakeup ext1_wakeup) {
-  this->ext1_wakeup_ = ext1_wakeup;
-}
+void DeepSleepComponent::set_ext1_wakeup(Ext1Wakeup ext1_wakeup) { this->ext1_wakeup_ = ext1_wakeup; }
 #endif
-void DeepSleepComponent::set_run_duration(uint32_t time_ms) {
-  this->run_duration_ = time_ms;
-}
-void DeepSleepComponent::begin_sleep_(bool manual) {
+void DeepSleepComponent::set_run_duration(uint32_t time_ms) { this->run_duration_ = time_ms; }
+void DeepSleepComponent::begin_sleep(bool manual) {
   if (this->prevent_ && !manual) {
     this->next_enter_deep_sleep_ = true;
     return;
   }
 #ifdef ARDUINO_ARCH_ESP32
-  if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_KEEP_AWAKE &&
-      this->wakeup_pin_.has_value() && !this->sleep_duration_.has_value() && (*this->wakeup_pin_)->digital_read()) {
+  if (this->wakeup_pin_mode_ == WAKEUP_PIN_MODE_KEEP_AWAKE && this->wakeup_pin_.has_value() &&
+      !this->sleep_duration_.has_value() && (*this->wakeup_pin_)->digital_read()) {
     // Defer deep sleep until inactive
     if (!this->next_enter_deep_sleep_) {
       this->status_set_warning();
@@ -102,13 +92,9 @@ void DeepSleepComponent::begin_sleep_(bool manual) {
   ESP.deepSleep(*this->sleep_duration_);
 #endif
 }
-float DeepSleepComponent::get_setup_priority() const {
-  return -100.0f;
-}
-void DeepSleepComponent::prevent_deep_sleep() {
-  this->prevent_ = true;
-}
+float DeepSleepComponent::get_setup_priority() const { return -100.0f; }
+void DeepSleepComponent::prevent_deep_sleep() { this->prevent_ = true; }
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DEEP_SLEEP
+#endif  // USE_DEEP_SLEEP

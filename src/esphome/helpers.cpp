@@ -2,9 +2,9 @@
 #include <algorithm>
 
 #ifdef ARDUINO_ARCH_ESP8266
-  #include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>
 #else
-  #include <Esp.h>
+#include <Esp.h>
 #endif
 
 #include "esphome/espmath.h"
@@ -44,13 +44,9 @@ std::string get_mac_address_pretty() {
   return std::string(tmp);
 }
 
-bool is_empty(const IPAddress &address) {
-  return address == IPAddress(0, 0, 0, 0);
-}
+bool is_empty(const IPAddress &address) { return address == IPAddress(0, 0, 0, 0); }
 
-std::string generate_hostname(const std::string &base) {
-  return base + std::string("-") + get_mac_address();
-}
+std::string generate_hostname(const std::string &base) { return base + std::string("-") + get_mac_address(); }
 
 uint32_t random_uint32() {
 #ifdef ARDUINO_ARCH_ESP32
@@ -60,19 +56,13 @@ uint32_t random_uint32() {
 #endif
 }
 
-double random_double() {
-  return random_uint32() / double(UINT32_MAX);
-}
+double random_double() { return random_uint32() / double(UINT32_MAX); }
 
-float random_float() {
-  return float(random_double());
-}
+float random_float() { return float(random_double()); }
 
 static uint32_t fast_random_seed = 0;
 
-void fast_random_set_seed(uint32_t seed) {
-  fast_random_seed = seed;
-}
+void fast_random_set_seed(uint32_t seed) { fast_random_seed = seed; }
 uint32_t fast_random_32() {
   fast_random_seed = (fast_random_seed * 2654435769ULL) + 40503ULL;
   return fast_random_seed;
@@ -102,9 +92,9 @@ std::string to_lowercase_underscore(std::string s) {
 
 std::string sanitize_string_whitelist(const std::string &s, const std::string &whitelist) {
   std::string out(s);
-  out.erase(std::remove_if(out.begin(), out.end(), [&out, &whitelist](const char &c) {
-    return whitelist.find(c) == std::string::npos;
-  }), out.end());
+  out.erase(std::remove_if(out.begin(), out.end(),
+                           [&out, &whitelist](const char &c) { return whitelist.find(c) == std::string::npos; }),
+            out.end());
   return out;
 }
 
@@ -121,17 +111,11 @@ std::string truncate_string(const std::string &s, size_t length) {
 
 ExponentialMovingAverage::ExponentialMovingAverage(float alpha) : alpha_(alpha), accumulator_(0) {}
 
-float ExponentialMovingAverage::get_alpha() const {
-  return this->alpha_;
-}
+float ExponentialMovingAverage::get_alpha() const { return this->alpha_; }
 
-void ExponentialMovingAverage::set_alpha(float alpha) {
-  this->alpha_ = alpha;
-}
+void ExponentialMovingAverage::set_alpha(float alpha) { this->alpha_ = alpha; }
 
-float ExponentialMovingAverage::calculate_average() {
-  return this->accumulator_;
-}
+float ExponentialMovingAverage::calculate_average() { return this->accumulator_; }
 
 float ExponentialMovingAverage::next_value(float value) {
   if (std::isnan(value)) {
@@ -147,9 +131,7 @@ float ExponentialMovingAverage::next_value(float value) {
   return this->calculate_average();
 }
 
-SlidingWindowMovingAverage::SlidingWindowMovingAverage(size_t max_size) : max_size_(max_size), sum_(0) {
-
-}
+SlidingWindowMovingAverage::SlidingWindowMovingAverage(size_t max_size) : max_size_(max_size), sum_(0) {}
 
 float SlidingWindowMovingAverage::next_value(float value) {
   if (std::isnan(value))
@@ -165,15 +147,13 @@ float SlidingWindowMovingAverage::next_value(float value) {
 }
 
 float SlidingWindowMovingAverage::calculate_average() {
-  if (this->queue_.size() == 0)
+  if (this->queue_.empty())
     return 0;
   else
     return this->sum_ / this->queue_.size();
 }
 
-size_t SlidingWindowMovingAverage::get_max_size() const {
-  return this->max_size_;
-}
+size_t SlidingWindowMovingAverage::get_max_size() const { return this->max_size_; }
 
 void SlidingWindowMovingAverage::set_max_size(size_t max_size) {
   this->max_size_ = max_size;
@@ -187,15 +167,14 @@ void SlidingWindowMovingAverage::set_max_size(size_t max_size) {
 std::string value_accuracy_to_string(float value, int8_t accuracy_decimals) {
   auto multiplier = float(pow10(accuracy_decimals));
   float value_rounded = roundf(value * multiplier) / multiplier;
-  char tmp[32]; // should be enough, but we should maybe improve this at some point.
+  char tmp[32];  // should be enough, but we should maybe improve this at some point.
   dtostrf(value_rounded, 0, uint8_t(std::max(0, int(accuracy_decimals))), tmp);
   return std::string(tmp);
 }
 std::string uint64_to_string(uint64_t num) {
   char buffer[17];
   auto *address16 = reinterpret_cast<uint16_t *>(&num);
-  snprintf(buffer, sizeof(buffer), "%04X%04X%04X%04X",
-           address16[3], address16[2], address16[1], address16[0]);
+  snprintf(buffer, sizeof(buffer), "%04X%04X%04X%04X", address16[3], address16[2], address16[1], address16[0]);
   return std::string(buffer);
 }
 std::string uint32_to_string(uint32_t num) {
@@ -209,7 +188,7 @@ static size_t global_json_build_buffer_size = 0;
 
 void reserve_global_json_build_buffer(size_t required_size) {
   if (global_json_build_buffer_size == 0 || global_json_build_buffer_size < required_size) {
-    delete [] global_json_build_buffer;
+    delete[] global_json_build_buffer;
     global_json_build_buffer_size = std::max(required_size, global_json_build_buffer_size * 2);
 
     size_t remainder = global_json_build_buffer_size % 16U;
@@ -282,9 +261,7 @@ void reboot(const char *cause) {
     yield();
   }
 }
-void add_shutdown_hook(std::function<void(const char *)> &&f) {
-  shutdown_hooks.add(std::move(f));
-}
+void add_shutdown_hook(std::function<void(const char *)> &&f) { shutdown_hooks.add(std::move(f)); }
 void safe_reboot(const char *cause) {
   ESP_LOGI(TAG, "Rebooting safely... Reason: '%s'", cause);
   run_safe_shutdown_hooks(cause);
@@ -294,13 +271,9 @@ void safe_reboot(const char *cause) {
     yield();
   }
 }
-void add_safe_shutdown_hook(std::function<void(const char *)> &&f) {
-  safe_shutdown_hooks.add(std::move(f));
-}
+void add_safe_shutdown_hook(std::function<void(const char *)> &&f) { safe_shutdown_hooks.add(std::move(f)); }
 
-void run_shutdown_hooks(const char *cause) {
-  shutdown_hooks.call(cause);
-}
+void run_shutdown_hooks(const char *cause) { shutdown_hooks.call(cause); }
 
 void run_safe_shutdown_hooks(const char *cause) {
   safe_shutdown_hooks.call(cause);
@@ -356,7 +329,7 @@ rmt_channel_t next_rmt_channel = RMT_CHANNEL_0;
 
 rmt_channel_t select_next_rmt_channel() {
   rmt_channel_t value = next_rmt_channel;
-  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1); // NOLINT
+  next_rmt_channel = rmt_channel_t(int(next_rmt_channel) + 1);  // NOLINT
   return value;
 }
 #endif
@@ -374,21 +347,21 @@ uint16_t reverse_bits_16(uint16_t x) {
 void tick_status_led() {
 #ifdef USE_STATUS_LED
   if (global_status_led != nullptr) {
-    global_status_led->loop_();
+    global_status_led->call_loop();
   }
 #endif
 }
 void ICACHE_RAM_ATTR HOT feed_wdt() {
-  static uint32_t last_feed = 0;
+  static uint32_t LAST_FEED = 0;
   uint32_t now = millis();
-  if (now - last_feed > 3) {
+  if (now - LAST_FEED > 3) {
 #ifdef ARDUINO_ARCH_ESP8266
     ESP.wdtFeed();
 #endif
 #ifdef ARDUINO_ARCH_ESP32
     yield();
 #endif
-    last_feed = now;
+    LAST_FEED = now;
   }
 }
 std::string build_json(const json_build_t &f) {
@@ -396,12 +369,8 @@ std::string build_json(const json_build_t &f) {
   const char *c_str = build_json(f, &len);
   return std::string(c_str, len);
 }
-std::string to_string(std::string val) {
-  return val;
-}
-std::string to_string(String val) {
-  return val.c_str();
-}
+std::string to_string(std::string val) { return val; }
+std::string to_string(String val) { return val.c_str(); }
 std::string to_string(int val) {
   char buf[64];
   sprintf(buf, "%d", val);
@@ -463,17 +432,13 @@ uint32_t fnv1_hash(const std::string &str) {
   return hash;
 }
 
-template<uint32_t>
-uint32_t reverse_bits(uint32_t x) {
+template<uint32_t> uint32_t reverse_bits(uint32_t x) {
   return uint32_t(reverse_bits_16(x & 0xFFFF) << 16) | uint32_t(reverse_bits_16(x >> 16));
 }
 
-VectorJsonBuffer::String::String(VectorJsonBuffer *parent)
-    : parent_(parent), start_(parent->size_) {
-
-}
+VectorJsonBuffer::String::String(VectorJsonBuffer *parent) : parent_(parent), start_(parent->size_) {}
 void VectorJsonBuffer::String::append(char c) const {
-  char* last = static_cast<char*>(this->parent_->do_alloc(1));
+  char *last = static_cast<char *>(this->parent_->do_alloc(1));
   *last = c;
 }
 const char *VectorJsonBuffer::String::c_str() const {
@@ -482,26 +447,24 @@ const char *VectorJsonBuffer::String::c_str() const {
 }
 void VectorJsonBuffer::clear() {
   for (char *block : this->free_blocks_)
-    free(block);
+    free(block);  // NOLINT
 
   this->size_ = 0;
   this->free_blocks_.clear();
 }
-VectorJsonBuffer::String VectorJsonBuffer::startString() {
-  return {this};
-}
+VectorJsonBuffer::String VectorJsonBuffer::startString() { return {this}; }  // NOLINT
 void *VectorJsonBuffer::alloc(size_t bytes) {
   // Make sure memory addresses are aligned
   uint32_t new_size = round_size_up(this->size_);
   this->resize(new_size);
   return this->do_alloc(bytes);
 }
-void *VectorJsonBuffer::do_alloc(size_t bytes) {
+void *VectorJsonBuffer::do_alloc(size_t bytes) {  // NOLINT
   const uint32_t begin = this->size_;
   this->resize(begin + bytes);
   return &this->buffer_[begin];
 }
-void VectorJsonBuffer::resize(size_t size) {
+void VectorJsonBuffer::resize(size_t size) {  // NOLINT
   if (size <= this->size_) {
     this->size_ = size;
     return;
@@ -510,7 +473,7 @@ void VectorJsonBuffer::resize(size_t size) {
   this->reserve(size);
   this->size_ = size;
 }
-void VectorJsonBuffer::reserve(size_t size) {
+void VectorJsonBuffer::reserve(size_t size) {  // NOLINT
   if (size <= this->capacity_)
     return;
 
@@ -531,9 +494,7 @@ void VectorJsonBuffer::reserve(size_t size) {
   this->capacity_ = target_capacity;
 }
 
-size_t VectorJsonBuffer::size() const {
-  return this->size_;
-}
+size_t VectorJsonBuffer::size() const { return this->size_; }
 
 VectorJsonBuffer global_json_buffer;
 
@@ -551,8 +512,6 @@ void HighFrequencyLoopRequester::stop() {
   high_freq_num_requests--;
   this->started_ = false;
 }
-bool HighFrequencyLoopRequester::is_high_frequency() {
-  return high_freq_num_requests > 0;
-}
+bool HighFrequencyLoopRequester::is_high_frequency() { return high_freq_num_requests > 0; }
 
 ESPHOME_NAMESPACE_END

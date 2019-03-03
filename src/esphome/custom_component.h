@@ -21,6 +21,6 @@ class CustomComponentConstructor {
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_COMPONENT
+#endif  // USE_CUSTOM_COMPONENT
 
-#endif //ESPHOME_CUSTOM_COMPONENT_H
+#endif  // ESPHOME_CUSTOM_COMPONENT_H

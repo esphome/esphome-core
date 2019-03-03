@@ -25,9 +25,7 @@ class SNTPComponent : public RealTimeClockComponent {
   void setup() override;
   void dump_config() override;
   /// Change the servers used by SNTP for timekeeping
-  void set_servers(const std::string &server_1,
-                   const std::string &server_2,
-                   const std::string &server_3);
+  void set_servers(const std::string &server_1, const std::string &server_2, const std::string &server_3);
   float get_setup_priority() const override;
 
   void loop() override;
@@ -39,10 +37,10 @@ class SNTPComponent : public RealTimeClockComponent {
   bool has_time_{false};
 };
 
-} // namespace time
+}  // namespace time
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SNTP_COMPONENT
+#endif  // USE_SNTP_COMPONENT
 
-#endif //ESPHOME_SNTP_COMPONENT_H
+#endif  // ESPHOME_SNTP_COMPONENT_H

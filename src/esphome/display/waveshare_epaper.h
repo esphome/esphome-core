@@ -19,10 +19,9 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
   void set_reset_pin(const GPIOOutputPin &reset);
   void set_busy_pin(const GPIOInputPin &busy);
 
-  bool msb_first() override;
+  bool is_device_msb_first() override;
   void command(uint8_t value);
   void data(uint8_t value);
-  bool wait_until_idle_();
 
   virtual void display() = 0;
 
@@ -31,13 +30,15 @@ class WaveshareEPaper : public PollingComponent, public SPIDevice, public Displa
   void fill(int color) override;
 
  protected:
-  void draw_absolute_pixel_internal_(int x, int y, int color) override;
+  void draw_absolute_pixel_internal(int x, int y, int color) override;
 
-  void setup_pins();
+  bool wait_until_idle_();
 
-  uint32_t get_buffer_length();
+  void setup_pins_();
 
-  bool high_speed() override;
+  uint32_t get_buffer_length_();
+
+  bool is_device_high_speed() override;
 
   void start_command_();
   void end_command_();
@@ -57,8 +58,8 @@ enum WaveshareEPaperTypeAModel {
 
 class WaveshareEPaperTypeA : public WaveshareEPaper {
  public:
-  WaveshareEPaperTypeA(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin,
-                       WaveshareEPaperTypeAModel model, uint32_t update_interval);
+  WaveshareEPaperTypeA(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, WaveshareEPaperTypeAModel model,
+                       uint32_t update_interval);
 
   void setup() override;
 
@@ -71,9 +72,9 @@ class WaveshareEPaperTypeA : public WaveshareEPaper {
  protected:
   void write_lut_(const uint8_t *lut);
 
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 
   uint32_t full_update_every_{30};
   uint32_t at_update_{0};
@@ -96,9 +97,9 @@ class WaveshareEPaper2P7In : public WaveshareEPaper {
   void dump_config() override;
 
  protected:
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 };
 
 class WaveshareEPaper4P2In : public WaveshareEPaper {
@@ -111,9 +112,9 @@ class WaveshareEPaper4P2In : public WaveshareEPaper {
   void dump_config() override;
 
  protected:
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 };
 
 class WaveshareEPaper7P5In : public WaveshareEPaper {
@@ -126,15 +127,15 @@ class WaveshareEPaper7P5In : public WaveshareEPaper {
   void dump_config() override;
 
  protected:
-  int get_width_internal_() override;
+  int get_width_internal() override;
 
-  int get_height_internal_() override;
+  int get_height_internal() override;
 };
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_WAVESHARE_EPAPER
+#endif  // USE_WAVESHARE_EPAPER
 
-#endif //ESPHOME_WAVESHARE_E_PAPER_H
+#endif  // ESPHOME_WAVESHARE_E_PAPER_H

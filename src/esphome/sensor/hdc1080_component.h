@@ -23,8 +23,7 @@ using HDC1080HumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UN
 class HDC1080Component : public PollingComponent, public I2CDevice {
  public:
   /// Initialize the component with the provided update interval.
-  explicit HDC1080Component(I2CComponent *parent,
-                            const std::string &temperature_name, const std::string &humidity_name,
+  explicit HDC1080Component(I2CComponent *parent, const std::string &temperature_name, const std::string &humidity_name,
                             uint32_t update_interval);
 
   // ========== INTERNAL METHODS ==========
@@ -47,10 +46,10 @@ class HDC1080Component : public PollingComponent, public I2CDevice {
   HDC1080HumiditySensor *humidity_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HDC1080_SENSOR
+#endif  // USE_HDC1080_SENSOR
 
-#endif //ESPHOME_SENSOR_HDC1080_COMPONENT_H
+#endif  // ESPHOME_SENSOR_HDC1080_COMPONENT_H

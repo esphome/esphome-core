@@ -9,7 +9,7 @@
 #include "esphome/esphal.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <driver/pcnt.h>
+#include <driver/pcnt.h>
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -32,14 +32,14 @@ using pulse_counter_t = int32_t;
 class PulseCounterBase {
  public:
   PulseCounterBase(GPIOPin *pin);
-  bool pulse_counter_setup_();
-  pulse_counter_t read_raw_value_();
+  bool pulse_counter_setup();
+  pulse_counter_t read_raw_value();
 
   GPIOPin *get_pin();
 
  protected:
 #ifdef ARDUINO_ARCH_ESP8266
-  void gpio_intr();
+  static void gpio_intr(PulseCounterBase *arg);
   volatile pulse_counter_t counter_{0};
   volatile uint32_t last_pulse_{0};
 #endif
@@ -47,6 +47,9 @@ class PulseCounterBase {
   GPIOPin *pin_;
 #ifdef ARDUINO_ARCH_ESP32
   pcnt_unit_t pcnt_unit_;
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  ISRInternalGPIOPin *isr_pin_;
 #endif
   PulseCounterCountMode rising_edge_mode_{PULSE_COUNTER_INCREMENT};
   PulseCounterCountMode falling_edge_mode_{PULSE_COUNTER_DISABLE};
@@ -98,10 +101,10 @@ class PulseCounterSensorComponent : public PollingSensorComponent, public PulseC
 extern pcnt_unit_t next_pcnt_unit;
 #endif
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PULSE_COUNTER_SENSOR
+#endif  // USE_PULSE_COUNTER_SENSOR
 
-#endif //ESPHOME_SENSOR_PULSE_COUNTER_H
+#endif  // ESPHOME_SENSOR_PULSE_COUNTER_H

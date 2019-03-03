@@ -9,7 +9,6 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace api {
 
-
 #ifdef USE_COVER
 bool CoverCommandRequest::decode_varint(uint32_t field_id, uint32_t value) {
   switch (field_id) {
@@ -40,12 +39,8 @@ bool CoverCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
       return false;
   }
 }
-APIMessageType CoverCommandRequest::message_type() const {
-  return APIMessageType ::COVER_COMMAND_REQUEST;
-}
-uint32_t CoverCommandRequest::get_key() const {
-  return this->key_;
-}
+APIMessageType CoverCommandRequest::message_type() const { return APIMessageType ::COVER_COMMAND_REQUEST; }
+uint32_t CoverCommandRequest::get_key() const { return this->key_; }
 optional<cover::CoverCommand> CoverCommandRequest::get_command() const {
   if (!this->has_state_)
     return {};
@@ -94,12 +89,8 @@ bool FanCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
       return false;
   }
 }
-APIMessageType FanCommandRequest::message_type() const {
-  return APIMessageType::FAN_COMMAND_REQUEST;
-}
-uint32_t FanCommandRequest::get_key() const {
-  return this->key_;
-}
+APIMessageType FanCommandRequest::message_type() const { return APIMessageType::FAN_COMMAND_REQUEST; }
+uint32_t FanCommandRequest::get_key() const { return this->key_; }
 optional<bool> FanCommandRequest::get_state() const {
   if (!this->has_state_)
     return {};
@@ -212,12 +203,8 @@ bool LightCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
       return false;
   }
 }
-APIMessageType LightCommandRequest::message_type() const {
-  return APIMessageType::LIGHT_COMMAND_REQUEST;
-}
-uint32_t LightCommandRequest::get_key() const {
-  return this->key_;
-}
+APIMessageType LightCommandRequest::message_type() const { return APIMessageType::LIGHT_COMMAND_REQUEST; }
+uint32_t LightCommandRequest::get_key() const { return this->key_; }
 optional<bool> LightCommandRequest::get_state() const {
   if (!this->has_state_)
     return {};
@@ -291,19 +278,13 @@ bool SwitchCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
       return false;
   }
 }
-APIMessageType SwitchCommandRequest::message_type() const {
-  return APIMessageType::SWITCH_COMMAND_REQUEST;
-}
-uint32_t SwitchCommandRequest::get_key() const {
-  return this->key_;
-}
-bool SwitchCommandRequest::get_state() const {
-  return this->state_;
-}
+APIMessageType SwitchCommandRequest::message_type() const { return APIMessageType::SWITCH_COMMAND_REQUEST; }
+uint32_t SwitchCommandRequest::get_key() const { return this->key_; }
+bool SwitchCommandRequest::get_state() const { return this->state_; }
 #endif
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

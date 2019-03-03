@@ -13,9 +13,7 @@ namespace output {
 
 static const char *TAG = "output.gpio";
 
-void GPIOBinaryOutputComponent::write_state(bool state) {
-  this->pin_->digital_write(state);
-}
+void GPIOBinaryOutputComponent::write_state(bool state) { this->pin_->digital_write(state); }
 
 void GPIOBinaryOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO Binary Output...");
@@ -29,16 +27,11 @@ void GPIOBinaryOutputComponent::dump_config() {
   LOG_BINARY_OUTPUT(this);
 }
 
-float GPIOBinaryOutputComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
-GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin)
-  : pin_(pin) {
+float GPIOBinaryOutputComponent::get_setup_priority() const { return setup_priority::HARDWARE; }
+GPIOBinaryOutputComponent::GPIOBinaryOutputComponent(GPIOPin *pin) : pin_(pin) {}
 
-}
-
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_GPIO_OUTPUT
+#endif  // USE_GPIO_OUTPUT

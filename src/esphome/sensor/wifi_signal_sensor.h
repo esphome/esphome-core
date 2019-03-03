@@ -25,10 +25,10 @@ class WiFiSignalSensor : public PollingSensorComponent {
   float get_setup_priority() const override;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_WIFI_SIGNAL_SENSOR
+#endif  // USE_WIFI_SIGNAL_SENSOR
 
-#endif //ESPHOME_SENSOR_WIFI_SIGNAL_SENSOR_H
+#endif  // ESPHOME_SENSOR_WIFI_SIGNAL_SENSOR_H

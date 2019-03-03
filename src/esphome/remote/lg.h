@@ -24,7 +24,7 @@ class LGTransmitter : public RemoteTransmitter {
   uint8_t nbits_;
 };
 
-void encode_lg(RemoteTransmitData *data, uint32_t data_, uint8_t nbits);
+void encode_lg(RemoteTransmitData *data, uint32_t lg_data, uint8_t nbits);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -47,10 +47,10 @@ class LGDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_REMOTE_LG_H
+#endif  // ESPHOME_REMOTE_LG_H

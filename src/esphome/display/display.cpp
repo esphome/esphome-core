@@ -25,54 +25,49 @@ void DisplayBuffer::init_internal_(uint32_t buffer_length) {
   }
   this->clear();
 }
-void DisplayBuffer::fill(int color) {
-  this->filled_rectangle(0, 0, this->get_width(), this->get_height(), color);
-}
-void DisplayBuffer::clear() {
-  this->fill(COLOR_OFF);
-}
+void DisplayBuffer::fill(int color) { this->filled_rectangle(0, 0, this->get_width(), this->get_height(), color); }
+void DisplayBuffer::clear() { this->fill(COLOR_OFF); }
 int DisplayBuffer::get_width() {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_90_DEGREES:
     case DISPLAY_ROTATION_270_DEGREES:
-      return this->get_height_internal_();
+      return this->get_height_internal();
     case DISPLAY_ROTATION_0_DEGREES:
     case DISPLAY_ROTATION_180_DEGREES:
     default:
-      return this->get_width_internal_();
+      return this->get_width_internal();
   }
 }
 int DisplayBuffer::get_height() {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_0_DEGREES:
     case DISPLAY_ROTATION_180_DEGREES:
-      return this->get_height_internal_();
+      return this->get_height_internal();
     case DISPLAY_ROTATION_90_DEGREES:
     case DISPLAY_ROTATION_270_DEGREES:
     default:
-      return this->get_width_internal_();
+      return this->get_width_internal();
   }
 }
-void DisplayBuffer::set_rotation(DisplayRotation rotation) {
-  this->rotation_ = rotation;
-}
+void DisplayBuffer::set_rotation(DisplayRotation rotation) { this->rotation_ = rotation; }
 void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
   switch (this->rotation_) {
-    case DISPLAY_ROTATION_0_DEGREES:break;
+    case DISPLAY_ROTATION_0_DEGREES:
+      break;
     case DISPLAY_ROTATION_90_DEGREES:
       std::swap(x, y);
-      x = this->get_width_internal_() - x - 1;
+      x = this->get_width_internal() - x - 1;
       break;
     case DISPLAY_ROTATION_180_DEGREES:
-      x = this->get_width_internal_() - x - 1;
-      y = this->get_height_internal_() - y - 1;
+      x = this->get_width_internal() - x - 1;
+      y = this->get_height_internal() - y - 1;
       break;
     case DISPLAY_ROTATION_270_DEGREES:
       std::swap(x, y);
-      y = this->get_height_internal_() - y - 1;
+      y = this->get_height_internal() - y - 1;
       break;
   }
-  this->draw_absolute_pixel_internal_(x, y, color);
+  this->draw_absolute_pixel_internal(x, y, color);
   feed_wdt();
 }
 void HOT DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {
@@ -181,11 +176,11 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
       // Unknown char, skip
       ESP_LOGW(TAG, "Encountered character without representation in font: '%c'", text[i]);
       if (!font->get_glyphs().empty()) {
-        uint8_t width_ = font->get_glyphs()[0].width_;
-        for (int x_ = 0; x_ < width_; x_++)
-          for (int y_ = 0; y_ < height; y_++)
-            this->draw_pixel_at(x_ + x_at, y_ + y_start, color);
-        x_at += width_;
+        uint8_t glyph_width = font->get_glyphs()[0].width_;
+        for (int glyph_x = 0; glyph_x < glyph_width; glyph_x++)
+          for (int glyph_y = 0; glyph_y < height; glyph_y++)
+            this->draw_pixel_at(glyph_x + x_at, glyph_y + y_start, color);
+        x_at += glyph_width;
       }
 
       i++;
@@ -196,15 +191,15 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
     int scan_x1, scan_y1, scan_width, scan_height;
     glyph.scan_area(&scan_x1, &scan_y1, &scan_width, &scan_height);
 
-    for (int x_ = scan_x1; x_ < scan_x1 + scan_width; x_++) {
-      for (int y_ = scan_y1; y_ < scan_y1 + scan_height; y_++) {
-        if (glyph.get_pixel(x_, y_)) {
-          this->draw_pixel_at(x_ + x_at, y_ + y_start, color);
+    for (int glyph_x = scan_x1; glyph_x < scan_x1 + scan_width; glyph_x++) {
+      for (int glyph_y = scan_y1; glyph_y < scan_y1 + scan_height; glyph_y++) {
+        if (glyph.get_pixel(glyph_x, glyph_y)) {
+          this->draw_pixel_at(glyph_x + x_at, glyph_y + y_start, color);
         }
       }
     }
 
-    x_at += glyph.width_ + glyph.offset_x;
+    x_at += glyph.width_ + glyph.offset_x_;
 
     i += match_length;
   }
@@ -216,15 +211,14 @@ void DisplayBuffer::vprintf_(int x, int y, Font *font, int color, TextAlign alig
     this->print(x, y, font, color, align, buffer);
 }
 void DisplayBuffer::image(int x, int y, Image *image) {
-  for (int x_ = 0; x_ < image->get_width(); x_++) {
-    for (int y_ = 0; y_ < image->get_height(); y_++) {
-      this->draw_pixel_at(x + x_, y + y_, image->get_pixel(x_, y_) ? COLOR_ON : COLOR_OFF);
+  for (int img_x = 0; img_x < image->get_width(); img_x++) {
+    for (int img_y = 0; img_y < image->get_height(); img_y++) {
+      this->draw_pixel_at(x + img_x, y + img_y, image->get_pixel(img_x, img_y) ? COLOR_ON : COLOR_OFF);
     }
   }
 }
-void DisplayBuffer::get_text_bounds(int x, int y,
-                                    const char *text, Font *font, TextAlign align,
-                                    int *x1, int *y1, int *width, int *height) {
+void DisplayBuffer::get_text_bounds(int x, int y, const char *text, Font *font, TextAlign align, int *x1, int *y1,
+                                    int *width, int *height) {
   int x_offset, baseline;
   font->measure(text, width, &x_offset, &baseline, height);
 
@@ -236,7 +230,7 @@ void DisplayBuffer::get_text_bounds(int x, int y,
       *x1 = x - *width;
       break;
     case TextAlign::CENTER_HORIZONTAL:
-      *x1 = x - (*width)/2;
+      *x1 = x - (*width) / 2;
       break;
     case TextAlign::LEFT:
     default:
@@ -253,7 +247,7 @@ void DisplayBuffer::get_text_bounds(int x, int y,
       *y1 = y - baseline;
       break;
     case TextAlign::CENTER_VERTICAL:
-      *y1 = y - (*height)/2;
+      *y1 = y - (*height) / 2;
       break;
     case TextAlign::TOP:
     default:
@@ -294,14 +288,12 @@ void DisplayBuffer::printf(int x, int y, Font *font, const char *format, ...) {
   this->vprintf_(x, y, font, COLOR_ON, TextAlign::CENTER_LEFT, format, arg);
   va_end(arg);
 }
-void DisplayBuffer::set_writer(display_writer_t &&writer) {
-  this->writer_ = std::move(writer);
-}
+void DisplayBuffer::set_writer(display_writer_t &&writer) { this->writer_ = writer; }
 void DisplayBuffer::set_pages(std::vector<DisplayPage *> pages) {
   for (auto *page : pages)
     page->set_parent(this);
 
-  for (int i = 0; i < pages.size() - 1; i++) {
+  for (uint32_t i = 0; i < pages.size() - 1; i++) {
     pages[i]->set_next(pages[i + 1]);
     pages[i + 1]->set_prev(pages[i]);
   }
@@ -309,16 +301,10 @@ void DisplayBuffer::set_pages(std::vector<DisplayPage *> pages) {
   pages[pages.size() - 1]->set_next(pages[0]);
   this->show_page(pages[0]);
 }
-void DisplayBuffer::show_page(DisplayPage *page) {
-  this->page_ = page;
-}
-void DisplayBuffer::show_next_page() {
-  this->page_->show_next();
-}
-void DisplayBuffer::show_prev_page() {
-  this->page_->show_prev();
-}
-void DisplayBuffer::do_update() {
+void DisplayBuffer::show_page(DisplayPage *page) { this->page_ = page; }
+void DisplayBuffer::show_next_page() { this->page_->show_next(); }
+void DisplayBuffer::show_prev_page() { this->page_->show_prev(); }
+void DisplayBuffer::do_update_() {
   this->clear();
   if (this->page_ != nullptr) {
     this->page_->get_writer()(*this);
@@ -345,22 +331,24 @@ void DisplayBuffer::strftime(int x, int y, Font *font, const char *format, time:
 }
 #endif
 
-Glyph::Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width, int height)
-    : char_(aChar), data_(data_start + offset), offset_x(offset_x), offset_y(offset_y), width_(width), height_(height) {
-
-}
+Glyph::Glyph(const char *a_char, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width,
+             int height)
+    : char_(a_char),
+      data_(data_start + offset),
+      offset_x_(offset_x),
+      offset_y_(offset_y),
+      width_(width),
+      height_(height) {}
 bool Glyph::get_pixel(int x, int y) const {
-  const int x_data = x - this->offset_x;
-  const int y_data = y - this->offset_y;
+  const int x_data = x - this->offset_x_;
+  const int y_data = y - this->offset_y_;
   if (x_data < 0 || x_data >= this->width_ || y_data < 0 || y_data >= this->height_)
     return false;
   const uint32_t width_8 = ((this->width_ + 7u) / 8u) * 8u;
   const uint32_t pos = x_data + y_data * width_8;
   return pgm_read_byte(this->data_ + (pos / 8u)) & (0x80 >> (pos % 8u));
 }
-const char *Glyph::get_char() const {
-  return this->char_;
-}
+const char *Glyph::get_char() const { return this->char_; }
 bool Glyph::compare_to(const char *str) const {
   // 1 -> this->char_
   // 2 -> str
@@ -388,8 +376,8 @@ int Glyph::match_length(const char *str) const {
   return 0;
 }
 void Glyph::scan_area(int *x1, int *y1, int *width, int *height) const {
-  *x1 = this->offset_x;
-  *y1 = this->offset_y;
+  *x1 = this->offset_x_;
+  *y1 = this->offset_y_;
   *width = this->width_;
   *height = this->height_;
 }
@@ -428,10 +416,10 @@ void Font::measure(const char *str, int *width, int *x_offset, int *baseline, in
 
     const Glyph &glyph = this->glyphs_[glyph_n];
     if (!has_char)
-      min_x = glyph.offset_x;
+      min_x = glyph.offset_x_;
     else
-      min_x = std::min(min_x, x + glyph.offset_x);
-    x += glyph.width_ + glyph.offset_x;
+      min_x = std::min(min_x, x + glyph.offset_x_);
+    x += glyph.width_ + glyph.offset_x_;
 
     i += match_length;
     has_char = true;
@@ -439,9 +427,7 @@ void Font::measure(const char *str, int *width, int *x_offset, int *baseline, in
   *x_offset = min_x;
   *width = x - min_x;
 }
-const std::vector<Glyph> &Font::get_glyphs() const {
-  return this->glyphs_;
-}
+const std::vector<Glyph> &Font::get_glyphs() const { return this->glyphs_; }
 Font::Font(std::vector<Glyph> &&glyphs, int baseline, int bottom)
     : glyphs_(std::move(glyphs)), baseline_(baseline), bottom_(bottom) {}
 
@@ -452,12 +438,8 @@ bool Image::get_pixel(int x, int y) const {
   const uint32_t pos = x + y * width_8;
   return pgm_read_byte(this->data_start_ + (pos / 8u)) & (0x80 >> (pos % 8u));
 }
-int Image::get_width() const {
-  return this->width_;
-}
-int Image::get_height() const {
-  return this->height_;
-}
+int Image::get_width() const { return this->width_; }
+int Image::get_height() const { return this->height_; }
 Image::Image(const uint8_t *data_start, int width, int height)
     : width_(width), height_(height), data_start_(data_start) {}
 
@@ -470,8 +452,8 @@ void DisplayPage::set_prev(DisplayPage *prev) { this->prev_ = prev; }
 void DisplayPage::set_next(DisplayPage *next) { this->next_ = next; }
 const display_writer_t &DisplayPage::get_writer() const { return this->writer_; }
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DISPLAY
+#endif  // USE_DISPLAY
