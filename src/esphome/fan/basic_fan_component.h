@@ -30,7 +30,8 @@ class BasicFanComponent : public Component {
    * @param medium_speed The speed that should be sent to the output if the fan is in MEDIUM speed mode.
    * @param high_speed The speed that should be sent to the output if the fan is in HIGH speed mode.
    */
-  void set_speed(output::FloatOutput *output, float low_speed = 0.33, float medium_speed = 0.66, float high_speed = 1.0);
+  void set_speed(output::FloatOutput *output, float low_speed = 0.33, float medium_speed = 0.66,
+                 float high_speed = 1.0);
 
   /** Set an oscillation output for this fan.
    *
@@ -59,10 +60,10 @@ class BasicFanComponent : public Component {
   bool next_update_{true};
 };
 
-} // namespace fan
+}  // namespace fan
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_FAN
+#endif  // USE_FAN
 
-#endif //ESPHOME_FAN_BASIC_FAN_COMPONENT_H
+#endif  // ESPHOME_FAN_BASIC_FAN_COMPONENT_H

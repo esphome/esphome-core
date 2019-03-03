@@ -37,10 +37,10 @@ class DutyCycleSensor : public PollingSensorComponent {
 
 extern DutyCycleSensor *duty_cycle_sensors;
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DUTY_CYCLE_SENSOR
+#endif  // USE_DUTY_CYCLE_SENSOR
 
-#endif //ESPHOME_DUTY_CYCLE_SENSOR_H
+#endif  // ESPHOME_DUTY_CYCLE_SENSOR_H

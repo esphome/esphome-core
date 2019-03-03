@@ -82,7 +82,7 @@ class RemoteReceiveData {
 
   int32_t pos(uint32_t index) const;
 
-  int32_t operator [](uint32_t index) const;
+  int32_t operator[](uint32_t index) const;
 
   int32_t size() const;
 
@@ -106,7 +106,7 @@ class RemoteReceiver : public binary_sensor::BinarySensor {
  public:
   explicit RemoteReceiver(const std::string &name);
 
-  bool process_(RemoteReceiveData *data);
+  bool process(RemoteReceiveData *data);
 
  protected:
   virtual bool matches(RemoteReceiveData *data) = 0;
@@ -116,9 +116,9 @@ class RemoteReceiveDumper {
  public:
   virtual bool dump(RemoteReceiveData *data) = 0;
 
-  bool process_(RemoteReceiveData *data);
+  bool process(RemoteReceiveData *data);
 
-  virtual bool secondary_();
+  virtual bool is_secondary();
 };
 
 class RemoteReceiverComponent : public RemoteControlComponentBase, public Component {
@@ -138,10 +138,10 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   void set_filter_us(uint8_t filter_us);
   void set_idle_us(uint32_t idle_us);
 
-  void process_(RemoteReceiveData *data);
-
  protected:
   friend RemoteReceiveData;
+
+  void process_(RemoteReceiveData *data);
 
 #ifdef ARDUINO_ARCH_ESP32
   void decode_rmt_(rmt_item32_t *item, size_t len);
@@ -160,7 +160,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   /// The position last read from
   uint32_t buffer_read_at_{0};
   bool overflow_{false};
-  void gpio_intr();
+  void gpio_intr_();
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -178,10 +178,10 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   std::vector<int32_t> temp_;
 };
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE_RECEIVER
+#endif  // USE_REMOTE_RECEIVER
 
-#endif //ESPHOME_REMOTE_REMOTE_RECEIVER_H
+#endif  // ESPHOME_REMOTE_REMOTE_RECEIVER_H

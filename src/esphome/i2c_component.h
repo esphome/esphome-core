@@ -43,64 +43,64 @@ class I2CComponent : public Component {
    * writing the register value to the bus.
    *
    * @param address The address to send the request to.
-   * @param register_ The register number to write to the bus before reading.
+   * @param a_register The register number to write to the bus before reading.
    * @param data An array to store len amount of 8-bit bytes into.
    * @param len The amount of bytes to request and write into data.
    * @param conversion The time in ms between writing the register value and reading out the value.
    * @return If the operation was successful.
    */
-  bool read_bytes(uint8_t address, uint8_t register_, uint8_t *data, uint8_t len, uint32_t conversion = 0);
+  bool read_bytes(uint8_t address, uint8_t a_register, uint8_t *data, uint8_t len, uint32_t conversion = 0);
 
   /** Read len amount of 16-bit words (MSB first) from a register into data.
    *
    * @param address The address to send the request to.
-   * @param register_ The register number to write to the bus before reading.
+   * @param a_register The register number to write to the bus before reading.
    * @param data An array to store len amount of 16-bit words into.
    * @param len The amount of 16-bit words to request and write into data.
    * @param conversion The time in ms between writing the register value and reading out the value.
    * @return If the operation was successful.
    */
-  bool read_bytes_16(uint8_t address, uint8_t register_, uint16_t *data, uint8_t len, uint32_t conversion = 0);
+  bool read_bytes_16(uint8_t address, uint8_t a_register, uint16_t *data, uint8_t len, uint32_t conversion = 0);
 
   /// Read a single byte from a register into the data variable. Return true if successful.
-  bool read_byte(uint8_t address, uint8_t register_, uint8_t *data, uint32_t conversion = 0);
+  bool read_byte(uint8_t address, uint8_t a_register, uint8_t *data, uint32_t conversion = 0);
 
   /// Read a single 16-bit words (MSB first) from a register into the data variable. Return true if successful.
-  bool read_byte_16(uint8_t address, uint8_t register_, uint16_t *data, uint32_t conversion = 0);
+  bool read_byte_16(uint8_t address, uint8_t a_register, uint16_t *data, uint32_t conversion = 0);
 
   /** Write len amount of 8-bit bytes to the specified register for address.
    *
    * @param address The address to use for the transmission.
-   * @param register_ The register to write the values to.
+   * @param a_register The register to write the values to.
    * @param data An array from which len bytes of data will be written to the bus.
    * @param len The amount of bytes to write to the bus.
    * @return If the operation was successful.
    */
-  bool write_bytes(uint8_t address, uint8_t register_, const uint8_t *data, uint8_t len);
+  bool write_bytes(uint8_t address, uint8_t a_register, const uint8_t *data, uint8_t len);
 
   /** Write len amount of 16-bit words (MSB first) to the specified register for address.
    *
    * @param address The address to use for the transmission.
-   * @param register_ The register to write the values to.
+   * @param a_register The register to write the values to.
    * @param data An array from which len 16-bit words of data will be written to the bus.
    * @param len The amount of bytes to write to the bus.
    * @return If the operation was successful.
    */
-  bool write_bytes_16(uint8_t address, uint8_t register_, const uint16_t *data, uint8_t len);
+  bool write_bytes_16(uint8_t address, uint8_t a_register, const uint16_t *data, uint8_t len);
 
   /// Write a single byte of data into the specified register of address. Return true if successful.
-  bool write_byte(uint8_t address, uint8_t register_, uint8_t data);
+  bool write_byte(uint8_t address, uint8_t a_register, uint8_t data);
 
   /// Write a single 16-bit word of data into the specified register of address. Return true if successful.
-  bool write_byte_16(uint8_t address, uint8_t register_, uint16_t data);
+  bool write_byte_16(uint8_t address, uint8_t a_register, uint16_t data);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Begin a write transmission to an address.
-  void begin_transmission_(uint8_t address);
+  void raw_begin_transmission(uint8_t address);
 
   /// End a write transmission to an address, return true if successful.
-  bool end_transmission_(uint8_t address);
+  bool raw_end_transmission(uint8_t address);
 
   /** Request data from an address with a number of (8-bit) bytes.
    *
@@ -108,19 +108,19 @@ class I2CComponent : public Component {
    * @param len The number of bytes to receive, must not be 0.
    * @return True if all requested bytes were read, false otherwise.
    */
-  bool request_from_(uint8_t address, uint8_t len);
+  bool raw_request_from(uint8_t address, uint8_t len);
 
   /// Write len amount of bytes from data to address. begin_transmission_ must be called before this.
-  void write_(uint8_t address, const uint8_t *data, uint8_t len);
+  void raw_write(uint8_t address, const uint8_t *data, uint8_t len);
 
   /// Write len amount of 16-bit words from data to address. begin_transmission_ must be called before this.
-  void write_16_(uint8_t address, const uint16_t *data, uint8_t len);
+  void raw_write_16(uint8_t address, const uint16_t *data, uint8_t len);
 
   /// Request len amount of bytes from address and write the result it into data. Returns true iff was successful.
-  bool receive_(uint8_t address, uint8_t *data, uint8_t len);
+  bool raw_receive(uint8_t address, uint8_t *data, uint8_t len);
 
   /// Request len amount of 16-bit words from address and write the result into data. Returns true iff was successful.
-  bool receive_16_(uint8_t address, uint16_t *data, uint8_t len);
+  bool raw_receive_16(uint8_t address, uint16_t *data, uint8_t len);
 
   /// Setup the i2c. bus
   void setup() override;
@@ -137,7 +137,7 @@ class I2CComponent : public Component {
 };
 
 #ifdef ARDUINO_ARCH_ESP32
-  extern uint8_t next_i2c_bus_num_;
+extern uint8_t next_i2c_bus_num_;
 #endif
 
 /** All components doing communication on the I2C bus should subclass I2CDevice.
@@ -162,53 +162,53 @@ class I2CDevice {
   /** Read len amount of bytes from a register into data. Optionally with a conversion time after
    * writing the register value to the bus.
    *
-   * @param register_ The register number to write to the bus before reading.
+   * @param a_register The register number to write to the bus before reading.
    * @param data An array to store len amount of 8-bit bytes into.
    * @param len The amount of bytes to request and write into data.
    * @param conversion The time in ms between writing the register value and reading out the value.
    * @return If the operation was successful.
    */
-  bool read_bytes(uint8_t register_, uint8_t *data, uint8_t len, uint32_t conversion = 0);
+  bool read_bytes(uint8_t a_register, uint8_t *data, uint8_t len, uint32_t conversion = 0);  // NOLINT
 
   /** Read len amount of 16-bit words (MSB first) from a register into data.
    *
-   * @param register_ The register number to write to the bus before reading.
+   * @param a_register The register number to write to the bus before reading.
    * @param data An array to store len amount of 16-bit words into.
    * @param len The amount of 16-bit words to request and write into data.
    * @param conversion The time in ms between writing the register value and reading out the value.
    * @return If the operation was successful.
    */
-  bool read_bytes_16(uint8_t register_, uint16_t *data, uint8_t len, uint32_t conversion = 0);
+  bool read_bytes_16(uint8_t a_register, uint16_t *data, uint8_t len, uint32_t conversion = 0);  // NOLINT
 
   /// Read a single byte from a register into the data variable. Return true if successful.
-  bool read_byte(uint8_t register_, uint8_t *data, uint32_t conversion = 0);
+  bool read_byte(uint8_t a_register, uint8_t *data, uint32_t conversion = 0);  // NOLINT
 
   /// Read a single 16-bit words (MSB first) from a register into the data variable. Return true if successful.
-  bool read_byte_16(uint8_t register_, uint16_t *data, uint32_t conversion = 0);
+  bool read_byte_16(uint8_t a_register, uint16_t *data, uint32_t conversion = 0);  // NOLINT
 
   /** Write len amount of 8-bit bytes to the specified register.
    *
-   * @param register_ The register to write the values to.
+   * @param a_register The register to write the values to.
    * @param data An array from which len bytes of data will be written to the bus.
    * @param len The amount of bytes to write to the bus.
    * @return If the operation was successful.
    */
-  bool write_bytes(uint8_t register_, const uint8_t *data, uint8_t len);
+  bool write_bytes(uint8_t a_register, const uint8_t *data, uint8_t len);  // NOLINT
 
   /** Write len amount of 16-bit words (MSB first) to the specified register.
    *
-   * @param register_ The register to write the values to.
+   * @param a_register The register to write the values to.
    * @param data An array from which len 16-bit words of data will be written to the bus.
    * @param len The amount of bytes to write to the bus.
    * @return If the operation was successful.
    */
-  bool write_bytes_16(uint8_t register_, const uint16_t *data, uint8_t len);
+  bool write_bytes_16(uint8_t a_register, const uint16_t *data, uint8_t len);  // NOLINT
 
   /// Write a single byte of data into the specified register. Return true if successful.
-  bool write_byte(uint8_t register_, uint8_t data);
+  bool write_byte(uint8_t a_register, uint8_t data);  // NOLINT
 
   /// Write a single 16-bit word of data into the specified register. Return true if successful.
-  bool write_byte_16(uint8_t register_, uint16_t data);
+  bool write_byte_16(uint8_t a_register, uint16_t data);  // NOLINT
 
   uint8_t address_;
   I2CComponent *parent_;
@@ -216,6 +216,6 @@ class I2CDevice {
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_I2C
+#endif  // USE_I2C
 
-#endif //ESPHOME_I2C_COMPONENT_H
+#endif  // ESPHOME_I2C_COMPONENT_H

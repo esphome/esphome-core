@@ -23,10 +23,10 @@ class RestartSwitch : public Switch, public Component {
   void write_state(bool state) override;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_RESTART_SWITCH
+#endif  // USE_RESTART_SWITCH
 
-#endif //ESPHOME_RESTART_SWITCH_H
+#endif  // ESPHOME_RESTART_SWITCH_H

@@ -16,9 +16,10 @@ namespace sensor {
 
 /// All possible resolutions for the rotary encoder
 enum RotaryEncoderResolution {
-  ROTARY_ENCODER_1_PULSE_PER_CYCLE = 0x11FF, /// increment counter by 1 with every A-B cycle, slow response but accurate
-  ROTARY_ENCODER_2_PULSES_PER_CYCLE = 0x33FF, /// increment counter by 2 with every A-B cycle
-  ROTARY_ENCODER_4_PULSES_PER_CYCLE = 0x77FF, /// increment counter by 4 with every A-B cycle, most inaccurate
+  ROTARY_ENCODER_1_PULSE_PER_CYCLE =
+      0x11FF,  /// increment counter by 1 with every A-B cycle, slow response but accurate
+  ROTARY_ENCODER_2_PULSES_PER_CYCLE = 0x33FF,  /// increment counter by 2 with every A-B cycle
+  ROTARY_ENCODER_4_PULSES_PER_CYCLE = 0x77FF,  /// increment counter by 4 with every A-B cycle, most inaccurate
 };
 
 class RotaryEncoderSensor : public Sensor, public Component {
@@ -51,16 +52,16 @@ class RotaryEncoderSensor : public Sensor, public Component {
 
  protected:
   /// The ISR that handles pushing all interrupts to process_state_machine_ of all rotary encoders.
-  static void encoder_isr_();
+  static void encoder_isr();
 
   /// Process the state machine state of this rotary encoder. Called from encoder_isr_
   void process_state_machine_();
 
   GPIOPin *pin_a_;
   GPIOPin *pin_b_;
-  GPIOPin *pin_i_{nullptr}; /// Index pin, if this is not nullptr, the counter will reset to 0 once this pin is HIGH.
+  GPIOPin *pin_i_{nullptr};  /// Index pin, if this is not nullptr, the counter will reset to 0 once this pin is HIGH.
 
-  volatile int32_t counter_{0}; /// The internal counter for steps
+  volatile int32_t counter_{0};  /// The internal counter for steps
   volatile bool has_changed_{true};
   uint16_t state_{0};
   RotaryEncoderResolution resolution_{ROTARY_ENCODER_1_PULSE_PER_CYCLE};
@@ -71,10 +72,10 @@ class RotaryEncoderSensor : public Sensor, public Component {
 /// Global storage for having multiple rotary encoders with a single ISR
 extern std::vector<RotaryEncoderSensor *> global_rotary_encoders_;
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ROTARY_ENCODER_SENSOR
+#endif  // USE_ROTARY_ENCODER_SENSOR
 
-#endif //ESPHOME_ROTARY_ENCODER_H
+#endif  // ESPHOME_ROTARY_ENCODER_H

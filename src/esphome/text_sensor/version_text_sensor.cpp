@@ -19,23 +19,15 @@ void VersionTextSensor::setup() {
     this->publish_state(ESPHOME_VERSION " " + get_app_compilation_time());
   }
 }
-float VersionTextSensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float VersionTextSensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 VersionTextSensor::VersionTextSensor(const std::string &name) : TextSensor(name) {}
 
-std::string VersionTextSensor::icon() {
-  return "mdi:new-box";
-}
-std::string VersionTextSensor::unique_id() {
-  return get_mac_address() + "-version";
-}
-void VersionTextSensor::dump_config() {
-  LOG_TEXT_SENSOR("", "Version Text Sensor", this);
-}
+std::string VersionTextSensor::icon() { return "mdi:new-box"; }
+std::string VersionTextSensor::unique_id() { return get_mac_address() + "-version"; }
+void VersionTextSensor::dump_config() { LOG_TEXT_SENSOR("", "Version Text Sensor", this); }
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_VERSION_TEXT_SENSOR
+#endif  // USE_VERSION_TEXT_SENSOR

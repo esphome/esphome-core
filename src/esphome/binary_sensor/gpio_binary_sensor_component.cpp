@@ -23,20 +23,14 @@ void GPIOBinarySensorComponent::dump_config() {
   LOG_PIN("  Pin: ", this->pin_);
 }
 
-void GPIOBinarySensorComponent::loop() {
-  this->publish_state(this->pin_->digital_read());
-}
+void GPIOBinarySensorComponent::loop() { this->publish_state(this->pin_->digital_read()); }
 
-float GPIOBinarySensorComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float GPIOBinarySensorComponent::get_setup_priority() const { return setup_priority::HARDWARE; }
 GPIOBinarySensorComponent::GPIOBinarySensorComponent(const std::string &name, GPIOPin *pin)
-  : BinarySensor(name), pin_(pin) {
+    : BinarySensor(name), pin_(pin) {}
 
-}
-
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_GPIO_BINARY_SENSOR
+#endif  // USE_GPIO_BINARY_SENSOR

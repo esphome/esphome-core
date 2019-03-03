@@ -28,17 +28,13 @@ class KeyValuePair {
 
 class TemplatableKeyValuePair {
  public:
-  template<typename T>
-  TemplatableKeyValuePair(std::string key, T func);
+  template<typename T> TemplatableKeyValuePair(std::string key, T func);
 
   std::string key;
   std::function<std::string()> value;
 };
-template<typename T>
-TemplatableKeyValuePair::TemplatableKeyValuePair(std::string key, T func) : key(key) {
-  this->value = [func]() -> std::string {
-    return to_string(func());
-  };
+template<typename T> TemplatableKeyValuePair::TemplatableKeyValuePair(std::string key, T func) : key(key) {
+  this->value = [func]() -> std::string { return to_string(func()); };
 }
 
 class ServiceCallResponse : public APIMessage {
@@ -59,10 +55,10 @@ class ServiceCallResponse : public APIMessage {
   std::vector<TemplatableKeyValuePair> variables_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_SERVICE_CALL_MESSAGE_H
+#endif  // ESPHOME_API_SERVICE_CALL_MESSAGE_H

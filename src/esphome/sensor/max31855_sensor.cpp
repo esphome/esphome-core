@@ -1,4 +1,5 @@
-// Implementation based on https://github.com/adafruit/MAX31855-library/blob/master/max31855.cpp and https://github.com/adafruit/Adafruit_CircuitPython_MAX31855/blob/master/adafruit_max31855.py
+// Implementation based on https://github.com/adafruit/MAX31855-library/blob/master/max31855.cpp and
+// https://github.com/adafruit/Adafruit_CircuitPython_MAX31855/blob/master/adafruit_max31855.py
 
 #include "esphome/defines.h"
 
@@ -33,18 +34,10 @@ void MAX31855Sensor::dump_config() {
   LOG_PIN("  CS Pin: ", this->cs_);
   LOG_UPDATE_INTERVAL(this);
 }
-float MAX31855Sensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
-std::string MAX31855Sensor::unit_of_measurement() {
-  return UNIT_C;
-}
-std::string MAX31855Sensor::icon() {
-  return ICON_EMPTY;
-}
-int8_t MAX31855Sensor::accuracy_decimals() {
-  return 1;
-}
+float MAX31855Sensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
+std::string MAX31855Sensor::unit_of_measurement() { return UNIT_C; }
+std::string MAX31855Sensor::icon() { return ICON_EMPTY; }
+int8_t MAX31855Sensor::accuracy_decimals() { return 1; }
 void MAX31855Sensor::read_data_() {
   this->enable();
   delay(1);
@@ -66,22 +59,22 @@ void MAX31855Sensor::read_data_() {
 
   this->disable();
   if ((data[3] & 0x01) != 0) {
-    ESP_LOGW(TAG, "Got thermocouple not connected from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] <<8);
+    ESP_LOGW(TAG, "Got thermocouple not connected from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] << 8);
     this->status_set_warning();
     return;
   }
   if ((data[3] & 0x02) != 0) {
-    ESP_LOGW(TAG, "Got short circuit to ground from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] <<8);
+    ESP_LOGW(TAG, "Got short circuit to ground from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] << 8);
     this->status_set_warning();
     return;
   }
   if ((data[3] & 0x04) != 0) {
-    ESP_LOGW(TAG, "Got short circuit to power from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] <<8);
+    ESP_LOGW(TAG, "Got short circuit to power from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] << 8);
     this->status_set_warning();
     return;
   }
   if ((data[1] & 0x01) != 0) {
-    ESP_LOGW(TAG, "Got faulty reading from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] <<8);
+    ESP_LOGW(TAG, "Got faulty reading from MAX31855Sensor (0x%04X) (0x%04X)", val, data[3] | data[2] << 8);
     this->status_set_warning();
     return;
   }
@@ -103,12 +96,10 @@ void MAX31855Sensor::read_data_() {
 MAX31855Sensor::MAX31855Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), SPIDevice(parent, cs) {}
 
-bool MAX31855Sensor::msb_first() {
-  return true;
-}
+bool MAX31855Sensor::is_device_msb_first() { return true; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MAX31855_SENSOR
+#endif  // USE_MAX31855_SENSOR

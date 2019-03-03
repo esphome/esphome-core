@@ -17,14 +17,15 @@ class HomeassistantTextSensor : public TextSensor, public Component {
   HomeassistantTextSensor(const std::string &name, const std::string &entity_id);
   void dump_config() override;
   void setup() override;
+
  protected:
   std::string entity_id_;
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HOMEASSISTANT_TEXT_SENSOR
+#endif  // USE_HOMEASSISTANT_TEXT_SENSOR
 
-#endif //ESPHOME_HOMEASSISTANT_TEXT_SENSOR_H
+#endif  // ESPHOME_HOMEASSISTANT_TEXT_SENSOR_H

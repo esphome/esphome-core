@@ -43,10 +43,10 @@ class TemplateSwitch : public Switch, public Component {
   bool restore_state_{false};
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TEMPLATE_SWITCH
+#endif  // USE_TEMPLATE_SWITCH
 
-#endif //ESPHOME_SWITCH_TEMPLATE_SWITCH_H
+#endif  // ESPHOME_SWITCH_TEMPLATE_SWITCH_H
