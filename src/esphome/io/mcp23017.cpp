@@ -33,7 +33,7 @@ void MCP23017::setup() {
 bool MCP23017::digital_read(uint8_t pin) {
   uint8_t bit = pin % 8;
   uint8_t reg_addr = pin < 8 ? MCP23017_GPIOA : MCP23017_GPIOB;
-  uint8_t value;
+  uint8_t value = 0;
   this->read_reg_(reg_addr, &value);
   return value & (1 << bit);
 }
@@ -70,7 +70,7 @@ bool MCP23017::write_reg_(uint8_t reg, uint8_t value) {
 void MCP23017::update_reg_(uint8_t pin, bool pin_value, uint8_t reg_a) {
   uint8_t reg_addr = pin < 8 ? reg_a : reg_a + 1;
   uint8_t bit = pin % 8;
-  uint8_t reg_value;
+  uint8_t reg_value = 0;
   if (reg_addr == MCP23017_OLATA) {
     reg_value = this->olat_a_;
   } else if (reg_addr == MCP23017_OLATB) {
@@ -97,19 +97,19 @@ MCP23017GPIOInputPin::MCP23017GPIOInputPin(MCP23017 *parent, uint8_t pin, uint8_
     : GPIOInputPin(pin, mode, inverted), parent_(parent) {}
 GPIOPin *MCP23017GPIOInputPin::copy() const { return new MCP23017GPIOInputPin(*this); }
 void MCP23017GPIOInputPin::setup() { this->pin_mode(this->mode_); }
-void MCP23017GPIOInputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode_(this->pin_, mode); }
-bool MCP23017GPIOInputPin::digital_read() { return this->parent_->digital_read_(this->pin_) != this->inverted_; }
+void MCP23017GPIOInputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode(this->pin_, mode); }
+bool MCP23017GPIOInputPin::digital_read() { return this->parent_->digital_read(this->pin_) != this->inverted_; }
 void MCP23017GPIOInputPin::digital_write(bool value) {
-  this->parent_->digital_write_(this->pin_, value != this->inverted_);
+  this->parent_->digital_write(this->pin_, value != this->inverted_);
 }
 MCP23017GPIOOutputPin::MCP23017GPIOOutputPin(MCP23017 *parent, uint8_t pin, uint8_t mode, bool inverted)
     : GPIOOutputPin(pin, mode, inverted), parent_(parent) {}
 GPIOPin *MCP23017GPIOOutputPin::copy() const { return new MCP23017GPIOOutputPin(*this); }
 void MCP23017GPIOOutputPin::setup() { this->pin_mode(this->mode_); }
-void MCP23017GPIOOutputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode_(this->pin_, mode); }
-bool MCP23017GPIOOutputPin::digital_read() { return this->parent_->digital_read_(this->pin_) != this->inverted_; }
+void MCP23017GPIOOutputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode(this->pin_, mode); }
+bool MCP23017GPIOOutputPin::digital_read() { return this->parent_->digital_read(this->pin_) != this->inverted_; }
 void MCP23017GPIOOutputPin::digital_write(bool value) {
-  this->parent_->digital_write_(this->pin_, value != this->inverted_);
+  this->parent_->digital_write(this->pin_, value != this->inverted_);
 }
 }  // namespace io
 
