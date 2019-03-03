@@ -14,11 +14,11 @@ namespace sensor {
 enum {
   MPR121_SENSOR_TYPE_SLIDER = 0x00,
   MPR121_SENSOR_TYPE_WHEEL = 0x01,
-}; 
+};
 
 /** SensorChannel class just a placeholder for each mpr121 sensor channel.
  *
- * The channels together form one Sensor. 
+ * The channels together form one Sensor.
  * The Sensor value is calculated by the values of the channels that are active.
  */
 class MPR121SensorChannel {
@@ -37,8 +37,6 @@ class MPR121SensorChannel {
  */
 class MPR121Sensor : public sensor::Sensor {
  public:
-
-
   MPR121Sensor(const std::string &name);
   void process(uint16_t *data, uint16_t *last_data);
   void set_sensor_type(uint8_t sensor_type);
@@ -50,12 +48,12 @@ class MPR121Sensor : public sensor::Sensor {
   uint8_t sensor_type_ = MPR121_SENSOR_TYPE_SLIDER;
   uint16_t mask_ = 0;
   uint8_t step_size_ = 1;
-  uint16_t getFirstSetBitPos(uint16_t data);
+  uint16_t get_first_set_bit_pos_(uint16_t data);
   void process_slider_(uint16_t data);
   void process_wheel_(uint16_t data, uint16_t last_data);
 };
 
-}  // namespace binary_sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 

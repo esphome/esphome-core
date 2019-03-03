@@ -95,7 +95,7 @@ void MPR121Component::process_(uint16_t *data, uint16_t *last_data) {
   for (auto *channel : this->channels_) {
     channel->process(data, last_data);
   }
-  for(auto *sensor : this->sensors_) {
+  for (auto *sensor : this->sensors_) {
     sensor->process(data, last_data);
   }
 }
