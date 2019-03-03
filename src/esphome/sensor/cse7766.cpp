@@ -143,11 +143,14 @@ void CSE7766Component::update() {
   float power = this->power_acc_ / d;
   ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW", voltage, current, power);
 
-  if (this->voltage_ != nullptr)
+  // Manually discard unreasonable values
+  // CSE766 sends a bunch of invalid data (or packets that are not documented)
+  // sometimes, they pass the checksum test and lead to wrong values being published
+  if (this->voltage_ != nullptr && voltage < 500.0)
     this->voltage_->publish_state(voltage);
-  if (this->current_ != nullptr)
+  if (this->current_ != nullptr && current < 50.0)
     this->current_->publish_state(current);
-  if (this->power_ != nullptr)
+  if (this->power_ != nullptr && power < 12500.0)
     this->power_->publish_state(power);
 
   this->voltage_acc_ = this->current_acc_ = this->power_acc_ = 0;
