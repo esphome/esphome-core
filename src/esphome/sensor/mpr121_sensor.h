@@ -13,7 +13,7 @@ namespace sensor {
 
 enum {
   MPR121_SENSOR_TYPE_SLIDER = 0x00,
-  MPR121_SENSOR_TYPE_ROTARY = 0x01,
+  MPR121_SENSOR_TYPE_WHEEL = 0x01,
 }; 
 
 /** SensorChannel class just a placeholder for each mpr121 sensor channel.
@@ -52,7 +52,7 @@ class MPR121Sensor : public sensor::Sensor {
   uint8_t step_size_ = 1;
   uint16_t getFirstSetBitPos(uint16_t data);
   void process_slider_(uint16_t data);
-  void process_rotary_(uint16_t data, uint16_t last_data);
+  void process_wheel_(uint16_t data, uint16_t last_data);
 };
 
 }  // namespace binary_sensor

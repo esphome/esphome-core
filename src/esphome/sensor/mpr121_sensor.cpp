@@ -26,8 +26,8 @@ void MPR121Sensor::process(uint16_t *data, uint16_t *last_data) {
     case MPR121_SENSOR_TYPE_SLIDER:
       this->process_slider_(*data);
       break;
-    case MPR121_SENSOR_TYPE_ROTARY:
-      this->process_rotary_(*data, *last_data);
+    case MPR121_SENSOR_TYPE_WHEEL:
+      this->process_wheel_(*data, *last_data);
       break;
   }
 }
@@ -56,7 +56,7 @@ void MPR121Sensor::process_slider_(uint16_t data) {
   }
 }
 
-void MPR121Sensor::process_rotary_(uint16_t data, uint16_t last_data) {
+void MPR121Sensor::process_wheel_(uint16_t data, uint16_t last_data) {
   uint16_t bits = 0;
   uint16_t last_bits = 0;
   float value = 0;
