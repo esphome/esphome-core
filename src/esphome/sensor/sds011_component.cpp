@@ -40,8 +40,7 @@ SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval
       update_interval_(update_interval),
       query_mode_(query_mode),
       rx_mode_only_(rx_mode_only),
-      force_query_(false) {
-}
+      force_query_(false) {}
 
 void SDS011Component::setup() {
   if (this->get_rx_mode_only()) {
@@ -60,7 +59,7 @@ void SDS011Component::setup() {
   this->sds011_write_command_(command_data);
 
   uint8_t update_interval_minutes = this->get_update_interval() / 1000.0f / 60.0f;
-  this->set_update_interval((uint32_t)update_interval_minutes * 1000 * 60);
+  this->set_update_interval((uint32_t) update_interval_minutes * 1000 * 60);
   if (update_interval_minutes > 30) {
     ESP_LOGW(TAG, "Update interval is longer than 30 min.");
   }
@@ -145,33 +144,19 @@ SDS011Sensor *SDS011Component::make_pm_10_0_sensor(const std::string &name) {
   return this->pm_10_0_sensor_ = new SDS011Sensor(name);
 }
 
-float SDS011Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float SDS011Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-void SDS011Component::set_query_mode(bool query_mode) {
-  this->query_mode_ = query_mode;
-}
+void SDS011Component::set_query_mode(bool query_mode) { this->query_mode_ = query_mode; }
 
-void SDS011Component::set_rx_mode_only(bool rx_mode_only) {
-  this->rx_mode_only_ = rx_mode_only;
-}
+void SDS011Component::set_rx_mode_only(bool rx_mode_only) { this->rx_mode_only_ = rx_mode_only; }
 
-void SDS011Component::set_update_interval(uint32_t update_interval) {
-  this->update_interval_ = update_interval;
-}
+void SDS011Component::set_update_interval(uint32_t update_interval) { this->update_interval_ = update_interval; }
 
-bool SDS011Component::get_query_mode() const {
-  return this->query_mode_;
-}
+bool SDS011Component::get_query_mode() const { return this->query_mode_; }
 
-bool SDS011Component::get_rx_mode_only() const {
-  return this->rx_mode_only_;
-}
+bool SDS011Component::get_rx_mode_only() const { return this->rx_mode_only_; }
 
-uint32_t SDS011Component::get_update_interval() const {
-  return this->update_interval_;
-}
+uint32_t SDS011Component::get_update_interval() const { return this->update_interval_; }
 
 void SDS011Component::sds011_write_command_(const uint8_t *command_data) {
   this->flush();

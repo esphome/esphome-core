@@ -824,9 +824,6 @@ class Application {
   sensor::SDS011Component *make_sds011(UARTComponent *parent);
 #endif
 
-
-
-
   /*    ___  _   _ _____ ____  _   _ _____
    *   / _ \| | | |_   _|  _ \| | | |_   _|
    *  | | | | | | | | | | |_) | | | | | |
