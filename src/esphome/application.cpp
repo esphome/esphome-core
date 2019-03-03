@@ -1187,8 +1187,6 @@ Application::MakePartitionLight Application::make_partition_light(
 }
 #endif
 
-#endif
-
 #ifdef USE_MCP23017
 io::MCP23017 *Application::make_mcp23017_component(uint8_t address) {
   return this->register_component(new MCP23017(this->i2c_, address));
