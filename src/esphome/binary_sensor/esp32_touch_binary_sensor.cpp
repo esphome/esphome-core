@@ -20,8 +20,7 @@ void ESP32TouchComponent::setup() {
   }
 
   touch_pad_set_meas_time(this->sleep_cycle_, this->meas_cycle_);
-  touch_pad_set_voltage(this->high_voltage_reference_, this->low_voltage_reference_,
-                        this->voltage_attenuation_);
+  touch_pad_set_voltage(this->high_voltage_reference_, this->low_voltage_reference_, this->voltage_attenuation_);
 
   for (auto *child : this->children_) {
     // Disable interrupt threshold
@@ -44,34 +43,63 @@ void ESP32TouchComponent::dump_config() {
 
   const char *lv_s;
   switch (this->low_voltage_reference_) {
-    case TOUCH_LVOLT_0V5: lv_s = "0.5V"; break;
-    case TOUCH_LVOLT_0V6: lv_s = "0.6V"; break;
-    case TOUCH_LVOLT_0V7: lv_s = "0.7V"; break;
-    case TOUCH_LVOLT_0V8: lv_s = "0.8V"; break;
-    default: lv_s = "UNKNOWN"; break;
+    case TOUCH_LVOLT_0V5:
+      lv_s = "0.5V";
+      break;
+    case TOUCH_LVOLT_0V6:
+      lv_s = "0.6V";
+      break;
+    case TOUCH_LVOLT_0V7:
+      lv_s = "0.7V";
+      break;
+    case TOUCH_LVOLT_0V8:
+      lv_s = "0.8V";
+      break;
+    default:
+      lv_s = "UNKNOWN";
+      break;
   }
   ESP_LOGCONFIG(TAG, "  Low Voltage Reference: %s", lv_s);
 
   const char *hv_s;
   switch (this->high_voltage_reference_) {
-    case TOUCH_HVOLT_2V4: hv_s = "2.4V"; break;
-    case TOUCH_HVOLT_2V5: hv_s = "2.5V"; break;
-    case TOUCH_HVOLT_2V6: hv_s = "2.6V"; break;
-    case TOUCH_HVOLT_2V7: hv_s = "2.7V"; break;
-    default: hv_s = "UNKNOWN"; break;
+    case TOUCH_HVOLT_2V4:
+      hv_s = "2.4V";
+      break;
+    case TOUCH_HVOLT_2V5:
+      hv_s = "2.5V";
+      break;
+    case TOUCH_HVOLT_2V6:
+      hv_s = "2.6V";
+      break;
+    case TOUCH_HVOLT_2V7:
+      hv_s = "2.7V";
+      break;
+    default:
+      hv_s = "UNKNOWN";
+      break;
   }
   ESP_LOGCONFIG(TAG, "  High Voltage Reference: %s", hv_s);
 
   const char *atten_s;
   switch (this->voltage_attenuation_) {
-    case TOUCH_HVOLT_ATTEN_1V5: atten_s = "1.5V"; break;
-    case TOUCH_HVOLT_ATTEN_1V: atten_s = "1V"; break;
-    case TOUCH_HVOLT_ATTEN_0V5: atten_s = "0.5V"; break;
-    case TOUCH_HVOLT_ATTEN_0V: atten_s = "0V"; break;
-    default: atten_s = "UNKNOWN"; break;
+    case TOUCH_HVOLT_ATTEN_1V5:
+      atten_s = "1.5V";
+      break;
+    case TOUCH_HVOLT_ATTEN_1V:
+      atten_s = "1V";
+      break;
+    case TOUCH_HVOLT_ATTEN_0V5:
+      atten_s = "0.5V";
+      break;
+    case TOUCH_HVOLT_ATTEN_0V:
+      atten_s = "0V";
+      break;
+    default:
+      atten_s = "UNKNOWN";
+      break;
   }
   ESP_LOGCONFIG(TAG, "  Voltage Attenuation: %s", atten_s);
-
 
   if (this->iir_filter_enabled_()) {
     ESP_LOGCONFIG(TAG, "    IIR Filter: %ums", this->iir_filter_);
@@ -111,30 +139,19 @@ void ESP32TouchComponent::loop() {
     delay(250);
   }
 }
-ESP32TouchBinarySensor *ESP32TouchComponent::make_touch_pad(const std::string &name,
-                                                            touch_pad_t touch_pad,
+ESP32TouchBinarySensor *ESP32TouchComponent::make_touch_pad(const std::string &name, touch_pad_t touch_pad,
                                                             uint16_t threshold) {
   auto *sensor = new ESP32TouchBinarySensor(name, touch_pad, threshold);
   this->children_.push_back(sensor);
   return sensor;
 }
-void ESP32TouchComponent::set_setup_mode(bool setup_mode) {
-  this->setup_mode_ = setup_mode;
-}
+void ESP32TouchComponent::set_setup_mode(bool setup_mode) { this->setup_mode_ = setup_mode; }
 bool ESP32TouchComponent::iir_filter_enabled_() const { return this->iir_filter_ > 0; }
 
-void ESP32TouchComponent::set_iir_filter(uint32_t iir_filter) {
-  this->iir_filter_ = iir_filter;
-}
-float ESP32TouchComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
-void ESP32TouchComponent::set_sleep_duration(uint16_t sleep_duration) {
-  this->sleep_cycle_ = sleep_duration;
-}
-void ESP32TouchComponent::set_measurement_duration(uint16_t meas_cycle) {
-  this->meas_cycle_ = meas_cycle;
-}
+void ESP32TouchComponent::set_iir_filter(uint32_t iir_filter) { this->iir_filter_ = iir_filter; }
+float ESP32TouchComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
+void ESP32TouchComponent::set_sleep_duration(uint16_t sleep_duration) { this->sleep_cycle_ = sleep_duration; }
+void ESP32TouchComponent::set_measurement_duration(uint16_t meas_cycle) { this->meas_cycle_ = meas_cycle; }
 void ESP32TouchComponent::set_low_voltage_reference(touch_low_volt_t low_voltage_reference) {
   this->low_voltage_reference_ = low_voltage_reference;
 }
@@ -146,18 +163,12 @@ void ESP32TouchComponent::set_voltage_attenuation(touch_volt_atten_t voltage_att
 }
 
 ESP32TouchBinarySensor::ESP32TouchBinarySensor(const std::string &name, touch_pad_t touch_pad, uint16_t threshold)
-    : BinarySensor(name), touch_pad_(touch_pad), threshold_(threshold) {
+    : BinarySensor(name), touch_pad_(touch_pad), threshold_(threshold) {}
+touch_pad_t ESP32TouchBinarySensor::get_touch_pad() const { return this->touch_pad_; }
+uint16_t ESP32TouchBinarySensor::get_threshold() const { return this->threshold_; }
 
-}
-touch_pad_t ESP32TouchBinarySensor::get_touch_pad() const {
-  return this->touch_pad_;
-}
-uint16_t ESP32TouchBinarySensor::get_threshold() const {
-  return this->threshold_;
-}
-
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ESP32_TOUCH_BINARY_SENSOR
+#endif  // USE_ESP32_TOUCH_BINARY_SENSOR

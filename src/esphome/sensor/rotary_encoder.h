@@ -66,15 +66,15 @@ class RotaryEncoderSensor : public Sensor, public Component {
  protected:
   GPIOPin *pin_a_;
   GPIOPin *pin_b_;
-  GPIOPin *pin_i_{nullptr}; /// Index pin, if this is not nullptr, the counter will reset to 0 once this pin is HIGH.
+  GPIOPin *pin_i_{nullptr};  /// Index pin, if this is not nullptr, the counter will reset to 0 once this pin is HIGH.
 
   RotaryEncoderSensorStore store_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ROTARY_ENCODER_SENSOR
+#endif  // USE_ROTARY_ENCODER_SENSOR
 
-#endif //ESPHOME_ROTARY_ENCODER_H
+#endif  // ESPHOME_ROTARY_ENCODER_H

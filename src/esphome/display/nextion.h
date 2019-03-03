@@ -33,7 +33,7 @@ class Nextion : public PollingComponent, public UARTDevice {
    * @param format The printf-style format string.
    * @param ... The arguments to the format.
    */
-  void set_component_text_printf(const char *component, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+  void set_component_text_printf(const char *component, const char *format, ...) __attribute__((format(printf, 3, 4)));
   /**
    * Set the integer value of a component
    * @param component The component name.
@@ -129,7 +129,7 @@ class Nextion : public PollingComponent, public UARTDevice {
    * @param x1 The x coordinate.
    * @param y1 The y coordniate.
    */
-  void display_picture(int picture_id, int x1, int y1);
+  void display_picture(int picture_id, int x_start, int y_start);
   /**
    * Fill a rectangle with a color.
    * @param x1 The starting x coordinate.
@@ -196,17 +196,17 @@ class Nextion : public PollingComponent, public UARTDevice {
   void set_writer(const nextion_writer_t &writer);
 
   /**
-   * Manually send a raw command to the display.
+   * Manually send a raw command to the display and don't wait for an acknolwedgement packet.
    * @param command The command to write, for example "vis b0,0".
    */
-  void send_command_(const char *command);
+  void send_command_no_ack(const char *command);
   /**
    * Manually send a raw formatted command to the display.
    * @param format The printf-style command format, like "vis %s,0"
    * @param ... The format arguments
    * @return Whether the send was successful.
    */
-  bool send_command_printf_(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+  bool send_command_printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
  protected:
   bool ack_();
@@ -218,15 +218,16 @@ class NextionTouchComponent : public binary_sensor::BinarySensor {
  public:
   NextionTouchComponent(const std::string &name, uint8_t page_id, uint8_t component_id);
   void process(uint8_t page_id, uint8_t component_id, bool on);
+
  protected:
   uint8_t page_id_;
   uint8_t component_id_;
 };
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_NEXTION
+#endif  // USE_NEXTION
 
-#endif //ESPHOME_DISPLAY_NEXTION_H
+#endif  // ESPHOME_DISPLAY_NEXTION_H

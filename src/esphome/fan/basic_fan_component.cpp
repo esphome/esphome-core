@@ -11,9 +11,7 @@ namespace fan {
 
 static const char *TAG = "fan.basic_fan";
 
-void BasicFanComponent::set_binary(output::BinaryOutput *output) {
-  this->binary_output_ = output;
-}
+void BasicFanComponent::set_binary(output::BinaryOutput *output) { this->binary_output_ = output; }
 void BasicFanComponent::set_speed(output::FloatOutput *output, float low_speed, float medium_speed, float high_speed) {
   FanTraits traits = this->state_->get_traits();
   traits.set_speed(true);
@@ -31,12 +29,8 @@ void BasicFanComponent::set_oscillation(output::BinaryOutput *oscillating_output
 
   this->oscillating_output_ = oscillating_output;
 }
-FanState *BasicFanComponent::get_state() const {
-  return this->state_;
-}
-void BasicFanComponent::set_state(FanState *state) {
-  this->state_ = state;
-}
+FanState *BasicFanComponent::get_state() const { return this->state_; }
+void BasicFanComponent::set_state(FanState *state) { this->state_ = state; }
 void BasicFanComponent::setup() {
   this->state_->add_on_state_callback([this]() { this->next_update_ = true; });
 }
@@ -47,8 +41,8 @@ void BasicFanComponent::dump_config() {
   }
   if (this->state_->get_traits().supports_speed()) {
     ESP_LOGCONFIG(TAG, "  Mode: Speed");
-    ESP_LOGCONFIG(TAG, "  Speeds: Low=%.0f%% Medium=%.0f%% High=%.0f%%",
-                  this->low_speed_ * 100.0f, this->medium_speed_ * 100.0f, this->high_speed_ * 100.0f);
+    ESP_LOGCONFIG(TAG, "  Speeds: Low=%.0f%% Medium=%.0f%% High=%.0f%%", this->low_speed_ * 100.0f,
+                  this->medium_speed_ * 100.0f, this->high_speed_ * 100.0f);
   } else {
     ESP_LOGCONFIG(TAG, "  Mode: Binary");
   }
@@ -91,12 +85,10 @@ void BasicFanComponent::loop() {
     ESP_LOGD(TAG, "Setting oscillation: %d", int(enable));
   }
 }
-float BasicFanComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float BasicFanComponent::get_setup_priority() const { return setup_priority::HARDWARE; }
 
-} // namespace fan
+}  // namespace fan
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_FAN
+#endif  // USE_FAN

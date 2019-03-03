@@ -26,7 +26,7 @@ void MS5611Component::setup() {
   }
   delay(100);
   for (uint8_t offset = 0; offset < 6; offset++) {
-    if (!this->read_byte_16(MS5611_CMD_READ_PROM + (offset * 2), &this->prom[offset])) {
+    if (!this->read_byte_16(MS5611_CMD_READ_PROM + (offset * 2), &this->prom_[offset])) {
       this->mark_failed();
       return;
     }
@@ -42,9 +42,7 @@ void MS5611Component::dump_config() {
   LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
   LOG_SENSOR("  ", "Pressure", this->pressure_sensor_);
 }
-float MS5611Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float MS5611Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void MS5611Component::update() {
   // request temperature reading
   if (!this->write_bytes(MS5611_CMD_CONV_D2 + 0x08, nullptr, 0)) {
@@ -79,17 +77,17 @@ void MS5611Component::read_pressure_(uint32_t raw_temperature) {
     return;
   }
   const uint32_t raw_pressure = (uint32_t(bytes[0]) << 16) | (uint32_t(bytes[1]) << 8) | (uint32_t(bytes[2]));
-  this->calculate_values(raw_temperature, raw_pressure);
+  this->calculate_values_(raw_temperature, raw_pressure);
 }
-void MS5611Component::calculate_values(uint32_t raw_temperature, uint32_t raw_pressure) {
-  const int32_t dT = int32_t(raw_temperature) - (uint32_t(this->prom[4]) << 8);
-  float temperature = (2000 + (int64_t(dT) * this->prom[5]) / 8388608.0f) / 100.0f;
+void MS5611Component::calculate_values_(uint32_t raw_temperature, uint32_t raw_pressure) {
+  const int32_t d_t = int32_t(raw_temperature) - (uint32_t(this->prom_[4]) << 8);
+  float temperature = (2000 + (int64_t(d_t) * this->prom_[5]) / 8388608.0f) / 100.0f;
 
-  float pressure_offset = (uint32_t(this->prom[1]) << 16) + ((this->prom[3] * dT) >> 7);
-  float pressure_sensitivity = (uint32_t(this->prom[0]) << 15) + ((this->prom[2] * dT) >> 8);
+  float pressure_offset = (uint32_t(this->prom_[1]) << 16) + ((this->prom_[3] * d_t) >> 7);
+  float pressure_sensitivity = (uint32_t(this->prom_[0]) << 15) + ((this->prom_[2] * d_t) >> 8);
 
   if (temperature < 20.0f) {
-    const float T2 = (dT*dT) / 2147483648.0f;
+    const float t2 = (d_t * d_t) / 2147483648.0f;
     const float temp20 = (temperature - 20.0f) * 100.0f;
     float pressure_offset_2 = 2.5f * temp20 * temp20;
     float pressure_sensitivity_2 = 1.25f * temp20 * temp20;
@@ -98,7 +96,7 @@ void MS5611Component::calculate_values(uint32_t raw_temperature, uint32_t raw_pr
       pressure_offset_2 += 7.0f * temp15;
       pressure_sensitivity_2 += 5.5f * temp15;
     }
-    temperature -= T2;
+    temperature -= t2;
     pressure_offset -= pressure_offset_2;
     pressure_sensitivity -= pressure_sensitivity_2;
   }
@@ -108,24 +106,20 @@ void MS5611Component::calculate_values(uint32_t raw_temperature, uint32_t raw_pr
   ESP_LOGD(TAG, "Got temperature=%0.02f°C pressure=%0.01fhPa", temperature, pressure);
 
   this->temperature_sensor_->publish_state(temperature);
-  this->pressure_sensor_->publish_state(pressure); // hPa
+  this->pressure_sensor_->publish_state(pressure);  // hPa
   this->status_clear_warning();
 }
-MS5611TemperatureSensor *MS5611Component::get_temperature_sensor() const {
-  return this->temperature_sensor_;
-}
-MS5611PressureSensor *MS5611Component::get_pressure_sensor() const {
-  return this->pressure_sensor_;
-}
-MS5611Component::MS5611Component(I2CComponent *parent, const std::string &temperature_name, const std::string &pressure_name,
-                                 uint32_t update_interval)
-  : PollingComponent(update_interval), I2CDevice(parent, MS5611_ADDRESS),
-    temperature_sensor_(new MS5611TemperatureSensor(temperature_name, this)),
-    pressure_sensor_(new MS5611PressureSensor(pressure_name, this)) {
-}
+MS5611TemperatureSensor *MS5611Component::get_temperature_sensor() const { return this->temperature_sensor_; }
+MS5611PressureSensor *MS5611Component::get_pressure_sensor() const { return this->pressure_sensor_; }
+MS5611Component::MS5611Component(I2CComponent *parent, const std::string &temperature_name,
+                                 const std::string &pressure_name, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, MS5611_ADDRESS),
+      temperature_sensor_(new MS5611TemperatureSensor(temperature_name, this)),
+      pressure_sensor_(new MS5611PressureSensor(pressure_name, this)) {}
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MS5611
+#endif  // USE_MS5611

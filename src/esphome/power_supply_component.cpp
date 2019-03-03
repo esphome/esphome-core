@@ -31,28 +31,16 @@ void PowerSupplyComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  Keep on time: %.1f s", this->keep_on_time_ / 1000.0f);
 }
 
-float PowerSupplyComponent::get_setup_priority() const {
-  return setup_priority::PRE_HARDWARE;
-}
+float PowerSupplyComponent::get_setup_priority() const { return setup_priority::PRE_HARDWARE; }
 
 PowerSupplyComponent::PowerSupplyComponent(GPIOPin *pin, uint32_t enable_time, uint32_t keep_on_time)
     : pin_(pin), enable_time_(enable_time), keep_on_time_(keep_on_time) {}
 
-bool PowerSupplyComponent::is_enabled() const {
-  return this->enabled_;
-}
-uint32_t PowerSupplyComponent::get_enable_time() const {
-  return this->enable_time_;
-}
-void PowerSupplyComponent::set_enable_time(uint32_t enable_time) {
-  this->enable_time_ = enable_time;
-}
-uint32_t PowerSupplyComponent::get_keep_on_time() const {
-  return this->keep_on_time_;
-}
-void PowerSupplyComponent::set_keep_on_time(uint32_t keep_on_time) {
-  this->keep_on_time_ = keep_on_time;
-}
+bool PowerSupplyComponent::is_enabled() const { return this->enabled_; }
+uint32_t PowerSupplyComponent::get_enable_time() const { return this->enable_time_; }
+void PowerSupplyComponent::set_enable_time(uint32_t enable_time) { this->enable_time_ = enable_time; }
+uint32_t PowerSupplyComponent::get_keep_on_time() const { return this->keep_on_time_; }
+void PowerSupplyComponent::set_keep_on_time(uint32_t keep_on_time) { this->keep_on_time_ = keep_on_time; }
 
 void PowerSupplyComponent::request_high_power() {
   this->cancel_timeout("power-supply-off");
@@ -67,7 +55,6 @@ void PowerSupplyComponent::request_high_power() {
   this->enabled_ = true;
   // increase active requests
   this->active_requests_++;
-
 }
 
 void PowerSupplyComponent::unrequest_high_power() {
@@ -79,7 +66,7 @@ void PowerSupplyComponent::unrequest_high_power() {
 
   if (this->active_requests_ == 0) {
     // set timeout for power supply off
-    this->set_timeout("power-supply-off", this->keep_on_time_, [this](){
+    this->set_timeout("power-supply-off", this->keep_on_time_, [this]() {
       ESP_LOGD(TAG, "Disabling power supply.");
       this->pin_->digital_write(false);
       this->enabled_ = false;
@@ -89,4 +76,4 @@ void PowerSupplyComponent::unrequest_high_power() {
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_OUTPUT
+#endif  // USE_OUTPUT

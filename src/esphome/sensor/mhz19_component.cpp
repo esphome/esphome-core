@@ -14,13 +14,9 @@ static const uint8_t MHZ19_REQUEST_LENGTH = 8;
 static const uint8_t MHZ19_RESPONSE_LENGTH = 9;
 static const uint8_t MHZ19_COMMAND_GET_PPM[] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-MHZ19Component::MHZ19Component(UARTComponent *parent, const std::string &co2_name,
-                               uint32_t update_interval)
-    : PollingComponent(update_interval), UARTDevice(parent),
-      co2_sensor_(new MHZ19CO2Sensor(co2_name, this)) {
-
-}
-uint8_t mhz19_checksum_(const uint8_t *command) {
+MHZ19Component::MHZ19Component(UARTComponent *parent, const std::string &co2_name, uint32_t update_interval)
+    : PollingComponent(update_interval), UARTDevice(parent), co2_sensor_(new MHZ19CO2Sensor(co2_name, this)) {}
+uint8_t mhz19_checksum(const uint8_t *command) {
   uint8_t sum = 0;
   for (uint8_t i = 1; i < MHZ19_REQUEST_LENGTH; i++) {
     sum += command[i];
@@ -42,7 +38,7 @@ void MHZ19Component::update() {
     return;
   }
 
-  uint8_t checksum = mhz19_checksum_(response);
+  uint8_t checksum = mhz19_checksum(response);
   if (response[8] != checksum) {
     ESP_LOGW(TAG, "MHZ19 Checksum doesn't match: 0x%02X!=0x%02X", response[8], checksum);
     this->status_set_warning();
@@ -63,7 +59,7 @@ void MHZ19Component::update() {
 bool MHZ19Component::mhz19_write_command_(const uint8_t *command, uint8_t *response) {
   this->flush();
   this->write_array(command, MHZ19_REQUEST_LENGTH);
-  this->write_byte(mhz19_checksum_(command));
+  this->write_byte(mhz19_checksum(command));
 
   if (response == nullptr)
     return true;
@@ -75,20 +71,16 @@ bool MHZ19Component::mhz19_write_command_(const uint8_t *command, uint8_t *respo
 MHZ19TemperatureSensor *MHZ19Component::make_temperature_sensor(const std::string &name) {
   return this->temperature_sensor_ = new MHZ19TemperatureSensor(name, this);
 }
-MHZ19CO2Sensor *MHZ19Component::get_co2_sensor() const {
-  return this->co2_sensor_;
-}
-float MHZ19Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+MHZ19CO2Sensor *MHZ19Component::get_co2_sensor() const { return this->co2_sensor_; }
+float MHZ19Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void MHZ19Component::dump_config() {
   ESP_LOGCONFIG(TAG, "MH-Z19:");
   LOG_SENSOR("  ", "CO2", this->co2_sensor_);
   LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MHZ19
+#endif  // USE_MHZ19

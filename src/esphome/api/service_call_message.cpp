@@ -13,9 +13,7 @@ APIMessageType SubscribeServiceCallsRequest::message_type() const {
   return APIMessageType::SUBSCRIBE_SERVICE_CALLS_REQUEST;
 }
 
-APIMessageType ServiceCallResponse::message_type() const {
-  return APIMessageType::SERVICE_CALL_RESPONSE;
-}
+APIMessageType ServiceCallResponse::message_type() const { return APIMessageType::SERVICE_CALL_RESPONSE; }
 void ServiceCallResponse::encode(APIBuffer &buffer) {
   // string service = 1;
   buffer.encode_string(1, this->service_);
@@ -41,12 +39,8 @@ void ServiceCallResponse::encode(APIBuffer &buffer) {
     buffer.end_nested(nested);
   }
 }
-void ServiceCallResponse::set_service(const std::string &service) {
-  this->service_ = service;
-}
-void ServiceCallResponse::set_data(const std::vector<KeyValuePair> &data) {
-  this->data_ = data;
-}
+void ServiceCallResponse::set_service(const std::string &service) { this->service_ = service; }
+void ServiceCallResponse::set_data(const std::vector<KeyValuePair> &data) { this->data_ = data; }
 void ServiceCallResponse::set_data_template(const std::vector<KeyValuePair> &data_template) {
   this->data_template_ = data_template;
 }
@@ -54,11 +48,9 @@ void ServiceCallResponse::set_variables(const std::vector<TemplatableKeyValuePai
   this->variables_ = variables;
 }
 
-KeyValuePair::KeyValuePair(const std::string &key, const std::string &value) : key(key), value(value) {
-
-}
-} // namespace api
+KeyValuePair::KeyValuePair(const std::string &key, const std::string &value) : key(key), value(value) {}
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

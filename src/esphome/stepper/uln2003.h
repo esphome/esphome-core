@@ -42,10 +42,10 @@ class ULN2003 : public Stepper, public Component {
   int32_t current_uln_pos_{0};
 };
 
-} // namespace stepper
+}  // namespace stepper
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ULN2003
+#endif  // USE_ULN2003
 
-#endif //ESPHOME_STEPPER_ULN2003_H
+#endif  // ESPHOME_STEPPER_ULN2003_H

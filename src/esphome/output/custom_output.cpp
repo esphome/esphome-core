@@ -12,17 +12,13 @@ namespace output {
 CustomBinaryOutputConstructor::CustomBinaryOutputConstructor(std::function<std::vector<BinaryOutput *>()> init) {
   this->outputs_ = init();
 }
-BinaryOutput *CustomBinaryOutputConstructor::get_output(int i) {
-  return this->outputs_[i];
-}
+BinaryOutput *CustomBinaryOutputConstructor::get_output(int i) { return this->outputs_[i]; }
 CustomFloatOutputConstructor::CustomFloatOutputConstructor(std::function<std::vector<FloatOutput *>()> init) {
   this->outputs_ = init();
 }
-FloatOutput *CustomFloatOutputConstructor::get_output(int i) {
-  return this->outputs_[i];
-}
-} // namespace output
+FloatOutput *CustomFloatOutputConstructor::get_output(int i) { return this->outputs_[i]; }
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_OUTPUT
+#endif  // USE_CUSTOM_OUTPUT

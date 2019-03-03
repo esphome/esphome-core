@@ -11,22 +11,15 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace api {
 
-APIBuffer::APIBuffer(std::vector<uint8_t> *buffer)
-  : buffer_(buffer) {
-
-}
-size_t APIBuffer::get_length() const {
-  return this->buffer_->size();
-}
-void APIBuffer::write(uint8_t value) {
-  this->buffer_->push_back(value);
-}
+APIBuffer::APIBuffer(std::vector<uint8_t> *buffer) : buffer_(buffer) {}
+size_t APIBuffer::get_length() const { return this->buffer_->size(); }
+void APIBuffer::write(uint8_t value) { this->buffer_->push_back(value); }
 void APIBuffer::encode_uint32(uint32_t field, uint32_t value) {
   if (value == 0)
     return;
 
-  this->encode_field_(field, 0);
-  this->encode_varint_(value);
+  this->encode_field_raw(field, 0);
+  this->encode_varint_raw(value);
 }
 void APIBuffer::encode_int32(uint32_t field, int32_t value) {
   this->encode_uint32(field, static_cast<uint32_t>(value));
@@ -35,7 +28,7 @@ void APIBuffer::encode_bool(uint32_t field, bool value) {
   if (!value)
     return;
 
-  this->encode_field_(field, 0);
+  this->encode_field_raw(field, 0);
   this->write(0x01);
 }
 void APIBuffer::encode_string(uint32_t field, const std::string &value) {
@@ -45,8 +38,8 @@ void APIBuffer::encode_string(uint32_t field, const char *string, size_t len) {
   if (len == 0)
     return;
 
-  this->encode_field_(field, 2);
-  this->encode_varint_(len);
+  this->encode_field_raw(field, 2);
+  this->encode_varint_raw(len);
   const uint8_t *data = reinterpret_cast<const uint8_t *>(string);
   for (size_t i = 0; i < len; i++) {
     this->write(data[i]);
@@ -56,7 +49,7 @@ void APIBuffer::encode_fixed32(uint32_t field, uint32_t value) {
   if (value == 0)
     return;
 
-  this->encode_field_(field, 5);
+  this->encode_field_raw(field, 5);
   this->write((value >> 0) & 0xFF);
   this->write((value >> 8) & 0xFF);
   this->write((value >> 16) & 0xFF);
@@ -73,11 +66,11 @@ void APIBuffer::encode_float(uint32_t field, float value) {
   val.value_f = value;
   this->encode_fixed32(field, val.value_raw);
 }
-void APIBuffer::encode_field_(uint32_t field, uint32_t type) {
+void APIBuffer::encode_field_raw(uint32_t field, uint32_t type) {
   uint32_t val = (field << 3) | (type & 0b111);
-  this->encode_varint_(val);
+  this->encode_varint_raw(val);
 }
-void APIBuffer::encode_varint_(uint32_t value) {
+void APIBuffer::encode_varint_raw(uint32_t value) {
   if (value <= 0x7F) {
     this->write(value);
     return;
@@ -107,21 +100,8 @@ void APIBuffer::encode_nameable(Nameable *nameable) {
   // string name = 3;
   this->encode_string(3, nameable->get_name());
 }
-uint32_t APIBuffer::varint_length_(uint32_t value) {
-  if (value <= 0x7F) {
-    return 1;
-  }
-
-  uint32_t bytes = 0;
-  while (value) {
-    value >>= 7;
-    bytes++;
-  }
-
-  return bytes;
-}
 size_t APIBuffer::begin_nested(uint32_t field) {
-  this->encode_field_(field, 2);
+  this->encode_field_raw(field, 2);
   return this->buffer_->size();
 }
 void APIBuffer::end_nested(size_t begin_index) {
@@ -187,9 +167,7 @@ float as_float(uint32_t val) {
   return x.value;
 }
 
-ComponentIterator::ComponentIterator(APIServer *server) : server_(server) {
-
-}
+ComponentIterator::ComponentIterator(APIServer *server) : server_(server) {}
 void ComponentIterator::begin() {
   this->state_ = IteratorState::BEGIN;
   this->at_ = 0;
@@ -288,12 +266,12 @@ void ComponentIterator::advance() {
       if (this->at_ >= this->server_->switches_.size()) {
         advance_platform = true;
       } else {
-        auto *switch_ = this->server_->switches_[this->at_];
-        if (switch_->is_internal()) {
+        auto *a_switch = this->server_->switches_[this->at_];
+        if (a_switch->is_internal()) {
           success = true;
           break;
         } else {
-          success = this->on_switch(switch_);
+          success = this->on_switch(a_switch);
         }
       }
       break;
@@ -335,18 +313,12 @@ void ComponentIterator::advance() {
     this->at_++;
   }
 }
-bool ComponentIterator::on_end() {
-  return true;
-}
-bool ComponentIterator::on_begin() {
-  return true;
-}
-bool ComponentIterator::on_service(UserServiceDescriptor *service) {
-  return true;
-}
+bool ComponentIterator::on_end() { return true; }
+bool ComponentIterator::on_begin() { return true; }
+bool ComponentIterator::on_service(UserServiceDescriptor *service) { return true; }
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

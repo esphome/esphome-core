@@ -40,7 +40,7 @@ class InitialStateIterator : public ComponentIterator {
   bool on_sensor(sensor::Sensor *sensor) override;
 #endif
 #ifdef USE_SWITCH
-  bool on_switch(switch_::Switch *switch_) override;
+  bool on_switch(switch_::Switch *a_switch) override;
 #endif
 #ifdef USE_TEXT_SENSOR
   bool on_text_sensor(text_sensor::TextSensor *text_sensor) override;
@@ -60,17 +60,18 @@ class HomeAssistantStateResponse : public APIMessage {
   APIMessageType message_type() const override;
   const std::string &get_entity_id() const;
   const std::string &get_state() const;
+
  protected:
   std::string entity_id_;
   std::string state_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/api/api_server.h"
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_SUBSCRIBE_STATE_H
+#endif  // ESPHOME_SUBSCRIBE_STATE_H

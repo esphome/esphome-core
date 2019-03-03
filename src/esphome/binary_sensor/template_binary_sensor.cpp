@@ -11,10 +11,7 @@ namespace binary_sensor {
 
 static const char *TAG = "binary_sensor.template";
 
-TemplateBinarySensor::TemplateBinarySensor(const std::string &name)
-    : BinarySensor(name) {
-
-}
+TemplateBinarySensor::TemplateBinarySensor(const std::string &name) : BinarySensor(name) {}
 void TemplateBinarySensor::loop() {
   if (!this->f_.has_value())
     return;
@@ -24,19 +21,12 @@ void TemplateBinarySensor::loop() {
     this->publish_state(*s);
   }
 }
-float TemplateBinarySensor::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
-void TemplateBinarySensor::set_template(std::function<optional<bool>()> &&f) {
-  this->f_ = std::move(f);
-}
-void TemplateBinarySensor::dump_config() {
-  LOG_BINARY_SENSOR("", "Template Binary Sensor", this);
-}
+float TemplateBinarySensor::get_setup_priority() const { return setup_priority::HARDWARE; }
+void TemplateBinarySensor::set_template(std::function<optional<bool>()> &&f) { this->f_ = f; }
+void TemplateBinarySensor::dump_config() { LOG_BINARY_SENSOR("", "Template Binary Sensor", this); }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TEMPLATE_BINARY_SENSOR
-
+#endif  // USE_TEMPLATE_BINARY_SENSOR

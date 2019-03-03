@@ -8,7 +8,7 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace light {
 
-void AddressableLightEffect::start_() {
+void AddressableLightEffect::start_internal() {
   this->get_addressable_()->set_effect_active(true);
   this->get_addressable_()->clear_effect_data();
   this->high_freq_.start();
@@ -24,30 +24,26 @@ AddressableLight *AddressableLightEffect::get_addressable_() const {
   return (AddressableLight *) this->state_->get_output();
 }
 
-AddressableLightEffect::AddressableLightEffect(const std::string &name) : LightEffect(name) {
-}
+AddressableLightEffect::AddressableLightEffect(const std::string &name) : LightEffect(name) {}
 
 void AddressableLightEffect::apply() {
   LightColorValues color = this->state_->get_remote_values();
   // not using any color correction etc. that will be handled by the addressable layer
-  ESPColor current_color = ESPColor(
-      color.get_red() * 255,
-      color.get_green() * 255,
-      color.get_blue() * 255,
-      color.get_white() * 255
-  );
+  ESPColor current_color =
+      ESPColor(static_cast<uint8_t>(color.get_red() * 255), static_cast<uint8_t>(color.get_green() * 255),
+               static_cast<uint8_t>(color.get_blue() * 255), static_cast<uint8_t>(color.get_white() * 255));
   this->apply(*this->get_addressable_(), current_color);
 }
 
-inline static int16_t sin16_C(uint16_t theta) {
-  static const uint16_t base[] = {0, 6393, 12539, 18204, 23170, 27245, 30273, 32137};
-  static const uint8_t slope[] = {49, 48, 44, 38, 31, 23, 14, 4};
-  uint16_t offset = (theta & 0x3FFF) >> 3; // 0..2047
+inline static int16_t sin16_c(uint16_t theta) {
+  static const uint16_t BASE[] = {0, 6393, 12539, 18204, 23170, 27245, 30273, 32137};
+  static const uint8_t SLOPE[] = {49, 48, 44, 38, 31, 23, 14, 4};
+  uint16_t offset = (theta & 0x3FFF) >> 3;  // 0..2047
   if (theta & 0x4000)
     offset = 2047 - offset;
-  uint8_t section = offset / 256; // 0..7
-  uint16_t b = base[section];
-  uint8_t m = slope[section];
+  uint8_t section = offset / 256;  // 0..7
+  uint16_t b = BASE[section];
+  uint8_t m = SLOPE[section];
   uint8_t secoffset8 = uint8_t(offset) / 2;
   uint16_t mx = m * secoffset8;
   int16_t y = mx + b;
@@ -56,15 +52,12 @@ inline static int16_t sin16_C(uint16_t theta) {
   return y;
 }
 
-inline static uint8_t half_sin8(uint8_t v) {
-  return sin16_C(uint16_t(v) * 128u) >> 8;
-}
+inline static uint8_t half_sin8(uint8_t v) { return sin16_c(uint16_t(v) * 128u) >> 8; }
 
 AddressableLambdaLightEffect::AddressableLambdaLightEffect(const std::string &name,
                                                            const std::function<void(AddressableLight &)> &f,
                                                            uint32_t update_interval)
-    : AddressableLightEffect(name), f_(f), update_interval_(update_interval) {
-}
+    : AddressableLightEffect(name), f_(f), update_interval_(update_interval) {}
 
 void AddressableLambdaLightEffect::apply(AddressableLight &it, const ESPColor &current_color) {
   const uint32_t now = millis();
@@ -74,9 +67,7 @@ void AddressableLambdaLightEffect::apply(AddressableLight &it, const ESPColor &c
   }
 }
 
-AddressableRainbowLightEffect::AddressableRainbowLightEffect(const std::string &name)
-    : AddressableLightEffect(name) {
-}
+AddressableRainbowLightEffect::AddressableRainbowLightEffect(const std::string &name) : AddressableLightEffect(name) {}
 
 void AddressableRainbowLightEffect::apply(AddressableLight &it, const ESPColor &current_color) {
   ESPHSVColor hsv;
@@ -91,23 +82,13 @@ void AddressableRainbowLightEffect::apply(AddressableLight &it, const ESPColor &
   }
 }
 
-void AddressableRainbowLightEffect::set_speed(uint32_t speed) {
-  this->speed_ = speed;
-}
+void AddressableRainbowLightEffect::set_speed(uint32_t speed) { this->speed_ = speed; }
 
-void AddressableRainbowLightEffect::set_width(uint32_t width) {
-  this->width_ = width;
-}
+void AddressableRainbowLightEffect::set_width(uint32_t width) { this->width_ = width; }
 
 AddressableColorWipeEffect::AddressableColorWipeEffect(const std::string &name) : AddressableLightEffect(name) {
-  this->colors_.push_back(AddressableColorWipeEffectColor {
-      .r = 255,
-      .g = 255,
-      .b = 255,
-      .w = 255,
-      .random = true,
-      .num_leds = 1
-  });
+  this->colors_.push_back(
+      AddressableColorWipeEffectColor{.r = 255, .g = 255, .b = 255, .w = 255, .random = true, .num_leds = 1});
 }
 
 void AddressableColorWipeEffect::set_colors(const std::vector<AddressableColorWipeEffectColor> &colors) {
@@ -118,9 +99,7 @@ void AddressableColorWipeEffect::set_add_led_interval(uint32_t add_led_interval)
   this->add_led_interval_ = add_led_interval;
 }
 
-void AddressableColorWipeEffect::set_reverse(bool reverse) {
-  this->reverse_ = reverse;
-}
+void AddressableColorWipeEffect::set_reverse(bool reverse) { this->reverse_ = reverse; }
 
 void AddressableColorWipeEffect::apply(AddressableLight &it, const ESPColor &current_color) {
   const uint32_t now = millis();
@@ -156,13 +135,9 @@ void AddressableColorWipeEffect::apply(AddressableLight &it, const ESPColor &cur
   }
 }
 
-AddressableScanEffect::AddressableScanEffect(const std::string &name)
-    : AddressableLightEffect(name) {
-}
+AddressableScanEffect::AddressableScanEffect(const std::string &name) : AddressableLightEffect(name) {}
 
-void AddressableScanEffect::set_move_interval(uint32_t move_interval) {
-  this->move_interval_ = move_interval;
-}
+void AddressableScanEffect::set_move_interval(uint32_t move_interval) { this->move_interval_ = move_interval; }
 
 void AddressableScanEffect::apply(AddressableLight &addressable, const ESPColor &current_color) {
   for (int i = 0; i < addressable.size(); i++) {
@@ -216,9 +191,7 @@ void AddressableTwinkleEffect::apply(AddressableLight &addressable, const ESPCol
   }
 }
 
-AddressableTwinkleEffect::AddressableTwinkleEffect(const std::string &name)
-    : AddressableLightEffect(name) {
-}
+AddressableTwinkleEffect::AddressableTwinkleEffect(const std::string &name) : AddressableLightEffect(name) {}
 
 void AddressableTwinkleEffect::set_twinkle_probability(float twinkle_probability) {
   this->twinkle_probability_ = twinkle_probability;
@@ -229,8 +202,7 @@ void AddressableTwinkleEffect::set_progress_interval(uint32_t progress_interval)
 }
 
 AddressableRandomTwinkleEffect::AddressableRandomTwinkleEffect(const std::string &name)
-    : AddressableLightEffect(name) {
-}
+    : AddressableLightEffect(name) {}
 
 void AddressableRandomTwinkleEffect::apply(AddressableLight &it, const ESPColor &current_color) {
   const uint32_t now = millis();
@@ -249,11 +221,7 @@ void AddressableRandomTwinkleEffect::apply(AddressableLight &it, const ESPColor 
       if (color == 0) {
         view = current_color * sine;
       } else {
-        view = ESPColor(
-            ((color >> 2) & 1) * sine,
-            ((color >> 1) & 1) * sine,
-            ((color >> 0) & 1) * sine
-        );
+        view = ESPColor(((color >> 2) & 1) * sine, ((color >> 1) & 1) * sine, ((color >> 0) & 1) * sine);
       }
       const uint8_t new_x = x + pos_add;
       if (new_x > 0b11111)
@@ -281,9 +249,7 @@ void AddressableRandomTwinkleEffect::set_progress_interval(uint32_t progress_int
   this->progress_interval_ = progress_interval;
 }
 
-AddressableFireworksEffect::AddressableFireworksEffect(const std::string &name)
-    : AddressableLightEffect(name) {
-}
+AddressableFireworksEffect::AddressableFireworksEffect(const std::string &name) : AddressableLightEffect(name) {}
 
 void AddressableFireworksEffect::start() {
   const auto &it = *this->get_addressable_();
@@ -328,17 +294,11 @@ void AddressableFireworksEffect::set_spark_probability(float spark_probability) 
   this->spark_probability_ = spark_probability;
 }
 
-void AddressableFireworksEffect::set_use_random_color(bool random_color) {
-  this->use_random_color_= random_color;
-}
+void AddressableFireworksEffect::set_use_random_color(bool random_color) { this->use_random_color_ = random_color; }
 
-void AddressableFireworksEffect::set_fade_out_rate(uint8_t fade_out_rate) {
-  this->fade_out_rate_ = fade_out_rate;
-}
+void AddressableFireworksEffect::set_fade_out_rate(uint8_t fade_out_rate) { this->fade_out_rate_ = fade_out_rate; }
 
-AddressableFlickerEffect::AddressableFlickerEffect(const std::string &name)
-    : AddressableLightEffect(name) {
-}
+AddressableFlickerEffect::AddressableFlickerEffect(const std::string &name) : AddressableLightEffect(name) {}
 
 void AddressableFlickerEffect::apply(AddressableLight &it, const ESPColor &current_color) {
   const uint32_t now = millis();
@@ -358,11 +318,11 @@ void AddressableFlickerEffect::set_update_interval(uint32_t update_interval) {
 }
 
 void AddressableFlickerEffect::set_intensity(float intensity) {
-  this->intensity_ = roundf(intensity * 255.0f);
+  this->intensity_ = static_cast<uint8_t>(roundf(intensity * 255.0f));
 }
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT

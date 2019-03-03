@@ -13,13 +13,9 @@ namespace sensor {
 
 static const char *TAG = "sensor.ultrasonic";
 
-UltrasonicSensorComponent::UltrasonicSensorComponent(const std::string &name,
-                                                     GPIOPin *trigger_pin, GPIOPin *echo_pin,
+UltrasonicSensorComponent::UltrasonicSensorComponent(const std::string &name, GPIOPin *trigger_pin, GPIOPin *echo_pin,
                                                      uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval),
-      trigger_pin_(trigger_pin), echo_pin_(echo_pin) {
-
-}
+    : PollingSensorComponent(name, update_interval), trigger_pin_(trigger_pin), echo_pin_(echo_pin) {}
 void UltrasonicSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Ultrasonic Sensor...");
   this->echo_pin_->setup();
@@ -71,7 +67,7 @@ void UltrasonicSensorComponent::dump_config() {
 }
 float UltrasonicSensorComponent::us_to_m(uint32_t us) {
   // The ultrasonic sound wave needs to travel both ways.
-  return (SPEED_OF_SOUND_M_PER_US/2.0f) * us;
+  return (SPEED_OF_SOUND_M_PER_US / 2.0f) * us;
 }
 float UltrasonicSensorComponent::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
@@ -86,11 +82,11 @@ std::string UltrasonicSensorComponent::icon() {
   return "mdi:arrow-expand-vertical";
 }
 int8_t UltrasonicSensorComponent::accuracy_decimals() {
-  return 2; // cm precision
+  return 2;  // cm precision
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ULTRASONIC_SENSOR
+#endif  // USE_ULTRASONIC_SENSOR

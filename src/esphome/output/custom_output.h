@@ -32,10 +32,10 @@ class CustomFloatOutputConstructor {
   std::vector<FloatOutput *> outputs_;
 };
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_OUTPUT
+#endif  // USE_CUSTOM_OUTPUT
 
-#endif //ESPHOME_OUTPUT_CUSTOM_OUTPUT_H
+#endif  // ESPHOME_OUTPUT_CUSTOM_OUTPUT_H

@@ -119,6 +119,6 @@ class UARTDevice : public Stream {
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_UART
+#endif  // USE_UART
 
-#endif //ESPHOME_UART_COMPONENT_H
+#endif  // ESPHOME_UART_COMPONENT_H

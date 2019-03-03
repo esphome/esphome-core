@@ -23,21 +23,18 @@ static const uint32_t FOOTER_HIGH_US = 560;
 static const uint32_t FOOTER_LOW_US = 560;
 
 #ifdef USE_REMOTE_TRANSMITTER
-SamsungTransmitter::SamsungTransmitter(const std::string &name, uint32_t data)
-    : RemoteTransmitter(name), data_(data) {}
+SamsungTransmitter::SamsungTransmitter(const std::string &name, uint32_t data) : RemoteTransmitter(name), data_(data) {}
 
-void SamsungTransmitter::to_data(RemoteTransmitData *data) {
-  encode_samsung(data, this->data_);
-}
+void SamsungTransmitter::to_data(RemoteTransmitData *data) { encode_samsung(data, this->data_); }
 
-void encode_samsung(RemoteTransmitData *data, uint32_t data_) {
+void encode_samsung(RemoteTransmitData *data, uint32_t samsung_data) {
   data->set_carrier_frequency(38000);
   data->reserve(4 + NBITS * 2u);
 
   data->item(HEADER_HIGH_US, HEADER_LOW_US);
 
   for (uint32_t mask = 1UL << (NBITS - 1); mask != 0; mask >>= 1) {
-    if (data_ & mask)
+    if (samsung_data & mask)
       data->item(BIT_HIGH_US, BIT_ONE_LOW_US);
     else
       data->item(BIT_HIGH_US, BIT_ZERO_LOW_US);
@@ -70,8 +67,7 @@ SamsungDecodeData decode_samsung(RemoteReceiveData *data) {
   return out;
 }
 
-SamsungReceiver::SamsungReceiver(const std::string &name, uint32_t data)
-    : RemoteReceiver(name), data_(data) {}
+SamsungReceiver::SamsungReceiver(const std::string &name, uint32_t data) : RemoteReceiver(name), data_(data) {}
 
 bool SamsungReceiver::matches(RemoteReceiveData *data) {
   auto decode = decode_samsung(data);
@@ -91,8 +87,8 @@ bool SamsungDumper::dump(RemoteReceiveData *data) {
 }
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE

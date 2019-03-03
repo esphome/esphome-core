@@ -38,23 +38,24 @@ class LCDDisplay : public PollingComponent {
   /// Print the given string at column=0 and row=0.
   void print(const std::string &str);
   /// Evaluate the printf-format and print the text at the specified column and row.
-  void printf(uint8_t column, uint8_t row, const char *format, ...) __attribute__ ((format (printf, 4, 5)));
+  void printf(uint8_t column, uint8_t row, const char *format, ...) __attribute__((format(printf, 4, 5)));
   /// Evaluate the printf-format and print the text at column=0 and row=0.
-  void printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+  void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
 #ifdef USE_TIME
   /// Evaluate the strftime-format and print the text at the specified column and row.
-  void strftime(uint8_t column, uint8_t row, const char *format, time::ESPTime time) __attribute__ ((format (strftime, 4, 0)));
+  void strftime(uint8_t column, uint8_t row, const char *format, time::ESPTime time)
+      __attribute__((format(strftime, 4, 0)));
   /// Evaluate the strftime-format and print the text at column=0 and row=0.
-  void strftime(const char *format, time::ESPTime time) __attribute__ ((format (strftime, 2, 0)));
+  void strftime(const char *format, time::ESPTime time) __attribute__((format(strftime, 2, 0)));
 #endif
 
  protected:
-  virtual bool is_four_bit_mode_() = 0;
+  virtual bool is_four_bit_mode() = 0;
   virtual void write_n_bits(uint8_t value, uint8_t n) = 0;
   virtual void send(uint8_t value, bool rs) = 0;
 
-  void command(uint8_t value);
+  void command_(uint8_t value);
 
   uint8_t columns_;
   uint8_t rows_;
@@ -66,21 +67,18 @@ class GPIOLCDDisplay : public LCDDisplay {
  public:
   GPIOLCDDisplay(uint8_t columns, uint8_t rows, uint32_t update_interval = 1000);
   void setup() override;
-  void set_data_pins(const GPIOOutputPin &d0, const GPIOOutputPin &d1, const GPIOOutputPin &d2, const GPIOOutputPin &d3);
-  void set_data_pins(const GPIOOutputPin &d0,
-                     const GPIOOutputPin &d1,
-                     const GPIOOutputPin &d2,
-                     const GPIOOutputPin &d3,
-                     const GPIOOutputPin &d4,
-                     const GPIOOutputPin &d5,
-                     const GPIOOutputPin &d6,
+  void set_data_pins(const GPIOOutputPin &d0, const GPIOOutputPin &d1, const GPIOOutputPin &d2,
+                     const GPIOOutputPin &d3);
+  void set_data_pins(const GPIOOutputPin &d0, const GPIOOutputPin &d1, const GPIOOutputPin &d2, const GPIOOutputPin &d3,
+                     const GPIOOutputPin &d4, const GPIOOutputPin &d5, const GPIOOutputPin &d6,
                      const GPIOOutputPin &d7);
   void set_enable_pin(const GPIOOutputPin &enable);
   void set_rs_pin(const GPIOOutputPin &rs);
   void set_rw_pin(const GPIOOutputPin &rw);
   void dump_config() override;
+
  protected:
-  bool is_four_bit_mode_() override;
+  bool is_four_bit_mode() override;
   void write_n_bits(uint8_t value, uint8_t n) override;
   void send(uint8_t value, bool rs) override;
   GPIOPin *rs_pin_{nullptr};
@@ -92,20 +90,22 @@ class GPIOLCDDisplay : public LCDDisplay {
 #ifdef USE_LCD_DISPLAY_PCF8574
 class PCF8574LCDDisplay : public LCDDisplay, public I2CDevice {
  public:
-  PCF8574LCDDisplay(I2CComponent *parent, uint8_t columns, uint8_t rows, uint8_t address = 0x3F, uint32_t update_interval = 1000);
+  PCF8574LCDDisplay(I2CComponent *parent, uint8_t columns, uint8_t rows, uint8_t address = 0x3F,
+                    uint32_t update_interval = 1000);
   void setup() override;
   void dump_config() override;
+
  protected:
-  bool is_four_bit_mode_() override;
+  bool is_four_bit_mode() override;
   void write_n_bits(uint8_t value, uint8_t n) override;
   void send(uint8_t value, bool rs) override;
 };
 #endif
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LCD_DISPLAY
+#endif  // USE_LCD_DISPLAY
 
-#endif //ESPHOME_LCD_DISPLAY_H
+#endif  // ESPHOME_LCD_DISPLAY_H

@@ -12,9 +12,7 @@ namespace sensor {
 static const char *TAG = "sensor.duty_cycle";
 
 DutyCycleSensor::DutyCycleSensor(const std::string &name, GPIOPin *pin, uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval), pin_(pin) {
-
-}
+    : PollingSensorComponent(name, update_interval), pin_(pin) {}
 
 void DutyCycleSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Duty Cycle Sensor '%s'...", this->get_name().c_str());
@@ -50,18 +48,10 @@ void DutyCycleSensor::update() {
   this->last_update_ = now;
 }
 
-std::string DutyCycleSensor::unit_of_measurement() {
-  return "%";
-}
-std::string DutyCycleSensor::icon() {
-  return "mdi:percent";
-}
-int8_t DutyCycleSensor::accuracy_decimals() {
-  return 1;
-}
-float DutyCycleSensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+std::string DutyCycleSensor::unit_of_measurement() { return "%"; }
+std::string DutyCycleSensor::icon() { return "mdi:percent"; }
+int8_t DutyCycleSensor::accuracy_decimals() { return 1; }
+float DutyCycleSensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 void ICACHE_RAM_ATTR DutyCycleSensorStore::gpio_intr(DutyCycleSensorStore *arg) {
   const bool new_level = arg->pin->digital_read();
@@ -76,8 +66,8 @@ void ICACHE_RAM_ATTR DutyCycleSensorStore::gpio_intr(DutyCycleSensorStore *arg) 
   arg->last_interrupt = now;
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DUTY_CYCLE_SENSOR
+#endif  // USE_DUTY_CYCLE_SENSOR

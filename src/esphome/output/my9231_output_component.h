@@ -25,8 +25,7 @@ class MY9231OutputComponent : public Component {
    * @param update Update/reset duty data at boot (driver will keep
    *               configuration after powercycle)
    */
-  MY9231OutputComponent(GPIOPin *pin_di, GPIOPin *pin_dcki,
-                        uint16_t num_channels = 6, uint8_t num_chips = 2,
+  MY9231OutputComponent(GPIOPin *pin_di, GPIOPin *pin_dcki, uint16_t num_channels = 6, uint8_t num_chips = 2,
                         uint8_t bit_depth = 16, bool update = true);
 
   /** Get a MY9231 output channel.
@@ -38,9 +37,7 @@ class MY9231OutputComponent : public Component {
    *                  be multiplied by this.
    * @return The new channel output component.
    */
-  Channel *create_channel(uint8_t channel,
-                          PowerSupplyComponent *power_supply = nullptr,
-                          float max_power = 1.0f);
+  Channel *create_channel(uint8_t channel, PowerSupplyComponent *power_supply = nullptr, float max_power = 1.0f);
 
   /// Manually set the total number of channels. Defaults to 6.
   void set_num_channels(uint16_t num_channels);
@@ -70,18 +67,18 @@ class MY9231OutputComponent : public Component {
    public:
     Channel(MY9231OutputComponent *parent, uint8_t channel);
 
+   protected:
     void write_state(float state) override;
 
-   protected:
     MY9231OutputComponent *parent_;
     uint8_t channel_;
   };
 
  protected:
-  void set_channel_value(uint8_t channel, uint16_t value);
-  void init_chips(uint8_t cmd);
-  void write_word(uint16_t value, uint8_t bits);
-  void send_di_pulses(uint8_t count);
+  void set_channel_value_(uint8_t channel, uint16_t value);
+  void init_chips_(uint8_t command);
+  void write_word_(uint16_t value, uint8_t bits);
+  void send_di_pulses_(uint8_t count);
 
   GPIOPin *pin_di_;
   GPIOPin *pin_dcki_;

@@ -90,18 +90,19 @@ void INA219Component::setup() {
   // 0b000xx00000000000 << 11 Shunt Voltage Gain (0b00 -> 40mV, 0b01 -> 80mV, 0b10 -> 160mV, 0b11 -> 320mV)
   uint16_t shunt_gain;
   if (shunt_max_voltage * multiplier <= 0.02f) {
-    shunt_gain = 0b00; // 40mV
+    shunt_gain = 0b00;  // 40mV
   } else if (shunt_max_voltage * multiplier <= 0.04f) {
-    shunt_gain = 0b01; // 80mV
+    shunt_gain = 0b01;  // 80mV
   } else if (shunt_max_voltage * multiplier <= 0.08f) {
-    shunt_gain = 0b10; // 160mV
+    shunt_gain = 0b10;  // 160mV
   } else {
     if (int(shunt_max_voltage * multiplier * 100) > 16) {
-      ESP_LOGW(TAG, "    Max voltage across shunt resistor (resistance*current) exceeds %dmV. "
-                    "This could damage the sensor!",
+      ESP_LOGW(TAG,
+               "    Max voltage across shunt resistor (resistance*current) exceeds %dmV. "
+               "This could damage the sensor!",
                int(160 / multiplier));
     }
-    shunt_gain = 0b11; // 320mV
+    shunt_gain = 0b11;  // 320mV
   }
 
   config |= shunt_gain << 11;
@@ -121,8 +122,7 @@ void INA219Component::setup() {
   }
   if (lsb > max_lsb) {
     lsb = max_lsb;
-    ESP_LOGW(TAG, "    The requested current (%0.02fA) cannot be achieved without an overflow",
-             this->max_current_a_);
+    ESP_LOGW(TAG, "    The requested current (%0.02fA) cannot be achieved without an overflow", this->max_current_a_);
   }
 
   this->calibration_lsb_ = lsb;
@@ -151,9 +151,7 @@ void INA219Component::dump_config() {
   LOG_SENSOR("  ", "Power", this->power_sensor_);
 }
 
-float INA219Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float INA219Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 void INA219Component::update() {
   if (this->bus_voltage_sensor_ != nullptr) {
@@ -198,13 +196,13 @@ void INA219Component::update() {
 
   this->status_clear_warning();
 }
-INA219Component::INA219Component(I2CComponent *parent,
-                                 float shunt_resistance_ohm, float max_current_a, float max_voltage_v,
-                                 uint8_t address, uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, address), shunt_resistance_ohm_(shunt_resistance_ohm),
-      max_current_a_(max_current_a), max_voltage_v_(max_voltage_v) {
-
-}
+INA219Component::INA219Component(I2CComponent *parent, float shunt_resistance_ohm, float max_current_a,
+                                 float max_voltage_v, uint8_t address, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, address),
+      shunt_resistance_ohm_(shunt_resistance_ohm),
+      max_current_a_(max_current_a),
+      max_voltage_v_(max_voltage_v) {}
 INA219VoltageSensor *INA219Component::make_bus_voltage_sensor(const std::string &name) {
   return this->bus_voltage_sensor_ = new INA219VoltageSensor(name, this);
 }
@@ -218,8 +216,8 @@ INA219PowerSensor *INA219Component::make_power_sensor(const std::string &name) {
   return this->power_sensor_ = new INA219PowerSensor(name, this);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_INA219
+#endif  // USE_INA219

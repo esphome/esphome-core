@@ -15,11 +15,8 @@ CustomComponentConstructor::CustomComponentConstructor(const std::function<std::
   }
 }
 
-Component *CustomComponentConstructor::get_component(int i) {
-  return this->components_[i];
-}
+Component *CustomComponentConstructor::get_component(int i) { return this->components_[i]; }
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_COMPONENT
-
+#endif  // USE_CUSTOM_COMPONENT

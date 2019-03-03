@@ -135,18 +135,11 @@ void RotaryEncoderSensor::loop() {
     this->publish_state(counter);
   }
 }
-std::string RotaryEncoderSensor::unit_of_measurement() {
-  return "steps";
-}
-std::string RotaryEncoderSensor::icon() {
-  return "mdi:rotate-right";
-}
-int8_t RotaryEncoderSensor::accuracy_decimals() {
-  return 0;
-}
-void RotaryEncoderSensor::set_reset_pin(const GPIOInputPin &pin_i) {
-  this->pin_i_ = pin_i.copy();
-}
+std::string RotaryEncoderSensor::unit_of_measurement() { return "steps"; }
+std::string RotaryEncoderSensor::icon() { return "mdi:rotate-right"; }
+int8_t RotaryEncoderSensor::accuracy_decimals() { return 0; }
+void RotaryEncoderSensor::set_resolution(RotaryEncoderResolution mode) { this->resolution_ = mode; }
+void RotaryEncoderSensor::set_reset_pin(const GPIOInputPin &pin_i) { this->pin_i_ = pin_i.copy(); }
 
 float RotaryEncoderSensor::get_setup_priority() const {
   return setup_priority::HARDWARE_LATE;
@@ -155,8 +148,8 @@ void RotaryEncoderSensor::set_resolution(RotaryEncoderResolution mode) { this->s
 void RotaryEncoderSensor::set_min_value(int32_t min_value) { this->store_.min_value = min_value; }
 void RotaryEncoderSensor::set_max_value(int32_t max_value) { this->store_.max_value = max_value; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ROTARY_ENCODER_SENSOR
+#endif  // USE_ROTARY_ENCODER_SENSOR

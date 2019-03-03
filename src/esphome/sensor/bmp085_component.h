@@ -23,8 +23,7 @@ using BMP085PressureSensor = sensor::EmptyPollingParentSensor<1, ICON_GAUGE, UNI
 class BMP085Component : public PollingComponent, public I2CDevice {
  public:
   /// Construct the BMP085Component using the provided address and update interval.
-  BMP085Component(I2CComponent *parent,
-                  const std::string &temperature_name, const std::string &pressure_name,
+  BMP085Component(I2CComponent *parent, const std::string &temperature_name, const std::string &pressure_name,
                   uint32_t update_interval = 30000);
 
   // ========== INTERNAL METHODS ==========
@@ -63,10 +62,10 @@ class BMP085Component : public PollingComponent, public I2CDevice {
   CalibrationData calibration_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BMP085_SENSOR
+#endif  // USE_BMP085_SENSOR
 
-#endif //ESPHOME_SENSOR_BMP085_COMPONENT_H
+#endif  // ESPHOME_SENSOR_BMP085_COMPONENT_H

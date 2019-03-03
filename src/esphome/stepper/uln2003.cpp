@@ -11,10 +11,7 @@ namespace stepper {
 
 static const char *TAG = "stepper.uln2003";
 
-ULN2003::ULN2003(GPIOPin *a, GPIOPin *b, GPIOPin *c, GPIOPin *d)
-    : pin_a_(a), pin_b_(b), pin_c_(c), pin_d_(d) {
-
-}
+ULN2003::ULN2003(GPIOPin *a, GPIOPin *b, GPIOPin *c, GPIOPin *d) : pin_a_(a), pin_b_(b), pin_c_(c), pin_d_(d) {}
 void ULN2003::setup() {
   this->pin_a_->setup();
   this->pin_b_->setup();
@@ -65,9 +62,7 @@ void ULN2003::loop() {
 
   this->write_step_(this->current_uln_pos_);
 }
-float ULN2003::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float ULN2003::get_setup_priority() const { return setup_priority::HARDWARE; }
 void ULN2003::write_step_(int32_t step) {
   int32_t n = this->step_mode_ == ULN2003_STEP_MODE_HALF_STEP ? 8 : 4;
   auto i = static_cast<uint32_t>((step % n + n) % n);
@@ -104,15 +99,11 @@ void ULN2003::write_step_(int32_t step) {
   this->pin_c_->digital_write((res >> 2) & 1);
   this->pin_d_->digital_write((res >> 3) & 1);
 }
-void ULN2003::set_sleep_when_done(bool sleep_when_done) {
-  this->sleep_when_done_ = sleep_when_done;
-}
-void ULN2003::set_step_mode(ULN2003StepMode step_mode) {
-  this->step_mode_ = step_mode;
-}
+void ULN2003::set_sleep_when_done(bool sleep_when_done) { this->sleep_when_done_ = sleep_when_done; }
+void ULN2003::set_step_mode(ULN2003StepMode step_mode) { this->step_mode_ = step_mode; }
 
-} // namespace stepper
+}  // namespace stepper
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ULN2003
+#endif  // USE_ULN2003

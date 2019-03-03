@@ -129,15 +129,16 @@ class RealTimeClockComponent : public Component {
 
   CronTrigger *make_cron_trigger();
 
-  void setup_() override;
+  void call_setup() override;
+
  protected:
   std::string timezone_{};
 };
 
-} // namespace time
+}  // namespace time
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TIME
+#endif  // USE_TIME
 
-#endif //ESPHOME_TIME_RTC_COMPONENT_H
+#endif  // ESPHOME_TIME_RTC_COMPONENT_H

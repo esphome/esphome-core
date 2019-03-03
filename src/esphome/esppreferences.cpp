@@ -7,7 +7,7 @@
 
 #ifdef USE_ESP8266_PREFERENCES_FLASH
 extern "C" {
-  #include "spi_flash.h"
+#include "spi_flash.h"
 }
 #endif
 
@@ -15,10 +15,7 @@ ESPHOME_NAMESPACE_BEGIN
 
 static const char *TAG = "preferences";
 
-ESPPreferenceObject::ESPPreferenceObject()
-    : rtc_offset_(0), length_words_(0), type_(0), data_(nullptr) {
-
-}
+ESPPreferenceObject::ESPPreferenceObject() : rtc_offset_(0), length_words_(0), type_(0), data_(nullptr) {}
 ESPPreferenceObject::ESPPreferenceObject(size_t rtc_offset, size_t length, uint32_t type)
     : rtc_offset_(rtc_offset), length_words_(length), type_(type) {
   this->data_ = new uint32_t[this->length_words_ + 1];
@@ -35,9 +32,8 @@ bool ESPPreferenceObject::load_() {
 
   bool valid = this->data_[this->length_words_] == this->calculate_crc_();
 
-  ESP_LOGVV(TAG, "LOAD %u: valid=%s, 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)",
-            this->rtc_offset_, YESNO(valid), this->data_[0], this->data_[1],
-            this->type_, this->calculate_crc_());
+  ESP_LOGVV(TAG, "LOAD %u: valid=%s, 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)", this->rtc_offset_, YESNO(valid),
+            this->data_[0], this->data_[1], this->type_, this->calculate_crc_());
   return valid;
 }
 bool ESPPreferenceObject::save_() {
@@ -49,8 +45,7 @@ bool ESPPreferenceObject::save_() {
   this->data_[this->length_words_] = this->calculate_crc_();
   if (!this->save_internal_())
     return false;
-  ESP_LOGVV(TAG, "SAVE %u: 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)",
-            this->rtc_offset_, this->data_[0], this->data_[1],
+  ESP_LOGVV(TAG, "SAVE %u: 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)", this->rtc_offset_, this->data_[0], this->data_[1],
             this->type_, this->calculate_crc_());
   return true;
 }
@@ -96,9 +91,7 @@ static inline bool esp_rtc_user_mem_write(uint32_t index, uint32_t value) {
 #ifdef USE_ESP8266_PREFERENCES_FLASH
 extern "C" uint32_t _SPIFFS_end;
 
-static const uint32_t get_esp8266_flash_sector() {
-  return (uint32_t(&_SPIFFS_end) - 0x40200000) / SPI_FLASH_SEC_SIZE;
-}
+static const uint32_t get_esp8266_flash_sector() { return (uint32_t(&_SPIFFS_end) - 0x40200000) / SPI_FLASH_SEC_SIZE; }
 static const uint32_t get_esp8266_flash_address() { return get_esp8266_flash_sector() * SPI_FLASH_SEC_SIZE; }
 
 static void load_esp8266_flash() {
@@ -150,12 +143,10 @@ bool ESPPreferenceObject::load_internal_() {
   return true;
 }
 ESPPreferences::ESPPreferences()
-  // offset starts from start of user RTC mem (64 words before that are reserved for system),
-  // an additional 32 words at the start of user RTC are for eboot (OTA, see eboot_command.h),
-  // which will be reset each time OTA occurs
-    : current_offset_(0) {
-
-}
+    // offset starts from start of user RTC mem (64 words before that are reserved for system),
+    // an additional 32 words at the start of user RTC are for eboot (OTA, see eboot_command.h),
+    // which will be reset each time OTA occurs
+    : current_offset_(0) {}
 
 void ESPPreferences::begin(const std::string &name) {
 #ifdef USE_ESP8266_PREFERENCES_FLASH
@@ -192,12 +183,8 @@ ESPPreferenceObject ESPPreferences::make_preference(size_t length, uint32_t type
   this->current_offset_ += length + 1;
   return pref;
 }
-void ESPPreferences::prevent_write(bool prevent) {
-  this->prevent_write_ = prevent;
-}
-bool ESPPreferences::is_prevent_write() {
-  return this->prevent_write_;
-}
+void ESPPreferences::prevent_write(bool prevent) { this->prevent_write_ = prevent; }
+bool ESPPreferences::is_prevent_write() { return this->prevent_write_; }
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -223,10 +210,7 @@ bool ESPPreferenceObject::load_internal_() {
   }
   return true;
 }
-ESPPreferences::ESPPreferences()
-    : current_offset_(0) {
-
-}
+ESPPreferences::ESPPreferences() : current_offset_(0) {}
 void ESPPreferences::begin(const std::string &name) {
   const std::string key = truncate_string(name, 15);
   ESP_LOGV(TAG, "Opening preferences with key '%s'", key.c_str());
@@ -246,9 +230,7 @@ uint32_t ESPPreferenceObject::calculate_crc_() const {
   }
   return crc;
 }
-bool ESPPreferenceObject::is_initialized() const {
-  return this->data_ != nullptr;
-}
+bool ESPPreferenceObject::is_initialized() const { return this->data_ != nullptr; }
 
 ESPPreferences global_preferences;
 

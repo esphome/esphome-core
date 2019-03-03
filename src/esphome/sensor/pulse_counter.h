@@ -9,7 +9,7 @@
 #include "esphome/esphal.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <driver/pcnt.h>
+#include <driver/pcnt.h>
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -32,8 +32,8 @@ using pulse_counter_t = int32_t;
 class PulseCounterBase {
  public:
   PulseCounterBase(GPIOPin *pin);
-  bool pulse_counter_setup_();
-  pulse_counter_t read_raw_value_();
+  bool pulse_counter_setup();
+  pulse_counter_t read_raw_value();
 
   GPIOPin *get_pin();
 
@@ -101,10 +101,10 @@ class PulseCounterSensorComponent : public PollingSensorComponent, public PulseC
 extern pcnt_unit_t next_pcnt_unit;
 #endif
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PULSE_COUNTER_SENSOR
+#endif  // USE_PULSE_COUNTER_SENSOR
 
-#endif //ESPHOME_SENSOR_PULSE_COUNTER_H
+#endif  // ESPHOME_SENSOR_PULSE_COUNTER_H
