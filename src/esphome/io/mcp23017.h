@@ -13,9 +13,9 @@ ESPHOME_NAMESPACE_BEGIN
 
 /// Modes for MCP23017 pins
 enum MCP23017GPIOMode {
-  MCP23017_INPUT = INPUT,   // 0x00
-  MCP23017_INPUT_PULLUP = INPUT_PULLUP, // 0x02
-  MCP23017_OUTPUT = OUTPUT, // 0x01
+  MCP23017_INPUT = INPUT,                // 0x00
+  MCP23017_INPUT_PULLUP = INPUT_PULLUP,  // 0x02
+  MCP23017_OUTPUT = OUTPUT,              // 0x01
 };
 
 namespace io {
@@ -34,7 +34,7 @@ enum MCP23017GPIORegisters {
   MCP23017_GPIOA = 0x12,
   MCP23017_OLATA = 0x14,
   // B side
-      MCP23017_IODIRB = 0x01,
+  MCP23017_IODIRB = 0x01,
   MCP23017_IPOLB = 0x03,
   MCP23017_GPINTENB = 0x05,
   MCP23017_DEFVALB = 0x07,
@@ -50,7 +50,7 @@ enum MCP23017GPIORegisters {
 class MCP23017GPIOInputPin;
 class MCP23017GPIOOutputPin;
 
-class MCP23017: public Component, public I2CDevice {
+class MCP23017 : public Component, public I2CDevice {
  public:
   MCP23017(I2CComponent *parent, uint8_t address);
 
@@ -60,19 +60,19 @@ class MCP23017: public Component, public I2CDevice {
 
   void setup() override;
 
-  bool digital_read_(uint8_t pin);
-  void digital_write_(uint8_t pin, bool value);
-  void pin_mode_(uint8_t pin, uint8_t mode);
+  bool digital_read(uint8_t pin);
+  void digital_write(uint8_t pin, bool value);
+  void pin_mode(uint8_t pin, uint8_t mode);
 
   float get_setup_priority() const override;
 
  protected:
   // read a given register
-  bool read_reg_ (uint8_t reg, uint8_t *value);
+  bool read_reg_(uint8_t reg, uint8_t *value);
   // write a value to a given register
-  bool write_reg_ (uint8_t reg, uint8_t value);
+  bool write_reg_(uint8_t reg, uint8_t value);
   // update registers with given pin value.
-  void update_reg_ (uint8_t pin, bool pin_value, uint8_t reg_a);
+  void update_reg_(uint8_t pin, bool pin_value, uint8_t reg_a);
 
   uint8_t olat_a_{0x00};
   uint8_t olat_b_{0x00};
@@ -108,10 +108,10 @@ class MCP23017GPIOOutputPin : public GPIOOutputPin {
   MCP23017 *parent_;
 };
 
-} // namespace io
+}  // namespace io
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MCP23017
+#endif  // USE_MCP23017
 
-#endif //ESPHOME_CORE_IO_MCP23017_H
+#endif  // ESPHOME_CORE_IO_MCP23017_H

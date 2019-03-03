@@ -11,9 +11,7 @@ namespace io {
 
 static const char *TAG = "io.mcp23017";
 
-MCP23017::MCP23017(I2CComponent *parent, uint8_t address) : Component(), I2CDevice(parent, address) {
-
-}
+MCP23017::MCP23017(I2CComponent *parent, uint8_t address) : Component(), I2CDevice(parent, address) {}
 MCP23017GPIOInputPin MCP23017::make_input_pin(uint8_t pin, uint8_t mode, bool inverted) {
   return {this, pin, mode, inverted};
 }
@@ -32,17 +30,15 @@ void MCP23017::setup() {
   this->write_reg_(MCP23017_IODIRA, 0xFF);
   this->write_reg_(MCP23017_IODIRB, 0xFF);
 }
-bool MCP23017::digital_read_(uint8_t pin) {
+bool MCP23017::digital_read(uint8_t pin) {
   uint8_t bit = pin % 8;
   uint8_t reg_addr = pin < 8 ? MCP23017_GPIOA : MCP23017_GPIOB;
   uint8_t value;
   this->read_reg_(reg_addr, &value);
   return value & (1 << bit);
 }
-void MCP23017::digital_write_(uint8_t pin, bool value) {
-  this->update_reg_(pin, value, MCP23017_OLATA);
-}
-void MCP23017::pin_mode_(uint8_t pin, uint8_t mode) {
+void MCP23017::digital_write(uint8_t pin, bool value) { this->update_reg_(pin, value, MCP23017_OLATA); }
+void MCP23017::pin_mode(uint8_t pin, uint8_t mode) {
   switch (mode) {
     case MCP23017_INPUT:
       this->update_reg_(pin, true, MCP23017_IODIRA);
@@ -58,16 +54,16 @@ void MCP23017::pin_mode_(uint8_t pin, uint8_t mode) {
       break;
   }
 }
-float MCP23017::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float MCP23017::get_setup_priority() const { return setup_priority::HARDWARE; }
 bool MCP23017::read_reg_(uint8_t reg, uint8_t *value) {
-  if (this->is_failed()) return false;
+  if (this->is_failed())
+    return false;
 
   return this->read_byte(reg, value);
 }
 bool MCP23017::write_reg_(uint8_t reg, uint8_t value) {
-  if (this->is_failed()) return false;
+  if (this->is_failed())
+    return false;
 
   return this->write_byte(reg, value);
 }
@@ -99,40 +95,24 @@ void MCP23017::update_reg_(uint8_t pin, bool pin_value, uint8_t reg_a) {
 
 MCP23017GPIOInputPin::MCP23017GPIOInputPin(MCP23017 *parent, uint8_t pin, uint8_t mode, bool inverted)
     : GPIOInputPin(pin, mode, inverted), parent_(parent) {}
-GPIOPin *MCP23017GPIOInputPin::copy() const {
-  return new MCP23017GPIOInputPin(*this);
-}
-void MCP23017GPIOInputPin::setup() {
-  this->pin_mode(this->mode_);
-}
-void MCP23017GPIOInputPin::pin_mode(uint8_t mode) {
-  this->parent_->pin_mode_(this->pin_, mode);
-}
-bool MCP23017GPIOInputPin::digital_read() {
-  return this->parent_->digital_read_(this->pin_) != this->inverted_;
-}
+GPIOPin *MCP23017GPIOInputPin::copy() const { return new MCP23017GPIOInputPin(*this); }
+void MCP23017GPIOInputPin::setup() { this->pin_mode(this->mode_); }
+void MCP23017GPIOInputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode_(this->pin_, mode); }
+bool MCP23017GPIOInputPin::digital_read() { return this->parent_->digital_read_(this->pin_) != this->inverted_; }
 void MCP23017GPIOInputPin::digital_write(bool value) {
   this->parent_->digital_write_(this->pin_, value != this->inverted_);
 }
 MCP23017GPIOOutputPin::MCP23017GPIOOutputPin(MCP23017 *parent, uint8_t pin, uint8_t mode, bool inverted)
     : GPIOOutputPin(pin, mode, inverted), parent_(parent) {}
-GPIOPin *MCP23017GPIOOutputPin::copy() const {
-  return new MCP23017GPIOOutputPin(*this);
-}
-void MCP23017GPIOOutputPin::setup() {
-  this->pin_mode(this->mode_);
-}
-void MCP23017GPIOOutputPin::pin_mode(uint8_t mode) {
-  this->parent_->pin_mode_(this->pin_, mode);
-}
-bool MCP23017GPIOOutputPin::digital_read() {
-  return this->parent_->digital_read_(this->pin_) != this->inverted_;
-}
+GPIOPin *MCP23017GPIOOutputPin::copy() const { return new MCP23017GPIOOutputPin(*this); }
+void MCP23017GPIOOutputPin::setup() { this->pin_mode(this->mode_); }
+void MCP23017GPIOOutputPin::pin_mode(uint8_t mode) { this->parent_->pin_mode_(this->pin_, mode); }
+bool MCP23017GPIOOutputPin::digital_read() { return this->parent_->digital_read_(this->pin_) != this->inverted_; }
 void MCP23017GPIOOutputPin::digital_write(bool value) {
   this->parent_->digital_write_(this->pin_, value != this->inverted_);
 }
-} // namespace io
+}  // namespace io
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MCP23017
+#endif  // USE_MCP23017
