@@ -13,9 +13,8 @@ static const char *TAG = "display.nextion";
 
 void Nextion::setup() {
   this->send_command_no_ack("");
-  this->ack_();
-  this->goto_page("0");
   this->send_command_printf("bkcmd=3");
+  this->goto_page("0");
 }
 float Nextion::get_setup_priority() const { return setup_priority::POST_HARDWARE; }
 void Nextion::update() {

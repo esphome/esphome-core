@@ -9,8 +9,6 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace api {
 
-static const char *TAG = "api.message";
-
 // Hello
 bool HelloRequest::decode_length_delimited(uint32_t field_id, const uint8_t *value, size_t len) {
   switch (field_id) {

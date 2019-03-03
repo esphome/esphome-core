@@ -3,14 +3,20 @@
 #include "esphome/log.h"
 
 #ifdef ARDUINO_ARCH_ESP8266
-#include "FunctionalInterrupt.h"
-extern "C" void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*)(void*), void* fp,  // NOLINT
-                                                     int mode);
+extern "C" {
+typedef struct {        // NOLINT
+  void *interruptInfo;  // NOLINT
+  void *functionInfo;   // NOLINT
+} ArgStructure;
+
+void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, void (*)(void *), void *fp,  // NOLINT
+                                          int mode);
+};
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
 
-static const char* TAG = "esphal";
+static const char *TAG = "esphal";
 
 GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
     : pin_(pin),
@@ -29,8 +35,8 @@ GPIOPin::GPIOPin(uint8_t pin, uint8_t mode, bool inverted)
 {
 }
 
-const char* GPIOPin::get_pin_mode_name() const {
-  const char* mode_s;
+const char *GPIOPin::get_pin_mode_name() const {
+  const char *mode_s;
   switch (this->mode_) {
     case INPUT:
       mode_s = "INPUT";
@@ -114,6 +120,9 @@ void GPIOPin::setup() { this->pin_mode(this->mode_); }
 bool ICACHE_RAM_ATTR HOT GPIOPin::digital_read() {
   return bool((*this->gpio_read_) & this->gpio_mask_) != this->inverted_;
 }
+bool ICACHE_RAM_ATTR HOT ISRInternalGPIOPin::digital_read() {
+  return bool((*this->gpio_read_) & this->gpio_mask_) != this->inverted_;
+}
 void ICACHE_RAM_ATTR HOT GPIOPin::digital_write(bool value) {
 #ifdef ARDUINO_ARCH_ESP8266
   if (this->pin_ != 16) {
@@ -138,7 +147,59 @@ void ICACHE_RAM_ATTR HOT GPIOPin::digital_write(bool value) {
   }
 #endif
 }
-GPIOPin* GPIOPin::copy() const { return new GPIOPin(*this); }
+void ISRInternalGPIOPin::digital_write(bool value) {
+#ifdef ARDUINO_ARCH_ESP8266
+  if (this->pin_ != 16) {
+    if (value != this->inverted_) {
+      GPOS = this->gpio_mask_;
+    } else {
+      GPOC = this->gpio_mask_;
+    }
+  } else {
+    if (value != this->inverted_) {
+      GP16O |= 1;
+    } else {
+      GP16O &= ~1;
+    }
+  }
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  if (value != this->inverted_) {
+    (*this->gpio_set_) = this->gpio_mask_;
+  } else {
+    (*this->gpio_clear_) = this->gpio_mask_;
+  }
+#endif
+}
+ISRInternalGPIOPin::ISRInternalGPIOPin(uint8_t pin,
+#ifdef ARDUINO_ARCH_ESP32
+                                       volatile uint32_t *gpio_clear, volatile uint32_t *gpio_set,
+#endif
+                                       volatile uint32_t *gpio_read, uint32_t gpio_mask, bool inverted)
+    : pin_(pin),
+      gpio_read_(gpio_read),
+      gpio_mask_(gpio_mask),
+      inverted_(inverted)
+#ifdef ARDUINO_ARCH_ESP32
+      ,
+      gpio_clear_(gpio_clear),
+      gpio_set_(gpio_set)
+#endif
+{
+}
+void ICACHE_RAM_ATTR ISRInternalGPIOPin::clear_interrupt() {
+#ifdef ARDUINO_ARCH_ESP8266
+  GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, this->gpio_mask_);
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  if (this->pin_ < 32) {
+    GPIO.status_w1tc = this->gpio_mask_;
+  } else {
+    GPIO.status1_w1tc.intr_st = this->gpio_mask_;
+  }
+#endif
+}
+GPIOPin *GPIOPin::copy() const { return new GPIOPin(*this); }
 
 void ICACHE_RAM_ATTR HOT GPIOPin::pin_mode(uint8_t mode) { pinMode(this->pin_, mode); }
 
@@ -147,23 +208,51 @@ GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted) : GPIOPin
 GPIOInputPin::GPIOInputPin(uint8_t pin, uint8_t mode, bool inverted) : GPIOPin(pin, mode, inverted) {}
 
 #ifdef ARDUINO_ARCH_ESP8266
-void ICACHE_RAM_ATTR custom_interrupt_functional(void* arg) {
-  ArgStructure* local_arg = (ArgStructure*) arg;
-  if (local_arg->functionInfo->reqFunction) {
-    local_arg->functionInfo->reqFunction();
-  }
-}
+struct ESPHomeInterruptFuncInfo {
+  void (*func)(void *);
+  void *arg;
+};
 
-void ICACHE_RAM_ATTR attach_functional_interrupt(uint8_t pin, std::function<void()> func, int mode) {
-  FunctionInfo* fi = new FunctionInfo;
-  fi->reqFunction = func;
-
-  ArgStructure* as = new ArgStructure;
-  as->interruptInfo = nullptr;
-  as->functionInfo = fi;
-
-  __attachInterruptArg(pin, custom_interrupt_functional, as, mode);
+void ICACHE_RAM_ATTR interrupt_handler(void *arg) {
+  ArgStructure *as = static_cast<ArgStructure *>(arg);
+  auto *info = static_cast<ESPHomeInterruptFuncInfo *>(as->functionInfo);
+  info->func(info->arg);
 }
 #endif
+
+void GPIOPin::attach_interrupt_(void (*func)(void *), void *arg, int mode) const {
+  if (this->inverted_) {
+    if (mode == RISING) {
+      mode = FALLING;
+    } else if (mode == FALLING) {
+      mode = RISING;
+    }
+  }
+#ifdef ARDUINO_ARCH_ESP8266
+  ArgStructure *as = new ArgStructure;
+  as->interruptInfo = nullptr;
+
+  as->functionInfo = new ESPHomeInterruptFuncInfo{
+      .func = func,
+      .arg = arg,
+  };
+
+  __attachInterruptArg(this->pin_, interrupt_handler, as, mode);
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  // work around issue https://github.com/espressif/arduino-esp32/pull/1776 in arduino core
+  // yet again proves how horrible code is there :( - how could that have been accepted...
+  auto *attach = reinterpret_cast<void (*)(uint8_t, void (*)(void *), void *, int)>(attachInterruptArg);
+  attach(this->pin_, func, arg, mode);
+#endif
+}
+
+ISRInternalGPIOPin *GPIOPin::to_isr() const {
+  return new ISRInternalGPIOPin(this->pin_,
+#ifdef ARDUINO_ARCH_ESP32
+                                this->gpio_clear_, this->gpio_set_,
+#endif
+                                this->gpio_read_, this->gpio_mask_, this->inverted_);
+}
 
 ESPHOME_NAMESPACE_END

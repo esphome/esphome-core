@@ -121,6 +121,23 @@ class RemoteReceiveDumper {
   virtual bool is_secondary();
 };
 
+struct RemoteReceiverComponentStore {
+  static void gpio_intr(RemoteReceiverComponentStore *arg);
+
+  /// Stores the time (in micros) that the leading/falling edge happened at
+  ///  * An even index means a falling edge appeared at the time stored at the index
+  ///  * An uneven index means a rising edge appeared at the time stored at the index
+  volatile uint32_t *buffer{nullptr};
+  /// The position last written to
+  volatile uint32_t buffer_write_at;
+  /// The position last read from
+  uint32_t buffer_read_at{0};
+  bool overflow{false};
+  uint32_t buffer_size{1000};
+  uint8_t filter_us{10};
+  ISRInternalGPIOPin *pin;
+};
+
 class RemoteReceiverComponent : public RemoteControlComponentBase, public Component {
  public:
   explicit RemoteReceiverComponent(GPIOPin *pin);
@@ -151,16 +168,7 @@ class RemoteReceiverComponent : public RemoteControlComponentBase, public Compon
   RingbufHandle_t ringbuf_;
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  /// Stores the time (in micros) that the leading/falling edge happened at
-  ///  * An even index means a falling edge appeared at the time stored at the index
-  ///  * An uneven index means a rising edge appeared at the time stored at the index
-  volatile uint32_t *buffer_{nullptr};
-  /// The position last written to
-  volatile uint32_t buffer_write_at_;
-  /// The position last read from
-  uint32_t buffer_read_at_{0};
-  bool overflow_{false};
-  void gpio_intr_();
+  RemoteReceiverComponentStore store_;
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32

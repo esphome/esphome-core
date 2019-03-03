@@ -73,14 +73,11 @@ bool MQTTComponent::send_discovery_() {
         SendDiscoveryConfig config;
         config.state_topic = true;
         config.command_topic = true;
-        config.platform = "mqtt";
 
         this->send_discovery(root, config);
 
         std::string name = this->friendly_name();
         root["name"] = name;
-        if (strcmp(config.platform, "mqtt") != 0)
-          root["platform"] = config.platform;
         if (config.state_topic)
           root["state_topic"] = this->get_state_topic_();
         if (config.command_topic)

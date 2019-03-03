@@ -293,7 +293,7 @@ void DisplayBuffer::set_pages(std::vector<DisplayPage *> pages) {
   for (auto *page : pages)
     page->set_parent(this);
 
-  for (int i = 0; i < pages.size() - 1; i++) {
+  for (uint32_t i = 0; i < pages.size() - 1; i++) {
     pages[i]->set_next(pages[i + 1]);
     pages[i + 1]->set_prev(pages[i]);
   }

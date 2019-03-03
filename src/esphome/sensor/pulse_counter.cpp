@@ -35,28 +35,29 @@ const char *EDGE_MODE_TO_STRING[] = {"DISABLE", "INCREMENT", "DECREMENT"};
 GPIOPin *PulseCounterBase::get_pin() { return this->pin_; }
 
 #ifdef ARDUINO_ARCH_ESP8266
-void ICACHE_RAM_ATTR HOT PulseCounterBase::gpio_intr_() {
+void ICACHE_RAM_ATTR PulseCounterBase::gpio_intr(PulseCounterBase *arg) {
   const uint32_t now = micros();
-  const bool discard = now - this->last_pulse_ < this->filter_us_;
-  this->last_pulse_ = now;
+  const bool discard = now - arg->last_pulse_ < arg->filter_us_;
+  arg->last_pulse_ = now;
   if (discard)
     return;
 
-  PulseCounterCountMode mode = this->pin_->digital_read() ? this->rising_edge_mode_ : this->falling_edge_mode_;
+  PulseCounterCountMode mode = arg->isr_pin_->digital_read() ? arg->rising_edge_mode_ : arg->falling_edge_mode_;
   switch (mode) {
     case PULSE_COUNTER_DISABLE:
       break;
     case PULSE_COUNTER_INCREMENT:
-      this->counter_++;
+      arg->counter_++;
       break;
     case PULSE_COUNTER_DECREMENT:
-      this->counter_--;
+      arg->counter_--;
       break;
   }
 }
 bool PulseCounterBase::pulse_counter_setup() {
   this->pin_->setup();
-  attach_functional_interrupt(this->pin_->get_pin(), [this]() ICACHE_RAM_ATTR { this->gpio_intr_(); }, CHANGE);
+  this->isr_pin_ = this->pin_->to_isr();
+  this->pin_->attach_interrupt(PulseCounterBase::gpio_intr, this, CHANGE);
   return true;
 }
 pulse_counter_t PulseCounterBase::read_raw_value() {
