@@ -11,9 +11,7 @@ namespace light {
 
 static const char *TAG = "light.fast_led";
 
-LightTraits FastLEDLightOutputComponent::get_traits() {
-  return {true, true, false, false};
-}
+LightTraits FastLEDLightOutputComponent::get_traits() { return {true, true, false, false}; }
 void FastLEDLightOutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up FastLED light...");
   this->controller_->init();
@@ -74,15 +72,9 @@ CLEDController &FastLEDLightOutputComponent::add_leds(CLEDController *controller
 
   return *this->controller_;
 }
-CLEDController *FastLEDLightOutputComponent::get_controller() const {
-  return this->controller_;
-}
-void FastLEDLightOutputComponent::set_max_refresh_rate(uint32_t interval_us) {
-  this->max_refresh_rate_ = interval_us;
-}
-float FastLEDLightOutputComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+CLEDController *FastLEDLightOutputComponent::get_controller() const { return this->controller_; }
+void FastLEDLightOutputComponent::set_max_refresh_rate(uint32_t interval_us) { this->max_refresh_rate_ = interval_us; }
+float FastLEDLightOutputComponent::get_setup_priority() const { return setup_priority::HARDWARE; }
 #ifdef USE_OUTPUT
 void FastLEDLightOutputComponent::set_power_supply(PowerSupplyComponent *power_supply) {
   this->power_supply_ = power_supply;
@@ -93,17 +85,14 @@ ESPColorView FastLEDLightOutputComponent::operator[](int32_t index) const {
   return ESPColorView(&this->leds_[index].r, &this->leds_[index].g, &this->leds_[index].b, nullptr,
                       &this->effect_data_[index], &this->correction_);
 }
-int32_t FastLEDLightOutputComponent::size() const {
-  return this->num_leds_;
-}
+int32_t FastLEDLightOutputComponent::size() const { return this->num_leds_; }
 void FastLEDLightOutputComponent::clear_effect_data() {
   for (int i = 0; i < this->size(); i++)
     this->effect_data_[i] = 0;
 }
 
-
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_FAST_LED_LIGHT
+#endif  // USE_FAST_LED_LIGHT

@@ -27,12 +27,8 @@ void RawTransmitter::to_data(RemoteTransmitData *data) {
   }
   data->set_carrier_frequency(this->carrier_frequency_);
 }
-RawTransmitter::RawTransmitter(const std::string &name,
-                               const int32_t *data, size_t len,
-                               uint32_t carrier_frequency)
-    : RemoteTransmitter(name), data_(data), len_(len), carrier_frequency_(carrier_frequency) {
-
-}
+RawTransmitter::RawTransmitter(const std::string &name, const int32_t *data, size_t len, uint32_t carrier_frequency)
+    : RemoteTransmitter(name), data_(data), len_(len), carrier_frequency_(carrier_frequency) {}
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -73,9 +69,7 @@ bool RawDumper::dump(RemoteReceiveData *data) {
 
   return true;
 }
-bool RawDumper::secondary_() {
-  return true;
-}
+bool RawDumper::is_secondary() { return true; }
 bool RawReceiver::matches(RemoteReceiveData *data) {
   for (size_t i = 0; i < this->len_; i++) {
     auto val = this->data_[i];
@@ -91,13 +85,11 @@ bool RawReceiver::matches(RemoteReceiveData *data) {
 }
 
 RawReceiver::RawReceiver(const std::string &name, const int32_t *data, size_t len)
-    : RemoteReceiver(name), data_(data), len_(len) {
-
-}
+    : RemoteReceiver(name), data_(data), len_(len) {}
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE

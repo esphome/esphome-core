@@ -13,9 +13,7 @@ namespace sensor {
 static const char *TAG = "sensor.homeassistant";
 
 HomeassistantSensor::HomeassistantSensor(const std::string &name, const std::string &entity_id)
-    : Sensor(name), entity_id_(entity_id) {
-
-}
+    : Sensor(name), entity_id_(entity_id) {}
 void HomeassistantSensor::setup() {
   api::global_api_server->subscribe_home_assistant_state(this->entity_id_, [this](std::string state) {
     auto val = parse_float(state);
@@ -33,12 +31,10 @@ void HomeassistantSensor::dump_config() {
   LOG_SENSOR("", "Homeassistant Sensor", this);
   ESP_LOGCONFIG(TAG, "  Entity ID: '%s'", this->entity_id_.c_str());
 }
-float HomeassistantSensor::get_setup_priority() const {
-  return setup_priority::WIFI;
-}
+float HomeassistantSensor::get_setup_priority() const { return setup_priority::WIFI; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HOMEASSISTANT_SENSOR
+#endif  // USE_HOMEASSISTANT_SENSOR

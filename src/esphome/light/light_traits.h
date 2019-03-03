@@ -34,10 +34,10 @@ class LightTraits {
   float max_mireds_{0};
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOME_LIGHT_LIGHT_TRAITS_H
+#endif  // ESPHOME_LIGHT_LIGHT_TRAITS_H

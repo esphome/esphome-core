@@ -24,10 +24,10 @@ class CustomTextSensorConstructor : public Component {
   std::vector<TextSensor *> text_sensors_;
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_TEXT_SENSOR
+#endif  // USE_CUSTOM_TEXT_SENSOR
 
-#endif //ESPHOME_TEXT_SENSOR_CUSTOM_TEXT_SENSOR_H
+#endif  // ESPHOME_TEXT_SENSOR_CUSTOM_TEXT_SENSOR_H

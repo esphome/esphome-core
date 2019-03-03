@@ -14,19 +14,18 @@ ESPHOME_NAMESPACE_BEGIN
 namespace text_sensor {
 
 class TextSensorStateTrigger;
-template<typename... Ts>
-class TextSensorPublishAction;
+template<typename... Ts> class TextSensorPublishAction;
 
 #define LOG_TEXT_SENSOR(prefix, type, obj) \
-    if (obj != nullptr) { \
-      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
-      if (!obj->get_icon().empty()) { \
-        ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
-      } \
-      if (!obj->unique_id().empty()) { \
-        ESP_LOGV(TAG, prefix "  Unique ID: '%s'", obj->unique_id().c_str()); \
-      } \
-    }
+  if (obj != nullptr) { \
+    ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+    if (!obj->get_icon().empty()) { \
+      ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
+    } \
+    if (!obj->unique_id().empty()) { \
+      ESP_LOGV(TAG, prefix "  Unique ID: '%s'", obj->unique_id().c_str()); \
+    } \
+  }
 
 #ifdef USE_MQTT_TEXT_SENSOR
 class MQTTTextSensor;
@@ -54,8 +53,7 @@ class TextSensor : public Nameable {
   virtual std::string unique_id();
 
   TextSensorStateTrigger *make_state_trigger();
-  template<typename... Ts>
-  TextSensorPublishAction<Ts...> *make_text_sensor_publish_action();
+  template<typename... Ts> TextSensorPublishAction<Ts...> *make_text_sensor_publish_action();
 
   bool has_state();
 
@@ -65,7 +63,7 @@ class TextSensor : public Nameable {
 #endif
 
  protected:
-  uint32_t hash_base_() override;
+  uint32_t hash_base() override;
 
   CallbackManager<void(std::string)> callback_;
   optional<std::string> icon_;
@@ -80,13 +78,12 @@ class TextSensorStateTrigger : public Trigger<std::string> {
   explicit TextSensorStateTrigger(TextSensor *parent);
 };
 
-template<typename... Ts>
-class TextSensorPublishAction : public Action<Ts...> {
+template<typename... Ts> class TextSensorPublishAction : public Action<Ts...> {
  public:
   TextSensorPublishAction(TextSensor *sensor);
-  template<typename V>
-  void set_state(V state) { this->state_ = state; }
+  template<typename V> void set_state(V state) { this->state_ = state; }
   void play(Ts... x) override;
+
  protected:
   TextSensor *sensor_;
   TemplatableValue<std::string, Ts...> state_;
@@ -94,22 +91,20 @@ class TextSensorPublishAction : public Action<Ts...> {
 
 template<typename... Ts>
 TextSensorPublishAction<Ts...>::TextSensorPublishAction(TextSensor *sensor) : sensor_(sensor) {}
-template<typename... Ts>
-void TextSensorPublishAction<Ts...>::play(Ts... x) {
+template<typename... Ts> void TextSensorPublishAction<Ts...>::play(Ts... x) {
   this->sensor_->publish_state(this->state_.value(x...));
   this->play_next(x...);
 }
-template<typename... Ts>
-TextSensorPublishAction<Ts...> *TextSensor::make_text_sensor_publish_action() {
+template<typename... Ts> TextSensorPublishAction<Ts...> *TextSensor::make_text_sensor_publish_action() {
   return new TextSensorPublishAction<Ts...>(this);
 }
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/text_sensor/mqtt_text_sensor.h"
 
-#endif //USE_TEXT_SENSOR
+#endif  // USE_TEXT_SENSOR
 
-#endif //ESPHOME_TEXT_SENSOR_TEXT_SENSOR_H
+#endif  // ESPHOME_TEXT_SENSOR_TEXT_SENSOR_H

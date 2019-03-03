@@ -2,29 +2,55 @@
 #define ESPHOME_ESPHAL_H
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <esp32-hal.h>
+#include <esp32-hal.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  #include "Arduino.h"
+#include "Arduino.h"
 #endif
 #include "esphome/espmath.h"
 #include "esphome/defines.h"
 
 #ifdef bool
-  #undef bool
+#undef bool
 #endif
 #ifdef true
-  #undef true
+#undef true
 #endif
 #ifdef false
-  #undef false
+#undef false
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
 
-#define LOG_PIN(prefix, pin) if (pin != nullptr) {ESP_LOGCONFIG(TAG, prefix LOG_PIN_PATTERN, LOG_PIN_ARGS(pin));}
+#define LOG_PIN(prefix, pin) \
+  if ((pin) != nullptr) { \
+    ESP_LOGCONFIG(TAG, prefix LOG_PIN_PATTERN, LOG_PIN_ARGS(pin)); \
+  }
 #define LOG_PIN_PATTERN "GPIO%u (Mode: %s%s)"
 #define LOG_PIN_ARGS(pin) (pin)->get_pin(), (pin)->get_pin_mode_name(), ((pin)->is_inverted() ? ", INVERTED" : "")
+
+/// Copy of GPIOPin that is safe to use from ISRs (with no virtual functions)
+class ISRInternalGPIOPin {
+ public:
+  ISRInternalGPIOPin(uint8_t pin,
+#ifdef ARDUINO_ARCH_ESP32
+                     volatile uint32_t *gpio_clear, volatile uint32_t *gpio_set,
+#endif
+                     volatile uint32_t *gpio_read, uint32_t gpio_mask, bool inverted);
+  bool digital_read();
+  void digital_write(bool value);
+  void clear_interrupt();
+
+ protected:
+  const uint8_t pin_;
+#ifdef ARDUINO_ARCH_ESP32
+  volatile uint32_t *const gpio_clear_;
+  volatile uint32_t *const gpio_set_;
+#endif
+  volatile uint32_t *const gpio_read_;
+  const uint32_t gpio_mask_;
+  const bool inverted_;
+};
 
 /** A high-level abstraction class that can expose a pin together with useful options like pinMode.
  *
@@ -62,7 +88,13 @@ class GPIOPin {
   /// Return whether this pin shall be treated as inverted. (for example active-low)
   bool is_inverted() const;
 
+  template<typename T> void attach_interrupt(void (*func)(T *), T *arg, int mode) const;
+
+  ISRInternalGPIOPin *to_isr() const;
+
  protected:
+  void attach_interrupt_(void (*func)(void *), void *arg, int mode) const;
+
   const uint8_t pin_;
   const uint8_t mode_;
 #ifdef ARDUINO_ARCH_ESP32
@@ -74,10 +106,6 @@ class GPIOPin {
   const bool inverted_;
 };
 
-#ifdef ARDUINO_ARCH_ESP8266
-void attach_functional_interrupt(uint8_t pin, std::function<void()> func, int mode);
-#endif
-
 /**  Basically just a GPIOPin, but defaults to OUTPUT pinMode.
  *
  * Note that theoretically you can still assign an INPUT pinMode to this - we intentionally don't check this.
@@ -86,7 +114,7 @@ void attach_functional_interrupt(uint8_t pin, std::function<void()> func, int mo
  */
 class GPIOOutputPin : public GPIOPin {
  public:
-  GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false); // NOLINT
+  GPIOOutputPin(uint8_t pin, uint8_t mode = OUTPUT, bool inverted = false);  // NOLINT
 };
 
 /** Basically just a GPIOPin, but defaults to INPUT pinMode.
@@ -97,9 +125,13 @@ class GPIOOutputPin : public GPIOPin {
  */
 class GPIOInputPin : public GPIOPin {
  public:
-  GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false); // NOLINT
+  GPIOInputPin(uint8_t pin, uint8_t mode = INPUT, bool inverted = false);  // NOLINT
 };
+
+template<typename T> void GPIOPin::attach_interrupt(void (*func)(T *), T *arg, int mode) const {
+  this->attach_interrupt_(reinterpret_cast<void (*)(void *)>(func), arg, mode);
+}
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_ESPHAL_H
+#endif  // ESPHOME_ESPHAL_H

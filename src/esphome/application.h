@@ -50,6 +50,7 @@
 #include "esphome/fan/basic_fan_component.h"
 #include "esphome/fan/fan_state.h"
 #include "esphome/fan/mqtt_fan_component.h"
+#include "esphome/io/mcp23017.h"
 #include "esphome/io/pcf8574_component.h"
 #include "esphome/light/addressable_light_effect.h"
 #include "esphome/light/fast_led_light_output.h"
@@ -168,8 +169,7 @@ class Application {
    * @param hw_serial The hardware serial UART used for logging.
    * @return The created and initialized LogComponent.
    */
-  LogComponent *init_log(uint32_t baud_rate = 115200,
-                         size_t tx_buffer_size = 512,
+  LogComponent *init_log(uint32_t baud_rate = 115200, size_t tx_buffer_size = 512,
                          UARTSelection uart = UART_SELECTION_UART0);
 
   /** Initialize the WiFi engine in client mode.
@@ -206,8 +206,8 @@ class Application {
    * @param password The password. Empty for no password.
    * @return The MQTTClient. Use this to set advanced settings.
    */
-  mqtt::MQTTClientComponent *init_mqtt(const std::string &address, uint16_t port,
-                                       const std::string &username, const std::string &password);
+  mqtt::MQTTClientComponent *init_mqtt(const std::string &address, uint16_t port, const std::string &username,
+                                       const std::string &password);
 
   /** Initialize the MQTT client.
    *
@@ -216,8 +216,8 @@ class Application {
    * @param password The password. Empty for no password.
    * @return The MQTTClient. Use this to set advanced settings.
    */
-  mqtt::MQTTClientComponent *init_mqtt(const std::string &address,
-                                       const std::string &username, const std::string &password);
+  mqtt::MQTTClientComponent *init_mqtt(const std::string &address, const std::string &username,
+                                       const std::string &password);
 #endif
 
 #ifdef USE_I2C
@@ -289,15 +289,12 @@ class Application {
 #endif
 
 #ifdef USE_MAX7219
-  display::MAX7219Component *make_max7219(SPIComponent *parent,
-                                          const GPIOOutputPin &cs,
+  display::MAX7219Component *make_max7219(SPIComponent *parent, const GPIOOutputPin &cs,
                                           uint32_t update_interval = 1000);
 #endif
 
 #ifdef USE_LCD_DISPLAY_PCF8574
-  display::PCF8574LCDDisplay *make_pcf8574_lcd_display(uint8_t columns,
-                                                       uint8_t rows,
-                                                       uint8_t address = 0x3F,
+  display::PCF8574LCDDisplay *make_pcf8574_lcd_display(uint8_t columns, uint8_t rows, uint8_t address = 0x3F,
                                                        uint32_t update_interval = 1000);
 #endif
 
@@ -307,9 +304,7 @@ class Application {
 
 #ifdef USE_SSD1306
 #ifdef USE_SPI
-  display::SPISSD1306 *make_spi_ssd1306(SPIComponent *parent,
-                                        const GPIOOutputPin &cs,
-                                        const GPIOOutputPin &dc,
+  display::SPISSD1306 *make_spi_ssd1306(SPIComponent *parent, const GPIOOutputPin &cs, const GPIOOutputPin &dc,
                                         uint32_t update_interval = 5000);
 #endif
 #ifdef USE_I2C
@@ -318,14 +313,12 @@ class Application {
 #endif
 
 #ifdef USE_WAVESHARE_EPAPER
-  display::WaveshareEPaperTypeA *make_waveshare_epaper_type_a(SPIComponent *parent,
-                                                              const GPIOOutputPin &cs,
+  display::WaveshareEPaperTypeA *make_waveshare_epaper_type_a(SPIComponent *parent, const GPIOOutputPin &cs,
                                                               const GPIOOutputPin &dc_pin,
                                                               display::WaveshareEPaperTypeAModel model,
                                                               uint32_t update_interval = 10000);
 
-  display::WaveshareEPaper *make_waveshare_epaper_type_b(SPIComponent *parent,
-                                                         const GPIOOutputPin &cs,
+  display::WaveshareEPaper *make_waveshare_epaper_type_b(SPIComponent *parent, const GPIOOutputPin &cs,
                                                          const GPIOOutputPin &dc_pin,
                                                          display::WaveshareEPaperTypeBModel model,
                                                          uint32_t update_interval = 10000);
@@ -335,18 +328,9 @@ class Application {
   display::Nextion *make_nextion(UARTComponent *parent, uint32_t update_interval = 5000);
 #endif
 
-  template<typename T>
-  GlobalVariableComponent<T> *make_global_variable();
+  template<typename T> GlobalVariableComponent<T> *make_global_variable();
 
-  template<typename T>
-  GlobalVariableComponent<T> *make_global_variable(T initial_value);
-
-
-
-
-
-
-
+  template<typename T> GlobalVariableComponent<T> *make_global_variable(T initial_value);
 
   /*           _    _ _______ ____  __  __       _______ _____ ____  _   _
    *      /\  | |  | |__   __/ __ \|  \/  |   /\|__   __|_   _/ __ \| \ | |
@@ -356,18 +340,11 @@ class Application {
    *  /_/    \_\____/   |_|  \____/|_|  |_/_/    \_\_|  |_____\____/|_| \_|
    */
 
-  template<typename... Ts>
-  Automation<Ts...> *make_automation(Trigger<Ts...> *trigger);
+  template<typename... Ts> Automation<Ts...> *make_automation(Trigger<Ts...> *trigger);
 
   StartupTrigger *make_startup_trigger();
 
   ShutdownTrigger *make_shutdown_trigger();
-
-
-
-
-
-
 
   /*   ____ ___ _   _    _    ______   __  ____  _____ _   _ ____   ___  ____
    *  | __ |_ _| \ | |  / \  |  _ \ \ / / / ___|| ____| \ | / ___| / _ \|  _ \
@@ -387,7 +364,8 @@ class Application {
    *
    * @param friendly_name The friendly name that should be advertised. Leave empty for no automatic discovery.
    * @param pin The GPIO pin.
-   * @param device_class The Home Assistant <a href="https://www.home-assistant.io/components/binary_sensor/">device_class</a>.
+   * @param device_class The Home Assistant <a
+   * href="https://www.home-assistant.io/components/binary_sensor/">device_class</a>.
    */
   binary_sensor::GPIOBinarySensorComponent *make_gpio_binary_sensor(const std::string &friendly_name,
                                                                     const GPIOInputPin &pin,
@@ -434,20 +412,13 @@ class Application {
 #endif
 
 #ifdef USE_CUSTOM_BINARY_SENSOR
-  binary_sensor::CustomBinarySensorConstructor *make_custom_binary_sensor(const std::function<std::vector<binary_sensor::BinarySensor *>()> &init);
+  binary_sensor::CustomBinarySensorConstructor *make_custom_binary_sensor(
+      const std::function<std::vector<binary_sensor::BinarySensor *>()> &init);
 #endif
 
 #ifdef USE_MPR121
   binary_sensor::MPR121Component *make_mpr121(uint8_t address = 0x5A);
 #endif
-
-
-
-
-
-
-
-
 
   /*   ____  _____ _   _ ____   ___  ____
    *  / ___|| ____| \ | / ___| / _ \|  _ \
@@ -479,9 +450,8 @@ class Application {
    * @return The components. Use this for advanced settings.
    */
   sensor::DHTComponent *make_dht_sensor(const std::string &temperature_friendly_name,
-                                        const std::string &humidity_friendly_name,
-                                        const GPIOOutputPin &pin,
-                                        uint32_t update_interval = 60000);
+                                        const std::string &humidity_friendly_name, const GPIOOutputPin &pin,
+                                        uint32_t check_interval = 60000);
 #endif
 
 #ifdef USE_DALLAS_SENSOR
@@ -519,8 +489,7 @@ class Application {
    * @param update_interval The interval in ms the sensor should be checked.
    * @return The components. Use this for advanced settings.
    */
-  sensor::ADCSensorComponent *make_adc_sensor(const std::string &friendly_name,
-                                              uint8_t pin,
+  sensor::ADCSensorComponent *make_adc_sensor(const std::string &friendly_name, uint8_t pin,
                                               uint32_t update_interval = 60000);
 #endif
 
@@ -673,8 +642,8 @@ class Application {
    * @param update_interval The interval in ms to update the sensor values.
    */
   sensor::BME280Component *make_bme280_sensor(const std::string &temperature_name, const std::string &pressure_name,
-                                              const std::string &humidity_name,
-                                              uint8_t address = 0x77, uint32_t update_interval = 60000);
+                                              const std::string &humidity_name, uint8_t address = 0x77,
+                                              uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_BMP280
@@ -725,8 +694,7 @@ class Application {
    * @param pin_a The first pin of the sensor.
    * @param pin_b The second pin of the sensor.
    */
-  sensor::RotaryEncoderSensor *make_rotary_encoder_sensor(const std::string &name,
-                                                          const GPIOInputPin &pin_a,
+  sensor::RotaryEncoderSensor *make_rotary_encoder_sensor(const std::string &name, const GPIOInputPin &pin_a,
                                                           const GPIOInputPin &pin_b);
 #endif
 
@@ -798,7 +766,8 @@ class Application {
 #endif
 
 #ifdef USE_HLW8012
-  sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval = 60000);
+  sensor::HLW8012Component *make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin,
+                                         uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_MQTT_SUBSCRIBE_SENSOR
@@ -810,13 +779,13 @@ class Application {
 #endif
 
 #ifdef USE_HOMEASSISTANT_BINARY_SENSOR
-  binary_sensor::HomeassistantBinarySensor *make_homeassistant_binary_sensor(const std::string &name, std::string entity_id);
+  binary_sensor::HomeassistantBinarySensor *make_homeassistant_binary_sensor(const std::string &name,
+                                                                             std::string entity_id);
 #endif
 
 #ifdef USE_CSE7766
   sensor::CSE7766Component *make_cse7766(UARTComponent *parent, uint32_t update_interval = 60000);
 #endif
-
 
 #ifdef USE_MQTT_SUBSCRIBE_TEXT_SENSOR
   text_sensor::MQTTSubscribeTextSensor *make_mqtt_subscribe_text_sensor(const std::string &name, std::string topic);
@@ -850,10 +819,6 @@ class Application {
 #ifdef USE_CUSTOM_SENSOR
   sensor::CustomSensorConstructor *make_custom_sensor(const std::function<std::vector<sensor::Sensor *>()> &init);
 #endif
-
-
-
-
 
   /*    ___  _   _ _____ ____  _   _ _____
    *   / _ \| | | |_   _|  _ \| | | |_   _|
@@ -914,7 +879,7 @@ class Application {
    * @param pin The pin for this PWM output, supported pins are 0-16.
    * @return The PWM output channel, use this for advanced settings and using it with lights.
    */
-  output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin_);
+  output::ESP8266PWMOutput *make_esp8266_pwm_output(GPIOOutputPin pin);
 #endif
 
 #ifdef USE_MY9231_OUTPUT
@@ -924,14 +889,8 @@ class Application {
    * @param pin_dcki The pin which DCKI is connected to.
    * @return The MY9231 component. Use this for advanced settings.
    */
-  output::MY9231OutputComponent *make_my9231_component(const GPIOOutputPin &pin_di,
-                                                       const GPIOOutputPin &pin_dcki);
+  output::MY9231OutputComponent *make_my9231_component(const GPIOOutputPin &pin_di, const GPIOOutputPin &pin_dcki);
 #endif
-
-
-
-
-
 
   /*   _     ___ ____ _   _ _____
    *  | |   |_ _/ ___| | | |_   _|
@@ -974,8 +933,8 @@ class Application {
    * @param blue The blue output channel.
    * @return The components for this light. Use this for advanced settings.
    */
-  MakeLight make_rgb_light(const std::string &friendly_name,
-                           output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue);
+  MakeLight make_rgb_light(const std::string &friendly_name, output::FloatOutput *red, output::FloatOutput *green,
+                           output::FloatOutput *blue);
 
   /** Create a RGBW light.
    *
@@ -986,24 +945,15 @@ class Application {
    * @param white The white output channel.
    * @return The components for this light. Use this for advanced settings.
    */
-  MakeLight make_rgbw_light(const std::string &friendly_name,
-                            output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
-                            output::FloatOutput *white);
+  MakeLight make_rgbw_light(const std::string &friendly_name, output::FloatOutput *red, output::FloatOutput *green,
+                            output::FloatOutput *blue, output::FloatOutput *white);
 
-  MakeLight make_rgbww_light(const std::string &friendly_name,
-                             float cold_white_mireds,
-                             float warm_white_mireds,
-                             output::FloatOutput *red,
-                             output::FloatOutput *green,
-                             output::FloatOutput *blue,
-                             output::FloatOutput *cold_white,
-                             output::FloatOutput *warm_white);
+  MakeLight make_rgbww_light(const std::string &friendly_name, float cold_white_mireds, float warm_white_mireds,
+                             output::FloatOutput *red, output::FloatOutput *green, output::FloatOutput *blue,
+                             output::FloatOutput *cold_white, output::FloatOutput *warm_white);
 
-  MakeLight make_cwww_light(const std::string &friendly_name,
-                            float cold_white_mireds,
-                            float warm_white_mireds,
-                            output::FloatOutput *cold_white,
-                            output::FloatOutput *warm_white);
+  MakeLight make_cwww_light(const std::string &friendly_name, float cold_white_mireds, float warm_white_mireds,
+                            output::FloatOutput *cold_white, output::FloatOutput *warm_white);
 #endif
 
 #ifdef USE_FAST_LED_LIGHT
@@ -1017,8 +967,7 @@ class Application {
 #endif
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
-  template<typename T_METHOD, typename T_COLOR_FEATURE>
-  struct MakeNeoPixelBusLight {
+  template<typename T_METHOD, typename T_COLOR_FEATURE> struct MakeNeoPixelBusLight {
     light::NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE> *output;
     light::LightState *state;
   };
@@ -1041,10 +990,6 @@ class Application {
                                           const std::vector<light::AddressableSegment> &segments);
 #endif
 
-
-
-
-
   /*   ______        _____ _____ ____ _   _
    *  / ___\ \      / |_ _|_   _/ ___| | | |
    *  \___ \\ \ /\ / / | |  | || |   | |_| |
@@ -1053,7 +998,7 @@ class Application {
    */
 #ifdef USE_SWITCH
   /// Register a Switch internally, creating a MQTT Switch if the MQTT client is set up
-  void register_switch(switch_::Switch *switch_);
+  void register_switch(switch_::Switch *a_switch);
 #endif
 
 #ifdef USE_GPIO_SWITCH
@@ -1089,17 +1034,13 @@ class Application {
 #endif
 
 #ifdef USE_UART_SWITCH
-  switch_::UARTSwitch *make_uart_switch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data);
+  switch_::UARTSwitch *make_uart_switch(UARTComponent *parent, const std::string &name,
+                                        const std::vector<uint8_t> &data);
 #endif
 
 #ifdef USE_CUSTOM_SWITCH
   switch_::CustomSwitchConstructor *make_custom_switch(const std::function<std::vector<switch_::Switch *>()> &init);
 #endif
-
-
-
-
-
 
   /*   _____ _    _   _
    *  |  ___/ \  | \ | |
@@ -1124,11 +1065,6 @@ class Application {
   MakeFan make_fan(const std::string &friendly_name);
 #endif
 
-
-
-
-
-
   /*    _____ ______      ________ _____
    *   / ____/ __ \ \    / /  ____|  __ \
    *  | |   | |  | \ \  / /| |__  | |__) |
@@ -1144,21 +1080,14 @@ class Application {
   cover::TemplateCover *make_template_cover(const std::string &name);
 #endif
 
-
 #ifdef USE_A4988
   stepper::A4988 *make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin);
 #endif
 
 #ifdef USE_ULN2003
-  stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
-                                 const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d);
+  stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b, const GPIOOutputPin &pin_c,
+                                 const GPIOOutputPin &pin_d);
 #endif
-
-
-
-
-
-
 
   /*   _   _ _____ _     ____  _____ ____  ____
    *  | | | | ____| |   |  _ \| ____|  _ \/ ___|
@@ -1191,12 +1120,14 @@ class Application {
   io::PCF8574Component *make_pcf8574_component(uint8_t address = 0x21, bool pcf8575 = false);
 #endif
 
-  /// Register the component in this Application instance.
-  template<class C>
-  C *register_component(C *c);
+#ifdef USE_MCP23017
+  io::MCP23017 *make_mcp23017_component(uint8_t address = 0x20);
+#endif
 
-  template<class C>
-  C *register_controller(C *c);
+  /// Register the component in this Application instance.
+  template<class C> C *register_component(C *c);
+
+  template<class C> C *register_controller(C *c);
 
   /// Set up all the registered components. Call this at the end of your setup() function.
   void setup();
@@ -1271,53 +1202,50 @@ class Application {
 /// Global storage of Application pointer - only one Application can exist.
 extern Application App;
 
-template<class C>
-C *Application::register_component(C *c) {
+template<class C> C *Application::register_component(C *c) {
   static_assert(std::is_base_of<Component, C>::value, "Only Component subclasses can be registered");
   this->register_component_((Component *) c);
   return c;
 }
 
-template<class C>
-C *Application::register_controller(C *c) {
+template<class C> C *Application::register_controller(C *c) {
   static_assert(std::is_base_of<Controller, C>::value, "Only Controller subclasses can be registered");
   Controller *controller = c;
   this->controllers_.push_back(controller);
   return c;
 }
 
-template<typename... Ts>
-Automation<Ts...> *Application::make_automation(Trigger<Ts...> *trigger) {
+template<typename... Ts> Automation<Ts...> *Application::make_automation(Trigger<Ts...> *trigger) {
   return new Automation<Ts...>(trigger);
 }
 
-template<typename T>
-GlobalVariableComponent<T> *Application::make_global_variable() {
+template<typename T> GlobalVariableComponent<T> *Application::make_global_variable() {
   return this->register_component(new GlobalVariableComponent<T>());
 }
 
-template<typename T>
-GlobalVariableComponent<T> *Application::make_global_variable(T initial_value) {
+template<typename T> GlobalVariableComponent<T> *Application::make_global_variable(T initial_value) {
   return this->register_component(new GlobalVariableComponent<T>(initial_value));
 }
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgb_light(const std::string &name) {
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgb_light(
+    const std::string &name) {
   auto *neo_pixel = this->register_component(new light::NeoPixelRGBLightOutput<T_METHOD, T_COLOR_FEATURE>());
   auto make = this->make_light_for_light_output(name, neo_pixel);
 
-  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE>{
       .output = neo_pixel,
       .state = make.state,
   };
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgbw_light(const std::string &name) {
+Application::MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> Application::make_neo_pixel_bus_rgbw_light(
+    const std::string &name) {
   auto *neo_pixel = this->register_component(new light::NeoPixelRGBWLightOutput<T_METHOD, T_COLOR_FEATURE>());
   auto make = this->make_light_for_light_output(name, neo_pixel);
 
-  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE> {
+  return MakeNeoPixelBusLight<T_METHOD, T_COLOR_FEATURE>{
       .output = neo_pixel,
       .state = make.state,
   };
@@ -1329,4 +1257,4 @@ ESPHOME_NAMESPACE_END
 /// namespace alias for backwards-compatability
 namespace esphomelib = esphome;
 
-#endif //ESPHOME_APPLICATION_H
+#endif  // ESPHOME_APPLICATION_H

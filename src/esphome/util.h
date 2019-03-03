@@ -23,4 +23,4 @@ std::string get_app_compilation_time();
 
 ESPHOME_NAMESPACE_END
 
-#endif //ESPHOME_UTIL_H
+#endif  // ESPHOME_UTIL_H

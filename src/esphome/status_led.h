@@ -28,6 +28,6 @@ extern StatusLEDComponent *global_status_led;
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_STATUS_LED
+#endif  // USE_STATUS_LED
 
-#endif //ESPHOME_STATUS_LED_H
+#endif  // ESPHOME_STATUS_LED_H

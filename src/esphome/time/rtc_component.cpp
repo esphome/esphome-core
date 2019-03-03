@@ -11,15 +11,9 @@ namespace time {
 
 static const char *TAG = "time.rtc";
 
-RealTimeClockComponent::RealTimeClockComponent() {
-
-}
-void RealTimeClockComponent::set_timezone(const std::string &tz) {
-  this->timezone_ = tz;
-}
-std::string RealTimeClockComponent::get_timezone() {
-  return this->timezone_;
-}
+RealTimeClockComponent::RealTimeClockComponent() {}
+void RealTimeClockComponent::set_timezone(const std::string &tz) { this->timezone_ = tz; }
+std::string RealTimeClockComponent::get_timezone() { return this->timezone_; }
 ESPTime RealTimeClockComponent::now() {
   time_t t = ::time(nullptr);
   struct tm *c_tm = ::localtime(&t);
@@ -30,11 +24,9 @@ ESPTime RealTimeClockComponent::utcnow() {
   struct tm *c_tm = ::gmtime(&t);
   return ESPTime::from_tm(c_tm, t);
 }
-CronTrigger *RealTimeClockComponent::make_cron_trigger() {
-  return new CronTrigger(this);
-}
-void RealTimeClockComponent::setup_() {
-  this->setup_internal();
+CronTrigger *RealTimeClockComponent::make_cron_trigger() { return new CronTrigger(this); }
+void RealTimeClockComponent::call_setup() {
+  this->setup_internal_();
   setenv("TZ", this->timezone_.c_str(), 1);
   tzset();
   this->setup();
@@ -45,31 +37,27 @@ size_t ESPTime::strftime(char *buffer, size_t buffer_len, const char *format) {
   return ::strftime(buffer, buffer_len, format, &c_tm);
 }
 ESPTime ESPTime::from_tm(struct tm *c_tm, time_t c_time) {
-  return ESPTime{
-      .second = uint8_t(c_tm->tm_sec),
-      .minute = uint8_t(c_tm->tm_min),
-      .hour = uint8_t(c_tm->tm_hour),
-      .day_of_week = uint8_t(c_tm->tm_wday + 1),
-      .day_of_month = uint8_t(c_tm->tm_mday),
-      .day_of_year = uint16_t(c_tm->tm_yday + 1),
-      .month = uint8_t(c_tm->tm_mon + 1),
-      .year = uint16_t(c_tm->tm_year + 1900),
-      .is_dst = bool(c_tm->tm_isdst),
-      .time = c_time
-  };
+  return ESPTime{.second = uint8_t(c_tm->tm_sec),
+                 .minute = uint8_t(c_tm->tm_min),
+                 .hour = uint8_t(c_tm->tm_hour),
+                 .day_of_week = uint8_t(c_tm->tm_wday + 1),
+                 .day_of_month = uint8_t(c_tm->tm_mday),
+                 .day_of_year = uint16_t(c_tm->tm_yday + 1),
+                 .month = uint8_t(c_tm->tm_mon + 1),
+                 .year = uint16_t(c_tm->tm_year + 1900),
+                 .is_dst = bool(c_tm->tm_isdst),
+                 .time = c_time};
 }
 struct tm ESPTime::to_c_tm() {
-  struct tm c_tm = tm{
-      .tm_sec = this->second,
-      .tm_min = this->minute,
-      .tm_hour = this->hour,
-      .tm_mday = this->day_of_month,
-      .tm_mon = this->month - 1,
-      .tm_year = this->year - 1900,
-      .tm_wday = this->day_of_week - 1,
-      .tm_yday = this->day_of_year - 1,
-      .tm_isdst = this->is_dst
-  };
+  struct tm c_tm = tm{.tm_sec = this->second,
+                      .tm_min = this->minute,
+                      .tm_hour = this->hour,
+                      .tm_mday = this->day_of_month,
+                      .tm_mon = this->month - 1,
+                      .tm_year = this->year - 1900,
+                      .tm_wday = this->day_of_week - 1,
+                      .tm_yday = this->day_of_year - 1,
+                      .tm_isdst = this->is_dst};
   return c_tm;
 }
 std::string ESPTime::strftime(const std::string &format) {
@@ -84,12 +72,9 @@ std::string ESPTime::strftime(const std::string &format) {
   timestr.resize(len);
   return timestr;
 }
-bool ESPTime::is_valid() const {
-  return this->year >= 2018;
-}
+bool ESPTime::is_valid() const { return this->year >= 2018; }
 
-template <typename T>
-bool increment_time_value(T &current, uint16_t begin, uint16_t end) {
+template<typename T> bool increment_time_value(T &current, uint16_t begin, uint16_t end) {
   current++;
   if (current >= end) {
     current = begin;
@@ -130,51 +115,26 @@ void ESPTime::increment_second() {
     this->year++;
   }
 }
-bool ESPTime::operator<(ESPTime other) {
-  return this->time < other.time;
-}
-bool ESPTime::operator<=(ESPTime other) {
-  return this->time <= other.time;
-}
-bool ESPTime::operator==(ESPTime other) {
-  return this->time == other.time;
-}
-bool ESPTime::operator>=(ESPTime other) {
-  return this->time >= other.time;
-}
-bool ESPTime::operator>(ESPTime other) {
-  return this->time > other.time;
-}
+bool ESPTime::operator<(ESPTime other) { return this->time < other.time; }
+bool ESPTime::operator<=(ESPTime other) { return this->time <= other.time; }
+bool ESPTime::operator==(ESPTime other) { return this->time == other.time; }
+bool ESPTime::operator>=(ESPTime other) { return this->time >= other.time; }
+bool ESPTime::operator>(ESPTime other) { return this->time > other.time; }
 bool ESPTime::in_range() const {
-  return this->second < 61 && this->minute < 60 && this->hour < 24 &&
-      this->day_of_week > 0 && this->day_of_week < 8 &&
-      this->day_of_month > 0 && this->day_of_month < 32 &&
-      this->day_of_year > 0 && this->day_of_year < 367 &&
-      this->month > 0 && this->month < 13;
+  return this->second < 61 && this->minute < 60 && this->hour < 24 && this->day_of_week > 0 && this->day_of_week < 8 &&
+         this->day_of_month > 0 && this->day_of_month < 32 && this->day_of_year > 0 && this->day_of_year < 367 &&
+         this->month > 0 && this->month < 13;
 }
 
-void CronTrigger::add_second(uint8_t second) {
-  this->seconds_[second] = true;
-}
-void CronTrigger::add_minute(uint8_t minute) {
-  this->minutes_[minute] = true;
-}
-void CronTrigger::add_hour(uint8_t hour) {
-  this->hours_[hour] = true;
-}
-void CronTrigger::add_day_of_month(uint8_t day_of_month) {
-  this->days_of_month_[day_of_month] = true;
-}
-void CronTrigger::add_month(uint8_t month) {
-  this->months_[month] = true;
-}
-void CronTrigger::add_day_of_week(uint8_t day_of_week) {
-  this->days_of_week_[day_of_week] = true;
-}
+void CronTrigger::add_second(uint8_t second) { this->seconds_[second] = true; }
+void CronTrigger::add_minute(uint8_t minute) { this->minutes_[minute] = true; }
+void CronTrigger::add_hour(uint8_t hour) { this->hours_[hour] = true; }
+void CronTrigger::add_day_of_month(uint8_t day_of_month) { this->days_of_month_[day_of_month] = true; }
+void CronTrigger::add_month(uint8_t month) { this->months_[month] = true; }
+void CronTrigger::add_day_of_week(uint8_t day_of_week) { this->days_of_week_[day_of_week] = true; }
 bool CronTrigger::matches(const ESPTime &time) {
-  return time.is_valid() && this->seconds_[time.second] && this->minutes_[time.minute] &&
-      this->hours_[time.hour] && this->days_of_month_[time.day_of_month] && this->months_[time.month] &&
-      this->days_of_week_[time.day_of_week];
+  return time.is_valid() && this->seconds_[time.second] && this->minutes_[time.minute] && this->hours_[time.hour] &&
+         this->days_of_month_[time.day_of_month] && this->months_[time.month] && this->days_of_week_[time.day_of_week];
 }
 void CronTrigger::loop() {
   ESPTime time = this->rtc_->now();
@@ -201,17 +161,14 @@ void CronTrigger::loop() {
   if (!time.in_range()) {
     ESP_LOGW(TAG, "Time is out of range!");
     ESP_LOGD(TAG, "Second=%02u Minute=%02u Hour=%02u DayOfWeek=%u DayOfMonth=%u DayOfYear=%u Month=%u time=%ld",
-             time.second, time.minute, time.hour,
-             time.day_of_week, time.day_of_month, time.day_of_year,
-             time.month, time.time);
+             time.second, time.minute, time.hour, time.day_of_week, time.day_of_month, time.day_of_year, time.month,
+             time.time);
   }
 
   if (this->matches(time))
     this->trigger();
 }
-CronTrigger::CronTrigger(RealTimeClockComponent *rtc) : rtc_(rtc) {
-
-}
+CronTrigger::CronTrigger(RealTimeClockComponent *rtc) : rtc_(rtc) {}
 void CronTrigger::add_seconds(const std::vector<uint8_t> &seconds) {
   for (uint8_t it : seconds)
     this->add_second(it);
@@ -236,12 +193,10 @@ void CronTrigger::add_days_of_week(const std::vector<uint8_t> &days_of_week) {
   for (uint8_t it : days_of_week)
     this->add_day_of_week(it);
 }
-float CronTrigger::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float CronTrigger::get_setup_priority() const { return setup_priority::HARDWARE; }
 
-} // namespace time
+}  // namespace time
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TIME
+#endif  // USE_TIME

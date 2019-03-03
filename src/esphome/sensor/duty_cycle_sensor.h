@@ -11,6 +11,16 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
 
+/// Store data in a class that doesn't use multiple-inheritance (vtables in flash)
+struct DutyCycleSensorStore {
+  volatile uint32_t last_interrupt{0};
+  volatile uint32_t on_time{0};
+  volatile bool last_level{false};
+  ISRInternalGPIOPin *pin;
+
+  static void gpio_intr(DutyCycleSensorStore *arg);
+};
+
 class DutyCycleSensor : public PollingSensorComponent {
  public:
   DutyCycleSensor(const std::string &name, GPIOPin *pin, uint32_t update_interval = 60000);
@@ -23,24 +33,17 @@ class DutyCycleSensor : public PollingSensorComponent {
   std::string icon() override;
   int8_t accuracy_decimals() override;
 
-  void on_interrupt();
-
-  static void gpio_intr();
-
  protected:
   GPIOPin *pin_;
-  volatile uint32_t last_interrupt_{0};
-  volatile uint32_t on_time_{0};
-  volatile bool last_level_{false};
-  DutyCycleSensor *next_;
+
+  DutyCycleSensorStore store_;
+  uint32_t last_update_;
 };
 
-extern DutyCycleSensor *duty_cycle_sensors;
-
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DUTY_CYCLE_SENSOR
+#endif  // USE_DUTY_CYCLE_SENSOR
 
-#endif //ESPHOME_DUTY_CYCLE_SENSOR_H
+#endif  // ESPHOME_DUTY_CYCLE_SENSOR_H

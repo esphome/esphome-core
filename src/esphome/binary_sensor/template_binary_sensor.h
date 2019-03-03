@@ -27,10 +27,10 @@ class TemplateBinarySensor : public Component, public BinarySensor {
   optional<std::function<optional<bool>()>> f_;
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TEMPLATE_BINARY_SENSOR
+#endif  // USE_TEMPLATE_BINARY_SENSOR
 
-#endif //ESPHOME_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H
+#endif  // ESPHOME_BINARY_SENSOR_TEMPLATE_BINARY_SENSOR_H

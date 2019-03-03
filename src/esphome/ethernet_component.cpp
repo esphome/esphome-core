@@ -21,9 +21,7 @@ static const char *TAG = "ethernet";
 
 EthernetComponent *global_eth_component;
 
-EthernetComponent::EthernetComponent() {
-  global_eth_component = this;
-}
+EthernetComponent::EthernetComponent() { global_eth_component = this; }
 void EthernetComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Ethernet...");
 
@@ -73,12 +71,8 @@ void EthernetComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  MDIO Pin: %u", this->mdio_pin_);
   ESP_LOGCONFIG(TAG, "  Type: %s", this->type_ == ETHERNET_TYPE_LAN8720 ? "LAN8720" : "TLK110");
 }
-float EthernetComponent::get_setup_priority() const {
-  return setup_priority::WIFI;
-}
-bool EthernetComponent::can_proceed() {
-  return this->is_connected();
-}
+float EthernetComponent::get_setup_priority() const { return setup_priority::WIFI; }
+bool EthernetComponent::can_proceed() { return this->is_connected(); }
 IPAddress EthernetComponent::get_ip_address() {
   tcpip_adapter_ip_info_t ip;
   tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_ETH, &ip);
@@ -115,11 +109,11 @@ void EthernetComponent::on_wifi_event_(system_event_id_t event, system_event_inf
 }
 
 #define ESPHL_ERROR_CHECK(err, message) \
-    if (err != ESP_OK) { \
-      ESP_LOGE(TAG, message ": %d", err); \
-      this->mark_failed(); \
-      return; \
-    }
+  if (err != ESP_OK) { \
+    ESP_LOGE(TAG, message ": %d", err); \
+    this->mark_failed(); \
+    return; \
+  }
 
 void EthernetComponent::start_connect_() {
   this->connect_begin_ = millis();
@@ -220,9 +214,7 @@ void EthernetComponent::eth_phy_power_enable_(bool enable) {
   delay(1);
   global_eth_component->orig_power_enable_fun_(enable);
 }
-bool EthernetComponent::is_connected() {
-  return this->connected_ && this->last_connected_;
-}
+bool EthernetComponent::is_connected() { return this->connected_ && this->last_connected_; }
 void EthernetComponent::dump_connect_params_() {
   tcpip_adapter_ip_info_t ip;
   tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_ETH, &ip);
@@ -237,43 +229,26 @@ void EthernetComponent::dump_connect_params_() {
   ESP_LOGCONFIG(TAG, "  DNS2: %s", IPAddress(dns_ip.u_addr.ip4.addr).toString().c_str());
   uint8_t mac[6];
   esp_eth_get_mac(mac);
-  ESP_LOGCONFIG(TAG, "  MAC Address: %02X:%02X:%02X:%02X:%02X:%02X",
-      mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  ESP_LOGCONFIG(TAG, "  MAC Address: %02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   ESP_LOGCONFIG(TAG, "  Is Full Duplex: %s", YESNO(this->eth_config.phy_get_duplex_mode()));
   ESP_LOGCONFIG(TAG, "  Link Up: %s", YESNO(this->eth_config.phy_check_link()));
   ESP_LOGCONFIG(TAG, "  Link Speed: %u", this->eth_config.phy_get_speed_mode() ? 100 : 10);
 }
-void EthernetComponent::set_phy_addr(uint8_t phy_addr) {
-  this->phy_addr_ = phy_addr;
-}
-void EthernetComponent::set_power_pin(const GPIOOutputPin &power_pin) {
-  this->power_pin_ = power_pin.copy();
-}
-void EthernetComponent::set_mdc_pin(uint8_t mdc_pin) {
-  this->mdc_pin_ = mdc_pin;
-}
-void EthernetComponent::set_mdio_pin(uint8_t mdio_pin) {
-  this->mdio_pin_ = mdio_pin;
-}
-void EthernetComponent::set_type(EthernetType type) {
-  this->type_ = type;
-}
-void EthernetComponent::set_clk_mode(eth_clock_mode_t clk_mode) {
-  this->clk_mode_ = clk_mode;
-}
-void EthernetComponent::set_manual_ip(ManualIP manual_ip) {
-  this->manual_ip_ = manual_ip;
-}
+void EthernetComponent::set_phy_addr(uint8_t phy_addr) { this->phy_addr_ = phy_addr; }
+void EthernetComponent::set_power_pin(const GPIOOutputPin &power_pin) { this->power_pin_ = power_pin.copy(); }
+void EthernetComponent::set_mdc_pin(uint8_t mdc_pin) { this->mdc_pin_ = mdc_pin; }
+void EthernetComponent::set_mdio_pin(uint8_t mdio_pin) { this->mdio_pin_ = mdio_pin; }
+void EthernetComponent::set_type(EthernetType type) { this->type_ = type; }
+void EthernetComponent::set_clk_mode(eth_clock_mode_t clk_mode) { this->clk_mode_ = clk_mode; }
+void EthernetComponent::set_manual_ip(ManualIP manual_ip) { this->manual_ip_ = manual_ip; }
 std::string EthernetComponent::get_use_address() const {
   if (this->use_address_.empty()) {
     return get_app_name() + ".local";
   }
   return this->use_address_;
 }
-void EthernetComponent::set_use_address(const std::string &use_address) {
-  this->use_address_ = use_address;
-}
+void EthernetComponent::set_use_address(const std::string &use_address) { this->use_address_ = use_address; }
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ETHERNET
+#endif  // USE_ETHERNET

@@ -12,9 +12,7 @@ namespace switch_ {
 static const char *TAG = "switch.uart";
 
 UARTSwitch::UARTSwitch(UARTComponent *parent, const std::string &name, const std::vector<uint8_t> &data)
-    : Switch(name), UARTDevice(parent), data_(data) {
-
-}
+    : Switch(name), UARTDevice(parent), data_(data) {}
 
 void UARTSwitch::write_state(bool state) {
   if (!state) {
@@ -27,12 +25,10 @@ void UARTSwitch::write_state(bool state) {
   this->write_array(this->data_.data(), this->data_.size());
   this->publish_state(false);
 }
-void UARTSwitch::dump_config() {
-  LOG_SWITCH("", "UART Switch", this);
-}
+void UARTSwitch::dump_config() { LOG_SWITCH("", "UART Switch", this); }
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_UART_SWITCH
+#endif  // USE_UART_SWITCH

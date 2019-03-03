@@ -19,14 +19,15 @@ class CustomSwitchConstructor : public Component {
   Switch *get_switch(int i);
 
   void dump_config() override;
+
  protected:
   std::vector<Switch *> switches_;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CUSTOM_SWITCH
+#endif  // USE_CUSTOM_SWITCH
 
-#endif //ESPHOME_CUSTOM_SWITCH_H
+#endif  // ESPHOME_CUSTOM_SWITCH_H

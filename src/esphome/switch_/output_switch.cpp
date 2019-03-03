@@ -11,10 +11,7 @@ namespace switch_ {
 
 static const char *TAG = "switch.output";
 
-OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output)
-    : Switch(name), output_(output) {
-
-}
+OutputSwitch::OutputSwitch(const std::string &name, output::BinaryOutput *output) : Switch(name), output_(output) {}
 void OutputSwitch::write_state(bool state) {
   if (state) {
     this->output_->turn_on();
@@ -34,15 +31,11 @@ void OutputSwitch::setup() {
     this->turn_off();
   }
 }
-float OutputSwitch::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
-void OutputSwitch::dump_config() {
-  LOG_SWITCH("", "Output Switch", this);
-}
+float OutputSwitch::get_setup_priority() const { return setup_priority::HARDWARE; }
+void OutputSwitch::dump_config() { LOG_SWITCH("", "Output Switch", this); }
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_OUTPUT_SWITCH
+#endif  // USE_OUTPUT_SWITCH

@@ -17,8 +17,7 @@ using DHT12HumiditySensor = EmptyPollingParentSensor<0, ICON_WATER_PERCENT, UNIT
 
 class DHT12Component : public PollingComponent, public I2CDevice {
  public:
-  DHT12Component(I2CComponent *parent,
-                 const std::string &temperature_name, const std::string &humidity_name,
+  DHT12Component(I2CComponent *parent, const std::string &temperature_name, const std::string &humidity_name,
                  uint32_t update_interval = 60000);
 
   // ========== INTERNAL METHODS ==========
@@ -37,10 +36,10 @@ class DHT12Component : public PollingComponent, public I2CDevice {
   DHT12HumiditySensor *humidity_sensor_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DHT12_SENSOR
+#endif  // USE_DHT12_SENSOR
 
-#endif //ESPHOME_SENSOR_DHT12_COMPONENT_H
+#endif  // ESPHOME_SENSOR_DHT12_COMPONENT_H

@@ -25,24 +25,22 @@ static const uint16_t SHT3XD_COMMAND_SOFT_RESET = 0x30A2;
 static const uint16_t SHT3XD_COMMAND_POLLING_H = 0x2400;
 static const uint16_t SHT3XD_COMMAND_FETCH_DATA = 0xE000;
 
-SHT3XDComponent::SHT3XDComponent(I2CComponent *parent,
-                                 const std::string &temperature_name, const std::string &humidity_name,
-                                 uint8_t address, uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, address),
+SHT3XDComponent::SHT3XDComponent(I2CComponent *parent, const std::string &temperature_name,
+                                 const std::string &humidity_name, uint8_t address, uint32_t update_interval)
+    : PollingComponent(update_interval),
+      I2CDevice(parent, address),
       temperature_sensor_(new SHT3XDTemperatureSensor(temperature_name, this)),
-      humidity_sensor_(new SHT3XDHumiditySensor(humidity_name, this)) {
-
-}
+      humidity_sensor_(new SHT3XDHumiditySensor(humidity_name, this)) {}
 
 void SHT3XDComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SHT3xD...");
-  if (!this->write_command(SHT3XD_COMMAND_READ_SERIAL_NUMBER)) {
+  if (!this->write_command_(SHT3XD_COMMAND_READ_SERIAL_NUMBER)) {
     this->mark_failed();
     return;
   }
 
   uint16_t raw_serial_number[2];
-  if (!this->read_data(raw_serial_number, 2)) {
+  if (!this->read_data_(raw_serial_number, 2)) {
     this->mark_failed();
     return;
   }
@@ -63,16 +61,14 @@ void SHT3XDComponent::dump_config() {
   LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
   LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
 }
-float SHT3XDComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float SHT3XDComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void SHT3XDComponent::update() {
-  if (!this->write_command(SHT3XD_COMMAND_POLLING_H))
+  if (!this->write_command_(SHT3XD_COMMAND_POLLING_H))
     return;
 
-  this->set_timeout(50, [this](){
+  this->set_timeout(50, [this]() {
     uint16_t raw_data[2];
-    if (!this->read_data(raw_data, 2)) {
+    if (!this->read_data_(raw_data, 2)) {
       this->status_set_warning();
       return;
     }
@@ -87,7 +83,7 @@ void SHT3XDComponent::update() {
   });
 }
 
-bool SHT3XDComponent::write_command(uint16_t command) {
+bool SHT3XDComponent::write_command_(uint16_t command) {
   // Warning ugly, trick the I2Ccomponent base by setting register to the first 8 bit.
   return this->write_byte(command >> 8, command & 0xFF);
 }
@@ -115,11 +111,11 @@ uint8_t sht_crc(uint8_t data1, uint8_t data2) {
   return crc;
 }
 
-bool SHT3XDComponent::read_data(uint16_t *data, uint8_t len) {
+bool SHT3XDComponent::read_data_(uint16_t *data, uint8_t len) {
   const uint8_t num_bytes = len * 3;
   auto *buf = new uint8_t[num_bytes];
 
-  if (!this->parent_->receive_(this->address_, buf, num_bytes)) {
+  if (!this->parent_->raw_receive(this->address_, buf, num_bytes)) {
     delete[](buf);
     return false;
   }
@@ -138,27 +134,19 @@ bool SHT3XDComponent::read_data(uint16_t *data, uint8_t len) {
   delete[](buf);
   return true;
 }
-SHT3XDTemperatureSensor *SHT3XDComponent::get_temperature_sensor() const {
-  return this->temperature_sensor_;
-}
-SHT3XDHumiditySensor *SHT3XDComponent::get_humidity_sensor() const {
-  return this->humidity_sensor_;
-}
+SHT3XDTemperatureSensor *SHT3XDComponent::get_temperature_sensor() const { return this->temperature_sensor_; }
+SHT3XDHumiditySensor *SHT3XDComponent::get_humidity_sensor() const { return this->humidity_sensor_; }
 
 SHT3XDTemperatureSensor::SHT3XDTemperatureSensor(const std::string &name, SHT3XDComponent *parent)
     : EmptyPollingParentSensor(name, parent) {}
-std::string SHT3XDTemperatureSensor::unique_id() {
-  return this->unique_id_;
-}
+std::string SHT3XDTemperatureSensor::unique_id() { return this->unique_id_; }
 
 SHT3XDHumiditySensor::SHT3XDHumiditySensor(const std::string &name, SHT3XDComponent *parent)
     : EmptyPollingParentSensor(name, parent) {}
-std::string SHT3XDHumiditySensor::unique_id() {
-  return this->unique_id_;
-}
+std::string SHT3XDHumiditySensor::unique_id() { return this->unique_id_; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SHT3XD
+#endif  // USE_SHT3XD

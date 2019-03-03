@@ -41,17 +41,18 @@ class ESP8266PWMOutput : public FloatOutput, public Component {
   /// HARDWARE setup_priority
   float get_setup_priority() const override;
   /// Override FloatOutput's write_state for analogWrite
-  void write_state(float state) override;
 
  protected:
+  void write_state(float state) override;
+
   GPIOOutputPin pin_;
   float frequency_{1000.0};
 };
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ESP8266_PWM_OUTPUT
+#endif  // USE_ESP8266_PWM_OUTPUT
 
-#endif //ESPHOME_ESP_8266_PWM_OUTPUT_H
+#endif  // ESPHOME_ESP_8266_PWM_OUTPUT_H

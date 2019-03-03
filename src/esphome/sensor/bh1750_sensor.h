@@ -14,16 +14,15 @@ namespace sensor {
 
 /// Enum listing all resolutions that can be used with the BH1750
 enum BH1750Resolution {
-  BH1750_RESOLUTION_4P0_LX = 0b00100011, // one-time low resolution mode
-  BH1750_RESOLUTION_1P0_LX = 0b00100000, // one-time high resolution mode 1
-  BH1750_RESOLUTION_0P5_LX = 0b00100001, // one-time high resolution mode 2
+  BH1750_RESOLUTION_4P0_LX = 0b00100011,  // one-time low resolution mode
+  BH1750_RESOLUTION_1P0_LX = 0b00100000,  // one-time high resolution mode 1
+  BH1750_RESOLUTION_0P5_LX = 0b00100001,  // one-time high resolution mode 2
 };
 
 /// This class implements support for the i2c-based BH1750 ambient light sensor.
 class BH1750Sensor : public PollingSensorComponent, public I2CDevice {
  public:
-  BH1750Sensor(I2CComponent *parent, const std::string &name,
-               uint8_t address = 0x23, uint32_t update_interval = 60000);
+  BH1750Sensor(I2CComponent *parent, const std::string &name, uint8_t address = 0x23, uint32_t update_interval = 60000);
 
   /** Set the resolution of this sensor.
    *
@@ -53,10 +52,10 @@ class BH1750Sensor : public PollingSensorComponent, public I2CDevice {
   BH1750Resolution resolution_{BH1750_RESOLUTION_0P5_LX};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BH1750
+#endif  // USE_BH1750
 
-#endif //ESPHOME_SENSOR_BH1750_SENSOR_H
+#endif  // ESPHOME_SENSOR_BH1750_SENSOR_H

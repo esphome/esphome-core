@@ -58,10 +58,10 @@ class LEDCOutputComponent : public FloatOutput, public Component {
 
 extern uint8_t next_ledc_channel;
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LEDC_OUTPUT
+#endif  // USE_LEDC_OUTPUT
 
-#endif //ESPHOME_OUTPUT_LEDC_OUTPUT_COMPONENT_H
+#endif  // ESPHOME_OUTPUT_LEDC_OUTPUT_COMPONENT_H

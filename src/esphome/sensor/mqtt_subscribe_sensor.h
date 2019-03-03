@@ -27,10 +27,10 @@ class MQTTSubscribeSensor : public Sensor, public Component {
   uint8_t qos_{0};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_SUBSCRIBE_SENSOR
+#endif  // USE_MQTT_SUBSCRIBE_SENSOR
 
-#endif //ESPHOME_SENSOR_MQTT_SUBSCRIBE_SENSOR_H
+#endif  // ESPHOME_SENSOR_MQTT_SUBSCRIBE_SENSOR_H
