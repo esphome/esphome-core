@@ -50,8 +50,9 @@ class MPR121Sensor : public sensor::Sensor {
   uint8_t sensor_type_ = MPR121_SENSOR_TYPE_SLIDER;
   uint16_t mask_ = 0;
   uint8_t step_size_ = 1;
-  void process_slider_(uint16_t *data);
-  void process_rotary_(uint16_t *data, uint16_t *last_data);
+  uint16_t getFirstSetBitPos(uint16_t data);
+  void process_slider_(uint16_t data);
+  void process_rotary_(uint16_t data, uint16_t last_data);
 };
 
 }  // namespace binary_sensor
