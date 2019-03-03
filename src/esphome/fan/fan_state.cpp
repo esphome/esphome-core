@@ -12,29 +12,17 @@ namespace fan {
 
 static const char *TAG = "fan.state";
 
-const FanTraits &FanState::get_traits() const {
-  return this->traits_;
-}
-void FanState::set_traits(const FanTraits &traits) {
-  this->traits_ = traits;
-}
+const FanTraits &FanState::get_traits() const { return this->traits_; }
+void FanState::set_traits(const FanTraits &traits) { this->traits_ = traits; }
 void FanState::add_on_state_callback(std::function<void()> &&callback) {
   this->state_callback_.add(std::move(callback));
 }
 FanState::FanState(const std::string &name) : Nameable(name) {}
 
-FanState::StateCall FanState::turn_on() {
-  return this->make_call().set_state(true);
-}
-FanState::StateCall FanState::turn_off() {
-  return this->make_call().set_state(false);
-}
-FanState::StateCall FanState::toggle() {
-  return this->make_call().set_state(!this->state);
-}
-FanState::StateCall FanState::make_call() {
-  return FanState::StateCall(this);
-}
+FanState::StateCall FanState::turn_on() { return this->make_call().set_state(true); }
+FanState::StateCall FanState::turn_off() { return this->make_call().set_state(false); }
+FanState::StateCall FanState::toggle() { return this->make_call().set_state(!this->state); }
+FanState::StateCall FanState::make_call() { return FanState::StateCall(this); }
 
 struct FanStateRTCState {
   bool state;
@@ -54,25 +42,14 @@ void FanState::setup() {
   call.set_oscillating(recovered.oscillating);
   call.perform();
 }
-float FanState::get_setup_priority() const {
-  return setup_priority::HARDWARE - 1.0f;
-}
-uint32_t FanState::hash_base_() {
-  return 418001110UL;
-}
+float FanState::get_setup_priority() const { return setup_priority::HARDWARE - 1.0f; }
+uint32_t FanState::hash_base() { return 418001110UL; }
 #ifdef USE_MQTT_FAN
-MQTTFanComponent *FanState::get_mqtt() const {
-  return this->mqtt_;
-}
-void FanState::set_mqtt(MQTTFanComponent *mqtt) {
-  this->mqtt_ = mqtt;
-}
+MQTTFanComponent *FanState::get_mqtt() const { return this->mqtt_; }
+void FanState::set_mqtt(MQTTFanComponent *mqtt) { this->mqtt_ = mqtt; }
 #endif
 
-FanState::StateCall::StateCall(FanState *state)
-    : state_(state) {
-
-}
+FanState::StateCall::StateCall(FanState *state) : state_(state) {}
 FanState::StateCall &FanState::StateCall::set_state(bool state) {
   this->binary_state_ = state;
   return *this;
@@ -115,7 +92,6 @@ void FanState::StateCall::perform() const {
         // protect from invalid input
         break;
     }
-
   }
 
   FanStateRTCState saved;
@@ -137,8 +113,8 @@ FanState::StateCall &FanState::StateCall::set_speed(const char *speed) {
   return *this;
 }
 
-} // namespace fan
+}  // namespace fan
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_FAN
+#endif  // USE_FAN

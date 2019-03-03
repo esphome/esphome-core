@@ -12,20 +12,17 @@ namespace display {
 static const char *TAG = "display.nextion";
 
 void Nextion::setup() {
-  this->send_command_("");
-  this->ack_();
+  this->send_command_no_ack("");
+  this->send_command_printf("bkcmd=3");
   this->goto_page("0");
-  this->send_command_printf_("bkcmd=3");
 }
-float Nextion::get_setup_priority() const {
-  return setup_priority::POST_HARDWARE;
-}
+float Nextion::get_setup_priority() const { return setup_priority::POST_HARDWARE; }
 void Nextion::update() {
   if (this->writer_.has_value()) {
     (*this->writer_)(*this);
   }
 }
-void Nextion::send_command_(const char *command) {
+void Nextion::send_command_no_ack(const char *command) {
   // Flush RX...
   this->loop();
 
@@ -35,7 +32,9 @@ void Nextion::send_command_(const char *command) {
 }
 
 bool Nextion::ack_() {
-  uint8_t bytes[4] = {0x00, };
+  uint8_t bytes[4] = {
+      0x00,
+  };
   if (!this->read_array(bytes, 4)) {
     ESP_LOGW(TAG, "Nextion returned no ACK data!");
     return false;
@@ -47,60 +46,58 @@ bool Nextion::ack_() {
   }
 
   switch (bytes[0]) {
-    case 0x01: // successful execution of instruction
+    case 0x01:  // successful execution of instruction
       return true;
-    case 0x00: // invalid instruction
-    case 0x02: // component ID invalid
-    case 0x03: // page ID invalid
-    case 0x04: // picture ID invalid
-    case 0x05: // font ID invalid
-    case 0x11: // baud rate setting invalid
-    case 0x12: // curve control ID number or channel number is invalid
-    case 0x1A: // variable name invalid
-    case 0x1B: // variable operation invalid
-    case 0x1C: // failed to assign
-    case 0x1D: // operate EEPROM failed
-    case 0x1E: // parameter quantity invalid
-    case 0x1F: // IO operation failed
-    case 0x20: // undefined escape characters
-    case 0x23: // too long variable name
+    case 0x00:  // invalid instruction
+    case 0x02:  // component ID invalid
+    case 0x03:  // page ID invalid
+    case 0x04:  // picture ID invalid
+    case 0x05:  // font ID invalid
+    case 0x11:  // baud rate setting invalid
+    case 0x12:  // curve control ID number or channel number is invalid
+    case 0x1A:  // variable name invalid
+    case 0x1B:  // variable operation invalid
+    case 0x1C:  // failed to assign
+    case 0x1D:  // operate EEPROM failed
+    case 0x1E:  // parameter quantity invalid
+    case 0x1F:  // IO operation failed
+    case 0x20:  // undefined escape characters
+    case 0x23:  // too long variable name
     default:
       ESP_LOGW(TAG, "Nextion returned NACK with code 0x%02X", bytes[0]);
       return false;
   }
 }
 void Nextion::set_component_text(const char *component, const char *text) {
-  this->send_command_printf_("%s.txt=\"%s\"", component, text);
+  this->send_command_printf("%s.txt=\"%s\"", component, text);
 }
 void Nextion::set_component_value(const char *component, int value) {
-  this->send_command_printf_("%s.val=%d", component, value);
+  this->send_command_printf("%s.val=%d", component, value);
 }
 void Nextion::set_component_picture(const char *component, const char *picture) {
-  this->send_command_printf_("%s.pic=\"%s\"", component, picture);
+  this->send_command_printf("%s.pic=\"%s\"", component, picture);
 }
 void Nextion::set_component_background_color(const char *component, const char *color) {
-  this->send_command_printf_("%s.bco=\"%s\"", component, color);
+  this->send_command_printf("%s.bco=\"%s\"", component, color);
 }
 void Nextion::set_component_pressed_background_color(const char *component, const char *color) {
-  this->send_command_printf_("%s.bco2=\"%s\"", component, color);
+  this->send_command_printf("%s.bco2=\"%s\"", component, color);
 }
 void Nextion::set_component_font_color(const char *component, const char *color) {
-  this->send_command_printf_("%s.pco=\"%s\"", component, color);
+  this->send_command_printf("%s.pco=\"%s\"", component, color);
 }
 void Nextion::set_component_pressed_font_color(const char *component, const char *color) {
-  this->send_command_printf_("%s.pco2=\"%s\"", component, color);
+  this->send_command_printf("%s.pco2=\"%s\"", component, color);
 }
 void Nextion::set_component_coordinates(const char *component, int x, int y) {
-  this->send_command_printf_("%s.xcen=%d", component, x);
-  this->send_command_printf_("%s.ycen=%d", component, y);
+  this->send_command_printf("%s.xcen=%d", component, x);
+  this->send_command_printf("%s.ycen=%d", component, y);
 }
 void Nextion::set_component_font(const char *component, uint8_t font_id) {
-  this->send_command_printf_("%s.font=%d", component, font_id);
+  this->send_command_printf("%s.font=%d", component, font_id);
 }
-void Nextion::goto_page(const char *page) {
-  this->send_command_printf_("page %s", page);
-}
-bool Nextion::send_command_printf_(const char *format, ...) {
+void Nextion::goto_page(const char *page) { this->send_command_printf("page %s", page); }
+bool Nextion::send_command_printf(const char *format, ...) {
   char buffer[256];
   va_list arg;
   va_start(arg, format);
@@ -110,7 +107,7 @@ bool Nextion::send_command_printf_(const char *format, ...) {
     ESP_LOGW(TAG, "Building command for format '%s' failed!", format);
     return false;
   }
-  this->send_command_(buffer);
+  this->send_command_no_ack(buffer);
   if (!this->ack_()) {
     ESP_LOGW(TAG, "Sending command '%s' failed because no ACK was received", buffer);
     return false;
@@ -118,38 +115,30 @@ bool Nextion::send_command_printf_(const char *format, ...) {
 
   return true;
 }
-void Nextion::hide_component(const char *component) {
-  this->send_command_printf_("vis %s,0", component);
-}
-void Nextion::show_component(const char *component) {
-  this->send_command_printf_("vis %s,1", component);
-}
-void Nextion::enable_component_touch(const char *component) {
-  this->send_command_printf_("tsw %s,1", component);
-}
-void Nextion::disable_component_touch(const char *component) {
-  this->send_command_printf_("tsw %s,0", component);
-}
+void Nextion::hide_component(const char *component) { this->send_command_printf("vis %s,0", component); }
+void Nextion::show_component(const char *component) { this->send_command_printf("vis %s,1", component); }
+void Nextion::enable_component_touch(const char *component) { this->send_command_printf("tsw %s,1", component); }
+void Nextion::disable_component_touch(const char *component) { this->send_command_printf("tsw %s,0", component); }
 void Nextion::add_waveform_data(int component_id, uint8_t channel_number, uint8_t value) {
-  this->send_command_printf_("add %d,%u,%u", component_id, channel_number, value);
+  this->send_command_printf("add %d,%u,%u", component_id, channel_number, value);
 }
 void Nextion::display_picture(int picture_id, int x_start, int y_start) {
-  this->send_command_printf_("pic %d,%d,%d", x_start, y_start, picture_id);
+  this->send_command_printf("pic %d,%d,%d", x_start, y_start, picture_id);
 }
 void Nextion::fill_area(int x1, int y1, int width, int height, const char *color) {
-  this->send_command_printf_("fill %d,%d,%d,%d,%s", x1, y1, width, height, color);
+  this->send_command_printf("fill %d,%d,%d,%d,%s", x1, y1, width, height, color);
 }
 void Nextion::line(int x1, int y1, int x2, int y2, const char *color) {
-  this->send_command_printf_("line %d,%d,%d,%d,%s", x1, y1, x2, y2, color);
+  this->send_command_printf("line %d,%d,%d,%d,%s", x1, y1, x2, y2, color);
 }
 void Nextion::rectangle(int x1, int y1, int width, int height, const char *color) {
-  this->send_command_printf_("draw %d,%d,%d,%d,%s", x1, y1, x1 + width, y1 + height, color);
+  this->send_command_printf("draw %d,%d,%d,%d,%s", x1, y1, x1 + width, y1 + height, color);
 }
 void Nextion::circle(int center_x, int center_y, int radius, const char *color) {
-  this->send_command_printf_("cir %d,%d,%d,%s", center_x, center_y, radius, color);
+  this->send_command_printf("cir %d,%d,%d,%s", center_x, center_y, radius, color);
 }
 void Nextion::filled_circle(int center_x, int center_y, int radius, const char *color) {
-  this->send_command_printf_("cirs %d,%d,%d,%s", center_x, center_y, radius, color);
+  this->send_command_printf("cirs %d,%d,%d,%s", center_x, center_y, radius, color);
 }
 void Nextion::loop() {
   while (this->available() >= 4) {
@@ -188,45 +177,46 @@ void Nextion::loop() {
       continue;
     }
 
-    data_length -= 3; // remove filler bytes
+    data_length -= 3;  // remove filler bytes
 
     bool invalid_data_length = false;
     switch (event) {
-      case 0x65: { // touch event return data
+      case 0x65: {  // touch event return data
         if (data_length != 3) {
           invalid_data_length = true;
           break;
         }
         uint8_t page_id = data[0];
         uint8_t component_id = data[1];
-        uint8_t touch_event = data[2]; // 0 -> release, 1 -> press
-        ESP_LOGD(TAG, "Got touch page=%u component=%u type=%s", page_id, component_id, touch_event ? "PRESS" : "RELEASE");
+        uint8_t touch_event = data[2];  // 0 -> release, 1 -> press
+        ESP_LOGD(TAG, "Got touch page=%u component=%u type=%s", page_id, component_id,
+                 touch_event ? "PRESS" : "RELEASE");
         for (auto *touch : this->touch_) {
           touch->process(page_id, component_id, touch_event);
         }
         break;
       }
       case 0x67:
-      case 0x68: { // touch coordinate data
+      case 0x68: {  // touch coordinate data
         if (data_length != 5) {
           invalid_data_length = true;
           break;
         }
         uint16_t x = (uint16_t(data[0]) << 8) | data[1];
         uint16_t y = (uint16_t(data[2]) << 8) | data[3];
-        uint8_t touch_event = data[4]; // 0 -> release, 1 -> press
+        uint8_t touch_event = data[4];  // 0 -> release, 1 -> press
         ESP_LOGD(TAG, "Got touch at x=%u y=%u type=%s", x, y, touch_event ? "PRESS" : "RELEASE");
         break;
       }
-      case 0x66: // sendme page id
-      case 0x70: // string variable data return
-      case 0x71: // numeric variable data return
-      case 0x86: // device automatically enters into sleep mode
-      case 0x87: // device automatically wakes up
-      case 0x88: // system successful start up
-      case 0x89: // start SD card upgrade
-      case 0xFD: // data transparent transmit finished
-      case 0xFE: // data transparent transmit ready
+      case 0x66:  // sendme page id
+      case 0x70:  // string variable data return
+      case 0x71:  // numeric variable data return
+      case 0x86:  // device automatically enters into sleep mode
+      case 0x87:  // device automatically wakes up
+      case 0x88:  // system successful start up
+      case 0x89:  // start SD card upgrade
+      case 0xFD:  // data transparent transmit finished
+      case 0xFE:  // data transparent transmit ready
         break;
       default:
         ESP_LOGW(TAG, "Received unknown event from nextion: 0x%02X", event);
@@ -239,21 +229,17 @@ void Nextion::loop() {
 }
 #ifdef USE_TIME
 void Nextion::set_nextion_rtc_time(time::ESPTime time) {
-  this->send_command_printf_("rtc0=%u", time.year);
-  this->send_command_printf_("rtc1=%u", time.month);
-  this->send_command_printf_("rtc2=%u", time.day_of_month);
-  this->send_command_printf_("rtc3=%u", time.hour);
-  this->send_command_printf_("rtc4=%u", time.minute);
-  this->send_command_printf_("rtc5=%u", time.second);
+  this->send_command_printf("rtc0=%u", time.year);
+  this->send_command_printf("rtc1=%u", time.month);
+  this->send_command_printf("rtc2=%u", time.day_of_month);
+  this->send_command_printf("rtc3=%u", time.hour);
+  this->send_command_printf("rtc4=%u", time.minute);
+  this->send_command_printf("rtc5=%u", time.second);
 }
 #endif
 
-void Nextion::set_backlight_brightness(uint8_t brightness) {
-  this->send_command_printf_("dim=%u", brightness);
-}
-void Nextion::set_touch_sleep_timeout(uint16_t timeout) {
-  this->send_command_printf_("thsp=%u", timeout);
-}
+void Nextion::set_backlight_brightness(uint8_t brightness) { this->send_command_printf("dim=%u", brightness); }
+void Nextion::set_touch_sleep_timeout(uint16_t timeout) { this->send_command_printf("thsp=%u", timeout); }
 
 NextionTouchComponent *Nextion::make_touch_component(const std::string &name, uint8_t page_id, uint8_t component_id) {
   auto *ret = new NextionTouchComponent(name, page_id, component_id);
@@ -261,12 +247,8 @@ NextionTouchComponent *Nextion::make_touch_component(const std::string &name, ui
   return ret;
 }
 Nextion::Nextion(UARTComponent *parent, uint32_t update_interval)
-    : PollingComponent(update_interval), UARTDevice(parent) {
-
-}
-void Nextion::set_writer(const nextion_writer_t &writer) {
-  this->writer_ = writer;
-}
+    : PollingComponent(update_interval), UARTDevice(parent) {}
+void Nextion::set_writer(const nextion_writer_t &writer) { this->writer_ = writer; }
 void Nextion::set_component_text_printf(const char *component, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
@@ -285,8 +267,8 @@ void NextionTouchComponent::process(uint8_t page_id, uint8_t component_id, bool 
 NextionTouchComponent::NextionTouchComponent(const std::string &name, uint8_t page_id, uint8_t component_id)
     : BinarySensor(name), page_id_(page_id), component_id_(component_id) {}
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_NEXTION
+#endif  // USE_NEXTION

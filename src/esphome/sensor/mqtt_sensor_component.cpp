@@ -15,15 +15,10 @@ namespace sensor {
 
 static const char *TAG = "sensor.mqtt";
 
-MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor)
-    : MQTTComponent(), sensor_(sensor) {
-
-}
+MQTTSensorComponent::MQTTSensorComponent(Sensor *sensor) : MQTTComponent(), sensor_(sensor) {}
 
 void MQTTSensorComponent::setup() {
-  this->sensor_->add_on_state_callback([this](float state) {
-    this->publish_state(state);
-  });
+  this->sensor_->add_on_state_callback([this](float state) { this->publish_state(state); });
 }
 
 void MQTTSensorComponent::dump_config() {
@@ -34,9 +29,7 @@ void MQTTSensorComponent::dump_config() {
   LOG_MQTT_COMPONENT(true, false)
 }
 
-std::string MQTTSensorComponent::component_type() const {
-  return "sensor";
-}
+std::string MQTTSensorComponent::component_type() const { return "sensor"; }
 
 uint32_t MQTTSensorComponent::get_expire_after() const {
   if (this->expire_after_.has_value()) {
@@ -50,15 +43,9 @@ uint32_t MQTTSensorComponent::get_expire_after() const {
     return this->sensor_->calculate_expected_filter_update_interval() * 5;
   }
 }
-void MQTTSensorComponent::set_expire_after(uint32_t expire_after) {
-  this->expire_after_ = expire_after;
-}
-void MQTTSensorComponent::disable_expire_after() {
-  this->expire_after_ = 0;
-}
-std::string MQTTSensorComponent::friendly_name() const {
-  return this->sensor_->get_name();
-}
+void MQTTSensorComponent::set_expire_after(uint32_t expire_after) { this->expire_after_ = expire_after; }
+void MQTTSensorComponent::disable_expire_after() { this->expire_after_ = 0; }
+std::string MQTTSensorComponent::friendly_name() const { return this->sensor_->get_name(); }
 void MQTTSensorComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   if (!this->sensor_->get_unit_of_measurement().empty())
     root["unit_of_measurement"] = this->sensor_->get_unit_of_measurement();
@@ -78,19 +65,15 @@ bool MQTTSensorComponent::send_initial_state() {
     return true;
   }
 }
-bool MQTTSensorComponent::is_internal() {
-  return this->sensor_->is_internal();
-}
+bool MQTTSensorComponent::is_internal() { return this->sensor_->is_internal(); }
 bool MQTTSensorComponent::publish_state(float value) {
   int8_t accuracy = this->sensor_->get_accuracy_decimals();
-  return this->publish(this->get_state_topic(), value_accuracy_to_string(value, accuracy));
+  return this->publish(this->get_state_topic_(), value_accuracy_to_string(value, accuracy));
 }
-std::string MQTTSensorComponent::unique_id() {
-  return this->sensor_->unique_id();
-}
+std::string MQTTSensorComponent::unique_id() { return this->sensor_->unique_id(); }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_SENSOR
+#endif  // USE_MQTT_SENSOR

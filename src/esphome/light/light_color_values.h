@@ -31,9 +31,11 @@ class LightColorValues {
   /// Construct the LightColorValues with all attributes enabled, but state set to 0.0
   LightColorValues();
 
-  LightColorValues(float state, float brightness, float red, float green, float blue, float white, float color_temperature = 1.0f);
+  LightColorValues(float state, float brightness, float red, float green, float blue, float white,
+                   float color_temperature = 1.0f);
 
-  LightColorValues(bool state, float brightness, float red, float green, float blue, float white, float color_temperature = 1.0f);
+  LightColorValues(bool state, float brightness, float red, float green, float blue, float white,
+                   float color_temperature = 1.0f);
 
   static LightColorValues from_binary(bool state);
 
@@ -79,7 +81,8 @@ class LightColorValues {
 
   void as_rgbw(float *red, float *green, float *blue, float *white) const;
 
-  void as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green, float *blue, float *cold_white, float *warm_white) const;
+  void as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green, float *blue,
+                float *cold_white, float *warm_white) const;
 
   void as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white, float *warm_white) const;
 
@@ -111,19 +114,19 @@ class LightColorValues {
   void set_color_temperature(float color_temperature);
 
  protected:
-  float state_; ///< ON / OFF, float for transition
+  float state_;  ///< ON / OFF, float for transition
   float brightness_;
   float red_;
   float green_;
   float blue_;
   float white_;
-  float color_temperature_; ///< Color Temperature in Mired
+  float color_temperature_;  ///< Color Temperature in Mired
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOME_LIGHT_LIGHT_COLOR_VALUES_H
+#endif  // ESPHOME_LIGHT_LIGHT_COLOR_VALUES_H

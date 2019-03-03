@@ -18,14 +18,15 @@ class HomeassistantBinarySensor : public BinarySensor, public Component {
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
+
  protected:
   std::string entity_id_;
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HOMEASSISTANT_BINARY_SENSOR
+#endif  // USE_HOMEASSISTANT_BINARY_SENSOR
 
-#endif //ESPHOME_HOMEASSISTANT_BINARY_SENSOR_H
+#endif  // ESPHOME_HOMEASSISTANT_BINARY_SENSOR_H

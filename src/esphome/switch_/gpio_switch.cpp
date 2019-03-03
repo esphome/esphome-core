@@ -11,14 +11,9 @@ namespace switch_ {
 
 static const char *TAG = "switch.gpio";
 
-GPIOSwitch::GPIOSwitch(const std::string &name, GPIOPin *pin)
-    : Switch(name), Component(), pin_(pin) {
+GPIOSwitch::GPIOSwitch(const std::string &name, GPIOPin *pin) : Switch(name), Component(), pin_(pin) {}
 
-}
-
-float GPIOSwitch::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
+float GPIOSwitch::get_setup_priority() const { return setup_priority::HARDWARE; }
 void GPIOSwitch::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GPIO Switch '%s'...", this->name_.c_str());
 
@@ -39,10 +34,16 @@ void GPIOSwitch::setup() {
   }
 
   // write state before setup
-  if (initial_state) this->turn_on(); else this->turn_off();
+  if (initial_state)
+    this->turn_on();
+  else
+    this->turn_off();
   this->pin_->setup();
   // write after setup again for other IOs
-  if (initial_state) this->turn_on(); else this->turn_off();
+  if (initial_state)
+    this->turn_on();
+  else
+    this->turn_off();
 }
 void GPIOSwitch::dump_config() {
   LOG_SWITCH("", "GPIO Switch", this);
@@ -87,15 +88,11 @@ void GPIOSwitch::write_state(bool state) {
   this->pin_->digital_write(state);
   this->publish_state(state);
 }
-void GPIOSwitch::set_restore_mode(GPIOSwitchRestoreMode restore_mode) {
-  this->restore_mode_ = restore_mode;
-}
-void GPIOSwitch::set_interlock(const std::vector<Switch *> &interlock) {
-  this->interlock_ = interlock;
-}
+void GPIOSwitch::set_restore_mode(GPIOSwitchRestoreMode restore_mode) { this->restore_mode_ = restore_mode; }
+void GPIOSwitch::set_interlock(const std::vector<Switch *> &interlock) { this->interlock_ = interlock; }
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_GPIO_SWITCH
+#endif  // USE_GPIO_SWITCH

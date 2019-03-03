@@ -22,7 +22,7 @@ class LightEffect {
   /// Initialize this LightEffect. Will be called once after creation.
   virtual void start();
 
-  virtual void start_();
+  virtual void start_internal();
 
   /// Called when this effect is about to be removed
   virtual void stop();
@@ -35,7 +35,7 @@ class LightEffect {
   /// Internal method called by the LightState when this light effect is registered in it.
   virtual void init();
 
-  void init_(LightState *state);
+  void init_internal(LightState *state);
 
  protected:
   LightState *state_{nullptr};
@@ -97,15 +97,16 @@ class FlickerLightEffect : public LightEffect {
 
   void set_alpha(float alpha);
   void set_intensity(float intensity);
+
  protected:
   float intensity_{0.015f};
   float alpha_{0.95f};
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOME_LIGHT_LIGHT_EFFECT_H
+#endif  // ESPHOME_LIGHT_LIGHT_EFFECT_H

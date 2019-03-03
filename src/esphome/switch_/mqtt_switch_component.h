@@ -19,7 +19,7 @@ namespace switch_ {
  */
 class MQTTSwitchComponent : public mqtt::MQTTComponent {
  public:
-  explicit MQTTSwitchComponent(switch_::Switch *switch_);
+  explicit MQTTSwitchComponent(switch_::Switch *a_switch);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -42,10 +42,10 @@ class MQTTSwitchComponent : public mqtt::MQTTComponent {
   Switch *switch_;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_SWITCH
+#endif  // USE_MQTT_SWITCH
 
-#endif //ESPHOME_SWITCH_MQTT_SWITCH_COMPONENT_H
+#endif  // ESPHOME_SWITCH_MQTT_SWITCH_COMPONENT_H

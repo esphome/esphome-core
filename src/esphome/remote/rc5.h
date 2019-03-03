@@ -25,7 +25,7 @@ class RC5Transmitter : public RemoteTransmitter {
   bool toggle_{false};
 };
 
-void encode_rc5(RemoteTransmitData *data, uint8_t data_, uint8_t command, bool toggle);
+void encode_rc5(RemoteTransmitData *data, uint8_t address, uint8_t command, bool toggle);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -48,10 +48,10 @@ class RC5Dumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_REMOTE_RC5_H
+#endif  // ESPHOME_REMOTE_RC5_H

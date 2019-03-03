@@ -23,10 +23,10 @@ class UARTSwitch : public Switch, public UARTDevice, public Component {
   std::vector<uint8_t> data_;
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_UART_SWITCH
+#endif  // USE_UART_SWITCH
 
-#endif //ESPHOME_UART_SWITCH_H
+#endif  // ESPHOME_UART_SWITCH_H

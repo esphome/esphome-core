@@ -41,10 +41,10 @@ class TemplateCover : public Cover, public Component {
   Trigger<> *prev_trigger_{nullptr};
 };
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TEMPLATE_COVER
+#endif  // USE_TEMPLATE_COVER
 
-#endif //ESPHOME_COVER_TEMPLATE_COVER_H
+#endif  // ESPHOME_COVER_TEMPLATE_COVER_H

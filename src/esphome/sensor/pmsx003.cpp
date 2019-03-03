@@ -38,9 +38,7 @@ void PMSX003Component::loop() {
     }
   }
 }
-float PMSX003Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float PMSX003Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 optional<bool> PMSX003Component::check_byte_() {
   uint8_t index = this->data_index_;
   uint8_t byte = this->data_[index];
@@ -70,8 +68,7 @@ optional<bool> PMSX003Component::check_byte_() {
     }
 
     if (!length_matches) {
-      ESP_LOGW(TAG, "PMSX003 length %u doesn't match. Are you using the correct PMSX003 type?",
-               payload_length);
+      ESP_LOGW(TAG, "PMSX003 length %u doesn't match. Are you using the correct PMSX003 type?", payload_length);
       return false;
     }
     return true;
@@ -103,8 +100,9 @@ void PMSX003Component::parse_data_() {
       uint16_t pm_1_0_concentration = this->get_16_bit_uint_(10);
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
       uint16_t pm_10_0_concentration = this->get_16_bit_uint_(14);
-      ESP_LOGD(TAG, "Got PM1.0 Concentration: %u µg/m^3, PM2.5 Concentration %u µg/m^3, PM10.0 Concentration: %u µg/m^3",
-          pm_1_0_concentration, pm_2_5_concentration, pm_10_0_concentration);
+      ESP_LOGD(TAG,
+               "Got PM1.0 Concentration: %u µg/m^3, PM2.5 Concentration %u µg/m^3, PM10.0 Concentration: %u µg/m^3",
+               pm_1_0_concentration, pm_2_5_concentration, pm_10_0_concentration);
       if (this->pm_1_0_sensor_ != nullptr)
         this->pm_1_0_sensor_->publish_state(pm_1_0_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
@@ -117,8 +115,8 @@ void PMSX003Component::parse_data_() {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
       float temperature = this->get_16_bit_uint_(24) / 10.0f;
       float humidity = this->get_16_bit_uint_(26) / 10.0f;
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%%",
-          pm_2_5_concentration, temperature, humidity);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%%", pm_2_5_concentration,
+               temperature, humidity);
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       if (this->temperature_sensor_ != nullptr)
@@ -169,9 +167,7 @@ PMSX003Sensor *PMSX003Component::make_humidity_sensor(const std::string &name) {
 PMSX003Sensor *PMSX003Component::make_formaldehyde_sensor(const std::string &name) {
   return this->formaldehyde_sensor_ = new PMSX003Sensor(name, PMSX003_SENSOR_TYPE_FORMALDEHYDE);
 }
-PMSX003Component::PMSX003Component(UARTComponent *parent, PMSX003Type type) : UARTDevice(parent), type_(type) {
-
-}
+PMSX003Component::PMSX003Component(UARTComponent *parent, PMSX003Type type) : UARTDevice(parent), type_(type) {}
 void PMSX003Component::dump_config() {
   ESP_LOGCONFIG(TAG, "PMSX003:");
   LOG_SENSOR("  ", "PM1.0", this->pm_1_0_sensor_);
@@ -225,13 +221,10 @@ int8_t PMSX003Sensor::accuracy_decimals() {
 
   return 0;
 }
-PMSX003Sensor::PMSX003Sensor(const std::string &name, PMSX003SensorType type)
-  : Sensor(name), type_(type) {
+PMSX003Sensor::PMSX003Sensor(const std::string &name, PMSX003SensorType type) : Sensor(name), type_(type) {}
 
-}
-
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PMSX003
+#endif  // USE_PMSX003

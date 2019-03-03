@@ -34,15 +34,15 @@ void PN532Component::setup() {
   delay(10);
 
   // Send dummy command to sync up with PN532 but ignore result
-  this->buffer_[0] = 0x02; // GET_FIRMWARE_VERSION
+  this->buffer_[0] = 0x02;  // GET_FIRMWARE_VERSION
   this->pn532_write_command_check_ack_(1, true);
 
   // setup secure access module
   this->buffer_[0] = 0x14;
-  this->buffer_[1] = 0x01; // normal mode
+  this->buffer_[1] = 0x01;  // normal mode
   // The length of a scan as a multiple of 50ms
   this->buffer_[2] = std::min(255u, this->update_interval_ / 50);
-  this->buffer_[3] = 0x01; // use IRQ pin, actually we don't need it but can't hurt either
+  this->buffer_[3] = 0x01;  // use IRQ pin, actually we don't need it but can't hurt either
 
   if (!this->pn532_write_command_check_ack_(4)) {
     this->error_code_ = WRITING_SAM_COMMAND_FAILED;
@@ -59,9 +59,9 @@ void PN532Component::setup() {
 }
 
 void PN532Component::update() {
-  this->buffer_[0] = 0x4A; // INLISTPASSIVETARGET
-  this->buffer_[1] = 0x01; // max 1 cards at once
-  this->buffer_[2] = 0x00; // Baud rate ISO14443A
+  this->buffer_[0] = 0x4A;  // INLISTPASSIVETARGET
+  this->buffer_[1] = 0x01;  // max 1 cards at once
+  this->buffer_[2] = 0x00;  // Baud rate ISO14443A
   if (!this->pn532_write_command_check_ack_(3)) {
     ESP_LOGW(TAG, "Requesting TAG read failed!");
     this->status_set_warning();
@@ -71,7 +71,7 @@ void PN532Component::update() {
   this->requested_read_ = true;
 }
 void PN532Component::loop() {
-  if (!this->requested_read_ || !this->is_ready())
+  if (!this->requested_read_ || !this->is_ready_())
     return;
 
   this->pn532_read_data_(20);
@@ -117,7 +117,7 @@ void PN532Component::loop() {
   }
 }
 
-bool PN532BinarySensor::process(uint8_t *data, uint8_t len) {
+bool PN532BinarySensor::process(const uint8_t *data, uint8_t len) {
   if (len != this->uid_.size())
     return false;
 
@@ -131,9 +131,7 @@ bool PN532BinarySensor::process(uint8_t *data, uint8_t len) {
   this->publish_state(false);
   return true;
 }
-float PN532Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float PN532Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void PN532Component::pn532_write_command_(uint8_t len) {
   this->enable();
 
@@ -170,7 +168,7 @@ bool PN532Component::pn532_write_command_check_ack_(uint8_t len, bool ignore) {
   this->pn532_write_command_(len);
 
   uint32_t start_time = millis();
-  while (!this->is_ready()) {
+  while (!this->is_ready_()) {
     if (millis() - start_time > 100) {
       if (!ignore) {
         ESP_LOGE(TAG, "Timed out waiting for ACK from PN532!");
@@ -180,7 +178,7 @@ bool PN532Component::pn532_write_command_check_ack_(uint8_t len, bool ignore) {
     yield();
   }
 
-  if (!this->read_ack()) {
+  if (!this->read_ack_()) {
     if (!ignore) {
       ESP_LOGE(TAG, "Invalid ACK frame received from PN532!");
     }
@@ -214,7 +212,7 @@ PN532Trigger *PN532Component::make_trigger() {
   this->triggers_.push_back(trigger);
   return trigger;
 }
-bool PN532Component::is_ready() {
+bool PN532Component::is_ready_() {
   this->enable();
   // Mark we're reading state
   this->write_byte(0x02);
@@ -225,7 +223,7 @@ bool PN532Component::is_ready() {
   }
   return ret;
 }
-bool PN532Component::read_ack() {
+bool PN532Component::read_ack_() {
   ESP_LOGVV(TAG, "Reading ACK...");
   this->enable();
   // Mark we're reading
@@ -242,17 +240,14 @@ bool PN532Component::read_ack() {
   return matches;
 }
 PN532Component::PN532Component(SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
-    : PollingComponent(update_interval), SPIDevice(parent, cs) {
+    : PollingComponent(update_interval), SPIDevice(parent, cs) {}
 
-}
-
-bool PN532Component::msb_first() {
-  return false;
-}
+bool PN532Component::is_device_msb_first() { return false; }
 void PN532Component::dump_config() {
   ESP_LOGCONFIG(TAG, "PN532:");
   switch (this->error_code_) {
-    case NONE:break;
+    case NONE:
+      break;
     case WRITING_SAM_COMMAND_FAILED:
       ESP_LOGE(TAG, "Writing SAM command failed!");
       break;
@@ -281,8 +276,8 @@ void PN532Trigger::process(uint8_t *uid, uint8_t uid_length) {
   this->trigger(std::string(buf));
 }
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_PN532
+#endif  // USE_PN532

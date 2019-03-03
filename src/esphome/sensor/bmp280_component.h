@@ -14,19 +14,19 @@ namespace sensor {
 
 /// Internal struct storing the calibration values of an BMP280.
 struct BMP280CalibrationData {
-  uint16_t t1; // 0x88 - 0x89
-  int16_t t2;  // 0x8A - 0x8B
-  int16_t t3;  // 0x8C - 0x8D
+  uint16_t t1;  // 0x88 - 0x89
+  int16_t t2;   // 0x8A - 0x8B
+  int16_t t3;   // 0x8C - 0x8D
 
-  uint16_t p1; // 0x8E - 0x8F
-  int16_t p2;  // 0x90 - 0x91
-  int16_t p3;  // 0x92 - 0x93
-  int16_t p4;  // 0x94 - 0x95
-  int16_t p5;  // 0x96 - 0x97
-  int16_t p6;  // 0x98 - 0x99
-  int16_t p7;  // 0x9A - 0x9B
-  int16_t p8;  // 0x9C - 0x9D
-  int16_t p9;  // 0x9E - 0x9F
+  uint16_t p1;  // 0x8E - 0x8F
+  int16_t p2;   // 0x90 - 0x91
+  int16_t p3;   // 0x92 - 0x93
+  int16_t p4;   // 0x94 - 0x95
+  int16_t p5;   // 0x96 - 0x97
+  int16_t p6;   // 0x98 - 0x99
+  int16_t p7;   // 0x9A - 0x9B
+  int16_t p8;   // 0x9C - 0x9D
+  int16_t p9;   // 0x9E - 0x9F
 };
 
 /** Enum listing all Oversampling values for the BMP280.
@@ -61,8 +61,7 @@ using BMP280PressureSensor = sensor::EmptyPollingParentSensor<1, ICON_GAUGE, UNI
 /// This class implements support for the BMP280 Temperature+Pressure i2c sensor.
 class BMP280Component : public PollingComponent, public I2CDevice {
  public:
-  BMP280Component(I2CComponent *parent,
-                  const std::string &temperature_name, const std::string &pressure_name,
+  BMP280Component(I2CComponent *parent, const std::string &temperature_name, const std::string &pressure_name,
                   uint8_t address = 0x77, uint32_t update_interval = 60000);
 
   /// Set the oversampling value for the temperature sensor. Default is 16x.
@@ -87,9 +86,9 @@ class BMP280Component : public PollingComponent, public I2CDevice {
   float read_temperature_(int32_t *t_fine);
   /// Read the pressure value in hPa using the provided t_fine value.
   float read_pressure_(int32_t t_fine);
-  uint8_t read_u8(uint8_t register_);
-  uint16_t read_u16_le(uint8_t register_);
-  int16_t read_s16_le(uint8_t register_);
+  uint8_t read_u8_(uint8_t a_register);
+  uint16_t read_u16_le_(uint8_t a_register);
+  int16_t read_s16_le_(uint8_t a_register);
 
   BMP280CalibrationData calibration_;
   BMP280Oversampling temperature_oversampling_{BMP280_OVERSAMPLING_16X};
@@ -104,10 +103,10 @@ class BMP280Component : public PollingComponent, public I2CDevice {
   } error_code_{NONE};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BMP280
+#endif  // USE_BMP280
 
-#endif //ESPHOME_SENSOR_BMP280_COMPONENT_H
+#endif  // ESPHOME_SENSOR_BMP280_COMPONENT_H

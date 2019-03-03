@@ -19,6 +19,6 @@
 #undef max
 #endif
 
-#include "math.h"
+#include "math.h"  // NOLINT
 
-#endif //ESPHOME_ESPMATH_H
+#endif  // ESPHOME_ESPMATH_H

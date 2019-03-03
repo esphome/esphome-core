@@ -33,9 +33,8 @@ class APIBuffer {
   size_t begin_nested(uint32_t field);
   void end_nested(size_t begin_index);
 
-  void encode_field_(uint32_t field, uint32_t type);
-  void encode_varint_(uint32_t value);
-  uint32_t varint_length_(uint32_t value);
+  void encode_field_raw(uint32_t field, uint32_t type);
+  void encode_varint_raw(uint32_t value);
 
  protected:
   std::vector<uint8_t> *buffer_;
@@ -73,7 +72,7 @@ class ComponentIterator {
   virtual bool on_sensor(sensor::Sensor *sensor) = 0;
 #endif
 #ifdef USE_SWITCH
-  virtual bool on_switch(switch_::Switch *switch_) = 0;
+  virtual bool on_switch(switch_::Switch *a_switch) = 0;
 #endif
 #ifdef USE_TEXT_SENSOR
   virtual bool on_text_sensor(text_sensor::TextSensor *text_sensor) = 0;
@@ -114,10 +113,10 @@ class ComponentIterator {
   APIServer *server_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_UTIL_H
+#endif  // ESPHOME_API_UTIL_H

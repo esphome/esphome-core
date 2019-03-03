@@ -48,10 +48,10 @@ class SSD1306 : public PollingComponent, public DisplayBuffer {
 
   bool is_sh1106_() const;
 
-  void draw_absolute_pixel_internal_(int x, int y, int color) override;
+  void draw_absolute_pixel_internal(int x, int y, int color) override;
 
-  int get_height_internal_() override;
-  int get_width_internal_() override;
+  int get_height_internal() override;
+  int get_width_internal() override;
   size_t get_buffer_length_();
   const char *model_str_();
 
@@ -73,8 +73,8 @@ class SPISSD1306 : public SSD1306, public SPIDevice {
   void command(uint8_t value) override;
 
   void write_display_data() override;
-  bool msb_first() override;
-  bool high_speed() override;
+  bool is_device_msb_first() override;
+  bool is_device_high_speed() override;
 
   GPIOPin *dc_pin_;
 };
@@ -86,21 +86,19 @@ class I2CSSD1306 : public SSD1306, public I2CDevice {
   I2CSSD1306(I2CComponent *parent, uint32_t update_interval = 1000);
   void setup() override;
   void dump_config() override;
+
  protected:
   void command(uint8_t value) override;
   void write_display_data() override;
 
-  enum ErrorCode {
-    NONE = 0,
-    COMMUNICATION_FAILED
-  } error_code_{NONE};
+  enum ErrorCode { NONE = 0, COMMUNICATION_FAILED } error_code_{NONE};
 };
 #endif
 
-} // namespace display
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SSD1306
+#endif  // USE_SSD1306
 
-#endif //ESPHOME_SSD_1306_H
+#endif  // ESPHOME_SSD_1306_H

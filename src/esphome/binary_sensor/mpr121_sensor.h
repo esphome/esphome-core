@@ -54,7 +54,7 @@ enum {
 class MPR121Channel : public binary_sensor::BinarySensor {
  public:
   MPR121Channel(const std::string &name, int channel_num = 0);
-  void process(uint16_t *data, uint16_t *last_data);
+  void process(const uint16_t *data, const uint16_t *last_data);
 
  protected:
   int channel_ = 0;

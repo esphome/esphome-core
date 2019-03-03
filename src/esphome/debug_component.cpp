@@ -8,7 +8,7 @@
 #include <string>
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <rom/rtc.h>
+#include <rom/rtc.h>
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -17,9 +17,9 @@ static const char *TAG = "debug";
 
 void DebugComponent::setup() {
 #ifndef ESPHOME_LOG_HAS_DEBUG
-    ESP_LOGE(TAG, "Debug Component requires debug log level!");
-    this->status_set_error();
-    return;
+  ESP_LOGE(TAG, "Debug Component requires debug log level!");
+  this->status_set_error();
+  return;
 #endif
 
   ESP_LOGD(TAG, "ESPHome Core version %s", ESPHOME_VERSION);
@@ -28,28 +28,42 @@ void DebugComponent::setup() {
 
   const char *flash_mode;
   switch (ESP.getFlashChipMode()) {
-    case FM_QIO: flash_mode = "QIO"; break;
-    case FM_QOUT: flash_mode = "QOUT"; break;
-    case FM_DIO: flash_mode = "DIO"; break;
-    case FM_DOUT: flash_mode = "DOUT"; break;
+    case FM_QIO:
+      flash_mode = "QIO";
+      break;
+    case FM_QOUT:
+      flash_mode = "QOUT";
+      break;
+    case FM_DIO:
+      flash_mode = "DIO";
+      break;
+    case FM_DOUT:
+      flash_mode = "DOUT";
+      break;
 #ifdef ARDUINO_ARCH_ESP32
-    case FM_FAST_READ: flash_mode = "FAST_READ"; break;
-    case FM_SLOW_READ: flash_mode = "SLOW_READ"; break;
+    case FM_FAST_READ:
+      flash_mode = "FAST_READ";
+      break;
+    case FM_SLOW_READ:
+      flash_mode = "SLOW_READ";
+      break;
 #endif
-    default: flash_mode = "UNKNOWN";
+    default:
+      flash_mode = "UNKNOWN";
   }
-  ESP_LOGD(TAG, "Flash Chip: Size=%ukB Speed=%uMHz Mode=%s",
-           ESP.getFlashChipSize() / 1024,
-           ESP.getFlashChipSpeed() / 1000000,
-           flash_mode);
+  ESP_LOGD(TAG, "Flash Chip: Size=%ukB Speed=%uMHz Mode=%s", ESP.getFlashChipSize() / 1024,
+           ESP.getFlashChipSpeed() / 1000000, flash_mode);
 
 #ifdef ARDUINO_ARCH_ESP32
   esp_chip_info_t info;
   esp_chip_info(&info);
   const char *model;
   switch (info.model) {
-    case CHIP_ESP32: model = "ESP32"; break;
-    default: model = "UNKNOWN";
+    case CHIP_ESP32:
+      model = "ESP32";
+      break;
+    default:
+      model = "UNKNOWN";
   }
   std::string features;
   if (info.features & CHIP_FEATURE_EMB_FLASH) {
@@ -70,8 +84,8 @@ void DebugComponent::setup() {
   }
   if (info.features)
     features += "Other:" + uint64_to_string(info.features);
-  ESP_LOGD(TAG, "Chip: Model=%s, Features=%s Cores=%u, Revision=%u",
-           model, features.c_str(), info.cores, info.revision);
+  ESP_LOGD(TAG, "Chip: Model=%s, Features=%s Cores=%u, Revision=%u", model, features.c_str(), info.cores,
+           info.revision);
 
   ESP_LOGD(TAG, "ESP-IDF Version: %s", esp_get_idf_version());
 
@@ -80,40 +94,96 @@ void DebugComponent::setup() {
 
   const char *reset_reason;
   switch (rtc_get_reset_reason(0)) {
-    case POWERON_RESET: reset_reason = "Power On Reset"; break;
-    case SW_RESET: reset_reason = "Software Reset Digital Core"; break;
-    case OWDT_RESET: reset_reason = "Watch Dog Reset Digital Core"; break;
-    case DEEPSLEEP_RESET: reset_reason = "Deep Sleep Reset Digital Core"; break;
-    case SDIO_RESET: reset_reason = "SLC Module Reset Digital Core"; break;
-    case TG0WDT_SYS_RESET: reset_reason = "Timer Group 0 Watch Dog Reset Digital Core"; break;
-    case TG1WDT_SYS_RESET: reset_reason = "Timer Group 1 Watch Dog Reset Digital Core"; break;
-    case RTCWDT_SYS_RESET: reset_reason = "RTC Watch Dog Reset Digital Core"; break;
-    case INTRUSION_RESET: reset_reason = "Intrusion Reset CPU"; break;
-    case TGWDT_CPU_RESET: reset_reason = "Timer Group Reset CPU"; break;
-    case SW_CPU_RESET: reset_reason = "Software Reset CPU"; break;
-    case RTCWDT_CPU_RESET: reset_reason = "RTC Watch Dog Reset CPU"; break;
-    case EXT_CPU_RESET: reset_reason = "External CPU Reset"; break;
-    case RTCWDT_BROWN_OUT_RESET: reset_reason = "Voltage Unstable Reset"; break;
-    case RTCWDT_RTC_RESET: reset_reason = "RTC Watch Dog Reset Digital Core And RTC Module"; break;
-    default: reset_reason = "Unknown Reset Reason";
+    case POWERON_RESET:
+      reset_reason = "Power On Reset";
+      break;
+    case SW_RESET:
+      reset_reason = "Software Reset Digital Core";
+      break;
+    case OWDT_RESET:
+      reset_reason = "Watch Dog Reset Digital Core";
+      break;
+    case DEEPSLEEP_RESET:
+      reset_reason = "Deep Sleep Reset Digital Core";
+      break;
+    case SDIO_RESET:
+      reset_reason = "SLC Module Reset Digital Core";
+      break;
+    case TG0WDT_SYS_RESET:
+      reset_reason = "Timer Group 0 Watch Dog Reset Digital Core";
+      break;
+    case TG1WDT_SYS_RESET:
+      reset_reason = "Timer Group 1 Watch Dog Reset Digital Core";
+      break;
+    case RTCWDT_SYS_RESET:
+      reset_reason = "RTC Watch Dog Reset Digital Core";
+      break;
+    case INTRUSION_RESET:
+      reset_reason = "Intrusion Reset CPU";
+      break;
+    case TGWDT_CPU_RESET:
+      reset_reason = "Timer Group Reset CPU";
+      break;
+    case SW_CPU_RESET:
+      reset_reason = "Software Reset CPU";
+      break;
+    case RTCWDT_CPU_RESET:
+      reset_reason = "RTC Watch Dog Reset CPU";
+      break;
+    case EXT_CPU_RESET:
+      reset_reason = "External CPU Reset";
+      break;
+    case RTCWDT_BROWN_OUT_RESET:
+      reset_reason = "Voltage Unstable Reset";
+      break;
+    case RTCWDT_RTC_RESET:
+      reset_reason = "RTC Watch Dog Reset Digital Core And RTC Module";
+      break;
+    default:
+      reset_reason = "Unknown Reset Reason";
   }
   ESP_LOGD(TAG, "Reset Reason: %s", reset_reason);
 
   const char *wakeup_reason;
   switch (rtc_get_wakeup_cause()) {
-    case NO_SLEEP: wakeup_reason = "No Sleep"; break;
-    case EXT_EVENT0_TRIG: wakeup_reason = "External Event 0"; break;
-    case EXT_EVENT1_TRIG: wakeup_reason = "External Event 1"; break;
-    case GPIO_TRIG: wakeup_reason = "GPIO"; break;
-    case TIMER_EXPIRE: wakeup_reason = "Wakeup Timer"; break;
-    case SDIO_TRIG: wakeup_reason = "SDIO"; break;
-    case MAC_TRIG: wakeup_reason = "MAC"; break;
-    case UART0_TRIG: wakeup_reason = "UART0"; break;
-    case UART1_TRIG: wakeup_reason = "UART1"; break;
-    case TOUCH_TRIG: wakeup_reason = "Touch"; break;
-    case SAR_TRIG: wakeup_reason = "SAR"; break;
-    case BT_TRIG: wakeup_reason = "BT"; break;
-    default: wakeup_reason = "Unknown";
+    case NO_SLEEP:
+      wakeup_reason = "No Sleep";
+      break;
+    case EXT_EVENT0_TRIG:
+      wakeup_reason = "External Event 0";
+      break;
+    case EXT_EVENT1_TRIG:
+      wakeup_reason = "External Event 1";
+      break;
+    case GPIO_TRIG:
+      wakeup_reason = "GPIO";
+      break;
+    case TIMER_EXPIRE:
+      wakeup_reason = "Wakeup Timer";
+      break;
+    case SDIO_TRIG:
+      wakeup_reason = "SDIO";
+      break;
+    case MAC_TRIG:
+      wakeup_reason = "MAC";
+      break;
+    case UART0_TRIG:
+      wakeup_reason = "UART0";
+      break;
+    case UART1_TRIG:
+      wakeup_reason = "UART1";
+      break;
+    case TOUCH_TRIG:
+      wakeup_reason = "Touch";
+      break;
+    case SAR_TRIG:
+      wakeup_reason = "SAR";
+      break;
+    case BT_TRIG:
+      wakeup_reason = "BT";
+      break;
+    default:
+      wakeup_reason = "Unknown";
   }
   ESP_LOGD(TAG, "Wakeup Reason: %s", wakeup_reason);
 #endif
@@ -138,9 +208,9 @@ void DebugComponent::loop() {
   }
 }
 float DebugComponent::get_setup_priority() const {
-  return setup_priority::LATE; // display debug info via MQTT
+  return setup_priority::LATE;  // display debug info via MQTT
 }
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DEBUG_COMPONENT
+#endif  // USE_DEBUG_COMPONENT

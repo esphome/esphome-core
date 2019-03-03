@@ -13,18 +13,48 @@ namespace sensor {
 
 static const char *TAG = "sensor.ultrasonic";
 
-UltrasonicSensorComponent::UltrasonicSensorComponent(const std::string &name,
-                                                     GPIOPin *trigger_pin, GPIOPin *echo_pin,
+UltrasonicSensorComponent::UltrasonicSensorComponent(const std::string &name, GPIOPin *trigger_pin, GPIOPin *echo_pin,
                                                      uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval),
-      trigger_pin_(trigger_pin), echo_pin_(echo_pin) {
-
-}
+    : PollingSensorComponent(name, update_interval), trigger_pin_(trigger_pin), echo_pin_(echo_pin) {}
 void UltrasonicSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Ultrasonic Sensor...");
   this->echo_pin_->setup();
   this->trigger_pin_->setup();
   this->trigger_pin_->digital_write(false);
+}
+void ICACHE_RAM_ATTR UltrasonicSensorStore::gpio_intr(UltrasonicSensorStore *arg) {
+  if (arg->has_echo || !arg->has_triggered)
+    // already have echo or no trigger
+    return;
+
+  arg->has_echo = true;
+  arg->echo_at = micros();
+}
+void UltrasonicSensorComponent::update() {
+  this->trigger_pin_->digital_write(true);
+  delayMicroseconds(this->pulse_time_us_);
+  this->trigger_pin_->digital_write(false);
+
+  this->store_.has_triggered = true;
+  this->store_.has_echo = false;
+  this->store_.triggered_at = micros();
+}
+void UltrasonicSensorComponent::loop() {
+  if (this->store_.has_triggered && this->store_.has_echo) {
+    this->store_.has_triggered = false;
+    uint32_t d_us = this->store_.echo_at - this->store_.triggered_at;
+
+    float result = us_to_m(d_us);
+    ESP_LOGD(TAG, "Got distance: %.1f m", result);
+    this->publish_state(result);
+  }
+  uint32_t now = micros();
+  if (this->store_.has_triggered && !this->store_.has_echo && now - this->store_.triggered_at > this->timeout_us_) {
+    // timeout
+    this->store_.has_triggered = false;
+    ESP_LOGD(TAG, "Distance measurement timed out!");
+    this->publish_state(NAN);
+  }
 }
 void UltrasonicSensorComponent::dump_config() {
   LOG_SENSOR("", "Ultrasonic Sensor", this);
@@ -34,67 +64,21 @@ void UltrasonicSensorComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "    Timeout: %u µs", this->timeout_us_);
   LOG_UPDATE_INTERVAL(this);
 }
-void UltrasonicSensorComponent::update() {
-  this->trigger_pin_->digital_write(true);
-  delayMicroseconds(this->pulse_time_us_);
-  this->trigger_pin_->digital_write(false);
-  disable_interrupts();
-  uint32_t time = pulseIn(this->echo_pin_->get_pin(),
-                          uint8_t(!this->echo_pin_->is_inverted()),
-                          this->timeout_us_);
-  enable_interrupts();
-
-  float result = 0;
-  if (time == 0)
-    result = NAN;
-  else
-    result = us_to_m(time);
-
-  ESP_LOGV(TAG, "Echo took %uµs (%fm)", time, result);
-
-  this->publish_state(result);
-}
-uint32_t UltrasonicSensorComponent::get_timeout_us() const {
-  return this->timeout_us_;
-}
-void UltrasonicSensorComponent::set_timeout_us(uint32_t timeout_us) {
-  this->timeout_us_ = timeout_us;
-}
-void UltrasonicSensorComponent::set_timeout_m(float timeout_m) {
-  this->set_timeout_us(m_to_us(timeout_m));
-}
 float UltrasonicSensorComponent::us_to_m(uint32_t us) {
   // The ultrasonic sound wave needs to travel both ways.
-  return (SPEED_OF_SOUND_M_PER_US/2.0f) * us;
+  return (SPEED_OF_SOUND_M_PER_US / 2.0f) * us;
 }
-uint32_t UltrasonicSensorComponent::m_to_us(float m) {
-  // The ultrasonic sound wave needs to travel both ways.
-  return static_cast<uint32_t>(m / (SPEED_OF_SOUND_M_PER_US/2.0f));
-}
-float UltrasonicSensorComponent::get_timeout_m() const {
-  return us_to_m(this->get_timeout_us());
-}
-float UltrasonicSensorComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
-uint32_t UltrasonicSensorComponent::get_pulse_time_us() const {
-  return this->pulse_time_us_;
-}
-void UltrasonicSensorComponent::set_pulse_time_us(uint32_t pulse_time_us) {
-  this->pulse_time_us_ = pulse_time_us;
-}
-std::string UltrasonicSensorComponent::unit_of_measurement() {
-  return "m";
-}
-std::string UltrasonicSensorComponent::icon() {
-  return "mdi:arrow-expand-vertical";
-}
+float UltrasonicSensorComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
+void UltrasonicSensorComponent::set_pulse_time_us(uint32_t pulse_time_us) { this->pulse_time_us_ = pulse_time_us; }
+std::string UltrasonicSensorComponent::unit_of_measurement() { return "m"; }
+std::string UltrasonicSensorComponent::icon() { return "mdi:arrow-expand-vertical"; }
 int8_t UltrasonicSensorComponent::accuracy_decimals() {
-  return 2; // cm precision
+  return 2;  // cm precision
 }
+void UltrasonicSensorComponent::set_timeout_us(uint32_t timeout_us) { this->timeout_us_ = timeout_us; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ULTRASONIC_SENSOR
+#endif  // USE_ULTRASONIC_SENSOR

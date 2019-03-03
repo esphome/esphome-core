@@ -56,13 +56,13 @@ class MQTTSensorComponent : public mqtt::MQTTComponent {
   std::string unique_id() override;
 
   Sensor *sensor_;
-  optional<uint32_t> expire_after_; // Override the expire after advertised to Home Assistant
+  optional<uint32_t> expire_after_;  // Override the expire after advertised to Home Assistant
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_SENSOR
+#endif  // USE_MQTT_SENSOR
 
-#endif //ESPHOME_SENSOR_MQTT_SENSOR_COMPONENT_H
+#endif  // ESPHOME_SENSOR_MQTT_SENSOR_COMPONENT_H

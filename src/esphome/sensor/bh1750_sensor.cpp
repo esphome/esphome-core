@@ -18,8 +18,7 @@ static const char *TAG = "sensor.bh1750";
 
 static const uint8_t BH1750_COMMAND_POWER_ON = 0b00000001;
 
-BH1750Sensor::BH1750Sensor(I2CComponent *parent, const std::string &name,
-                           uint8_t address, uint32_t update_interval)
+BH1750Sensor::BH1750Sensor(I2CComponent *parent, const std::string &name, uint8_t address, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), I2CDevice(parent, address) {}
 
 void BH1750Sensor::setup() {
@@ -38,10 +37,18 @@ void BH1750Sensor::dump_config() {
 
   const char *resolution_s;
   switch (this->resolution_) {
-    case BH1750_RESOLUTION_0P5_LX: resolution_s = "0.5"; break;
-    case BH1750_RESOLUTION_1P0_LX: resolution_s = "1"; break;
-    case BH1750_RESOLUTION_4P0_LX: resolution_s = "4"; break;
-    default: resolution_s = "Unknown"; break;
+    case BH1750_RESOLUTION_0P5_LX:
+      resolution_s = "0.5";
+      break;
+    case BH1750_RESOLUTION_1P0_LX:
+      resolution_s = "1";
+      break;
+    case BH1750_RESOLUTION_4P0_LX:
+      resolution_s = "4";
+      break;
+    default:
+      resolution_s = "Unknown";
+      break;
   }
   ESP_LOGCONFIG(TAG, "  Resolution: %s", resolution_s);
   LOG_UPDATE_INTERVAL(this);
@@ -63,25 +70,15 @@ void BH1750Sensor::update() {
       break;
   }
 
-  this->set_timeout("illuminance", wait, [this]() {
-    this->read_data_();
-  });
+  this->set_timeout("illuminance", wait, [this]() { this->read_data_(); });
 }
-std::string BH1750Sensor::unit_of_measurement() {
-  return UNIT_LX;
-}
-std::string BH1750Sensor::icon() {
-  return ICON_BRIGHTNESS_5;
-}
-int8_t BH1750Sensor::accuracy_decimals() {
-  return 1;
-}
-float BH1750Sensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+std::string BH1750Sensor::unit_of_measurement() { return UNIT_LX; }
+std::string BH1750Sensor::icon() { return ICON_BRIGHTNESS_5; }
+int8_t BH1750Sensor::accuracy_decimals() { return 1; }
+float BH1750Sensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void BH1750Sensor::read_data_() {
   uint16_t raw_value;
-  if (!this->parent_->receive_16_(this->address_, &raw_value, 1)) {
+  if (!this->parent_->raw_receive_16(this->address_, &raw_value, 1)) {
     this->status_set_warning();
     return;
   }
@@ -91,12 +88,10 @@ void BH1750Sensor::read_data_() {
   this->publish_state(lx);
   this->status_clear_warning();
 }
-void BH1750Sensor::set_resolution(BH1750Resolution resolution) {
-  this->resolution_ = resolution;
-}
+void BH1750Sensor::set_resolution(BH1750Resolution resolution) { this->resolution_ = resolution; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BH1750
+#endif  // USE_BH1750

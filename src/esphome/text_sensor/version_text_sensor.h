@@ -22,10 +22,10 @@ class VersionTextSensor : public TextSensor, public Component {
   std::string unique_id() override;
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_VERSION_TEXT_SENSOR
+#endif  // USE_VERSION_TEXT_SENSOR
 
-#endif //ESPHOME_VERSION_TEXT_SENSOR_H
+#endif  // ESPHOME_VERSION_TEXT_SENSOR_H
