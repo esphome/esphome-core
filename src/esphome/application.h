@@ -64,6 +64,7 @@
 #include "esphome/mqtt/mqtt_client_component.h"
 #include "esphome/mqtt/mqtt_component.h"
 #include "esphome/output/binary_output.h"
+#include "esphome/output/copy_output.h"
 #include "esphome/output/custom_output.h"
 #include "esphome/output/esp8266_pwm_output.h"
 #include "esphome/output/float_output.h"
