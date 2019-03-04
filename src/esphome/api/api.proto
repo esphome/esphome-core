@@ -356,3 +356,16 @@ message ExecuteServiceRequest {
   fixed32 key = 1;
   repeated ExecuteServiceArgument args = 2;
 }
+
+message ListEntitiesCameraResponse {
+  string object_id = 1;
+  fixed32 key = 2;
+  string name = 3;
+  string unique_id = 4;
+}
+
+message CameraImageResponse {
+  fixed32 key = 1;
+  bytes data = 2;
+  bool done = 3;
+}

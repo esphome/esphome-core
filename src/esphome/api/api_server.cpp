@@ -53,6 +53,14 @@ void APIServer::setup() {
   });
 
   this->last_connected_ = millis();
+
+  if (global_esp32_camera != nullptr) {
+    global_esp32_camera->add_image_callback([this](std::shared_ptr<CameraImage> image) {
+      for (auto *c : this->clients_)
+        if (!c->remove_)
+          c->send_camera_state(image);
+    });
+  }
 }
 void APIServer::loop() {
   // Partition clients into remove and active
@@ -714,6 +722,31 @@ void APIConnection::loop() {
     this->sent_ping_ = true;
     this->send_ping_request();
   }
+
+#ifdef USE_ESP32_CAMERA
+  if (this->image_reader_.available()) {
+    uint32_t space = this->client_->space();
+    // reserve 15 bytes for metadata, and at least 64 bytes of data
+    if (space >= 15 + 64) {
+      uint32_t to_send = std::min(space - 15, this->image_reader_.available());
+      auto buffer = this->get_buffer();
+      // fixed32 key = 1;
+      buffer.encode_fixed32(1, global_esp32_camera->get_object_id_hash());
+      // bytes data = 2;
+      buffer.encode_bytes(2, this->image_reader_.peek_data_buffer(), to_send);
+      // bool done = 3;
+      bool done = this->image_reader_.available() == to_send;
+      buffer.encode_bool(3, done);
+      bool success = this->send_buffer(APIMessageType::CAMERA_IMAGE_RESPONSE);
+      if (success) {
+        this->image_reader_.consume_data(to_send);
+      }
+      if (success && done) {
+        this->image_reader_.return_image();
+      }
+    }
+  }
+#endif
 }
 
 #ifdef USE_BINARY_SENSOR
@@ -1012,6 +1045,16 @@ APIBuffer APIConnection::get_buffer() {
 }
 #ifdef USE_HOMEASSISTANT_TIME
 void APIConnection::send_time_request() { this->send_empty_message(APIMessageType::GET_TIME_REQUEST); }
+#endif
+
+#ifdef USE_ESP32_CAMERA
+void APIConnection::send_camera_state(std::shared_ptr<CameraImage> image) {
+  if (!this->state_subscription_)
+    return;
+  if (this->image_reader_.available())
+    return;
+  this->image_reader_.set_image(image);
+}
 #endif
 
 }  // namespace api

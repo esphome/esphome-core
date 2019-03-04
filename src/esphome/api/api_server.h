@@ -64,6 +64,9 @@ class APIConnection {
 #ifdef USE_TEXT_SENSOR
   bool send_text_sensor_state(text_sensor::TextSensor *text_sensor, std::string state);
 #endif
+#ifdef USE_ESP32_CAMERA
+  void send_camera_state(std::shared_ptr<CameraImage> image);
+#endif
   bool send_log_message(int level, const char *tag, const char *line);
   bool send_disconnect_request(const char *reason);
   bool send_ping_request();
@@ -128,6 +131,9 @@ class APIConnection {
   std::string client_info_;
   ListEntitiesIterator list_entities_iterator_;
   InitialStateIterator initial_state_iterator_;
+#ifdef USE_ESP32_CAMERA
+  CameraImageReader image_reader_;
+#endif
 
   bool state_subscription_{false};
   int log_subscription_{ESPHOME_LOG_LEVEL_NONE};

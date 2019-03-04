@@ -34,6 +34,9 @@ void APIBuffer::encode_bool(uint32_t field, bool value) {
 void APIBuffer::encode_string(uint32_t field, const std::string &value) {
   this->encode_string(field, value.data(), value.size());
 }
+void APIBuffer::encode_bytes(uint32_t field, const uint8_t *data, size_t len) {
+  this->encode_string(field, reinterpret_cast<const char *>(data), len);
+}
 void APIBuffer::encode_string(uint32_t field, const char *string, size_t len) {
   if (len == 0)
     return;
@@ -316,6 +319,9 @@ void ComponentIterator::advance() {
 bool ComponentIterator::on_end() { return true; }
 bool ComponentIterator::on_begin() { return true; }
 bool ComponentIterator::on_service(UserServiceDescriptor *service) { return true; }
+#ifdef USE_ESP32_CAMERA
+bool ComponentIterator::on_camera(ESP32Camera *camera) { return true; }
+#endif
 
 }  // namespace api
 
