@@ -393,6 +393,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::LIST_ENTITIES_SWITCH_RESPONSE:
     case APIMessageType::LIST_ENTITIES_TEXT_SENSOR_RESPONSE:
     case APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE:
+    case APIMessageType::LIST_ENTITIES_CAMERA_RESPONSE:
     case APIMessageType::LIST_ENTITIES_DONE_RESPONSE:
       // Invalid
       break;
@@ -409,6 +410,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::SENSOR_STATE_RESPONSE:
     case APIMessageType::SWITCH_STATE_RESPONSE:
     case APIMessageType::TEXT_SENSOR_STATE_RESPONSE:
+    case APIMessageType::CAMERA_IMAGE_RESPONSE:
       // Invalid
       break;
     case APIMessageType::SUBSCRIBE_LOGS_REQUEST: {

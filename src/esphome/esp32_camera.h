@@ -51,7 +51,7 @@ enum ESP32CameraFrameSize {
 
 class ESP32Camera : public PollingComponent, public Nameable {
  public:
-  ESP32Camera(uint32_t update_interval, const std::string &name);
+  ESP32Camera(const std::string &name);
   void set_data_pins(std::array<uint8_t, 8> pins);
   void set_vsync_pin(uint8_t pin);
   void set_href_pin(uint8_t pin);
@@ -63,13 +63,20 @@ class ESP32Camera : public PollingComponent, public Nameable {
   void set_framebuffer_count(uint8_t count);
   void set_reset_pin(uint8_t pin);
   void set_power_down_pin(uint8_t pin);
+  void set_vertical_flip(bool vertical_flip);
+  void set_horizontal_mirror(bool horizontal_mirror);
+  void set_contrast(int contrast);
+  void set_brightness(int brightness);
+  void set_saturation(int saturation);
   void setup() override;
   void update() override;
   void loop() override;
   void dump_config() override;
-  void add_image_callback(std::function<void(std::shared_ptr<CameraImage>)> f);
-
+  void add_image_callback(std::function<void(std::shared_ptr<CameraImage>)> &&f);
+  float get_setup_priority() const override;
  protected:
+  uint32_t hash_base() override;
+
   static void framebuffer_task(void *pv);
 
   camera_config_t config_{};

@@ -157,7 +157,7 @@ void ESP32Camera::framebuffer_task(void *pv) {
     esp_camera_fb_return(framebuffer);
   }
 }
-ESP32Camera::ESP32Camera(uint32_t update_interval, const std::string &name) : PollingComponent(update_interval), Nameable(name) {
+ESP32Camera::ESP32Camera(const std::string &name) : PollingComponent(33), Nameable(name) {
   this->config_.pin_pwdn = -1;
   this->config_.pin_reset = -1;
   this->config_.pin_xclk = -1;
@@ -167,6 +167,8 @@ ESP32Camera::ESP32Camera(uint32_t update_interval, const std::string &name) : Po
   this->config_.frame_size = FRAMESIZE_VGA;  // 640x480
   this->config_.jpeg_quality = 10;
   this->config_.fb_count = 1;
+
+  global_esp32_camera = this;
 }
 void ESP32Camera::set_data_pins(std::array<uint8_t, 8> pins) {
   this->config_.pin_d0 = pins[0];
@@ -244,8 +246,29 @@ void ESP32Camera::set_reset_pin(uint8_t pin) {
 void ESP32Camera::set_power_down_pin(uint8_t pin) {
   this->config_.pin_pwdn = pin;
 }
-void ESP32Camera::add_image_callback(std::function<void(std::shared_ptr<CameraImage>)> f) {
-  this->new_image_callback_.add(f);
+void ESP32Camera::add_image_callback(std::function<void(std::shared_ptr<CameraImage>)> &&f) {
+  this->new_image_callback_.add(std::move(f));
+}
+void ESP32Camera::set_vertical_flip(bool vertical_flip) {
+  this->vertical_flip_ = vertical_flip;
+}
+void ESP32Camera::set_horizontal_mirror(bool horizontal_mirror) {
+  this->horizontal_mirror_ = horizontal_mirror;
+}
+void ESP32Camera::set_contrast(int contrast) {
+  this->contrast_ = contrast;
+}
+void ESP32Camera::set_brightness(int brightness) {
+  this->brightness_ = brightness;
+}
+void ESP32Camera::set_saturation(int saturation) {
+  this->saturation_ = saturation;
+}
+float ESP32Camera::get_setup_priority() const {
+  return setup_priority::POST_HARDWARE;
+}
+uint32_t ESP32Camera::hash_base() {
+  return 3010542557UL;
 }
 
 ESP32Camera *global_esp32_camera;
