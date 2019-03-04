@@ -59,10 +59,6 @@ void SDS011Component::setup() {
   this->sds011_write_command_(command_data);
 
   uint8_t update_interval_minutes = this->get_update_interval() / 1000.0f / 60.0f;
-  this->set_update_interval((uint32_t) update_interval_minutes * 1000 * 60);
-  if (update_interval_minutes > 30) {
-    ESP_LOGW(TAG, "Update interval is longer than 30 min.");
-  }
 
   command_data[0] = SDS011_COMMAND_PERIOD;
   command_data[1] = SDS011_SET_MODE;
@@ -82,6 +78,9 @@ void SDS011Component::setup() {
 void SDS011Component::dump_config() {
   ESP_LOGCONFIG(TAG, "SDS011:");
   ESP_LOGCONFIG(TAG, "  Update interval: %u ms", this->update_interval_);
+  if (this->update_interval_ > 1800000) {
+    ESP_LOGW(TAG, "Update interval is longer than 30 min.");
+  }
   ESP_LOGCONFIG(TAG, "  RX-only mode: %s", ONOFF(this->rx_mode_only_));
   ESP_LOGCONFIG(TAG, "  Query mode: %s", ONOFF(this->query_mode_));
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
