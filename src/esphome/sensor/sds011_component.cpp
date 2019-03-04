@@ -213,12 +213,9 @@ void SDS011Component::parse_data_() {
   this->status_clear_warning();
   const float pm_2_5_concentration = this->get_16_bit_uint_(2) / 10.0f;
   const float pm_10_0_concentration = this->get_16_bit_uint_(4) / 10.0f;
-  const uint16_t device_id = this->get_16_bit_uint_(6);
 
-  ESP_LOGD(TAG,
-           "Got PM2.5 Concentration: %.1f µg/m³, PM10.0 Concentration: %.1f "
-           "µg/m³ from device 0x%04x",
-           pm_2_5_concentration, pm_10_0_concentration, device_id);
+  ESP_LOGD(TAG, "Got PM2.5 Concentration: %.1f µg/m³, PM10.0 Concentration: %.1f µg/m³", pm_2_5_concentration,
+           pm_10_0_concentration);
   if (!pm_2_5_concentration && !pm_10_0_concentration) {
     // not yet any valid data
     return;
