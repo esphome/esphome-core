@@ -145,6 +145,7 @@
 #include "esphome/text_sensor/template_text_sensor.h"
 #include "esphome/text_sensor/text_sensor.h"
 #include "esphome/text_sensor/version_text_sensor.h"
+#include "esphome/text_sensor/wifi_info.h"
 #include "esphome/time/rtc_component.h"
 #include "esphome/time/sntp_component.h"
 #include "esphome/time/homeassistant_time.h"
