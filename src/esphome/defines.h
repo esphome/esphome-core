@@ -38,7 +38,6 @@
 #define USE_OUTPUT
 #ifdef ARDUINO_ARCH_ESP32
 #define USE_LEDC_OUTPUT
-#define USE_SDS011
 #endif
 #define USE_PCA9685_OUTPUT
 #define USE_GPIO_OUTPUT
@@ -60,6 +59,7 @@
 #define USE_PCF8574
 #define USE_MCP23017
 #define USE_IO
+#define USE_SDS011
 #define USE_MPU6050
 #define USE_TSL2561
 #define USE_BH1750
