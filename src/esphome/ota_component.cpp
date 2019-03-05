@@ -427,10 +427,22 @@ size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes, bool check_discon
   if (bytes == 0)
     bytes = std::min(available, size_t(1024));
 
-  int res = this->client_.read(buf, bytes);
+  bool success = false;
+  for (uint32_t i = 0; !success && i < 100; i++) {
+    int res = this->client_.read(buf, bytes);
 
-  if (res != int(bytes)) {
-    ESP_LOGW(TAG, "Error reading binary data: %d (%u)!", res, bytes);
+    if (res != int(bytes)) {
+      // ESP32 implementation has an issue where calling read can fail with EAGAIN (race condition)
+      // so just re-try it until it works (with generous timeout of 1s)
+      // because we check with available() first this should not cause us any trouble in all other cases
+      delay(10);
+    } else {
+      success = true;
+    }
+  }
+
+  if (!success) {
+    ESP_LOGW(TAG, "Reading %u bytes of binary data failed!", bytes);
     return 0;
   }
 

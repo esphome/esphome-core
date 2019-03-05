@@ -182,6 +182,8 @@ class APIServer : public Component, public StoringUpdateListenerController {
   void request_time();
 #endif
 
+  bool is_connected() const;
+
   struct HomeAssistantStateSubscription {
     std::string entity_id;
     std::function<void(std::string)> callback;
@@ -218,6 +220,11 @@ template<typename... Ts> class HomeAssistantServiceCallAction : public Action<Ts
   ServiceCallResponse resp_;
 };
 
+template<typename... Ts> class APIConnectedCondition : public Condition<Ts...> {
+ public:
+  bool check(Ts... x) override;
+};
+
 template<typename... Ts> HomeAssistantServiceCallAction<Ts...> *APIServer::make_home_assistant_service_call_action() {
   return new HomeAssistantServiceCallAction<Ts...>(this);
 }
@@ -247,6 +254,8 @@ UserService<Ts...> *APIServer::make_user_service_trigger(const std::string &name
   this->user_services_.push_back(service);
   return service;
 }
+
+template<typename... Ts> bool APIConnectedCondition<Ts...>::check(Ts... x) { return global_api_server->is_connected(); }
 
 }  // namespace api
 
