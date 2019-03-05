@@ -203,7 +203,7 @@ void OTAComponent::handle_() {
     ESP_LOGW(TAG, "Reading features failed!");
     goto error;
   }
-  ota_features = buf[0];
+  ota_features = buf[0];  // NOLINT
   ESP_LOGV(TAG, "OTA features is 0x%02X", ota_features);
 
   // Acknowledge header - 1 byte
@@ -340,7 +340,7 @@ void OTAComponent::handle_() {
 
     uint32_t written = Update.write(buf, available);
     if (written != available) {
-      ESP_LOGW(TAG, "Error writing binary data to flash: %u != %d!", written, available);
+      ESP_LOGW(TAG, "Error writing binary data to flash: %u != %zu!", written, available);
       error_code = OTA_RESPONSE_ERROR_WRITING_FLASH;
       goto error;
     }
@@ -442,7 +442,7 @@ size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes, bool check_discon
   }
 
   if (!success) {
-    ESP_LOGW(TAG, "Reading %u bytes of binary data failed!", bytes);
+    ESP_LOGW(TAG, "Reading %zu bytes of binary data failed!", bytes);
     return 0;
   }
 
