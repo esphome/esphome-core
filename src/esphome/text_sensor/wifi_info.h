@@ -15,6 +15,7 @@ namespace text_sensor {
 class IPAddressWiFiInfo : public Component, public TextSensor {
  public:
   void loop() override;
+
  protected:
   IPAddress last_ip_;
 };
@@ -22,6 +23,7 @@ class IPAddressWiFiInfo : public Component, public TextSensor {
 class SSIDWiFiInfo : public Component, public TextSensor {
  public:
   void loop() override;
+
  protected:
   std::string last_ssid_;
 };
@@ -29,14 +31,15 @@ class SSIDWiFiInfo : public Component, public TextSensor {
 class BSSIDWiFiInfo : public Component, public TextSensor {
  public:
   void loop() override;
+
  protected:
   std::string last_bssid_;
 };
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_WIFI_INFO_TEXT_SENSOR
+#endif  // USE_WIFI_INFO_TEXT_SENSOR
 
-#endif //ESPHOME_CORE_TEXT_SENSOR_WIFI_INFO_H
+#endif  // ESPHOME_CORE_TEXT_SENSOR_WIFI_INFO_H

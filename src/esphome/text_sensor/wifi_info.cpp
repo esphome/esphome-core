@@ -36,8 +36,8 @@ void BSSIDWiFiInfo::loop() {
   }
 }
 
-} // namespace text_sensor
+}  // namespace text_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_WIFI_INFO_TEXT_SENSOR
+#endif  // USE_WIFI_INFO_TEXT_SENSOR
