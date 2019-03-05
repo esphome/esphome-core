@@ -33,10 +33,10 @@ class FloatCopyOutput : public FloatOutput {
   void write_state(float state) override;
 };
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_COPY_OUTPUT
+#endif  // USE_COPY_OUTPUT
 
-#endif //ESPHOME_CORE_OUTPUT_COPY_OUTPUT_H
+#endif  // ESPHOME_CORE_OUTPUT_COPY_OUTPUT_H

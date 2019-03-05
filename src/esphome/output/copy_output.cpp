@@ -24,8 +24,8 @@ void FloatCopyOutput::write_state(float state) {
   }
 }
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_COPY_OUTPUT
+#endif  // USE_COPY_OUTPUT
