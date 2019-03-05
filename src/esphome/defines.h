@@ -136,6 +136,8 @@
 #define USE_APDS9960
 #define USE_MPR121
 #define USE_MQTT
+#define USE_COPY_OUTPUT
+#define USE_WIFI_INFO_TEXT_SENSOR
 #endif
 
 #ifdef USE_REMOTE_RECEIVER

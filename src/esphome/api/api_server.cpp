@@ -75,7 +75,7 @@ void APIServer::loop() {
 
   if (this->reboot_timeout_ != 0) {
     const uint32_t now = millis();
-    if (this->clients_.empty()) {
+    if (!this->is_connected()) {
       if (now - this->last_connected_ > this->reboot_timeout_) {
         ESP_LOGE(TAG, "No client connected to API. Rebooting...");
         reboot("api");
@@ -211,6 +211,7 @@ void APIServer::request_time() {
   }
 }
 #endif
+bool APIServer::is_connected() const { return !this->clients_.empty(); }
 
 // APIConnection
 APIConnection::APIConnection(AsyncClient *client, APIServer *parent)
