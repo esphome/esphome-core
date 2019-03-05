@@ -54,6 +54,7 @@ void APIServer::setup() {
 
   this->last_connected_ = millis();
 
+#ifdef USE_ESP32_CAMERA
   if (global_esp32_camera != nullptr) {
     global_esp32_camera->add_image_callback([this](std::shared_ptr<CameraImage> image) {
       for (auto *c : this->clients_)
@@ -61,6 +62,7 @@ void APIServer::setup() {
           c->send_camera_state(image);
     });
   }
+#endif
 }
 void APIServer::loop() {
   // Partition clients into remove and active

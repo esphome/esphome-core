@@ -30,21 +30,22 @@ class CameraImageReader {
   uint8_t *peek_data_buffer();
   void consume_data(size_t consumed);
   void return_image();
+
  protected:
   std::shared_ptr<CameraImage> image_;
   size_t offset_{0};
 };
 
 enum ESP32CameraFrameSize {
-  ESP32_CAMERA_SIZE_160X120,  // QQVGA
-  ESP32_CAMERA_SIZE_128X160,  // QQVGA2
-  ESP32_CAMERA_SIZE_176X144,  // QCIF
-  ESP32_CAMERA_SIZE_240X176,  // HQVGA
-  ESP32_CAMERA_SIZE_320X240,  // QVGA
-  ESP32_CAMERA_SIZE_400X296,  // CIF
-  ESP32_CAMERA_SIZE_640X480,  // VGA
-  ESP32_CAMERA_SIZE_800X600,  // SVGA
-  ESP32_CAMERA_SIZE_1024X768,  // XGA
+  ESP32_CAMERA_SIZE_160X120,    // QQVGA
+  ESP32_CAMERA_SIZE_128X160,    // QQVGA2
+  ESP32_CAMERA_SIZE_176X144,    // QCIF
+  ESP32_CAMERA_SIZE_240X176,    // HQVGA
+  ESP32_CAMERA_SIZE_320X240,    // QVGA
+  ESP32_CAMERA_SIZE_400X296,    // CIF
+  ESP32_CAMERA_SIZE_640X480,    // VGA
+  ESP32_CAMERA_SIZE_800X600,    // SVGA
+  ESP32_CAMERA_SIZE_1024X768,   // XGA
   ESP32_CAMERA_SIZE_1280X1024,  // SXGA
   ESP32_CAMERA_SIZE_1600X1200,  // UXGA
 };
@@ -74,6 +75,7 @@ class ESP32Camera : public PollingComponent, public Nameable {
   void dump_config() override;
   void add_image_callback(std::function<void(std::shared_ptr<CameraImage>)> &&f);
   float get_setup_priority() const override;
+
  protected:
   uint32_t hash_base() override;
 
@@ -97,6 +99,6 @@ extern ESP32Camera *global_esp32_camera;
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ESP32_CAMERA
+#endif  // USE_ESP32_CAMERA
 
-#endif //ESPHOME_CORE_ESP32_CAMERA_H
+#endif  // ESPHOME_CORE_ESP32_CAMERA_H

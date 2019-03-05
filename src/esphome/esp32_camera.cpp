@@ -28,14 +28,13 @@ void ESP32Camera::setup() {
   s->set_saturation(s, this->saturation_);
   this->framebuffer_get_queue_ = xQueueCreate(1, sizeof(camera_fb_t *));
   this->framebuffer_return_queue_ = xQueueCreate(1, sizeof(camera_fb_t *));
-  xTaskCreatePinnedToCore(
-      &ESP32Camera::framebuffer_task,
-      "framebuffer_task", // name
-      4096,  // stack size
-      nullptr, // task pv params
-      0, // priority
-      nullptr, // handle
-      1 // core
+  xTaskCreatePinnedToCore(&ESP32Camera::framebuffer_task,
+                          "framebuffer_task",  // name
+                          4096,                // stack size
+                          nullptr,             // task pv params
+                          0,                   // priority
+                          nullptr,             // handle
+                          1                    // core
   );
 }
 void ESP32Camera::dump_config() {
@@ -43,8 +42,8 @@ void ESP32Camera::dump_config() {
   ESP_LOGCONFIG(TAG, "ESP32 Camera:");
   ESP_LOGCONFIG(TAG, "  Name: %s", this->name_.c_str());
   ESP_LOGCONFIG(TAG, "  Board Has PSRAM: %s", YESNO(psramFound()));
-  ESP_LOGCONFIG(TAG, "  Data Pins: D0:%d D1:%d D2:%d D3:%d D4:%d D5:%d D6:%d D7:%d",
-      conf.pin_d0, conf.pin_d1, conf.pin_d2, conf.pin_d3, conf.pin_d4, conf.pin_d5, conf.pin_d6, conf.pin_d7);
+  ESP_LOGCONFIG(TAG, "  Data Pins: D0:%d D1:%d D2:%d D3:%d D4:%d D5:%d D6:%d D7:%d", conf.pin_d0, conf.pin_d1,
+                conf.pin_d2, conf.pin_d3, conf.pin_d4, conf.pin_d5, conf.pin_d6, conf.pin_d7);
   ESP_LOGCONFIG(TAG, "  VSYNC Pin: %d", conf.pin_vsync);
   ESP_LOGCONFIG(TAG, "  HREF Pin: %d", conf.pin_href);
   ESP_LOGCONFIG(TAG, "  Pixel Clock Pin: %d", conf.pin_pclk);
@@ -118,7 +117,6 @@ void ESP32Camera::dump_config() {
   ESP_LOGCONFIG(TAG, "  Lens Correction: %u", st.lenc);
   ESP_LOGCONFIG(TAG, "  DCW: %u", st.dcw);
   ESP_LOGCONFIG(TAG, "  Colorbar: %u", st.colorbar);
-
 }
 void ESP32Camera::update() {
   if (this->current_image_.use_count() == 1) {
@@ -142,13 +140,11 @@ void ESP32Camera::update() {
   }
   this->current_image_ = std::make_shared<CameraImage>(fb);
 
-  ESP_LOGD(TAG, "Got Image: %p len=%u width=%u height=%u format=%u",
-           fb->buf, fb->len, fb->width, fb->height, fb->format);
+  ESP_LOGD(TAG, "Got Image: %p len=%u width=%u height=%u format=%u", fb->buf, fb->len, fb->width, fb->height,
+           fb->format);
   this->new_image_callback_.call(this->current_image_);
 }
-void ESP32Camera::loop() {
-
-}
+void ESP32Camera::loop() {}
 void ESP32Camera::framebuffer_task(void *pv) {
   while (true) {
     camera_fb_t *framebuffer = esp_camera_fb_get();
@@ -180,15 +176,9 @@ void ESP32Camera::set_data_pins(std::array<uint8_t, 8> pins) {
   this->config_.pin_d6 = pins[6];
   this->config_.pin_d7 = pins[7];
 }
-void ESP32Camera::set_vsync_pin(uint8_t pin) {
-  this->config_.pin_vsync = pin;
-}
-void ESP32Camera::set_href_pin(uint8_t pin) {
-  this->config_.pin_href = pin;
-}
-void ESP32Camera::set_pixel_clock_pin(uint8_t pin) {
-  this->config_.pin_pclk = pin;
-}
+void ESP32Camera::set_vsync_pin(uint8_t pin) { this->config_.pin_vsync = pin; }
+void ESP32Camera::set_href_pin(uint8_t pin) { this->config_.pin_href = pin; }
+void ESP32Camera::set_pixel_clock_pin(uint8_t pin) { this->config_.pin_pclk = pin; }
 void ESP32Camera::set_external_clock(uint8_t pin, uint32_t frequency) {
   this->config_.pin_xclk = pin;
   this->config_.xclk_freq_hz = frequency;
@@ -234,42 +224,20 @@ void ESP32Camera::set_frame_size(ESP32CameraFrameSize size) {
       break;
   }
 }
-void ESP32Camera::set_jpeg_quality(uint8_t quality) {
-  this->config_.jpeg_quality = quality;
-}
-void ESP32Camera::set_framebuffer_count(uint8_t count) {
-  this->config_.fb_count = count;
-}
-void ESP32Camera::set_reset_pin(uint8_t pin) {
-  this->config_.pin_reset = pin;
-}
-void ESP32Camera::set_power_down_pin(uint8_t pin) {
-  this->config_.pin_pwdn = pin;
-}
+void ESP32Camera::set_jpeg_quality(uint8_t quality) { this->config_.jpeg_quality = quality; }
+void ESP32Camera::set_framebuffer_count(uint8_t count) { this->config_.fb_count = count; }
+void ESP32Camera::set_reset_pin(uint8_t pin) { this->config_.pin_reset = pin; }
+void ESP32Camera::set_power_down_pin(uint8_t pin) { this->config_.pin_pwdn = pin; }
 void ESP32Camera::add_image_callback(std::function<void(std::shared_ptr<CameraImage>)> &&f) {
   this->new_image_callback_.add(std::move(f));
 }
-void ESP32Camera::set_vertical_flip(bool vertical_flip) {
-  this->vertical_flip_ = vertical_flip;
-}
-void ESP32Camera::set_horizontal_mirror(bool horizontal_mirror) {
-  this->horizontal_mirror_ = horizontal_mirror;
-}
-void ESP32Camera::set_contrast(int contrast) {
-  this->contrast_ = contrast;
-}
-void ESP32Camera::set_brightness(int brightness) {
-  this->brightness_ = brightness;
-}
-void ESP32Camera::set_saturation(int saturation) {
-  this->saturation_ = saturation;
-}
-float ESP32Camera::get_setup_priority() const {
-  return setup_priority::POST_HARDWARE;
-}
-uint32_t ESP32Camera::hash_base() {
-  return 3010542557UL;
-}
+void ESP32Camera::set_vertical_flip(bool vertical_flip) { this->vertical_flip_ = vertical_flip; }
+void ESP32Camera::set_horizontal_mirror(bool horizontal_mirror) { this->horizontal_mirror_ = horizontal_mirror; }
+void ESP32Camera::set_contrast(int contrast) { this->contrast_ = contrast; }
+void ESP32Camera::set_brightness(int brightness) { this->brightness_ = brightness; }
+void ESP32Camera::set_saturation(int saturation) { this->saturation_ = saturation; }
+float ESP32Camera::get_setup_priority() const { return setup_priority::POST_HARDWARE; }
+uint32_t ESP32Camera::hash_base() { return 3010542557UL; }
 
 ESP32Camera *global_esp32_camera;
 
@@ -283,15 +251,9 @@ size_t CameraImageReader::available() const {
 
   return this->image_->get_data_length() - this->offset_;
 }
-void CameraImageReader::return_image() {
-  this->image_.reset();
-}
-void CameraImageReader::consume_data(size_t consumed) {
-  this->offset_ += consumed;
-}
-uint8_t *CameraImageReader::peek_data_buffer() {
-  return this->image_->get_data_buffer() + this->offset_;
-}
+void CameraImageReader::return_image() { this->image_.reset(); }
+void CameraImageReader::consume_data(size_t consumed) { this->offset_ += consumed; }
+uint8_t *CameraImageReader::peek_data_buffer() { return this->image_->get_data_buffer() + this->offset_; }
 
 camera_fb_t *CameraImage::get_raw_buffer() { return this->buffer_; }
 uint8_t *CameraImage::get_data_buffer() { return this->buffer_->buf; }
@@ -300,5 +262,4 @@ CameraImage::CameraImage(camera_fb_t *buffer) : buffer_(buffer) {}
 
 ESPHOME_NAMESPACE_END
 
-
-#endif //USE_ESP32_CAMERA
+#endif  // USE_ESP32_CAMERA
