@@ -19,6 +19,7 @@ void IPAddressWiFiInfo::loop() {
     this->publish_state(ip.toString().c_str());
   }
 }
+IPAddressWiFiInfo::IPAddressWiFiInfo(const std::string &name) : TextSensor(name) {}
 
 void SSIDWiFiInfo::loop() {
   const char *ssid = WiFi.SSID().c_str();
@@ -27,6 +28,7 @@ void SSIDWiFiInfo::loop() {
     this->publish_state(ssid);
   }
 }
+SSIDWiFiInfo::SSIDWiFiInfo(const std::string &name) : TextSensor(name) {}
 
 void BSSIDWiFiInfo::loop() {
   const char *bssid = WiFi.BSSIDstr().c_str();
@@ -35,6 +37,7 @@ void BSSIDWiFiInfo::loop() {
     this->publish_state(bssid);
   }
 }
+BSSIDWiFiInfo::BSSIDWiFiInfo(const std::string &name) : TextSensor(name) {}
 
 }  // namespace text_sensor
 

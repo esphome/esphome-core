@@ -14,6 +14,7 @@ namespace text_sensor {
 
 class IPAddressWiFiInfo : public Component, public TextSensor {
  public:
+  IPAddressWiFiInfo(const std::string &name);
   void loop() override;
 
  protected:
@@ -22,6 +23,7 @@ class IPAddressWiFiInfo : public Component, public TextSensor {
 
 class SSIDWiFiInfo : public Component, public TextSensor {
  public:
+  SSIDWiFiInfo(const std::string &name);
   void loop() override;
 
  protected:
@@ -30,6 +32,7 @@ class SSIDWiFiInfo : public Component, public TextSensor {
 
 class BSSIDWiFiInfo : public Component, public TextSensor {
  public:
+  BSSIDWiFiInfo(const std::string &name);
   void loop() override;
 
  protected:
