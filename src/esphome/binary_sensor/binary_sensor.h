@@ -224,9 +224,7 @@ template<typename... Ts> class BinarySensorPublishAction : public Action<Ts...> 
 template<typename... Ts>
 BinarySensorCondition<Ts...>::BinarySensorCondition(BinarySensor *parent, bool state, uint32_t for_time)
     : parent_(parent), state_(state), for_time_(for_time) {
-  parent->add_on_state_callback([this](bool state) {
-    this->last_state_time_ = millis();
-  });
+  parent->add_on_state_callback([this](bool state) { this->last_state_time_ = millis(); });
 }
 template<typename... Ts> bool BinarySensorCondition<Ts...>::check(Ts... x) {
   if (this->parent_->state != this->state_)
@@ -235,10 +233,12 @@ template<typename... Ts> bool BinarySensorCondition<Ts...>::check(Ts... x) {
   return millis() - this->last_state_time_ >= this->for_time_;
 }
 
-template<typename... Ts> BinarySensorCondition<Ts...> *BinarySensor::make_binary_sensor_is_on_condition(uint32_t for_time) {
+template<typename... Ts>
+BinarySensorCondition<Ts...> *BinarySensor::make_binary_sensor_is_on_condition(uint32_t for_time) {
   return new BinarySensorCondition<Ts...>(this, true, for_time);
 }
-template<typename... Ts> BinarySensorCondition<Ts...> *BinarySensor::make_binary_sensor_is_off_condition(uint32_t for_time) {
+template<typename... Ts>
+BinarySensorCondition<Ts...> *BinarySensor::make_binary_sensor_is_off_condition(uint32_t for_time) {
   return new BinarySensorCondition<Ts...>(this, false, for_time);
 }
 template<typename... Ts>
