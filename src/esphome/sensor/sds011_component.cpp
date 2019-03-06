@@ -35,8 +35,8 @@ static const uint8_t SDS011_MODE_REPORT_QUERY = 0x01;
 static const uint8_t SDS011_MODE_SLEEP = 0x00;
 static const uint8_t SDS011_MODE_WORK = 0x01;
 
-SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval, bool rx_mode_only)
-    : UARTDevice(parent), PollingComponent(update_interval), rx_mode_only_(rx_mode_only) {}
+SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval_min, bool rx_mode_only)
+    : UARTDevice(parent), update_interval_min_(update_interval_min), rx_mode_only_(rx_mode_only) {}
 
 void SDS011Component::setup() {
   if (this->rx_mode_only_) {
@@ -52,11 +52,9 @@ void SDS011Component::setup() {
   command_data[14] = 0xff;
   this->sds011_write_command_(command_data);
 
-  auto update_interval_minutes = static_cast<uint8_t>(this->get_update_interval() / 1000.0f / 60.0f);
-
   command_data[0] = SDS011_COMMAND_PERIOD;
   command_data[1] = SDS011_SET_MODE;
-  command_data[2] = update_interval_minutes;
+  command_data[2] = this->update_interval_min_;
   command_data[13] = 0xff;
   command_data[14] = 0xff;
   this->sds011_write_command_(command_data);
@@ -64,7 +62,7 @@ void SDS011Component::setup() {
 
 void SDS011Component::dump_config() {
   ESP_LOGCONFIG(TAG, "SDS011:");
-  LOG_UPDATE_INTERVAL(this);
+  ESP_LOGCONFIG(TAG, "  Update Interval: %u min", this->update_interval_min_);
   ESP_LOGCONFIG(TAG, "  RX-only mode: %s", ONOFF(this->rx_mode_only_));
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
   LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
@@ -189,9 +187,8 @@ void SDS011Component::parse_data_() {
 uint16_t SDS011Component::get_16_bit_uint_(uint8_t start_index) const {
   return (uint16_t(this->data_[start_index + 1]) << 8) | uint16_t(this->data_[start_index]);
 }
-
-void SDS011Component::update() {
-  // Empty update, we just use update interval to setup the sensor
+void SDS011Component::set_update_interval_min(uint32_t update_interval_min) {
+  this->update_interval_min_ = update_interval_min;
 }
 
 }  // namespace sensor
