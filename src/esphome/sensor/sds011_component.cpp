@@ -35,25 +35,14 @@ static const uint8_t SDS011_MODE_REPORT_QUERY = 0x01;
 static const uint8_t SDS011_MODE_SLEEP = 0x00;
 static const uint8_t SDS011_MODE_WORK = 0x01;
 
-SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval, bool query_mode, bool rx_mode_only)
-    : UARTDevice(parent),
-      update_interval_(update_interval),
-      query_mode_(query_mode),
-      rx_mode_only_(rx_mode_only),
-      force_query_(false) {}
+SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval, bool rx_mode_only)
+    : UARTDevice(parent), update_interval_(update_interval), rx_mode_only_(rx_mode_only) {}
 
 void SDS011Component::setup() {
-  if (this->get_rx_mode_only()) {
-    if (this->get_query_mode()) {
-      ESP_LOGE(TAG, "SDS011 component can not work in rx-only mode and query mode.");
-    }
-    return;
-  }
-
   uint8_t command_data[SDS011_DATA_REQUEST_LENGTH] = {0};
   command_data[0] = SDS011_COMMAND_REPORT_MODE;
   command_data[1] = SDS011_SET_MODE;
-  command_data[2] = this->query_mode_ ? SDS011_MODE_REPORT_QUERY : SDS011_MODE_REPORT_ACTIVE;
+  command_data[2] = SDS011_MODE_REPORT_ACTIVE;
   command_data[13] = 0xff;
   command_data[14] = 0xff;
   this->sds011_write_command_(command_data);
@@ -66,13 +55,6 @@ void SDS011Component::setup() {
   command_data[13] = 0xff;
   command_data[14] = 0xff;
   this->sds011_write_command_(command_data);
-
-  if (this->get_query_mode()) {
-    this->update();
-    this->set_timeout("delayed-update", 35000, [this]() {
-      this->set_interval("update", this->get_update_interval(), [this]() { this->update(); });
-    });
-  }
 }
 
 void SDS011Component::dump_config() {
@@ -82,7 +64,6 @@ void SDS011Component::dump_config() {
     ESP_LOGW(TAG, "Update interval is longer than 30 min.");
   }
   ESP_LOGCONFIG(TAG, "  RX-only mode: %s", ONOFF(this->rx_mode_only_));
-  ESP_LOGCONFIG(TAG, "  Query mode: %s", ONOFF(this->query_mode_));
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
   LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
 }
@@ -93,16 +74,6 @@ void SDS011Component::loop() {
     // last transmission too long ago. Reset RX index.
     ESP_LOGV(TAG, "Last transmission too long ago. Reset RX index.");
     this->data_index_ = 0;
-  }
-
-  if ((this->data_index_ == 0) && this->force_query_) {
-    ESP_LOGV(TAG, "Request new value.");
-    uint8_t command_data[SDS011_DATA_REQUEST_LENGTH] = {0};
-    command_data[0] = SDS011_COMMAND_QUERY_DATA;
-    command_data[13] = 0xff;
-    command_data[14] = 0xff;
-    this->sds011_write_command_(command_data);
-    this->force_query_ = false;
   }
 
   if (this->available() == 0) {
@@ -128,13 +99,6 @@ void SDS011Component::loop() {
   }
 }
 
-void SDS011Component::update() {
-  if (!this->get_query_mode()) {
-    return;
-  }
-  this->force_query_ = true;
-}
-
 SDS011Sensor *SDS011Component::make_pm_2_5_sensor(const std::string &name) {
   return this->pm_2_5_sensor_ = new SDS011Sensor(name);
 }
@@ -145,13 +109,9 @@ SDS011Sensor *SDS011Component::make_pm_10_0_sensor(const std::string &name) {
 
 float SDS011Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-void SDS011Component::set_query_mode(bool query_mode) { this->query_mode_ = query_mode; }
-
 void SDS011Component::set_rx_mode_only(bool rx_mode_only) { this->rx_mode_only_ = rx_mode_only; }
 
 void SDS011Component::set_update_interval(uint32_t update_interval) { this->update_interval_ = update_interval; }
-
-bool SDS011Component::get_query_mode() const { return this->query_mode_; }
 
 bool SDS011Component::get_rx_mode_only() const { return this->rx_mode_only_; }
 

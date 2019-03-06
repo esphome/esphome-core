@@ -21,14 +21,10 @@ class SDS011Component : public Component, public UARTDevice {
    *
    * @param parent UARTComponent
    * @param update_interval The update interval in ms.
-   * @param query_mode Set SDS011 sensor in query mode.
    * @param rx_mode_only RX-only mode to avoid sending data to the sensor.
    */
-  SDS011Component(UARTComponent *parent, uint32_t update_interval = 0, bool query_mode = false,
-                  bool rx_mode_only = false);
+  SDS011Component(UARTComponent *parent, uint32_t update_interval = 0, bool rx_mode_only = false);
 
-  /// Manually set the query mode. Defaults to false.
-  void set_query_mode(bool query_mode);
   /// Manually set the rx-only mode. Defaults to false.
   void set_rx_mode_only(bool rx_mode_only);
   /// Manually set the update_interval. Defaults to 0.
@@ -39,12 +35,10 @@ class SDS011Component : public Component, public UARTDevice {
   void setup() override;
   void dump_config() override;
   void loop() override;
-  void update();
 
   float get_setup_priority() const override;
   SDS011Sensor *make_pm_2_5_sensor(const std::string &name);
   SDS011Sensor *make_pm_10_0_sensor(const std::string &name);
-  bool get_query_mode() const;
   bool get_rx_mode_only() const;
   uint32_t get_update_interval() const;
 
@@ -63,9 +57,7 @@ class SDS011Component : public Component, public UARTDevice {
   uint32_t last_transmission_{0};
 
   uint32_t update_interval_;
-  bool query_mode_;
   bool rx_mode_only_;
-  bool force_query_;
 };
 
 }  // namespace sensor
