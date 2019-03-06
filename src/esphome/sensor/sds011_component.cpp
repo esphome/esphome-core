@@ -39,6 +39,11 @@ SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval
     : UARTDevice(parent), PollingComponent(update_interval), rx_mode_only_(rx_mode_only) {}
 
 void SDS011Component::setup() {
+  if (this->rx_mode_only_) {
+    // In RX-only mode we do not setup the sensor, it is assumed to be setup
+    // already
+    return;
+  }
   uint8_t command_data[SDS011_DATA_REQUEST_LENGTH] = {0};
   command_data[0] = SDS011_COMMAND_REPORT_MODE;
   command_data[1] = SDS011_SET_MODE;
