@@ -216,7 +216,7 @@ void SDS011Component::parse_data_() {
 
   ESP_LOGD(TAG, "Got PM2.5 Concentration: %.1f µg/m³, PM10.0 Concentration: %.1f µg/m³", pm_2_5_concentration,
            pm_10_0_concentration);
-  if (!pm_2_5_concentration && !pm_10_0_concentration) {
+  if (pm_2_5_concentration <= 0 && pm_10_0_concentration <= 0) {
     // not yet any valid data
     return;
   }
