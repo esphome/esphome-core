@@ -21,23 +21,21 @@ class MQTTSensorComponent;
 class SensorStateTrigger;
 class SensorRawStateTrigger;
 class ValueRangeTrigger;
-template<typename T>
-class SensorInRangeCondition;
-template<typename T>
-class SensorPublishAction;
+template<typename... Ts> class SensorInRangeCondition;
+template<typename... Ts> class SensorPublishAction;
 
 #define LOG_SENSOR(prefix, type, obj) \
-    if (obj != nullptr) { \
-      ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
-      ESP_LOGCONFIG(TAG, prefix "  Unit of Measurement: '%s'", obj->get_unit_of_measurement().c_str()); \
-      ESP_LOGCONFIG(TAG, prefix "  Accuracy Decimals: %d", obj->get_accuracy_decimals()); \
-      if (!obj->get_icon().empty()) { \
-        ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
-      } \
-      if (!obj->unique_id().empty()) { \
-        ESP_LOGV(TAG, prefix "  Unique ID: '%s'", obj->unique_id().c_str()); \
-      } \
-    }
+  if (obj != nullptr) { \
+    ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
+    ESP_LOGCONFIG(TAG, prefix "  Unit of Measurement: '%s'", obj->get_unit_of_measurement().c_str()); \
+    ESP_LOGCONFIG(TAG, prefix "  Accuracy Decimals: %d", obj->get_accuracy_decimals()); \
+    if (!obj->get_icon().empty()) { \
+      ESP_LOGCONFIG(TAG, prefix "  Icon: '%s'", obj->get_icon().c_str()); \
+    } \
+    if (!obj->unique_id().empty()) { \
+      ESP_LOGV(TAG, prefix "  Unique ID: '%s'", obj->unique_id().c_str()); \
+    } \
+  }
 
 #ifdef USE_MQTT_SENSOR
 class MQTTSensorComponent;
@@ -61,9 +59,9 @@ class Sensor : public Nameable {
   void set_unit_of_measurement(const std::string &unit_of_measurement);
 
   /** Manually set the icon of this sensor. By default the sensor's default defined by icon() is used.
-  *
-  * @param icon The icon, for example "mdi:flash". "" to disable.
-  */
+   *
+   * @param icon The icon, for example "mdi:flash". "" to disable.
+   */
   void set_icon(const std::string &icon);
 
   /** Manually set the accuracy in decimals for this sensor. By default, the sensor's default defined by
@@ -86,10 +84,10 @@ class Sensor : public Nameable {
    *   SlidingWindowMovingAverageFilter(15, 15), // average over last 15 values
    * });
    */
-  void add_filters(const std::vector<Filter *> & filters);
+  void add_filters(const std::vector<Filter *> &filters);
 
   /// Clear the filters and replace them by filters.
-  void set_filters(const std::vector<Filter *> & filters);
+  void set_filters(const std::vector<Filter *> &filters);
 
   /// Clear the entire filter chain.
   void clear_filters();
@@ -125,7 +123,7 @@ class Sensor : public Nameable {
    *
    * Note: deprecated, please use publish_state.
    */
-  void push_new_value(float value) ESPDEPRECATED("push_new_value is deprecated. Please use .publish_state instead");
+  void push_new_value(float state) ESPDEPRECATED("push_new_value is deprecated. Please use .publish_state instead");
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -137,11 +135,8 @@ class Sensor : public Nameable {
   SensorStateTrigger *make_state_trigger();
   SensorRawStateTrigger *make_raw_state_trigger();
   ValueRangeTrigger *make_value_range_trigger();
-  template<typename T>
-  SensorInRangeCondition<T> *make_sensor_in_range_condition();
-  template<typename T>
-  SensorPublishAction<T> *make_sensor_publish_action();
-
+  template<typename... Ts> SensorInRangeCondition<Ts...> *make_sensor_in_range_condition();
+  template<typename... Ts> SensorPublishAction<Ts...> *make_sensor_publish_action();
 
   union {
     /** This member variable stores the last state that has passed through all filters.
@@ -183,7 +178,7 @@ class Sensor : public Nameable {
   /// Calculate the expected update interval for values that pass through all filters.
   uint32_t calculate_expected_filter_update_interval();
 
-  void send_state_to_frontend_internal_(float state);
+  void internal_send_state_to_frontend(float state);
 
 #ifdef USE_MQTT_SENSOR
   MQTTSensorComponent *get_mqtt() const;
@@ -197,7 +192,7 @@ class Sensor : public Nameable {
    *
    * @return The icon of this sensor, for example "°C".
    */
-  virtual std::string unit_of_measurement();
+  virtual std::string unit_of_measurement();  // NOLINT
 
   /** Override this to set the Home Assistant icon for this sensor.
    *
@@ -205,19 +200,21 @@ class Sensor : public Nameable {
    *
    * @return The icon of this sensor, for example "mdi:battery".
    */
-  virtual std::string icon();
+  virtual std::string icon();  // NOLINT
 
   /// Return the accuracy in decimals for this sensor.
-  virtual int8_t accuracy_decimals();
+  virtual int8_t accuracy_decimals();  // NOLINT
 
-  uint32_t hash_base_() override;
+  uint32_t hash_base() override;
 
-  CallbackManager<void(float)> raw_callback_; ///< Storage for raw state callbacks.
-  CallbackManager<void(float)> callback_; ///< Storage for filtered state callbacks.
-  optional<std::string> unit_of_measurement_; ///< Override the unit of measurement
-  optional<std::string> icon_; /// Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
-  optional<int8_t> accuracy_decimals_; ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
-  Filter *filter_list_{nullptr}; ///< Store all active filters.
+  CallbackManager<void(float)> raw_callback_;  ///< Storage for raw state callbacks.
+  CallbackManager<void(float)> callback_;      ///< Storage for filtered state callbacks.
+  optional<std::string> unit_of_measurement_;  ///< Override the unit of measurement
+  optional<std::string>
+      icon_;  /// Override the icon advertised to Home Assistant, otherwise sensor's icon will be used.
+  optional<int8_t>
+      accuracy_decimals_;         ///< Override the accuracy in decimals, otherwise the sensor's values will be used.
+  Filter *filter_list_{nullptr};  ///< Store all active filters.
   bool has_state_{false};
 
 #ifdef USE_MQTT_SENSOR
@@ -238,39 +235,26 @@ class EmptySensor;
 template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement>
 class EmptySensor : public Sensor {
  public:
-  explicit EmptySensor(const std::string &name)
-      : Sensor(name) {
+  explicit EmptySensor(const std::string &name) : Sensor(name) {}
 
-  }
-
-  std::string unit_of_measurement() override {
-    return default_unit_of_measurement;
-  }
-  std::string icon() override {
-    return default_icon;
-  }
-  int8_t accuracy_decimals() override {
-    return default_accuracy_decimals;
-  }
+  std::string unit_of_measurement() override { return default_unit_of_measurement; }
+  std::string icon() override { return default_icon; }
+  int8_t accuracy_decimals() override { return default_accuracy_decimals; }
 };
 
 template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement,
-    class ParentType = PollingComponent>
+         class ParentType = PollingComponent>
 class EmptyPollingParentSensor;
 
 template<int8_t default_accuracy_decimals, const char *default_icon, const char *default_unit_of_measurement,
-    class ParentType>
+         class ParentType>
 class EmptyPollingParentSensor
     : public EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement> {
  public:
   EmptyPollingParentSensor(const std::string &name, ParentType *parent)
-    : EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement>(name), parent_(parent) {
+      : EmptySensor<default_accuracy_decimals, default_icon, default_unit_of_measurement>(name), parent_(parent) {}
 
-  }
-
-  uint32_t update_interval() override {
-    return parent_->get_update_interval();
-  }
+  uint32_t update_interval() override { return parent_->get_update_interval(); }
 
  protected:
   ParentType *parent_;
@@ -286,26 +270,23 @@ class SensorRawStateTrigger : public Trigger<float> {
   explicit SensorRawStateTrigger(Sensor *parent);
 };
 
-template<typename T>
-class SensorPublishAction : public Action<T> {
+template<typename... Ts> class SensorPublishAction : public Action<Ts...> {
  public:
   SensorPublishAction(Sensor *sensor);
-  template<typename V>
-  void set_state(V state) { this->state_ = state; }
-  void play(T x) override;
+  template<typename V> void set_state(V state) { this->state_ = state; }
+  void play(Ts... x) override;
+
  protected:
   Sensor *sensor_;
-  TemplatableValue<float, T> state_;
+  TemplatableValue<float, Ts...> state_;
 };
 
 class ValueRangeTrigger : public Trigger<float>, public Component {
  public:
   explicit ValueRangeTrigger(Sensor *parent);
 
-  template<typename V>
-  void set_min(V min) { this->min_ = min; }
-  template<typename V>
-  void set_max(V max) { this->max_ = max; }
+  template<typename V> void set_min(V min) { this->min_ = min; }
+  template<typename V> void set_max(V max) { this->max_ = max; }
 
   void setup() override;
   float get_setup_priority() const override;
@@ -320,14 +301,14 @@ class ValueRangeTrigger : public Trigger<float>, public Component {
   TemplatableValue<float, float> max_{NAN};
 };
 
-template<typename T>
-class SensorInRangeCondition : public Condition<T> {
+template<typename... Ts> class SensorInRangeCondition : public Condition<Ts...> {
  public:
   SensorInRangeCondition(Sensor *parent);
 
   void set_min(float min);
   void set_max(float max);
-  bool check(T x) override;
+  bool check(Ts... x) override;
+
  protected:
   Sensor *parent_;
   float min_{NAN};
@@ -367,22 +348,13 @@ extern const char UNIT_K[];
 extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 extern const char UNIT_MICROGRAMS_PER_CUBIC_METER[];
 
-template<typename T>
-SensorInRangeCondition<T> *Sensor::make_sensor_in_range_condition() {
-  return new SensorInRangeCondition<T>(this);
+template<typename... Ts> SensorInRangeCondition<Ts...> *Sensor::make_sensor_in_range_condition() {
+  return new SensorInRangeCondition<Ts...>(this);
 }
-template<typename T>
-SensorInRangeCondition<T>::SensorInRangeCondition(Sensor *parent) : parent_(parent) {}
-template<typename T>
-void SensorInRangeCondition<T>::set_min(float min) {
-  this->min_ = min;
-}
-template<typename T>
-void SensorInRangeCondition<T>::set_max(float max) {
-  this->max_ = max;
-}
-template<typename T>
-bool SensorInRangeCondition<T>::check(T x) {
+template<typename... Ts> SensorInRangeCondition<Ts...>::SensorInRangeCondition(Sensor *parent) : parent_(parent) {}
+template<typename... Ts> void SensorInRangeCondition<Ts...>::set_min(float min) { this->min_ = min; }
+template<typename... Ts> void SensorInRangeCondition<Ts...>::set_max(float max) { this->max_ = max; }
+template<typename... Ts> bool SensorInRangeCondition<Ts...>::check(Ts... x) {
   const float state = this->parent_->state;
   if (isnan(this->min_)) {
     return state <= this->max_;
@@ -392,24 +364,21 @@ bool SensorInRangeCondition<T>::check(T x) {
     return this->min_ <= state && state <= this->max_;
   }
 }
-template<typename T>
-SensorPublishAction<T>::SensorPublishAction(Sensor *sensor) : sensor_(sensor) {}
-template<typename T>
-void SensorPublishAction<T>::play(T x) {
-  this->sensor_->publish_state(this->state_.value(x));
-  this->play_next(x);
+template<typename... Ts> SensorPublishAction<Ts...>::SensorPublishAction(Sensor *sensor) : sensor_(sensor) {}
+template<typename... Ts> void SensorPublishAction<Ts...>::play(Ts... x) {
+  this->sensor_->publish_state(this->state_.value(x...));
+  this->play_next(x...);
 }
-template<typename T>
-SensorPublishAction<T> *Sensor::make_sensor_publish_action() {
-  return new SensorPublishAction<T>(this);
+template<typename... Ts> SensorPublishAction<Ts...> *Sensor::make_sensor_publish_action() {
+  return new SensorPublishAction<Ts...>(this);
 }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/sensor/mqtt_sensor_component.h"
 
-#endif //USE_SENSOR
+#endif  // USE_SENSOR
 
-#endif //ESPHOME_SENSOR_SENSOR_H
+#endif  // ESPHOME_SENSOR_SENSOR_H

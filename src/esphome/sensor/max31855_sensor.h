@@ -27,15 +27,15 @@ class MAX31855Sensor : public PollingSensorComponent, public SPIDevice {
   int8_t accuracy_decimals() override;
 
  protected:
-  bool msb_first() override;
+  bool is_device_msb_first() override;
 
   void read_data_();
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MAX31855_SENSOR
+#endif  // USE_MAX31855_SENSOR
 
-#endif //ESPHOME_SENSOR_MAX31855_H
+#endif  // ESPHOME_SENSOR_MAX31855_H

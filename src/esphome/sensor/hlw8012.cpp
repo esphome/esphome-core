@@ -16,16 +16,16 @@ static const uint32_t HLW8012_CLOCK_FREQUENCY = 3579000;
 static const float HLW8012_REFERENCE_VOLTAGE = 2.43f;
 
 HLW8012Component::HLW8012Component(GPIOPin *sel_pin, uint8_t cf_pin, uint8_t cf1_pin, uint32_t update_interval)
-  : PollingComponent(update_interval), sel_pin_(sel_pin),
-    cf_(GPIOInputPin(cf_pin, INPUT_PULLUP).copy()), cf1_(GPIOInputPin(cf1_pin, INPUT_PULLUP).copy()) {
-
-}
+    : PollingComponent(update_interval),
+      sel_pin_(sel_pin),
+      cf_(GPIOInputPin(cf_pin, INPUT_PULLUP).copy()),
+      cf1_(GPIOInputPin(cf1_pin, INPUT_PULLUP).copy()) {}
 void HLW8012Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HLW8012...");
   this->sel_pin_->setup();
   this->sel_pin_->digital_write(this->current_mode_);
 
-  if (!this->cf_.pulse_counter_setup_() || !this->cf1_.pulse_counter_setup_()) {
+  if (!this->cf_.pulse_counter_setup() || !this->cf1_.pulse_counter_setup()) {
     this->mark_failed();
     return;
   }
@@ -43,19 +43,28 @@ void HLW8012Component::dump_config() {
   LOG_SENSOR("  ", "Current", this->current_sensor_);
   LOG_SENSOR("  ", "Power", this->power_sensor_);
 }
-float HLW8012Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float HLW8012Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void HLW8012Component::update() {
-  float cf_hz = this->cf_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
-  float cf1_hz = this->cf1_.read_raw_value_() / (this->get_update_interval() / 1000.0f);
+  pulse_counter_t raw_cf = this->cf_.read_raw_value();
+  pulse_counter_t raw_cf1 = this->cf1_.read_raw_value();
+  float cf_hz = raw_cf / (this->get_update_interval() / 1000.0f);
+  if (raw_cf <= 1) {
+    // don't count single pulse as power
+    cf_hz = 0.0f;
+  }
+  float cf1_hz = raw_cf1 / (this->get_update_interval() / 1000.0f);
+  if (cf1_hz <= 1) {
+    // don't count single pulse as anything
+    cf1_hz = 0.0f;
+  }
 
   if (this->nth_value_++ < 2) {
     return;
   }
 
   const float v_ref_squared = HLW8012_REFERENCE_VOLTAGE * HLW8012_REFERENCE_VOLTAGE;
-  const float power_multiplier_micros = 64000000.0f * v_ref_squared * this->voltage_divider_ / this->current_resistor_ / 24.0f / HLW8012_CLOCK_FREQUENCY;
+  const float power_multiplier_micros =
+      64000000.0f * v_ref_squared * this->voltage_divider_ / this->current_resistor_ / 24.0f / HLW8012_CLOCK_FREQUENCY;
   float power = cf_hz * power_multiplier_micros / 1000000.0f;
 
   if (this->change_mode_at_ != 0) {
@@ -102,12 +111,8 @@ HLW8012PowerSensor *HLW8012Component::make_power_sensor(const std::string &name)
 void HLW8012Component::set_change_mode_every(uint32_t change_mode_every) {
   this->change_mode_every_ = change_mode_every;
 }
-void HLW8012Component::set_current_resistor(float current_resistor) {
-  this->current_resistor_ = current_resistor;
-}
-void HLW8012Component::set_voltage_divider(float voltage_divider) {
-  this->voltage_divider_ = voltage_divider;
-}
+void HLW8012Component::set_current_resistor(float current_resistor) { this->current_resistor_ = current_resistor; }
+void HLW8012Component::set_voltage_divider(float voltage_divider) { this->voltage_divider_ = voltage_divider; }
 
 uint32_t HLW8012CurrentSensor::update_interval() {
   return this->parent_->get_update_interval() * this->parent_->change_mode_every_;
@@ -121,8 +126,8 @@ uint32_t HLW8012VoltageSensor::update_interval() {
 HLW8012VoltageSensor::HLW8012VoltageSensor(const std::string &name, HLW8012Component *parent)
     : EmptySensor(name), parent_(parent) {}
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_HLW8012
+#endif  // USE_HLW8012

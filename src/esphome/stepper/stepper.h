@@ -12,16 +12,13 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace stepper {
 
-template<typename T>
-class SetTargetAction;
-
-template<typename T>
-class ReportPositionAction;
+template<typename... Ts> class SetTargetAction;
+template<typename... Ts> class ReportPositionAction;
 
 #define LOG_STEPPER(this) \
-    ESP_LOGCONFIG(TAG, "  Acceleration: %.0f steps/s^2", this->acceleration_); \
-    ESP_LOGCONFIG(TAG, "  Deceleration: %.0f steps/s^2", this->deceleration_); \
-    ESP_LOGCONFIG(TAG, "  Max Speed: %.0f steps/s", this->max_speed_);
+  ESP_LOGCONFIG(TAG, "  Acceleration: %.0f steps/s^2", this->acceleration_); \
+  ESP_LOGCONFIG(TAG, "  Deceleration: %.0f steps/s^2", this->deceleration_); \
+  ESP_LOGCONFIG(TAG, "  Max Speed: %.0f steps/s", this->max_speed_);
 
 class Stepper {
  public:
@@ -32,10 +29,8 @@ class Stepper {
   void set_max_speed(float max_speed);
   bool has_reached_target();
 
-  template<typename T>
-  SetTargetAction<T> *make_set_target_action();
-  template<typename T>
-  ReportPositionAction<T> *make_report_position_action();
+  template<typename... Ts> SetTargetAction<Ts...> *make_set_target_action();
+  template<typename... Ts> ReportPositionAction<Ts...> *make_report_position_action();
 
   int32_t current_position{0};
   int32_t target_position{0};
@@ -52,69 +47,53 @@ class Stepper {
   uint32_t last_step_{0};
 };
 
-template<typename T>
-class SetTargetAction : public Action<T> {
+template<typename... Ts> class SetTargetAction : public Action<Ts...> {
  public:
   explicit SetTargetAction(Stepper *parent);
 
-  template<typename V>
-  void set_target(V target) { this->target_ = target; }
+  template<typename V> void set_target(V target) { this->target_ = target; }
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Stepper *parent_;
-  TemplatableValue<int32_t, T> target_;
+  TemplatableValue<int32_t, Ts...> target_;
 };
 
-template<typename T>
-class ReportPositionAction : public Action<T> {
+template<typename... Ts> class ReportPositionAction : public Action<Ts...> {
  public:
   explicit ReportPositionAction(Stepper *parent);
 
-  template<typename V>
-  void set_position(V position) { this->position_ = position; }
+  template<typename V> void set_position(V position) { this->position_ = position; }
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
   Stepper *parent_;
-  TemplatableValue<int32_t, T> position_;
+  TemplatableValue<int32_t, Ts...> position_;
 };
-template<typename T>
-ReportPositionAction<T>::ReportPositionAction(Stepper *parent)
-    : parent_(parent) {
-
-}
-template<typename T>
-void ReportPositionAction<T>::play(T x) {
-  this->parent_->report_position(this->position_.value(x));
-  this->play_next(x);
+template<typename... Ts> ReportPositionAction<Ts...>::ReportPositionAction(Stepper *parent) : parent_(parent) {}
+template<typename... Ts> void ReportPositionAction<Ts...>::play(Ts... x) {
+  this->parent_->report_position(this->position_.value(x...));
+  this->play_next(x...);
 }
 
-template<typename T>
-SetTargetAction<T> *Stepper::make_set_target_action() {
-  return new SetTargetAction<T>(this);
+template<typename... Ts> SetTargetAction<Ts...> *Stepper::make_set_target_action() {
+  return new SetTargetAction<Ts...>(this);
 }
-template<typename T>
-ReportPositionAction<T> *Stepper::make_report_position_action() {
-  return new ReportPositionAction<T>(this);
+template<typename... Ts> ReportPositionAction<Ts...> *Stepper::make_report_position_action() {
+  return new ReportPositionAction<Ts...>(this);
 }
-template<typename T>
-SetTargetAction<T>::SetTargetAction(Stepper *parent)
-    : parent_(parent) {
-
-}
-template<typename T>
-void SetTargetAction<T>::play(T x) {
-  this->parent_->set_target(this->target_.value(x));
-  this->play_next(x);
+template<typename... Ts> SetTargetAction<Ts...>::SetTargetAction(Stepper *parent) : parent_(parent) {}
+template<typename... Ts> void SetTargetAction<Ts...>::play(Ts... x) {
+  this->parent_->set_target(this->target_.value(x...));
+  this->play_next(x...);
 }
 
-} // namespace stepper
+}  // namespace stepper
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_STEPPER
+#endif  // USE_STEPPER
 
-#endif //ESPHOME_STEPPER_STEPPER_H
+#endif  // ESPHOME_STEPPER_STEPPER_H

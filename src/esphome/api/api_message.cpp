@@ -11,19 +11,11 @@ namespace api {
 
 static const char *TAG = "api.message";
 
-bool APIMessage::decode_varint(uint32_t field_id, uint32_t value) {
-  return false;
-}
-bool APIMessage::decode_length_delimited(uint32_t field_id, const uint8_t *value, size_t len) {
-  return false;
-}
-bool APIMessage::decode_32bit(uint32_t field_id, uint32_t value) {
-  return false;
-}
-void APIMessage::encode(APIBuffer &buffer) {
-
-}
-void APIMessage::decode(uint8_t *buffer, size_t length) {
+bool APIMessage::decode_varint(uint32_t field_id, uint32_t value) { return false; }
+bool APIMessage::decode_length_delimited(uint32_t field_id, const uint8_t *value, size_t len) { return false; }
+bool APIMessage::decode_32bit(uint32_t field_id, uint32_t value) { return false; }
+void APIMessage::encode(APIBuffer &buffer) {}
+void APIMessage::decode(const uint8_t *buffer, size_t length) {
   uint32_t i = 0;
   bool error = false;
   while (i < length) {
@@ -39,7 +31,7 @@ void APIMessage::decode(uint8_t *buffer, size_t length) {
     i += consumed;
 
     switch (field_type) {
-      case 0: { // VarInt
+      case 0: {  // VarInt
         res = proto_decode_varuint32(&buffer[i], length - i, &consumed);
         if (!res.has_value()) {
           ESP_LOGV(TAG, "Invalid VarInt at %u", i);
@@ -52,7 +44,7 @@ void APIMessage::decode(uint8_t *buffer, size_t length) {
         i += consumed;
         break;
       }
-      case 2: { // Length-delimited
+      case 2: {  // Length-delimited
         res = proto_decode_varuint32(&buffer[i], length - i, &consumed);
         if (!res.has_value()) {
           ESP_LOGV(TAG, "Invalid Length Delimited at %u", i);
@@ -71,16 +63,14 @@ void APIMessage::decode(uint8_t *buffer, size_t length) {
         i += *res;
         break;
       }
-      case 5: { // 32-bit
+      case 5: {  // 32-bit
         if (length - i < 4) {
           ESP_LOGV(TAG, "Out-of-bounds Fixed32-bit at %u", i);
           error = true;
           break;
         }
-        uint32_t val = (uint32_t(buffer[i]) << 0) |
-            (uint32_t(buffer[i + 1]) << 8) |
-            (uint32_t(buffer[i + 2]) << 16) |
-            (uint32_t(buffer[i + 3]) << 24);
+        uint32_t val = (uint32_t(buffer[i]) << 0) | (uint32_t(buffer[i + 1]) << 8) | (uint32_t(buffer[i + 2]) << 16) |
+                       (uint32_t(buffer[i + 3]) << 24);
         if (!this->decode_32bit(field_id, val)) {
           ESP_LOGV(TAG, "Cannot decode 32-bit field %u with value %u!", field_id, val);
         }
@@ -98,8 +88,8 @@ void APIMessage::decode(uint8_t *buffer, size_t length) {
   }
 }
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

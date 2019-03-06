@@ -23,7 +23,7 @@ class JVCTransmitter : public RemoteTransmitter {
   uint32_t data_;
 };
 
-void encode_jvc(RemoteTransmitData *data, uint32_t data_);
+void encode_jvc(RemoteTransmitData *data, uint32_t jvc_data);
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -36,7 +36,6 @@ class JVCReceiver : public RemoteReceiver {
  protected:
   bool matches(RemoteReceiveData *data) override;
 
- protected:
   uint32_t data_;
 };
 
@@ -46,10 +45,10 @@ class JVCDumper : public RemoteReceiveDumper {
 };
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE
 
-#endif //ESPHOME_REMOTE_JVC_H
+#endif  // ESPHOME_REMOTE_JVC_H

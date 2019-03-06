@@ -1,7 +1,7 @@
 #include "esphome/log_component.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <esp_log.h>
+#include <esp_log.h>
 #endif
 #include <HardwareSerial.h>
 
@@ -12,25 +12,23 @@ ESPHOME_NAMESPACE_BEGIN
 
 static const char *TAG = "logger";
 
-int HOT LogComponent::log_vprintf_(int level, const char *tag,
-                                   const char *format, va_list args) {
-  if (level > this->level_for_(tag))
+int HOT LogComponent::log_vprintf_(int level, const char *tag, const char *format, va_list args) {  // NOLINT
+  if (level > this->level_for(tag))
     return 0;
 
-  int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(),
-                      format, args);
+  int ret = vsnprintf(this->tx_buffer_.data(), this->tx_buffer_.capacity(), format, args);
   this->log_message_(level, tag, this->tx_buffer_.data(), ret);
   return ret;
 }
 #ifdef USE_STORE_LOG_STR_IN_FLASH
-int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {
-  if (level > this->level_for_(tag))
+int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHelper *format, va_list args) {  // NOLINT
+  if (level > this->level_for(tag))
     return 0;
 
   // copy format string
-  const char* format_pgm_p = (PGM_P) format;
+  const char *format_pgm_p = (PGM_P) format;
   size_t len = 0;
-  char* write = this->tx_buffer_.data();
+  char *write = this->tx_buffer_.data();
   char ch = '.';
   while (len < this->tx_buffer_.capacity() && ch != '\0') {
     *write++ = ch = pgm_read_byte(format_pgm_p++);
@@ -49,7 +47,7 @@ int LogComponent::log_vprintf_(int level, const char *tag, const __FlashStringHe
 }
 #endif
 
-int HOT LogComponent::level_for_(const char *tag) {
+int HOT LogComponent::level_for(const char *tag) {
   // Uses std::vector<> for low memory footprint, though the vector
   // could be sorted to minimize lookup times. This feature isn't used that
   // much anyway so it doesn't matter too much.
@@ -73,8 +71,7 @@ void HOT LogComponent::log_message_(int level, const char *tag, char *msg, int r
 }
 
 LogComponent::LogComponent(uint32_t baud_rate, size_t tx_buffer_size, UARTSelection uart)
-    : baud_rate_(baud_rate)
-    , uart_(uart) {
+    : baud_rate_(baud_rate), uart_(uart) {
   this->set_tx_buffer_size(tx_buffer_size);
 }
 
@@ -83,7 +80,7 @@ void LogComponent::pre_setup() {
     switch (this->uart_) {
       case UART_SELECTION_UART0:
 #ifdef ARDUINO_ARCH_ESP8266
-        case UART_SELECTION_UART0_SWAP:
+      case UART_SELECTION_UART0_SWAP:
 #endif
         this->hw_serial_ = &Serial;
         break;
@@ -121,33 +118,19 @@ void LogComponent::pre_setup() {
 
   ESP_LOGI(TAG, "Log initialized");
 }
-uint32_t LogComponent::get_baud_rate() const {
-  return this->baud_rate_;
-}
-void LogComponent::set_baud_rate(uint32_t baud_rate) {
-  this->baud_rate_ = baud_rate;
-}
-void LogComponent::set_global_log_level(int log_level) {
-  this->global_log_level_ = log_level;
-}
+uint32_t LogComponent::get_baud_rate() const { return this->baud_rate_; }
+void LogComponent::set_baud_rate(uint32_t baud_rate) { this->baud_rate_ = baud_rate; }
+void LogComponent::set_global_log_level(int log_level) { this->global_log_level_ = log_level; }
 void LogComponent::set_log_level(const std::string &tag, int log_level) {
   this->log_levels_.push_back(LogLevelOverride{tag, log_level});
 }
-size_t LogComponent::get_tx_buffer_size() const {
-  return this->tx_buffer_.capacity();
-}
-void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) {
-  this->tx_buffer_.reserve(tx_buffer_size);
-}
-UARTSelection LogComponent::get_uart() const {
-  return this->uart_;
-}
+size_t LogComponent::get_tx_buffer_size() const { return this->tx_buffer_.capacity(); }
+void LogComponent::set_tx_buffer_size(size_t tx_buffer_size) { this->tx_buffer_.reserve(tx_buffer_size); }
+UARTSelection LogComponent::get_uart() const { return this->uart_; }
 void LogComponent::add_on_log_callback(std::function<void(int, const char *, const char *)> &&callback) {
   this->log_callback_.add(std::move(callback));
 }
-float LogComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE - 1.0f;
-}
+float LogComponent::get_setup_priority() const { return setup_priority::HARDWARE - 1.0f; }
 const char *LOG_LEVELS[] = {"NONE", "ERROR", "WARN", "INFO", "DEBUG", "VERBOSE", "VERY_VERBOSE"};
 #ifdef ARDUINO_ARCH_ESP32
 const char *UART_SELECTIONS[] = {"UART0", "UART1", "UART2"};
@@ -164,9 +147,7 @@ void LogComponent::dump_config() {
     ESP_LOGCONFIG(TAG, "  Level for '%s': %s", it.tag.c_str(), LOG_LEVELS[it.level]);
   }
 }
-int LogComponent::get_global_log_level() const {
-  return this->global_log_level_;
-}
+int LogComponent::get_global_log_level() const { return this->global_log_level_; }
 
 LogComponent *global_log_component = nullptr;
 

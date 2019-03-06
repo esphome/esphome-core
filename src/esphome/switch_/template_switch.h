@@ -21,8 +21,8 @@ class TemplateSwitch : public Switch, public Component {
 
   void set_state_lambda(std::function<optional<bool>()> &&f);
   void set_restore_state(bool restore_state);
-  Trigger<NoArg> *get_turn_on_trigger() const;
-  Trigger<NoArg> *get_turn_off_trigger() const;
+  Trigger<> *get_turn_on_trigger() const;
+  Trigger<> *get_turn_off_trigger() const;
   void set_optimistic(bool optimistic);
   void set_assumed_state(bool assumed_state);
   void loop() override;
@@ -37,16 +37,16 @@ class TemplateSwitch : public Switch, public Component {
   optional<std::function<optional<bool>()>> f_;
   bool optimistic_{false};
   bool assumed_state_{false};
-  Trigger<NoArg> *turn_on_trigger_;
-  Trigger<NoArg> *turn_off_trigger_;
-  Trigger<NoArg> *prev_trigger_{nullptr};
+  Trigger<> *turn_on_trigger_;
+  Trigger<> *turn_off_trigger_;
+  Trigger<> *prev_trigger_{nullptr};
   bool restore_state_{false};
 };
 
-} // namespace switch_
+}  // namespace switch_
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TEMPLATE_SWITCH
+#endif  // USE_TEMPLATE_SWITCH
 
-#endif //ESPHOME_SWITCH_TEMPLATE_SWITCH_H
+#endif  // ESPHOME_SWITCH_TEMPLATE_SWITCH_H

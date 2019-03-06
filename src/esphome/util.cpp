@@ -6,10 +6,10 @@
 #include "esphome/application.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <ESPmDNS.h>
+#include <ESPmDNS.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  #include <ESP8266mDNS.h>
+#include <ESP8266mDNS.h>
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -30,25 +30,25 @@ void network_setup() {
   bool ready = true;
 #ifdef USE_ETHERNET
   if (global_eth_component != nullptr) {
-    global_eth_component->setup_();
+    global_eth_component->call_setup();
     ready = false;
   }
 #endif
 
   if (global_wifi_component != nullptr) {
-    global_wifi_component->setup_();
+    global_wifi_component->call_setup();
     ready = false;
   }
 
   while (!ready) {
 #ifdef USE_ETHERNET
     if (global_eth_component != nullptr) {
-      global_eth_component->loop_();
+      global_eth_component->call_loop();
       ready = ready || global_eth_component->can_proceed();
     }
 #endif
     if (global_wifi_component != nullptr) {
-      global_wifi_component->loop_();
+      global_wifi_component->call_loop();
       ready = ready || global_wifi_component->can_proceed();
     }
     tick_status_led();
@@ -58,10 +58,10 @@ void network_setup() {
 void network_tick() {
 #ifdef USE_ETHERNET
   if (global_eth_component != nullptr)
-    global_eth_component->loop_();
+    global_eth_component->call_loop();
 #endif
   if (global_wifi_component != nullptr)
-    global_wifi_component->loop_();
+    global_wifi_component->call_loop();
 }
 
 void network_setup_mdns() {
@@ -98,12 +98,8 @@ std::string network_get_address() {
   return "";
 }
 
-std::string get_app_name() {
-  return App.get_name();
-}
+std::string get_app_name() { return App.get_name(); }
 
-std::string get_app_compilation_time() {
-  return App.get_compilation_time();
-}
+std::string get_app_compilation_time() { return App.get_compilation_time(); }
 
 ESPHOME_NAMESPACE_END

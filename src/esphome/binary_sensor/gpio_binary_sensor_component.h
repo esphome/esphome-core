@@ -39,10 +39,10 @@ class GPIOBinarySensorComponent : public BinarySensor, public Component {
   GPIOPin *pin_;
 };
 
-} // namespace binary_sensor
+}  // namespace binary_sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_GPIO_BINARY_SENSOR
+#endif  // USE_GPIO_BINARY_SENSOR
 
-#endif //ESPHOME_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H
+#endif  // ESPHOME_BINARY_SENSOR_GPIO_BINARY_SENSOR_COMPONENT_H

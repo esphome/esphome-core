@@ -31,9 +31,7 @@ const uint8_t MPU6050_BIT_TEMPERATURE_DISABLED = 3;
 const float GRAVITY_EARTH = 9.80665f;
 
 MPU6050Component::MPU6050Component(I2CComponent *parent, uint8_t address, uint32_t update_interval)
-    : PollingComponent(update_interval), I2CDevice(parent, address) {
-
-}
+    : PollingComponent(update_interval), I2CDevice(parent, address) {}
 
 void MPU6050Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MPU6050...");
@@ -130,8 +128,9 @@ void MPU6050Component::update() {
   float gyro_y = data[5] * MPU6050_SCALE_DPS_PER_DIGIT_2000;
   float gyro_z = data[6] * MPU6050_SCALE_DPS_PER_DIGIT_2000;
 
-  ESP_LOGD(TAG, "Got accel={x=%.3f m/s², y=%.3f m/s², z=%.3f m/s²}, "
-                "gyro={x=%.3f °/s, y=%.3f °/s, z=%.3f °/s}, temp=%.3f°C",
+  ESP_LOGD(TAG,
+           "Got accel={x=%.3f m/s², y=%.3f m/s², z=%.3f m/s²}, "
+           "gyro={x=%.3f °/s, y=%.3f °/s, z=%.3f °/s}, temp=%.3f°C",
            accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, temperature);
 
   if (this->accel_x_sensor_ != nullptr)
@@ -174,12 +173,10 @@ MPU6050GyroSensor *MPU6050Component::make_gyro_z_sensor(const std::string &name)
 MPU6050TemperatureSensor *MPU6050Component::make_temperature_sensor(const std::string &name) {
   return this->temperature_sensor_ = new MPU6050TemperatureSensor(name, this);
 }
-float MPU6050Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float MPU6050Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MPUT6050
+#endif  // USE_MPUT6050

@@ -33,23 +33,25 @@ class APIBuffer {
   size_t begin_nested(uint32_t field);
   void end_nested(size_t begin_index);
 
-  void encode_field_(uint32_t field, uint32_t type);
-  void encode_varint_(uint32_t value);
-  uint32_t varint_length_(uint32_t value);
+  void encode_field_raw(uint32_t field, uint32_t type);
+  void encode_varint_raw(uint32_t value);
 
  protected:
   std::vector<uint8_t> *buffer_;
 };
 
-optional<uint32_t> proto_decode_varuint32(uint8_t *buf, size_t len, uint32_t *consumed = nullptr);
+optional<uint32_t> proto_decode_varuint32(const uint8_t *buf, size_t len, uint32_t *consumed = nullptr);
 
 std::string as_string(const uint8_t *value, size_t len);
 int32_t as_sint32(uint32_t val);
 float as_float(uint32_t val);
 
+class APIServer;
+class UserServiceDescriptor;
+
 class ComponentIterator {
  public:
-  ComponentIterator(StoringController *controller);
+  ComponentIterator(APIServer *server);
 
   void begin();
   void advance();
@@ -70,11 +72,12 @@ class ComponentIterator {
   virtual bool on_sensor(sensor::Sensor *sensor) = 0;
 #endif
 #ifdef USE_SWITCH
-  virtual bool on_switch(switch_::Switch *switch_) = 0;
+  virtual bool on_switch(switch_::Switch *a_switch) = 0;
 #endif
 #ifdef USE_TEXT_SENSOR
   virtual bool on_text_sensor(text_sensor::TextSensor *text_sensor) = 0;
 #endif
+  virtual bool on_service(UserServiceDescriptor *service);
   virtual bool on_end();
 
  protected:
@@ -102,17 +105,18 @@ class ComponentIterator {
 #ifdef USE_TEXT_SENSOR
     TEXT_SENSOR,
 #endif
+    SERVICE,
     MAX,
   } state_{IteratorState::NONE};
   size_t at_{0};
 
-  StoringController *controller_;
+  APIServer *server_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_UTIL_H
+#endif  // ESPHOME_API_UTIL_H

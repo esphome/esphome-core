@@ -98,15 +98,15 @@ bool ListEntitiesIterator::on_sensor(sensor::Sensor *sensor) {
 }
 #endif
 #ifdef USE_SWITCH
-bool ListEntitiesIterator::on_switch(switch_::Switch *switch_) {
+bool ListEntitiesIterator::on_switch(switch_::Switch *a_switch) {
   auto buffer = this->client_->get_buffer();
-  buffer.encode_nameable(switch_);
+  buffer.encode_nameable(a_switch);
   // string unique_id = 4;
-  buffer.encode_string(4, get_default_unique_id("switch", switch_));
+  buffer.encode_string(4, get_default_unique_id("switch", a_switch));
   // string icon = 5;
-  buffer.encode_string(5, switch_->get_icon());
+  buffer.encode_string(5, a_switch->get_icon());
   // bool assumed_state = 6;
-  buffer.encode_bool(6, switch_->assumed_state());
+  buffer.encode_bool(6, a_switch->assumed_state());
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_SWITCH_RESPONSE);
 }
 #endif
@@ -128,17 +128,18 @@ bool ListEntitiesIterator::on_text_sensor(text_sensor::TextSensor *text_sensor) 
 bool ListEntitiesIterator::on_end() {
   return this->client_->send_empty_message(APIMessageType::LIST_ENTITIES_DONE_RESPONSE);
 }
-ListEntitiesIterator::ListEntitiesIterator(StoringController *controller, APIConnection *client)
-    : ComponentIterator(controller), client_(client) {
-
+ListEntitiesIterator::ListEntitiesIterator(APIServer *server, APIConnection *client)
+    : ComponentIterator(server), client_(client) {}
+bool ListEntitiesIterator::on_service(UserServiceDescriptor *service) {
+  auto buffer = this->client_->get_buffer();
+  service->encode_list_service_response(buffer);
+  return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE);
 }
 
-APIMessageType ListEntitiesRequest::message_type() const {
-  return APIMessageType::LIST_ENTITIES_REQUEST;
-}
+APIMessageType ListEntitiesRequest::message_type() const { return APIMessageType::LIST_ENTITIES_REQUEST; }
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API

@@ -28,14 +28,14 @@ void RC5Transmitter::to_data(RemoteTransmitData *data) {
 void encode_rc5(RemoteTransmitData *data, uint8_t address, uint8_t command, bool toggle) {
   data->set_carrier_frequency(36000);
 
-  uint64_t data_ = 0;
-  data_ |= 0b11 << 12;
-  data_ |= toggle << 11;
-  data_ |= address << 6;
-  data_ |= command;
+  uint64_t out_data = 0;
+  out_data |= 0b11 << 12;
+  out_data |= toggle << 11;
+  out_data |= address << 6;
+  out_data |= command;
 
   for (uint64_t mask = 1UL << (NBITS - 1); mask != 0; mask >>= 1) {
-    if (data_ & mask) {
+    if (out_data & mask) {
       data->space(BIT_TIME_US);
       data->mark(BIT_TIME_US);
     } else {
@@ -53,26 +53,24 @@ RC5DecodeData decode_rc5(RemoteReceiveData *data) {
   out.address = 0;
   out.command = 0;
   data->expect_space(BIT_TIME_US);
-  if (!data->expect_mark(BIT_TIME_US) ||
-      !data->expect_space(BIT_TIME_US) ||
-      !data->expect_mark(BIT_TIME_US)) {
+  if (!data->expect_mark(BIT_TIME_US) || !data->expect_space(BIT_TIME_US) || !data->expect_mark(BIT_TIME_US)) {
     return out;
   }
 
-  uint64_t data_ = 0;
+  uint64_t out_data = 0;
   for (int bit = NBITS - 3; bit >= 0; bit--) {
     if (data->expect_space(BIT_TIME_US) && data->expect_mark(BIT_TIME_US)) {
-      data_ |= 1 << bit;
+      out_data |= 1 << bit;
     } else if (data->expect_mark(BIT_TIME_US) && data->expect_space(BIT_TIME_US)) {
-      data_ |= 0 << bit;
+      out_data |= 0 << bit;
     } else {
       out.valid = false;
       return out;
     }
   }
 
-  out.command = data_ & 0x3F;
-  out.address = (data_ >> 6) & 0x1F;
+  out.command = out_data & 0x3F;
+  out.address = (out_data >> 6) & 0x1F;
   out.valid = true;
   return out;
 }
@@ -93,13 +91,13 @@ bool RC5Dumper::dump(RemoteReceiveData *data) {
   if (!res.valid)
     return false;
 
-  ESP_LOGD(TAG, "Received RC5: address=0x02X, command=0x%02X", res.address, res.command);
+  ESP_LOGD(TAG, "Received RC5: address=0x%02X, command=0x%02X", res.address, res.command);
   return true;
 }
 #endif
 
-} // namespace remote
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE

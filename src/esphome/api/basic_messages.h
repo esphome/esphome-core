@@ -17,6 +17,7 @@ class HelloRequest : public APIMessage {
   const std::string &get_client_info() const;
   void set_client_info(const std::string &client_info);
   APIMessageType message_type() const override;
+
  protected:
   std::string client_info_;
 };
@@ -27,6 +28,7 @@ class ConnectRequest : public APIMessage {
   const std::string &get_password() const;
   void set_password(const std::string &password);
   APIMessageType message_type() const override;
+
  protected:
   std::string password_;
 };
@@ -43,6 +45,7 @@ class DisconnectRequest : public APIMessage {
   APIMessageType message_type() const override;
   const std::string &get_reason() const;
   void set_reason(const std::string &reason);
+
  protected:
   std::string reason_;
 };
@@ -62,10 +65,10 @@ class PingResponse : public APIMessage {
   APIMessageType message_type() const override;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_API_BASIC_MESSAGES_H
+#endif  // ESPHOME_API_BASIC_MESSAGES_H

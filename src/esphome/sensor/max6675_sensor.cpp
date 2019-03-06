@@ -33,18 +33,10 @@ void MAX6675Sensor::dump_config() {
   LOG_PIN("  CS Pin: ", this->cs_);
   LOG_UPDATE_INTERVAL(this);
 }
-float MAX6675Sensor::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
-std::string MAX6675Sensor::unit_of_measurement() {
-  return UNIT_C;
-}
-std::string MAX6675Sensor::icon() {
-  return ICON_EMPTY;
-}
-int8_t MAX6675Sensor::accuracy_decimals() {
-  return 1;
-}
+float MAX6675Sensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
+std::string MAX6675Sensor::unit_of_measurement() { return UNIT_C; }
+std::string MAX6675Sensor::icon() { return ICON_EMPTY; }
+int8_t MAX6675Sensor::accuracy_decimals() { return 1; }
 void MAX6675Sensor::read_data_() {
   this->enable();
   delay(1);
@@ -69,12 +61,10 @@ void MAX6675Sensor::read_data_() {
 MAX6675Sensor::MAX6675Sensor(const std::string &name, SPIComponent *parent, GPIOPin *cs, uint32_t update_interval)
     : PollingSensorComponent(name, update_interval), SPIDevice(parent, cs) {}
 
-bool MAX6675Sensor::msb_first() {
-  return true;
-}
+bool MAX6675Sensor::is_device_msb_first() { return true; }
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MAX6675_SENSOR
+#endif  // USE_MAX6675_SENSOR

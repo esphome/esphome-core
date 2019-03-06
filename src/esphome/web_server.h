@@ -15,10 +15,10 @@ ESPHOME_NAMESPACE_BEGIN
 
 /// Internal helper struct that is used to parse incoming URLs
 struct UrlMatch {
-  std::string domain; ///< The domain of the component, for example "sensor"
-  std::string id; ///< The id of the device that's being accessed, for example "living_room_fan"
-  std::string method; ///< The method that's being called, for example "turn_on"
-  bool valid; ///< Whether this match is valid
+  std::string domain;  ///< The domain of the component, for example "sensor"
+  std::string id;      ///< The id of the device that's being accessed, for example "living_room_fan"
+  std::string method;  ///< The method that's being called, for example "turn_on"
+  bool valid;          ///< Whether this match is valid
 };
 
 /** This class allows users to create a web server with their ESP nodes.
@@ -130,8 +130,7 @@ class WebServer : public StoringUpdateListenerController, public Component, publ
   bool canHandle(AsyncWebServerRequest *request) override;
   /// Override the web handler's handleRequest method.
   void handleRequest(AsyncWebServerRequest *request) override;
-  void handleUpload(AsyncWebServerRequest *request,
-                    const String &filename, size_t index, uint8_t *data, size_t len,
+  void handleUpload(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len,
                     bool final) override;
   /// This web handle is not trivial.
   bool isRequestHandlerTrivial() override;
@@ -148,6 +147,6 @@ class WebServer : public StoringUpdateListenerController, public Component, publ
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_WEB_SERVER
+#endif  // USE_WEB_SERVER
 
-#endif //ESPHOME_WEB_SERVER_H
+#endif  // ESPHOME_WEB_SERVER_H

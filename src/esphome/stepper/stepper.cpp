@@ -25,7 +25,7 @@ void Stepper::calculate_speed_(uint32_t now) {
   int32_t num_steps = abs(int32_t(this->target_position) - int32_t(this->current_position));
   // (v_0)^2 / 2*a
   float v_squared = this->current_speed_ * this->current_speed_;
-  int32_t steps_to_decelerate = v_squared / (2 * this->deceleration_);
+  auto steps_to_decelerate = static_cast<int32_t>(v_squared / (2 * this->deceleration_));
   if (num_steps <= steps_to_decelerate) {
     // need to start decelerating
     this->current_speed_ -= this->deceleration_ * dt;
@@ -52,27 +52,15 @@ int32_t Stepper::should_step_() {
 
   return 0;
 }
-void Stepper::set_target(int32_t steps) {
-  this->target_position = steps;
-}
-void Stepper::report_position(int32_t steps) {
-  this->current_position = steps;
-}
-void Stepper::set_acceleration(float acceleration) {
-  this->acceleration_ = acceleration;
-}
-void Stepper::set_deceleration(float deceleration) {
-  this->deceleration_ = deceleration;
-}
-void Stepper::set_max_speed(float max_speed) {
-  this->max_speed_ = max_speed;
-}
-bool Stepper::has_reached_target() {
-  return this->current_position == this->target_position;
-}
+void Stepper::set_target(int32_t steps) { this->target_position = steps; }
+void Stepper::report_position(int32_t steps) { this->current_position = steps; }
+void Stepper::set_acceleration(float acceleration) { this->acceleration_ = acceleration; }
+void Stepper::set_deceleration(float deceleration) { this->deceleration_ = deceleration; }
+void Stepper::set_max_speed(float max_speed) { this->max_speed_ = max_speed; }
+bool Stepper::has_reached_target() { return this->current_position == this->target_position; }
 
-} // namespace stepper
+}  // namespace stepper
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_STEPPER
+#endif  // USE_STEPPER

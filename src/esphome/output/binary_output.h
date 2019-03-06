@@ -12,14 +12,13 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace output {
 
-template<typename T>
-class TurnOffAction;
-
-template<typename T>
-class TurnOnAction;
+template<typename... Ts> class TurnOffAction;
+template<typename... Ts> class TurnOnAction;
 
 #define LOG_BINARY_OUTPUT(this) \
-  if (this->inverted_) { ESP_LOGCONFIG(TAG, "  Inverted: YES"); } \
+  if (this->inverted_) { \
+    ESP_LOGCONFIG(TAG, "  Inverted: YES"); \
+  }
 
 /** The base class for all binary outputs i.e. outputs that can only be switched on/off.
  *
@@ -61,10 +60,8 @@ class BinaryOutput {
   /// Return the power supply assigned to this binary output.
   PowerSupplyComponent *get_power_supply() const;
 
-  template<typename T>
-  TurnOffAction<T> *make_turn_off_action();
-  template<typename T>
-  TurnOnAction<T> *make_turn_on_action();
+  template<typename... Ts> TurnOffAction<Ts...> *make_turn_off_action();
+  template<typename... Ts> TurnOnAction<Ts...> *make_turn_on_action();
 
  protected:
   virtual void write_state(bool state) = 0;
@@ -74,52 +71,46 @@ class BinaryOutput {
   bool has_requested_high_power_{false};
 };
 
-template<typename T>
-class TurnOffAction : public Action<T> {
+template<typename... Ts> class TurnOffAction : public Action<Ts...> {
  public:
   TurnOffAction(BinaryOutput *output);
 
-  void play(T x) override;
+  void play(Ts... x) override;
+
  protected:
   BinaryOutput *output_;
 };
-template<typename T>
-class TurnOnAction : public Action<T> {
+template<typename... Ts> class TurnOnAction : public Action<Ts...> {
  public:
   TurnOnAction(BinaryOutput *output);
 
-  void play(T x) override;
+  void play(Ts... x) override;
+
  protected:
   BinaryOutput *output_;
 };
 
-template<typename T>
-TurnOffAction<T>::TurnOffAction(BinaryOutput *output) : output_(output) {}
-template<typename T>
-void TurnOffAction<T>::play(T x) {
+template<typename... Ts> TurnOffAction<Ts...>::TurnOffAction(BinaryOutput *output) : output_(output) {}
+template<typename... Ts> void TurnOffAction<Ts...>::play(Ts... x) {
   this->output_->turn_off();
-  this->play_next(x);
+  this->play_next(x...);
 }
-template<typename T>
-TurnOnAction<T>::TurnOnAction(BinaryOutput *output) : output_(output) {}
-template<typename T>
-void TurnOnAction<T>::play(T x) {
+template<typename... Ts> TurnOnAction<Ts...>::TurnOnAction(BinaryOutput *output) : output_(output) {}
+template<typename... Ts> void TurnOnAction<Ts...>::play(Ts... x) {
   this->output_->turn_on();
-  this->play_next(x);
+  this->play_next(x...);
 }
-template<typename T>
-TurnOffAction<T> *BinaryOutput::make_turn_off_action() {
-  return new TurnOffAction<T>(this);
+template<typename... Ts> TurnOffAction<Ts...> *BinaryOutput::make_turn_off_action() {
+  return new TurnOffAction<Ts...>(this);
 }
-template<typename T>
-TurnOnAction<T> *BinaryOutput::make_turn_on_action() {
-  return new TurnOnAction<T>(this);
+template<typename... Ts> TurnOnAction<Ts...> *BinaryOutput::make_turn_on_action() {
+  return new TurnOnAction<Ts...>(this);
 }
 
-} // namespace output
+}  // namespace output
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_OUTPUT
+#endif  // USE_OUTPUT
 
-#endif //ESPHOME_OUTPUT_BINARY_OUTPUT_H
+#endif  // ESPHOME_OUTPUT_BINARY_OUTPUT_H

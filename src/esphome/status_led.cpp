@@ -11,9 +11,7 @@ static const char *TAG = "status_led";
 
 StatusLEDComponent *global_status_led = nullptr;
 
-StatusLEDComponent::StatusLEDComponent(GPIOPin *pin) : pin_(pin) {
-  global_status_led = this;
-}
+StatusLEDComponent::StatusLEDComponent(GPIOPin *pin) : pin_(pin) { global_status_led = this; }
 void StatusLEDComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Status LED...");
   this->pin_->setup();
@@ -32,13 +30,9 @@ void StatusLEDComponent::loop() {
     this->pin_->digital_write(false);
   }
 }
-float StatusLEDComponent::get_setup_priority() const {
-  return setup_priority::HARDWARE;
-}
-float StatusLEDComponent::get_loop_priority() const {
-  return 50.0f;
-}
+float StatusLEDComponent::get_setup_priority() const { return setup_priority::HARDWARE; }
+float StatusLEDComponent::get_loop_priority() const { return 50.0f; }
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_STATUS_LED
+#endif  // USE_STATUS_LED

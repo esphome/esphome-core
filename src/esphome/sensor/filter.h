@@ -71,7 +71,7 @@ class SlidingWindowMovingAverageFilter : public Filter {
    *   on startup being published on the first *raw* value, so with no filter applied. Must be less than or equal to
    *   send_every.
    */
-  explicit SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every, uint32_t send_first_at = 1);
+  explicit SlidingWindowMovingAverageFilter(size_t window_size, size_t send_every, size_t send_first_at = 1);
 
   optional<float> new_value(float value) override;
 
@@ -159,18 +159,12 @@ class MultiplyFilter : public Filter {
 /// A simple filter that only forwards the filter chain if it doesn't receive `value_to_filter_out`.
 class FilterOutValueFilter : public Filter {
  public:
-  explicit FilterOutValueFilter(float values_to_filter_out);
+  explicit FilterOutValueFilter(float value_to_filter_out);
 
   optional<float> new_value(float value) override;
 
  protected:
   float value_to_filter_out_;
-};
-
-/// A simple filter that only forwards the filter chain if it doesn't receive `nan`.
-class FilterOutNANFilter : public Filter {
- public:
-  optional<float> new_value(float value) override;
 };
 
 class ThrottleFilter : public Filter {
@@ -240,6 +234,7 @@ class OrFilter : public Filter {
    public:
     PhiNode(OrFilter *parent);
     optional<float> new_value(float value) override;
+
    protected:
     OrFilter *parent_;
   };
@@ -248,18 +243,20 @@ class OrFilter : public Filter {
   PhiNode phi_;
 };
 
-class UniqueFilter : public Filter {
+class CalibrateLinearFilter : public Filter {
  public:
+  CalibrateLinearFilter(float slope, float bias);
   optional<float> new_value(float value) override;
 
  protected:
-  float last_value_{NAN};
+  float slope_;
+  float bias_;
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SENSOR
+#endif  // USE_SENSOR
 
-#endif //ESPHOME_SENSOR_FILTER_H
+#endif  // ESPHOME_SENSOR_FILTER_H

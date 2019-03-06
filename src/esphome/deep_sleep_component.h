@@ -17,8 +17,8 @@ ESPHOME_NAMESPACE_BEGIN
  * and the scenario occurs that the wakeup pin is already in the wakeup state.
  */
 enum WakeupPinMode {
-  WAKEUP_PIN_MODE_IGNORE = 0, ///< Ignore the fact that we will wake up when going into deep sleep.
-  WAKEUP_PIN_MODE_KEEP_AWAKE, ///< As long as the wakeup pin is still in the wakeup state, keep awake.
+  WAKEUP_PIN_MODE_IGNORE = 0,  ///< Ignore the fact that we will wake up when going into deep sleep.
+  WAKEUP_PIN_MODE_KEEP_AWAKE,  ///< As long as the wakeup pin is still in the wakeup state, keep awake.
 
   /** Automatically invert the wakeup level. For example if we were set up to wake up on HIGH, but the pin
    * is already high when attempting to enter deep sleep, re-configure deep sleep to wake up on LOW level.
@@ -33,11 +33,9 @@ struct Ext1Wakeup {
 
 #endif
 
-template<typename T>
-class EnterDeepSleepAction;
+template<typename... Ts> class EnterDeepSleepAction;
 
-template<typename T>
-class PreventDeepSleepAction;
+template<typename... Ts> class PreventDeepSleepAction;
 
 /** This component allows setting up the node to go into deep sleep mode to conserve battery.
  *
@@ -69,13 +67,11 @@ class DeepSleepComponent : public Component {
   float get_setup_priority() const override;
 
   /// Helper to enter deep sleep mode
-  void begin_sleep_(bool manual = false);
+  void begin_sleep(bool manual = false);
 
-  template<typename T>
-  EnterDeepSleepAction<T> *make_enter_deep_sleep_action();
+  template<typename... Ts> EnterDeepSleepAction<Ts...> *make_enter_deep_sleep_action();
 
-  template<typename T>
-  PreventDeepSleepAction<T> *make_prevent_deep_sleep_action();
+  template<typename... Ts> PreventDeepSleepAction<Ts...> *make_prevent_deep_sleep_action();
 
   void prevent_deep_sleep();
 
@@ -83,7 +79,7 @@ class DeepSleepComponent : public Component {
   optional<uint64_t> sleep_duration_;
 #ifdef ARDUINO_ARCH_ESP32
   optional<GPIOPin *> wakeup_pin_;
-  WakeupPinMode  wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
+  WakeupPinMode wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
   optional<Ext1Wakeup> ext1_wakeup_;
 #endif
   optional<uint32_t> run_duration_;
@@ -93,58 +89,51 @@ class DeepSleepComponent : public Component {
 
 extern bool global_has_deep_sleep;
 
-template<typename T>
-class EnterDeepSleepAction : public Action<T> {
+template<typename... Ts> class EnterDeepSleepAction : public Action<Ts...> {
  public:
   EnterDeepSleepAction(DeepSleepComponent *deep_sleep);
 
-  void play(T x) override;
+  void play(Ts... x) override;
+
  protected:
   DeepSleepComponent *deep_sleep_;
 };
 
-template<typename T>
-class PreventDeepSleepAction : public Action<T> {
+template<typename... Ts> class PreventDeepSleepAction : public Action<Ts...> {
  public:
   PreventDeepSleepAction(DeepSleepComponent *deep_sleep);
 
-  void play(T x) override;
+  void play(Ts... x) override;
+
  protected:
   DeepSleepComponent *deep_sleep_;
 };
 
-template<typename T>
-EnterDeepSleepAction<T>::EnterDeepSleepAction(DeepSleepComponent *deep_sleep) : deep_sleep_(deep_sleep) {}
+template<typename... Ts>
+EnterDeepSleepAction<Ts...>::EnterDeepSleepAction(DeepSleepComponent *deep_sleep) : deep_sleep_(deep_sleep) {}
 
-template<typename T>
-void EnterDeepSleepAction<T>::play(T x) {
-  this->deep_sleep_->begin_sleep_(true);
+template<typename... Ts> void EnterDeepSleepAction<Ts...>::play(Ts... x) {
+  this->deep_sleep_->begin_sleep(true);
   // no need to call play_next. We should be done with execution by now.
 }
 
-template<typename T>
-EnterDeepSleepAction<T> *DeepSleepComponent::make_enter_deep_sleep_action() {
-  return new EnterDeepSleepAction<T>(this);
+template<typename... Ts> EnterDeepSleepAction<Ts...> *DeepSleepComponent::make_enter_deep_sleep_action() {
+  return new EnterDeepSleepAction<Ts...>(this);
 }
 
-template<typename T>
-PreventDeepSleepAction<T>::PreventDeepSleepAction(DeepSleepComponent *deep_sleep)
-    : deep_sleep_(deep_sleep) {
-
-}
-template<typename T>
-void PreventDeepSleepAction<T>::play(T x) {
+template<typename... Ts>
+PreventDeepSleepAction<Ts...>::PreventDeepSleepAction(DeepSleepComponent *deep_sleep) : deep_sleep_(deep_sleep) {}
+template<typename... Ts> void PreventDeepSleepAction<Ts...>::play(Ts... x) {
   this->deep_sleep_->prevent_deep_sleep();
-  this->play_next(x);
+  this->play_next(x...);
 }
 
-template<typename T>
-PreventDeepSleepAction<T> *DeepSleepComponent::make_prevent_deep_sleep_action() {
-  return new PreventDeepSleepAction<T>(this);
+template<typename... Ts> PreventDeepSleepAction<Ts...> *DeepSleepComponent::make_prevent_deep_sleep_action() {
+  return new PreventDeepSleepAction<Ts...>(this);
 }
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DEEP_SLEEP
+#endif  // USE_DEEP_SLEEP
 
-#endif //ESPHOME_DEEP_SLEEP_COMPONENT_H
+#endif  // ESPHOME_DEEP_SLEEP_COMPONENT_H

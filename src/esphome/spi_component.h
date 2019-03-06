@@ -64,18 +64,16 @@ class SPIDevice {
   void write_array(uint8_t *data, size_t length);
 
  protected:
-  virtual bool msb_first() = 0;
+  virtual bool is_device_msb_first() = 0;
 
-  virtual bool high_speed();
+  virtual bool is_device_high_speed();
 
   SPIComponent *parent_;
   GPIOPin *cs_;
 };
 
-
-
 ESPHOME_NAMESPACE_END
 
-#endif //USE_SPI
+#endif  // USE_SPI
 
-#endif //ESPHOME_SPI_COMPONENT_H
+#endif  // ESPHOME_SPI_COMPONENT_H

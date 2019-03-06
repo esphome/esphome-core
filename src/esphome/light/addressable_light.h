@@ -40,23 +40,23 @@ struct ESPColor {
   inline ESPColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t white) ALWAYS_INLINE;
   inline ESPColor(uint8_t red, uint8_t green, uint8_t blue) ALWAYS_INLINE;
   inline ESPColor(uint32_t colorcode) ALWAYS_INLINE;
-  inline ESPColor(const ESPColor& rhs) ALWAYS_INLINE;
+  inline ESPColor(const ESPColor &rhs) ALWAYS_INLINE;
   inline bool is_on() ALWAYS_INLINE;
-  inline ESPColor& operator= (const ESPColor& rhs) ALWAYS_INLINE;
-  inline ESPColor& operator= (const uint32_t colorcode) ALWAYS_INLINE;
-  inline uint8_t &operator[] (uint8_t x) ALWAYS_INLINE;
-  inline ESPColor operator* (uint8_t scale) const ALWAYS_INLINE;
-  inline ESPColor &operator*= (uint8_t scale) ALWAYS_INLINE;
-  inline ESPColor operator* (const ESPColor &scale) const ALWAYS_INLINE;
-  inline ESPColor &operator*= (const ESPColor &scale) ALWAYS_INLINE;
-  inline ESPColor operator+ (const ESPColor &add) const ALWAYS_INLINE;
-  inline ESPColor &operator+= (const ESPColor &add) ALWAYS_INLINE;
-  inline ESPColor operator+ (uint8_t add) const ALWAYS_INLINE;
-  inline ESPColor &operator+= (uint8_t add) ALWAYS_INLINE;
-  inline ESPColor operator- (const ESPColor &subtract) const ALWAYS_INLINE;
-  inline ESPColor &operator-= (const ESPColor &subtract) ALWAYS_INLINE;
-  inline ESPColor operator- (uint8_t subtract) const ALWAYS_INLINE;
-  inline ESPColor &operator-= (uint8_t subtract) ALWAYS_INLINE;
+  inline ESPColor &operator=(const ESPColor &rhs) ALWAYS_INLINE;
+  inline ESPColor &operator=(uint32_t colorcode) ALWAYS_INLINE;
+  inline uint8_t &operator[](uint8_t x) ALWAYS_INLINE;
+  inline ESPColor operator*(uint8_t scale) const ALWAYS_INLINE;
+  inline ESPColor &operator*=(uint8_t scale) ALWAYS_INLINE;
+  inline ESPColor operator*(const ESPColor &scale) const ALWAYS_INLINE;
+  inline ESPColor &operator*=(const ESPColor &scale) ALWAYS_INLINE;
+  inline ESPColor operator+(const ESPColor &add) const ALWAYS_INLINE;
+  inline ESPColor &operator+=(const ESPColor &add) ALWAYS_INLINE;
+  inline ESPColor operator+(uint8_t add) const ALWAYS_INLINE;
+  inline ESPColor &operator+=(uint8_t add) ALWAYS_INLINE;
+  inline ESPColor operator-(const ESPColor &subtract) const ALWAYS_INLINE;
+  inline ESPColor &operator-=(const ESPColor &subtract) ALWAYS_INLINE;
+  inline ESPColor operator-(uint8_t subtract) const ALWAYS_INLINE;
+  inline ESPColor &operator-=(uint8_t subtract) ALWAYS_INLINE;
   static ESPColor random_color();
 };
 
@@ -99,6 +99,7 @@ class ESPColorCorrection {
   inline uint8_t color_uncorrect_green(uint8_t green) const ALWAYS_INLINE;
   inline uint8_t color_uncorrect_blue(uint8_t blue) const ALWAYS_INLINE;
   inline uint8_t color_uncorrect_white(uint8_t white) const ALWAYS_INLINE;
+
  protected:
   uint8_t gamma_table_[256];
   uint8_t gamma_reverse_table_[256];
@@ -108,10 +109,10 @@ class ESPColorCorrection {
 
 class ESPColorView {
  public:
-  inline ESPColorView(uint8_t *red, uint8_t *green, uint8_t *blue, uint8_t *white,
-                      uint8_t *effect_data, const ESPColorCorrection *color_correction) ALWAYS_INLINE;
-  inline const ESPColorView &operator= (const ESPColor &rhs) const ALWAYS_INLINE;
-  inline const ESPColorView &operator= (const ESPHSVColor &rhs) const ALWAYS_INLINE;
+  inline ESPColorView(uint8_t *red, uint8_t *green, uint8_t *blue, uint8_t *white, uint8_t *effect_data,
+                      const ESPColorCorrection *color_correction) ALWAYS_INLINE;
+  inline const ESPColorView &operator=(const ESPColor &rhs) const ALWAYS_INLINE;
+  inline const ESPColorView &operator=(const ESPHSVColor &rhs) const ALWAYS_INLINE;
   inline void set(const ESPColor &color) const ALWAYS_INLINE;
   inline void set(const ESPHSVColor &color) const ALWAYS_INLINE;
   inline void set_red(uint8_t red) const ALWAYS_INLINE;
@@ -127,7 +128,8 @@ class ESPColorView {
   inline uint8_t get_blue() const ALWAYS_INLINE;
   inline uint8_t get_white() const ALWAYS_INLINE;
   inline uint8_t get_effect_data() const ALWAYS_INLINE;
-  inline void set_color_correction_(const ESPColorCorrection *color_correction) ALWAYS_INLINE;
+  inline void raw_set_color_correction(const ESPColorCorrection *color_correction) ALWAYS_INLINE;
+
  protected:
   uint8_t *const red_;
   uint8_t *const green_;
@@ -141,7 +143,7 @@ class AddressableLight : public LightOutput {
  public:
   AddressableLight();
   virtual int32_t size() const = 0;
-  virtual ESPColorView operator [](int32_t index) const = 0;
+  virtual ESPColorView operator[](int32_t index) const = 0;
   virtual void clear_effect_data() = 0;
   bool is_effect_active() const;
   void set_effect_active(bool effect_active);
@@ -149,10 +151,11 @@ class AddressableLight : public LightOutput {
   void set_correction(float red, float green, float blue, float white = 1.0f);
   void setup_state(LightState *state) override;
   void schedule_show();
+
  protected:
   bool should_show_() const;
   void mark_shown_();
-  
+
   bool effect_active_{false};
   bool next_show_{true};
   ESPColorCorrection correction_{};
@@ -186,15 +189,14 @@ class PartitionLightOutput : public AddressableLight, public Component {
 
  protected:
   std::vector<AddressableSegment> segments_;
-  ESPColorCorrection correction_{};
 };
 
-} // namespace light
+}  // namespace light
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/light/addressable_light.tcc"
 
-#endif //USE_LIGHT
+#endif  // USE_LIGHT
 
-#endif //ESPHOME_LIGHT_ADDRESSABLE_LIGHT_H
+#endif  // ESPHOME_LIGHT_ADDRESSABLE_LIGHT_H

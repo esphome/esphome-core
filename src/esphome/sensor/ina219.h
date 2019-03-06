@@ -19,8 +19,7 @@ using INA219PowerSensor = EmptyPollingParentSensor<2, ICON_FLASH, UNIT_W>;
 
 class INA219Component : public PollingComponent, public I2CDevice {
  public:
-  INA219Component(I2CComponent *parent,
-                  float shunt_resistance_ohm, float max_current_a, float max_voltage_v,
+  INA219Component(I2CComponent *parent, float shunt_resistance_ohm, float max_current_a, float max_voltage_v,
                   uint8_t address = 0x40, uint32_t update_interval = 60000);
   void setup() override;
   void dump_config() override;
@@ -30,7 +29,7 @@ class INA219Component : public PollingComponent, public I2CDevice {
   INA219VoltageSensor *make_bus_voltage_sensor(const std::string &name);
   INA219VoltageSensor *make_shunt_voltage_sensor(const std::string &name);
   INA219CurrentSensor *make_current_sensor(const std::string &name);
-  INA219PowerSensor  *make_power_sensor(const std::string &name);
+  INA219PowerSensor *make_power_sensor(const std::string &name);
 
  protected:
   float shunt_resistance_ohm_;
@@ -43,10 +42,10 @@ class INA219Component : public PollingComponent, public I2CDevice {
   INA219PowerSensor *power_sensor_{nullptr};
 };
 
-} // namespace sensor
+}  // namespace sensor
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_INA219
+#endif  // USE_INA219
 
-#endif //ESPHOME_INA_219_H
+#endif  // ESPHOME_INA_219_H

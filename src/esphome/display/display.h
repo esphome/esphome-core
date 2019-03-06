@@ -87,11 +87,11 @@ class DisplayPage;
 using display_writer_t = std::function<void(DisplayBuffer &)>;
 
 #define LOG_DISPLAY(prefix, type, obj) \
-    if (obj != nullptr) { \
-      ESP_LOGCONFIG(TAG, prefix type); \
-      ESP_LOGCONFIG(TAG, prefix "  Rotations: %d °", obj->rotation_); \
-      ESP_LOGCONFIG(TAG, prefix "  Dimensions: %dpx x %dpx", obj->get_width(), obj->get_height()); \
-    }
+  if (obj != nullptr) { \
+    ESP_LOGCONFIG(TAG, prefix type); \
+    ESP_LOGCONFIG(TAG, prefix "  Rotations: %d °", obj->rotation_); \
+    ESP_LOGCONFIG(TAG, prefix "  Dimensions: %dpx x %dpx", obj->get_width(), obj->get_height()); \
+  }
 
 class DisplayBuffer {
  public:
@@ -116,7 +116,8 @@ class DisplayBuffer {
   /// Draw a vertical line from the point [x,y] to [x,y+width] with the given color.
   void vertical_line(int x, int y, int height, int color = COLOR_ON);
 
-  /// Draw the outline of a rectangle with the top left point at [x1,y1] and the bottom right point at [x1+width,y1+height].
+  /// Draw the outline of a rectangle with the top left point at [x1,y1] and the bottom right point at
+  /// [x1+width,y1+height].
   void rectangle(int x1, int y1, int width, int height, int color = COLOR_ON);
 
   /// Fill a rectangle with the top left point at [x1,y1] and the bottom right point at [x1+width,y1+height].
@@ -159,7 +160,6 @@ class DisplayBuffer {
    */
   void print(int x, int y, Font *font, TextAlign align, const char *text);
 
-
   /** Print `text` with the top left at [x,y] with `font`.
    *
    * @param x The x coordinate of the upper left corner.
@@ -179,7 +179,8 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, int color, TextAlign align, const char *format, ...) __attribute__ ((format (printf, 7, 8)));
+  void printf(int x, int y, Font *font, int color, TextAlign align, const char *format, ...)
+      __attribute__((format(printf, 7, 8)));
 
   /** Evaluate the printf-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -190,7 +191,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, int color, const char *format, ...) __attribute__ ((format (printf, 6, 7)));
+  void printf(int x, int y, Font *font, int color, const char *format, ...) __attribute__((format(printf, 6, 7)));
 
   /** Evaluate the printf-format `format` and print the result with the anchor point at [x,y] with `font`.
    *
@@ -201,7 +202,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, TextAlign align, const char *format, ...) __attribute__ ((format (printf, 6, 7)));
+  void printf(int x, int y, Font *font, TextAlign align, const char *format, ...) __attribute__((format(printf, 6, 7)));
 
   /** Evaluate the printf-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -211,7 +212,7 @@ class DisplayBuffer {
    * @param format The format to use.
    * @param ... The arguments to use for the text formatting.
    */
-  void printf(int x, int y, Font *font, const char *format, ...) __attribute__ ((format (printf, 5, 6)));
+  void printf(int x, int y, Font *font, const char *format, ...) __attribute__((format(printf, 5, 6)));
 
 #ifdef USE_TIME
 
@@ -225,7 +226,8 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, int color, TextAlign align, const char *format, time::ESPTime time) __attribute__ ((format (strftime, 7, 0)));
+  void strftime(int x, int y, Font *font, int color, TextAlign align, const char *format, time::ESPTime time)
+      __attribute__((format(strftime, 7, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -236,7 +238,8 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, int color, const char *format, time::ESPTime time) __attribute__ ((format (strftime, 6, 0)));
+  void strftime(int x, int y, Font *font, int color, const char *format, time::ESPTime time)
+      __attribute__((format(strftime, 6, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the anchor point at [x,y] with `font`.
    *
@@ -247,7 +250,8 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, TextAlign align, const char *format, time::ESPTime time) __attribute__ ((format (strftime, 6, 0)));
+  void strftime(int x, int y, Font *font, TextAlign align, const char *format, time::ESPTime time)
+      __attribute__((format(strftime, 6, 0)));
 
   /** Evaluate the strftime-format `format` and print the result with the top left at [x,y] with `font`.
    *
@@ -257,7 +261,8 @@ class DisplayBuffer {
    * @param format The strftime format to use.
    * @param time The time to format.
    */
-  void strftime(int x, int y, Font *font, const char *format, time::ESPTime time) __attribute__ ((format (strftime, 5, 0)));
+  void strftime(int x, int y, Font *font, const char *format, time::ESPTime time)
+      __attribute__((format(strftime, 5, 0)));
 #endif
 
   /// Draw the `image` with the top-left corner at [x,y] to the screen.
@@ -275,7 +280,8 @@ class DisplayBuffer {
    * @param width A pointer to store the returned text width in.
    * @param height A pointer to store the returned text height in.
    */
-  void get_text_bounds(int x, int y, const char *text, Font *font, TextAlign align, int *x1, int *y1, int *width, int *height);
+  void get_text_bounds(int x, int y, const char *text, Font *font, TextAlign align, int *x1, int *y1, int *width,
+                       int *height);
 
   /// Internal method to set the display writer lambda.
   void set_writer(display_writer_t &&writer);
@@ -292,15 +298,15 @@ class DisplayBuffer {
  protected:
   void vprintf_(int x, int y, Font *font, int color, TextAlign align, const char *format, va_list arg);
 
-  virtual void draw_absolute_pixel_internal_(int x, int y, int color) = 0;
+  virtual void draw_absolute_pixel_internal(int x, int y, int color) = 0;
 
-  virtual int get_height_internal_() = 0;
+  virtual int get_height_internal() = 0;
 
-  virtual int get_width_internal_() = 0;
+  virtual int get_width_internal() = 0;
 
   void init_internal_(uint32_t buffer_length);
 
-  void do_update();
+  void do_update_();
 
   uint8_t *buffer_{nullptr};
   DisplayRotation rotation_{DISPLAY_ROTATION_0_DEGREES};
@@ -318,6 +324,7 @@ class DisplayPage {
   void set_prev(DisplayPage *prev);
   void set_next(DisplayPage *next);
   const display_writer_t &get_writer() const;
+
  protected:
   DisplayBuffer *parent_;
   display_writer_t writer_;
@@ -327,7 +334,8 @@ class DisplayPage {
 
 class Glyph {
  public:
-  Glyph(const char *aChar, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width, int height);
+  Glyph(const char *a_char, const uint8_t *data_start, uint32_t offset, int offset_x, int offset_y, int width,
+        int height);
 
   bool get_pixel(int x, int y) const;
 
@@ -345,8 +353,8 @@ class Glyph {
 
   const char *char_;
   const uint8_t *data_;
-  int offset_x;
-  int offset_y;
+  int offset_x_;
+  int offset_y_;
   int width_;
   int height_;
 };
@@ -386,52 +394,60 @@ class Image {
   const uint8_t *data_start_;
 };
 
-template<typename T>
-class DisplayPageShowAction : public Action<T> {
+template<typename... Ts> class DisplayPageShowAction : public Action<Ts...> {
  public:
-  DisplayPageShowAction() {}
-  template<typename V>
-  void set_page(V page) { this->page_ = page; }
-  void play(T x) override {
-    auto *page = this->page_.value(x);
-    if (page != nullptr) {
-      page->show();
-    }
-    this->play_next(x);
-  }
+  DisplayPageShowAction();
+  template<typename V> void set_page(V page) { this->page_ = page; }
+  void play(Ts... x) override;
+
  protected:
-  TemplatableValue<DisplayPage *, T> page_;
+  TemplatableValue<DisplayPage *, Ts...> page_;
 };
 
-template<typename T>
-class DisplayPageShowNextAction : public Action<T> {
+template<typename... Ts> class DisplayPageShowNextAction : public Action<Ts...> {
  public:
-  DisplayPageShowNextAction(DisplayBuffer *buffer) : buffer_(buffer) {}
-  void play(T x) override {
-    this->buffer_->show_next_page();
-    this->play_next(x);
-  }
+  DisplayPageShowNextAction(DisplayBuffer *buffer);
+  void play(Ts... x) override;
+
  protected:
   DisplayBuffer *buffer_;
 };
 
-template<typename T>
-class DisplayPageShowPrevAction : public Action<T> {
+template<typename... Ts> class DisplayPageShowPrevAction : public Action<Ts...> {
  public:
-  DisplayPageShowPrevAction(DisplayBuffer *buffer) : buffer_(buffer) {}
-  DisplayPageShowPrevAction() {}
-  void play(T x) override {
-    this->buffer_->show_prev_page();
-    this->play_next(x);
-  }
+  DisplayPageShowPrevAction(DisplayBuffer *buffer);
+  void play(Ts... x) override;
+
  protected:
   DisplayBuffer *buffer_;
 };
 
-} // namespace display
+template<typename... Ts>
+DisplayPageShowPrevAction<Ts...>::DisplayPageShowPrevAction(DisplayBuffer *buffer) : buffer_(buffer) {}
+template<typename... Ts> void DisplayPageShowPrevAction<Ts...>::play(Ts... x) {
+  this->buffer_->show_prev_page();
+  this->play_next(x...);
+}
+
+template<typename... Ts> DisplayPageShowAction<Ts...>::DisplayPageShowAction() {}
+template<typename... Ts> void DisplayPageShowAction<Ts...>::play(Ts... x) {
+  auto *page = this->page_.value(x...);
+  if (page != nullptr) {
+    page->show();
+  }
+  this->play_next(x...);
+}
+template<typename... Ts>
+DisplayPageShowNextAction<Ts...>::DisplayPageShowNextAction(DisplayBuffer *buffer) : buffer_(buffer) {}
+template<typename... Ts> void DisplayPageShowNextAction<Ts...>::play(Ts... x) {
+  this->buffer_->show_next_page();
+  this->play_next(x...);
+}
+
+}  // namespace display
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_DISPLAY
+#endif  // USE_DISPLAY
 
-#endif //ESPHOME_DISPLAY_H
+#endif  // ESPHOME_DISPLAY_H

@@ -21,7 +21,7 @@ class APIConnection;
 
 class ListEntitiesIterator : public ComponentIterator {
  public:
-  ListEntitiesIterator(StoringController *controller, APIConnection *client);
+  ListEntitiesIterator(APIServer *server, APIConnection *client);
 #ifdef USE_BINARY_SENSOR
   bool on_binary_sensor(binary_sensor::BinarySensor *binary_sensor) override;
 #endif
@@ -38,22 +38,24 @@ class ListEntitiesIterator : public ComponentIterator {
   bool on_sensor(sensor::Sensor *sensor) override;
 #endif
 #ifdef USE_SWITCH
-  bool on_switch(switch_::Switch *switch_) override;
+  bool on_switch(switch_::Switch *a_switch) override;
 #endif
 #ifdef USE_TEXT_SENSOR
   bool on_text_sensor(text_sensor::TextSensor *text_sensor) override;
 #endif
+  bool on_service(UserServiceDescriptor *service) override;
   bool on_end() override;
+
  protected:
   APIConnection *client_;
 };
 
-} // namespace api
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/api/api_server.h"
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_LIST_ENTITIES_H
+#endif  // ESPHOME_LIST_ENTITIES_H

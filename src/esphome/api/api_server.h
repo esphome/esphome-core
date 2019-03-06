@@ -15,13 +15,14 @@
 #include "esphome/api/subscribe_logs.h"
 #include "esphome/api/command_messages.h"
 #include "esphome/api/service_call_message.h"
+#include "esphome/api/user_services.h"
 #include "esphome/log.h"
 
 #ifdef ARDUINO_ARCH_ESP32
-  #include <AsyncTCP.h>
+#include <AsyncTCP.h>
 #endif
 #ifdef ARDUINO_ARCH_ESP8266
-  #include <ESPAsyncTCP.h>
+#include <ESPAsyncTCP.h>
 #endif
 
 ESPHOME_NAMESPACE_BEGIN
@@ -35,7 +36,7 @@ class APIConnection {
   APIConnection(AsyncClient *client, APIServer *parent);
   ~APIConnection();
 
-  void disconnect_client_();
+  void disconnect_client();
   APIBuffer get_buffer();
   bool send_buffer(APIMessageType type);
   bool send_message(APIMessage &msg);
@@ -58,7 +59,7 @@ class APIConnection {
   bool send_sensor_state(sensor::Sensor *sensor, float state);
 #endif
 #ifdef USE_SWITCH
-  bool send_switch_state(switch_::Switch *switch_, bool state);
+  bool send_switch_state(switch_::Switch *a_switch, bool state);
 #endif
 #ifdef USE_TEXT_SENSOR
   bool send_text_sensor_state(text_sensor::TextSensor *text_sensor, std::string state);
@@ -106,9 +107,10 @@ class APIConnection {
 #ifdef USE_SWITCH
   void on_switch_command_request_(const SwitchCommandRequest &req);
 #endif
-  void on_subscribe_service_calls_request(const SubscribeServiceCallsRequest &req);
-  void on_subscribe_home_assistant_states_request(const SubscribeHomeAssistantStatesRequest &req);
-  void on_home_assistant_state_response(const HomeAssistantStateResponse &req);
+  void on_subscribe_service_calls_request_(const SubscribeServiceCallsRequest &req);
+  void on_subscribe_home_assistant_states_request_(const SubscribeHomeAssistantStatesRequest &req);
+  void on_home_assistant_state_response_(const HomeAssistantStateResponse &req);
+  void on_execute_service_(const ExecuteServiceRequest &req);
 
   enum class ConnectionState {
     WAITING_FOR_HELLO,
@@ -134,8 +136,7 @@ class APIConnection {
   bool service_call_subscription_{false};
 };
 
-template<typename T>
-class HomeAssistantServiceCallAction;
+template<typename... Ts> class HomeAssistantServiceCallAction;
 
 class APIServer : public Component, public StoringUpdateListenerController {
  public:
@@ -173,11 +174,15 @@ class APIServer : public Component, public StoringUpdateListenerController {
   void on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) override;
 #endif
   void send_service_call(ServiceCallResponse &call);
-  template<typename T>
-  HomeAssistantServiceCallAction<T> *make_home_assistant_service_call_action();
+  template<typename... Ts> HomeAssistantServiceCallAction<Ts...> *make_home_assistant_service_call_action();
+  template<typename... Ts>
+  UserService<Ts...> *make_user_service_trigger(const std::string &name,
+                                                const std::array<ServiceTypeArgument, sizeof...(Ts)> &args);
 #ifdef USE_HOMEASSISTANT_TIME
   void request_time();
 #endif
+
+  bool is_connected() const;
 
   struct HomeAssistantStateSubscription {
     std::string entity_id;
@@ -186,6 +191,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
 
   void subscribe_home_assistant_state(std::string entity_id, std::function<void(std::string)> f);
   const std::vector<HomeAssistantStateSubscription> &get_state_subs() const;
+  const std::vector<UserServiceDescriptor *> &get_user_services() const { return this->user_services_; }
 
  protected:
   AsyncServer server_{0};
@@ -195,55 +201,66 @@ class APIServer : public Component, public StoringUpdateListenerController {
   std::vector<APIConnection *> clients_;
   std::string password_;
   std::vector<HomeAssistantStateSubscription> state_subs_;
+  std::vector<UserServiceDescriptor *> user_services_;
 };
 
 extern APIServer *global_api_server;
 
-template<typename T>
-class HomeAssistantServiceCallAction : public Action<T> {
+template<typename... Ts> class HomeAssistantServiceCallAction : public Action<Ts...> {
  public:
   HomeAssistantServiceCallAction(APIServer *parent) : parent_(parent) {}
   void set_service(const std::string &service);
   void set_data(const std::vector<KeyValuePair> &data);
   void set_data_template(const std::vector<KeyValuePair> &data_template);
   void set_variables(const std::vector<TemplatableKeyValuePair> &variables);
-  void play(T x) override;
+  void play(Ts... x) override;
+
  protected:
   APIServer *parent_;
   ServiceCallResponse resp_;
 };
 
-template<typename T>
-HomeAssistantServiceCallAction<T> *APIServer::make_home_assistant_service_call_action() {
-  return new HomeAssistantServiceCallAction<T>(this);
+template<typename... Ts> class APIConnectedCondition : public Condition<Ts...> {
+ public:
+  bool check(Ts... x) override;
+};
+
+template<typename... Ts> HomeAssistantServiceCallAction<Ts...> *APIServer::make_home_assistant_service_call_action() {
+  return new HomeAssistantServiceCallAction<Ts...>(this);
 }
 
-template<typename T>
-void HomeAssistantServiceCallAction<T>::set_service(const std::string &service) {
+template<typename... Ts> void HomeAssistantServiceCallAction<Ts...>::set_service(const std::string &service) {
   this->resp_.set_service(service);
 }
-template<typename T>
-void HomeAssistantServiceCallAction<T>::set_data(const std::vector<KeyValuePair> &data) {
+template<typename... Ts> void HomeAssistantServiceCallAction<Ts...>::set_data(const std::vector<KeyValuePair> &data) {
   this->resp_.set_data(data);
 }
-template<typename T>
-void HomeAssistantServiceCallAction<T>::set_data_template(const std::vector<KeyValuePair> &data_template) {
+template<typename... Ts>
+void HomeAssistantServiceCallAction<Ts...>::set_data_template(const std::vector<KeyValuePair> &data_template) {
   this->resp_.set_data_template(data_template);
 }
-template<typename T>
-void HomeAssistantServiceCallAction<T>::set_variables(const std::vector<TemplatableKeyValuePair> &variables) {
+template<typename... Ts>
+void HomeAssistantServiceCallAction<Ts...>::set_variables(const std::vector<TemplatableKeyValuePair> &variables) {
   this->resp_.set_variables(variables);
 }
-template<typename T>
-void HomeAssistantServiceCallAction<T>::play(T x) {
+template<typename... Ts> void HomeAssistantServiceCallAction<Ts...>::play(Ts... x) {
   this->parent_->send_service_call(this->resp_);
-  this->play_next(x);
+  this->play_next(x...);
+}
+template<typename... Ts>
+UserService<Ts...> *APIServer::make_user_service_trigger(const std::string &name,
+                                                         const std::array<ServiceTypeArgument, sizeof...(Ts)> &args) {
+  auto *service = new UserService<Ts...>(name, args);
+  this->user_services_.push_back(service);
+  return service;
 }
 
-} // namespace api
+template<typename... Ts> bool APIConnectedCondition<Ts...>::check(Ts... x) { return global_api_server->is_connected(); }
+
+}  // namespace api
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_API
+#endif  // USE_API
 
-#endif //ESPHOME_HOMEASSISTANT_API_SERVER_H
+#endif  // ESPHOME_HOMEASSISTANT_API_SERVER_H

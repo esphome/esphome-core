@@ -9,33 +9,24 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace remote {
 
-RCSwitchProtocol rc_switch_protocols[8] = {
-    RCSwitchProtocol(0, 0, 0, 0, 0, 0, false),
-    RCSwitchProtocol(350, 10850, 350, 1050, 1050, 350, false),
-    RCSwitchProtocol(650, 6500, 650, 1300, 1300, 650, false),
-    RCSwitchProtocol(3000, 7100, 400, 1100, 900, 600, false),
-    RCSwitchProtocol(380, 2280, 380, 1140, 1140, 380, false),
-    RCSwitchProtocol(3000, 7000, 500, 1000, 1000, 500, false),
-    RCSwitchProtocol(10350, 450, 450, 900, 900, 450, true),
-    RCSwitchProtocol(300, 9300, 150, 900, 900, 150, false)
-};
+RCSwitchProtocol rc_switch_protocols[8] = {RCSwitchProtocol(0, 0, 0, 0, 0, 0, false),
+                                           RCSwitchProtocol(350, 10850, 350, 1050, 1050, 350, false),
+                                           RCSwitchProtocol(650, 6500, 650, 1300, 1300, 650, false),
+                                           RCSwitchProtocol(3000, 7100, 400, 1100, 900, 600, false),
+                                           RCSwitchProtocol(380, 2280, 380, 1140, 1140, 380, false),
+                                           RCSwitchProtocol(3000, 7000, 500, 1000, 1000, 500, false),
+                                           RCSwitchProtocol(10350, 450, 450, 900, 900, 450, true),
+                                           RCSwitchProtocol(300, 9300, 150, 900, 900, 150, false)};
 
-RCSwitchProtocol::RCSwitchProtocol(uint32_t sync_high,
-                                   uint32_t sync_low,
-                                   uint32_t zero_high,
-                                   uint32_t zero_low,
-                                   uint32_t one_high,
-                                   uint32_t one_low,
-                                   bool inverted)
+RCSwitchProtocol::RCSwitchProtocol(uint32_t sync_high, uint32_t sync_low, uint32_t zero_high, uint32_t zero_low,
+                                   uint32_t one_high, uint32_t one_low, bool inverted)
     : sync_high_(sync_high),
       sync_low_(sync_low),
       zero_high_(zero_high),
       zero_low_(zero_low),
       one_high_(one_high),
       one_low_(one_low),
-      inverted_(inverted) {
-
-}
+      inverted_(inverted) {}
 
 #ifdef USE_REMOTE_TRANSMITTER
 void RCSwitchProtocol::one(RemoteTransmitData *data) const {
@@ -153,10 +144,7 @@ void RCSwitchProtocol::simple_code_to_tristate(uint16_t code, uint8_t nbits, uin
       *out_code |= 0b00;
   }
 }
-void RCSwitchProtocol::type_a_code(uint8_t switch_group,
-                                   uint8_t switch_device,
-                                   bool state,
-                                   uint32_t *out_code,
+void RCSwitchProtocol::type_a_code(uint8_t switch_group, uint8_t switch_device, bool state, uint32_t *out_code,
                                    uint8_t *out_nbits) {
   uint16_t code = 0;
   code |= (switch_group & 0b0001) ? 0 : 0b1000;
@@ -173,10 +161,7 @@ void RCSwitchProtocol::type_a_code(uint8_t switch_group,
   simple_code_to_tristate(code, 10, out_code);
   *out_nbits = 20;
 }
-void RCSwitchProtocol::type_b_code(uint8_t address_code,
-                                   uint8_t channel_code,
-                                   bool state,
-                                   uint32_t *out_code,
+void RCSwitchProtocol::type_b_code(uint8_t address_code, uint8_t channel_code, bool state, uint32_t *out_code,
                                    uint8_t *out_nbits) {
   uint16_t code = 0;
   code |= (address_code == 1) ? 0 : 0b1000;
@@ -194,11 +179,7 @@ void RCSwitchProtocol::type_b_code(uint8_t address_code,
   simple_code_to_tristate(code, 12, out_code);
   *out_nbits = 24;
 }
-void RCSwitchProtocol::type_c_code(uint8_t family,
-                                   uint8_t group,
-                                   uint8_t device,
-                                   bool state,
-                                   uint32_t *out_code,
+void RCSwitchProtocol::type_c_code(uint8_t family, uint8_t group, uint8_t device, bool state, uint32_t *out_code,
                                    uint8_t *out_nbits) {
   uint16_t code = 0;
   code |= (family & 0b0001) ? 0b1000 : 0;
@@ -208,8 +189,8 @@ void RCSwitchProtocol::type_c_code(uint8_t family,
   code <<= 4;
   code |= ((device - 1) & 0b01) ? 0b1000 : 0;
   code |= ((device - 1) & 0b10) ? 0b0100 : 0;
-  code |= ((group - 1)  & 0b01) ? 0b0010 : 0;
-  code |= ((group - 1)  & 0b10) ? 0b0001 : 0;
+  code |= ((group - 1) & 0b01) ? 0b0010 : 0;
+  code |= ((group - 1) & 0b10) ? 0b0001 : 0;
   code <<= 4;
   code |= 0b0110;
   code |= state ? 0b1 : 0b0;
@@ -233,8 +214,8 @@ void RCSwitchProtocol::type_d_code(uint8_t group, uint8_t device, bool state, ui
   *out_nbits = 24;
 }
 
-} // namespace something
+}  // namespace remote
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_REMOTE
+#endif  // USE_REMOTE

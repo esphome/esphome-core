@@ -32,7 +32,7 @@ using mqtt_json_callback_t = std::function<void(const std::string &, JsonObject 
 struct MQTTMessage {
   std::string topic;
   std::string payload;
-  uint8_t qos; ///< QoS. Only for last will testaments.
+  uint8_t qos;  ///< QoS. Only for last will testaments.
   bool retain;
 };
 
@@ -47,16 +47,16 @@ struct MQTTSubscription {
 
 /// internal struct for MQTT credentials.
 struct MQTTCredentials {
-  std::string address; ///< The address of the server without port number
-  uint16_t port; ///< The port number of the server.
+  std::string address;  ///< The address of the server without port number
+  uint16_t port;        ///< The port number of the server.
   std::string username;
   std::string password;
-  std::string client_id; ///< The client ID. Will automatically be truncated to 23 characters.
+  std::string client_id;  ///< The client ID. Will automatically be truncated to 23 characters.
 };
 
 /// Simple data struct for Home Assistant component availability.
 struct Availability {
-  std::string topic; ///< Empty means disabled
+  std::string topic;  ///< Empty means disabled
   std::string payload_available;
   std::string payload_not_available;
 };
@@ -64,19 +64,17 @@ struct Availability {
 class MQTTMessageTrigger;
 class MQTTJsonMessageTrigger;
 
-template<typename T>
-class MQTTPublishAction;
+template<typename... Ts> class MQTTPublishAction;
 
-template<typename T>
-class MQTTPublishJsonAction;
+template<typename... Ts> class MQTTPublishJsonAction;
 
 /** Internal struct for MQTT Home Assistant discovery
  *
  * See <a href="https://www.home-assistant.io/docs/mqtt/discovery/">MQTT Discovery</a>.
  */
 struct MQTTDiscoveryInfo {
-  std::string prefix; ///< The Home Assistant discovery prefix. Empty means disabled.
-  bool retain; ///< Whether to retain discovery messages.
+  std::string prefix;  ///< The Home Assistant discovery prefix. Empty means disabled.
+  bool retain;         ///< Whether to retain discovery messages.
   bool clean;
 };
 
@@ -175,7 +173,8 @@ class MQTTClientComponent : public Component {
    * If an invalid JSON payload is received, the callback will not be called.
    *
    * @param topic The topic. Wildcards are currently not supported.
-   * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is received.
+   * @param callback The callback with a parsed JsonObject that will be called when a message with matching topic is
+   * received.
    * @param qos The QoS of this subscription.
    */
   void subscribe_json(const std::string &topic, mqtt_json_callback_t callback, uint8_t qos = 0);
@@ -194,8 +193,8 @@ class MQTTClientComponent : public Component {
    */
   bool publish(const std::string &topic, const std::string &payload, uint8_t qos = 0, bool retain = false);
 
-  bool publish(const std::string &topic, const char *payload, size_t payload_length,
-               uint8_t qos = 0, bool retain = false);
+  bool publish(const std::string &topic, const char *payload, size_t payload_length, uint8_t qos = 0,
+               bool retain = false);
 
   /** Construct and send a JSON MQTT message.
    *
@@ -219,11 +218,9 @@ class MQTTClientComponent : public Component {
 
   MQTTJsonMessageTrigger *make_json_message_trigger(const std::string &topic, uint8_t qos = 0);
 
-  template<typename T>
-  MQTTPublishAction<T> *make_publish_action();
+  template<typename... Ts> MQTTPublishAction<Ts...> *make_publish_action();
 
-  template<typename T>
-  MQTTPublishJsonAction<T> *make_publish_json_action();
+  template<typename... Ts> MQTTPublishJsonAction<Ts...> *make_publish_json_action();
 
   bool can_proceed() override;
 
@@ -237,19 +234,19 @@ class MQTTClientComponent : public Component {
 
  protected:
   /// Reconnect to the MQTT broker if not already connected.
-  void start_connect();
-  void start_dnslookup();
-  void check_dnslookup();
+  void start_connect_();
+  void start_dnslookup_();
+  void check_dnslookup_();
 #if defined(ARDUINO_ARCH_ESP8266) && LWIP_VERSION_MAJOR == 1
-  static void dns_found_callback_(const char *name, ip_addr_t *ipaddr, void *callback_arg);
+  static void dns_found_callback(const char *name, ip_addr_t *ipaddr, void *callback_arg);
 #else
-  static void dns_found_callback_(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+  static void dns_found_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
 #endif
 
   /// Re-calculate the availability property.
-  void recalculate_availability();
+  void recalculate_availability_();
 
-  bool subscribe_(const char* topic, uint8_t qos);
+  bool subscribe_(const char *topic, uint8_t qos);
   void resubscribe_subscription_(MQTTSubscription *sub);
   void resubscribe_subscriptions_();
 
@@ -311,96 +308,89 @@ class MQTTJsonMessageTrigger : public Trigger<const JsonObject &> {
   explicit MQTTJsonMessageTrigger(const std::string &topic, uint8_t qos = 0);
 };
 
-template<typename T>
-class MQTTPublishAction : public Action<T> {
+template<typename... Ts> class MQTTPublishAction : public Action<Ts...> {
  public:
   MQTTPublishAction();
 
-  template<typename V>
-  void set_topic(V topic) { this->topic_ = topic; }
-  template<typename V>
-  void set_payload(V payload) { this->payload_ = payload; }
-  template<typename V>
-  void set_qos(V qos) { this->qos_ = qos; }
-  template<typename V>
-  void set_retain(V retain) { this->retain_ = retain; }
+  template<typename V> void set_topic(V topic) { this->topic_ = topic; }
+  template<typename V> void set_payload(V payload) { this->payload_ = payload; }
+  template<typename V> void set_qos(V qos) { this->qos_ = qos; }
+  template<typename V> void set_retain(V retain) { this->retain_ = retain; }
 
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
-  TemplatableValue<std::string, T> topic_;
-  TemplatableValue<std::string, T> payload_;
-  TemplatableValue<uint8_t, T> qos_{0};
-  TemplatableValue<bool, T> retain_{false};
+  TemplatableValue<std::string, Ts...> topic_;
+  TemplatableValue<std::string, Ts...> payload_;
+  TemplatableValue<uint8_t, Ts...> qos_{0};
+  TemplatableValue<bool, Ts...> retain_{false};
 };
 
-template<typename T>
-class MQTTPublishJsonAction : public Action<T> {
+template<typename... Ts> class MQTTPublishJsonAction : public Action<Ts...> {
  public:
   MQTTPublishJsonAction();
 
-  template<typename V>
-  void set_topic(V topic) { this->topic_ = topic; }
-  void set_payload(std::function<void(T, JsonObject &)> payload);
+  template<typename V> void set_topic(V topic) { this->topic_ = topic; }
+  void set_payload(std::function<void(Ts..., JsonObject &)> payload);
   void set_qos(uint8_t qos);
   void set_retain(bool retain);
-  void play(T x) override;
+  void play(Ts... x) override;
 
  protected:
-  TemplatableValue<std::string, T> topic_;
-  std::function<void(T, JsonObject &)> payload_;
+  void encode_(Ts... x, JsonObject &root);
+
+  TemplatableValue<std::string, Ts...> topic_;
+  std::function<void(Ts..., JsonObject &)> payload_;
   uint8_t qos_{0};
   bool retain_{false};
 };
 
+template<typename... Ts> class MQTTConnectedCondition : public Condition<Ts...> {
+ public:
+  bool check(Ts... x) override;
+};
+
 // =============== TEMPLATE DEFINITIONS ===============
 
-template<typename T>
-void MQTTPublishJsonAction<T>::set_payload(std::function<void(T, JsonObject &)> payload) {
+template<typename... Ts>
+void MQTTPublishJsonAction<Ts...>::set_payload(std::function<void(Ts..., JsonObject &)> payload) {
   this->payload_ = std::move(payload);
 }
-template<typename T>
-void MQTTPublishJsonAction<T>::set_qos(uint8_t qos) {
-  this->qos_ = qos;
+template<typename... Ts> void MQTTPublishJsonAction<Ts...>::set_qos(uint8_t qos) { this->qos_ = qos; }
+template<typename... Ts> void MQTTPublishJsonAction<Ts...>::set_retain(bool retain) { this->retain_ = retain; }
+template<typename... Ts> void MQTTPublishJsonAction<Ts...>::play(Ts... x) {
+  auto f = std::bind(&MQTTPublishJsonAction<Ts...>::encode_, this, x..., std::placeholders::_1);
+  global_mqtt_client->publish_json(this->topic_.value(x...), f, this->qos_, this->retain_);
+  this->play_next(x...);
 }
-template<typename T>
-void MQTTPublishJsonAction<T>::set_retain(bool retain) {
-  this->retain_ = retain;
+template<typename... Ts> void MQTTPublishJsonAction<Ts...>::encode_(Ts... x, JsonObject &root) {
+  this->payload_(x..., root);
 }
-template<typename T>
-void MQTTPublishJsonAction<T>::play(T x) {
-  auto f = [this, x](JsonObject &root) {
-    this->payload_(x, root);
-  };
-  global_mqtt_client->publish_json(this->topic_.value(x), f, this->qos_, this->retain_);
-  this->play_next(x);
-}
-template<typename T>
-MQTTPublishJsonAction<T>::MQTTPublishJsonAction() = default;
+template<typename... Ts> MQTTPublishJsonAction<Ts...>::MQTTPublishJsonAction() = default;
 
-template<typename T>
-MQTTPublishJsonAction<T> *MQTTClientComponent::make_publish_json_action() {
-  return new MQTTPublishJsonAction<T>();
+template<typename... Ts> MQTTPublishJsonAction<Ts...> *MQTTClientComponent::make_publish_json_action() {
+  return new MQTTPublishJsonAction<Ts...>();
 }
 
-template<typename T>
-void MQTTPublishAction<T>::play(T x) {
-  global_mqtt_client->publish(this->topic_.value(x), this->payload_.value(x),
-                              this->qos_.value(x), this->retain_.value(x));
-  this->play_next(x);
+template<typename... Ts> void MQTTPublishAction<Ts...>::play(Ts... x) {
+  global_mqtt_client->publish(this->topic_.value(x...), this->payload_.value(x...), this->qos_.value(x...),
+                              this->retain_.value(x...));
+  this->play_next(x...);
 }
-template<typename T>
-MQTTPublishAction<T>::MQTTPublishAction() = default;
+template<typename... Ts> MQTTPublishAction<Ts...>::MQTTPublishAction() = default;
 
-template<typename T>
-MQTTPublishAction<T> *MQTTClientComponent::make_publish_action() {
-  return new MQTTPublishAction<T>();
+template<typename... Ts> MQTTPublishAction<Ts...> *MQTTClientComponent::make_publish_action() {
+  return new MQTTPublishAction<Ts...>();
 }
 
-} // namespace mqtt
+template<typename... Ts> bool MQTTConnectedCondition<Ts...>::check(Ts... x) {
+  return global_mqtt_client->is_connected();
+}
+
+}  // namespace mqtt
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT
+#endif  // USE_MQTT
 
-#endif //ESPHOME_MQTT_MQTT_CLIENT_COMPONENT_H
+#endif  // ESPHOME_MQTT_MQTT_CLIENT_COMPONENT_H

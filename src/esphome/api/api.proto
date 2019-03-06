@@ -328,3 +328,31 @@ message GetTimeResponse {
   fixed32 epoch_seconds = 1;
 }
 
+
+message ListEntitiesServicesArgument {
+  string name = 1;
+  enum Type {
+    BOOL = 0;
+    INT = 1;
+    FLOAT = 2;
+    STRING = 3;
+  }
+  Type type = 2;
+}
+message ListEntitiesServicesResponse {
+  string name = 1;
+  fixed32 key = 2;
+  repeated ListEntitiesServicesArgument args = 3;
+}
+
+message ExecuteServiceArgument {
+  bool bool_ = 1;
+  int32 int_ = 2;
+  float float_ = 3;
+  string string_ = 4;
+}
+
+message ExecuteServiceRequest {
+  fixed32 key = 1;
+  repeated ExecuteServiceArgument args = 2;
+}

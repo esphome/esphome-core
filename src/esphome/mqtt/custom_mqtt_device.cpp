@@ -26,12 +26,10 @@ bool CustomMQTTDevice::publish_json(const std::string &topic, const json_build_t
 bool CustomMQTTDevice::publish_json(const std::string &topic, const json_build_t &f) {
   return this->publish_json(topic, f, 0, false);
 }
-bool CustomMQTTDevice::is_connected() {
-  return global_mqtt_client != nullptr && global_mqtt_client->is_connected();
-}
+bool CustomMQTTDevice::is_connected() { return global_mqtt_client != nullptr && global_mqtt_client->is_connected(); }
 
-} // namespace mqtt
+}  // namespace mqtt
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_MQTT_CUSTOM_COMPONENT
+#endif  // USE_MQTT_CUSTOM_COMPONENT
