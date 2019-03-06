@@ -36,7 +36,7 @@ static const uint8_t SDS011_MODE_SLEEP = 0x00;
 static const uint8_t SDS011_MODE_WORK = 0x01;
 
 SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval, bool rx_mode_only)
-    : UARTDevice(parent), update_interval_(update_interval), rx_mode_only_(rx_mode_only) {}
+    : UARTDevice(parent), PollingComponent(update_interval), rx_mode_only_(rx_mode_only) {}
 
 void SDS011Component::setup() {
   uint8_t command_data[SDS011_DATA_REQUEST_LENGTH] = {0};
@@ -47,7 +47,7 @@ void SDS011Component::setup() {
   command_data[14] = 0xff;
   this->sds011_write_command_(command_data);
 
-  uint8_t update_interval_minutes = this->get_update_interval() / 1000.0f / 60.0f;
+  auto update_interval_minutes = static_cast<uint8_t>(this->get_update_interval() / 1000.0f / 60.0f);
 
   command_data[0] = SDS011_COMMAND_PERIOD;
   command_data[1] = SDS011_SET_MODE;
@@ -59,10 +59,7 @@ void SDS011Component::setup() {
 
 void SDS011Component::dump_config() {
   ESP_LOGCONFIG(TAG, "SDS011:");
-  ESP_LOGCONFIG(TAG, "  Update interval: %u ms", this->update_interval_);
-  if (this->update_interval_ > 1800000) {
-    ESP_LOGW(TAG, "Update interval is longer than 30 min.");
-  }
+  LOG_UPDATE_INTERVAL(this);
   ESP_LOGCONFIG(TAG, "  RX-only mode: %s", ONOFF(this->rx_mode_only_));
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
   LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
@@ -111,11 +108,7 @@ float SDS011Component::get_setup_priority() const { return setup_priority::HARDW
 
 void SDS011Component::set_rx_mode_only(bool rx_mode_only) { this->rx_mode_only_ = rx_mode_only; }
 
-void SDS011Component::set_update_interval(uint32_t update_interval) { this->update_interval_ = update_interval; }
-
 bool SDS011Component::get_rx_mode_only() const { return this->rx_mode_only_; }
-
-uint32_t SDS011Component::get_update_interval() const { return this->update_interval_; }
 
 void SDS011Component::sds011_write_command_(const uint8_t *command_data) {
   this->flush();
@@ -190,6 +183,10 @@ void SDS011Component::parse_data_() {
 
 uint16_t SDS011Component::get_16_bit_uint_(uint8_t start_index) const {
   return (uint16_t(this->data_[start_index + 1]) << 8) | uint16_t(this->data_[start_index]);
+}
+
+void SDS011Component::update() {
+  // Empty update, we just use update interval to setup the sensor
 }
 
 }  // namespace sensor

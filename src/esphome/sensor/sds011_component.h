@@ -15,7 +15,7 @@ namespace sensor {
 
 using SDS011Sensor = sensor::EmptySensor<1, ICON_CHEMICAL_WEAPON, UNIT_MICROGRAMS_PER_CUBIC_METER>;
 
-class SDS011Component : public Component, public UARTDevice {
+class SDS011Component : public PollingComponent, public UARTDevice {
  public:
   /** Construct the component.
    *
@@ -27,8 +27,6 @@ class SDS011Component : public Component, public UARTDevice {
 
   /// Manually set the rx-only mode. Defaults to false.
   void set_rx_mode_only(bool rx_mode_only);
-  /// Manually set the update_interval. Defaults to 0.
-  void set_update_interval(uint32_t update_interval);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -40,7 +38,7 @@ class SDS011Component : public Component, public UARTDevice {
   SDS011Sensor *make_pm_2_5_sensor(const std::string &name);
   SDS011Sensor *make_pm_10_0_sensor(const std::string &name);
   bool get_rx_mode_only() const;
-  uint32_t get_update_interval() const;
+  void update() override;
 
  protected:
   void sds011_write_command_(const uint8_t *command);
@@ -56,7 +54,6 @@ class SDS011Component : public Component, public UARTDevice {
   uint8_t data_index_{0};
   uint32_t last_transmission_{0};
 
-  uint32_t update_interval_;
   bool rx_mode_only_;
 };
 
