@@ -1193,6 +1193,12 @@ io::MCP23017 *Application::make_mcp23017_component(uint8_t address) {
 }
 #endif
 
+#ifdef USE_SDS011
+sensor::SDS011Component *Application::make_sds011(UARTComponent *parent) {
+  return this->register_component(new SDS011Component(parent));
+}
+#endif
+
 Application App;  // NOLINT
 
 ESPHOME_NAMESPACE_END

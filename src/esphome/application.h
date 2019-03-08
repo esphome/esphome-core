@@ -64,6 +64,7 @@
 #include "esphome/mqtt/mqtt_client_component.h"
 #include "esphome/mqtt/mqtt_component.h"
 #include "esphome/output/binary_output.h"
+#include "esphome/output/copy_output.h"
 #include "esphome/output/custom_output.h"
 #include "esphome/output/esp8266_pwm_output.h"
 #include "esphome/output/float_output.h"
@@ -125,6 +126,7 @@
 #include "esphome/sensor/ultrasonic_sensor.h"
 #include "esphome/sensor/uptime_sensor.h"
 #include "esphome/sensor/wifi_signal_sensor.h"
+#include "esphome/sensor/sds011_component.h"
 #include "esphome/stepper/a4988.h"
 #include "esphome/stepper/stepper.h"
 #include "esphome/stepper/uln2003.h"
@@ -144,6 +146,7 @@
 #include "esphome/text_sensor/template_text_sensor.h"
 #include "esphome/text_sensor/text_sensor.h"
 #include "esphome/text_sensor/version_text_sensor.h"
+#include "esphome/text_sensor/wifi_info.h"
 #include "esphome/time/rtc_component.h"
 #include "esphome/time/sntp_component.h"
 #include "esphome/time/homeassistant_time.h"
@@ -817,6 +820,10 @@ class Application {
 
 #ifdef USE_CUSTOM_SENSOR
   sensor::CustomSensorConstructor *make_custom_sensor(const std::function<std::vector<sensor::Sensor *>()> &init);
+#endif
+
+#ifdef USE_SDS011
+  sensor::SDS011Component *make_sds011(UARTComponent *parent);
 #endif
 
   /*    ___  _   _ _____ ____  _   _ _____

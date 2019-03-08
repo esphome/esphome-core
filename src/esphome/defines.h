@@ -59,6 +59,7 @@
 #define USE_PCF8574
 #define USE_MCP23017
 #define USE_IO
+#define USE_SDS011
 #define USE_MPU6050
 #define USE_TSL2561
 #define USE_BH1750
@@ -136,6 +137,8 @@
 #define USE_APDS9960
 #define USE_MPR121
 #define USE_MQTT
+#define USE_COPY_OUTPUT
+#define USE_WIFI_INFO_TEXT_SENSOR
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
