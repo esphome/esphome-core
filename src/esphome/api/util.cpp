@@ -302,6 +302,20 @@ void ComponentIterator::advance() {
         success = this->on_service(service);
       }
       break;
+#ifdef USE_ESP32_CAMERA
+    case IteratorState::CAMERA:
+      if (global_esp32_camera == nullptr) {
+        advance_platform = true;
+      } else {
+        if (global_esp32_camera->is_internal()) {
+          advance_platform = success = true;
+          break;
+        } else {
+          advance_platform = success = this->on_camera(global_esp32_camera);
+        }
+      }
+      break;
+#endif
     case IteratorState::MAX:
       if (this->on_end()) {
         this->state_ = IteratorState::NONE;

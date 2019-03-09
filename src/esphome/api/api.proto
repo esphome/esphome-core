@@ -369,3 +369,7 @@ message CameraImageResponse {
   bytes data = 2;
   bool done = 3;
 }
+message CameraImageRequest {
+  bool single = 1;
+  bool stream = 2;
+}

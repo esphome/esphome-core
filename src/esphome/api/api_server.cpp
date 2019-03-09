@@ -496,6 +496,14 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
       this->on_execute_service_(req);
       break;
     }
+    case APIMessageType::CAMERA_IMAGE_REQUEST: {
+#ifdef USE_ESP32_CAMERA
+      CameraImageRequest req;
+      req.decode(msg, size);
+      this->on_camera_image_request_(req);
+#endif
+      break;
+    }
   }
 }
 void APIConnection::on_hello_request_(const HelloRequest &req) {
@@ -1058,6 +1066,22 @@ void APIConnection::send_camera_state(std::shared_ptr<CameraImage> image) {
   if (this->image_reader_.available())
     return;
   this->image_reader_.set_image(image);
+}
+#endif
+
+#ifdef USE_ESP32_CAMERA
+void APIConnection::on_camera_image_request_(const CameraImageRequest &req) {
+  if (global_esp32_camera == nullptr)
+    return;
+
+  ESP_LOGV(TAG, "on_camera_image_request_ stream=%s single=%s",
+      YESNO(req.get_stream()), YESNO(req.get_single()));
+  if (req.get_single()) {
+    global_esp32_camera->request_image();
+  }
+  if (req.get_stream()) {
+    global_esp32_camera->request_stream();
+  }
 }
 #endif
 

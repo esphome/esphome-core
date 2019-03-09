@@ -114,6 +114,9 @@ class APIConnection {
   void on_subscribe_home_assistant_states_request_(const SubscribeHomeAssistantStatesRequest &req);
   void on_home_assistant_state_response_(const HomeAssistantStateResponse &req);
   void on_execute_service_(const ExecuteServiceRequest &req);
+#ifdef USE_ESP32_CAMERA
+  void on_camera_image_request_(const CameraImageRequest &req);
+#endif
 
   enum class ConnectionState {
     WAITING_FOR_HELLO,
