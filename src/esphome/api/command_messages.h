@@ -114,6 +114,7 @@ class CameraImageRequest : public APIMessage {
   bool get_single() const;
   bool get_stream() const;
   APIMessageType message_type() const override;
+
  protected:
   bool single_{false};
   bool stream_{false};

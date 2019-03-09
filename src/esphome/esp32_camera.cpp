@@ -272,18 +272,14 @@ bool ESP32Camera::has_requested_image_() const {
 
   return false;
 }
-bool ESP32Camera::can_return_image_() const {
-  return this->current_image_.use_count() == 1;
-}
+bool ESP32Camera::can_return_image_() const { return this->current_image_.use_count() == 1; }
 void ESP32Camera::set_max_update_interval(uint32_t max_update_interval) {
   this->max_update_interval_ = max_update_interval;
 }
 void ESP32Camera::set_idle_update_interval(uint32_t idle_update_interval) {
   this->idle_update_interval_ = idle_update_interval;
 }
-void ESP32Camera::set_test_pattern(bool test_pattern) {
-  this->test_pattern_ = test_pattern;
-}
+void ESP32Camera::set_test_pattern(bool test_pattern) { this->test_pattern_ = test_pattern; }
 
 ESP32Camera *global_esp32_camera;
 

@@ -1074,8 +1074,7 @@ void APIConnection::on_camera_image_request_(const CameraImageRequest &req) {
   if (global_esp32_camera == nullptr)
     return;
 
-  ESP_LOGV(TAG, "on_camera_image_request_ stream=%s single=%s",
-      YESNO(req.get_stream()), YESNO(req.get_single()));
+  ESP_LOGV(TAG, "on_camera_image_request_ stream=%s single=%s", YESNO(req.get_stream()), YESNO(req.get_single()));
   if (req.get_single()) {
     global_esp32_camera->request_image();
   }

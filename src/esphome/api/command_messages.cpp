@@ -284,12 +284,8 @@ bool SwitchCommandRequest::get_state() const { return this->state_; }
 #endif
 
 #ifdef USE_ESP32_CAMERA
-bool CameraImageRequest::get_single() const {
-  return this->single_;
-}
-bool CameraImageRequest::get_stream() const {
-  return this->stream_;
-}
+bool CameraImageRequest::get_single() const { return this->single_; }
+bool CameraImageRequest::get_stream() const { return this->stream_; }
 bool CameraImageRequest::decode_varint(uint32_t field_id, uint32_t value) {
   switch (field_id) {
     case 1:
@@ -304,9 +300,7 @@ bool CameraImageRequest::decode_varint(uint32_t field_id, uint32_t value) {
       return false;
   }
 }
-APIMessageType CameraImageRequest::message_type() const {
-  return APIMessageType::CAMERA_IMAGE_REQUEST;
-}
+APIMessageType CameraImageRequest::message_type() const { return APIMessageType::CAMERA_IMAGE_REQUEST; }
 #endif
 
 }  // namespace api
