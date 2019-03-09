@@ -42,14 +42,12 @@ class CSE7766Component : public PollingComponent, public UARTDevice {
   uint8_t raw_data_[24];
   uint8_t raw_data_index_{0};
   uint32_t last_transmission_{0};
-  CSE7766VoltageSensor *voltage_{nullptr};
-  CSE7766CurrentSensor *current_{nullptr};
-  CSE7766PowerSensor *power_{nullptr};
-  float voltage_acc_{0.0};
-  float current_acc_{0.0};
-  float power_acc_{0.0};
-  uint32_t last_reading_{0};
-  uint32_t last_update_{0};
+  CSE7766VoltageSensor *voltage_sensor_{nullptr};
+  CSE7766CurrentSensor *current_sensor_{nullptr};
+  CSE7766PowerSensor *power_sensor_{nullptr};
+  float voltage_{0};
+  float current_{0};
+  float power_{0};
 };
 
 }  // namespace sensor
