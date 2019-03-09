@@ -115,6 +115,8 @@ class WaveshareEPaper4P2In : public WaveshareEPaper {
   int get_width_internal() override;
 
   int get_height_internal() override;
+
+  bool is_device_high_speed() override;
 };
 
 class WaveshareEPaper7P5In : public WaveshareEPaper {
