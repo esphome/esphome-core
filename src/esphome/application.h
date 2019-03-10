@@ -99,6 +99,7 @@
 #include "esphome/sensor/duty_cycle_sensor.h"
 #include "esphome/sensor/esp32_hall_sensor.h"
 #include "esphome/sensor/filter.h"
+#include "esphome/sensor/group_sensor.h"
 #include "esphome/sensor/hdc1080_component.h"
 #include "esphome/sensor/hlw8012.h"
 #include "esphome/sensor/hmc5883l.h"
@@ -824,6 +825,10 @@ class Application {
 
 #ifdef USE_SDS011
   sensor::SDS011Component *make_sds011(UARTComponent *parent);
+#endif
+
+#ifdef USE_GROUP_SENSOR
+  sensor::GroupSensor *make_group_sensor(const std::string &name);
 #endif
 
   /*    ___  _   _ _____ ____  _   _ _____
