@@ -11,24 +11,21 @@ namespace sensor {
 
 static const char *TAG = "sensor.group_sensor";
 
-GroupSensor::GroupSensor(const std::string &name)
-    : Sensor(name) {}
-
-void GroupSensor::setup() {
+void GroupSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up GROUP_SENSOR '%s'...", this->name_.c_str());
 
 }
-void GroupSensor::dump_config() {
+void GroupSensorComponent::dump_config() {
   LOG_SENSOR("", "GROUP_SENSOR", this);
 }
 
-void GroupSensor::loop() {
+void GroupSensorComponent::loop() {
 
 }
 
-float GroupSensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
+float GroupSensorComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-void GroupSensor::add_sensor(binary_sensor::BinarySensor *sensor, float value) {
+void GroupSensorComponent::add_sensor(binary_sensor::BinarySensor *sensor, float value) {
 
 }  // namespace sensor
 

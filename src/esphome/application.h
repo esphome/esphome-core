@@ -828,7 +828,7 @@ class Application {
 #endif
 
 #ifdef USE_GROUP_SENSOR
-  sensor::GroupSensor *make_group_sensor(const std::string &name);
+  sensor::GroupSensorComponent *make_group_sensor(const std::string &name);
 #endif
 
   /*    ___  _   _ _____ ____  _   _ _____

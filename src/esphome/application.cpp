@@ -387,8 +387,8 @@ switch_::GPIOSwitch *Application::make_gpio_switch(const std::string &friendly_n
 #endif
 
 #ifdef USE_GROUP_SENSOR
-sensor::GroupSensor *Application::make_group_sensor(const std::string &name) {
-  return this->register_component(new GroupSensor(name));
+sensor::GroupSensorComponent *Application::make_group_sensor(const std::string &name) {
+  return this->register_component(new GroupSensorComponent(name));
 }
 #endif
 

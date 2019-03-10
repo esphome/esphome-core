@@ -1,5 +1,5 @@
-#ifndef ESPHOME_SENSOR_GROUP_SENSOR_H
-#define ESPHOME_SENSOR_GROUP_SENSOR_H
+#ifndef ESPHOME_SENSOR_GROUP_SENSOR_COMPONENT_H
+#define ESPHOME_SENSOR_GROUP_SENSOR_COMPONENT_H
 
 #include "esphome/defines.h"
 
@@ -16,9 +16,9 @@ namespace sensor {
 
 /// This class lets you add binarysensors to a group.
 /// eacht binary sensor is the associated with a float value.
-class GroupSensor : public Sensor , public Component {
+class GroupSensorComponent : public Sensor , public Component {
  public:
-  GroupSensor(const std::string &name);
+  explicit GroupSensorComponent(const std::string &name);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -36,4 +36,4 @@ ESPHOME_NAMESPACE_END
 
 #endif  // GROUP_SENSOR
 
-#endif  // ESPHOME_SENSOR_GROUP_SENSOR_H
+#endif  // ESPHOME_SENSOR_GROUP_SENSOR_COMPONENT_H
