@@ -22,15 +22,13 @@ void GroupSensor::dump_config() {
   LOG_SENSOR("", "GROUP_SENSOR", this);
 }
 
-void GroupSensor::update() {
+void GroupSensor::loop() {
 
 }
 
 float GroupSensor::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-}
-
-void GroupSensor::add_sensor(binary_sensor::BinarySensor sensor, float value) {
+void GroupSensor::add_sensor(binary_sensor::BinarySensor *sensor, float value) {
 
 }  
 

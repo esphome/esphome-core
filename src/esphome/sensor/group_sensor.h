@@ -5,6 +5,7 @@
 
 #ifdef USE_GROUP_SENSOR
 
+#include "esphome/component.h"
 #include "esphome/sensor/sensor.h"
 #include "esphome/binary_sensor/binary_sensor.h"
 
@@ -15,7 +16,7 @@ namespace sensor {
 
 /// This class lets you add binarysensors to a group.
 /// eacht binary sensor is the associated with a float value.
-class GroupSensor : public Sensor {
+class GroupSensor : public Sensor , public Component {
  public:
   GroupSensor(const std::string &name);
 
@@ -23,10 +24,10 @@ class GroupSensor : public Sensor {
   // (In most use cases you won't need these)
   void setup() override;
   void dump_config() override;
-  void update() override;
+  void loop() override;
   float get_setup_priority() const override;
 
-  void add_sensor(binary_sensor::BinarySensor sensor, float value);
+  void add_sensor(binary_sensor::BinarySensor *sensor, float value);
 };
 
 }  // namespace sensor
