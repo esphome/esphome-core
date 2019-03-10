@@ -30,9 +30,8 @@ float GroupSensor::get_setup_priority() const { return setup_priority::HARDWARE_
 
 void GroupSensor::add_sensor(binary_sensor::BinarySensor *sensor, float value) {
 
-}  
+}  // namespace sensor
 
-// namespace sensor
 ESPHOME_NAMESPACE_END
 
 #endif  // USE_GROUP_SENSOR
