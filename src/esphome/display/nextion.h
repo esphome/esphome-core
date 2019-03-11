@@ -196,7 +196,7 @@ class Nextion : public PollingComponent, public UARTDevice {
   void set_writer(const nextion_writer_t &writer);
 
   /**
-   * Manually send a raw command to the display and don't wait for an acknolwedgement packet.
+   * Manually send a raw command to the display and don't wait for an acknowledgement packet.
    * @param command The command to write, for example "vis b0,0".
    */
   void send_command_no_ack(const char *command);
@@ -208,10 +208,15 @@ class Nextion : public PollingComponent, public UARTDevice {
    */
   bool send_command_printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
+  void set_wait_for_ack(bool wait_for_ack);
+
  protected:
   bool ack_();
+  bool read_until_ack_();
+
   std::vector<NextionTouchComponent *> touch_;
   optional<nextion_writer_t> writer_;
+  bool wait_for_ack_{true};
 };
 
 class NextionTouchComponent : public binary_sensor::BinarySensor {
