@@ -31,6 +31,7 @@ uint32_t TotalDailyEnergy::update_interval() { return this->parent_->update_inte
 std::string TotalDailyEnergy::unit_of_measurement() { return this->parent_->get_unit_of_measurement() + "h"; }
 std::string TotalDailyEnergy::icon() { return this->parent_->get_icon(); }
 int8_t TotalDailyEnergy::accuracy_decimals() { return this->parent_->get_accuracy_decimals() + 1; }
+int8_t TotalDailyEnergy::accuracy_decimals() { return this->parent_->get_accuracy_decimals() + 2; }
 void TotalDailyEnergy::process_new_state_(float state) {
   if (isnan(state))
     return;
