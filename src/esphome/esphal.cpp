@@ -201,7 +201,16 @@ void ICACHE_RAM_ATTR ISRInternalGPIOPin::clear_interrupt() {
 }
 GPIOPin *GPIOPin::copy() const { return new GPIOPin(*this); }
 
-void ICACHE_RAM_ATTR HOT GPIOPin::pin_mode(uint8_t mode) { pinMode(this->pin_, mode); }
+void ICACHE_RAM_ATTR HOT GPIOPin::pin_mode(uint8_t mode) {
+#ifdef ARDUINO_ARCH_ESP8266
+  if (this->pin_ == 16 && mode == INPUT_PULLUP) {
+    // pullups are not available on GPIO16, manually override with
+    // input mode.
+    pinMode(16, INPUT);
+  }
+#endif
+  pinMode(this->pin_, mode);
+}
 
 GPIOOutputPin::GPIOOutputPin(uint8_t pin, uint8_t mode, bool inverted) : GPIOPin(pin, mode, inverted) {}
 
