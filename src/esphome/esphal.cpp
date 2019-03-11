@@ -207,6 +207,7 @@ void ICACHE_RAM_ATTR HOT GPIOPin::pin_mode(uint8_t mode) {
     // pullups are not available on GPIO16, manually override with
     // input mode.
     pinMode(16, INPUT);
+    return;
   }
 #endif
   pinMode(this->pin_, mode);
