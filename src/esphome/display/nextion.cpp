@@ -285,9 +285,7 @@ void Nextion::set_component_text_printf(const char *component, const char *forma
   if (ret > 0)
     this->set_component_text(component, buffer);
 }
-void Nextion::set_wait_for_ack(bool wait_for_ack) {
-  this->wait_for_ack_ = wait_for_ack;
-}
+void Nextion::set_wait_for_ack(bool wait_for_ack) { this->wait_for_ack_ = wait_for_ack; }
 
 void NextionTouchComponent::process(uint8_t page_id, uint8_t component_id, bool on) {
   if (this->page_id_ == page_id && this->component_id_ == component_id) {
