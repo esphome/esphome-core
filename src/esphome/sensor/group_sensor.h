@@ -13,12 +13,19 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
 
+class BinarySensorChannel {
+  public:
+  BinarySensorChannel(const binary_sensor::BinarySensor *sensor, float value);
+   binary_sensor::BinarySensor *binary_sensor;
+   float value;
+};
+
 
 /// This class lets you add binarysensors to a group.
 /// eacht binary sensor is the associated with a float value.
 class GroupSensorComponent : public Sensor , public Component {
  public:
-  explicit GroupSensorComponent(const std::string &name);
+  GroupSensorComponent(const std::string &name);
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -28,6 +35,8 @@ class GroupSensorComponent : public Sensor , public Component {
   float get_setup_priority() const override;
 
   void add_sensor(binary_sensor::BinarySensor *sensor, float value);
+ protected:
+  std::vector<BinarySensorChannel *> sensors_{};
 };
 
 }  // namespace sensor
