@@ -13,27 +13,33 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
 
+/** helper class to combine the binary_sensor and its float value to one objects. **/
 class BinarySensorChannel {
-  public:
-    BinarySensorChannel( binary_sensor::BinarySensor *sensor, float value);
-    float value;
-    bool get_sensor_state(void);
-
-    binary_sensor::BinarySensor *binary_sensor;
+ public:
+  BinarySensorChannel(binary_sensor::BinarySensor *sensor, float value);
+  float value;
+  binary_sensor::BinarySensor *binary_sensor;
 };
 
-
-/// This class lets you add binarysensors to a group.
-/// eacht binary sensor is the associated with a float value.
-class GroupSensorComponent : public Sensor , public Component {
+/** Class to group binary_sensors to one Sensor.
+ *
+ * Each binary sensor represents a float value in the group.
+ */
+class GroupSensorComponent : public Sensor, public Component {
  public:
   GroupSensorComponent(const std::string &name);
   void setup() override;
   void dump_config() override;
   void loop() override;
   float get_setup_priority() const override;
-
+  /** Add binary_sensors to the group.
+   * Each binary_sensor represents a float value when its state is true
+   *
+   * @param sensor The binary sensor.
+   * @param value  The value this binary_sensor represents
+   */
   void add_sensor(binary_sensor::BinarySensor *sensor, float value);
+
  protected:
   std::vector<BinarySensorChannel *> sensors_{};
   float last_value_ = 0.0;
