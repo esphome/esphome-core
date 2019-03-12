@@ -15,9 +15,11 @@ namespace sensor {
 
 class BinarySensorChannel {
   public:
-  BinarySensorChannel(const binary_sensor::BinarySensor *sensor, float value);
-   binary_sensor::BinarySensor *binary_sensor;
-   float value;
+    BinarySensorChannel( binary_sensor::BinarySensor *sensor, float value);
+    float value;
+    bool get_sensor_state(void);
+
+    binary_sensor::BinarySensor *binary_sensor;
 };
 
 
@@ -26,9 +28,6 @@ class BinarySensorChannel {
 class GroupSensorComponent : public Sensor , public Component {
  public:
   GroupSensorComponent(const std::string &name);
-
-  // ========== INTERNAL METHODS ==========
-  // (In most use cases you won't need these)
   void setup() override;
   void dump_config() override;
   void loop() override;
@@ -37,6 +36,7 @@ class GroupSensorComponent : public Sensor , public Component {
   void add_sensor(binary_sensor::BinarySensor *sensor, float value);
  protected:
   std::vector<BinarySensorChannel *> sensors_{};
+  float last_value_ = 0.0;
 };
 
 }  // namespace sensor
