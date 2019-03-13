@@ -87,6 +87,7 @@
 #include "esphome/sensor/ads1115_component.h"
 #include "esphome/sensor/apds9960.h"
 #include "esphome/sensor/bh1750_sensor.h"
+#include "esphome/sensor/binary_sensor_map.h"
 #include "esphome/sensor/bme280_component.h"
 #include "esphome/sensor/bme680_component.h"
 #include "esphome/sensor/bmp085_component.h"
@@ -99,7 +100,6 @@
 #include "esphome/sensor/duty_cycle_sensor.h"
 #include "esphome/sensor/esp32_hall_sensor.h"
 #include "esphome/sensor/filter.h"
-#include "esphome/sensor/group_sensor.h"
 #include "esphome/sensor/hdc1080_component.h"
 #include "esphome/sensor/hlw8012.h"
 #include "esphome/sensor/hmc5883l.h"
@@ -827,8 +827,8 @@ class Application {
   sensor::SDS011Component *make_sds011(UARTComponent *parent);
 #endif
 
-#ifdef USE_GROUP_SENSOR
-  sensor::GroupSensorComponent *make_group_sensor(const std::string &name);
+#ifdef USE_BINARY_SENSOR_MAP
+  sensor::BinarySensorMap *make_binary_sensor_map(const std::string &name);
 #endif
 
   /*    ___  _   _ _____ ____  _   _ _____

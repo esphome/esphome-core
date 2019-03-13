@@ -138,7 +138,7 @@
 #define USE_MQTT
 #define USE_COPY_OUTPUT
 #define USE_WIFI_INFO_TEXT_SENSOR
-#define USE_GROUP_SENSOR
+#define USE_BINARY_SENSOR_MAP
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -226,15 +226,6 @@
 #endif
 
 #ifdef USE_MPR121
-#ifndef USE_BINARY_SENSOR
-#define USE_BINARY_SENSOR
-#endif
-#endif
-
-#ifdef USE_GROUP_SENSOR
-#ifndef USE_SENSOR
-#define USE_SENSOR
-#endif
 #ifndef USE_BINARY_SENSOR
 #define USE_BINARY_SENSOR
 #endif

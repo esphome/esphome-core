@@ -386,9 +386,9 @@ switch_::GPIOSwitch *Application::make_gpio_switch(const std::string &friendly_n
 }
 #endif
 
-#ifdef USE_GROUP_SENSOR
-sensor::GroupSensorComponent *Application::make_group_sensor(const std::string &name) {
-  return this->register_component(new GroupSensorComponent(name));
+#ifdef USE_BINARY_SENSOR_MAP
+sensor::BinarySensorMap *Application::make_binary_sensor_map(const std::string &name) {
+  return this->register_component(new BinarySensorMap(name));
 }
 #endif
 
