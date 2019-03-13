@@ -311,7 +311,7 @@ void OTAComponent::handle_() {
       goto error;
     }
 #endif
-    ESP_LOGW(TAG, "Preparing OTA partition failed!");
+    ESP_LOGW(TAG, "Preparing OTA partition failed! '%s'", ss.c_str());
     error_code = OTA_RESPONSE_ERROR_UPDATE_PREPARE;
     goto error;
   }
