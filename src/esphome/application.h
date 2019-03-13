@@ -21,6 +21,7 @@
 #include "esphome/log_component.h"
 #include "esphome/ota_component.h"
 #include "esphome/power_supply_component.h"
+#include "esphome/servo.h"
 #include "esphome/spi_component.h"
 #include "esphome/status_led.h"
 #include "esphome/uart_component.h"
