@@ -43,25 +43,33 @@ void BinarySensorMap::loop() {
 void BinarySensorMap::process_group_() {
   float total_current_value = 0.0;
   uint8_t num_active_sensors = 0;
+  bool touched = false;
   // check all binary_sensors for its state. when active add its value to total_current_value.
   for (auto *bs : this->sensors_) {
     if (bs->binary_sensor->state) {
+      touched = true;
       num_active_sensors++;
       total_current_value += bs->value;
     }
   }
-  // did the value change and check if at least one binary_sensor is active
-  if (last_value_ != total_current_value) {
-    if (num_active_sensors > 0) {
+  // check if the sensor map was touched
+  if (touched) {
+    // did the value change or is it a new sensor touch
+    if ((last_value_ != total_current_value) || !this->last_touched_) {
+      this->last_touched_ = true;
       float publish_value = total_current_value / num_active_sensors;
-      ESP_LOGD(TAG, "%s - value: %f", this->name_.c_str(), publish_value);
+      ESP_LOGD(TAG, "%s - touched value: %f", this->name_.c_str(), publish_value);
       this->publish_state(publish_value);
-    } else {
-      ESP_LOGD(TAG, "%s - value: nan", this->name_.c_str());
+      last_value_ = total_current_value;
+    }
+  } else {
+    // is this a new sensor release
+    if (this->last_touched_) {
+      this->last_touched_ = false;
+      ESP_LOGD(TAG, "%s - release value: nan", this->name_.c_str());
       this->publish_state(NAN);
     }
   }
-  last_value_ = total_current_value;
 }
 
 void BinarySensorMap::process_slider_() { ESP_LOGD(TAG, "SLIDER is not implemented yet."); }
