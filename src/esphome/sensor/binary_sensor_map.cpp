@@ -5,6 +5,7 @@
 #include "esphome/sensor/binary_sensor_map.h"
 
 #include "esphome/log.h"
+#include <bitset>
 
 ESPHOME_NAMESPACE_BEGIN
 
@@ -44,23 +45,28 @@ void BinarySensorMap::process_group_() {
   float total_current_value = 0.0;
   uint8_t num_active_sensors = 0;
   bool touched = false;
+  uint64_t mask = 0x00;
+  uint8_t cur_sens = 0;
   // check all binary_sensors for its state. when active add its value to total_current_value.
+  // create a bitmask for the binary_sensor status on all channels
   for (auto *bs : this->sensors_) {
     if (bs->binary_sensor->state) {
       touched = true;
       num_active_sensors++;
       total_current_value += bs->value;
+      mask |= 1 << cur_sens;
     }
+    cur_sens++;
   }
   // check if the sensor map was touched
   if (touched) {
-    // did the value change or is it a new sensor touch
-    if ((last_value_ != total_current_value) || !this->last_touched_) {
+    // did the bit_mask change or is it a new sensor touch
+    if ((last_mask_ != mask) || !this->last_touched_) {
       this->last_touched_ = true;
       float publish_value = total_current_value / num_active_sensors;
       ESP_LOGD(TAG, "%s - touched value: %f", this->name_.c_str(), publish_value);
       this->publish_state(publish_value);
-      last_value_ = total_current_value;
+      last_mask_ = mask;
     }
   } else {
     // is this a new sensor release

@@ -58,8 +58,9 @@ class BinarySensorMap : public Sensor, public Component {
  protected:
   std::vector<BinarySensorMapChannel *> sensors_{};
   uint8_t sensor_type_{BINARY_SENSOR_MAP_TYPE_GROUP};
-  float last_value_{0};
-  bool last_touched_ = false;
+  bool last_touched_{false};
+  //this gives max 46 channels per binary_sensor_map
+  uint64_t last_mask_{0x00};
   /**
    * methods to process the types of binary_sensor_maps
    * GROUP: just map to a value
