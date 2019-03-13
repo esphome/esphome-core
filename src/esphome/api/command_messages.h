@@ -107,6 +107,20 @@ class SwitchCommandRequest : public APIMessage {
 };
 #endif
 
+#ifdef USE_ESP32_CAMERA
+class CameraImageRequest : public APIMessage {
+ public:
+  bool decode_varint(uint32_t field_id, uint32_t value) override;
+  bool get_single() const;
+  bool get_stream() const;
+  APIMessageType message_type() const override;
+
+ protected:
+  bool single_{false};
+  bool stream_{false};
+};
+#endif
+
 }  // namespace api
 
 ESPHOME_NAMESPACE_END

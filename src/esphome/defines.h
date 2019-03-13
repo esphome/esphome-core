@@ -84,6 +84,7 @@
 #define USE_TEMPLATE_COVER
 #ifdef ARDUINO_ARCH_ESP32
 #define USE_ESP32_HALL_SENSOR
+#define USE_ESP32_CAMERA
 #endif
 #define USE_DUTY_CYCLE_SENSOR
 #define USE_STATUS_LED
@@ -138,6 +139,7 @@
 #define USE_MQTT
 #define USE_COPY_OUTPUT
 #define USE_WIFI_INFO_TEXT_SENSOR
+#define USE_SERVO
 #endif
 
 #ifdef USE_REMOTE_RECEIVER

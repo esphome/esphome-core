@@ -283,6 +283,26 @@ uint32_t SwitchCommandRequest::get_key() const { return this->key_; }
 bool SwitchCommandRequest::get_state() const { return this->state_; }
 #endif
 
+#ifdef USE_ESP32_CAMERA
+bool CameraImageRequest::get_single() const { return this->single_; }
+bool CameraImageRequest::get_stream() const { return this->stream_; }
+bool CameraImageRequest::decode_varint(uint32_t field_id, uint32_t value) {
+  switch (field_id) {
+    case 1:
+      // bool single = 1;
+      this->single_ = value;
+      return true;
+    case 2:
+      // bool stream = 2;
+      this->stream_ = value;
+      return true;
+    default:
+      return false;
+  }
+}
+APIMessageType CameraImageRequest::message_type() const { return APIMessageType::CAMERA_IMAGE_REQUEST; }
+#endif
+
 }  // namespace api
 
 ESPHOME_NAMESPACE_END
