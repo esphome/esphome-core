@@ -21,7 +21,7 @@ enum {
 
 struct BinarySensorMapChannel {
   binary_sensor::BinarySensor *binary_sensor;
-  float value;
+  float sensor_value = 0;
 };
 
 /** Class to group binary_sensors to one Sensor.

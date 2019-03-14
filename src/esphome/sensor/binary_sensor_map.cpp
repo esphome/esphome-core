@@ -39,7 +39,7 @@ void BinarySensorMap::process_group_() {
     if (bs->binary_sensor->state) {
       touched = true;
       num_active_sensors++;
-      total_current_value += bs->value;
+      total_current_value += bs->sensor_value;
       mask |= 1 << cur_sens;
     }
     cur_sens++;
@@ -67,8 +67,10 @@ void BinarySensorMap::process_group_() {
 float BinarySensorMap::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 void BinarySensorMap::add_sensor(binary_sensor::BinarySensor *sensor, float value) {
-  BinarySensorMapChannel sensor_channel{sensor, value};
-  this->sensors_.push_back(&sensor_channel);
+  BinarySensorMapChannel *sensor_channel = new BinarySensorMapChannel;
+  sensor_channel->binary_sensor = sensor;
+  sensor_channel->sensor_value = value;
+  this->sensors_.push_back(sensor_channel);
 }
 
 void BinarySensorMap::set_sensor_type(uint8_t sensor_type) { this->sensor_type_ = sensor_type; }
