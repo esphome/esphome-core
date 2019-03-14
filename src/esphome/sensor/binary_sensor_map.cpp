@@ -5,7 +5,6 @@
 #include "esphome/sensor/binary_sensor_map.h"
 
 #include "esphome/log.h"
-#include <bitset>
 
 ESPHOME_NAMESPACE_BEGIN
 
@@ -13,14 +12,7 @@ namespace sensor {
 
 static const char *TAG = "sensor.binary_sensor_map";
 
-BinarySensorMapChannel::BinarySensorMapChannel(binary_sensor::BinarySensor *sensor, float value) {
-  this->binary_sensor = sensor;
-  this->value = value;
-}
-
 BinarySensorMap::BinarySensorMap(const std::string &name) : Sensor(name) {}
-
-void BinarySensorMap::setup() { ESP_LOGCONFIG(TAG, "Setting up binary_sensor_map '%s'...", this->name_.c_str()); }
 
 void BinarySensorMap::dump_config() {
   ESP_LOGD(TAG, "BINARY_SENSOR_MAP:");
@@ -31,12 +23,6 @@ void BinarySensorMap::loop() {
   switch (this->sensor_type_) {
     case BINARY_SENSOR_MAP_TYPE_GROUP:
       this->process_group_();
-      break;
-    case BINARY_SENSOR_MAP_TYPE_SLIDER:
-      this->process_slider_();
-      break;
-    case BINARY_SENSOR_MAP_TYPE_WHEEL:
-      this->process_wheel_();
       break;
   }
 }
@@ -78,13 +64,11 @@ void BinarySensorMap::process_group_() {
   }
 }
 
-void BinarySensorMap::process_slider_() { ESP_LOGD(TAG, "SLIDER is not implemented yet."); }
-void BinarySensorMap::process_wheel_() { ESP_LOGD(TAG, "WHEEL is not implemented yet."); }
 float BinarySensorMap::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 void BinarySensorMap::add_sensor(binary_sensor::BinarySensor *sensor, float value) {
-  BinarySensorMapChannel *sensor_channel = new BinarySensorMapChannel(sensor, value);
-  this->sensors_.push_back(sensor_channel);
+  BinarySensorMapChannel sensor_channel{sensor, value};
+  this->sensors_.push_back(&sensor_channel);
 }
 
 void BinarySensorMap::set_sensor_type(uint8_t sensor_type) { this->sensor_type_ = sensor_type; }

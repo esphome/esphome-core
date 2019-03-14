@@ -19,12 +19,9 @@ enum {
   BINARY_SENSOR_MAP_TYPE_WHEEL = 0x02,
 };
 
-/** helper class to combine the binary_sensor and its float value to one objects. **/
-class BinarySensorMapChannel {
- public:
-  BinarySensorMapChannel(binary_sensor::BinarySensor *sensor, float value);
-  float value;
+struct BinarySensorMapChannel {
   binary_sensor::BinarySensor *binary_sensor;
+  float value;
 };
 
 /** Class to group binary_sensors to one Sensor.
@@ -34,7 +31,6 @@ class BinarySensorMapChannel {
 class BinarySensorMap : public Sensor, public Component {
  public:
   BinarySensorMap(const std::string &name);
-  void setup() override;
   void dump_config() override;
   /**
    * The loop checks all binary_sensor states
@@ -59,17 +55,15 @@ class BinarySensorMap : public Sensor, public Component {
   std::vector<BinarySensorMapChannel *> sensors_{};
   uint8_t sensor_type_{BINARY_SENSOR_MAP_TYPE_GROUP};
   bool last_touched_{false};
-  //this gives max 46 channels per binary_sensor_map
+  // this gives max 46 channels per binary_sensor_map
   uint64_t last_mask_{0x00};
   /**
    * methods to process the types of binary_sensor_maps
-   * GROUP: just map to a value
-   * SLIDER: actuation should be in left/right order - NOT IMPLEMENTED YET
-   * WHEEL: actuation should be in circular order - NOT IMPLEMENTED YET
+   * GROUP: process_group_() just map to a value
+   * SLIDER: process_slider_() actuation should be in left/right order - NOT IMPLEMENTED YET
+   * WHEEL: process_wheel_() actuation should be in circular order - NOT IMPLEMENTED YET
    * */
   void process_group_();
-  void process_slider_();
-  void process_wheel_();
 };
 
 }  // namespace sensor
