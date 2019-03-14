@@ -22,11 +22,18 @@ enum CoverCommand {
   COVER_COMMAND_OPEN = 0,
   COVER_COMMAND_CLOSE,
   COVER_COMMAND_STOP,
+  COVER_COMMAND_POSITION,
+  COVER_COMMAND_TILT,
 };
+
+using position_value_t = float;
+using tilt_value_t = float;
 
 template<typename... Ts> class OpenAction;
 template<typename... Ts> class CloseAction;
 template<typename... Ts> class StopAction;
+template<typename... Ts> class PositionAction;
+template<typename... Ts> class TiltAction;
 template<typename... Ts> class CoverPublishAction;
 
 #define LOG_COVER(prefix, type, obj) \
@@ -45,17 +52,31 @@ class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
 
+  position_value_t position_value;
+  tilt_value_t tilt_value;
   void open();
   void close();
   void stop();
+  void set_position(float value);
+  void set_tilt(float value);
 
   void add_on_publish_state_callback(std::function<void(CoverState)> &&f);
 
   void publish_state(CoverState state);
 
+  void add_on_publish_position_callback(std::function<void(position_value_t)> &&p);
+
+  void publish_position(position_value_t position_value);
+
+  void add_on_publish_tilt_callback(std::function<void(tilt_value_t)> &&t);
+
+  void publish_tilt(tilt_value_t tilt_value);
+
   template<typename... Ts> OpenAction<Ts...> *make_open_action();
   template<typename... Ts> CloseAction<Ts...> *make_close_action();
   template<typename... Ts> StopAction<Ts...> *make_stop_action();
+  template<typename... Ts> PositionAction<Ts...> *make_position_action();
+  template<typename... Ts> TiltAction<Ts...> *make_tilt_action();
   template<typename... Ts> CoverPublishAction<Ts...> *make_cover_publish_action();
 
   /** Return whether this cover is optimistic - i.e. if both the OPEN/CLOSE actions should be displayed in
@@ -64,6 +85,23 @@ class Cover : public Nameable {
    * Defaults to false.
    */
   virtual bool assumed_state();
+  void set_optimistic(bool optimistic);
+  void set_position_closed(float position_closed);
+  void set_position_open(float position_open);
+  void set_tilt_min(float tilt_min);
+  void set_tilt_max(float tilt_max);
+  void set_tilt_closed_value(float tilt_closed_value);
+  void set_tilt_opened_value(float tilt_opened_value);
+  void set_tilt_invert_state(bool tilt_invert_state);
+
+  bool optimistic();
+  float position_closed();
+  float position_open();
+  float tilt_min();
+  float tilt_max();
+  float tilt_closed_value();
+  float tilt_opened_value();
+  bool tilt_invert_state();
 
   CoverState state{COVER_OPEN};
 
@@ -76,11 +114,23 @@ class Cover : public Nameable {
 
  protected:
   virtual void write_command(CoverCommand command) = 0;
+  virtual void write_command(CoverCommand command, float value) = 0;
+
+  float position_closed_{0.0};
+  float position_open_{100.0};
+  float tilt_min_{0.0};
+  float tilt_max_{100.0};
+  float tilt_closed_value_{100.0};
+  float tilt_opened_value_{0.0};
+  bool tilt_invert_state_{false};
+  bool optimistic_{false};
 
   uint32_t hash_base() override;
 
   CallbackManager<void(CoverState)> state_callback_{};
   Deduplicator<CoverState> dedup_;
+  CallbackManager<void(position_value_t)> position_callback_{};
+  CallbackManager<void(tilt_value_t)> tilt_callback_{};
 
 #ifdef USE_MQTT_COVER
   MQTTCoverComponent *mqtt_{nullptr};
@@ -110,6 +160,30 @@ template<typename... Ts> class CloseAction : public Action<Ts...> {
 template<typename... Ts> class StopAction : public Action<Ts...> {
  public:
   explicit StopAction(Cover *cover);
+
+  void play(Ts... x) override;
+
+ protected:
+  Cover *cover_;
+};
+
+template<typename... Ts> class PositionAction : public Action<Ts...> {
+ public:
+  explicit PositionAction(Cover *cover, float value);
+
+  void set_position(float value) { this->position_ = value; }
+
+  void play(Ts... x) override;
+
+ protected:
+  Cover *cover_;
+};
+
+template<typename... Ts> class TiltAction : public Action<Ts...> {
+ public:
+  explicit TiltAction(Cover *cover, float value);
+
+  void set_tilt(float value) { this->tilt_ = value; }
 
   void play(Ts... x) override;
 
@@ -149,10 +223,26 @@ template<typename... Ts> void StopAction<Ts...>::play(Ts... x) {
   this->play_next(x...);
 }
 
-template<typename... Ts> OpenAction<Ts...> *Cover::make_open_action() { return new OpenAction<Ts...>(this); }
+template<typename... Ts> PositionAction<Ts...>::PositionAction(Cover *cover, float value) : cover_(cover) {}
 
+template<typename... Ts> void PositionAction<Ts...>::play(Ts... x) {
+  this->cover_->set_position(x...);
+  this->play_next(x...);
+}
+
+template<typename... Ts> TiltAction<Ts...>::TiltAction(Cover *cover, float value) : cover_(cover) {}
+
+template<typename... Ts> void TiltAction<Ts...>::play(Ts... x) {
+  this->cover_->set_tilt(x...);
+  this->play_next(x...);
+}
+
+template<typename... Ts> OpenAction<Ts...> *Cover::make_open_action() { return new OpenAction<Ts...>(this); }
 template<typename... Ts> CloseAction<Ts...> *Cover::make_close_action() { return new CloseAction<Ts...>(this); }
 template<typename... Ts> StopAction<Ts...> *Cover::make_stop_action() { return new StopAction<Ts...>(this); }
+
+template<typename... Ts> PositionAction<Ts...> *Cover::make_position_action() { return new PositionAction<Ts...>(this); }
+template<typename... Ts> TiltAction<Ts...> *Cover::make_tilt_action() { return new TiltAction<Ts...>(this); }
 
 template<typename... Ts> CoverPublishAction<Ts...>::CoverPublishAction(Cover *cover) : cover_(cover) {}
 template<typename... Ts> void CoverPublishAction<Ts...>::play(Ts... x) {
