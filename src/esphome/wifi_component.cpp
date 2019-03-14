@@ -165,6 +165,31 @@ std::string format_mac_addr(const uint8_t mac[6]) {
 
 void WiFiComponent::start_connecting(const WiFiAP &ap, bool two) {
   ESP_LOGI(TAG, "WiFi Connecting to '%s'...", ap.get_ssid().c_str());
+#ifdef ESPHOME_LOG_HAS_VERBOSE
+  ESP_LOGV(TAG, "Connection Params:");
+  ESP_LOGV(TAG, "  SSID: '%s'", ap.get_ssid().c_str());
+  if (ap.get_bssid().has_value()) {
+    bssid_t b = *ap.get_bssid();
+    ESP_LOGV(TAG, "  BSSID: %02X:%02X:%02X:%02X:%02X:%02X", b[0], b[1], b[2], b[3], b[4], b[5]);
+  } else {
+    ESP_LOGV(TAG, "  BSSID: Not Set");
+  }
+  ESP_LOGV(TAG, "  Password: " LOG_SECRET("'%s'"), ap.get_password());
+  if (ap.get_channel().has_value()) {
+    ESP_LOGV(TAG, "  Channel: %u", *ap.get_channel());
+  } else {
+    ESP_LOGV(TAG, "  Channel: Not Set");
+  }
+  if (ap.get_manual_ip().has_value()) {
+    ManualIP m = *ap.get_manual_ip();
+    ESP_LOGV(TAG, "  Manual IP: Static IP=%s Gateway=%s Subnet=%s DNS1=%s DNS2=%s",
+        m.static_ip.toString().c_str(), m.gateway.toString().c_str(), m.subnet.toString().c_str(),
+        m.dns1.toString().c_str(), m.dns2.toString().c_str());
+  } else {
+    ESP_LOGV(TAG, "  Using DHCP IP");
+  }
+  ESP_LOGV(TAG, "  Hidden: %s", YESNO(ap.get_hidden()));
+#endif
 
   if (!this->wifi_sta_connect_(ap)) {
     ESP_LOGE(TAG, "wifi_sta_connect_ failed!");
@@ -308,16 +333,21 @@ void WiFiComponent::check_scanning_finished() {
 
   WiFiAP ap;
   WiFiScanResult scan_res = this->scan_result_[0];
-  ap.set_ssid(scan_res.get_ssid());
-  ap.set_bssid(scan_res.get_bssid());
-  ap.set_channel(scan_res.get_channel());
   for (auto &ap2 : this->sta_) {
     if (scan_res.matches(ap2)) {
-      if (ap.get_ssid().empty()) {
+      if (ap2.get_hidden()) {
+        // selected network is hidden
+        ap.set_hidden(true);
+        ap.set_ssid(scan_res.get_ssid());
+      } else {
+        // selected network is visible
+        ap.set_hidden(false);
         ap.set_ssid(ap2.get_ssid());
+        ap.set_channel(scan_res.get_channel());
+        ap.set_bssid(scan_res.get_bssid());
       }
-      ap.set_password(ap2.get_password());
       ap.set_manual_ip(ap2.get_manual_ip());
+      ap.set_password(ap2.get_password());
       break;
     }
   }
