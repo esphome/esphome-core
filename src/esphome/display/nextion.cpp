@@ -32,41 +32,17 @@ void Nextion::send_command_no_ack(const char *command) {
 }
 
 bool Nextion::ack_() {
-  uint8_t bytes[4] = {
-      0x00,
-  };
-  if (!this->read_array(bytes, 4)) {
-    ESP_LOGW(TAG, "Nextion returned no ACK data!");
-    return false;
-  }
+  if (!this->wait_for_ack_)
+    return true;
 
-  if (bytes[1] != 0xFF || bytes[2] != 0xFF || bytes[3] != 0xFF) {
-    ESP_LOGW(TAG, "Nextion returned invalid ACK data!");
-    return false;
-  }
-
-  switch (bytes[0]) {
-    case 0x01:  // successful execution of instruction
-      return true;
-    case 0x00:  // invalid instruction
-    case 0x02:  // component ID invalid
-    case 0x03:  // page ID invalid
-    case 0x04:  // picture ID invalid
-    case 0x05:  // font ID invalid
-    case 0x11:  // baud rate setting invalid
-    case 0x12:  // curve control ID number or channel number is invalid
-    case 0x1A:  // variable name invalid
-    case 0x1B:  // variable operation invalid
-    case 0x1C:  // failed to assign
-    case 0x1D:  // operate EEPROM failed
-    case 0x1E:  // parameter quantity invalid
-    case 0x1F:  // IO operation failed
-    case 0x20:  // undefined escape characters
-    case 0x23:  // too long variable name
-    default:
-      ESP_LOGW(TAG, "Nextion returned NACK with code 0x%02X", bytes[0]);
+  uint32_t start = millis();
+  while (!this->read_until_ack_()) {
+    if (millis() - start > 100) {
+      ESP_LOGW(TAG, "Waiting for ACK timed out!");
       return false;
+    }
   }
+  return true;
 }
 void Nextion::set_component_text(const char *component, const char *text) {
   this->send_command_printf("%s.txt=\"%s\"", component, text);
@@ -74,8 +50,8 @@ void Nextion::set_component_text(const char *component, const char *text) {
 void Nextion::set_component_value(const char *component, int value) {
   this->send_command_printf("%s.val=%d", component, value);
 }
-void Nextion::set_component_picture(const char *component, const char *picture) {
-  this->send_command_printf("%s.pic=\"%s\"", component, picture);
+void Nextion::display_picture(int picture_id, int x_start, int y_start) {
+  this->send_command_printf("pic %d %d %d", picture_id, x_start, y_start);
 }
 void Nextion::set_component_background_color(const char *component, const char *color) {
   this->send_command_printf("%s.bco=\"%s\"", component, color);
@@ -122,9 +98,6 @@ void Nextion::disable_component_touch(const char *component) { this->send_comman
 void Nextion::add_waveform_data(int component_id, uint8_t channel_number, uint8_t value) {
   this->send_command_printf("add %d,%u,%u", component_id, channel_number, value);
 }
-void Nextion::display_picture(int picture_id, int x_start, int y_start) {
-  this->send_command_printf("pic %d,%d,%d", x_start, y_start, picture_id);
-}
 void Nextion::fill_area(int x1, int y1, int width, int height, const char *color) {
   this->send_command_printf("fill %d,%d,%d,%d,%s", x1, y1, width, height, color);
 }
@@ -140,7 +113,7 @@ void Nextion::circle(int center_x, int center_y, int radius, const char *color) 
 void Nextion::filled_circle(int center_x, int center_y, int radius, const char *color) {
   this->send_command_printf("cirs %d,%d,%d,%s", center_x, center_y, radius, color);
 }
-void Nextion::loop() {
+bool Nextion::read_until_ack_() {
   while (this->available() >= 4) {
     // flush preceding filler bytes
     uint8_t temp;
@@ -181,6 +154,53 @@ void Nextion::loop() {
 
     bool invalid_data_length = false;
     switch (event) {
+      case 0x01:  // successful execution of instruction (ACK)
+        return true;
+      case 0x00:  // invalid instruction
+        ESP_LOGW(TAG, "Nextion reported invalid instruction!");
+        break;
+      case 0x02:  // component ID invalid
+        ESP_LOGW(TAG, "Nextion reported component ID invalid!");
+        break;
+      case 0x03:  // page ID invalid
+        ESP_LOGW(TAG, "Nextion reported page ID invalid!");
+        break;
+      case 0x04:  // picture ID invalid
+        ESP_LOGW(TAG, "Nextion reported picture ID invalid!");
+        break;
+      case 0x05:  // font ID invalid
+        ESP_LOGW(TAG, "Nextion reported font ID invalid!");
+        break;
+      case 0x11:  // baud rate setting invalid
+        ESP_LOGW(TAG, "Nextion reported baud rate invalid!");
+        break;
+      case 0x12:  // curve control ID number or channel number is invalid
+        ESP_LOGW(TAG, "Nextion reported control/channel ID invalid!");
+        break;
+      case 0x1A:  // variable name invalid
+        ESP_LOGW(TAG, "Nextion reported variable name invalid!");
+        break;
+      case 0x1B:  // variable operation invalid
+        ESP_LOGW(TAG, "Nextion reported variable operation invalid!");
+        break;
+      case 0x1C:  // failed to assign
+        ESP_LOGW(TAG, "Nextion reported failed to assign variable!");
+        break;
+      case 0x1D:  // operate EEPROM failed
+        ESP_LOGW(TAG, "Nextion reported operating EEPROM failed!");
+        break;
+      case 0x1E:  // parameter quantity invalid
+        ESP_LOGW(TAG, "Nextion reported parameter quantity invalid!");
+        break;
+      case 0x1F:  // IO operation failed
+        ESP_LOGW(TAG, "Nextion reported component I/O operation invalid!");
+        break;
+      case 0x20:  // undefined escape characters
+        ESP_LOGW(TAG, "Nextion reported undefined escape characters!");
+        break;
+      case 0x23:  // too long variable name
+        ESP_LOGW(TAG, "Nextion reported too long variable name!");
+        break;
       case 0x65: {  // touch event return data
         if (data_length != 3) {
           invalid_data_length = true;
@@ -226,6 +246,13 @@ void Nextion::loop() {
       ESP_LOGW(TAG, "Invalid data length from nextion!");
     }
   }
+
+  return false;
+}
+void Nextion::loop() {
+  while (this->available() >= 4) {
+    this->read_until_ack_();
+  }
 }
 #ifdef USE_TIME
 void Nextion::set_nextion_rtc_time(time::ESPTime time) {
@@ -258,6 +285,7 @@ void Nextion::set_component_text_printf(const char *component, const char *forma
   if (ret > 0)
     this->set_component_text(component, buffer);
 }
+void Nextion::set_wait_for_ack(bool wait_for_ack) { this->wait_for_ack_ = wait_for_ack; }
 
 void NextionTouchComponent::process(uint8_t page_id, uint8_t component_id, bool on) {
   if (this->page_id_ == page_id && this->component_id_ == component_id) {

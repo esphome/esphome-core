@@ -530,6 +530,7 @@ void HOT WaveshareEPaper4P2In::display() {
 }
 int WaveshareEPaper4P2In::get_width_internal() { return 400; }
 int WaveshareEPaper4P2In::get_height_internal() { return 300; }
+bool WaveshareEPaper4P2In::is_device_high_speed() { return false; }
 WaveshareEPaper4P2In::WaveshareEPaper4P2In(SPIComponent *parent, GPIOPin *cs, GPIOPin *dc_pin, uint32_t update_interval)
     : WaveshareEPaper(parent, cs, dc_pin, update_interval) {}
 void WaveshareEPaper4P2In::dump_config() {

@@ -64,6 +64,9 @@ class APIConnection {
 #ifdef USE_TEXT_SENSOR
   bool send_text_sensor_state(text_sensor::TextSensor *text_sensor, std::string state);
 #endif
+#ifdef USE_ESP32_CAMERA
+  void send_camera_state(std::shared_ptr<CameraImage> image);
+#endif
   bool send_log_message(int level, const char *tag, const char *line);
   bool send_disconnect_request(const char *reason);
   bool send_ping_request();
@@ -111,6 +114,9 @@ class APIConnection {
   void on_subscribe_home_assistant_states_request_(const SubscribeHomeAssistantStatesRequest &req);
   void on_home_assistant_state_response_(const HomeAssistantStateResponse &req);
   void on_execute_service_(const ExecuteServiceRequest &req);
+#ifdef USE_ESP32_CAMERA
+  void on_camera_image_request_(const CameraImageRequest &req);
+#endif
 
   enum class ConnectionState {
     WAITING_FOR_HELLO,
@@ -128,6 +134,9 @@ class APIConnection {
   std::string client_info_;
   ListEntitiesIterator list_entities_iterator_;
   InitialStateIterator initial_state_iterator_;
+#ifdef USE_ESP32_CAMERA
+  CameraImageReader image_reader_;
+#endif
 
   bool state_subscription_{false};
   int log_subscription_{ESPHOME_LOG_LEVEL_NONE};

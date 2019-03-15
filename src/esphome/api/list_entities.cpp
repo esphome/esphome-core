@@ -136,6 +136,16 @@ bool ListEntitiesIterator::on_service(UserServiceDescriptor *service) {
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE);
 }
 
+#ifdef USE_ESP32_CAMERA
+bool ListEntitiesIterator::on_camera(ESP32Camera *camera) {
+  auto buffer = this->client_->get_buffer();
+  buffer.encode_nameable(camera);
+  // string unique_id = 4;
+  buffer.encode_string(4, get_default_unique_id("camera", camera));
+  return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_CAMERA_RESPONSE);
+}
+#endif
+
 APIMessageType ListEntitiesRequest::message_type() const { return APIMessageType::LIST_ENTITIES_REQUEST; }
 
 }  // namespace api

@@ -35,7 +35,7 @@ static const uint8_t SDS011_MODE_REPORT_QUERY = 0x01;
 static const uint8_t SDS011_MODE_SLEEP = 0x00;
 static const uint8_t SDS011_MODE_WORK = 0x01;
 
-SDS011Component::SDS011Component(UARTComponent *parent, uint32_t update_interval_min, bool rx_mode_only)
+SDS011Component::SDS011Component(UARTComponent *parent, uint8_t update_interval_min, bool rx_mode_only)
     : UARTDevice(parent), update_interval_min_(update_interval_min), rx_mode_only_(rx_mode_only) {}
 
 void SDS011Component::setup() {
@@ -187,7 +187,7 @@ void SDS011Component::parse_data_() {
 uint16_t SDS011Component::get_16_bit_uint_(uint8_t start_index) const {
   return (uint16_t(this->data_[start_index + 1]) << 8) | uint16_t(this->data_[start_index]);
 }
-void SDS011Component::set_update_interval_min(uint32_t update_interval_min) {
+void SDS011Component::set_update_interval_min(uint8_t update_interval_min) {
   this->update_interval_min_ = update_interval_min;
 }
 
