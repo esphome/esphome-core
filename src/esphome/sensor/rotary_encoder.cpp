@@ -122,6 +122,17 @@ void RotaryEncoderSensor::dump_config() {
   LOG_PIN("  Pin A: ", this->pin_a_);
   LOG_PIN("  Pin B: ", this->pin_b_);
   LOG_PIN("  Pin I: ", this->pin_i_);
+  switch (this->store_.resolution) {
+    case ROTARY_ENCODER_1_PULSE_PER_CYCLE:
+      ESP_LOGCONFIG(TAG, "  Resolution: 1 Pulse Per Cycle");
+      break;
+    case ROTARY_ENCODER_2_PULSES_PER_CYCLE:
+      ESP_LOGCONFIG(TAG, "  Resolution: 2 Pulses Per Cycle");
+      break;
+    case ROTARY_ENCODER_4_PULSES_PER_CYCLE:
+      ESP_LOGCONFIG(TAG, "  Resolution: 4 Pulse Per Cycle");
+      break;
+  }
 }
 void RotaryEncoderSensor::loop() {
   if (this->pin_i_ != nullptr && this->pin_i_->digital_read()) {
