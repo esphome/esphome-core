@@ -182,9 +182,9 @@ void WiFiComponent::start_connecting(const WiFiAP &ap, bool two) {
   }
   if (ap.get_manual_ip().has_value()) {
     ManualIP m = *ap.get_manual_ip();
-    ESP_LOGV(TAG, "  Manual IP: Static IP=%s Gateway=%s Subnet=%s DNS1=%s DNS2=%s",
-        m.static_ip.toString().c_str(), m.gateway.toString().c_str(), m.subnet.toString().c_str(),
-        m.dns1.toString().c_str(), m.dns2.toString().c_str());
+    ESP_LOGV(TAG, "  Manual IP: Static IP=%s Gateway=%s Subnet=%s DNS1=%s DNS2=%s", m.static_ip.toString().c_str(),
+             m.gateway.toString().c_str(), m.subnet.toString().c_str(), m.dns1.toString().c_str(),
+             m.dns2.toString().c_str());
   } else {
     ESP_LOGV(TAG, "  Using DHCP IP");
   }
