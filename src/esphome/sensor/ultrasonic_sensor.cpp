@@ -21,6 +21,7 @@ void UltrasonicSensorComponent::setup() {
   this->echo_pin_->setup();
   this->trigger_pin_->setup();
   this->trigger_pin_->digital_write(false);
+  this->echo_pin_->attach_interrupt(UltrasonicSensorStore::gpio_intr, &this->store_, RISING);
 }
 void ICACHE_RAM_ATTR UltrasonicSensorStore::gpio_intr(UltrasonicSensorStore *arg) {
   if (arg->has_echo || !arg->has_triggered)
@@ -60,8 +61,8 @@ void UltrasonicSensorComponent::dump_config() {
   LOG_SENSOR("", "Ultrasonic Sensor", this);
   LOG_PIN("  Echo Pin: ", this->echo_pin_);
   LOG_PIN("  Trigger Pin: ", this->trigger_pin_);
-  ESP_LOGCONFIG(TAG, "    Pulse time: %u µs", this->pulse_time_us_);
-  ESP_LOGCONFIG(TAG, "    Timeout: %u µs", this->timeout_us_);
+  ESP_LOGCONFIG(TAG, "  Pulse time: %u µs", this->pulse_time_us_);
+  ESP_LOGCONFIG(TAG, "  Timeout: %u µs", this->timeout_us_);
   LOG_UPDATE_INTERVAL(this);
 }
 float UltrasonicSensorComponent::us_to_m(uint32_t us) {

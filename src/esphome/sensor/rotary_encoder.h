@@ -69,7 +69,7 @@ class RotaryEncoderSensor : public Sensor, public Component {
   GPIOPin *pin_b_;
   GPIOPin *pin_i_{nullptr};  /// Index pin, if this is not nullptr, the counter will reset to 0 once this pin is HIGH.
 
-  RotaryEncoderSensorStore store_;
+  RotaryEncoderSensorStore store_{};
 };
 
 }  // namespace sensor
