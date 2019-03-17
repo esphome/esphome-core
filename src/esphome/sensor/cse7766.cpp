@@ -98,16 +98,24 @@ void CSE7766Component::parse_data_() {
   uint8_t adj = this->raw_data_[20];
 
   uint8_t byte = this->raw_data_[0];
+  bool powerOk = true;
+  bool voltageOk = true;
+  bool currentOk = true;
+
+
   if (byte > 0xF0) {
-    ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
+    //ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
     if ((byte >> 3) & 1) {
       ESP_LOGV(TAG, "  Voltage cycle exceeds range.");
+      voltageOk = false;
     }
     if ((byte >> 2) & 1) {
       ESP_LOGV(TAG, "  Current cycle exceeds range.");
+      currentOk = false;
     }
     if ((byte >> 1) & 1) {
       ESP_LOGV(TAG, "  Power cycle exceeds range.");
+      powerOk = false;
     }
     if ((byte >> 0) & 1) {
       ESP_LOGV(TAG, "  Coefficient storage area is abnormal.");
@@ -115,35 +123,49 @@ void CSE7766Component::parse_data_() {
     }
   }
 
-  if ((adj & 0x40) == 0x40 && voltage_cycle != 0) {
+  if ((adj & 0x40) == 0x40 && voltageOk && currentOk) {
     // voltage cycle of serial port outputted is a complete cycle;
-    this->voltage_ = voltage_calib / float(voltage_cycle);
+    this->voltage_acc_ += voltage_calib / float(voltage_cycle);
+    this->voltage_counts_ += 1;
   }
-
-  if ((adj & 0x10) == 0x10 && power_cycle != 0) {
+   
+  float power = 0;
+  if ((adj & 0x10) == 0x10) {
     // power cycle of serial port outputted is a complete cycle;
-    this->power_ = power_calib / float(power_cycle);
+    power = power_calib / float(power_cycle);
+    this->power_acc_ += powerOk ? power : 0.0;
+    this->power_counts_ += 1;
   }
 
-  if ((adj & 0x20) == 0x20 && current_cycle != 0 && this->power_ != 0) {
+  if ((adj & 0x20) == 0x20 && currentOk && voltageOk) {
     // indicates current cycle of serial port outputted is a complete cycle;
-    this->current_ = current_calib / float(current_cycle);
+    this->current_acc_ += (power > 0) ? current_calib / float(current_cycle) : 0.0;
+    this->current_counts_ += 1;
   }
 }
 void CSE7766Component::update() {
   
+  float voltage = this->voltage_counts_ > 0 ? this->voltage_acc_ / this->voltage_counts_ : 0.0;
+  float current = this->current_counts_ > 0 ? this->current_acc_ / this->current_counts_ : 0.0;
+  float power   = this->power_counts_   > 0 ? this->power_acc_   / this->power_counts_   : 0.0;
+
+  ESP_LOGD(TAG, "Got voltage_acc=%.2f current_acc=%.2f power_acc=%.2f",
+      this->voltage_acc_, this->current_acc_, this->power_acc_);
+  ESP_LOGD(TAG, "Got voltage_counts=%d current_counts=%d power_counts=%d",
+      this->voltage_counts_, this->current_counts_, this->power_counts_);
+
   ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW",
-      this->voltage_, this->current_, this->power_);
+      voltage, current, power);
 
  
   if (this->voltage_sensor_ != nullptr)
-    this->voltage_sensor_->publish_state(this->voltage_);
+    this->voltage_sensor_->publish_state(voltage);
   if (this->current_sensor_ != nullptr)
-    this->current_sensor_->publish_state(this->current_);
+    this->current_sensor_->publish_state(current);
   if (this->power_sensor_ != nullptr)
-    this->power_sensor_->publish_state(this->power_);
+    this->power_sensor_->publish_state(power);
 
-  this->voltage_ = this->current_ = this->power_ = 0;
+  this->voltage_acc_ = this->current_acc_ = this->power_acc_ = this->voltage_counts_ = this->power_counts_ = this->current_counts_ = 0;
 }
 void CSE7766Component::setup() {
   
