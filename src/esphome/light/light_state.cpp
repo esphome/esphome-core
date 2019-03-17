@@ -438,7 +438,7 @@ void LightState::StateCall::perform() const {
     ESP_LOGD(TAG, "  Color Temperature: %.1f mireds", v.get_color_temperature());
   }
 
-  v.normalize_color(this->state_->output_->get_traits());
+  v.normalize_color(traits);
 
   if (traits.has_rgb() && (this->red_.has_value() || this->green_.has_value() || this->blue_.has_value())) {
     if (traits.has_rgb_white_value() && this->white_.has_value()) {
