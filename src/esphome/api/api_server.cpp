@@ -90,8 +90,10 @@ void APIServer::loop() {
         ESP_LOGE(TAG, "No client connected to API. Rebooting...");
         reboot("api");
       }
+      this->status_set_warning();
     } else {
       this->last_connected_ = now;
+      this->status_clear_warning();
     }
   }
 }
