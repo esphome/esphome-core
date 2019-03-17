@@ -17,9 +17,9 @@ namespace sensor {
 /// All possible resolutions for the rotary encoder
 enum RotaryEncoderResolution {
   ROTARY_ENCODER_1_PULSE_PER_CYCLE =
-      0x1100,  /// increment counter by 1 with every A-B cycle, slow response but accurate
+      0x4400,  /// increment counter by 1 with every A-B cycle, slow response but accurate
   ROTARY_ENCODER_2_PULSES_PER_CYCLE = 0x2200,  /// increment counter by 2 with every A-B cycle
-  ROTARY_ENCODER_4_PULSES_PER_CYCLE = 0x4400,  /// increment counter by 4 with every A-B cycle, most inaccurate
+  ROTARY_ENCODER_4_PULSES_PER_CYCLE = 0x1100,  /// increment counter by 4 with every A-B cycle, most inaccurate
 };
 
 struct RotaryEncoderSensorStore {
@@ -69,7 +69,7 @@ class RotaryEncoderSensor : public Sensor, public Component {
   GPIOPin *pin_b_;
   GPIOPin *pin_i_{nullptr};  /// Index pin, if this is not nullptr, the counter will reset to 0 once this pin is HIGH.
 
-  RotaryEncoderSensorStore store_;
+  RotaryEncoderSensorStore store_{};
 };
 
 }  // namespace sensor

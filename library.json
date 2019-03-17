@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/esphome/esphome-core.git"
   },
-  "version": "1.12.0-dev",
+  "version": "1.13.0-dev",
   "authors": [
     {
       "name": "Otto Winter",

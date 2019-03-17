@@ -22,13 +22,13 @@ static const uint16_t STATE_S3 = 0x0C;
 static const uint16_t STATE_CCW = 0x00;
 static const uint16_t STATE_CW = 0x10;
 static const uint16_t STATE_HAS_INCREMENTED = 0x0700;
-static const uint16_t STATE_INCREMENT_COUNTER_4_2_1 = 0x0700;
-static const uint16_t STATE_INCREMENT_COUNTER_4_2 = 0x0300;
-static const uint16_t STATE_INCREMENT_COUNTER_4 = 0x0100;
+static const uint16_t STATE_INCREMENT_COUNTER_4 = 0x0700;
+static const uint16_t STATE_INCREMENT_COUNTER_2 = 0x0300;
+static const uint16_t STATE_INCREMENT_COUNTER_1 = 0x0100;
 static const uint16_t STATE_HAS_DECREMENTED = 0x7000;
-static const uint16_t STATE_DECREMENT_COUNTER_4_2_1 = 0x7000;
-static const uint16_t STATE_DECREMENT_COUNTER_4_2 = 0x3000;
-static const uint16_t STATE_DECREMENT_COUNTER_4 = 0x1000;
+static const uint16_t STATE_DECREMENT_COUNTER_4 = 0x7000;
+static const uint16_t STATE_DECREMENT_COUNTER_2 = 0x3000;
+static const uint16_t STATE_DECREMENT_COUNTER_1 = 0x1000;
 
 // State explanation: 8-bit uint
 // Bit 0 (0x01) encodes Pin A HIGH/LOW (reset before each read)
@@ -38,46 +38,46 @@ static const uint16_t STATE_DECREMENT_COUNTER_4 = 0x1000;
 
 static const uint16_t STATE_LOOKUP_TABLE[32] = {
     // act state S0 in CCW direction
-    STATE_CCW | STATE_S0,                                  // 0x00: stay here
-    STATE_CW | STATE_S1 | STATE_INCREMENT_COUNTER_4,       // 0x01: goto CW+S1 and increment counter (dir change)
-    STATE_CCW | STATE_S0,                                  // 0x02: stay here
-    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4_2_1,  // 0x03: goto CCW+S3 and decrement counter
+    STATE_CCW | STATE_S0,                              // 0x00: stay here
+    STATE_CW | STATE_S1 | STATE_INCREMENT_COUNTER_1,   // 0x01: goto CW+S1 and increment counter (dir change)
+    STATE_CCW | STATE_S0,                              // 0x02: stay here
+    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4,  // 0x03: goto CCW+S3 and decrement counter
     // act state S1 in CCW direction
-    STATE_CCW | STATE_S1,                                 // 0x04: stay here
-    STATE_CCW | STATE_S1,                                 // 0x05: stay here
-    STATE_CCW | STATE_S0 | STATE_DECREMENT_COUNTER_4,     // 0x06: goto CCW+S0 and decrement counter
-    STATE_CW | STATE_S2 | STATE_INCREMENT_COUNTER_4_2_1,  // 0x07: goto CW+S2 and increment counter (dir change)
+    STATE_CCW | STATE_S1,                              // 0x04: stay here
+    STATE_CCW | STATE_S1,                              // 0x05: stay here
+    STATE_CCW | STATE_S0 | STATE_DECREMENT_COUNTER_1,  // 0x06: goto CCW+S0 and decrement counter
+    STATE_CW | STATE_S2 | STATE_INCREMENT_COUNTER_4,   // 0x07: goto CW+S2 and increment counter (dir change)
     // act state S2 in CCW direction
-    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_4_2,  // 0x08: goto CCW+S1 and decrement counter
-    STATE_CCW | STATE_S2,                                // 0x09: stay here
-    STATE_CW | STATE_S3 | STATE_INCREMENT_COUNTER_4,     // 0x0A: goto CW+S3 and increment counter (dir change)
-    STATE_CCW | STATE_S2,                                // 0x0B: stay here
+    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_2,  // 0x08: goto CCW+S1 and decrement counter
+    STATE_CCW | STATE_S2,                              // 0x09: stay here
+    STATE_CW | STATE_S3 | STATE_INCREMENT_COUNTER_1,   // 0x0A: goto CW+S3 and increment counter (dir change)
+    STATE_CCW | STATE_S2,                              // 0x0B: stay here
     // act state S3 in CCW direction
-    STATE_CW | STATE_S0 | STATE_INCREMENT_COUNTER_4_2,  // 0x0C: goto CW+S0 and increment counter (dir change)
-    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_4,   // 0x0D: goto CCW+S2 and decrement counter
-    STATE_CCW | STATE_S3,                               // 0x0E: stay here
-    STATE_CCW | STATE_S3,                               // 0x0F: stay here
+    STATE_CW | STATE_S0 | STATE_INCREMENT_COUNTER_2,   // 0x0C: goto CW+S0 and increment counter (dir change)
+    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_1,  // 0x0D: goto CCW+S2 and decrement counter
+    STATE_CCW | STATE_S3,                              // 0x0E: stay here
+    STATE_CCW | STATE_S3,                              // 0x0F: stay here
 
     // act state S0 in CW direction
-    STATE_CW | STATE_S0,                                   // 0x10: stay here
-    STATE_CW | STATE_S1 | STATE_INCREMENT_COUNTER_4,       // 0x11: goto CW+S1 and increment counter
-    STATE_CW | STATE_S0,                                   // 0x12: stay here
-    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4_2_1,  // 0x13: goto CCW+S3 and decrement counter (dir change)
+    STATE_CW | STATE_S0,                               // 0x10: stay here
+    STATE_CW | STATE_S1 | STATE_INCREMENT_COUNTER_1,   // 0x11: goto CW+S1 and increment counter
+    STATE_CW | STATE_S0,                               // 0x12: stay here
+    STATE_CCW | STATE_S3 | STATE_DECREMENT_COUNTER_4,  // 0x13: goto CCW+S3 and decrement counter (dir change)
     // act state S1 in CW direction
-    STATE_CW | STATE_S1,                                  // 0x14: stay here
-    STATE_CW | STATE_S1,                                  // 0x15: stay here
-    STATE_CCW | STATE_S0 | STATE_DECREMENT_COUNTER_4,     // 0x16: goto CCW+S0 and decrement counter (dir change)
-    STATE_CW | STATE_S2 | STATE_INCREMENT_COUNTER_4_2_1,  // 0x17: goto CW+S2 and increment counter
+    STATE_CW | STATE_S1,                               // 0x14: stay here
+    STATE_CW | STATE_S1,                               // 0x15: stay here
+    STATE_CCW | STATE_S0 | STATE_DECREMENT_COUNTER_1,  // 0x16: goto CCW+S0 and decrement counter (dir change)
+    STATE_CW | STATE_S2 | STATE_INCREMENT_COUNTER_4,   // 0x17: goto CW+S2 and increment counter
     // act state S2 in CW direction
-    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_4_2,  // 0x18: goto CCW+S1 and decrement counter (dir change)
-    STATE_CW | STATE_S2,                                 // 0x19: stay here
-    STATE_CW | STATE_S3 | STATE_INCREMENT_COUNTER_4,     // 0x1A: goto CW+S3 and increment counter
+    STATE_CCW | STATE_S1 | STATE_DECREMENT_COUNTER_2,  // 0x18: goto CCW+S1 and decrement counter (dir change)
+    STATE_CW | STATE_S2,                               // 0x19: stay here
+    STATE_CW | STATE_S3 | STATE_INCREMENT_COUNTER_1,   // 0x1A: goto CW+S3 and increment counter
     STATE_CW | STATE_S2,
     // act state S3 in CW direction
-    STATE_CW | STATE_S0 | STATE_INCREMENT_COUNTER_4_2,  // 0x1C: goto CW+S0 and increment counter
-    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_4,   // 0x1D: goto CCW+S2 and decrement counter (dir change)
-    STATE_CW | STATE_S3,                                // 0x1E: stay here
-    STATE_CW | STATE_S3                                 // 0x1F: stay here
+    STATE_CW | STATE_S0 | STATE_INCREMENT_COUNTER_2,   // 0x1C: goto CW+S0 and increment counter
+    STATE_CCW | STATE_S2 | STATE_DECREMENT_COUNTER_1,  // 0x1D: goto CCW+S2 and decrement counter (dir change)
+    STATE_CW | STATE_S3,                               // 0x1E: stay here
+    STATE_CW | STATE_S3                                // 0x1F: stay here
 };
 
 void ICACHE_RAM_ATTR HOT RotaryEncoderSensorStore::gpio_intr(RotaryEncoderSensorStore *arg) {
@@ -122,6 +122,17 @@ void RotaryEncoderSensor::dump_config() {
   LOG_PIN("  Pin A: ", this->pin_a_);
   LOG_PIN("  Pin B: ", this->pin_b_);
   LOG_PIN("  Pin I: ", this->pin_i_);
+  switch (this->store_.resolution) {
+    case ROTARY_ENCODER_1_PULSE_PER_CYCLE:
+      ESP_LOGCONFIG(TAG, "  Resolution: 1 Pulse Per Cycle");
+      break;
+    case ROTARY_ENCODER_2_PULSES_PER_CYCLE:
+      ESP_LOGCONFIG(TAG, "  Resolution: 2 Pulses Per Cycle");
+      break;
+    case ROTARY_ENCODER_4_PULSES_PER_CYCLE:
+      ESP_LOGCONFIG(TAG, "  Resolution: 4 Pulse Per Cycle");
+      break;
+  }
 }
 void RotaryEncoderSensor::loop() {
   if (this->pin_i_ != nullptr && this->pin_i_->digital_read()) {
