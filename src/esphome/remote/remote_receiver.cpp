@@ -345,8 +345,8 @@ void RemoteReceiverComponent::loop() {
       break;
     }
 
-    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d", i, s.buffer_read_at,
-              s.buffer[s.buffer_read_at], prev, s.buffer[prev], multiplier * delta);
+    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d", i, s.buffer_read_at, s.buffer[s.buffer_read_at], prev,
+              s.buffer[prev], multiplier * delta);
     this->temp_.push_back(multiplier * delta);
     prev = s.buffer_read_at;
     s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;
