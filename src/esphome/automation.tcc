@@ -208,7 +208,8 @@ template<typename... Ts> ScriptStopAction<Ts...> *Script::make_stop_action() {
 template<typename T> GlobalVariableComponent<T>::GlobalVariableComponent() {}
 template<typename T> GlobalVariableComponent<T>::GlobalVariableComponent(T initial_value) : value_(initial_value) {}
 template<typename T>
-GlobalVariableComponent<T>::GlobalVariableComponent(std::array<typename std::remove_extent<T>::type, std::extent<T>::value> initial_value) {
+GlobalVariableComponent<T>::GlobalVariableComponent(
+    std::array<typename std::remove_extent<T>::type, std::extent<T>::value> initial_value) {
   memcpy(this->value_, initial_value.data(), sizeof(T));
 }
 template<typename T> T &GlobalVariableComponent<T>::value() { return this->value_; }

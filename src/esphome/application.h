@@ -334,7 +334,9 @@ class Application {
   template<typename T> GlobalVariableComponent<T> *make_global_variable();
 
   template<typename T> GlobalVariableComponent<T> *make_global_variable(T initial_value);
-  template<typename T> GlobalVariableComponent<T> *make_global_variable(std::array<typename std::remove_extent<T>::type, std::extent<T>::value> initial_value);
+  template<typename T>
+  GlobalVariableComponent<T> *make_global_variable(
+      std::array<typename std::remove_extent<T>::type, std::extent<T>::value> initial_value);
 
   /*           _    _ _______ ____  __  __       _______ _____ ____  _   _
    *      /\  | |  | |__   __/ __ \|  \/  |   /\|__   __|_   _/ __ \| \ | |
@@ -1235,7 +1237,8 @@ template<typename T> GlobalVariableComponent<T> *Application::make_global_variab
   return this->register_component(new GlobalVariableComponent<T>(initial_value));
 }
 template<typename T>
-GlobalVariableComponent<T> *Application::make_global_variable(std::array<typename std::remove_extent<T>::type, std::extent<T>::value> initial_value) {
+GlobalVariableComponent<T> *Application::make_global_variable(
+    std::array<typename std::remove_extent<T>::type, std::extent<T>::value> initial_value) {
   return this->register_component(new GlobalVariableComponent<T>(initial_value));
 }
 
