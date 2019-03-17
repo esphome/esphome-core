@@ -90,8 +90,10 @@ void APIServer::loop() {
         ESP_LOGE(TAG, "No client connected to API. Rebooting...");
         reboot("api");
       }
+      this->status_set_warning();
     } else {
       this->last_connected_ = now;
+      this->status_clear_warning();
     }
   }
 }
@@ -714,6 +716,12 @@ bool APIConnection::send_buffer(APIMessageType type) {
 }
 
 void APIConnection::loop() {
+  if (!network_is_connected()) {
+    // when network is disconnected force disconnect immediately
+    // don't wait for timeout
+    this->fatal_error_();
+    return;
+  }
   if (this->client_->disconnected()) {
     // failsafe for disconnect logic
     this->on_disconnect_();

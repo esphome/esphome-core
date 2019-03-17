@@ -88,7 +88,7 @@ void ICACHE_RAM_ATTR HOT RotaryEncoderSensorStore::gpio_intr(RotaryEncoderSensor
   if (arg->pin_b->digital_read())
     input_state |= STATE_PIN_B_HIGH;
 
-  uint8_t new_state = STATE_LOOKUP_TABLE[input_state];
+  uint16_t new_state = STATE_LOOKUP_TABLE[input_state];
   if ((new_state & arg->resolution & STATE_HAS_INCREMENTED) != 0) {
     if (arg->counter < arg->max_value)
       arg->counter++;
