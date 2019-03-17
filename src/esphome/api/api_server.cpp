@@ -714,6 +714,12 @@ bool APIConnection::send_buffer(APIMessageType type) {
 }
 
 void APIConnection::loop() {
+  if (!network_is_connected()) {
+    // when network is disconnected force disconnect immediately
+    // don't wait for timeout
+    this->fatal_error_();
+    return;
+  }
   if (this->client_->disconnected()) {
     // failsafe for disconnect logic
     this->on_disconnect_();

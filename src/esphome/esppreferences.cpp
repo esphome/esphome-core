@@ -80,7 +80,6 @@ static inline bool esp_rtc_user_mem_write(uint32_t index, uint32_t value) {
   auto *ptr = &ESP_RTC_USER_MEM[index];
 #ifdef USE_ESP8266_PREFERENCES_FLASH
   if (*ptr != value) {
-    ESP_LOGV(TAG, "RTC flash is dirty...");
     esp8266_preferences_modified = true;
   }
 #endif
