@@ -1,7 +1,7 @@
 #ifndef ESPHOME_DEFINES_H
 #define ESPHOME_DEFINES_H
 
-#define ESPHOME_VERSION "1.12.0b3"
+#define ESPHOME_VERSION "1.12.0b4"
 
 #define HOT __attribute__((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
