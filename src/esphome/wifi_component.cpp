@@ -317,7 +317,8 @@ void WiFiComponent::check_scanning_finished() {
     print_signal_bars(res.get_rssi(), signal_bars);
 
     if (res.get_matches()) {
-      ESP_LOGI(TAG, "- '%s' " LOG_SECRET("(%s) ") "%s", res.get_ssid().c_str(), bssid_s, signal_bars);
+      ESP_LOGI(TAG, "- '%s' %s" LOG_SECRET("(%s) ") "%s", res.get_ssid().c_str(),
+               res.get_is_hidden() ? "(HIDDEN) " : "", bssid_s, signal_bars);
       ESP_LOGD(TAG, "    Channel: %u", res.get_channel());
       ESP_LOGD(TAG, "    RSSI: %d dB", res.get_rssi());
     } else {
@@ -1436,7 +1437,7 @@ void WiFiComponent::wifi_scan_done_callback_() {
     int32_t channel = WiFi.channel(i);
 
     WiFiScanResult scan({bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]}, std::string(ssid.c_str()),
-                        channel, rssi, authmode != WIFI_AUTH_OPEN, false);
+                        channel, rssi, authmode != WIFI_AUTH_OPEN, ssid.length() == 0);
     this->scan_result_.push_back(scan);
   }
   WiFi.scanDelete();
