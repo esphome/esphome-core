@@ -31,6 +31,7 @@ bool MQTTJSONLightComponent::publish_state_() {
 LightState *MQTTJSONLightComponent::get_state() const { return this->state_; }
 std::string MQTTJSONLightComponent::friendly_name() const { return this->state_->get_name(); }
 void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
+  root["schema"] = "json";
   if (this->state_->get_traits().has_brightness())
     root["brightness"] = true;
   if (this->state_->get_traits().has_rgb())
