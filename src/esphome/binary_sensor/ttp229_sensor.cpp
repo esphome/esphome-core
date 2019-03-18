@@ -21,7 +21,11 @@ void TTP229Channel::process(const uint16_t *data, const uint16_t *last_data) {
   }
 }
 
-TTP229Component::TTP229Component(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {}
+TTP229Component::TTP229Component(I2CComponent *parent, uint8_t scl_pin, uint8_t sdo_pin, uint8_t address)
+    : I2CDevice(parent, address) {
+  this->scl_pin_ = scl_pin;
+  this->sdo_pin_ = sdo_pin;
+}
 
 void TTP229Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ttp229...");
@@ -64,10 +68,6 @@ void TTP229Component::process_(uint16_t *data, uint16_t *last_data) {
 uint16_t TTP229Component::read_channels_() {
   uint16_t val = 0;
   this->read_byte_16(0x00, &val);
-  uint8_t lsb = val >> 8;
-  uint8_t msb = val;
-  val = ((uint16_t) msb) << 8;
-  val |= lsb;
   return val;
 }
 

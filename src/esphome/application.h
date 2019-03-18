@@ -39,6 +39,7 @@
 #include "esphome/binary_sensor/status_binary_sensor.h"
 #include "esphome/binary_sensor/template_binary_sensor.h"
 #include "esphome/binary_sensor/mpr121_sensor.h"
+#include "esphome/binary_sensor/ttp229_sensor.h"
 #include "esphome/cover/cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
@@ -421,6 +422,10 @@ class Application {
 
 #ifdef USE_MPR121
   binary_sensor::MPR121Component *make_mpr121(uint8_t address = 0x5A);
+#endif
+
+#ifdef USE_TTP229
+  binary_sensor::TTP229Component *make_ttp229(uint8_t scl_pin, uint8_t sdo_pin, uint8_t address = 0x5A);
 #endif
 
   /*   ____  _____ _   _ ____   ___  ____

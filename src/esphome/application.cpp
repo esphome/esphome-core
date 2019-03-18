@@ -1166,6 +1166,12 @@ binary_sensor::MPR121Component *Application::make_mpr121(uint8_t address) {
 }
 #endif
 
+#ifdef USE_TTP229
+binary_sensor::TTP229Component *Application::make_ttp229(uint8_t scl_pin, uint8_t sdo_pin, uint8_t address) {
+  return this->register_component(new TTP229Component(this->i2c_, scl_pin, sdo_pin, address));
+}
+#endif
+
 #ifdef USE_ULN2003
 stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
                                             const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d) {

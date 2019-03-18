@@ -24,7 +24,7 @@ class TTP229Channel : public binary_sensor::BinarySensor {
 
 class TTP229Component : public Component, public I2CDevice {
  public:
-  TTP229Component(I2CComponent *parent, uint8_t address = 0x5A);
+  TTP229Component(I2CComponent *parent, uint8_t scl_pin, uint8_t sdo_pin, uint8_t address = 0x5A);
   binary_sensor::TTP229Channel *add_channel(binary_sensor::TTP229Channel *channel);
   void setup() override;
   void dump_config() override;
@@ -33,6 +33,8 @@ class TTP229Component : public Component, public I2CDevice {
 
  protected:
   std::vector<TTP229Channel *> channels_{};
+  uint8_t scl_pin_;
+  uint8_t sdo_pin_;
   uint16_t lasttouched_ = 0;
   uint16_t currtouched_ = 0;
   enum ErrorCode {
