@@ -1561,21 +1561,27 @@ WiFiScanResult::WiFiScanResult(const bssid_t &bssid, const std::string &ssid, ui
                                bool with_auth, bool is_hidden)
     : bssid_(bssid), ssid_(ssid), channel_(channel), rssi_(rssi), with_auth_(with_auth), is_hidden_(is_hidden) {}
 bool WiFiScanResult::matches(const WiFiAP &ap) {
-  if (this->is_hidden_ || this->ssid_.empty()) {
-    // SSID is hidden
+  if (this->is_hidden_) {
+    // User configured a hidden network, only match actually hidden networks
+    // don't match SSID
     if (!ap.get_hidden())
       return false;
-  } else {
+  } else if (!this->ssid_.empty()) {
+    // check if SSID matches
     if (ap.get_ssid() != this->ssid_)
       return false;
+  } else {
+    // network is configured with only BSSID
   }
+  // If BSSID configured, only match for correct BSSIDs
   if (ap.get_bssid().has_value() && *ap.get_bssid() != this->bssid_)
     return false;
+  // If PW given, only match for networks with auth (and vice versa)
   if (ap.get_password().empty() == this->with_auth_)
     return false;
-  if (ap.get_channel().has_value()) {
-    if (*ap.get_channel() != this->channel_)
-      return false;
+  // If channel configured, only match networks on that channel.
+  if (ap.get_channel().has_value() && *ap.get_channel() != this->channel_) {
+    return false;
   }
   return true;
 }
