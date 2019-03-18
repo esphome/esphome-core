@@ -35,8 +35,7 @@ void BSSIDWiFiInfo::loop() {
   if (memcmp(bssid, this->last_bssid_.data(), 6) != 0) {
     std::copy(bssid, bssid + 6, this->last_bssid_.data());
     char buf[30];
-    sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X",
-        bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+    sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
     this->publish_state(buf);
   }
 }
