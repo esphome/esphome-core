@@ -31,10 +31,13 @@ void SSIDWiFiInfo::loop() {
 SSIDWiFiInfo::SSIDWiFiInfo(const std::string &name) : TextSensor(name) {}
 
 void BSSIDWiFiInfo::loop() {
-  String bssid = WiFi.BSSIDstr();
-  if (this->last_bssid_ != bssid.c_str()) {
-    this->last_bssid_ = bssid.c_str();
-    this->publish_state(this->last_bssid_);
+  uint8_t *bssid = WiFi.BSSID();
+  if (memcmp(bssid, this->last_bssid_.data(), 6) != 0) {
+    std::copy(bssid, bssid + 6, this->last_bssid_.data());
+    char buf[30];
+    sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X",
+        bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+    this->publish_state(buf);
   }
 }
 BSSIDWiFiInfo::BSSIDWiFiInfo(const std::string &name) : TextSensor(name) {}
