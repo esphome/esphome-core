@@ -331,31 +331,39 @@ void WiFiComponent::check_scanning_finished() {
     return;
   }
 
-  WiFiAP ap;
+  WiFiAP connect_params;
   WiFiScanResult scan_res = this->scan_result_[0];
-  for (auto &ap2 : this->sta_) {
-    if (scan_res.matches(ap2)) {
-      if (ap2.get_hidden()) {
-        // selected network is hidden
-        ap.set_hidden(true);
-        ap.set_ssid(scan_res.get_ssid());
-      } else {
-        // selected network is visible
-        ap.set_hidden(false);
-        ap.set_ssid(ap2.get_ssid());
-        ap.set_channel(scan_res.get_channel());
-        ap.set_bssid(scan_res.get_bssid());
-      }
-      ap.set_manual_ip(ap2.get_manual_ip());
-      ap.set_password(ap2.get_password());
-      break;
+  for (auto &config : this->sta_) {
+    // search for matching STA config, at least one will match (from checks before)
+    if (!scan_res.matches(config)) {
+      continue;
     }
+
+    if (config.get_hidden()) {
+      // selected network is hidden, we use the data from the config
+      connect_params.set_hidden(true);
+      connect_params.set_ssid(config.get_ssid());
+      // don't set BSSID and channel, there might be multiple hidden networks
+      // but we can't know which one is the correct one. Rely on probe-req with just SSID.
+    } else {
+      // selected network is visible, we use the data from the scan
+      // limit the connect params to only connect to exactly this network
+      // (network selection is done during scan phase).
+      connect_params.set_hidden(false);
+      connect_params.set_ssid(scan_res.get_ssid());
+      connect_params.set_channel(scan_res.get_channel());
+      connect_params.set_bssid(scan_res.get_bssid());
+    }
+    // set manual IP+password (if any)
+    connect_params.set_manual_ip(config.get_manual_ip());
+    connect_params.set_password(config.get_password());
+    break;
   }
 
   yield();
 
-  this->selected_ap_ = ap;
-  this->start_connecting(ap, false);
+  this->selected_ap_ = connect_params;
+  this->start_connecting(connect_params, false);
 }
 
 void WiFiComponent::dump_config() {
