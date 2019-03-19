@@ -15,6 +15,7 @@ class DebugComponent : public Component {
   void setup() override;
   void loop() override;
   float get_setup_priority() const override;
+  void dump_config() override;
 
  protected:
   uint32_t free_heap_{};
