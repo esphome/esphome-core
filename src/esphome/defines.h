@@ -140,7 +140,7 @@
 #define USE_COPY_OUTPUT
 #define USE_WIFI_INFO_TEXT_SENSOR
 #define USE_SERVO
-#define USE_TTP229
+#define USE_TTP229_LSF
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
