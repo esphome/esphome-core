@@ -3,6 +3,7 @@
 
 #include "esphome/binary_sensor/ttp229_lsf_sensor.h"
 #include "esphome/log.h"
+#include "esphome/helpers.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
@@ -12,14 +13,7 @@ static const char *TAG = "binary_sensor.ttp229";
 
 TTP229Channel::TTP229Channel(const std::string &name, int channel_num) : BinarySensor(name) { channel_ = channel_num; }
 
-void TTP229Channel::process(const uint16_t *data, const uint16_t *last_data) {
-  if ((*data & (1 << this->channel_)) && !(*last_data & (1 << this->channel_))) {
-    this->publish_state(true);
-  }
-  if (!(*data & (1 << this->channel_)) && (*last_data & (1 << this->channel_))) {
-    this->publish_state(false);
-  }
-}
+void TTP229Channel::process(const uint16_t *data) { this->publish_state(*data & (1 << this->channel_)); }
 
 TTP229LSFComponent::TTP229LSFComponent(I2CComponent *parent, uint8_t address) : I2CDevice(parent, address) {}
 
@@ -55,9 +49,9 @@ TTP229Channel *TTP229LSFComponent::add_channel(binary_sensor::TTP229Channel *cha
   return channel;
 }
 
-void TTP229LSFComponent::process_(uint16_t *data, uint16_t *last_data) {
+void TTP229LSFComponent::process_(uint16_t *data) {
   for (auto *channel : this->channels_) {
-    channel->process(data, last_data);
+    channel->process(data);
   }
 }
 
@@ -71,19 +65,13 @@ uint8_t TTP229LSFComponent::byte_reverse_(uint8_t byte) {
 uint16_t TTP229LSFComponent::read_channels_() {
   uint16_t val = 0;
   this->parent_->raw_receive_16(this->address_, &val, 1);
-  // bit order in lsb_byte needs to be reversed
-  uint8_t lsb = TTP229LSFComponent::byte_reverse_(val >> 8);
-  // bit order in msb_byte needs to be reversed
-  uint8_t msb = TTP229LSFComponent::byte_reverse_((uint8_t) val);
-  val = ((uint16_t) msb) << 8;
-  val |= lsb;
-  return val;
+  return reverse_bits_16(val);
 }
 
 void TTP229LSFComponent::loop() {
   this->currtouched_ = this->read_channels_();
   if (this->currtouched_ != this->lasttouched_) {
-    this->process_(&currtouched_, &lasttouched_);
+    this->process_(&currtouched_);
   }
   // reset touchsensor state
   this->lasttouched_ = this->currtouched_;

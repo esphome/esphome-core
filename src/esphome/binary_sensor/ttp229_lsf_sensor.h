@@ -16,7 +16,7 @@ namespace binary_sensor {
 class TTP229Channel : public binary_sensor::BinarySensor {
  public:
   TTP229Channel(const std::string &name, int channel_num = 0);
-  void process(const uint16_t *data, const uint16_t *last_data);
+  void process(const uint16_t *data);
 
  protected:
   int channel_ = 0;
@@ -40,7 +40,7 @@ class TTP229LSFComponent : public Component, public I2CDevice {
     COMMUNICATION_FAILED,
     WRONG_CHIP_STATE,
   } error_code_{NONE};
-  void process_(uint16_t *data, uint16_t *last_data);
+  void process_(uint16_t *data);
   uint16_t read_channels_();
   //static method to reverse bits in a byte
   static uint8_t byte_reverse_(uint8_t byte);
