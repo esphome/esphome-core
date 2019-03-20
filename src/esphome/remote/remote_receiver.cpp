@@ -326,8 +326,8 @@ void RemoteReceiverComponent::loop() {
     // TODO: Handle case when loop() is not called quickly enough to catch idle
     return;
 
-  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u", this->buffer_read_at_, write_at, dist, now,
-            this->buffer_[write_at]);
+  ESP_LOGVV(TAG, "read_at=%u write_at=%u dist=%u now=%u end=%u", s.buffer_read_at, write_at, dist, now,
+            s.buffer[write_at]);
 
   // Skip first value, it's from the previous idle level
   s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;
@@ -345,8 +345,8 @@ void RemoteReceiverComponent::loop() {
       break;
     }
 
-    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d", i, this->buffer_read_at_,
-              this->buffer_[this->buffer_read_at_], prev, this->buffer_[prev], multiplier * delta);
+    ESP_LOGVV(TAG, "  i=%u buffer[%u]=%u - buffer[%u]=%u -> %d", i, s.buffer_read_at, s.buffer[s.buffer_read_at], prev,
+              s.buffer[prev], multiplier * delta);
     this->temp_.push_back(multiplier * delta);
     prev = s.buffer_read_at;
     s.buffer_read_at = (s.buffer_read_at + 1) % s.buffer_size;

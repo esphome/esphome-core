@@ -43,34 +43,8 @@ bool CSE7766Component::check_byte_() {
   uint8_t index = this->raw_data_index_;
   uint8_t byte = this->raw_data_[index];
   if (index == 0) {
-    // Header - 0x55
-    // These messages are verbose because the CSE7766
-    // reports these when no load is attached. If the checksum doesn't match
-    // though, then we should print a warning.
-    if (byte == 0xAA) {
-      ESP_LOGV(TAG, "CSE7766 not calibrated!");
-      return false;
-    }
-    if ((byte & 0xF0) == 0xF0) {
-      ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
-      if ((byte >> 3) & 1) {
-        ESP_LOGV(TAG, "  Voltage cycle exceeds range.");
-      }
-      if ((byte >> 2) & 1) {
-        ESP_LOGV(TAG, "  Current cycle exceeds range.");
-      }
-      if ((byte >> 1) & 1) {
-        ESP_LOGV(TAG, "  Power cycle exceeds range.");
-      }
-      if ((byte >> 0) & 1) {
-        ESP_LOGV(TAG, "  Coefficient storage area is abnormal.");
-      }
-      return false;
-    }
-    if (byte != 0x55) {
-      ESP_LOGV(TAG, "Invalid Header Start from CSE7766: 0x%02X!", byte);
-      return false;
-    }
+    // Header, usually 0x55, contains data about calibration etc.
+    // this is validated in parse_data_
     return true;
   }
 
@@ -103,6 +77,18 @@ void CSE7766Component::parse_data_() {
     ESP_LOGVV(TAG, "  i=%u: 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", i, BYTE_TO_BINARY(this->raw_data_[i]),
               this->raw_data_[i]);
   }
+
+  uint8_t header1 = this->raw_data_[0];
+  if (header1 == 0xAA) {
+    ESP_LOGW(TAG, "CSE7766 not calibrated!");
+    return;
+  }
+  if ((header1 & 0xF0) == 0xF0 && ((header1 >> 0) & 1) == 1) {
+    ESP_LOGW(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", header1);
+    ESP_LOGW(TAG, "  Coefficient storage area is abnormal.");
+    return;
+  }
+
   const uint32_t now = micros();
   const float d = (now - this->last_reading_) / 1000.0f;
   this->last_reading_ = now;
@@ -116,19 +102,25 @@ void CSE7766Component::parse_data_() {
 
   uint8_t adj = this->raw_data_[20];
 
-  if ((adj >> 6 != 0) && voltage_cycle != 0) {
+  if ((adj >> 6 != 0) && voltage_cycle != 0 &&
+      // voltage cycle exceeds range
+      ((header1 >> 3) & 1) == 0) {
     // voltage cycle of serial port outputted is a complete cycle;
     float voltage = voltage_calib / float(voltage_cycle);
     this->voltage_acc_ += voltage * d;
   }
 
-  if ((adj >> 5 != 0) && power_cycle != 0 && current_cycle != 0) {
+  if ((adj >> 5 != 0) && power_cycle != 0 && current_cycle != 0 &&
+      // current cycle exceeds range
+      ((header1 >> 2) & 1) == 0) {
     // indicates current cycle of serial port outputted is a complete cycle;
     float current = current_calib / float(current_cycle);
     this->current_acc_ += current * d;
   }
 
-  if ((adj >> 4 != 0) && power_cycle != 0) {
+  if ((adj >> 4 != 0) && power_cycle != 0 &&
+      // power cycle exceeds range
+      ((header1 >> 1) & 1) == 0) {
     // power cycle of serial port outputted is a complete cycle;
     float active_power = power_calib / float(power_cycle);
     this->power_acc_ += active_power * d;

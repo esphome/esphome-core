@@ -82,18 +82,33 @@ void LightColorValues::normalize_color(const LightTraits &traits) {
     float max_value = fmaxf(this->get_red(), fmaxf(this->get_green(), this->get_blue()));
     if (traits.has_rgb_white_value()) {
       max_value = fmaxf(max_value, this->get_white());
-      this->set_white(this->get_white() / max_value);
+      if (max_value == 0.0f) {
+        this->set_white(1.0f);
+      } else {
+        this->set_white(this->get_white() / max_value);
+      }
     }
-    this->set_red(this->get_red() / max_value);
-    this->set_green(this->get_green() / max_value);
-    this->set_blue(this->get_blue() / max_value);
+    if (max_value == 0.0f) {
+      this->set_red(1.0f);
+      this->set_green(1.0f);
+      this->set_blue(1.0f);
+    } else {
+      this->set_red(this->get_red() / max_value);
+      this->set_green(this->get_green() / max_value);
+      this->set_blue(this->get_blue() / max_value);
+    }
   }
 
   if (traits.has_brightness() && this->get_brightness() == 0.0f) {
-    // 0% brightness means off
-    this->set_state(false);
-    // reset brightness to 100% (0% brightness is not allowed)
-    this->set_brightness(1.0f);
+    if (traits.has_rgb_white_value()) {
+      // 0% brightness for RGBW[W] means no RGB channel, but white channel on.
+      // do nothing
+    } else {
+      // 0% brightness means off
+      this->set_state(false);
+      // reset brightness to 100%
+      this->set_brightness(1.0f);
+    }
   }
 }
 
