@@ -237,11 +237,30 @@ class ESPBTUUID {
   esp_bt_uuid_t uuid_;
 };
 
+class ESPBLEiBeacon {
+ public:
+  ESPBLEiBeacon(const uint8_t *data);
+  static optional<ESPBLEiBeacon> from_manufacturer_data(const std::string &data);
+
+  uint16_t get_major();
+  uint16_t get_minor();
+  int8_t get_signal_power();
+  ESPBTUUID get_uuid();
+
+ protected:
+  struct {
+   uint16_t manufacturer_id;
+   uint8_t sub_type;
+   uint8_t proximity_uuid[16];
+   uint16_t major;
+   uint16_t minor;
+   int8_t signal_power;
+ } PACKED beacon_data_;
+};
+
 class ESPBTDevice {
  public:
   void parse_scan_rst(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param);
-
-  void parse_adv(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param);
 
   std::string address_str() const;
 
@@ -257,8 +276,11 @@ class ESPBTDevice {
   const std::string &get_manufacturer_data() const;
   const std::string &get_service_data() const;
   const optional<ESPBTUUID> &get_service_data_uuid() const;
+  const optional<ESPBLEiBeacon> get_ibeacon() const;
 
  protected:
+  void parse_adv_(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param);
+
   esp_bd_addr_t address_{
       0,
   };
