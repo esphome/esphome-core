@@ -33,9 +33,6 @@ void TTP229LSFComponent::dump_config() {
     case COMMUNICATION_FAILED:
       ESP_LOGE(TAG, "Communication with ttp229 failed!");
       break;
-    case WRONG_CHIP_STATE:
-      ESP_LOGE(TAG, "ttp229 has wrong default value for CONFIG2?");
-      break;
     case NONE:
     default:
       break;
