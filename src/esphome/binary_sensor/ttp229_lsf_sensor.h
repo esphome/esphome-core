@@ -42,8 +42,6 @@ class TTP229LSFComponent : public Component, public I2CDevice {
   } error_code_{NONE};
   void process_(uint16_t *data);
   uint16_t read_channels_();
-  //static method to reverse bits in a byte
-  static uint8_t byte_reverse_(uint8_t byte);
 };
 
 }  // namespace binary_sensor

@@ -52,13 +52,6 @@ void TTP229LSFComponent::process_(uint16_t *data) {
   }
 }
 
-uint8_t TTP229LSFComponent::byte_reverse_(uint8_t byte) {
-  uint8_t byte_rev = 0;
-  for (int i = 0; i < 8; i++)
-    byte_rev |= ((byte >> i) & 1) << (7 - i);
-  return byte_rev;
-}
-
 uint16_t TTP229LSFComponent::read_channels_() {
   uint16_t val = 0;
   this->parent_->raw_receive_16(this->address_, &val, 1);
