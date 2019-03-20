@@ -50,7 +50,7 @@ void BinarySensorMap::process_group_() {
     if ((last_mask_ != mask) || !this->last_touched_) {
       this->last_touched_ = true;
       float publish_value = total_current_value / num_active_sensors;
-      ESP_LOGD(TAG, "%s - touched value: %f", this->name_.c_str(), publish_value);
+      ESP_LOGD(TAG, "%s - touched value: %.2f", this->name_.c_str(), publish_value);
       this->publish_state(publish_value);
       last_mask_ = mask;
     }
