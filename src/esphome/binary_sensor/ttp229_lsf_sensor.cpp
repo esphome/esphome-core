@@ -83,8 +83,6 @@ uint16_t TTP229LSFComponent::read_channels_() {
 void TTP229LSFComponent::loop() {
   this->currtouched_ = this->read_channels_();
   if (this->currtouched_ != this->lasttouched_) {
-    ESP_LOGD(TAG, "    Received 0b" BYTE_TO_BINARY_PATTERN BYTE_TO_BINARY_PATTERN " (0x%04X)",
-             BYTE_TO_BINARY(this->currtouched_ >> 8), BYTE_TO_BINARY(this->currtouched_), this->currtouched_);
     this->process_(&currtouched_, &lasttouched_);
   }
   // reset touchsensor state
