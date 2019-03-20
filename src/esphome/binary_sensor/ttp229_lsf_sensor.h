@@ -38,7 +38,6 @@ class TTP229LSFComponent : public Component, public I2CDevice {
   enum ErrorCode {
     NONE = 0,
     COMMUNICATION_FAILED,
-    WRONG_CHIP_STATE,
   } error_code_{NONE};
   void process_(uint16_t *data);
   uint16_t read_channels_();
