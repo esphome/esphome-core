@@ -48,15 +48,16 @@ bool CSE7766Component::check_byte_() {
     // reports these when no load is attached. If the checksum doesn't match
     // though, then we should print a warning.
     if (byte == 0x55) {
-      //ESP_LOGV(TAG, "Invalid Header Start from CSE7766: 0x%02X!", byte);
+      return true;
+    }
+    if ((byte & 0xF0) == 0xF0) {
       return true;
     }
     if (byte == 0xAA) {
-      ESP_LOGV(TAG, "CSE7766 not calibrated!");
-      return false;
+      return true;
     }
-    
-    return true;
+        
+    return false;
   }
 
   if (index == 1) {
@@ -102,7 +103,10 @@ void CSE7766Component::parse_data_() {
   bool voltageOk = true;
   bool currentOk = true;
 
-
+  if (byte == 0xAA) {
+    ESP_LOGW(TAG, "CSE7766 not calibrated!");
+    return;
+  }
   if (byte > 0xF0) {
     //ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
     if ((byte >> 3) & 1) {
@@ -130,16 +134,16 @@ void CSE7766Component::parse_data_() {
   }
    
   float power = 0;
-  if ((adj & 0x10) == 0x10) {
+  if ((adj & 0x10) == 0x10  && powerOk) {
     // power cycle of serial port outputted is a complete cycle;
     power = power_calib / float(power_cycle);
-    this->power_acc_ += powerOk ? power : 0.0;
+    this->power_acc_ += power;
     this->power_counts_ += 1;
   }
 
-  if ((adj & 0x20) == 0x20 && currentOk && voltageOk) {
+  if ((adj & 0x20) == 0x20 && currentOk && voltageOk && power != 0.0) {
     // indicates current cycle of serial port outputted is a complete cycle;
-    this->current_acc_ += (power > 0) ? current_calib / float(current_cycle) : 0.0;
+    this->current_acc_ += current_calib / float(current_cycle);
     this->current_counts_ += 1;
   }
 }
