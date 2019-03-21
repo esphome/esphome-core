@@ -43,20 +43,16 @@ bool CSE7766Component::check_byte_() {
   uint8_t index = this->raw_data_index_;
   uint8_t byte = this->raw_data_[index];
   if (index == 0) {
-    // Header - 0x55
-    // These messages are verbose because the CSE7766
-    // reports these when no load is attached. If the checksum doesn't match
-    // though, then we should print a warning.
-    if (byte == 0x55) {
+
+    if (byte == 0x55) {   // Standard 
       return true;
     }
-    if ((byte & 0xF0) == 0xF0) {
+    if ((byte & 0xF0) == 0xF0) {   // overrange/underrange but ok
       return true;
     }
-    if (byte == 0xAA) {
+    if (byte == 0xAA) {   // Bad Calibration
       return true;
     }
-        
     return false;
   }
 
@@ -65,7 +61,6 @@ bool CSE7766Component::check_byte_() {
       ESP_LOGV(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
       return false;
     }
-
     return true;
   }
   
@@ -88,7 +83,23 @@ void CSE7766Component::parse_data_() {
     ESP_LOGVV(TAG, "  i=%u: 0b" BYTE_TO_BINARY_PATTERN " (0x%02X)", i, BYTE_TO_BINARY(this->raw_data_[i]),
               this->raw_data_[i]);
   }
-  
+
+  uint8_t header1 = this->raw_data_[0];
+  if (header1 == 0xAA) {
+    ESP_LOGW(TAG, "CSE7766 not calibrated!");
+    return;
+  }
+  if ((header1 & 0xF0) == 0xF0 && ((header1 >> 0) & 1) == 1) {
+    ESP_LOGW(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", header1);
+    ESP_LOGW(TAG, "  Coefficient storage area is abnormal.");
+    return;
+  }
+
+  const uint32_t now = micros();
+  const float d = (now - this->last_reading_) / 1000.0f;
+  this->last_reading_ = now;
+
+
   uint32_t voltage_calib = this->get_24_bit_uint_(2);
   uint32_t voltage_cycle = this->get_24_bit_uint_(5);
   uint32_t current_calib = this->get_24_bit_uint_(8);
@@ -98,30 +109,28 @@ void CSE7766Component::parse_data_() {
 
   uint8_t adj = this->raw_data_[20];
 
-  uint8_t byte = this->raw_data_[0];
+
+  
   bool powerOk = true;
   bool voltageOk = true;
   bool currentOk = true;
 
-  if (byte == 0xAA) {
-    ESP_LOGW(TAG, "CSE7766 not calibrated!");
-    return;
-  }
-  if (byte > 0xF0) {
+  
+  if (header1 > 0xF0) {
     //ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
-    if ((byte >> 3) & 1) {
+    if ((header1 >> 3) & 1) {
       ESP_LOGV(TAG, "  Voltage cycle exceeds range.");
       voltageOk = false;
     }
-    if ((byte >> 2) & 1) {
+    if ((header1 >> 2) & 1) {
       ESP_LOGV(TAG, "  Current cycle exceeds range.");
       currentOk = false;
     }
-    if ((byte >> 1) & 1) {
+    if ((header1 >> 1) & 1) {
       ESP_LOGV(TAG, "  Power cycle exceeds range.");
       powerOk = false;
     }
-    if ((byte >> 0) & 1) {
+    if ((header1 >> 0) & 1) {
       ESP_LOGV(TAG, "  Coefficient storage area is abnormal.");
       return; 
     }

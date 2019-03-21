@@ -124,14 +124,14 @@ void LightState::dump_json(JsonObject &root) {
 }
 
 struct LightStateRTCState {
-  bool state;
-  float brightness;
-  float red;
-  float green;
-  float blue;
-  float white;
-  float color_temp;
-  uint32_t effect;
+  bool state{false};
+  float brightness{1.0f};
+  float red{1.0f};
+  float green{1.0f};
+  float blue{1.0f};
+  float white{1.0f};
+  float color_temp{1.0f};
+  uint32_t effect{0};
 };
 
 void LightState::setup() {
@@ -143,9 +143,9 @@ void LightState::setup() {
   }
 
   this->rtc_ = global_preferences.make_preference<LightStateRTCState>(this->get_object_id_hash());
-  LightStateRTCState recovered;
-  if (!this->rtc_.load(&recovered))
-    return;
+  LightStateRTCState recovered{};
+  // Attempt to load from preferences, else fall back to default values from struct
+  this->rtc_.load(&recovered);
 
   auto call = this->make_call();
   call.set_state(recovered.state);
@@ -438,7 +438,7 @@ void LightState::StateCall::perform() const {
     ESP_LOGD(TAG, "  Color Temperature: %.1f mireds", v.get_color_temperature());
   }
 
-  v.normalize_color(this->state_->output_->get_traits());
+  v.normalize_color(traits);
 
   if (traits.has_rgb() && (this->red_.has_value() || this->green_.has_value() || this->blue_.has_value())) {
     if (traits.has_rgb_white_value() && this->white_.has_value()) {

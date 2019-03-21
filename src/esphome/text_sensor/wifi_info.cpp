@@ -22,19 +22,21 @@ void IPAddressWiFiInfo::loop() {
 IPAddressWiFiInfo::IPAddressWiFiInfo(const std::string &name) : TextSensor(name) {}
 
 void SSIDWiFiInfo::loop() {
-  const char *ssid = WiFi.SSID().c_str();
-  if (this->last_ssid_ != ssid) {
-    this->last_ssid_ = ssid;
-    this->publish_state(ssid);
+  String ssid = WiFi.SSID();
+  if (this->last_ssid_ != ssid.c_str()) {
+    this->last_ssid_ = std::string(ssid.c_str());
+    this->publish_state(this->last_ssid_);
   }
 }
 SSIDWiFiInfo::SSIDWiFiInfo(const std::string &name) : TextSensor(name) {}
 
 void BSSIDWiFiInfo::loop() {
-  const char *bssid = WiFi.BSSIDstr().c_str();
-  if (this->last_bssid_ != bssid) {
-    this->last_bssid_ = bssid;
-    this->publish_state(bssid);
+  uint8_t *bssid = WiFi.BSSID();
+  if (memcmp(bssid, this->last_bssid_.data(), 6) != 0) {
+    std::copy(bssid, bssid + 6, this->last_bssid_.data());
+    char buf[30];
+    sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+    this->publish_state(buf);
   }
 }
 BSSIDWiFiInfo::BSSIDWiFiInfo(const std::string &name) : TextSensor(name) {}

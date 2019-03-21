@@ -276,6 +276,8 @@ template<typename T> class GlobalVariableComponent : public Component {
  public:
   explicit GlobalVariableComponent();
   explicit GlobalVariableComponent(T initial_value);
+  explicit GlobalVariableComponent(
+      std::array<typename std::remove_extent<T>::type, std::extent<T>::value> initial_value);
 
   T &value();
 

@@ -174,7 +174,7 @@ void WiFiComponent::start_connecting(const WiFiAP &ap, bool two) {
   } else {
     ESP_LOGV(TAG, "  BSSID: Not Set");
   }
-  ESP_LOGV(TAG, "  Password: " LOG_SECRET("'%s'"), ap.get_password());
+  ESP_LOGV(TAG, "  Password: " LOG_SECRET("'%s'"), ap.get_password().c_str());
   if (ap.get_channel().has_value()) {
     ESP_LOGV(TAG, "  Channel: %u", *ap.get_channel());
   } else {
@@ -317,7 +317,8 @@ void WiFiComponent::check_scanning_finished() {
     print_signal_bars(res.get_rssi(), signal_bars);
 
     if (res.get_matches()) {
-      ESP_LOGI(TAG, "- '%s' " LOG_SECRET("(%s) ") "%s", res.get_ssid().c_str(), bssid_s, signal_bars);
+      ESP_LOGI(TAG, "- '%s' %s" LOG_SECRET("(%s) ") "%s", res.get_ssid().c_str(),
+               res.get_is_hidden() ? "(HIDDEN) " : "", bssid_s, signal_bars);
       ESP_LOGD(TAG, "    Channel: %u", res.get_channel());
       ESP_LOGD(TAG, "    RSSI: %d dB", res.get_rssi());
     } else {
@@ -331,31 +332,39 @@ void WiFiComponent::check_scanning_finished() {
     return;
   }
 
-  WiFiAP ap;
+  WiFiAP connect_params;
   WiFiScanResult scan_res = this->scan_result_[0];
-  for (auto &ap2 : this->sta_) {
-    if (scan_res.matches(ap2)) {
-      if (ap2.get_hidden()) {
-        // selected network is hidden
-        ap.set_hidden(true);
-        ap.set_ssid(scan_res.get_ssid());
-      } else {
-        // selected network is visible
-        ap.set_hidden(false);
-        ap.set_ssid(ap2.get_ssid());
-        ap.set_channel(scan_res.get_channel());
-        ap.set_bssid(scan_res.get_bssid());
-      }
-      ap.set_manual_ip(ap2.get_manual_ip());
-      ap.set_password(ap2.get_password());
-      break;
+  for (auto &config : this->sta_) {
+    // search for matching STA config, at least one will match (from checks before)
+    if (!scan_res.matches(config)) {
+      continue;
     }
+
+    if (config.get_hidden()) {
+      // selected network is hidden, we use the data from the config
+      connect_params.set_hidden(true);
+      connect_params.set_ssid(config.get_ssid());
+      // don't set BSSID and channel, there might be multiple hidden networks
+      // but we can't know which one is the correct one. Rely on probe-req with just SSID.
+    } else {
+      // selected network is visible, we use the data from the scan
+      // limit the connect params to only connect to exactly this network
+      // (network selection is done during scan phase).
+      connect_params.set_hidden(false);
+      connect_params.set_ssid(scan_res.get_ssid());
+      connect_params.set_channel(scan_res.get_channel());
+      connect_params.set_bssid(scan_res.get_bssid());
+    }
+    // set manual IP+password (if any)
+    connect_params.set_manual_ip(config.get_manual_ip());
+    connect_params.set_password(config.get_password());
+    break;
   }
 
   yield();
 
-  this->selected_ap_ = ap;
-  this->start_connecting(ap, false);
+  this->selected_ap_ = connect_params;
+  this->start_connecting(connect_params, false);
 }
 
 void WiFiComponent::dump_config() {
@@ -779,6 +788,12 @@ const char *get_disconnect_reason_str(uint8_t reason) {
 }
 
 void WiFiComponent::wifi_event_callback(System_Event_t *event) {
+#ifdef ESPHOME_LOG_HAS_VERBOSE
+  // TODO: this callback is called while in cont context, so delay will fail
+  // We need to defer the log messages until we're out of this context
+  // only affects verbose log level
+  // reproducible by enabling verbose log level and letting the ESP disconnect and
+  // then reconnect to WiFi.
   switch (event->event) {
     case EVENT_STAMODE_CONNECTED: {
       auto it = event->event_info.connected;
@@ -794,7 +809,7 @@ void WiFiComponent::wifi_event_callback(System_Event_t *event) {
       char buf[33];
       memcpy(buf, it.ssid, it.ssid_len);
       buf[it.ssid_len] = '\0';
-      ESP_LOGW(TAG, "Event: Disconnected ssid='%s' bssid=%s reason='%s'", buf, format_mac_addr(it.bssid).c_str(),
+      ESP_LOGV(TAG, "Event: Disconnected ssid='%s' bssid=%s reason='%s'", buf, format_mac_addr(it.bssid).c_str(),
                get_disconnect_reason_str(it.reason));
       break;
     }
@@ -844,6 +859,7 @@ void WiFiComponent::wifi_event_callback(System_Event_t *event) {
     default:
       break;
   }
+#endif
 
   if (event->event == EVENT_STAMODE_DISCONNECTED) {
     global_wifi_component->error_from_callback_ = true;
@@ -1421,7 +1437,7 @@ void WiFiComponent::wifi_scan_done_callback_() {
     int32_t channel = WiFi.channel(i);
 
     WiFiScanResult scan({bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]}, std::string(ssid.c_str()),
-                        channel, rssi, authmode != WIFI_AUTH_OPEN, false);
+                        channel, rssi, authmode != WIFI_AUTH_OPEN, ssid.length() == 0);
     this->scan_result_.push_back(scan);
   }
   WiFi.scanDelete();
@@ -1545,21 +1561,27 @@ WiFiScanResult::WiFiScanResult(const bssid_t &bssid, const std::string &ssid, ui
                                bool with_auth, bool is_hidden)
     : bssid_(bssid), ssid_(ssid), channel_(channel), rssi_(rssi), with_auth_(with_auth), is_hidden_(is_hidden) {}
 bool WiFiScanResult::matches(const WiFiAP &ap) {
-  if (this->is_hidden_ || this->ssid_.empty()) {
-    // SSID is hidden
+  if (this->is_hidden_) {
+    // User configured a hidden network, only match actually hidden networks
+    // don't match SSID
     if (!ap.get_hidden())
       return false;
-  } else {
+  } else if (!this->ssid_.empty()) {
+    // check if SSID matches
     if (ap.get_ssid() != this->ssid_)
       return false;
+  } else {
+    // network is configured with only BSSID
   }
+  // If BSSID configured, only match for correct BSSIDs
   if (ap.get_bssid().has_value() && *ap.get_bssid() != this->bssid_)
     return false;
+  // If PW given, only match for networks with auth (and vice versa)
   if (ap.get_password().empty() == this->with_auth_)
     return false;
-  if (ap.get_channel().has_value()) {
-    if (*ap.get_channel() != this->channel_)
-      return false;
+  // If channel configured, only match networks on that channel.
+  if (ap.get_channel().has_value() && *ap.get_channel() != this->channel_) {
+    return false;
   }
   return true;
 }

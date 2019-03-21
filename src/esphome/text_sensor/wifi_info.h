@@ -6,6 +6,7 @@
 #ifdef USE_WIFI_INFO_TEXT_SENSOR
 
 #include "esphome/component.h"
+#include "esphome/wifi_component.h"
 #include "esphome/text_sensor/text_sensor.h"
 
 ESPHOME_NAMESPACE_BEGIN
@@ -36,7 +37,7 @@ class BSSIDWiFiInfo : public Component, public TextSensor {
   void loop() override;
 
  protected:
-  std::string last_bssid_;
+  bssid_t last_bssid_;
 };
 
 }  // namespace text_sensor
