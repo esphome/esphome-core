@@ -95,11 +95,6 @@ void CSE7766Component::parse_data_() {
     return;
   }
 
-  const uint32_t now = micros();
-  const float d = (now - this->last_reading_) / 1000.0f;
-  this->last_reading_ = now;
-
-
   uint32_t voltage_calib = this->get_24_bit_uint_(2);
   uint32_t voltage_cycle = this->get_24_bit_uint_(5);
   uint32_t current_calib = this->get_24_bit_uint_(8);
@@ -108,14 +103,11 @@ void CSE7766Component::parse_data_() {
   uint32_t power_cycle = this->get_24_bit_uint_(17);
 
   uint8_t adj = this->raw_data_[20];
-
-
   
   bool powerOk = true;
   bool voltageOk = true;
   bool currentOk = true;
-
-  
+ 
   if (header1 > 0xF0) {
     //ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
     if ((header1 >> 3) & 1) {
