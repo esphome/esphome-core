@@ -57,6 +57,7 @@
 #define USE_DEBUG_COMPONENT
 #define USE_DEEP_SLEEP
 #define USE_PCF8574
+#define USE_CAT9554
 #define USE_MCP23017
 #define USE_IO
 #define USE_SDS011
@@ -192,6 +193,11 @@
 #endif
 #endif
 #ifdef USE_PCF8574
+#ifndef USE_IO
+#define USE_IO
+#endif
+#endif
+#ifdef USE_CAT9554
 #ifndef USE_IO
 #define USE_IO
 #endif

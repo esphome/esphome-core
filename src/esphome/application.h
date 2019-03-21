@@ -53,6 +53,7 @@
 #include "esphome/fan/mqtt_fan_component.h"
 #include "esphome/io/mcp23017.h"
 #include "esphome/io/pcf8574_component.h"
+#include "esphome/io/cat9554.h"
 #include "esphome/light/addressable_light_effect.h"
 #include "esphome/light/fast_led_light_output.h"
 #include "esphome/light/light_color_values.h"
@@ -1128,6 +1129,10 @@ class Application {
    * @return The PCF8574Component instance to get individual pins.
    */
   io::PCF8574Component *make_pcf8574_component(uint8_t address = 0x21, bool pcf8575 = false);
+#endif
+
+#ifdef USE_CAT9554
+  io::CAT9554Component *make_cat9554_component(uint8_t address, uint8_t irq);
 #endif
 
 #ifdef USE_MCP23017
