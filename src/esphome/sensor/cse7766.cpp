@@ -27,7 +27,6 @@ void CSE7766Component::loop() {
     if (!this->check_byte_()) {
       this->raw_data_index_ = 0;
       this->status_set_warning();
-      continue;
     }
 
     if (this->raw_data_index_ == 23) {
@@ -47,6 +46,7 @@ bool CSE7766Component::check_byte_() {
     if ((byte != 0x55) && ((byte & 0xF0) != 0xF0) && (byte != 0xAA)) {
       return false;
     }
+    return true;
   }
 
   if (index == 1) {
@@ -54,6 +54,7 @@ bool CSE7766Component::check_byte_() {
       ESP_LOGV(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
       return false;
     }
+    return true;
   }
   
   if (index == 23) {
@@ -65,6 +66,7 @@ bool CSE7766Component::check_byte_() {
       ESP_LOGW(TAG, "Invalid checksum from CSE7766: 0x%02X != 0x%02X", checksum, this->raw_data_[23]);
       return false;
     }
+    return true;
   }
 
   return true;
@@ -127,7 +129,7 @@ void CSE7766Component::parse_data_() {
   }
    
   float power = 0;
-  if ((adj & 0x10) == 0x10 && power_ok) {
+  if ((adj & 0x10) == 0x10 && voltage_ok && current_ok && power_ok) {
     // power cycle of serial port outputted is a complete cycle;
     power = power_calib / float(power_cycle);
     this->power_acc_ += power;
@@ -146,9 +148,9 @@ void CSE7766Component::update() {
   float current = this->current_counts_ > 0 ? this->current_acc_ / this->current_counts_ : 0.0;
   float power = this->power_counts_ > 0 ? this->power_acc_ / this->power_counts_ : 0.0;
 
-  ESP_LOGD(TAG, "Got voltage_acc=%.2f current_acc=%.2f power_acc=%.2f", this->voltage_acc_, this->current_acc_, 
+  ESP_LOGVV(TAG, "Got voltage_acc=%.2f current_acc=%.2f power_acc=%.2f", this->voltage_acc_, this->current_acc_, 
            this->power_acc_);
-  ESP_LOGD(TAG, "Got voltage_counts=%d current_counts=%d power_counts=%d", this->voltage_counts_, this->current_counts_, 
+  ESP_LOGVV(TAG, "Got voltage_counts=%d current_counts=%d power_counts=%d", this->voltage_counts_, this->current_counts_, 
            this->power_counts_);
   ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW", voltage, current, power);
  
@@ -166,7 +168,6 @@ void CSE7766Component::update() {
   this->power_counts_ = 0;
   this->current_counts_ = 0;
 }
-void CSE7766Component::setup() {}
 
 uint32_t CSE7766Component::get_24_bit_uint_(uint8_t start_index) {
   return (uint32_t(this->raw_data_[start_index]) << 16) | (uint32_t(this->raw_data_[start_index + 1]) << 8) |

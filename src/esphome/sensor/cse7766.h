@@ -31,7 +31,6 @@ class CSE7766Component : public PollingComponent, public UARTDevice {
   void loop() override;
   float get_setup_priority() const override;
   void update() override;
-  void setup() override;
   void dump_config() override;
 
  protected:
