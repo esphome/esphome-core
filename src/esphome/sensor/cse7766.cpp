@@ -44,7 +44,7 @@ bool CSE7766Component::check_byte_() {
   uint8_t index = this->raw_data_index_;
   uint8_t byte = this->raw_data_[index];
   if (index == 0) {
-    if ((byte != 0x55) && ((byte & 0xF0) != 0xF0) && (byte != 0xAA)) {  // Standard 
+    if ((byte != 0x55) && ((byte & 0xF0) != 0xF0) && (byte != 0xAA)) {
       return false;
     }
   }
