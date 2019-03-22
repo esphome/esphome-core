@@ -54,7 +54,6 @@ bool CSE7766Component::check_byte_() {
       ESP_LOGV(TAG, "Invalid Header 2 Start: 0x%02X!", byte);
       return false;
     }
-    return true;
   }
   
   if (index == 23) {
@@ -117,7 +116,7 @@ void CSE7766Component::parse_data_() {
     }
     if ((header1 >> 0) & 1) {
       ESP_LOGV(TAG, "  Coefficient storage area is abnormal.");
-      return; 
+      return;
     }
   }
 
@@ -128,7 +127,7 @@ void CSE7766Component::parse_data_() {
   }
    
   float power = 0;
-  if ((adj & 0x10) == 0x10  && power_ok) {
+  if ((adj & 0x10) == 0x10 && power_ok) {
     // power cycle of serial port outputted is a complete cycle;
     power = power_calib / float(power_cycle);
     this->power_acc_ += power;
@@ -145,10 +144,12 @@ void CSE7766Component::update() {
   
   float voltage = this->voltage_counts_ > 0 ? this->voltage_acc_ / this->voltage_counts_ : 0.0;
   float current = this->current_counts_ > 0 ? this->current_acc_ / this->current_counts_ : 0.0;
-  float power = this->power_counts_   > 0 ? this->power_acc_   / this->power_counts_ : 0.0;
+  float power = this->power_counts_ > 0 ? this->power_acc_ / this->power_counts_ : 0.0;
 
-  ESP_LOGD(TAG, "Got voltage_acc=%.2f current_acc=%.2f power_acc=%.2f", this->voltage_acc_, this->current_acc_, this->power_acc_);
-  ESP_LOGD(TAG, "Got voltage_counts=%d current_counts=%d power_counts=%d", this->voltage_counts_, this->current_counts_, this->power_counts_);
+  ESP_LOGD(TAG, "Got voltage_acc=%.2f current_acc=%.2f power_acc=%.2f", this->voltage_acc_, this->current_acc_, 
+           this->power_acc_);
+  ESP_LOGD(TAG, "Got voltage_counts=%d current_counts=%d power_counts=%d", this->voltage_counts_, this->current_counts_, 
+           this->power_counts_);
   ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW", voltage, current, power);
  
   if (this->voltage_sensor_ != nullptr)
