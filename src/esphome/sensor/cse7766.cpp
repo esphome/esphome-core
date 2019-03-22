@@ -43,10 +43,7 @@ bool CSE7766Component::check_byte_() {
   uint8_t index = this->raw_data_index_;
   uint8_t byte = this->raw_data_[index];
   if (index == 0) {
-    if ((byte != 0x55) && ((byte & 0xF0) != 0xF0) && (byte != 0xAA)) {
-      return false;
-    }
-    return true;
+    return !((byte != 0x55) && ((byte & 0xF0) != 0xF0) && (byte != 0xAA));
   }
 
   if (index == 1) {
@@ -56,7 +53,7 @@ bool CSE7766Component::check_byte_() {
     }
     return true;
   }
-  
+
   if (index == 23) {
     uint8_t checksum = 0;
     for (uint8_t i = 2; i < 23; i++)
@@ -83,6 +80,7 @@ void CSE7766Component::parse_data_() {
     ESP_LOGW(TAG, "CSE7766 not calibrated!");
     return;
   }
+
   if ((header1 & 0xF0) == 0xF0 && ((header1 >> 0) & 1) == 1) {
     ESP_LOGW(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", header1);
     ESP_LOGW(TAG, "  Coefficient storage area is abnormal.");
@@ -97,11 +95,11 @@ void CSE7766Component::parse_data_() {
   uint32_t power_cycle = this->get_24_bit_uint_(17);
 
   uint8_t adj = this->raw_data_[20];
-  
+
   bool power_ok = true;
   bool voltage_ok = true;
   bool current_ok = true;
- 
+
   if (header1 > 0xF0) {
     // ESP_LOGV(TAG, "CSE7766 reports abnormal hardware: (0x%02X)", byte);
     if ((header1 >> 3) & 1) {
@@ -127,7 +125,7 @@ void CSE7766Component::parse_data_() {
     this->voltage_acc_ += voltage_calib / float(voltage_cycle);
     this->voltage_counts_ += 1;
   }
-   
+
   float power = 0;
   if ((adj & 0x10) == 0x10 && voltage_ok && current_ok && power_ok) {
     // power cycle of serial port outputted is a complete cycle;
@@ -143,17 +141,17 @@ void CSE7766Component::parse_data_() {
   }
 }
 void CSE7766Component::update() {
-  
+
   float voltage = this->voltage_counts_ > 0 ? this->voltage_acc_ / this->voltage_counts_ : 0.0;
   float current = this->current_counts_ > 0 ? this->current_acc_ / this->current_counts_ : 0.0;
   float power = this->power_counts_ > 0 ? this->power_acc_ / this->power_counts_ : 0.0;
 
   ESP_LOGVV(TAG, "Got voltage_acc=%.2f current_acc=%.2f power_acc=%.2f", this->voltage_acc_, this->current_acc_, 
-           this->power_acc_);
+            this->power_acc_);
   ESP_LOGVV(TAG, "Got voltage_counts=%d current_counts=%d power_counts=%d", this->voltage_counts_, this->current_counts_, 
-           this->power_counts_);
+            this->power_counts_);
   ESP_LOGD(TAG, "Got voltage=%.1fV current=%.1fA power=%.1fW", voltage, current, power);
- 
+
   if (this->voltage_sensor_ != nullptr)
     this->voltage_sensor_->publish_state(voltage);
   if (this->current_sensor_ != nullptr)
