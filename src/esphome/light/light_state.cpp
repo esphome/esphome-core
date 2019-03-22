@@ -38,6 +38,9 @@ void LightState::start_flash(const LightColorValues &target, uint32_t length) {
   if (length == 0)
     return;
 
+  if (this->active_effect_ != nullptr)
+    this->active_effect_->stop();
+
   LightColorValues end_colors = this->values_;
   if (this->transformer_ != nullptr)
     end_colors = this->transformer_->get_end_values();
@@ -63,6 +66,8 @@ LightColorValues LightState::get_current_values() {
       this->remote_values_ = this->values_ = this->transformer_->get_end_values();
       this->transformer_ = nullptr;
       this->send_values();
+      if (this->active_effect_ != nullptr)
+        this->active_effect_->start_internal();
     } else {
       this->values_ = this->transformer_->get_values();
     }
@@ -197,13 +202,15 @@ void LightState::current_values_as_cwww(float color_temperature_cw, float color_
   *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
 }
 void LightState::loop() {
-  if (this->active_effect_ != nullptr) {
+  if (this->active_effect_ != nullptr && this->transformer_ == nullptr) {
     this->active_effect_->apply();
   }
 
   if (this->next_write_ || (this->transformer_ != nullptr && this->transformer_->is_continuous())) {
     this->output_->write_state(this);
     this->next_write_ = false;
+  } else if (this->transformer_ != nullptr) {
+    this->get_current_values();
   }
 }
 LightTraits LightState::get_traits() { return this->output_->get_traits(); }
@@ -468,16 +475,19 @@ void LightState::StateCall::perform() const {
     this->state_->start_effect(*this->effect_);
   }
 
-  LightStateRTCState saved;
-  saved.state = v.get_state() != 0.0f;
-  saved.brightness = v.get_brightness();
-  saved.red = v.get_red();
-  saved.green = v.get_green();
-  saved.blue = v.get_blue();
-  saved.white = v.get_white();
-  saved.color_temp = v.get_color_temperature();
-  saved.effect = *this->state_->active_effect_index_;
-  this->state_->rtc_.save(&saved);
+  // Don't save the new state to preferences if it's just a flash, since it's transient
+  if (!this->flash_length_.has_value()) {
+    LightStateRTCState saved;
+    saved.state = v.get_state() != 0.0f;
+    saved.brightness = v.get_brightness();
+    saved.red = v.get_red();
+    saved.green = v.get_green();
+    saved.blue = v.get_blue();
+    saved.white = v.get_white();
+    saved.color_temp = v.get_color_temperature();
+    saved.effect = *this->state_->active_effect_index_;
+    this->state_->rtc_.save(&saved);
+  }
   this->state_->send_values();
 }
 LightState::StateCall::StateCall(LightState *state) : state_(state) {}
