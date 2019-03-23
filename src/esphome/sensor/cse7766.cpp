@@ -38,9 +38,7 @@ void CSE7766Component::loop() {
     this->raw_data_index_ = (this->raw_data_index_ + 1) % 24;
   }
 }
-float CSE7766Component::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float CSE7766Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
 bool CSE7766Component::check_byte_() {
   uint8_t index = this->raw_data_index_;
@@ -175,8 +173,7 @@ uint32_t CSE7766Component::get_24_bit_uint_(uint8_t start_index) {
 }
 
 CSE7766Component::CSE7766Component(UARTComponent *parent, uint32_t update_interval)
-    : UARTDevice(parent), PollingComponent(update_interval) {
-}
+    : UARTDevice(parent), PollingComponent(update_interval) {}
 CSE7766VoltageSensor *CSE7766Component::make_voltage_sensor(const std::string &name) {
   return this->voltage_sensor_ = new CSE7766VoltageSensor(name);
 }
