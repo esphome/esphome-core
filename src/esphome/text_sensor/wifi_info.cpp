@@ -20,9 +20,7 @@ void IPAddressWiFiInfo::loop() {
   }
 }
 IPAddressWiFiInfo::IPAddressWiFiInfo(const std::string &name) : TextSensor(name) {}
-float IPAddressWiFiInfo::get_setup_priority() const {
-  return setup_priority::WIFI - 1.0f;
-}
+float IPAddressWiFiInfo::get_setup_priority() const { return setup_priority::WIFI - 1.0f; }
 
 void SSIDWiFiInfo::loop() {
   String ssid = WiFi.SSID();
@@ -32,9 +30,7 @@ void SSIDWiFiInfo::loop() {
   }
 }
 SSIDWiFiInfo::SSIDWiFiInfo(const std::string &name) : TextSensor(name) {}
-float SSIDWiFiInfo::get_setup_priority() const {
-  return setup_priority::WIFI - 1.0f;
-}
+float SSIDWiFiInfo::get_setup_priority() const { return setup_priority::WIFI - 1.0f; }
 
 void BSSIDWiFiInfo::loop() {
   uint8_t *bssid = WiFi.BSSID();
@@ -46,9 +42,7 @@ void BSSIDWiFiInfo::loop() {
   }
 }
 BSSIDWiFiInfo::BSSIDWiFiInfo(const std::string &name) : TextSensor(name) {}
-float BSSIDWiFiInfo::get_setup_priority() const {
-  return setup_priority::WIFI - 1.0f;
-}
+float BSSIDWiFiInfo::get_setup_priority() const { return setup_priority::WIFI - 1.0f; }
 
 }  // namespace text_sensor
 
