@@ -32,12 +32,12 @@ void UltrasonicSensorComponent::update() {
   ESP_LOGV(TAG, "Echo took %uµs", time);
 
   if (time == 0) {
-    ESP_LOGV(TAG, "Distance measurement timed out!");
+    ESP_LOGD(TAG, "'%s' - Distance measurement timed out!", this->name_.c_str());
     this->publish_state(NAN);
   } else {
     float result = UltrasonicSensorComponent::us_to_m(time);
     this->publish_state(result);
-    ESP_LOGD(TAG, "Got distance: %.2f m", result);
+    ESP_LOGD(TAG, "'%s' - Got distance: %.2f m", this->name_.c_str(), result);
     this->publish_state(result);
   }
 }
