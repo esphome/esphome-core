@@ -52,6 +52,11 @@ void WiFiComponent::setup() {
 
   this->wifi_apply_hostname_();
   network_setup_mdns();
+
+  add_shutdown_hook([this](const char *reason) {
+    // Disable WiFi interface on shutdown
+    this->wifi_mode_(false, false);
+  });
 }
 
 void WiFiComponent::loop() {
