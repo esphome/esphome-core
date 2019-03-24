@@ -461,8 +461,6 @@ class Application {
 #endif
 
 #ifdef USE_DALLAS_SENSOR
-  sensor::DallasComponent *make_dallas_component(ESPOneWire *one_wire, uint32_t update_interval = 60000);
-
   sensor::DallasComponent *make_dallas_component(const GPIOOutputPin &pin, uint32_t update_interval = 60000);
 #endif
 
