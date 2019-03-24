@@ -35,7 +35,7 @@ void UltrasonicSensorComponent::update() {
     ESP_LOGV(TAG, "Distance measurement timed out!");
     this->publish_state(NAN);
   } else {
-    float result = this->us_to_m(time);
+    float result = UltrasonicSensorComponent::us_to_m(time);
     this->publish_state(result);
     ESP_LOGD(TAG, "Got distance: %.2f m", result);
     this->publish_state(result);
