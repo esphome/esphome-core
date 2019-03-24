@@ -138,9 +138,10 @@ void WiFiComponent::setup_ap_config_() {
   ESP_LOGCONFIG(TAG, "  AP SSID: '%s'", this->ap_.get_ssid().c_str());
   ESP_LOGCONFIG(TAG, "  AP Password: '%s'", this->ap_.get_password().c_str());
   if (this->ap_.get_manual_ip().has_value()) {
-    ESP_LOGCONFIG(TAG, "  AP Static IP: '%s'", this->ap_.get_manual_ip()->static_ip.toString().c_str());
-    ESP_LOGCONFIG(TAG, "  AP Gateway: '%s'", this->ap_.get_manual_ip()->gateway.toString().c_str());
-    ESP_LOGCONFIG(TAG, "  AP Subnet: '%s'", this->ap_.get_manual_ip()->subnet.toString().c_str());
+    auto manual = *this->ap_.get_manual_ip();
+    ESP_LOGCONFIG(TAG, "  AP Static IP: '%s'", manual.static_ip.toString().c_str());
+    ESP_LOGCONFIG(TAG, "  AP Gateway: '%s'", manual.gateway.toString().c_str());
+    ESP_LOGCONFIG(TAG, "  AP Subnet: '%s'", manual.subnet.toString().c_str());
   }
 
   this->ap_setup_ = this->wifi_start_ap_(this->ap_);
@@ -636,12 +637,14 @@ bool WiFiComponent::wifi_sta_connect_(WiFiAP ap) {
     conf.bssid_set = 0;
   }
 
+#ifndef ARDUINO_ESP8266_RELEASE_2_3_0
   if (ap.get_password().empty()) {
     conf.threshold.authmode = AUTH_OPEN;
   } else {
     conf.threshold.authmode = AUTH_WPA_PSK;
   }
   conf.threshold.rssi = -127;
+#endif
 
   ETS_UART_INTR_DISABLE();
   bool ret = wifi_station_set_config_current(&conf);
@@ -844,6 +847,7 @@ void WiFiComponent::wifi_event_callback(System_Event_t *event) {
       ESP_LOGV(TAG, "Event: AP receive Probe Request MAC=%s RSSI=%d", format_mac_addr(it.mac).c_str(), it.rssi);
       break;
     }
+#ifndef ARDUINO_ESP8266_RELEASE_2_3_0
     case EVENT_OPMODE_CHANGED: {
       auto it = event->event_info.opmode_changed;
       ESP_LOGV(TAG, "Event: Changed Mode old=%s new=%s", get_op_mode_str(it.old_opmode),
@@ -856,6 +860,7 @@ void WiFiComponent::wifi_event_callback(System_Event_t *event) {
                format_ip_addr(it.ip).c_str(), it.aid);
       break;
     }
+#endif
     default:
       break;
   }
@@ -904,6 +909,7 @@ bool WiFiComponent::wifi_scan_start_() {
   config.bssid = nullptr;
   config.channel = 0;
   config.show_hidden = 1;
+#ifndef ARDUINO_ESP8266_RELEASE_2_3_0
   config.scan_type = WIFI_SCAN_TYPE_ACTIVE;
   if (FIRST_SCAN) {
     config.scan_time.active.min = 100;
@@ -912,6 +918,7 @@ bool WiFiComponent::wifi_scan_start_() {
     config.scan_time.active.min = 400;
     config.scan_time.active.max = 500;
   }
+#endif
   FIRST_SCAN = false;
   bool ret = wifi_station_scan(&config, &WiFiComponent::s_wifi_scan_done_callback);
   if (!ret) {

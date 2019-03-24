@@ -1,6 +1,10 @@
 #ifndef ESPHOME_DEFINES_H
 #define ESPHOME_DEFINES_H
 
+#ifdef ARDUINO_ARCH_ESP8266
+#include <core_version.h>
+#endif
+
 #define ESPHOME_VERSION "1.13.0-dev"
 
 #define HOT __attribute__((hot))
@@ -42,7 +46,9 @@
 #define USE_PCA9685_OUTPUT
 #define USE_GPIO_OUTPUT
 #ifdef ARDUINO_ARCH_ESP8266
+#ifndef ARDUINO_ESP8266_RELEASE_2_3_0
 #define USE_ESP8266_PWM_OUTPUT
+#endif
 #endif
 #define USE_LIGHT
 #define USE_SWITCH

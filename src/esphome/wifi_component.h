@@ -2,6 +2,7 @@
 #define ESPHOME_WIFI_COMPONENT_H
 
 #include <string>
+#include "esphal.h"
 #include <IPAddress.h>
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -12,6 +13,11 @@
 #ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266WiFiType.h>
 #include <ESP8266WiFi.h>
+#ifdef ARDUINO_ESP8266_RELEASE_2_3_0
+extern "C" {
+#include <user_interface.h>
+};
+#endif
 #endif
 
 #include "esphome/automation.h"
