@@ -17,6 +17,7 @@ class IPAddressWiFiInfo : public Component, public TextSensor {
  public:
   IPAddressWiFiInfo(const std::string &name);
   void loop() override;
+  float get_setup_priority() const override;
 
  protected:
   IPAddress last_ip_;
@@ -26,6 +27,7 @@ class SSIDWiFiInfo : public Component, public TextSensor {
  public:
   SSIDWiFiInfo(const std::string &name);
   void loop() override;
+  float get_setup_priority() const override;
 
  protected:
   std::string last_ssid_;
@@ -35,6 +37,7 @@ class BSSIDWiFiInfo : public Component, public TextSensor {
  public:
   BSSIDWiFiInfo(const std::string &name);
   void loop() override;
+  float get_setup_priority() const override;
 
  protected:
   bssid_t last_bssid_;
