@@ -371,7 +371,7 @@ void Application::register_switch(switch_::Switch *a_switch) {
 
 #ifdef USE_DALLAS_SENSOR
 DallasComponent *Application::make_dallas_component(const GPIOOutputPin &pin, uint32_t update_interval) {
-  return this->make_dallas_component(new ESPOneWire(pin.copy()), update_interval);
+  return this->register_component(new DallasComponent(new ESPOneWire(pin.copy()), update_interval));
 }
 #endif
 
