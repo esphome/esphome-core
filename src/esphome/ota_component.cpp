@@ -220,7 +220,7 @@ void OTAComponent::handle_() {
     ESP_LOGV(TAG, "Auth: Nonce is %s", sbuf);
 
     // Send nonce, 32 bytes hex MD5
-    if (this->client_.write(reinterpret_cast<uint8_t*>(sbuf), 32) != 32) {
+    if (this->client_.write(reinterpret_cast<uint8_t *>(sbuf), 32) != 32) {
       ESP_LOGW(TAG, "Auth: Writing nonce failed!");
       goto error;
     }
