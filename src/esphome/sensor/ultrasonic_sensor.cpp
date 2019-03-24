@@ -21,54 +21,24 @@ void UltrasonicSensorComponent::setup() {
   this->trigger_pin_->setup();
   this->trigger_pin_->digital_write(false);
   this->echo_pin_->setup();
-  this->echo_pin_->attach_interrupt(UltrasonicSensorStore::gpio_intr, &this->store_, RISING);
-}
-void ICACHE_RAM_ATTR UltrasonicSensorStore::gpio_intr(UltrasonicSensorStore *arg) {
-  if (arg->has_echo || !arg->has_triggered)
-    // already have echo or no trigger
-    return;
-
-  arg->has_echo = true;
-  arg->echo_at = micros();
 }
 void UltrasonicSensorComponent::update() {
   this->trigger_pin_->digital_write(true);
   delayMicroseconds(this->pulse_time_us_);
   this->trigger_pin_->digital_write(false);
 
-  uint32_t start = millis();
-  // wait for echo to clear, max 10ms
-  while (this->echo_pin_->digital_read()) {
-    if (millis() - start > 10) {
-      ESP_LOGD(TAG, "Distance measurement timed out waiting for ECHO to clear!");
-      this->publish_state(NAN);
-      return;
-    }
-    feed_wdt();
-  }
+  uint32_t time = pulseIn(this->echo_pin_->get_pin(), uint8_t(!this->echo_pin_->is_inverted()), this->timeout_us_);
 
-  this->store_.has_triggered = true;
-  this->store_.has_echo = false;
-  this->store_.triggered_at = micros();
-}
-void UltrasonicSensorComponent::loop() {
-  if (!this->store_.has_triggered)
-    return;
+  ESP_LOGV(TAG, "Echo took %uµs", time);
 
-  const uint32_t now = micros();
-
-  if (this->store_.has_echo) {
-    this->store_.has_triggered = false;
-    uint32_t d_us = this->store_.echo_at - this->store_.triggered_at;
-
-    float result = us_to_m(d_us);
+  if (time == 0) {
+    ESP_LOGV(TAG, "Distance measurement timed out!");
+    this->publish_state(NAN);
+  } else {
+    float result = this->us_to_m(time);
+    this->publish_state(result);
     ESP_LOGD(TAG, "Got distance: %.2f m", result);
     this->publish_state(result);
-  } else if (now - this->store_.triggered_at > this->timeout_us_) {
-    // timeout
-    this->store_.has_triggered = false;
-    ESP_LOGD(TAG, "Distance measurement timed out!");
-    this->publish_state(NAN);
   }
 }
 void UltrasonicSensorComponent::dump_config() {
