@@ -598,8 +598,8 @@ void ESPBTDevice::parse_scan_rst(const esp_ble_gap_cb_param_t::ble_scan_result_e
     ESP_LOGVV(TAG, "  Service Data UUID: %s", this->service_data_uuid_->to_string().c_str());
   }
 
-
-  ESP_LOGVV(TAG, "Adv data: %s", hexencode(std::string(reinterpret_cast<const char *>(param.ble_adv), param.adv_data_len)).c_str());
+  ESP_LOGVV(TAG, "Adv data: %s",
+            hexencode(std::string(reinterpret_cast<const char *>(param.ble_adv), param.adv_data_len)).c_str());
 #endif
 }
 void ESPBTDevice::parse_adv_(const esp_ble_gap_cb_param_t::ble_scan_result_evt_param &param) {
@@ -859,9 +859,7 @@ XiaomiSensor *XiaomiDevice::make_battery_level_sensor(const std::string &name) {
 }
 XiaomiDevice::XiaomiDevice(ESP32BLETracker *parent, uint64_t address) : parent_(parent), address_(address) {}
 
-ESPBLEiBeacon::ESPBLEiBeacon(const uint8_t *data) {
-  memcpy(&this->beacon_data_, data, sizeof(beacon_data_));
-}
+ESPBLEiBeacon::ESPBLEiBeacon(const uint8_t *data) { memcpy(&this->beacon_data_, data, sizeof(beacon_data_)); }
 optional<ESPBLEiBeacon> ESPBLEiBeacon::from_manufacturer_data(const std::string &data) {
   if (data.size() != 25)
     return {};
