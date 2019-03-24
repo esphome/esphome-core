@@ -395,6 +395,11 @@ error:
     Update.abort();
   }
 #endif
+#ifdef ARDUINO_ARCH_ESP8266
+  if (update_started) {
+    Update.end();
+  }
+#endif
   this->status_momentary_error("onerror", 5000);
 #ifdef ARDUINO_ARCH_ESP8266
   global_preferences.prevent_write(false);
