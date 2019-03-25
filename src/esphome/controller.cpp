@@ -103,6 +103,25 @@ void StoringUpdateListenerController::register_cover(cover::Cover *obj) {
 void StoringUpdateListenerController::on_cover_update(cover::Cover *obj) {}
 #endif
 
+#ifdef USE_CLIMATEDEVICE
+void Controller::register_climatedevice(climatedevice::ClimateDevice *climatedevice) {}
+void StoringController::register_climatedevice(climatedevice::ClimateDevice *climatedevice) {
+  this->climatedevice_.push_back(climatedevice);
+}
+climatedevice::ClimateDevice *StoringController::get_climatedevice_by_key(uint32_t key) {
+  for (auto *c : this->climatedevice_) {
+    if (c->get_object_id_hash() == key && !c->is_internal())
+      return c;
+  }
+  return nullptr;
+}
+void StoringUpdateListenerController::register_climatedevice(climatedevice::ClimateDevice *obj) {
+  StoringController::register_climatedevice(obj);
+  obj->add_on_publish_state_callback([this, obj]() { this->on_climatedevice_update(obj); });
+}
+void StoringUpdateListenerController::on_climatedevice_update(climatedevice::ClimateDevice *obj) {}
+#endif
+
 #ifdef USE_TEXT_SENSOR
 void Controller::register_text_sensor(text_sensor::TextSensor *obj) {}
 void StoringController::register_text_sensor(text_sensor::TextSensor *obj) { this->text_sensors_.push_back(obj); }

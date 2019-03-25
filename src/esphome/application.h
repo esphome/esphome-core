@@ -42,6 +42,9 @@
 #include "esphome/cover/cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
+#include "esphome/climatedevice/climatedevice.h"
+#include "esphome/climatedevice/mqtt_climatedevice_component.h"
+#include "esphome/climatedevice/template_climatedevice.h"
 #include "esphome/display/display.h"
 #include "esphome/display/lcd_display.h"
 #include "esphome/display/max7219.h"
@@ -1095,6 +1098,22 @@ class Application {
 #ifdef USE_ULN2003
   stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b, const GPIOOutputPin &pin_c,
                                  const GPIOOutputPin &pin_d);
+#endif
+
+  /*    ______     ___ __  __       _______ ______
+   *   / ___| |   |_ _|  \/  |   /\|__   __|  ____|
+   *  | |   | |    | || \  / |  /  \  | |  | |
+   *  | |   | |    | || |\/| | / /\ \ | |  |  __|
+   *  | |___| |___ | || |  | |/ ____ \| |  | |____
+   *   \____|_____|___|_|  |_/_/    \_\_|  |______|
+   */
+#ifdef USE_CLIMATEDEVICE
+  void register_climatedevice(climatedevice::ClimateDevice *climatedevice);
+#endif
+
+#ifdef USE_TEMPLATE_CLIMATEDEVICE
+  climatedevice::TemplateClimateDevice *make_template_climatedevice(const std::string &name,
+                                                                    uint32_t update_interval = 60000);
 #endif
 
   /*   _   _ _____ _     ____  _____ ____  ____

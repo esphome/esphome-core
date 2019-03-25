@@ -7,6 +7,7 @@
 #include "esphome/sensor/sensor.h"
 #include "esphome/switch_/switch.h"
 #include "esphome/cover/cover.h"
+#include "esphome/climatedevice/climatedevice.h"
 #include "esphome/text_sensor/text_sensor.h"
 #include "esphome/defines.h"
 
@@ -37,6 +38,10 @@ class Controller {
 
 #ifdef USE_COVER
   virtual void register_cover(cover::Cover *cover);
+#endif
+
+#ifdef USE_CLIMATEDEVICE
+  virtual void register_climatedevice(climatedevice::ClimateDevice *climatedevice);
 #endif
 
 #ifdef USE_TEXT_SENSOR
@@ -83,6 +88,12 @@ class StoringController : public Controller {
   cover::Cover *get_cover_by_key(uint32_t key);
 #endif
 
+#ifdef USE_CLIMATEDEVICE
+  void register_climatedevice(climatedevice::ClimateDevice *climatedevicer) override;
+
+  climatedevice::ClimateDevice *get_climatedevice_by_key(uint32_t key);
+#endif
+
 #ifdef USE_TEXT_SENSOR
   void register_text_sensor(text_sensor::TextSensor *obj) override;
 
@@ -111,6 +122,10 @@ class StoringController : public Controller {
 
 #ifdef USE_COVER
   std::vector<cover::Cover *> covers_;
+#endif
+
+#ifdef USE_CLIMATEDEVICE
+  std::vector<climatedevice::ClimateDevice *> climatedevice_;
 #endif
 
 #ifdef USE_TEXT_SENSOR
@@ -153,6 +168,12 @@ class StoringUpdateListenerController : public StoringController {
   void register_cover(cover::Cover *obj) override;
 
   virtual void on_cover_update(cover::Cover *obj);
+#endif
+
+#ifdef USE_CLIMATEDEVICE
+  void register_climatedevice(climatedevice::ClimateDevice *obj) override;
+
+  virtual void on_climatedevice_update(climatedevice::ClimateDevice *obj);
 #endif
 
 #ifdef USE_TEXT_SENSOR

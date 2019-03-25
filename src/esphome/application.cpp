@@ -36,6 +36,9 @@ using namespace esphome::io;
 #ifdef USE_COVER
 using namespace esphome::cover;
 #endif
+#ifdef USE_CLIMATEDEVICE
+using namespace esphome::climatedevice;
+#endif
 #ifdef USE_REMOTE
 using namespace esphome::remote;
 #endif
@@ -763,6 +766,26 @@ TemplateCover *Application::make_template_cover(const std::string &name) {
   auto *cover = this->register_component(new TemplateCover(name));
   this->register_cover(cover);
   return cover;
+}
+#endif
+
+#ifdef USE_CLIMATEDEVICE
+void Application::register_climatedevice(climatedevice::ClimateDevice *climatedevice) {
+  for (auto *controller : this->controllers_)
+    controller->register_climatedevice(climatedevice);
+#ifdef USE_MQTT_CLIMATEDEVICE
+  if (this->mqtt_client_ != nullptr) {
+    climatedevice->set_mqtt(this->register_component(new MQTTClimateDeviceComponent(climatedevice)));
+  }
+#endif
+}
+#endif
+
+#ifdef USE_TEMPLATE_CLIMATEDEVICE
+TemplateClimateDevice *Application::make_template_climatedevice(const std::string &name, uint32_t update_interval) {
+  auto *climatedevice = this->register_component(new TemplateClimateDevice(name, update_interval));
+  this->register_climatedevice(climatedevice);
+  return climatedevice;
 }
 #endif
 
