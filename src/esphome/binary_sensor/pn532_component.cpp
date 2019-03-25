@@ -37,12 +37,20 @@ void PN532Component::setup() {
   this->buffer_[0] = 0x02;  // GET_FIRMWARE_VERSION
   this->pn532_write_command_check_ack_(1, true);
 
-  // setup secure access module
+  // PN532 might be in lowvbat mode, send empty SAM command and discard result
   this->buffer_[0] = 0x14;
   this->buffer_[1] = 0x01;  // normal mode
-  // The length of a scan as a multiple of 50ms
-  this->buffer_[2] = std::min(255u, this->update_interval_ / 50);
-  this->buffer_[3] = 0x01;  // use IRQ pin, actually we don't need it but can't hurt either
+  // Timeout for virtual card mode (we're in normal mode)
+  this->buffer_[2] = 0x00;
+  this->buffer_[3] = 0x00;  // no IRQ pin used
+  // Write empty SAM command ignore result
+  this->pn532_write_command_check_ack_(4);
+
+  // now actually set up secure access module
+  this->buffer_[0] = 0x14;
+  this->buffer_[1] = 0x01;
+  this->buffer_[2] = 0x00;
+  this->buffer_[3] = 0x00;
 
   if (!this->pn532_write_command_check_ack_(4)) {
     this->error_code_ = WRITING_SAM_COMMAND_FAILED;
@@ -81,8 +89,6 @@ void PN532Component::loop() {
     // No tags found
     return;
   }
-
-  ESP_LOGV(TAG, "ATQA: 0x%04X, SAK: 0x%02X", (uint16_t(this->buffer_[9]) << 8) | this->buffer_[10], this->buffer_[11]);
 
   uint8_t uid_length = this->buffer_[12];
   bool report = true;
@@ -137,6 +143,7 @@ void PN532Component::pn532_write_command_(uint8_t len) {
 
   // SPI data write
   this->write_byte(0x01);
+
   // Preamble
   this->write_byte(0x00);
   this->write_byte(0x00);
@@ -144,9 +151,10 @@ void PN532Component::pn532_write_command_(uint8_t len) {
   // start code 2
   this->write_byte(0xFF);
 
-  // Length, not part of checksum
+  // Length checksum, not part of checksum
   const uint8_t real_length = len + 1;
   this->write_byte(real_length);
+  // LCS + LEN = 0
   this->write_byte(~real_length + 1);
 
   // Mark that we're sending data, part of checksum
@@ -158,6 +166,7 @@ void PN532Component::pn532_write_command_(uint8_t len) {
     checksum += this->buffer_[i];
   }
 
+  // Data checksum, DCS
   this->write_byte(~checksum + 1);
   // Postamble
   this->write_byte(0x00);
