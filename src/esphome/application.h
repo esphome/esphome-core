@@ -45,6 +45,7 @@
 #include "esphome/climatedevice/climatedevice.h"
 #include "esphome/climatedevice/mqtt_climatedevice_component.h"
 #include "esphome/climatedevice/template_climatedevice.h"
+#include "esphome/climatedevice/thermostat_climatedevice.h"
 #include "esphome/display/display.h"
 #include "esphome/display/lcd_display.h"
 #include "esphome/display/max7219.h"
@@ -1114,6 +1115,12 @@ class Application {
 #ifdef USE_TEMPLATE_CLIMATEDEVICE
   climatedevice::TemplateClimateDevice *make_template_climatedevice(const std::string &name,
                                                                     uint32_t update_interval = 60000);
+#endif
+
+#ifdef USE_THERMOSTAT_CLIMATEDEVICE
+  climatedevice::ThermostatClimateDevice *make_thermostat_climatedevice(const std::string &name,
+                                                                        output::BinaryOutput *output,
+                                                                        uint32_t update_interval = 60000);
 #endif
 
   /*   _   _ _____ _     ____  _____ ____  ____

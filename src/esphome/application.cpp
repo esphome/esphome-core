@@ -789,6 +789,16 @@ TemplateClimateDevice *Application::make_template_climatedevice(const std::strin
 }
 #endif
 
+#ifdef USE_THERMOSTAT_CLIMATEDEVICE
+ThermostatClimateDevice *Application::make_thermostat_climatedevice(const std::string &name,
+                                                                    output::BinaryOutput *output,
+                                                                    uint32_t update_interval) {
+  auto *climatedevice = this->register_component(new ThermostatClimateDevice(name, output, update_interval));
+  this->register_climatedevice(climatedevice);
+  return climatedevice;
+}
+#endif
+
 #ifdef USE_REMOTE_TRANSMITTER
 remote::RemoteTransmitterComponent *Application::make_remote_transmitter_component(const GPIOOutputPin &output) {
   return this->register_component(new remote::RemoteTransmitterComponent(output.copy()));
