@@ -25,12 +25,8 @@ void ThermostatClimateDevice::setup() {
   }
   this->set_traits(traits);
   this->add_on_state_callback([this](ClimateDeviceState state) {
-    this->state.target_temperature = state.target_temperature;
-    if (state.mode == CLIMATEDEVICE_MODE_OFF) {
-      this->state.mode = state.mode;
-    }
-    // trigger control_()
-    this->set_current_temperature(this->current_temperature);
+    this->state = state;
+    this->set_current_temperature(this->current_temperature);  // trigger control_()
   });
   this->add_on_current_temperature_callback([this](float error) { this->control_(error); });
 }
@@ -67,7 +63,7 @@ void ThermostatClimateDevice::control_(float error_value) {
   if (this->cooling_) {
     error_value = -1 * error_value;
   }
-  bool state = this->output_state_;
+  bool state = this->state.mode != CLIMATEDEVICE_MODE_AUTO;
   bool too_hot = error_value > this->hysteresis_hot_;
   bool too_cold = error_value < (-1 * this->hysteresis_cold_);
   if ((!this->cooling_ && too_hot) || (this->cooling_ && too_cold)) {
