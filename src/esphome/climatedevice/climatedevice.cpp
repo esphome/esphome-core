@@ -145,7 +145,6 @@ ClimateDevice::StateCall &ClimateDevice::StateCall::set_target_temperature(float
 ClimateDeviceState ClimateDevice::StateCall::validate_() const {
   ClimateDeviceState state = this->device_->state;
   auto traits = this->device_->get_traits();
-  ESP_LOGD(TAG, "'%s' Setting", this->device_->get_name().c_str());
   if (this->mode_.has_value()) {
     if (this->mode_ == CLIMATEDEVICE_MODE_OFF) {
       ESP_LOGD(TAG, "  Mode: off");
@@ -176,10 +175,12 @@ ClimateDeviceState ClimateDevice::StateCall::validate_() const {
   return state;
 }
 void ClimateDevice::StateCall::perform() const {
+  ESP_LOGD(TAG, "'%s' perfom request", this->device_->get_name().c_str());
   ClimateDeviceState state = this->validate_();
   this->device_->state_callback_.call(state);
 }
 void ClimateDevice::StateCall::publish() const {
+  ESP_LOGD(TAG, "'%s' publish request", this->device_->get_name().c_str());
   ClimateDeviceState state = this->validate_();
   this->device_->state = state;
   this->device_->rtc_.save(&state);
