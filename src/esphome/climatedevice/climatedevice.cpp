@@ -29,14 +29,15 @@ ClimateDevice::ClimateDevice(const std::string &name, uint32_t update_interval)
 ClimateDevice::StateCall ClimateDevice::make_call() { return ClimateDevice::StateCall(this); }
 
 void ClimateDevice::setup() {
+  this->state.mode = CLIMATEDEVICE_MODE_OFF;
+  this->state.target_temperature = this->get_target_temperature_initial();
   this->rtc_ = global_preferences.make_preference<ClimateDeviceState>(this->get_object_id_hash());
   ClimateDeviceState recovered;
-  if (!this->rtc_.load(&recovered))
-    return;
-
   auto call = this->make_call();
-  call.set_mode(recovered.mode);
-  call.set_target_temperature(recovered.target_temperature);
+  if (this->rtc_.load(&recovered)) {
+    call.set_mode(recovered.mode);
+    call.set_target_temperature(recovered.target_temperature);
+  }
   call.perform();
 }
 float ClimateDevice::get_setup_priority() const { return setup_priority::HARDWARE - 1.0f; }
