@@ -88,6 +88,9 @@
 #define USE_TEMPLATE_SWITCH
 #define USE_COVER
 #define USE_TEMPLATE_COVER
+#define USE_CLIMATEDEVICE
+#define USE_TEMPLATE_CLIMATEDEVICE
+#define USE_THERMOSTAT_CLIMATEDEVICE
 #ifdef ARDUINO_ARCH_ESP32
 #define USE_ESP32_HALL_SENSOR
 #define USE_ESP32_CAMERA
@@ -247,6 +250,12 @@
 #if defined(USE_MQTT) && defined(USE_COVER)
 #ifndef USE_MQTT_COVER
 #define USE_MQTT_COVER
+#endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_CLIMATEDEVICE)
+#ifndef USE_MQTT_CLIMATEDEVICE
+#define USE_MQTT_CLIMATEDEVICE
 #endif
 #endif
 
