@@ -66,7 +66,7 @@ void ClimateDevice::dump_config() {
   LOG_UPDATE_INTERVAL(this);
 }
 void ClimateDevice::set_current_temperature(float current_temperature) {
-  if (this->get_traits().supports_current_temperature()) {
+  if (this->get_traits().supports_current_temperature() && !isnan(current_temperature)) {
     ESP_LOGD(TAG, "'%s' Setting current temperature: %.1f°C", this->get_name().c_str(), current_temperature);
     float error_value = this->state.target_temperature - current_temperature;
     this->current_temperature = current_temperature;
