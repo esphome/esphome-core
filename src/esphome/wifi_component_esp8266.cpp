@@ -1,6 +1,8 @@
-#include "esphome/wifi_component.h"
+#include "esphome/defines.h"
 
 #ifdef ARDUINO_ARCH_ESP8266
+
+#include "esphome/wifi_component.h"
 
 #include <user_interface.h>
 

@@ -1,6 +1,8 @@
-#include "esphome/wifi_component.h"
+#include "esphome/defines.h"
 
 #ifdef ARDUINO_ARCH_ESP32
+
+#include "esphome/wifi_component.h"
 
 #include <esp_wifi.h>
 
@@ -13,6 +15,10 @@
 #include "esphome/log.h"
 #include "esphome/esphal.h"
 #include "esphome/util.h"
+
+ESPHOME_NAMESPACE_BEGIN
+
+static const char *TAG = "wifi_esp32";
 
 bool WiFiComponent::wifi_mode_(optional<bool> sta, optional<bool> ap) {
   uint8_t current_mode = WiFi.getMode();
@@ -360,8 +366,13 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
 
   if (event == SYSTEM_EVENT_STA_DISCONNECTED) {
     uint8_t reason = info.disconnected.reason;
-    if (reason >= WIFI_REASON_BEACON_TIMEOUT && reason != WIFI_REASON_AUTH_FAIL) {
-      esp_wifi_disconnect();
+    if (reason == WIFI_REASON_AUTH_EXPIRE || reason == WIFI_REASON_BEACON_TIMEOUT ||
+        reason == WIFI_REASON_NO_AP_FOUND || reason == WIFI_REASON_ASSOC_FAIL ||
+        reason == WIFI_REASON_HANDSHAKE_TIMEOUT) {
+      err_t err = esp_wifi_disconnect();
+      if (err != ESP_OK) {
+        ESP_LOGV(TAG, "Disconnect failed: %s", esp_err_to_name(err));
+      }
       this->error_from_callback_ = true;
     }
   }
