@@ -185,6 +185,7 @@ class WiFiComponent : public Component {
   void set_use_address(const std::string &use_address);
 
  protected:
+  static std::string format_mac_addr(const uint8_t mac[6]);
   void setup_ap_config_();
   void print_connect_params_();
 

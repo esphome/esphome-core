@@ -158,12 +158,6 @@ float WiFiComponent::get_loop_priority() const {
 void WiFiComponent::set_ap(const WiFiAP &ap) { this->ap_ = ap; }
 void WiFiComponent::add_sta(const WiFiAP &ap) { this->sta_.push_back(ap); }
 
-std::string format_mac_addr(const uint8_t mac[6]) {
-  char buf[20];
-  sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  return buf;
-}
-
 void WiFiComponent::start_connecting(const WiFiAP &ap, bool two) {
   ESP_LOGI(TAG, "WiFi Connecting to '%s'...", ap.get_ssid().c_str());
 #ifdef ESPHOME_LOG_HAS_VERBOSE
@@ -466,6 +460,12 @@ bool WiFiComponent::ready_for_ota() {
   return this->is_connected();
 }
 void WiFiComponent::set_power_save_mode(WiFiPowerSaveMode power_save) { this->power_save_ = power_save; }
+
+std::string WiFiComponent::format_mac_addr(const uint8_t *mac) {
+  char buf[20];
+  sprintf(buf, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return buf;
+}
 
 bool sta_field_equal(const uint8_t *field_a, const uint8_t *field_b, int len) {
   for (int i = 0; i < len; i++) {
