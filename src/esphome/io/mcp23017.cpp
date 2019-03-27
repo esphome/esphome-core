@@ -37,7 +37,7 @@ bool MCP23017::digital_read(uint8_t pin) {
   this->read_reg_(reg_addr, &value);
   return value & (1 << bit);
 }
-void MCP23017::digital_write(uint8_t pin, bool value) { 
+void MCP23017::digital_write(uint8_t pin, bool value) {
   uint8_t reg_addr = pin < 8 ? MCP23017_OLATA : MCP23017_OLATB;
   this->update_reg_(pin, value, reg_addr);
 }
