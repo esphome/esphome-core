@@ -15,6 +15,7 @@ namespace io {
 
 enum CAT9554GPIOMode {
   CAT9554_INPUT = INPUT,
+  CAT9554_INPUT_PULLUP = INPUT_PULLUP,
   CAT9554_OUTPUT = OUTPUT,
 };
 
@@ -31,7 +32,7 @@ class CAT9554Component : public Component, public I2CDevice {
  public:
   CAT9554Component(I2CComponent *parent, uint8_t address, uint8_t irq);
 
-  CAT9554GPIOInputPin make_input_pin(uint8_t pin, bool inverted = false);
+  CAT9554GPIOInputPin make_input_pin(uint8_t pin, uint8_t mode = CAT9554_INPUT, bool inverted = false);
 
   CAT9554GPIOOutputPin make_output_pin(uint8_t pin, bool inverted = false);
 
