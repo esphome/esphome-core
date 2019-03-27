@@ -14,11 +14,12 @@ static const char *TAG = "climatedevice.template";
 TemplateClimateDevice::TemplateClimateDevice(const std::string &name, uint32_t update_interval)
     : ClimateDevice(name, update_interval),
       control_trigger_(new Trigger<ClimateDeviceState>()),
-      errro_value_trigger_(new Trigger<float>()) {}
-void TemplateClimateDevice::setup() {
+      errro_value_trigger_(new Trigger<float>()) {
   ClimateDeviceTraits traits = this->get_traits();
   traits.set_current_temperature(true);
   this->set_traits(traits);
+}
+void TemplateClimateDevice::setup() {
   this->add_on_state_callback([this](ClimateDeviceState state) {
     this->control_trigger_->trigger(state);
     if (this->optimistic_) {
@@ -43,6 +44,11 @@ void TemplateClimateDevice::update() {
   }
   call.publish();
 }
+void TemplateClimateDevice::set_current_temperature_support(bool current_temperature_support) {
+  ClimateDeviceTraits traits = this->get_traits();
+  traits.set_current_temperature(current_temperature_support);
+  this->set_traits(traits);
+}
 void TemplateClimateDevice::set_optimistic(bool optimistic) { this->optimistic_ = optimistic; }
 void TemplateClimateDevice::set_mode_lambda(std::function<optional<ClimateDeviceMode>()> &&f) { this->mode_f_ = f; }
 void TemplateClimateDevice::set_target_temperature_lambda(std::function<optional<float>()> &&f) {
@@ -54,6 +60,7 @@ Trigger<float> *TemplateClimateDevice::get_error_value_trigger() const { return 
 void TemplateClimateDevice::dump_config() {
   this->ClimateDevice::dump_config();
   ESP_LOGCONFIG(TAG, "  Optimistic mode: %s", ONOFF(this->optimistic_));
+  ESP_LOGCONFIG(TAG, "  Current temperature support: %s", ONOFF(this->get_traits().supports_current_temperature()));
 }
 
 }  // namespace climatedevice

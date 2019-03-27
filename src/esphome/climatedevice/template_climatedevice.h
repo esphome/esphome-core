@@ -20,6 +20,7 @@ class TemplateClimateDevice : public ClimateDevice {
   void set_target_temperature_lambda(std::function<optional<float>()> &&f);
   Trigger<ClimateDeviceState> *get_control_trigger() const;
   Trigger<float> *get_error_value_trigger() const;
+  void set_current_temperature_support(bool current_temperature_support);
   void set_optimistic(bool optimistic);
 
   void setup() override;
