@@ -162,7 +162,7 @@ ClimateDeviceState ClimateDevice::StateCall::validate_() const {
       ESP_LOGW(TAG, "  Mode: not supported!");
     }
   }
-  if (this->target_temperature_.has_value()) {
+  if (this->target_temperature_.has_value() && !isnan(*this->target_temperature_)) {
     if (*this->target_temperature_ < traits.get_min_target_temperature() ||
         *this->target_temperature_ > traits.get_max_target_temperature()) {
       ESP_LOGW(TAG, "  Target temperature %.1f°C is not in the allowed range (%.1f-%.1f°C)", *this->target_temperature_,
