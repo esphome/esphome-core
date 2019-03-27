@@ -25,6 +25,7 @@ enum ClimateDeviceMode {
 template<typename... Ts> class ControlAction;
 template<typename... Ts> class PublishAction;
 template<typename... Ts> class CurrentTemperatureAction;
+template<typename... Ts> class ModeCondition;
 
 struct ClimateDeviceState {
   /// The mode of the climate device.
@@ -65,6 +66,7 @@ class ClimateDevice : public Nameable, public PollingComponent {
   template<typename... Ts> ControlAction<Ts...> *make_control_action();
   template<typename... Ts> PublishAction<Ts...> *make_publish_action();
   template<typename... Ts> CurrentTemperatureAction<Ts...> *make_current_temperature_action();
+  template<typename... Ts> ModeCondition<Ts...> *make_mode_condition();
 
   /// Update current temperature
   void set_current_temperature(float current_temperature);
@@ -182,6 +184,17 @@ template<typename... Ts> class CurrentTemperatureAction : public Action<Ts...> {
   ClimateDevice *device_;
   TemplatableValue<float, Ts...> current_temperature_;
 };
+template<typename... Ts> class ModeCondition : public Condition<Ts...> {
+ public:
+  ModeCondition(ClimateDevice *parent) : parent_(parent){};
+
+  void set_mode(ClimateDeviceMode mode) { this->mode_ = mode; }
+  bool check(Ts... x) override;
+
+ protected:
+  ClimateDevice *parent_;
+  ClimateDeviceMode mode_{CLIMATEDEVICE_MODE_OFF};
+};
 
 // =============== TEMPLATE DEFINITIONS ===============
 
@@ -220,6 +233,10 @@ template<typename... Ts> void CurrentTemperatureAction<Ts...>::play(Ts... x) {
   this->device_->set_current_temperature(this->current_temperature_.value(x...));
   this->play_next(x...);
 }
+template<typename... Ts> ModeCondition<Ts...> *ClimateDevice::make_mode_condition() {
+  return new ModeCondition<Ts...>(this);
+}
+template<typename... Ts> bool ModeCondition<Ts...>::check(Ts... x) { return this->mode_ == this->parent_->state.mode; }
 
 }  // namespace climatedevice
 
