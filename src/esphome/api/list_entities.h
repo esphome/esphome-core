@@ -47,6 +47,9 @@ class ListEntitiesIterator : public ComponentIterator {
 #ifdef USE_ESP32_CAMERA
   bool on_camera(ESP32Camera *camera) override;
 #endif
+#ifdef USE_CLIMATE
+  bool on_climate(climate::ClimateDevice *climate) override;
+#endif
   bool on_end() override;
 
  protected:

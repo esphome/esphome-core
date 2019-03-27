@@ -21,15 +21,15 @@ class APIBuffer {
   size_t get_length() const;
   void write(uint8_t value);
 
-  void encode_int32(uint32_t field, int32_t value);
-  void encode_uint32(uint32_t field, uint32_t value);
-  void encode_sint32(uint32_t field, int32_t value);
-  void encode_bool(uint32_t field, bool value);
+  void encode_int32(uint32_t field, int32_t value, bool force = false);
+  void encode_uint32(uint32_t field, uint32_t value, bool force = false);
+  void encode_sint32(uint32_t field, int32_t value, bool force = false);
+  void encode_bool(uint32_t field, bool value, bool force = false);
   void encode_string(uint32_t field, const std::string &value);
   void encode_string(uint32_t field, const char *string, size_t len);
   void encode_bytes(uint32_t field, const uint8_t *data, size_t len);
-  void encode_fixed32(uint32_t field, uint32_t value);
-  void encode_float(uint32_t field, float value);
+  void encode_fixed32(uint32_t field, uint32_t value, bool force = false);
+  void encode_float(uint32_t field, float value, bool force = false);
   void encode_nameable(Nameable *nameable);
 
   size_t begin_nested(uint32_t field);
@@ -83,6 +83,9 @@ class ComponentIterator {
 #ifdef USE_ESP32_CAMERA
   virtual bool on_camera(ESP32Camera *camera);
 #endif
+#ifdef USE_CLIMATE
+  virtual bool on_climate(climate::ClimateDevice *climate) = 0;
+#endif
   virtual bool on_end();
 
  protected:
@@ -113,6 +116,9 @@ class ComponentIterator {
     SERVICE,
 #ifdef USE_ESP32_CAMERA
     CAMERA,
+#endif
+#ifdef USE_CLIMATE
+    CLIMATE,
 #endif
     MAX,
   } state_{IteratorState::NONE};

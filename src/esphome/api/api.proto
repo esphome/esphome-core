@@ -373,3 +373,49 @@ message CameraImageRequest {
   bool single = 1;
   bool stream = 2;
 }
+
+enum ClimateMode {
+  OFF = 0;
+  AUTO = 1;
+  COOL = 2;
+  HEAT = 3;
+}
+
+message ListEntitiesClimateResponse {
+  string object_id = 1;
+  fixed32 key = 2;
+  string name = 3;
+  string unique_id = 4;
+
+  bool supports_current_temperature = 5;
+  bool supports_two_point_target_temperature = 6;
+  repeated ClimateMode supported_modes = 7;
+  float visual_min_temperature = 8;
+  float visual_max_temperature = 9;
+  float visual_temperature_step = 10;
+  bool supports_away = 11;
+}
+
+message ClimateStateResponse {
+  fixed32 key = 1;
+  ClimateMode mode = 2;
+  float current_temperature = 3;
+  float target_temperature = 4;
+  float target_temperature_low = 5;
+  float target_temperature_high = 6;
+  bool away = 7;
+}
+
+message ClimateCommandRequest {
+  fixed32 key = 1;
+  bool has_mode = 2;
+  ClimateMode mode = 3;
+  bool has_target_temperature = 4;
+  float target_temperature = 5;
+  bool has_target_temperature_low = 6;
+  float target_temperature_low = 7;
+  bool has_target_temperature_high = 8;
+  float target_temperature_high = 9;
+  bool has_away = 10;
+  bool away = 11;
+}

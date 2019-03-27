@@ -14,18 +14,18 @@ namespace api {
 APIBuffer::APIBuffer(std::vector<uint8_t> *buffer) : buffer_(buffer) {}
 size_t APIBuffer::get_length() const { return this->buffer_->size(); }
 void APIBuffer::write(uint8_t value) { this->buffer_->push_back(value); }
-void APIBuffer::encode_uint32(uint32_t field, uint32_t value) {
-  if (value == 0)
+void APIBuffer::encode_uint32(uint32_t field, uint32_t value, bool force) {
+  if (value == 0 && !force)
     return;
 
   this->encode_field_raw(field, 0);
   this->encode_varint_raw(value);
 }
-void APIBuffer::encode_int32(uint32_t field, int32_t value) {
-  this->encode_uint32(field, static_cast<uint32_t>(value));
+void APIBuffer::encode_int32(uint32_t field, int32_t value, bool force) {
+  this->encode_uint32(field, static_cast<uint32_t>(value), force);
 }
-void APIBuffer::encode_bool(uint32_t field, bool value) {
-  if (!value)
+void APIBuffer::encode_bool(uint32_t field, bool value, bool force) {
+  if (!value && !force)
     return;
 
   this->encode_field_raw(field, 0);
@@ -48,8 +48,8 @@ void APIBuffer::encode_string(uint32_t field, const char *string, size_t len) {
     this->write(data[i]);
   }
 }
-void APIBuffer::encode_fixed32(uint32_t field, uint32_t value) {
-  if (value == 0)
+void APIBuffer::encode_fixed32(uint32_t field, uint32_t value, bool force) {
+  if (value == 0 && !force)
     return;
 
   this->encode_field_raw(field, 5);
@@ -58,8 +58,8 @@ void APIBuffer::encode_fixed32(uint32_t field, uint32_t value) {
   this->write((value >> 16) & 0xFF);
   this->write((value >> 24) & 0xFF);
 }
-void APIBuffer::encode_float(uint32_t field, float value) {
-  if (value == 0.0f)
+void APIBuffer::encode_float(uint32_t field, float value, bool force) {
+  if (value == 0.0f && !force)
     return;
 
   union {
@@ -89,11 +89,11 @@ void APIBuffer::encode_varint_raw(uint32_t value) {
     }
   }
 }
-void APIBuffer::encode_sint32(uint32_t field, int32_t value) {
+void APIBuffer::encode_sint32(uint32_t field, int32_t value, bool force) {
   if (value < 0)
-    this->encode_uint32(field, ~(uint32_t(value) << 1));
+    this->encode_uint32(field, ~(uint32_t(value) << 1), force);
   else
-    this->encode_uint32(field, uint32_t(value) << 1);
+    this->encode_uint32(field, uint32_t(value) << 1, force);
 }
 void APIBuffer::encode_nameable(Nameable *nameable) {
   // string object_id = 1;
@@ -162,6 +162,7 @@ int32_t as_sint32(uint32_t val) {
 }
 
 float as_float(uint32_t val) {
+  static_assert(sizeof(uint32_t) == sizeof(float), "float must be 32bit long");
   union {
     uint32_t raw;
     float value;
@@ -312,6 +313,21 @@ void ComponentIterator::advance() {
           break;
         } else {
           advance_platform = success = this->on_camera(global_esp32_camera);
+        }
+      }
+      break;
+#endif
+#ifdef USE_CLIMATE
+    case IteratorState::CLIMATE:
+      if (this->at_ >= this->server_->climates_.size()) {
+        advance_platform = true;
+      } else {
+        auto *climate = this->server_->climates_[this->at_];
+        if (climate->is_internal()) {
+          success = true;
+          break;
+        } else {
+          success = this->on_climate(climate);
         }
       }
       break;

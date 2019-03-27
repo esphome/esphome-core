@@ -121,6 +121,34 @@ class CameraImageRequest : public APIMessage {
 };
 #endif
 
+#ifdef USE_CLIMATE
+class ClimateCommandRequest : public APIMessage {
+ public:
+  bool decode_varint(uint32_t field_id, uint32_t value) override;
+  bool decode_32bit(uint32_t field_id, uint32_t value) override;
+  APIMessageType message_type() const override;
+  uint32_t get_key() const;
+  optional<climate::ClimateMode> get_mode() const;
+  optional<float> get_target_temperature() const;
+  optional<float> get_target_temperature_low() const;
+  optional<float> get_target_temperature_high() const;
+  optional<bool> get_away() const;
+
+ protected:
+  uint32_t key_{0};
+  bool has_mode_{false};
+  climate::ClimateMode mode_{climate::CLIMATE_MODE_OFF};
+  bool has_target_temperature_{false};
+  float target_temperature_{0.0f};
+  bool has_target_temperature_low_{false};
+  float target_temperature_low_{0.0f};
+  bool has_target_temperature_high_{false};
+  float target_temperature_high_{0.0f};
+  bool has_away_{false};
+  bool away_{false};
+};
+#endif
+
 }  // namespace api
 
 ESPHOME_NAMESPACE_END

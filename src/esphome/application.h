@@ -39,6 +39,9 @@
 #include "esphome/binary_sensor/status_binary_sensor.h"
 #include "esphome/binary_sensor/template_binary_sensor.h"
 #include "esphome/binary_sensor/mpr121_sensor.h"
+#include "esphome/climate/bang_bang_climate.h"
+#include "esphome/climate/climate_device.h"
+#include "esphome/climate/mqtt_climate_component.h"
 #include "esphome/cover/cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
@@ -1095,6 +1098,10 @@ class Application {
 #ifdef USE_ULN2003
   stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b, const GPIOOutputPin &pin_c,
                                  const GPIOOutputPin &pin_d);
+#endif
+
+#ifdef USE_CLIMATE
+  void register_climate(climate::ClimateDevice *climate);
 #endif
 
   /*   _   _ _____ _     ____  _____ ____  ____

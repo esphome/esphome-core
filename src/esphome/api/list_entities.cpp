@@ -146,6 +146,36 @@ bool ListEntitiesIterator::on_camera(ESP32Camera *camera) {
 }
 #endif
 
+#ifdef USE_CLIMATE
+bool ListEntitiesIterator::on_climate(climate::ClimateDevice *climate) {
+  auto buffer = this->client_->get_buffer();
+  buffer.encode_nameable(climate);
+  // string unique_id = 4;
+  buffer.encode_string(4, get_default_unique_id("climate", climate));
+
+  auto traits = climate->get_traits();
+  // bool supports_current_temperature = 5;
+  buffer.encode_bool(5, traits.get_supports_current_temperature());
+  // bool supports_two_point_target_temperature = 6;
+  buffer.encode_bool(6, traits.get_supports_two_point_target_temperature());
+  // repeated ClimateMode supported_modes = 7;
+  for (auto mode : {climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_AUTO, climate::CLIMATE_MODE_COOL, climate::CLIMATE_MODE_HEAT}) {
+    if (traits.supports_mode(mode))
+      buffer.encode_uint32(7, mode, true);
+  }
+
+  // float visual_min_temperature = 8;
+  buffer.encode_float(8, traits.get_visual_min_temperature());
+  // float visual_max_temperature = 9;
+  buffer.encode_float(9, traits.get_visual_max_temperature());
+  // float visual_temperature_step = 10;
+  buffer.encode_float(10, traits.get_visual_temperature_step());
+  // bool supports_away = 11;
+  buffer.encode_bool(11, traits.get_supports_away());
+  return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_CLIMATE_RESPONSE);
+}
+#endif
+
 APIMessageType ListEntitiesRequest::message_type() const { return APIMessageType::LIST_ENTITIES_REQUEST; }
 
 }  // namespace api

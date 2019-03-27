@@ -303,6 +303,91 @@ bool CameraImageRequest::decode_varint(uint32_t field_id, uint32_t value) {
 APIMessageType CameraImageRequest::message_type() const { return APIMessageType::CAMERA_IMAGE_REQUEST; }
 #endif
 
+#ifdef USE_CLIMATE
+bool ClimateCommandRequest::decode_varint(uint32_t field_id, uint32_t value) {
+  switch (field_id) {
+    case 2:
+      // bool has_mode = 2;
+      this->has_mode_ = value;
+      return true;
+    case 3:
+      // ClimateMode mode = 3;
+      this->mode_ = static_cast<climate::ClimateMode>(value);
+      return true;
+    case 4:
+      // bool has_target_temperature = 4;
+      this->has_target_temperature_ = value;
+      return true;
+    case 6:
+      // bool has_target_temperature_low = 6;
+      this->has_target_temperature_low_ = value;
+      return true;
+    case 8:
+      // bool has_target_temperature_high = 8;
+      this->has_target_temperature_high_ = value;
+      return true;
+    case 10:
+      // bool has_away = 10;
+      this->has_away_ = value;
+      return true;
+    case 11:
+      // bool away = 11;
+      this->away_ = value;
+      return true;
+    default:
+      return false;
+  }
+}
+bool ClimateCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
+  switch (field_id) {
+    case 1:
+      // fixed32 key = 1;
+      this->key_ = value;
+      return true;
+    case 5:
+      // float target_temperature = 5;
+      this->target_temperature_ = as_float(value);
+      return true;
+    case 7:
+      // float target_temperature_low = 7;
+      this->target_temperature_low_ = as_float(value);
+      return true;
+    case 9:
+      // float target_temperature_high = 9;
+      this->target_temperature_high_ = as_float(value);
+      return true;
+    default:
+      return false;
+  }
+}
+APIMessageType ClimateCommandRequest::message_type() const {
+  return APIMessageType::CLIMATE_COMMAND_REQUEST;
+}
+uint32_t ClimateCommandRequest::get_key() const {
+  return this->key_;
+}
+optional<climate::ClimateMode> ClimateCommandRequest::get_mode() const {
+  if (!this->has_mode_) return {};
+  return this->mode_;
+}
+optional<float> ClimateCommandRequest::get_target_temperature() const {
+  if (!this->has_target_temperature_) return {};
+  return this->target_temperature_;
+}
+optional<float> ClimateCommandRequest::get_target_temperature_low() const {
+  if (!this->has_target_temperature_low_) return {};
+  return this->target_temperature_low_;
+}
+optional<float> ClimateCommandRequest::get_target_temperature_high() const {
+  if (!this->has_target_temperature_high_) return {};
+  return this->target_temperature_high_;
+}
+optional<bool> ClimateCommandRequest::get_away() const {
+  if (!this->has_away_) return {};
+  return this->away_;
+}
+#endif
+
 }  // namespace api
 
 ESPHOME_NAMESPACE_END

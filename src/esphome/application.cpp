@@ -48,6 +48,9 @@ using namespace esphome::text_sensor;
 #ifdef USE_STEPPER
 using namespace esphome::stepper;
 #endif
+#ifdef USE_CLIMATE
+using namespace esphome::climate;
+#endif
 
 static const char *TAG = "application";
 
@@ -1193,6 +1196,18 @@ io::MCP23017 *Application::make_mcp23017_component(uint8_t address) {
 #ifdef USE_SDS011
 sensor::SDS011Component *Application::make_sds011(UARTComponent *parent) {
   return this->register_component(new SDS011Component(parent));
+}
+#endif
+
+#ifdef USE_CLIMATE
+void Application::register_climate(climate::ClimateDevice *climate) {
+  for (auto *controller : this->controllers_)
+    controller->register_climate(climate);
+#ifdef USE_MQTT_CLIMATE
+  if (this->mqtt_client_ != nullptr) {
+    climate->set_mqtt(this->register_component(new climate::MQTTClimateComponent(climate)));
+  }
+#endif
 }
 #endif
 

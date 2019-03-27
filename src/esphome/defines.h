@@ -146,6 +146,8 @@
 #define USE_COPY_OUTPUT
 #define USE_WIFI_INFO_TEXT_SENSOR
 #define USE_SERVO
+#define USE_CLIMATE
+#define USE_BANG_BANG_CLIMATE
 #endif
 
 #ifdef USE_REMOTE_RECEIVER
@@ -283,6 +285,12 @@
 #if defined(USE_MQTT) && defined(USE_TEXT_SENSOR)
 #ifndef USE_MQTT_TEXT_SENSOR
 #define USE_MQTT_TEXT_SENSOR
+#endif
+#endif
+
+#if defined(USE_MQTT) && defined(USE_CLIMATE)
+#ifndef USE_MQTT_CLIMATE
+#define USE_MQTT_CLIMATE
 #endif
 #endif
 
