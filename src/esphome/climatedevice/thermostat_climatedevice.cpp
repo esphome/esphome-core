@@ -44,7 +44,7 @@ float ThermostatClimateDevice::get_setup_priority() const { return setup_priorit
 void ThermostatClimateDevice::dump_config() {
   this->ClimateDevice::dump_config();
   ESP_LOGCONFIG(TAG, "  Mode: %s", this->cooling_ ? "cooling" : "heating");
-  ESP_LOGCONFIG(TAG, "  Hysteresis hot: %.1f", this->hysteresis_hot_);
+  ESP_LOGCONFIG(TAG, "  Hysteresis hot: %.1f°C", this->hysteresis_hot_);
   ESP_LOGCONFIG(TAG, "  Hysteresis cold: %.1f°C", this->hysteresis_cold_);
   ESP_LOGCONFIG(TAG, "  Minimal cycle duration: %u ms", this->min_cycle_duration_);
 }
@@ -64,8 +64,8 @@ void ThermostatClimateDevice::control_(float error_value) {
     error_value = -1 * error_value;
   }
   bool state = this->state.mode != CLIMATEDEVICE_MODE_AUTO;
-  bool too_hot = error_value > this->hysteresis_hot_;
-  bool too_cold = error_value < (-1 * this->hysteresis_cold_);
+  bool too_hot = error_value < (-1 * this->hysteresis_hot_);
+  bool too_cold = error_value > this->hysteresis_cold_;
   if ((!this->cooling_ && too_hot) || (this->cooling_ && too_cold)) {
     state = false;
   }
