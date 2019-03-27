@@ -89,6 +89,8 @@ bool MQTTClimateDeviceComponent::send_initial_state() { return this->publish_sta
 std::string MQTTClimateDeviceComponent::friendly_name() const { return this->device_->get_name(); }
 void MQTTClimateDeviceComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   JsonArray &modes = root.createNestedArray("modes");
+  config.state_topic = false;
+  config.command_topic = false;
   auto traits = this->device_->get_traits();
   if (traits.supports_auto_mode()) {
     modes.add("auto");
