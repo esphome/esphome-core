@@ -1398,8 +1398,7 @@ void WiFiComponent::wifi_event_callback_(system_event_id_t event, system_event_i
 
   if (event == SYSTEM_EVENT_STA_DISCONNECTED) {
     uint8_t reason = info.disconnected.reason;
-    if (reason == WIFI_REASON_AUTH_EXPIRE ||
-        (reason >= WIFI_REASON_BEACON_TIMEOUT && reason != WIFI_REASON_AUTH_FAIL)) {
+    if (reason >= WIFI_REASON_BEACON_TIMEOUT && reason != WIFI_REASON_AUTH_FAIL) {
       esp_wifi_disconnect();
       this->error_from_callback_ = true;
     }
@@ -1567,27 +1566,27 @@ bool WiFiAP::get_hidden() const { return this->hidden_; }
 WiFiScanResult::WiFiScanResult(const bssid_t &bssid, const std::string &ssid, uint8_t channel, int8_t rssi,
                                bool with_auth, bool is_hidden)
     : bssid_(bssid), ssid_(ssid), channel_(channel), rssi_(rssi), with_auth_(with_auth), is_hidden_(is_hidden) {}
-bool WiFiScanResult::matches(const WiFiAP &ap) {
-  if (this->is_hidden_) {
+bool WiFiScanResult::matches(const WiFiAP &config) {
+  if (config.get_hidden()) {
     // User configured a hidden network, only match actually hidden networks
     // don't match SSID
-    if (!ap.get_hidden())
+    if (!this->is_hidden_)
       return false;
-  } else if (!this->ssid_.empty()) {
+  } else if (!config.get_ssid().empty()) {
     // check if SSID matches
-    if (ap.get_ssid() != this->ssid_)
+    if (config.get_ssid() != this->ssid_)
       return false;
   } else {
-    // network is configured with only BSSID
+    // network is configured without SSID - match other settings
   }
   // If BSSID configured, only match for correct BSSIDs
-  if (ap.get_bssid().has_value() && *ap.get_bssid() != this->bssid_)
+  if (config.get_bssid().has_value() && *config.get_bssid() != this->bssid_)
     return false;
   // If PW given, only match for networks with auth (and vice versa)
-  if (ap.get_password().empty() == this->with_auth_)
+  if (config.get_password().empty() == this->with_auth_)
     return false;
   // If channel configured, only match networks on that channel.
-  if (ap.get_channel().has_value() && *ap.get_channel() != this->channel_) {
+  if (config.get_channel().has_value() && *config.get_channel() != this->channel_) {
     return false;
   }
   return true;
