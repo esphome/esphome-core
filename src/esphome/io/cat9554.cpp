@@ -139,8 +139,8 @@ bool CAT9554Component::read_config_() {
   this->status_clear_warning();
   return true;
 }
-CAT9554GPIOInputPin CAT9554Component::make_input_pin(uint8_t pin, bool inverted) {
-  return {this, pin, CAT9554_INPUT, inverted};
+CAT9554GPIOInputPin CAT9554Component::make_input_pin(uint8_t pin, uint8_t mode, bool inverted) {
+  return {this, pin, mode, inverted};
 }
 CAT9554GPIOOutputPin CAT9554Component::make_output_pin(uint8_t pin, bool inverted) {
   return {this, pin, CAT9554_OUTPUT, inverted};
