@@ -14,7 +14,7 @@ static const char *TAG = "climatedevice.mqtt";
 MQTTClimateDeviceComponent::MQTTClimateDeviceComponent(ClimateDevice *device) : MQTTComponent(), device_(device) {}
 
 ClimateDevice *MQTTClimateDeviceComponent::get_device() const { return this->device_; }
-std::string MQTTClimateDeviceComponent::component_type() const { return "climatedevice"; }
+std::string MQTTClimateDeviceComponent::component_type() const { return "climate"; }
 void MQTTClimateDeviceComponent::setup() {
   this->subscribe(this->get_mode_command_topic(), [this](const std::string &topic, const std::string &payload) {
     auto traits = this->device_->get_traits();
@@ -32,7 +32,7 @@ void MQTTClimateDeviceComponent::setup() {
     }
   });
 
-  this->subscribe(this->get_target_temperature_state_topic(),
+  this->subscribe(this->get_target_temperature_command_topic(),
                   [this](const std::string &topic, const std::string &payload) {
                     auto val = parse_float(payload);
                     if (!val.has_value()) {
@@ -142,14 +142,14 @@ bool MQTTClimateDeviceComponent::publish_state() {
   }
   ESP_LOGD(TAG, "'%s' Sending mode %s.", this->device_->get_name().c_str(), mode_s);
   bool failed = !this->publish(this->get_mode_state_topic(), mode_s);
-  if (this->device_->get_traits().supports_current_temperature()) {
+  if (this->device_->get_traits().supports_current_temperature() && !isnan(this->device_->current_temperature)) {
     int8_t accuracy = this->device_->get_current_temperature_accuracy_decimals();
     float value = this->device_->current_temperature;
     bool success =
         this->publish(this->get_current_temperature_state_topic(), value_accuracy_to_string(value, accuracy));
     failed = failed || !success;
   }
-  {
+  if (!isnan(this->device_->state.target_temperature)) {
     int8_t accuracy = this->device_->get_target_temperature_accuracy_decimals();
     float value = this->device_->state.target_temperature;
     bool success = this->publish(this->get_target_temperature_state_topic(), value_accuracy_to_string(value, accuracy));
