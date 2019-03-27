@@ -200,7 +200,7 @@ template<typename... Ts> void ControlAction<Ts...>::play(Ts... x) {
   this->play_next(x...);
 }
 template<typename... Ts> PublishAction<Ts...> *ClimateDevice::make_publish_action() {
-  return new ControlAction<Ts...>(this);
+  return new PublishAction<Ts...>(this);
 }
 template<typename... Ts> void PublishAction<Ts...>::play(Ts... x) {
   auto call = this->device_->make_call();
