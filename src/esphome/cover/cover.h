@@ -120,8 +120,8 @@ class Cover : public Nameable {
   float position_open_{100.0};
   float tilt_min_{0.0};
   float tilt_max_{100.0};
-  float tilt_closed_value_{100.0};
-  float tilt_opened_value_{0.0};
+  float tilt_closed_value_{0.0};
+  float tilt_opened_value_{100.0};
   bool tilt_invert_state_{false};
   bool optimistic_{false};
 
