@@ -35,6 +35,8 @@ template<typename... Ts> class StopAction;
 template<typename... Ts> class PositionAction;
 template<typename... Ts> class TiltAction;
 template<typename... Ts> class CoverPublishAction;
+template<typename... Ts> class CoverPublishPositionAction;
+template<typename... Ts> class CoverPublishTiltAction;
 
 #define LOG_COVER(prefix, type, obj) \
   if (obj != nullptr) { \
@@ -57,8 +59,8 @@ class Cover : public Nameable {
   void open();
   void close();
   void stop();
-  void set_position(float value);
-  void set_tilt(float value);
+  void set_position(position_value_t value);
+  void set_tilt(position_value_t value);
 
   void add_on_publish_state_callback(std::function<void(CoverState)> &&f);
 
@@ -78,6 +80,8 @@ class Cover : public Nameable {
   template<typename... Ts> PositionAction<Ts...> *make_position_action();
   template<typename... Ts> TiltAction<Ts...> *make_tilt_action();
   template<typename... Ts> CoverPublishAction<Ts...> *make_cover_publish_action();
+  template<typename... Ts> CoverPublishPositionAction<Ts...> *make_cover_publish_position_action();
+  template<typename... Ts> CoverPublishTiltAction<Ts...> *make_cover_publish_tilt_action();
 
   /** Return whether this cover is optimistic - i.e. if both the OPEN/CLOSE actions should be displayed in
    * Home Assistant because the real state is unknown.
@@ -202,6 +206,28 @@ template<typename... Ts> class CoverPublishAction : public Action<Ts...> {
   TemplatableValue<CoverState, Ts...> state_;
 };
 
+template<typename... Ts> class CoverPublishPositionAction : public Action<Ts...> {
+ public:
+  CoverPublishPositionAction(Cover *cover);
+  template<typename V> void set_position(V value) { this->position_ = value; }
+  void play(Ts... x) override;
+
+ protected:
+  Cover *cover_;
+  TemplatableValue<position_value_t, Ts...> position_;
+};
+
+template<typename... Ts> class CoverPublishTiltAction : public Action<Ts...> {
+ public:
+  CoverPublishTiltAction(Cover *cover);
+  template<typename V> void set_tilt(V value) { this->tilt_ = value; }
+  void play(Ts... x) override;
+
+ protected:
+  Cover *cover_;
+  TemplatableValue<tilt_value_t, Ts...> tilt_;
+};
+
 // =============== TEMPLATE DEFINITIONS ===============
 
 template<typename... Ts> OpenAction<Ts...>::OpenAction(Cover *cover) : cover_(cover) {}
@@ -223,14 +249,14 @@ template<typename... Ts> void StopAction<Ts...>::play(Ts... x) {
   this->play_next(x...);
 }
 
-template<typename... Ts> PositionAction<Ts...>::PositionAction(Cover *cover, float value) : cover_(cover) {}
+template<typename... Ts> PositionAction<Ts...>::PositionAction(Cover *cover, position_value_t value) : cover_(cover) {}
 
 template<typename... Ts> void PositionAction<Ts...>::play(Ts... x) {
   this->cover_->set_position(x...);
   this->play_next(x...);
 }
 
-template<typename... Ts> TiltAction<Ts...>::TiltAction(Cover *cover, float value) : cover_(cover) {}
+template<typename... Ts> TiltAction<Ts...>::TiltAction(Cover *cover, tilt_value_t value) : cover_(cover) {}
 
 template<typename... Ts> void TiltAction<Ts...>::play(Ts... x) {
   this->cover_->set_tilt(x...);
@@ -252,6 +278,24 @@ template<typename... Ts> void CoverPublishAction<Ts...>::play(Ts... x) {
 }
 template<typename... Ts> CoverPublishAction<Ts...> *Cover::make_cover_publish_action() {
   return new CoverPublishAction<Ts...>(this);
+}
+template<typename... Ts> CoverPublishPositionAction<Ts...>::CoverPublishPositionAction(Cover *cover) : cover_(cover) {}
+template<typename... Ts> void CoverPublishPositionAction<Ts...>::play(Ts... x) {
+  auto val = this->position_.value(x...);
+  this->cover_->publish_position(val);
+  this->play_next(x...);
+}
+template<typename... Ts> CoverPublishPositionAction<Ts...> *Cover::make_cover_publish_position_action() {
+  return new CoverPublishPositionAction<Ts...>(this);
+}
+template<typename... Ts> CoverPublishTiltAction<Ts...>::CoverPublishTiltAction(Cover *cover) : cover_(cover) {}
+template<typename... Ts> void CoverPublishTiltAction<Ts...>::play(Ts... x) {
+  auto val = this->tilt_.value(x...);
+  this->cover_->publish_tilt(val);
+  this->play_next(x...);
+}
+template<typename... Ts> CoverPublishTiltAction<Ts...> *Cover::make_cover_publish_tilt_action() {
+  return new CoverPublishTiltAction<Ts...>(this);
 }
 
 }  // namespace cover
