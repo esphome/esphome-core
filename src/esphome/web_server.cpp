@@ -314,6 +314,7 @@ void WebServer::handle_text_sensor_request(AsyncWebServerRequest *request, UrlMa
 std::string WebServer::text_sensor_json(text_sensor::TextSensor *obj, const std::string &value) {
   return build_json([obj, value](JsonObject &root) {
     root["id"] = "text_sensor-" + obj->get_object_id();
+    root["state"] = value;
     root["value"] = value;
   });
 }

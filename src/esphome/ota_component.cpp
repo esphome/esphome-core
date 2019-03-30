@@ -220,7 +220,7 @@ void OTAComponent::handle_() {
     ESP_LOGV(TAG, "Auth: Nonce is %s", sbuf);
 
     // Send nonce, 32 bytes hex MD5
-    if (this->client_.write(sbuf, 32) != 32) {
+    if (this->client_.write(reinterpret_cast<uint8_t *>(sbuf), 32) != 32) {
       ESP_LOGW(TAG, "Auth: Writing nonce failed!");
       goto error;
     }
@@ -386,13 +386,18 @@ error:
     ESP_LOGW(TAG, "Update end failed! Error: %s", ss.c_str());
   }
   if (this->client_.connected()) {
-    this->client_.write(error_code);
+    this->client_.write(static_cast<uint8_t>(error_code));
     this->client_.flush();
   }
   this->client_.stop();
 #ifdef ARDUINO_ARCH_ESP32
   if (update_started) {
     Update.abort();
+  }
+#endif
+#ifdef ARDUINO_ARCH_ESP8266
+  if (update_started) {
+    Update.end();
   }
 #endif
   this->status_momentary_error("onerror", 5000);

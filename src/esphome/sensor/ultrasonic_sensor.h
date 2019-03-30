@@ -12,18 +12,6 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
 
-/// The speed of sound in air in meters per µs.
-const float SPEED_OF_SOUND_M_PER_US = 0.000343f;
-
-struct UltrasonicSensorStore {
-  uint32_t triggered_at{0};
-  bool has_triggered{false};
-  uint32_t echo_at{0};
-  bool has_echo{false};
-
-  static void gpio_intr(UltrasonicSensorStore *arg);
-};
-
 class UltrasonicSensorComponent : public PollingSensorComponent {
  public:
   /** Construct the ultrasonic sensor with the specified trigger pin and echo pin.
@@ -45,7 +33,6 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
   void dump_config() override;
 
   void update() override;
-  void loop() override;
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -63,9 +50,8 @@ class UltrasonicSensorComponent : public PollingSensorComponent {
 
   GPIOPin *trigger_pin_;
   GPIOPin *echo_pin_;
-  uint32_t timeout_us_{58309};  /// 10 meters.
+  uint32_t timeout_us_{11662};  /// 2 meters.
   uint32_t pulse_time_us_{10};
-  UltrasonicSensorStore store_;
 };
 
 }  // namespace sensor
