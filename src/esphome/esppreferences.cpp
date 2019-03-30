@@ -32,7 +32,7 @@ bool ESPPreferenceObject::load_() {
 
   bool valid = this->data_[this->length_words_] == this->calculate_crc_();
 
-  ESP_LOGVV(TAG, "LOAD %u: valid=%s, 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)", this->rtc_offset_, YESNO(valid),
+  ESP_LOGVV(TAG, "LOAD %zu: valid=%s, 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)", this->rtc_offset_, YESNO(valid),
             this->data_[0], this->data_[1], this->type_, this->calculate_crc_());
   return valid;
 }
@@ -45,7 +45,7 @@ bool ESPPreferenceObject::save_() {
   this->data_[this->length_words_] = this->calculate_crc_();
   if (!this->save_internal_())
     return false;
-  ESP_LOGVV(TAG, "SAVE %u: 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)", this->rtc_offset_, this->data_[0], this->data_[1],
+  ESP_LOGVV(TAG, "SAVE %zu: 0=0x%08X 1=0x%08X (Type=%u, CRC=0x%08X)", this->rtc_offset_, this->data_[0], this->data_[1],
             this->type_, this->calculate_crc_());
   return true;
 }
@@ -80,7 +80,6 @@ static inline bool esp_rtc_user_mem_write(uint32_t index, uint32_t value) {
   auto *ptr = &ESP_RTC_USER_MEM[index];
 #ifdef USE_ESP8266_PREFERENCES_FLASH
   if (*ptr != value) {
-    ESP_LOGV(TAG, "RTC flash is dirty...");
     esp8266_preferences_modified = true;
   }
 #endif
