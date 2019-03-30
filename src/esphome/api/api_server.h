@@ -188,7 +188,7 @@ class APIServer : public Component, public StoringUpdateListenerController {
 #ifdef USE_TEXT_SENSOR
   void on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) override;
 #endif
-#ifdef USE_TEXT_SENSOR
+#ifdef USE_CLIMATE
   void on_climate_update(climate::ClimateDevice *obj) override;
 #endif
   void send_service_call(ServiceCallResponse &call);
