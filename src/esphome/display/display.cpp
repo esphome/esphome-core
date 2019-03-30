@@ -10,12 +10,181 @@
 
 ESPHOME_NAMESPACE_BEGIN
 
-const uint8_t COLOR_OFF = 0;
-const uint8_t COLOR_ON = 1;
-
 namespace display {
 
 static const char *TAG = "display.display";
+
+Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : red(red), green(green), blue(blue), alpha(alpha) {}
+
+const Color Color::WHITE = Color::rgb(0xffffff);
+const Color Color::LIGHT_GRAY = Color::rgb(0xbfbfbf);
+const Color Color::GRAY = Color::rgb(0x7f7f7f);
+const Color Color::DARK_GRAY = Color::rgb(0x3f3f3f);
+const Color Color::BLACK = Color::rgb(0x000000);
+const Color Color::CLEAR = Color::rgba(0x00000000);
+const Color Color::BLUE = Color::rgb(0x0000ff);
+const Color Color::NAVY = Color::rgb(0x00007f);
+const Color Color::ROYAL = Color::rgb(0x4169e1);
+const Color Color::SLATE = Color::rgb(0x708090);
+const Color Color::SKY = Color::rgb(0x87ceeb);
+const Color Color::CYAN = Color::rgb(0x00ffff);
+const Color Color::TEAL = Color::rgb(0x007f7f);
+const Color Color::GREEN = Color::rgb(0x00ff00);
+const Color Color::CHARTREUSE = Color::rgb(0x7fff00);
+const Color Color::LIME = Color::rgb(0x32cd32);
+const Color Color::FOREST = Color::rgb(0x228b22);
+const Color Color::OLIVE = Color::rgb(0x6b8e23);
+const Color Color::YELLOW = Color::rgb(0xffff00);
+const Color Color::GOLD = Color::rgb(0xffd700);
+const Color Color::GOLDENROD = Color::rgb(0xdaa520);
+const Color Color::ORANGE = Color::rgb(0xffa500);
+const Color Color::BROWN = Color::rgb(0x8b4513);
+const Color Color::TAN = Color::rgb(0xd2b48c);
+const Color Color::FIREBRICK = Color::rgb(0xb22222);
+const Color Color::RED = Color::rgb(0xff0000);
+const Color Color::SCARLET = Color::rgb(0xff341c);
+const Color Color::CORAL = Color::rgb(0xff7f50);
+const Color Color::SALMON = Color::rgb(0xfa8072);
+const Color Color::PINK = Color::rgb(0xff69b4);
+const Color Color::MAGENTA = Color::rgb(0xff00ff);
+const Color Color::PURPLE = Color::rgb(0xa020f0);
+const Color Color::VIOLET = Color::rgb(0xee82ee);
+const Color Color::MAROON = Color::rgb(0xb03060);
+
+Color Color::rgb(uint8_t red, uint8_t green, uint8_t blue) {
+  return Color(red, green, blue, 0xFF);
+}
+Color Color::rgb_float(float red, float green, float blue) {
+  red = clamp(0.0f, 1.0f, red);
+  green = clamp(0.0f, 1.0f, green);
+  blue = clamp(0.0f, 1.0f, blue);
+  return Color(red * 0xFF, green * 0xFF, blue * 0xFF, 0xFF);
+}
+Color Color::rgba(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
+  return Color(red, green, blue, alpha);
+}
+Color Color::rgba_float(float red, float green, float blue, float alpha) {
+  red = clamp(0.0f, 1.0f, red);
+  green = clamp(0.0f, 1.0f, green);
+  blue = clamp(0.0f, 1.0f, blue);
+  alpha = clamp(0.0f, 1.0f, alpha);
+  return Color(red * 0xFF, green * 0xFF, blue * 0xFF, alpha * 0xFF);
+}
+Color Color::rgb(uint32_t rgb) {
+  return Color(rgb >> 16, rgb >> 8, rgb >> 0, 0xFF);
+}
+Color Color::rgba(uint32_t rgba) {
+  return Color(rgba >> 24, rgba >> 16, rgba >> 8, rgba >> 0);
+}
+Color Color::argb(uint32_t argb) {
+  return Color(argb >> 16, argb >> 8, argb >> 0, argb >> 24);
+}
+Color Color::brightness(uint8_t bright) {
+  return Color(bright, bright, bright, 0xFF);
+}
+Color Color::brightness_float(float bright) {
+  bright = clamp(0.0f, 1.0f, bright);
+  return Color(bright * 0xFF, bright * 0xFF, bright * 0xFF, 0xFF);
+}
+Color Color::parse_hex(const std::string &str) {
+  int offset = 0;
+  if (str.find('#') == 0) offset = 1;
+  int len = str.size() - offset;
+  int r = 0x00;
+  int g = 0x00;
+  int b = 0x00;
+  int a = 0xFF;
+  const char *s = str.c_str() + offset;
+  if (len == 3) {
+    // single char rgb, like #aaa
+    sscanf(s, "%01x%01x%01x", &r, &g, &b);
+    r *= 17;
+    g *= 17;
+    b *= 17;
+  } else if (len == 4) {
+    // single char rgba, like #aaaf
+    sscanf(s, "%01x%01x%01x%01x", &r, &g, &b, &a);
+    r *= 17;
+    g *= 17;
+    b *= 17;
+    a *= 17;
+  } else if (len == 6) {
+    // double char rgb, like #efefef
+    sscanf(s, "%02x%02x%02x", &r, &g, &b);
+  } else if (len == 8) {
+    // double char rgba, like #efefefff
+    sscanf(s, "%02x%02x%02x%02x", &r, &g, &b, &a);
+  }
+  return Color(r, g, b, a);
+}
+Color Color::from_hsv_float(float h, float s, float v) {
+  h = clamp(0.0f, 360.0f, h);
+  s = clamp(0.0f, 1.0f, s);
+  v = clamp(0.0f, 1.0f, v);
+
+  float x = fmodf(h / 60.0f, 6.0f);
+  int i = static_cast<int>(x);
+  float f = x - i;
+  float p = v * (1 - s);
+  float q = v * (1 - s * f);
+  float t = v * (1 - s * (1 - f));
+  float r, g, b;
+  switch (i) {
+    case 0:
+      r = v;
+      g = t;
+      b = p;
+      break;
+    case 1:
+      r = q;
+      g = v;
+      b = p;
+      break;
+    case 2:
+      r = p;
+      g = v;
+      b = t;
+      break;
+    case 3:
+      r = p;
+      g = q;
+      b = v;
+      break;
+    case 4:
+      r = t;
+      g = p;
+      b = v;
+      break;
+    default:
+      r = v;
+      g = p;
+      b = q;
+  }
+  return Color::rgb_float(r, g, b);
+}
+Color Color::lerp(Color initial, Color target, float t) {
+  t = clamp(0.0f, 1.0f, t);
+  uint8_t r = roundf(esphome::lerp(initial.r, target.r, t));
+  uint8_t g = roundf(esphome::lerp(initial.g, target.g, t));
+  uint8_t b = roundf(esphome::lerp(initial.b, target.b, t));
+  uint8_t a = roundf(esphome::lerp(initial.a, target.a, t));
+  return Color(r, g, b, a);
+}
+bool Color::is_black() const {
+  return this->red == 0 && this->green == 0 && this->blue == 0;
+}
+Color Color::premultiply_alpha() const {
+  return Color(
+      this->red * this->alpha,
+      this->green * this->alpha,
+      this->blue * this->alpha,
+      0xFF);
+}
+std::string Color::to_string() const {
+  char buffer[15];
+  sprintf(buffer, "#%02X%02X%02X%02X", this->red, this->green, this->blue, this->alpha);
+  return buffer;
+}
 
 void DisplayBuffer::init_internal_(uint32_t buffer_length) {
   this->buffer_ = new uint8_t[buffer_length];
@@ -25,8 +194,7 @@ void DisplayBuffer::init_internal_(uint32_t buffer_length) {
   }
   this->clear();
 }
-void DisplayBuffer::fill(int color) { this->filled_rectangle(0, 0, this->get_width(), this->get_height(), color); }
-void DisplayBuffer::clear() { this->fill(COLOR_OFF); }
+void DisplayBuffer::fill(Color color) { this->filled_rectangle(0, 0, this->get_width(), this->get_height(), color); }
 int DisplayBuffer::get_width() {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_90_DEGREES:
@@ -50,7 +218,7 @@ int DisplayBuffer::get_height() {
   }
 }
 void DisplayBuffer::set_rotation(DisplayRotation rotation) { this->rotation_ = rotation; }
-void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
+void HOT DisplayBuffer::draw_pixel_at(int x, int y, Color color) {
   switch (this->rotation_) {
     case DISPLAY_ROTATION_0_DEGREES:
       break;
@@ -70,7 +238,10 @@ void HOT DisplayBuffer::draw_pixel_at(int x, int y, int color) {
   this->draw_absolute_pixel_internal(x, y, color);
   feed_wdt();
 }
-void HOT DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {
+void DisplayBuffer::draw_pixel_at(int x, int y) {
+  this->draw_pixel_at(x, y, this->get_default_color());
+}
+void HOT DisplayBuffer::line(int x1, int y1, int x2, int y2, Color color) {
   const int32_t dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
   const int32_t dy = -abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
   int32_t err = dx + dy;
@@ -90,39 +261,54 @@ void HOT DisplayBuffer::line(int x1, int y1, int x2, int y2, int color) {
     }
   }
 }
-void HOT DisplayBuffer::horizontal_line(int x, int y, int width, int color) {
+void DisplayBuffer::line(int x1, int y1, int x2, int y2) {
+  this->line(x1, y1, x2, y2, this->get_default_color());
+}
+void HOT DisplayBuffer::horizontal_line(int x, int y, int width, Color color) {
   // Future: Could be made more efficient by manipulating buffer directly in certain rotations.
   for (int i = x; i < x + width; i++)
     this->draw_pixel_at(i, y, color);
 }
-void HOT DisplayBuffer::vertical_line(int x, int y, int height, int color) {
+void DisplayBuffer::horizontal_line(int x, int y, int width) {
+  this->horizontal_line(x, y, width, this->get_default_color());
+}
+void HOT DisplayBuffer::vertical_line(int x, int y, int height, Color color) {
   // Future: Could be made more efficient by manipulating buffer directly in certain rotations.
   for (int i = y; i < y + height; i++)
     this->draw_pixel_at(x, i, color);
 }
-void DisplayBuffer::rectangle(int x1, int y1, int width, int height, int color) {
+void DisplayBuffer::vertical_line(int x, int y, int height) {
+  this->horizontal_line(x, y, height, this->get_default_color());
+}
+void DisplayBuffer::rectangle(int x1, int y1, int width, int height, Color color) {
   this->horizontal_line(x1, y1, width, color);
   this->horizontal_line(x1, y1 + height - 1, width, color);
   this->vertical_line(x1, y1, height, color);
   this->vertical_line(x1 + width - 1, y1, height, color);
 }
-void DisplayBuffer::filled_rectangle(int x1, int y1, int width, int height, int color) {
+void DisplayBuffer::rectangle(int x1, int y1, int width, int height) {
+  this->rectangle(x1, y1, width, height, this->get_default_color());
+}
+void DisplayBuffer::filled_rectangle(int x1, int y1, int width, int height, Color color) {
   // Future: Use vertical_line and horizontal_line methods depending on rotation to reduce memory accesses.
   for (int i = y1; i < y1 + height; i++) {
     this->horizontal_line(x1, i, width, color);
   }
 }
-void HOT DisplayBuffer::circle(int center_x, int center_xy, int radius, int color) {
+void DisplayBuffer::filled_rectangle(int x1, int y1, int width, int height) {
+  this->filled_rectangle(x1, y1, width, height, this->get_default_color());
+}
+void HOT DisplayBuffer::circle(int center_x, int center_y, int radius, Color color) {
   int dx = -radius;
   int dy = 0;
   int err = 2 - 2 * radius;
   int e2;
 
   do {
-    this->draw_pixel_at(center_x - dx, center_xy + dy, color);
-    this->draw_pixel_at(center_x + dx, center_xy + dy, color);
-    this->draw_pixel_at(center_x + dx, center_xy - dy, color);
-    this->draw_pixel_at(center_x - dx, center_xy - dy, color);
+    this->draw_pixel_at(center_x - dx, center_y + dy, color);
+    this->draw_pixel_at(center_x + dx, center_y + dy, color);
+    this->draw_pixel_at(center_x + dx, center_y - dy, color);
+    this->draw_pixel_at(center_x - dx, center_y - dy, color);
     e2 = err;
     if (e2 < dy) {
       err += ++dy * 2 + 1;
@@ -135,7 +321,10 @@ void HOT DisplayBuffer::circle(int center_x, int center_xy, int radius, int colo
     }
   } while (dx <= 0);
 }
-void DisplayBuffer::filled_circle(int center_x, int center_y, int radius, int color) {
+void DisplayBuffer::circle(int center_x, int center_y, int radius) {
+  this->circle(center_x, center_y, radius, this->get_default_color());
+}
+void DisplayBuffer::filled_circle(int center_x, int center_y, int radius, Color color) {
   int dx = -int32_t(radius);
   int dy = 0;
   int err = 2 - 2 * radius;
@@ -161,8 +350,10 @@ void DisplayBuffer::filled_circle(int center_x, int center_y, int radius, int co
     }
   } while (dx <= 0);
 }
-
-void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, const char *text) {
+void DisplayBuffer::filled_circle(int center_x, int center_y, int radius) {
+  this->filled_circle(center_x, center_y, radius, this->get_default_color());
+}
+void DisplayBuffer::print(int x, int y, Font *font, Color color, TextAlign align, const char *text) {
   int x_start, y_start;
   int width, height;
   this->get_text_bounds(x, y, text, font, align, &x_start, &y_start, &width, &height);
@@ -204,7 +395,7 @@ void DisplayBuffer::print(int x, int y, Font *font, int color, TextAlign align, 
     i += match_length;
   }
 }
-void DisplayBuffer::vprintf_(int x, int y, Font *font, int color, TextAlign align, const char *format, va_list arg) {
+void DisplayBuffer::vprintf_(int x, int y, Font *font, Color color, TextAlign align, const char *format, va_list arg) {
   char buffer[256];
   int ret = vsnprintf(buffer, sizeof(buffer), format, arg);
   if (ret > 0)
@@ -255,22 +446,22 @@ void DisplayBuffer::get_text_bounds(int x, int y, const char *text, Font *font, 
       break;
   }
 }
-void DisplayBuffer::print(int x, int y, Font *font, int color, const char *text) {
+void DisplayBuffer::print(int x, int y, Font *font, Color color, const char *text) {
   this->print(x, y, font, color, TextAlign::TOP_LEFT, text);
 }
 void DisplayBuffer::print(int x, int y, Font *font, TextAlign align, const char *text) {
-  this->print(x, y, font, COLOR_ON, align, text);
+  this->print(x, y, font, this->get_default_color(), align, text);
 }
 void DisplayBuffer::print(int x, int y, Font *font, const char *text) {
-  this->print(x, y, font, COLOR_ON, TextAlign::TOP_LEFT, text);
+  this->print(x, y, font, this->get_default_color(), TextAlign::TOP_LEFT, text);
 }
-void DisplayBuffer::printf(int x, int y, Font *font, int color, TextAlign align, const char *format, ...) {
+void DisplayBuffer::printf(int x, int y, Font *font, Color color, TextAlign align, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
   this->vprintf_(x, y, font, color, align, format, arg);
   va_end(arg);
 }
-void DisplayBuffer::printf(int x, int y, Font *font, int color, const char *format, ...) {
+void DisplayBuffer::printf(int x, int y, Font *font, Color color, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
   this->vprintf_(x, y, font, color, TextAlign::TOP_LEFT, format, arg);
@@ -279,13 +470,13 @@ void DisplayBuffer::printf(int x, int y, Font *font, int color, const char *form
 void DisplayBuffer::printf(int x, int y, Font *font, TextAlign align, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
-  this->vprintf_(x, y, font, COLOR_ON, align, format, arg);
+  this->vprintf_(x, y, font, this->get_default_color(), align, format, arg);
   va_end(arg);
 }
 void DisplayBuffer::printf(int x, int y, Font *font, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
-  this->vprintf_(x, y, font, COLOR_ON, TextAlign::CENTER_LEFT, format, arg);
+  this->vprintf_(x, y, font, this->get_default_color(), TextAlign::CENTER_LEFT, format, arg);
   va_end(arg);
 }
 void DisplayBuffer::set_writer(display_writer_t &&writer) { this->writer_ = writer; }
@@ -313,21 +504,21 @@ void DisplayBuffer::do_update_() {
   }
 }
 #ifdef USE_TIME
-void DisplayBuffer::strftime(int x, int y, Font *font, int color, TextAlign align, const char *format,
+void DisplayBuffer::strftime(int x, int y, Font *font, Color color, TextAlign align, const char *format,
                              time::ESPTime time) {
   char buffer[64];
   size_t ret = time.strftime(buffer, sizeof(buffer), format);
   if (ret > 0)
     this->print(x, y, font, color, align, buffer);
 }
-void DisplayBuffer::strftime(int x, int y, Font *font, int color, const char *format, time::ESPTime time) {
+void DisplayBuffer::strftime(int x, int y, Font *font, Color color, const char *format, time::ESPTime time) {
   this->strftime(x, y, font, color, TextAlign::TOP_LEFT, format, time);
 }
 void DisplayBuffer::strftime(int x, int y, Font *font, TextAlign align, const char *format, time::ESPTime time) {
-  this->strftime(x, y, font, COLOR_ON, align, format, time);
+  this->strftime(x, y, font, this->get_default_color(), align, format, time);
 }
 void DisplayBuffer::strftime(int x, int y, Font *font, const char *format, time::ESPTime time) {
-  this->strftime(x, y, font, COLOR_ON, TextAlign::TOP_LEFT, format, time);
+  this->strftime(x, y, font, this->get_default_color(), TextAlign::TOP_LEFT, format, time);
 }
 #endif
 

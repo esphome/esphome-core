@@ -514,4 +514,6 @@ void HighFrequencyLoopRequester::stop() {
 }
 bool HighFrequencyLoopRequester::is_high_frequency() { return high_freq_num_requests > 0; }
 
+float lerp(float start, float end, float completion) { return start + (end - start) * completion; }
+
 ESPHOME_NAMESPACE_END

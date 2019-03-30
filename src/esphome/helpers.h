@@ -130,7 +130,7 @@ template<typename T> T clamp(T min, T max, T val);
  * @param completion The completion. 0 is start value, 1 is end value.
  * @return The linearly interpolated value.
  */
-template<typename T> T lerp(T start, T end, T completion);
+float lerp(float start, float end, float completion);
 
 /// std::make_unique
 template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args &&... args);
@@ -381,8 +381,6 @@ template<typename T> T clamp(T min, T max, T val) {
     return max;
   return val;
 }
-
-template<typename T> T lerp(T start, T end, T completion) { return start + (end - start) * completion; }
 
 template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args &&... args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
