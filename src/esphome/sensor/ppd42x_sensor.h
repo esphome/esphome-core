@@ -48,7 +48,7 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
 
   GPIOPin *pm_2_5_pin_;
   GPIOPin *pm_10_0_pin_;
-  uint32_t timeout_us_{11662};  
+  uint32_t timeout_us_{30000};  
 
 };
 
