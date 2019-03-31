@@ -68,10 +68,11 @@ void PN532Component::setup() {
   }
 
   // Set up SAM (secure access module)
+  uint8_t sam_timeout = std::min(255u, this->update_interval_ / 50);
   bool ret = this->pn532_write_command_check_ack_({
       0x14,  // SAM config command
       0x01,  // normal mode
-      0x14,  // zero timeout (not in virtual card mode)
+      sam_timeout,  // timeout as multiple of 50ms (actually only for virtual card mode, but shouldn't matter)
       0x01,  // Enable IRQ
   });
 
@@ -83,6 +84,10 @@ void PN532Component::setup() {
 
   auto sam_result = this->pn532_read_data_();
   if (sam_result.size() != 1) {
+    ESP_LOGV(TAG, "Invalid SAM result: (%u)", sam_result.size());
+    for (auto dat : sam_result) {
+      ESP_LOGV(TAG, " 0x%02X", dat);
+    }
     this->error_code_ = SAM_COMMAND_FAILED;
     this->mark_failed();
     return;
@@ -166,6 +171,7 @@ PN532Trigger *PN532Component::make_trigger() {
 
 void PN532Component::pn532_write_command_(const std::vector<uint8_t> &data) {
   this->enable();
+  delay(2);
   // First byte, communication mode: Write data
   this->write_byte(0x01);
 
@@ -212,7 +218,7 @@ bool PN532Component::pn532_write_command_check_ack_(const std::vector<uint8_t> &
 
   // 3. read ack
   if (!this->read_ack_()) {
-    ESP_LOGE(TAG, "Invalid ACK frame received from PN532!");
+    ESP_LOGV(TAG, "Invalid ACK frame received from PN532!");
     return false;
   }
 
@@ -221,6 +227,7 @@ bool PN532Component::pn532_write_command_check_ack_(const std::vector<uint8_t> &
 
 std::vector<uint8_t> PN532Component::pn532_read_data_() {
   this->enable();
+  delay(2);
   // Read data (transmission from the PN532 to the host)
   this->write_byte(0x03);
 
@@ -241,7 +248,7 @@ std::vector<uint8_t> PN532Component::pn532_read_data_() {
   } else {
     // invalid packet
     this->disable();
-    ESP_LOGVV(TAG, "Invalid preamble!");
+    ESP_LOGV(TAG, "read data invalid preamble!");
     return {};
   }
 
@@ -252,7 +259,7 @@ std::vector<uint8_t> PN532Component::pn532_read_data_() {
   );
   if (!valid_header) {
     this->disable();
-    ESP_LOGVV(TAG, "Invalid header!");
+    ESP_LOGV(TAG, "read data invalid header!");
     return {};
   }
 
@@ -275,21 +282,23 @@ std::vector<uint8_t> PN532Component::pn532_read_data_() {
   uint8_t dcs = this->read_byte();
   if (dcs != checksum) {
     this->disable();
-    ESP_LOGVV(TAG, "Invalid checksum! %02X != %02X", dcs, checksum);
+    ESP_LOGV(TAG, "read data invalid checksum! %02X != %02X", dcs, checksum);
     return {};
   }
 
   if (this->read_byte() != 0x00) {
     this->disable();
-    ESP_LOGVV(TAG, "Invalid postamble!");
+    ESP_LOGV(TAG, "read data invalid postamble!");
     return {};
   }
   this->disable();
 
+#ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
   ESP_LOGVV(TAG, "PN532 Data Frame: (%u)", ret.size());
   for (uint8_t dat : ret) {
     ESP_LOGVV(TAG, "  0x%02X", dat);
   }
+#endif
 
   return ret;
 }
@@ -311,6 +320,7 @@ bool PN532Component::is_ready_() {
 bool PN532Component::read_ack_() {
   ESP_LOGVV(TAG, "Reading ACK...");
   this->enable();
+  delay(2);
   // "Read data (transmission from the PN532 to the host) "
   this->write_byte(0x03);
 
