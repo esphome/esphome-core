@@ -70,10 +70,10 @@ void PN532Component::setup() {
   // Set up SAM (secure access module)
   uint8_t sam_timeout = std::min(255u, this->update_interval_ / 50);
   bool ret = this->pn532_write_command_check_ack_({
-      0x14,  // SAM config command
-      0x01,  // normal mode
+      0x14,         // SAM config command
+      0x01,         // normal mode
       sam_timeout,  // timeout as multiple of 50ms (actually only for virtual card mode, but shouldn't matter)
-      0x01,  // Enable IRQ
+      0x01,         // Enable IRQ
   });
 
   if (!ret) {
@@ -84,7 +84,7 @@ void PN532Component::setup() {
 
   auto sam_result = this->pn532_read_data_();
   if (sam_result.size() != 1) {
-    ESP_LOGV(TAG, "Invalid SAM result: (%u)", sam_result.size());
+    ESP_LOGV(TAG, "Invalid SAM result: (%zu)", sam_result.size());
     for (auto dat : sam_result) {
       ESP_LOGV(TAG, " 0x%02X", dat);
     }
@@ -294,7 +294,7 @@ std::vector<uint8_t> PN532Component::pn532_read_data_() {
   this->disable();
 
 #ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
-  ESP_LOGVV(TAG, "PN532 Data Frame: (%u)", ret.size());
+  ESP_LOGVV(TAG, "PN532 Data Frame: (%zu)", ret.size());
   for (uint8_t dat : ret) {
     ESP_LOGVV(TAG, "  0x%02X", dat);
   }
