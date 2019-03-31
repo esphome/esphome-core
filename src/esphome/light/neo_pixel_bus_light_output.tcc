@@ -50,7 +50,6 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::add_leds(
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up NeoPixelBus light...");
   for (int i = 0; i < this->size(); i++) {
     (*this)[i] = ESPColor(0, 0, 0, 0);
   }
@@ -60,8 +59,6 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::dump_config() {
-  ESP_LOGCONFIG(TAG, "NeoPixelBus light:");
-  ESP_LOGCONFIG(TAG, "  Num LEDs: %u", this->controller_->PixelCount());
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
@@ -92,7 +89,6 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
   }
 #endif
 
-  ESP_LOGVV(TAG, "Writing RGB values to bus...");
   this->controller_->Show();
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
