@@ -58,8 +58,7 @@ void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::setup() {
   this->controller_->Begin();
 }
 template<typename T_METHOD, typename T_COLOR_FEATURE>
-void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::dump_config() {
-}
+void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::dump_config() {}
 template<typename T_METHOD, typename T_COLOR_FEATURE>
 void NeoPixelBusLightOutputBase<T_METHOD, T_COLOR_FEATURE>::loop() {
   if (!this->should_show_())
