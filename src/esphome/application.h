@@ -592,7 +592,7 @@ class Application {
    */
   sensor::Ppd42xSensorComponent *make_ppd42x_sensor(const std::string &friendly_name,
                                                             const GPIOInputPin &pm_10_0_pin,
-                                                            const GPIOInputPin &pm_2_5_pin,
+                                                            const GPIOInputPin &pm_02_5_pin,
                                                             uint32_t update_interval = 60000);
 #endif
 

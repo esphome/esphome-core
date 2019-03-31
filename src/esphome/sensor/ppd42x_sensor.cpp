@@ -13,9 +13,9 @@ namespace sensor {
 
 static const char *TAG = "sensor.ppd42x";
 
-Ppd42xSensorComponent::Ppd42xSensorComponent(const std::string &name, GPIOPin *pm_02_5_pin, GPIOPin *pm_10_0_pin,
+Ppd42xSensorComponent::Ppd42xSensorComponent(const std::string &name, GPIOPin *pm_10_0_pin, GPIOPin *pm_02_5_pin,
                                                      uint32_t update_interval)
-    : PollingSensorComponent(name, update_interval), pm_02_5_pin_(pm_02_5_pin), pm_10_0_pin_(pm_10_0_pin) {}
+    : PollingSensorComponent(name, update_interval), pm_10_0_pin_(pm_10_0_pin), pm_02_5_pin_(pm_02_5_pin)  {}
 void Ppd42xSensorComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up PPD42X Sensor...");
   this->pm_02_5_pin_->setup();
