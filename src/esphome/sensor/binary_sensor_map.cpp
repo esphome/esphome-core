@@ -15,7 +15,6 @@ static const char *TAG = "sensor.binary_sensor_map";
 BinarySensorMap::BinarySensorMap(const std::string &name) : Sensor(name) {}
 
 void BinarySensorMap::dump_config() {
-  ESP_LOGD(TAG, "BINARY_SENSOR_MAP:");
   LOG_SENSOR("  ", "binary_sensor_map", this);
 }
 
@@ -30,35 +29,34 @@ void BinarySensorMap::loop() {
 void BinarySensorMap::process_group_() {
   float total_current_value = 0.0;
   uint8_t num_active_sensors = 0;
-  bool touched = false;
+  bool any_active = false;
   uint64_t mask = 0x00;
-  uint8_t cur_sens = 0;
   // check all binary_sensors for its state. when active add its value to total_current_value.
   // create a bitmask for the binary_sensor status on all channels
-  for (auto *bs : this->sensors_) {
+  for (size_t i = 0; i < this->sensors_.size(); i++) {
+    auto *bs = this->sensors_[i];
     if (bs->binary_sensor->state) {
-      touched = true;
+      any_active = true;
       num_active_sensors++;
       total_current_value += bs->sensor_value;
-      mask |= 1 << cur_sens;
+      mask |= 1 << i;
     }
-    cur_sens++;
   }
   // check if the sensor map was touched
-  if (touched) {
+  if (any_active) {
     // did the bit_mask change or is it a new sensor touch
     if ((last_mask_ != mask) || !this->last_touched_) {
-      this->last_touched_ = true;
+      this->last_any_active_ = true;
       float publish_value = total_current_value / num_active_sensors;
-      ESP_LOGD(TAG, "%s - touched value: %.2f", this->name_.c_str(), publish_value);
+      ESP_LOGD(TAG, "%s - Publishing %.2f", this->name_.c_str(), publish_value);
       this->publish_state(publish_value);
-      last_mask_ = mask;
+      this->last_mask_ = mask;
     }
   } else {
     // is this a new sensor release
-    if (this->last_touched_) {
-      this->last_touched_ = false;
-      ESP_LOGD(TAG, "%s - release value: nan", this->name_.c_str());
+    if (this->last_any_active_) {
+      this->last_tany_active_ = false;
+      ESP_LOGD(TAG, "%s - No binary sensor active, publishing NAN", this->name_.c_str());
       this->publish_state(NAN);
     }
   }
