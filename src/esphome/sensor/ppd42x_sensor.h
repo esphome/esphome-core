@@ -21,7 +21,7 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
    * @param update_interval The interval in ms the sensor should check for new values.
    */
   Ppd42xSensorComponent(const std::string &name, GPIOPin *pm_10_0_pin, GPIOPin *pm_02_5_pin, 
-                            uint32_t update_interval = 60000);
+                        uint32_t update_interval = 60000);
 
   /// Set the timeout for waiting for the pm_10_0 in µs.
   void set_timeout_us(uint32_t timeout_us);

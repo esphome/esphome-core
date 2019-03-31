@@ -434,9 +434,9 @@ sensor::UltrasonicSensorComponent *Application::make_ultrasonic_sensor(const std
 #endif
 #ifdef USE_PPD42X_SENSOR
 sensor::Ppd42xSensorComponent *Application::make_ppd42x_sensor(const std::string &friendly_name,
-                                                                       const GPIOInputPin &pm_10_0_pin,
-                                                                       const GPIOInputPin &pm_02_5_pin,
-                                                                       uint32_t update_interval) {
+                                                               const GPIOInputPin &pm_10_0_pin,
+                                                               const GPIOInputPin &pm_02_5_pin,
+                                                               uint32_t update_interval) {
   auto *ppd42x = this->register_component(
       new Ppd42xSensorComponent(friendly_name, pm_10_0_pin.copy(), pm_02_5_pin.copy(), update_interval));
   this->register_sensor(ppd42x);
