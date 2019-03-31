@@ -15,11 +15,11 @@ namespace binary_sensor {
 
 class TTP229Channel : public binary_sensor::BinarySensor {
  public:
-  TTP229Channel(const std::string &name, int channel_num = 0);
-  void process(const uint16_t *data);
+  TTP229Channel(const std::string &name, int channel_num);
+  void process(uint16_t data);
 
  protected:
-  int channel_ = 0;
+  int channel_;
 };
 
 class TTP229LSFComponent : public Component, public I2CDevice {
@@ -33,14 +33,10 @@ class TTP229LSFComponent : public Component, public I2CDevice {
 
  protected:
   std::vector<TTP229Channel *> channels_{};
-  uint16_t lasttouched_ = 0;
-  uint16_t currtouched_ = 0;
   enum ErrorCode {
     NONE = 0,
     COMMUNICATION_FAILED,
   } error_code_{NONE};
-  void process_(uint16_t *data);
-  uint16_t read_channels_();
 };
 
 }  // namespace binary_sensor
