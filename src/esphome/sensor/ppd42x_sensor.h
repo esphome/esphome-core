@@ -39,9 +39,9 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
   int8_t accuracy_decimals() override;
 
   float get_setup_priority() const override;
- 
+
  protected:
-  /// Helper function to convert the specified pm_10_0 duration in µg/m³ to meters.
+  /// Helper function to convert the specified pm_xx_x duration in µs to µg/m³.
   static float us_to_pm(uint32_t sample_length, uint32_t time_pm);
   /// Helper function to convert the specified distance in meters to the pm_10_0 duration in µs.
 
