@@ -5,7 +5,7 @@
 #include <core_version.h>
 #endif
 
-#define ESPHOME_VERSION "1.12.1"
+#define ESPHOME_VERSION "1.12.2"
 
 #define HOT __attribute__((hot))
 #define ESPDEPRECATED(msg) __attribute__((deprecated(msg)))
