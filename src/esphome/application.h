@@ -583,7 +583,7 @@ class Application {
    * pin. The time between the UP and DOWN is then (with some maths) converted to a measurement
    * in microg/m3. You need to specify the PM10_0 pin (where particule > 10.0 /M3 will be sent to) and the PM2_5 pin
    * (where particule > 2.5 /M3 will be sent to). Note that in order to not block indefinitely if we don't receive UP
-   * , this class has a default timeout of around 30s. You can change that using the configuration file ( mandatory to be there).
+   * , this class has a default timeout of around 30s. You can change that using the configuration file ( mandatory).
    *
    * @param friendly_name The friendly name for this sensor advertised to Home Assistant.
    * @param pm_10_0_pin The pin the short pulse will be sent to, can be integer or GPIOOutputPin.
@@ -591,9 +591,9 @@ class Application {
    * @param update_interval The time in ms between updates, defaults to 60 seconds.
    */
   sensor::Ppd42xSensorComponent *make_ppd42x_sensor(const std::string &friendly_name,
-                                                            const GPIOInputPin &pm_10_0_pin,
-                                                            const GPIOInputPin &pm_02_5_pin,
-                                                            uint32_t update_interval = 60000);
+                                                    const GPIOInputPin &pm_10_0_pin,
+                                                    const GPIOInputPin &pm_02_5_pin,
+                                                    uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
