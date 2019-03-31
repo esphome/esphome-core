@@ -58,12 +58,12 @@ void Ppd42xSensorComponent::dump_config() {
 }
 float Ppd42xSensorComponent::us_to_pm(uint32_t sample_length, uint32_t time_pm) {
   float ratio = time_pm / (sample_length * 10.0);
-  return 1.1 * pow(ratio, 3) - 3.8 * pow(ratio, 2) + 520 * ratio + 0.62;}
+  return 1.1 * pow(ratio, 3) - 3.8 * pow(ratio, 2) + 520 * ratio + 0.62;
+}
 
 float Ppd42xSensorComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 std::string Ppd42xSensorComponent::unit_of_measurement() { return "µg/m³"; }
-std::string Ppd42xSensorComponent::icon() { return "mdi:arrow-expand-vertical";
-}
+std::string Ppd42xSensorComponent::icon() { return "mdi:arrow-expand-vertical"; }
 
 int8_t Ppd42xSensorComponent::accuracy_decimals() {
   return 2;  // cm precision
