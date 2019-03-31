@@ -22,7 +22,6 @@ void Ppd42xSensorComponent::setup() {
   this->pm_10_0_pin_->setup();
 }
 void Ppd42xSensorComponent::update() {
-
   uint32_t time_pm_10_0 =
       pulseIn(this->pm_10_0_pin_->get_pin(), uint8_t(!this->pm_10_0_pin_->is_inverted()), this->timeout_us_);
   uint32_t time_pm_02_5 =

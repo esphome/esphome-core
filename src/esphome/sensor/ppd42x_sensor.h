@@ -39,7 +39,6 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
   int8_t accuracy_decimals() override;
 
   float get_setup_priority() const override;
-
  
  protected:
   /// Helper function to convert the specified pm_10_0 duration in µg/m³ to meters.
