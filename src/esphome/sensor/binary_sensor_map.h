@@ -1,5 +1,5 @@
-#ifndef ESPHOME_SENSOR_BINARY_SESNOR_MAP_H
-#define ESPHOME_SENSOR_BINARY_SESNOR_MAP_H
+#ifndef ESPHOME_SENSOR_BINARY_SENSOR_MAP_H
+#define ESPHOME_SENSOR_BINARY_SENSOR_MAP_H
 
 #include "esphome/defines.h"
 
@@ -13,10 +13,8 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
 
-enum {
-  BINARY_SENSOR_MAP_TYPE_GROUP = 0x00,
-  BINARY_SENSOR_MAP_TYPE_SLIDER = 0x01,
-  BINARY_SENSOR_MAP_TYPE_WHEEL = 0x02,
+enum BinarySensorMapType {
+  BINARY_SENSOR_MAP_TYPE_GROUP,
 };
 
 struct BinarySensorMapChannel {
@@ -49,19 +47,17 @@ class BinarySensorMap : public Sensor, public Component {
    * @param value  The value this binary_sensor represents
    */
   void add_sensor(binary_sensor::BinarySensor *sensor, float value);
-  void set_sensor_type(uint8_t sensor_type);
+  void set_sensor_type(BinarySensorMapType sensor_type);
 
  protected:
   std::vector<BinarySensorMapChannel *> sensors_{};
-  uint8_t sensor_type_{BINARY_SENSOR_MAP_TYPE_GROUP};
-  bool last_touched_{false};
+  BinarySensorMapType sensor_type_{BINARY_SENSOR_MAP_TYPE_GROUP};
+  bool last_any_active_{false};
   // this gives max 46 channels per binary_sensor_map
   uint64_t last_mask_{0x00};
   /**
    * methods to process the types of binary_sensor_maps
    * GROUP: process_group_() just map to a value
-   * SLIDER: process_slider_() actuation should be in left/right order - NOT IMPLEMENTED YET
-   * WHEEL: process_wheel_() actuation should be in circular order - NOT IMPLEMENTED YET
    * */
   void process_group_();
 };
@@ -72,4 +68,4 @@ ESPHOME_NAMESPACE_END
 
 #endif  // USE_BINARY_SENSOR_MAP
 
-#endif  // ESPHOME_SENSOR_BINARY_SESNOR_MAP_H
+#endif  // ESPHOME_SENSOR_BINARY_SENSOR_MAP_H
