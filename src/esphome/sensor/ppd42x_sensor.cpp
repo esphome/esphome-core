@@ -26,7 +26,7 @@ void Ppd42xSensorComponent::update() {
   uint32_t time_pm_10_0 = pulseIn(this->pm_10_0_pin_->get_pin(), uint8_t(!this->pm_10_0_pin_->is_inverted()), this->timeout_us_);
   uint32_t time_pm_02_5 = pulseIn(this->pm_02_5_pin_->get_pin(), uint8_t(!this->pm_02_5_pin_->is_inverted()), this->timeout_us_);
 
-  ESP_LOGV(TAG, "PM10.0 took %uµs and PM 2.5 %uµs ", time_10_0, time_pm_02_5);
+  ESP_LOGV(TAG, "PM10.0 took %uµs and PM 2.5 %uµs ", time_pm_10_0, time_pm_02_5);
 
   if (time_pm_10_0 == 0) {
     ESP_LOGD(TAG, "'%s' - PM10.0 measurement timed out!", this->name_.c_str());
