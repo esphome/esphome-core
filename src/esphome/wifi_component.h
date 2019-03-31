@@ -90,7 +90,7 @@ class WiFiScanResult {
   WiFiScanResult(const bssid_t &bssid, const std::string &ssid, uint8_t channel, int8_t rssi, bool with_auth,
                  bool is_hidden);
 
-  bool matches(const WiFiAP &ap);
+  bool matches(const WiFiAP &config);
 
   bool get_matches() const;
   void set_matches(bool matches);
@@ -185,6 +185,7 @@ class WiFiComponent : public Component {
   void set_use_address(const std::string &use_address);
 
  protected:
+  static std::string format_mac_addr(const uint8_t mac[6]);
   void setup_ap_config_();
   void print_connect_params_();
 
