@@ -20,7 +20,7 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
    * @param pm_10_0_pin The pm_10_0 pin where the pm_10_0 is listened for.
    * @param update_interval The interval in ms the sensor should check for new values.
    */
-  Ppd42xSensorComponent(const std::string &name, GPIOPin *pm_2_5_pin, GPIOPin *pm_10_0_pin,
+  Ppd42xSensorComponent(const std::string &name, GPIOPin *pm_10_0_pin, GPIOPin *pm_02_5_pin, 
                             uint32_t update_interval = 60000);
 
   /// Set the timeout for waiting for the pm_10_0 in µs.
@@ -43,7 +43,7 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
  
  protected:
   /// Helper function to convert the specified pm_10_0 duration in µg/m³ to meters.
-  static float us_to_pm(uint32_t l_us, uint32_t t_us);
+  static float us_to_pm(uint32_t sampleLength, uint32_t time_pm);
   /// Helper function to convert the specified distance in meters to the pm_10_0 duration in µs.
 
   GPIOPin *pm_02_5_pin_;
