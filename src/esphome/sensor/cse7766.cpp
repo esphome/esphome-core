@@ -15,7 +15,6 @@ void CSE7766Component::loop() {
   const uint32_t now = millis();
   if (now - this->last_transmission_ >= 500) {
     // last transmission too long ago. Reset RX index.
-    ESP_LOGV(TAG, "%u milliseconds have passed since the last transmission.  Resetting index", now - this->last_transmission_);
     this->raw_data_index_ = 0;
   }
 
