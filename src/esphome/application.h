@@ -579,10 +579,10 @@ class Application {
 #ifdef USE_PPD42X_SENSOR
   /** Create an PPD42x particle sensor.
    *
-   * This can for example be an PPD42 particle sensor. It listens during a short periode for  impulses from one
-   * pin. The time between the UP and DOWN is then (with some maths) converted to a measurement
-   * in microg/m3. You need to specify the PM10_0 pin (where particule > 10.0 µg/m³ will be sent to) and the PM2_5 pin
-   * (where particule > 2.5 µg/m³ will be sent to). Note that in order to not block indefinitely if we don't receive UP
+   * This can for example be an PPD42 particle sensor. It listens during a short periode for impulses from one
+   * pin or two pins (P1 and P2). The time between the UP and DOWN is then (with some maths) converted to a measurement
+   * in pcs/L. You need to specify the PM10_0 pin (where particule > 10.0  pcs/L will be sent to) and the PM2_5 pin
+   * (where particule > 2.5  pcs/L will be sent to). Note that in order to not block indefinitely if we don't receive UP
    * , this class has a default timeout of around 30s. You can change that using the configuration file ( mandatory).
    *
    * @param friendly_name The friendly name for this sensor advertised to Home Assistant.

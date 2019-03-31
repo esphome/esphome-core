@@ -35,7 +35,7 @@ void Ppd42xSensorComponent::update() {
   } else {
     float result = Ppd42xSensorComponent::us_to_pm(this->timeout_us_, time_pm_10_0);
     this->publish_state(result);
-    ESP_LOGD(TAG, "'%s' - Got PM10.0 Concentration: %.1f µg/m³", this->name_.c_str(), result);
+    ESP_LOGD(TAG, "'%s' - Got PM10.0 Concentration: %.1f pcs/L", this->name_.c_str(), result);
     this->publish_state(result);
   }
   if (time_pm_02_5 == 0) {
@@ -44,7 +44,7 @@ void Ppd42xSensorComponent::update() {
   } else {
     float result = Ppd42xSensorComponent::us_to_pm(this->timeout_us_, time_pm_02_5);
     this->publish_state(result);
-    ESP_LOGD(TAG, "'%s' - Got PM 2.5 Concentration: %.1f µg/m³", this->name_.c_str(), result);
+    ESP_LOGD(TAG, "'%s' - Got PM 2.5 Concentration: %.1f pcs/L", this->name_.c_str(), result);
     this->publish_state(result);
   }
 }
@@ -61,7 +61,7 @@ float Ppd42xSensorComponent::us_to_pm(uint32_t sample_length, uint32_t time_pm) 
 }
 
 float Ppd42xSensorComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
-std::string Ppd42xSensorComponent::unit_of_measurement() { return "µg/m³"; }
+std::string Ppd42xSensorComponent::unit_of_measurement() { return "pcs/L"; }
 std::string Ppd42xSensorComponent::icon() { return "mdi:arrow-expand-vertical"; }
 
 int8_t Ppd42xSensorComponent::accuracy_decimals() {
