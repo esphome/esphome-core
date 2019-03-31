@@ -54,8 +54,8 @@ void Ppd42xSensorComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  Timeout: %u µs", this->timeout_us_);
   LOG_UPDATE_INTERVAL(this);
 }
-float Ppd42xSensorComponent::us_to_pm(uint32_t sampleLength, uint32_t time_pm) {
-  float ratio = time_pm/(sampleLength*10.0);
+float Ppd42xSensorComponent::us_to_pm(uint32_t sample_length, uint32_t time_pm) {
+  float ratio = time_pm/(sample_length*10.0);
   return 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62;
 }
 float Ppd42xSensorComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }

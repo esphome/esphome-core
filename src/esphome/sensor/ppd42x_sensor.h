@@ -43,7 +43,7 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
  
  protected:
   /// Helper function to convert the specified pm_10_0 duration in µg/m³ to meters.
-  static float us_to_pm(uint32_t sampleLength, uint32_t time_pm);
+  static float us_to_pm(uint32_t sample_length, uint32_t time_pm);
   /// Helper function to convert the specified distance in meters to the pm_10_0 duration in µs.
 
   GPIOPin *pm_02_5_pin_;
