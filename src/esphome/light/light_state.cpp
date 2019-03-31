@@ -201,7 +201,7 @@ void LightState::loop() {
     this->active_effect_->apply();
   }
 
-  if (this->next_write_ || (this->transformer_ != nullptr && this->transformer_->is_continuous())) {
+  if (this->next_write_ || this->transformer_ != nullptr) {
     this->output_->write_state(this);
     this->next_write_ = false;
   }
@@ -477,7 +477,10 @@ void LightState::StateCall::perform() const {
   saved.white = v.get_white();
   saved.color_temp = v.get_color_temperature();
   saved.effect = *this->state_->active_effect_index_;
-  this->state_->rtc_.save(&saved);
+  if (!this->flash_length_.has_value()) {
+    // Do not save RTC state for flashes.
+    this->state_->rtc_.save(&saved);
+  }
   this->state_->send_values();
 }
 LightState::StateCall::StateCall(LightState *state) : state_(state) {}
