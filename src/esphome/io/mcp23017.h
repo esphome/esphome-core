@@ -15,7 +15,7 @@ ESPHOME_NAMESPACE_BEGIN
 enum MCP23017GPIOMode {
   MCP23017_INPUT = INPUT,                // 0x00
   MCP23017_INPUT_PULLUP = INPUT_PULLUP,  // 0x02
-  MCP23017_OUTPUT = OUTPUT,              // 0x01
+  MCP23017_OUTPUT = OUTPUT               // 0x01
 };
 
 namespace io {
