@@ -36,24 +36,40 @@ class PN532Component : public PollingComponent, public SPIDevice {
  protected:
   bool is_device_msb_first() override;
 
-  void pn532_write_command_(uint8_t len);
-  bool pn532_write_command_check_ack_(uint8_t len, bool ignore = false);
+  /// Write the full command given in data to the PN532
+  void pn532_write_command_(const std::vector<uint8_t> &data);
+  bool pn532_write_command_check_ack_(const std::vector<uint8_t> &data);
 
-  void pn532_read_data_(uint8_t len);
+  /** Read a data frame from the PN532 and return the result as a vector.
+   *
+   * Note that is_ready needs to be checked first before requesting this method.
+   *
+   * On failure, an empty vector is returned.
+   */
+  std::vector<uint8_t> pn532_read_data_();
 
+  /** Checks if the PN532 has set its ready status flag.
+   *
+   * Procedure goes as follows:
+   * - Host sends command to PN532 "write data"
+   * - Wait for readiness (until PN532 has processed command) by polling "read status"/is_ready_
+   * - Parse ACK/NACK frame with "read data" byte
+   *
+   * - If data required, wait until device reports readiness again
+   * - Then call "read data" and read certain number of bytes (length is given at offset 4 of frame)
+   */
   bool is_ready_();
+  bool wait_ready_();
 
   bool read_ack_();
 
-  uint8_t buffer_[32];
   bool requested_read_{false};
   std::vector<PN532BinarySensor *> binary_sensors_;
   std::vector<PN532Trigger *> triggers_;
-  std::vector<uint8_t> last_uid_;
   enum PN532Error {
     NONE = 0,
-    WRITING_SAM_COMMAND_FAILED,
-    READING_SAM_COMMAND_FAILED,
+    WAKEUP_FAILED,
+    SAM_COMMAND_FAILED,
   } error_code_{NONE};
 };
 
@@ -69,7 +85,7 @@ class PN532BinarySensor : public binary_sensor::BinarySensor {
 
 class PN532Trigger : public Trigger<std::string> {
  public:
-  void process(uint8_t *uid, uint8_t uid_length);
+  void process(const uint8_t *uid, uint8_t uid_length);
 };
 
 }  // namespace binary_sensor
