@@ -71,7 +71,7 @@ void BinarySensorMap::add_sensor(binary_sensor::BinarySensor *sensor, float valu
   this->sensors_.push_back(sensor_channel);
 }
 
-void BinarySensorMap::set_sensor_type(uint8_t sensor_type) { this->sensor_type_ = sensor_type; }
+void BinarySensorMap::set_sensor_type(BinarySensorMapType sensor_type) { this->sensor_type_ = sensor_type; }
 
 }  // namespace sensor
 
