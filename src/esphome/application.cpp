@@ -432,7 +432,17 @@ sensor::UltrasonicSensorComponent *Application::make_ultrasonic_sensor(const std
   return ultrasonic;
 }
 #endif
-
+#ifdef USE_PPD42X_SENSOR
+sensor::Ppd42xSensorComponent *Application::make_ppd42x_sensor(const std::string &friendly_name,
+                                                                       const GPIOInputPin &pm_10_0_pin,
+                                                                       const GPIOInputPin &pm_02_5_pin,
+                                                                       uint32_t update_interval) {
+  auto *ppd42x = this->register_component(
+      new Ppd42xSensorComponent(friendly_name, pm_10_0_pin.copy(), pm_02_5_pin.copy(), update_interval));
+  this->register_sensor(ppd42x);
+  return ppd42x;
+}
+#endif
 #ifdef USE_WIFI_SIGNAL_SENSOR
 sensor::WiFiSignalSensor *Application::make_wifi_signal_sensor(const std::string &name, uint32_t update_interval) {
   auto *wifi = this->register_component(new WiFiSignalSensor(name, update_interval));
@@ -1105,17 +1115,7 @@ sensor::TotalDailyEnergy *Application::make_total_daily_energy_sensor(const std:
   return total;
 }
 #endif
-#ifdef USE_PPD42X_SENSOR
-sensor::Ppd42xSensorComponent *Application::make_ppd42x_sensor(const std::string &friendly_name,
-                                                                       const GPIOInputPin &pm_10_0_pin,
-                                                                       const GPIOInputPin &pm2_5_pin,
-                                                                       uint32_t update_interval) {
-  auto *ppd42x = this->register_component(
-      new Ppd42xSensorComponent(friendly_name, pm10_0_pin.copy(), pm2_5_pin.copy(), update_interval));
-  this->register_sensor(ppd42x);
-  return ppd42x;
-}
-#endif
+
 void Application::set_loop_interval(uint32_t loop_interval) { this->loop_interval_ = loop_interval; }
 
 void Application::register_component_(Component *comp) {

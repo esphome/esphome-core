@@ -46,7 +46,7 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
   static float us_to_pm(uint32_t l_us, uint32_t t_us);
   /// Helper function to convert the specified distance in meters to the pm_10_0 duration in µs.
 
-  GPIOPin *pm_2_5_pin_;
+  GPIOPin *pm_02_5_pin_;
   GPIOPin *pm_10_0_pin_;
   uint32_t timeout_us_{30000};  
 
