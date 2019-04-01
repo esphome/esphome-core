@@ -37,18 +37,23 @@ bool MCP23017::digital_read(uint8_t pin) {
   this->read_reg_(reg_addr, &value);
   return value & (1 << bit);
 }
-void MCP23017::digital_write(uint8_t pin, bool value) { this->update_reg_(pin, value, MCP23017_OLATA); }
+void MCP23017::digital_write(uint8_t pin, bool value) {
+  uint8_t reg_addr = pin < 8 ? MCP23017_OLATA : MCP23017_OLATB;
+  this->update_reg_(pin, value, reg_addr);
+}
 void MCP23017::pin_mode(uint8_t pin, uint8_t mode) {
+  uint8_t iodir = pin < 8 ? MCP23017_IODIRA : MCP23017_IODIRB;
+  uint8_t gppu = pin < 8 ? MCP23017_GPPUA : MCP23017_GPPUB;
   switch (mode) {
     case MCP23017_INPUT:
-      this->update_reg_(pin, true, MCP23017_IODIRA);
+      this->update_reg_(pin, true, iodir);
       break;
     case MCP23017_INPUT_PULLUP:
-      this->update_reg_(pin, true, MCP23017_IODIRA);
-      this->update_reg_(pin, true, MCP23017_GPPUA);
+      this->update_reg_(pin, true, iodir);
+      this->update_reg_(pin, true, gppu);
       break;
     case MCP23017_OUTPUT:
-      this->update_reg_(pin, true, MCP23017_IODIRA);
+      this->update_reg_(pin, false, iodir);
       break;
     default:
       break;
@@ -67,8 +72,7 @@ bool MCP23017::write_reg_(uint8_t reg, uint8_t value) {
 
   return this->write_byte(reg, value);
 }
-void MCP23017::update_reg_(uint8_t pin, bool pin_value, uint8_t reg_a) {
-  uint8_t reg_addr = pin < 8 ? reg_a : reg_a + 1;
+void MCP23017::update_reg_(uint8_t pin, bool pin_value, uint8_t reg_addr) {
   uint8_t bit = pin % 8;
   uint8_t reg_value = 0;
   if (reg_addr == MCP23017_OLATA) {

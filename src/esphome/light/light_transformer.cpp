@@ -50,8 +50,6 @@ LightTransitionTransformer::LightTransitionTransformer(uint32_t start_time, uint
     this->start_values_.set_color_temperature(target_values.get_color_temperature());
   }
 }
-bool LightTransitionTransformer::is_continuous() { return true; }
-
 LightColorValues LightFlashTransformer::get_values() { return this->get_target_values_(); }
 
 LightColorValues LightFlashTransformer::get_end_values() { return this->get_start_values_(); }
@@ -59,7 +57,6 @@ LightColorValues LightFlashTransformer::get_end_values() { return this->get_star
 LightFlashTransformer::LightFlashTransformer(uint32_t start_time, uint32_t length, const LightColorValues &start_values,
                                              const LightColorValues &target_values)
     : LightTransformer(start_time, length, start_values, target_values) {}
-bool LightFlashTransformer::is_continuous() { return false; }
 
 }  // namespace light
 
