@@ -798,6 +798,10 @@ bool APIConnection::send_cover_state(cover::Cover *cover) {
   // CoverState state = 2;
   uint32_t state = (cover->state == cover::COVER_OPEN) ? 0 : 1;
   buffer.encode_uint32(2, state);
+  // float position = 3;
+  buffer.encode_float(3, cover->position);
+  // float tilt = 4;
+  buffer.encode_float(4, cover->tilt);
   return this->send_buffer(APIMessageType::COVER_STATE_RESPONSE);
 }
 #endif
@@ -952,21 +956,20 @@ void APIConnection::on_cover_command_request_(const CoverCommandRequest &req) {
   if (cover == nullptr)
     return;
 
+  auto call = cover->make_call();
   if (req.get_command().has_value()) {
-    switch (*req.get_command()) {
-      case cover::COVER_COMMAND_OPEN:
-        cover->open();
-        break;
-      case cover::COVER_COMMAND_CLOSE:
-        cover->close();
-        break;
-      case cover::COVER_COMMAND_STOP:
-        cover->stop();
-        break;
-      default:
-        break;
-    }
+    auto cmd = *req.get_command();
+    call.set_command(cmd);
   }
+  if (req.get_position().has_value()) {
+    auto pos = *req.get_position();
+    call.set_position(pos);
+  }
+  if (req.get_tilt().has_value()) {
+    auto tilt = *req.get_tilt();
+    call.set_tilt(tilt);
+  }
+  call.perform();
 }
 #endif
 

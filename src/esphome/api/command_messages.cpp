@@ -25,6 +25,14 @@ bool CoverCommandRequest::decode_varint(uint32_t field_id, uint32_t value) {
       // CoverCommand command = 3;
       this->command_ = static_cast<cover::CoverCommand>(value);
       return true;
+    case 4:
+      // bool has_position = 4;
+      this->has_position_ = value;
+      return true;
+    case 6:
+      // bool has_tilt = 6;
+      this->has_tilt_ = value;
+      return true;
     default:
       return false;
   }
@@ -34,6 +42,14 @@ bool CoverCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
     case 1:
       // fixed32 key = 1;
       this->key_ = value;
+      return true;
+    case 5:
+      // float position = 5;
+      this->position_ = as_float(value);
+      return true;
+    case 7:
+      // float tilt = 7;
+      this->tilt_ = as_float(value);
       return true;
     default:
       return false;
@@ -45,6 +61,16 @@ optional<cover::CoverCommand> CoverCommandRequest::get_command() const {
   if (!this->has_state_)
     return {};
   return this->command_;
+}
+optional<float> CoverCommandRequest::get_position() const {
+  if (!this->has_position_)
+    return {};
+  return this->position_;
+}
+optional<float> CoverCommandRequest::get_tilt() const {
+  if (!this->has_tilt_)
+    return {};
+  return this->tilt_;
 }
 #endif
 

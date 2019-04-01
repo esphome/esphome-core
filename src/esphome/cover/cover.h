@@ -8,21 +8,27 @@
 #include "esphome/component.h"
 #include "esphome/helpers.h"
 #include "esphome/automation.h"
+#include "esphome/cover/cover_traits.h"
+#include "esphome/esppreferences.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
 namespace cover {
 
-enum CoverState {
+enum CoverState : uint8_t {
   COVER_OPEN = 0,
   COVER_CLOSED,
 };
 
-enum CoverCommand {
+const char *cover_state_to_str(CoverState state);
+
+enum CoverCommand : uint8_t {
   COVER_COMMAND_OPEN = 0,
   COVER_COMMAND_CLOSE,
   COVER_COMMAND_STOP,
 };
+
+const char *cover_command_to_str(CoverCommand command);
 
 template<typename... Ts> class OpenAction;
 template<typename... Ts> class CloseAction;
@@ -32,8 +38,12 @@ template<typename... Ts> class CoverPublishAction;
 #define LOG_COVER(prefix, type, obj) \
   if (obj != nullptr) { \
     ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
-    if (obj->assumed_state()) { \
+    auto traits_ = obj->get_traits(); \
+    if (traits_.get_is_assumed_state()) { \
       ESP_LOGCONFIG(TAG, prefix "  Assumed State: YES"); \
+    } \
+    if (!traits_.get_device_class().empty()) { \
+      ESP_LOGCONFIG(TAG, prefix "  Device Class: '%s'", traits_.get_device_class().c_str()); \
     } \
   }
 
@@ -41,50 +51,87 @@ template<typename... Ts> class CoverPublishAction;
 class MQTTCoverComponent;
 #endif
 
+class Cover;
+
+class CoverCall {
+ public:
+  CoverCall(Cover *parent);
+
+  CoverCall &set_command(CoverCommand command);
+  CoverCall &set_command(const char *command);
+  CoverCall &set_command_open();
+  CoverCall &set_command_close();
+  CoverCall &set_command_stop();
+  CoverCall &set_position(float position);
+  CoverCall &set_tilt(float tilt);
+
+  void perform() const;
+
+  const optional<CoverCommand> &get_command() const;
+  const optional<float> &get_position() const;
+  const optional<float> &get_tilt() const;
+
+ protected:
+  Cover *parent_;
+  optional<CoverCommand> command_{};
+  optional<float> position_{};
+  optional<float> tilt_{};
+};
+
+struct CoverRestoreState {
+  CoverState state;
+  float position;
+  float tilt;
+} __attribute__((packed));
+
 class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
 
+  CoverState state{COVER_OPEN};
+  float position{0.0f};
+  float tilt{0.0f};
+
+  CoverCall make_call();
   void open();
   void close();
   void stop();
 
-  void add_on_publish_state_callback(std::function<void(CoverState)> &&f);
-
-  void publish_state(CoverState state);
+  void add_on_state_callback(std::function<void()> &&f);
 
   template<typename... Ts> OpenAction<Ts...> *make_open_action();
   template<typename... Ts> CloseAction<Ts...> *make_close_action();
   template<typename... Ts> StopAction<Ts...> *make_stop_action();
   template<typename... Ts> CoverPublishAction<Ts...> *make_cover_publish_action();
 
-  /** Return whether this cover is optimistic - i.e. if both the OPEN/CLOSE actions should be displayed in
-   * Home Assistant because the real state is unknown.
-   *
-   * Defaults to false.
-   */
-  virtual bool assumed_state();
-
-  CoverState state{COVER_OPEN};
-
-  bool has_state() const;
+  void publish_state();
 
 #ifdef USE_MQTT_COVER
   MQTTCoverComponent *get_mqtt() const;
   void set_mqtt(MQTTCoverComponent *mqtt);
 #endif
 
+  CoverTraits get_traits();
+  void set_device_class(const std::string &device_class);
+
  protected:
-  virtual void write_command(CoverCommand command) = 0;
+  friend CoverCall;
+
+  virtual void control(const CoverCall &call) = 0;
+
+  virtual CoverTraits traits() = 0;
+
+  optional<CoverRestoreState> restore_state_();
 
   uint32_t hash_base() override;
 
-  CallbackManager<void(CoverState)> state_callback_{};
-  Deduplicator<CoverState> dedup_;
+  CallbackManager<void()> state_callback_{};
+  std::string device_class_override_{};
 
 #ifdef USE_MQTT_COVER
   MQTTCoverComponent *mqtt_{nullptr};
 #endif
+  ESPPreferenceObject rtc_;
 };
 
 template<typename... Ts> class OpenAction : public Action<Ts...> {

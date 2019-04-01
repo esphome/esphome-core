@@ -20,11 +20,17 @@ class CoverCommandRequest : public APIMessage {
   APIMessageType message_type() const override;
   uint32_t get_key() const;
   optional<cover::CoverCommand> get_command() const;
+  optional<float> get_position() const;
+  optional<float> get_tilt() const;
 
  protected:
   uint32_t key_{0};
   bool has_state_{false};
   cover::CoverCommand command_{cover::COVER_COMMAND_OPEN};
+  bool has_position_{false};
+  float position_{0.0f};
+  bool has_tilt_{false};
+  float tilt_{0.0f};
 };
 #endif
 

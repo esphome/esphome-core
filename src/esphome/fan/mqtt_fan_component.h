@@ -16,14 +16,10 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
  public:
   explicit MQTTFanComponent(FanState *state);
 
-  /// Set a custom oscillation command topic. Defaults to "<base>/oscillation/command".
-  void set_custom_oscillation_command_topic(const std::string &topic);
-  /// Set a custom oscillation state topic. Defaults to "<base>/oscillation/state".
-  void set_custom_oscillation_state_topic(const std::string &topic);
-  /// Set a custom speed command topic. Defaults to "<base>/speed/command".
-  void set_custom_speed_command_topic(const std::string &topic);
-  /// Set a custom speed state topic. Defaults to "<base>/speed/state".
-  void set_custom_speed_state_topic(const std::string &topic);
+  MQTT_COMPONENT_CUSTOM_TOPIC(oscillation, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(oscillation, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(speed, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(speed, state)
 
   void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
@@ -37,11 +33,6 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
   /// 'fan' component type for discovery.
   std::string component_type() const override;
 
-  const std::string get_oscillation_command_topic() const;
-  const std::string get_oscillation_state_topic() const;
-  const std::string get_speed_command_topic() const;
-  const std::string get_speed_state_topic() const;
-
   FanState *get_state() const;
 
   bool is_internal() override;
@@ -49,10 +40,6 @@ class MQTTFanComponent : public mqtt::MQTTComponent {
  protected:
   std::string friendly_name() const override;
 
-  std::string custom_oscillation_command_topic_;
-  std::string custom_oscillation_state_topic_;
-  std::string custom_speed_command_topic_;
-  std::string custom_speed_state_topic_;
   FanState *state_;
 };
 

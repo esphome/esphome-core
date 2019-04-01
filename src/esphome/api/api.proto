@@ -121,6 +121,9 @@ message ListEntitiesCoverResponse {
   string unique_id = 4;
 
   bool assumed_state = 5;
+  bool supports_position = 6;
+  bool supports_tilt = 7;
+  string device_class = 8;
 }
 message ListEntitiesFanResponse {
   string object_id = 1;
@@ -190,6 +193,8 @@ message CoverStateResponse {
     CLOSED = 1;
   }
   CoverState state = 2;
+  float position = 3;
+  float tilt = 4;
 }
 enum FanSpeed {
   LOW = 0;
@@ -235,6 +240,10 @@ message CoverCommandRequest {
   }
   bool has_state = 2;
   CoverCommand command = 3;
+  bool has_position = 4;
+  float position = 5;
+  bool has_tilt = 6;
+  float tilt = 7;
 }
 message FanCommandRequest {
   fixed32 key = 1;
