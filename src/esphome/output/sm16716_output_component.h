@@ -49,7 +49,7 @@ class SM16716OutputComponent : public Component {
   // (In most use cases you won't need these)
   uint8_t get_num_channels() const;
   uint8_t get_num_chips() const;
-  
+
   /// Setup the SM16716.
   void setup() override;
   void dump_config() override;

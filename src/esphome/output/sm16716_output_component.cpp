@@ -22,11 +22,7 @@ static const char *TAG = "output.sm16716";
 
 SM16716OutputComponent::SM16716OutputComponent(GPIOPin *pin_data, GPIOPin *pin_clock, uint8_t num_channels,
                                                uint8_t num_chips, bool update)
-    : pin_data_(pin_data),
-      pin_clock_(pin_clock),
-      num_channels_(num_channels),
-      num_chips_(num_chips),
-      update_(update) {}
+    : pin_data_(pin_data), pin_clock_(pin_clock), num_channels_(num_channels), num_chips_(num_chips), update_(update) {}
 
 void SM16716OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SM16716OutputComponent...");
@@ -64,13 +60,13 @@ void SM16716OutputComponent::loop() {
     this->write_byte_(this->pwm_amounts_[index]);
     index++;
   }
-  
+
   // send a blank 25 bits to signal the end
   this->write_bit_(false);
   this->write_byte_(0);
   this->write_byte_(0);
   this->write_byte_(0);
-  
+
   this->update_ = false;
 }
 
@@ -119,7 +115,7 @@ SM16716OutputComponent::Channel::Channel(SM16716OutputComponent *parent, uint8_t
     : FloatOutput(), parent_(parent), channel_(channel) {}
 
 void SM16716OutputComponent::Channel::write_state(float state) {
-  uint8_t amount = state * 0xFF;
+  auto amount = uint8_t(state * 0xFF);
   this->parent_->set_channel_value_(this->channel_, amount);
 }
 
