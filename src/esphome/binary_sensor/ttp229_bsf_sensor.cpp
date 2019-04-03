@@ -10,9 +10,9 @@ namespace binary_sensor {
 
 static const char *TAG = "binary_sensor.ttp229";
 
-TTP229Channel::TTP229Channel(const std::string &name, int channel_num) : BinarySensor(name) { channel_ = channel_num; }
+TTP229BSFChannel::TTP229BSFChannel(const std::string &name, int channel_num) : BinarySensor(name) { channel_ = channel_num; }
 
-void TTP229Channel::process(const uint16_t *data) { this->publish_state(*data & (1 << this->channel_)); }
+void TTP229BSFChannel::process(const uint16_t *data) { this->publish_state(*data & (1 << this->channel_)); }
 
 TTP229BSFComponent::TTP229BSFComponent(GPIOPin *sdo_pin, GPIOPin *scl_pin) : sdo_pin_(sdo_pin), scl_pin_(scl_pin) {}
 
@@ -32,7 +32,7 @@ void TTP229BSFComponent::dump_config() {
 
 float TTP229BSFComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 
-TTP229Channel *TTP229BSFComponent::add_channel(binary_sensor::TTP229Channel *channel) {
+TTP229BSFChannel *TTP229BSFComponent::add_channel(binary_sensor::TTP229BSFChannel *channel) {
   this->channels_.push_back(channel);
   return channel;
 }
@@ -43,7 +43,7 @@ void TTP229BSFComponent::process_(uint16_t *data) {
   }
 }
 
-bool TTP229BSFComponent::GetBit() {
+bool TTP229BSFComponent::get_bit_() {
   this->scl_pin_->digital_write(false);
   delayMicroseconds(2);  // 500KHz
   bool bitval = this->sdo_pin_->digital_read();
@@ -55,7 +55,7 @@ bool TTP229BSFComponent::GetBit() {
 uint16_t TTP229BSFComponent::read_data_(uint8_t num_bits) {
   uint16_t val = 0;
   for (uint8_t i = 0; i < num_bits; i++)
-    if (GetBit())
+    if (get_bit_())
       val |= 1 << i;
   delay(2);
   return ~val;

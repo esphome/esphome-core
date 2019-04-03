@@ -13,9 +13,9 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
-class TTP229Channel : public binary_sensor::BinarySensor {
+class TTP229BSFChannel : public binary_sensor::BinarySensor {
  public:
-  TTP229Channel(const std::string &name, int channel_num = 0);
+  TTP229BSFChannel(const std::string &name, int channel_num = 0);
   void process(const uint16_t *data);
 
  protected:
@@ -25,7 +25,7 @@ class TTP229Channel : public binary_sensor::BinarySensor {
 class TTP229BSFComponent : public Component {
  public:
   TTP229BSFComponent(GPIOPin *sdo_pin, GPIOPin *scl_pin);
-  binary_sensor::TTP229Channel *add_channel(binary_sensor::TTP229Channel *channel);
+  binary_sensor::TTP229BSFChannel *add_channel(binary_sensor::TTP229BSFChannel *channel);
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override;
@@ -34,11 +34,11 @@ class TTP229BSFComponent : public Component {
  protected:
   GPIOPin *sdo_pin_;
   GPIOPin *scl_pin_;
-  std::vector<TTP229Channel *> channels_{};
+  std::vector<TTP229BSFChannel *> channels_{};
   uint16_t lasttouched_{0};
   uint16_t currtouched_{0};
   void process_(uint16_t *data);
-  bool GetBit();
+  bool get_bit_();
   uint16_t read_data_(uint8_t num_bits);
 };
 
