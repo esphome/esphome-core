@@ -1,8 +1,11 @@
 // Based on:
 //   - The SM16716 implementation from this repository.
-//   - The Tasmota SM16716 implementation: https://github.com/arendst/Sonoff-Tasmota/blob/master/sonoff/xdrv_04_light.ino
-//   - This older implementation: https://github.com/sowbug/sm16716
-//   - The datasheet (in Chinese only): https://github.com/sowbug/sm16716/blob/master/SM16716%20Datasheet%20%5BChinese%5D.pdf
+//   - The Tasmota SM16716 implementation:
+//     https://github.com/arendst/Sonoff-Tasmota/blob/master/sonoff/xdrv_04_light.ino
+//   - This older implementation:
+//     https://github.com/sowbug/sm16716
+//   - The datasheet (in Chinese only):
+//     https://github.com/sowbug/sm16716/blob/master/SM16716%20Datasheet%20%5BChinese%5D.pdf
 
 #include "esphome/defines.h"
 
@@ -17,9 +20,8 @@ namespace output {
 
 static const char *TAG = "output.sm16716";
 
-SM16716OutputComponent::SM16716OutputComponent(GPIOPin *pin_mosi, GPIOPin *pin_sclk,
-                                               uint8_t num_channels, uint8_t num_chips,
-                                               bool update)
+SM16716OutputComponent::SM16716OutputComponent(GPIOPin *pin_mosi, GPIOPin *pin_sclk, uint8_t num_channels,
+                                               uint8_t num_chips, bool update)
     : pin_mosi_(pin_mosi),
       pin_sclk_(pin_sclk),
       num_channels_(num_channels),
@@ -48,7 +50,7 @@ void SM16716OutputComponent::loop() {
   }
 
   for (uint8_t i = 0; i < 50; i++) {
-    this->write_bit_(0);
+    this->write_bit_(false);
   }
 
   // send 25 bits (1 start bit plus 24 data bits) for each chip
@@ -56,7 +58,7 @@ void SM16716OutputComponent::loop() {
   while (index < this->num_channels_) {
     // send a start bit initially and after every 3 channels
     if (index % 3 == 0) {
-      this->write_bit_(1);
+      this->write_bit_(true);
     }
 
     this->write_byte_(this->pwm_amounts_[index]);
@@ -64,7 +66,7 @@ void SM16716OutputComponent::loop() {
   }
   
   // send a blank 25 bits to signal the end
-  this->write_bit_(0);
+  this->write_bit_(false);
   this->write_byte_(0);
   this->write_byte_(0);
   this->write_byte_(0);
@@ -73,8 +75,8 @@ void SM16716OutputComponent::loop() {
 }
 
 SM16716OutputComponent::Channel *SM16716OutputComponent::create_channel(uint8_t channel,
-                                                                      PowerSupplyComponent *power_supply,
-                                                                      float max_power) {
+                                                                        PowerSupplyComponent *power_supply,
+                                                                        float max_power) {
   ESP_LOGV(TAG, "Getting channel %d...", channel);
   auto *c = new Channel(this, channel);
   c->set_power_supply(power_supply);

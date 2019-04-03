@@ -24,8 +24,7 @@ class SM16716OutputComponent : public Component {
    * @param update Update/reset duty data at boot (driver will keep
    *               configuration after powercycle)
    */
-  SM16716OutputComponent(GPIOPin *pin_mosi, GPIOPin *pin_sclk,
-                         uint8_t num_channels = 3, uint8_t num_chips = 1,
+  SM16716OutputComponent(GPIOPin *pin_mosi, GPIOPin *pin_sclk, uint8_t num_channels = 3, uint8_t num_chips = 1,
                          bool update = true);
 
   /** Get a SM16716 output channel.
