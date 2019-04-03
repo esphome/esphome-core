@@ -35,17 +35,11 @@ class TTP229BSFComponent : public Component {
   GPIOPin *sdo_pin_;
   GPIOPin *scl_pin_;
   std::vector<TTP229Channel *> channels_{};
-  uint8_t num_channels_;
-  bool active_high_{false};
   uint16_t lasttouched_{0};
   uint16_t currtouched_{0};
-  enum ErrorCode {
-    NONE = 0,
-    COMMUNICATION_FAILED,
-  } error_code_{NONE};
   void process_(uint16_t *data);
   bool GetBit();
-  uint16_t read_channels_(uint8_t num_channels);
+  uint16_t read_data_(uint8_t num_bits);
 };
 
 }  // namespace binary_sensor
