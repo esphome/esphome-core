@@ -10,7 +10,9 @@ namespace binary_sensor {
 
 static const char *TAG = "binary_sensor.ttp229";
 
-TTP229BSFChannel::TTP229BSFChannel(const std::string &name, int channel_num) : BinarySensor(name) { channel_ = channel_num; }
+TTP229BSFChannel::TTP229BSFChannel(const std::string &name, int channel_num) : BinarySensor(name) {
+  channel_ = channel_num;
+}
 
 void TTP229BSFChannel::process(const uint16_t *data) { this->publish_state(*data & (1 << this->channel_)); }
 
