@@ -74,6 +74,7 @@
 #include "esphome/output/ledc_output_component.h"
 #include "esphome/output/pca9685_output_component.h"
 #include "esphome/output/my9231_output_component.h"
+#include "esphome/output/sm16716_output_component.h"
 #include "esphome/remote/jvc.h"
 #include "esphome/remote/lg.h"
 #include "esphome/remote/nec.h"
@@ -903,6 +904,16 @@ class Application {
    * @return The MY9231 component. Use this for advanced settings.
    */
   output::MY9231OutputComponent *make_my9231_component(const GPIOOutputPin &pin_di, const GPIOOutputPin &pin_dcki);
+#endif
+
+#ifdef USE_SM16716_OUTPUT
+  /** Create a SM16716 component.
+   *
+   * @param pin_mosi The pin which MOSI (master out slave in) is connected to.
+   * @param pin_sclk The pin which SCLK (serial clock) is connected to.
+   * @return The SM16716 component. Use this for advanced settings.
+   */
+  output::SM16716OutputComponent *make_sm16716_component(const GPIOOutputPin &pin_mosi, const GPIOOutputPin &pin_sclk);
 #endif
 
   /*   _     ___ ____ _   _ _____

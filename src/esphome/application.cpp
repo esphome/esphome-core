@@ -272,6 +272,13 @@ MY9231OutputComponent *Application::make_my9231_component(const GPIOOutputPin &p
 }
 #endif
 
+#ifdef USE_SM16716_OUTPUT
+SM16716OutputComponent *Application::make_sm16716_component(const GPIOOutputPin &pin_mosi, const GPIOOutputPin &pin_sclk) {
+  auto *sm16716 = new SM16716OutputComponent(pin_mosi.copy(), pin_sclk.copy());
+  return this->register_component(sm16716);
+}
+#endif
+
 #ifdef USE_LIGHT
 Application::MakeLight Application::make_rgb_light(const std::string &friendly_name, FloatOutput *red,
                                                    FloatOutput *green, FloatOutput *blue) {

@@ -129,6 +129,7 @@
 #define USE_ULN2003
 #define USE_TOTAL_DAILY_ENERGY_SENSOR
 #define USE_MY9231_OUTPUT
+#define USE_SM16716_OUTPUT
 #define USE_CUSTOM_SENSOR
 #define USE_CUSTOM_BINARY_SENSOR
 #define USE_CUSTOM_OUTPUT
@@ -219,6 +220,11 @@
 #endif
 #endif
 #ifdef USE_MY9231_OUTPUT
+#ifndef USE_OUTPUT
+#define USE_OUTPUT
+#endif
+#endif
+#ifdef USE_SM16716_OUTPUT
 #ifndef USE_OUTPUT
 #define USE_OUTPUT
 #endif
