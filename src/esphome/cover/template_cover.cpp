@@ -24,7 +24,7 @@ void TemplateCover::loop() {
   if (this->state_f_.has_value()) {
     auto s = (*this->state_f_)();
     if (s.has_value()) {
-      if (*s != this->state) {
+      if (*s != this->state_f_) {
         this->state = *s;
         changed = true;
       }

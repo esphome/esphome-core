@@ -22,7 +22,7 @@ class TemplateCover : public Cover, public Component {
  public:
   explicit TemplateCover(const std::string &name);
 
-  void set_state_lambda(std::function<optional<CoverState>()> &&f);
+  void set_state_lambda(std::function<optional<float>()> &&f);
   Trigger<> *get_open_trigger() const;
   Trigger<> *get_close_trigger() const;
   Trigger<> *get_stop_trigger() const;
@@ -30,7 +30,6 @@ class TemplateCover : public Cover, public Component {
   Trigger<float> *get_tilt_trigger() const;
   void set_optimistic(bool optimistic);
   void set_assumed_state(bool assumed_state);
-  void set_position_lambda(std::function<optional<float>()> &&position_f);
   void set_tilt_lambda(std::function<optional<float>()> &&tilt_f);
   void set_has_position(bool has_position);
   void set_has_tilt(bool has_tilt);
@@ -44,8 +43,7 @@ class TemplateCover : public Cover, public Component {
   void control(const CoverCall &call) override;
   CoverTraits traits() override;
 
-  optional<std::function<optional<CoverState>()>> state_f_;
-  optional<std::function<optional<float>()>> position_f_;
+  optional<std::function<optional<float>()>> state_f_;
   optional<std::function<optional<float>()>> tilt_f_;
   bool assumed_state_{false};
   bool optimistic_{false};

@@ -15,20 +15,8 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace cover {
 
-enum CoverState : uint8_t {
-  COVER_OPEN = 0,
-  COVER_CLOSED,
-};
-
-const char *cover_state_to_str(CoverState state);
-
-enum CoverCommand : uint8_t {
-  COVER_COMMAND_OPEN = 0,
-  COVER_COMMAND_CLOSE,
-  COVER_COMMAND_STOP,
-};
-
-const char *cover_command_to_str(CoverCommand command);
+const extern float COVER_OPEN;
+const extern float COVER_CLOSED;
 
 template<typename... Ts> class OpenAction;
 template<typename... Ts> class CloseAction;
@@ -57,7 +45,6 @@ class CoverCall {
  public:
   CoverCall(Cover *parent);
 
-  CoverCall &set_command(CoverCommand command);
   CoverCall &set_command(const char *command);
   CoverCall &set_command_open();
   CoverCall &set_command_close();
@@ -65,32 +52,37 @@ class CoverCall {
   CoverCall &set_position(float position);
   CoverCall &set_tilt(float tilt);
 
-  void perform() const;
+  void perform();
 
-  const optional<CoverCommand> &get_command() const;
   const optional<float> &get_position() const;
+  bool get_stop() const { return this->stop_; }
   const optional<float> &get_tilt() const;
 
  protected:
+  void validate_();
+
   Cover *parent_;
-  optional<CoverCommand> command_{};
+  bool stop_{false};
   optional<float> position_{};
   optional<float> tilt_{};
 };
 
 struct CoverRestoreState {
-  CoverState state;
   float position;
   float tilt;
+
+  CoverCall to_call(Cover *cover);
 } __attribute__((packed));
 
 class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
 
-  CoverState state{COVER_OPEN};
-  float position{0.0f};
-  float tilt{0.0f};
+  union {
+    float position;
+    ESPDEPRECATED("<cover>.state is deprecated, please use .position instead") float state;
+  };
+  float tilt{COVER_OPEN};
 
   CoverCall make_call();
   void open();
@@ -98,11 +90,6 @@ class Cover : public Nameable {
   void stop();
 
   void add_on_state_callback(std::function<void()> &&f);
-
-  template<typename... Ts> OpenAction<Ts...> *make_open_action();
-  template<typename... Ts> CloseAction<Ts...> *make_close_action();
-  template<typename... Ts> StopAction<Ts...> *make_stop_action();
-  template<typename... Ts> CoverPublishAction<Ts...> *make_cover_publish_action();
 
   void publish_state();
 
@@ -122,7 +109,6 @@ class Cover : public Nameable {
   virtual CoverTraits traits() = 0;
 
   optional<CoverRestoreState> restore_state_();
-
   uint32_t hash_base() override;
 
   CallbackManager<void()> state_callback_{};
@@ -134,88 +120,12 @@ class Cover : public Nameable {
   ESPPreferenceObject rtc_;
 };
 
-template<typename... Ts> class OpenAction : public Action<Ts...> {
- public:
-  explicit OpenAction(Cover *cover);
-
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-};
-
-template<typename... Ts> class CloseAction : public Action<Ts...> {
- public:
-  explicit CloseAction(Cover *cover);
-
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-};
-
-template<typename... Ts> class StopAction : public Action<Ts...> {
- public:
-  explicit StopAction(Cover *cover);
-
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-};
-
-template<typename... Ts> class CoverPublishAction : public Action<Ts...> {
- public:
-  CoverPublishAction(Cover *cover);
-  template<typename V> void set_state(V value) { this->state_ = value; }
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-  TemplatableValue<CoverState, Ts...> state_;
-};
-
-// =============== TEMPLATE DEFINITIONS ===============
-
-template<typename... Ts> OpenAction<Ts...>::OpenAction(Cover *cover) : cover_(cover) {}
-template<typename... Ts> void OpenAction<Ts...>::play(Ts... x) {
-  this->cover_->open();
-  this->play_next(x...);
-}
-
-template<typename... Ts> CloseAction<Ts...>::CloseAction(Cover *cover) : cover_(cover) {}
-template<typename... Ts> void CloseAction<Ts...>::play(Ts... x) {
-  this->cover_->close();
-  this->play_next(x...);
-}
-
-template<typename... Ts> StopAction<Ts...>::StopAction(Cover *cover) : cover_(cover) {}
-
-template<typename... Ts> void StopAction<Ts...>::play(Ts... x) {
-  this->cover_->stop();
-  this->play_next(x...);
-}
-
-template<typename... Ts> OpenAction<Ts...> *Cover::make_open_action() { return new OpenAction<Ts...>(this); }
-
-template<typename... Ts> CloseAction<Ts...> *Cover::make_close_action() { return new CloseAction<Ts...>(this); }
-template<typename... Ts> StopAction<Ts...> *Cover::make_stop_action() { return new StopAction<Ts...>(this); }
-
-template<typename... Ts> CoverPublishAction<Ts...>::CoverPublishAction(Cover *cover) : cover_(cover) {}
-template<typename... Ts> void CoverPublishAction<Ts...>::play(Ts... x) {
-  auto val = this->state_.value(x...);
-  this->cover_->publish_state(val);
-  this->play_next(x...);
-}
-template<typename... Ts> CoverPublishAction<Ts...> *Cover::make_cover_publish_action() {
-  return new CoverPublishAction<Ts...>(this);
-}
-
 }  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/cover/mqtt_cover_component.h"
+#include "esphome/cover/cover_automation.h"
 
 #endif  // USE_COVER
 
