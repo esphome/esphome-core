@@ -14,9 +14,7 @@ static const char *TAG = "sensor.binary_sensor_map";
 
 BinarySensorMap::BinarySensorMap(const std::string &name) : Sensor(name) {}
 
-void BinarySensorMap::dump_config() {
-  LOG_SENSOR("  ", "binary_sensor_map", this);
-}
+void BinarySensorMap::dump_config() { LOG_SENSOR("  ", "binary_sensor_map", this); }
 
 void BinarySensorMap::loop() {
   switch (this->sensor_type_) {
