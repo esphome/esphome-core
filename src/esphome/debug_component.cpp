@@ -21,7 +21,9 @@ void DebugComponent::setup() {
   this->status_set_error();
   return;
 #endif
+}
 
+void DebugComponent::dump_config() {
   ESP_LOGD(TAG, "ESPHome Core version %s", ESPHOME_VERSION);
   this->free_heap_ = ESP.getFreeHeap();
   ESP_LOGD(TAG, "Free Heap Size: %u bytes", this->free_heap_);

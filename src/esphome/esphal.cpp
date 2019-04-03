@@ -266,3 +266,19 @@ ISRInternalGPIOPin *GPIOPin::to_isr() const {
 }
 
 ESPHOME_NAMESPACE_END
+
+#ifdef ARDUINO_ESP8266_RELEASE_2_3_0
+// Fix 2.3.0 std missing memchr
+extern "C" {
+void *memchr(const void *s, int c, size_t n) {
+  if (n == 0)
+    return nullptr;
+  const uint8_t *p = reinterpret_cast<const uint8_t *>(s);
+  do {
+    if (*p++ == c)
+      return const_cast<void *>(reinterpret_cast<const void *>(p - 1));
+  } while (--n != 0);
+  return nullptr;
+}
+};
+#endif

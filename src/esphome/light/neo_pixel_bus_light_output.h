@@ -5,6 +5,10 @@
 
 #ifdef USE_NEO_PIXEL_BUS_LIGHT
 
+#ifdef ARDUINO_ESP8266_RELEASE_2_3_0
+#error The NeoPixelBus library requires at least arduino_core_version 2.4.x
+#endif
+
 #include "esphome/helpers.h"
 #include "esphome/light/light_state.h"
 #include "esphome/light/addressable_light.h"

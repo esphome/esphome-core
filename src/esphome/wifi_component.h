@@ -2,6 +2,7 @@
 #define ESPHOME_WIFI_COMPONENT_H
 
 #include <string>
+#include "esphal.h"
 #include <IPAddress.h>
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -12,6 +13,11 @@
 #ifdef ARDUINO_ARCH_ESP8266
 #include <ESP8266WiFiType.h>
 #include <ESP8266WiFi.h>
+#ifdef ARDUINO_ESP8266_RELEASE_2_3_0
+extern "C" {
+#include <user_interface.h>
+};
+#endif
 #endif
 
 #include "esphome/automation.h"
@@ -84,7 +90,7 @@ class WiFiScanResult {
   WiFiScanResult(const bssid_t &bssid, const std::string &ssid, uint8_t channel, int8_t rssi, bool with_auth,
                  bool is_hidden);
 
-  bool matches(const WiFiAP &ap);
+  bool matches(const WiFiAP &config);
 
   bool get_matches() const;
   void set_matches(bool matches);
@@ -179,6 +185,7 @@ class WiFiComponent : public Component {
   void set_use_address(const std::string &use_address);
 
  protected:
+  static std::string format_mac_addr(const uint8_t mac[6]);
   void setup_ap_config_();
   void print_connect_params_();
 
