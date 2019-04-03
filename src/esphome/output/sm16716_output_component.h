@@ -17,14 +17,14 @@ class SM16716OutputComponent : public Component {
   class Channel;
   /** Construct the component.
    *
-   * @param pin_mosi The pin which MOSI (master out slave in) is connected to.
-   * @param pin_sclk The pin which SCLK (serial clock) is connected to.
+   * @param pin_data The data output pin, connected to the SM16716's DIN pin.
+   * @param pin_clock The clock pin, connected to the SM16716's DCLK pin.
    * @param num_channels Total number of channels of the whole daisy chain.
    * @param num_chips Number of chips in the daisy chain.
    * @param update Update/reset duty data at boot (driver will keep
    *               configuration after powercycle)
    */
-  SM16716OutputComponent(GPIOPin *pin_mosi, GPIOPin *pin_sclk, uint8_t num_channels = 3, uint8_t num_chips = 1,
+  SM16716OutputComponent(GPIOPin *pin_data, GPIOPin *pin_clock, uint8_t num_channels = 3, uint8_t num_chips = 1,
                          bool update = true);
 
   /** Get a SM16716 output channel.
@@ -74,8 +74,8 @@ class SM16716OutputComponent : public Component {
   void write_bit_(bool);
   void write_byte_(uint8_t);
 
-  GPIOPin *pin_mosi_;
-  GPIOPin *pin_sclk_;
+  GPIOPin *pin_data_;
+  GPIOPin *pin_clock_;
   uint8_t num_channels_;
   uint8_t num_chips_;
   std::vector<uint8_t> pwm_amounts_;

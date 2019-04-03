@@ -20,26 +20,26 @@ namespace output {
 
 static const char *TAG = "output.sm16716";
 
-SM16716OutputComponent::SM16716OutputComponent(GPIOPin *pin_mosi, GPIOPin *pin_sclk, uint8_t num_channels,
+SM16716OutputComponent::SM16716OutputComponent(GPIOPin *pin_data, GPIOPin *pin_clock, uint8_t num_channels,
                                                uint8_t num_chips, bool update)
-    : pin_mosi_(pin_mosi),
-      pin_sclk_(pin_sclk),
+    : pin_data_(pin_data),
+      pin_clock_(pin_clock),
       num_channels_(num_channels),
       num_chips_(num_chips),
       update_(update) {}
 
 void SM16716OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SM16716OutputComponent...");
-  this->pin_mosi_->setup();
-  this->pin_mosi_->digital_write(false);
-  this->pin_sclk_->setup();
-  this->pin_sclk_->digital_write(false);
+  this->pin_data_->setup();
+  this->pin_data_->digital_write(false);
+  this->pin_clock_->setup();
+  this->pin_clock_->digital_write(false);
   this->pwm_amounts_.resize(this->num_channels_, 0);
 }
 void SM16716OutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "SM16716:");
-  LOG_PIN("  DIN Pin: ", this->pin_mosi_);
-  LOG_PIN("  DCLK Pin: ", this->pin_sclk_);
+  LOG_PIN("  DATA Pin: ", this->pin_data_);
+  LOG_PIN("  CLOCK Pin: ", this->pin_clock_);
   ESP_LOGCONFIG(TAG, "  Total number of channels: %u", this->num_channels_);
   ESP_LOGCONFIG(TAG, "  Number of chips: %u", this->num_chips_);
 }
@@ -96,13 +96,13 @@ void SM16716OutputComponent::set_channel_value_(uint8_t channel, uint8_t value) 
 }
 
 void SM16716OutputComponent::write_bit_(bool value) {
-  this->pin_mosi_->digital_write(value);
-  this->pin_sclk_->digital_write(true);
-  this->pin_sclk_->digital_write(false);
+  this->pin_data_->digital_write(value);
+  this->pin_clock_->digital_write(true);
+  this->pin_clock_->digital_write(false);
 }
 
 void SM16716OutputComponent::write_byte_(uint8_t data) {
-  shiftOut(this->pin_mosi_->get_pin(), this->pin_sclk_->get_pin(), MSBFIRST, data);
+  shiftOut(this->pin_data_->get_pin(), this->pin_clock_->get_pin(), MSBFIRST, data);
 }
 
 void SM16716OutputComponent::set_num_channels(uint8_t num_channels) { this->num_channels_ = num_channels; }

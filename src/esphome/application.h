@@ -909,11 +909,11 @@ class Application {
 #ifdef USE_SM16716_OUTPUT
   /** Create a SM16716 component.
    *
-   * @param pin_mosi The pin which MOSI (master out slave in) is connected to.
-   * @param pin_sclk The pin which SCLK (serial clock) is connected to.
+   * @param pin_data The data output pin, connected to the SM16716's DIN pin.
+   * @param pin_clock The clock pin, connected to the SM16716's DCLK pin.
    * @return The SM16716 component. Use this for advanced settings.
    */
-  output::SM16716OutputComponent *make_sm16716_component(const GPIOOutputPin &pin_mosi, const GPIOOutputPin &pin_sclk);
+  output::SM16716OutputComponent *make_sm16716_component(const GPIOOutputPin &pin_data, const GPIOOutputPin &pin_clock);
 #endif
 
   /*   _     ___ ____ _   _ _____
