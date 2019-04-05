@@ -59,6 +59,9 @@ class PPD42XComponent : public Component {
   static float us_to_pm(uint32_t sample_length, uint32_t time_pm);
   /// Helper function to convert the specified distance in meters to the pm_10_0 duration in µs.
   uint32_t timeout_us_{30000};
+  uint32_t starttime_ {0};
+  uint32_t lowpulseoccupancy_02_5_ {0};
+  uint32_t lowpulseoccupancy_10_0_ {0};
 };
 
 }  // namespace sensor

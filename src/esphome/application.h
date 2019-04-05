@@ -590,8 +590,8 @@ class Application {
    * @param pm_02_5_pin The pin we wait that we wait on for the echo, can be integer or GPIOInputPin.
    * @param update_interval The time in ms between updates, defaults to 60 seconds.
    */
-  sensor::Ppd42xSensorComponent *make_ppd42x_sensor(const std::string &friendly_name, const GPIOInputPin &pm_10_0_pin,
-                                                    const GPIOInputPin &pm_02_5_pin, uint32_t update_interval = 60000);
+  sensor::Ppd42xSensorComponent *make_ppd42x_sensor(const std::string &friendly_name, sensor::PPD42XType type
+                                                    uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
