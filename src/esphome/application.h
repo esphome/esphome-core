@@ -576,23 +576,6 @@ class Application {
                                                             const GPIOInputPin &echo_pin,
                                                             uint32_t update_interval = 60000);
 #endif
-#ifdef USE_PPD42X_SENSOR
-  /** Create an PPD42x particle sensor.
-   *
-   * This can for example be an PPD42 particle sensor. It listens during a short periode for impulses from one
-   * pin or two pins (P1 and P2). The time between the UP and DOWN is then (with some maths) converted to a measurement
-   * in pcs/L. You need to specify the PM10_0 pin (where particule > 10.0  pcs/L will be sent to) and the PM2_5 pin
-   * (where particule > 2.5  pcs/L will be sent to). Note that in order to not block indefinitely if we don't receive UP
-   * , this class has a default timeout of around 30s. You can change that using the configuration file ( mandatory).
-   *
-   * @param friendly_name The friendly name for this sensor advertised to Home Assistant.
-   * @param pm_10_0_pin The pin the short pulse will be sent to, can be integer or GPIOOutputPin.
-   * @param pm_02_5_pin The pin we wait that we wait on for the echo, can be integer or GPIOInputPin.
-   * @param update_interval The time in ms between updates, defaults to 60 seconds.
-   */
-  sensor::Ppd42xSensorComponent *make_ppd42x_sensor(const std::string &friendly_name, sensor::PPD42XType type
-                                                    uint32_t update_interval = 60000);
-#endif
 
 #ifdef USE_WIFI_SIGNAL_SENSOR
   sensor::WiFiSignalSensor *make_wifi_signal_sensor(const std::string &name, uint32_t update_interval = 60000);
@@ -827,6 +810,20 @@ class Application {
 
 #ifdef USE_PMSX003
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
+#endif
+#ifdef USE_PPD42X_SENSOR
+  /** Create an PPD42x particle sensor.
+   *
+   * This can for example be an PPD42 particle sensor. It listens during a short periode for impulses from one
+   * pin or two pins (P1 and P2). The time between the UP and DOWN is then (with some maths) converted to a measurement
+   * in pcs/L. You need to specify the PM10_0 pin (where particule > 10.0  pcs/L will be sent to) and the PM2_5 pin
+   * (where particule > 2.5  pcs/L will be sent to). Note that in order to not block indefinitely if we don't receive UP
+   * , this class has a default timeout of around 30s. You can change that using the configuration file ( mandatory).
+   *
+   * @param friendly_name The friendly name for this sensor advertised to Home Assistant.
+   * @param update_interval The time in ms between updates, defaults to 60 seconds.
+   */
+  sensor::Ppd42xSensorComponent *make_ppd42x_sensor(const std::string &friendly_name, sensor::PPD42XType type);
 #endif
 
 #ifdef USE_TOTAL_DAILY_ENERGY_SENSOR

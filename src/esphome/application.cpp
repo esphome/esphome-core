@@ -1090,12 +1090,8 @@ sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, senso
 #endif
 #ifdef USE_PPD42X_SENSOR
 sensor::Ppd42xSensorComponent *Application::make_ppd42x_sensor(const std::string &friendly_name,
-                                                               sensor::PPD42XType type,
-                                                               uint32_t update_interval) {
-  auto *ppd42x = this->register_component(
-      new Ppd42xSensorComponent(friendly_name, type, update_interval));
-  this->register_sensor(ppd42x);
-  return ppd42x;
+                                                               sensor::PPD42XType type) {
+  return this->register_sensor(new Ppd42xSensorComponent(friendly_name, type));
 }
 #endif
 
