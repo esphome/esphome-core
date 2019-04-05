@@ -8,7 +8,7 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace binary_sensor {
 
-static const char *TAG = "binary_sensor.ttp229";
+static const char *TAG = "binary_sensor.ttp229_bsf";
 
 TTP229BSFChannel::TTP229BSFChannel(const std::string &name, int channel_num) : BinarySensor(name) {
   channel_ = channel_num;
