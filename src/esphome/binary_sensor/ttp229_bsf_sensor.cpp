@@ -58,7 +58,7 @@ uint16_t TTP229BSFComponent::read_data_(uint8_t num_bits) {
   uint16_t val = 0;
   for (uint8_t i = 0; i < num_bits; i++)
     if (get_bit_())
-      val |= 1 << i;
+    val |= (this->get_bit()) << i;
   delay(2);
   return ~val;
 }
