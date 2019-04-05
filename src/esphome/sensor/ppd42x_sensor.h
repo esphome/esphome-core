@@ -1,52 +1,63 @@
-#ifndef ESPHOME_SENSOR_PPD42X_SENSOR_H
-#define ESPHOME_SENSOR_PPD42X_SENSOR_H
+#ifndef ESPHOME_SENSOR_PPD42X_H
+#define ESPHOME_SENSOR_PPD42X_H
 
 #include "esphome/defines.h"
 
-#ifdef USE_PPD42X_SENSOR
+#ifdef USE_PPD42X
 
+#include "esphome/component.h"
 #include "esphome/sensor/sensor.h"
-#include "esphome/esphal.h"
+#include "esphome/uart_component.h"
+#include "esphome/helpers.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
 namespace sensor {
 
-class Ppd42xSensorComponent : public PollingSensorComponent {
+enum PPD42XType {
+  PPD42X_TYPE___ = 0,
+  PPD42X_TYPE_NS,
+};
+
+enum PPD42XSensorType {
+  /// PM2.5 concentration in pcs/L, PPD42, PPD42NS
+  PPD42X_SENSOR_TYPE_PM_02_5,
+  /// PM10.0 concentration in pcs/L, PPD42, PPD42NS
+  PPD42X_SENSOR_TYPE_PM_10_0,
+
+};
+
+class PPD42XSensor : public sensor::Sensor {
  public:
-  /** Construct the PPD42X sensor with the specified 2.5ppm pin and 10.0ppm pin.
-   *
-   * @param pm_2_5_pin The pm_2_5 pin where pulses are sent to.
-   * @param pm_10_0_pin The pm_10_0 pin where the pm_10_0 is listened for.
-   * @param update_interval The interval in ms the sensor should check for new values.
-   */
-  Ppd42xSensorComponent(const std::string &name, GPIOPin *pm_10_0_pin, GPIOPin *pm_02_5_pin,
-                        uint32_t update_interval = 5000);
-
-  /// Set the timeout for waiting for the pm_10_0 in µs.
-  void set_timeout_us(uint32_t timeout_us);
-
-  // ========== INTERNAL METHODS ==========
-  // (In most use cases you won't need these)
-  /// Set up pins and register interval.
-  void setup() override;
-  void dump_config() override;
-
-  void update() override;
+  PPD42XSensor(const std::string &name, PPD42XSensorType type);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
   int8_t accuracy_decimals() override;
 
+ protected:
+  const PPD42XSensorType type_;
+};
+
+class PPD42XComponent : public Component {
+ public:
+  PPD42XComponent(PPD42XType type);
+
+  void loop() override;
   float get_setup_priority() const override;
+  void dump_config() override;
+
+  PPD42XSensor *make_pm_02_5_sensor(const std::string &name, GPIOPin *pm_pin);
+  PPD42XSensor *make_pm_10_0_sensor(const std::string &name, GPIOPin *pm_pin);
 
  protected:
+  void parse_data_();
+  const PPD42XType type_;
+  PPD42XSensor *pm_02_5_sensor_{nullptr};
+  PPD42XSensor *pm_10_0_sensor_{nullptr};
   /// Helper function to convert the specified pm_xx_x duration in µs to pcs/L.
   static float us_to_pm(uint32_t sample_length, uint32_t time_pm);
   /// Helper function to convert the specified distance in meters to the pm_10_0 duration in µs.
-
-  GPIOPin *pm_02_5_pin_;
-  GPIOPin *pm_10_0_pin_;
   uint32_t timeout_us_{30000};
 };
 
@@ -54,6 +65,6 @@ class Ppd42xSensorComponent : public PollingSensorComponent {
 
 ESPHOME_NAMESPACE_END
 
-#endif  // USE_PPD42X_SENSOR
+#endif  // USE_PPD42X
 
-#endif  // ESPHOME_SENSOR_PPD42X_SENSOR_H
+#endif  // ESPHOME_SENSOR_PPD42X_H
