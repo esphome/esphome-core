@@ -28,27 +28,11 @@ template<typename... Ts> class ToggleAction : public Action<Ts...> {
   LightState *state_;
 };
 
-template<typename... Ts> class TurnOffAction : public Action<Ts...> {
+template<typename... Ts> class LightControlAction : public Action<Ts...> {
  public:
-  explicit TurnOffAction(LightState *state) : state_(state) {}
+  explicit LightControlAction(LightState *parent) : parent_(parent) {}
 
-  TEMPLATABLE_VALUE(uint32_t, transition_length)
-
-  void play(Ts... x) override {
-    auto call = this->state_->turn_off();
-    call.set_transition_length(this->transition_length_.optional_value(x...));
-    call.perform();
-    this->play_next(x...);
-  }
-
- protected:
-  LightState *state_;
-};
-
-template<typename... Ts> class TurnOnAction : public Action<Ts...> {
- public:
-  explicit TurnOnAction(LightState *state) : state_(state) {}
-
+  TEMPLATABLE_VALUE(bool, state)
   TEMPLATABLE_VALUE(uint32_t, transition_length)
   TEMPLATABLE_VALUE(uint32_t, flash_length)
   TEMPLATABLE_VALUE(float, brightness)
@@ -60,7 +44,8 @@ template<typename... Ts> class TurnOnAction : public Action<Ts...> {
   TEMPLATABLE_VALUE(std::string, effect)
 
   void play(Ts... x) override {
-    auto call = this->state_->turn_on();
+    auto call = this->state_->make_call();
+    call.set_state(this->state_.optional_value(x...));
     call.set_brightness(this->brightness_.optional_value(x...));
     call.set_red(this->red_.optional_value(x...));
     call.set_green(this->green_.optional_value(x...));
@@ -75,7 +60,7 @@ template<typename... Ts> class TurnOnAction : public Action<Ts...> {
   }
 
  protected:
-  LightState *state_;
+  LightState *parent_;
 };
 
 template<typename... Ts> class LightIsOnCondition : public Condition<Ts...> {

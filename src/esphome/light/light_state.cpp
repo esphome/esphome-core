@@ -18,11 +18,11 @@ namespace light {
 static const char *TAG = "light.state";
 
 void LightState::start_transition_(const LightColorValues &target, uint32_t length) {
-  this->transformer_ = make_unique<LightTransitionTransformer>(millis(), length, this->current_values_, target);
+  this->transformer_ = make_unique<LightTransitionTransformer>(millis(), length, this->current_values, target);
 }
 
 void LightState::start_flash_(const LightColorValues &target, uint32_t length) {
-  LightColorValues end_colors = this->current_values_;
+  LightColorValues end_colors = this->current_values;
   // If starting a flash if one is already happening, set end values to end values of current flash
   // Hacky but works
   if (this->transformer_ != nullptr)
@@ -34,12 +34,12 @@ LightState::LightState(const std::string &name, LightOutput *output) : Nameable(
 
 void LightState::set_immediately_(const LightColorValues &target) {
   this->transformer_ = nullptr;
-  this->current_values_ = this->remote_values_ = target;
+  this->current_values = this->remote_values = target;
   this->next_write_ = true;
 }
 
 LightColorValues LightState::get_current_values() {
-  return this->current_values_;
+  return this->current_values;
 }
 
 void LightState::publish_state() {
@@ -48,7 +48,7 @@ void LightState::publish_state() {
 }
 
 LightColorValues LightState::get_remote_values() {
-  return this->remote_values_;
+  return this->remote_values;
 }
 
 std::string LightState::get_effect_name() {
@@ -86,7 +86,7 @@ void LightState::set_default_transition_length(uint32_t default_transition_lengt
 void LightState::dump_json(JsonObject &root) {
   if (this->supports_effects())
     root["effect"] = this->get_effect_name();
-  this->get_remote_values().dump_json(root, this->output_->get_traits());
+  this->remote_values.dump_json(root, this->output_->get_traits());
 }
 
 struct LightStateRTCState {
@@ -115,16 +115,16 @@ void LightState::setup() {
 
   auto call = this->make_call();
   call.set_state(recovered.state);
-  call.set_brightness(recovered.brightness);
-  call.set_red(recovered.red);
-  call.set_green(recovered.green);
-  call.set_blue(recovered.blue);
-  call.set_white(recovered.white);
-  call.set_color_temperature(recovered.color_temp);
+  call.set_brightness_if_supported(recovered.brightness);
+  call.set_red_if_supported(recovered.red);
+  call.set_green_if_supported(recovered.green);
+  call.set_blue_if_supported(recovered.blue);
+  call.set_white_if_supported(recovered.white);
+  call.set_color_temperature_if_supported(recovered.color_temp);
   if (recovered.effect != 0) {
     call.set_effect(recovered.effect);
   } else {
-    call.set_transition_length(0);
+    call.set_transition_length_if_supported(0);
   }
   call.perform();
 }
@@ -138,13 +138,13 @@ void LightState::loop() {
   // Apply transformer (if any)
   if (this->transformer_ != nullptr) {
     if (this->transformer_->is_finished()) {
-      this->remote_values_ = this->current_values_ = this->transformer_->get_end_values();
+      this->remote_values = this->current_values = this->transformer_->get_end_values();
       this->transformer_ = nullptr;
       // Publish state at end of a transformer
       this->publish_state();
     } else {
-      this->current_values_ = this->transformer_->get_values();
-      this->remote_values_ = this->transformer_->get_remote_values();
+      this->current_values = this->transformer_->get_values();
+      this->remote_values = this->transformer_->get_remote_values();
     }
     this->next_write_ = true;
   }
@@ -165,7 +165,7 @@ void LightState::add_effects(const std::vector<LightEffect *> effects) {
 LightCall LightState::turn_on() { return this->make_call().set_state(true); }
 LightCall LightState::turn_off() { return this->make_call().set_state(false); }
 LightCall LightState::toggle() {
-  return this->make_call().set_state(!this->get_remote_values().is_on());
+  return this->make_call().set_state(!this->remote_values.is_on());
 }
 LightCall LightState::make_call() { return LightCall(this); }
 uint32_t LightState::hash_base() { return 1114400283; }
@@ -198,7 +198,7 @@ LightCall &LightCall::parse_color_json(JsonObject &root) {
         this->set_state(false);
         break;
       case PARSE_TOGGLE:
-        this->set_state(!this->parent_->get_remote_values().is_on());
+        this->set_state(!this->parent_->remote_values.is_on());
         break;
       case PARSE_NONE:
         break;
@@ -263,7 +263,7 @@ void LightCall::perform() {
 
   if (this->publish_) {
     // Only print state when it's being changed
-    bool current_state = this->parent_->get_remote_values().is_on();
+    bool current_state = this->parent_->remote_values.is_on();
     if (this->state_.value_or(current_state) != current_state) {
       ESP_LOGD(TAG, "  State: %s", ONOFF(v.is_on()));
     }
@@ -405,7 +405,7 @@ LightColorValues LightCall::validate_() {
   VALIDATE_RANGE(blue, "Blue")
   VALIDATE_RANGE(white, "White")
 
-  auto v = this->parent_->get_remote_values();
+  auto v = this->parent_->remote_values;
   if (this->state_.has_value())
     v.set_state(*this->state_);
   if (this->brightness_.has_value())
@@ -665,19 +665,19 @@ LightCall &LightCall::set_rgbw(float red, float green, float blue, float white) 
 float LightState::get_setup_priority() const { return setup_priority::HARDWARE - 1.0f; }
 LightOutput *LightState::get_output() const { return this->output_; }
 void LightState::set_gamma_correct(float gamma_correct) { this->gamma_correct_ = gamma_correct; }
-void LightState::current_values_as_binary(bool *binary) { this->get_current_values().as_binary(binary); }
+void LightState::current_values_as_binary(bool *binary) { this->current_values.as_binary(binary); }
 void LightState::current_values_as_brightness(float *brightness) {
-  this->get_current_values().as_brightness(brightness);
+  this->current_values.as_brightness(brightness);
   *brightness = gamma_correct(*brightness, this->gamma_correct_);
 }
 void LightState::current_values_as_rgb(float *red, float *green, float *blue) {
-  this->get_current_values().as_rgb(red, green, blue);
+  this->current_values.as_rgb(red, green, blue);
   *red = gamma_correct(*red, this->gamma_correct_);
   *green = gamma_correct(*green, this->gamma_correct_);
   *blue = gamma_correct(*blue, this->gamma_correct_);
 }
 void LightState::current_values_as_rgbw(float *red, float *green, float *blue, float *white) {
-  this->get_current_values().as_rgbw(red, green, blue, white);
+  this->current_values.as_rgbw(red, green, blue, white);
   *red = gamma_correct(*red, this->gamma_correct_);
   *green = gamma_correct(*green, this->gamma_correct_);
   *blue = gamma_correct(*blue, this->gamma_correct_);
@@ -685,7 +685,7 @@ void LightState::current_values_as_rgbw(float *red, float *green, float *blue, f
 }
 void LightState::current_values_as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red,
                                          float *green, float *blue, float *cold_white, float *warm_white) {
-  this->get_current_values().as_rgbww(color_temperature_cw, color_temperature_ww, red, green, blue, cold_white,
+  this->current_values.as_rgbww(color_temperature_cw, color_temperature_ww, red, green, blue, cold_white,
                                       warm_white);
   *red = gamma_correct(*red, this->gamma_correct_);
   *green = gamma_correct(*green, this->gamma_correct_);
@@ -695,7 +695,7 @@ void LightState::current_values_as_rgbww(float color_temperature_cw, float color
 }
 void LightState::current_values_as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white,
                                         float *warm_white) {
-  this->get_current_values().as_cwww(color_temperature_cw, color_temperature_ww, cold_white, warm_white);
+  this->current_values.as_cwww(color_temperature_cw, color_temperature_ww, cold_white, warm_white);
   *cold_white = gamma_correct(*cold_white, this->gamma_correct_);
   *warm_white = gamma_correct(*warm_white, this->gamma_correct_);
 }

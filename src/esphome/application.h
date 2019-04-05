@@ -41,6 +41,7 @@
 #include "esphome/binary_sensor/mpr121_sensor.h"
 #include "esphome/binary_sensor/ttp229_lsf_sensor.h"
 #include "esphome/cover/cover.h"
+#include "esphome/cover/endstop_cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
 #include "esphome/display/display.h"

@@ -188,13 +188,23 @@ message BinarySensorStateResponse {
 }
 message CoverStateResponse {
   fixed32 key = 1;
-  enum CoverState {
+
+  // legacy: state has been removed in 1.13
+  // clients/servers must still send/accept it until the next protocol change
+  enum LegacyCoverState {
     OPEN = 0;
     CLOSED = 1;
   }
-  CoverState state = 2;
+  LegacyCoverState legacy_state = 2;
+
   float position = 3;
   float tilt = 4;
+  enum CoverCurrentOperation {
+    IDLE = 0;
+    IS_OPENING = 1;
+    IS_CLOSING = 2;
+  }
+  CoverCurrentOperation current_operation = 5;
 }
 enum FanSpeed {
   LOW = 0;
@@ -233,17 +243,22 @@ message TextSensorStateResponse {
 
 message CoverCommandRequest {
   fixed32 key = 1;
-  enum CoverCommand {
+
+  // legacy: command has been removed in 1.13
+  // clients/servers must still send/accept it until the next protocol change
+  enum LegacyCoverCommand {
     OPEN = 0;
     CLOSE = 1;
     STOP = 2;
   }
-  bool has_state = 2;
-  CoverCommand command = 3;
+  bool has_legacy_command = 2;
+  LegacyCoverCommand legacy_command = 3;
+
   bool has_position = 4;
   float position = 5;
   bool has_tilt = 6;
   float tilt = 7;
+  bool stop = 8;
 }
 message FanCommandRequest {
   fixed32 key = 1;

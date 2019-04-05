@@ -12,10 +12,10 @@ ESPHOME_NAMESPACE_BEGIN
 
 namespace cover {
 
-enum TemplateCoverRestoreMode {
+enum class TemplateCoverRestoreMode {
   NO_RESTORE,
-  RESTORE_STATE,
-  RESTORE_STATE_AND_COMMAND
+  RESTORE,
+  RESTORE_AND_CALL,
 };
 
 class TemplateCover : public Cover, public Component {
@@ -34,6 +34,7 @@ class TemplateCover : public Cover, public Component {
   void set_has_position(bool has_position);
   void set_has_tilt(bool has_tilt);
 
+  void setup() override;
   void loop() override;
   void dump_config() override;
 
@@ -41,8 +42,15 @@ class TemplateCover : public Cover, public Component {
 
  protected:
   void control(const CoverCall &call) override;
-  CoverTraits traits() override;
+  CoverTraits get_traits() override;
+  void stop_prev_trigger_() {
+    if (this->prev_command_trigger_ != nullptr) {
+      this->prev_command_trigger_->stop();
+      this->prev_command_trigger_ = nullptr;
+    }
+  }
 
+  TemplateCoverRestoreMode restore_mode_{TemplateCoverRestoreMode::RESTORE};
   optional<std::function<optional<float>()>> state_f_;
   optional<std::function<optional<float>()>> tilt_f_;
   bool assumed_state_{false};

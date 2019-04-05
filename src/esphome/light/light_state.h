@@ -23,6 +23,7 @@ using light_send_callback_t = std::function<void()>;
 
 class LightEffect;
 class LightOutput;
+class LightState;
 
 #ifdef USE_MQTT_LIGHT
 class MQTTJSONLightComponent;
@@ -197,16 +198,31 @@ class LightState : public Nameable, public Component {
   /// Shortly after HARDWARE.
   float get_setup_priority() const override;
 
-  /// Return the current values as outputted to the light.
-  LightColorValues get_current_values();
+  /** The current values of the light as outputted to the light.
+   *
+   * These values represent the "real" state of the light - During transitions this
+   * property will be changed continuously (in contrast to .remote_values, where they
+   * are constant during transitions).
+   *
+   * This property is read-only for users. Any changes to it will be ignored.
+   */
+  LightColorValues current_values;
 
-  /** Return the remote values reported to the frontend.
+  /// Deprecated method to access current_values.
+  ESPDEPRECATED("get_current_values() is deprecated, please use .current_values instead.") LightColorValues get_current_values();
+
+  /// Deprecated method to access remote_values.
+  ESPDEPRECATED("get_remote_values() is deprecated, please use .remote_values instead.") LightColorValues get_remote_values();
+
+  /** The remote color values reported to the frontend.
    *
    * These are different from the "current" values: For example transitions will
    * continuously change the "current" values. But the remote values will immediately
    * switch to the target value for a transition, reducing the number of packets sent.
+   *
+   * This property is read-only for users. Any changes to it will be ignored.
    */
-  LightColorValues get_remote_values();
+  LightColorValues remote_values;
 
   /// Publish the currently active state to the frontend.
   void publish_state();
@@ -241,6 +257,7 @@ class LightState : public Nameable, public Component {
 
   /// Set the gamma correction factor
   void set_gamma_correct(float gamma_correct);
+  float get_gamma_correct() const { return this->gamma_correct_; }
 
   const std::vector<LightEffect *> &get_effects() const;
 
@@ -291,10 +308,6 @@ class LightState : public Nameable, public Component {
 
   /// Object used to store the persisted values of the light.
   ESPPreferenceObject rtc_;
-  /// Storage for current light color values. Recomputed every loop cycle.
-  LightColorValues current_values_;
-  /// Storage for remote light color values. Recomputed every loop cycle.
-  LightColorValues remote_values_;
   /// Default transition length for all transitions in ms.
   uint32_t default_transition_length_{1000};
   /// Value for storing the index of the currently active effect. 0 if no effect is active

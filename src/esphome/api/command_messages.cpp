@@ -13,17 +13,17 @@ namespace api {
 bool CoverCommandRequest::decode_varint(uint32_t field_id, uint32_t value) {
   switch (field_id) {
     case 2:
-      // bool has_state = 2;
-      this->has_state_ = value;
+      // bool has_legacy_command = 2;
+      this->has_legacy_command_ = value;
       return true;
     case 3:
-      // enum CoverCommand {
+      // enum LegacyCoverCommand {
       //   OPEN = 0;
       //   CLOSE = 1;
       //   STOP = 2;
       // }
-      // CoverCommand command = 3;
-      this->command_ = static_cast<cover::CoverCommand>(value);
+      // LegacyCoverCommand legacy_command_ = 3;
+      this->legacy_command_ = static_cast<LegacyCoverCommand>(value);
       return true;
     case 4:
       // bool has_position = 4;
@@ -33,6 +33,9 @@ bool CoverCommandRequest::decode_varint(uint32_t field_id, uint32_t value) {
       // bool has_tilt = 6;
       this->has_tilt_ = value;
       return true;
+    case 8:
+      // bool stop = 8;
+      this->stop_ = value;
     default:
       return false;
   }
@@ -57,10 +60,10 @@ bool CoverCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
 }
 APIMessageType CoverCommandRequest::message_type() const { return APIMessageType ::COVER_COMMAND_REQUEST; }
 uint32_t CoverCommandRequest::get_key() const { return this->key_; }
-optional<cover::CoverCommand> CoverCommandRequest::get_command() const {
-  if (!this->has_state_)
+optional<LegacyCoverCommand> CoverCommandRequest::get_legacy_command() const {
+  if (!this->has_legacy_command_)
     return {};
-  return this->command_;
+  return this->legacy_command_;
 }
 optional<float> CoverCommandRequest::get_position() const {
   if (!this->has_position_)

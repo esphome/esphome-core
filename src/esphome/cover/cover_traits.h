@@ -13,21 +13,18 @@ namespace cover {
 
 class CoverTraits {
  public:
-  CoverTraits();
+  CoverTraits() {}
   bool get_is_assumed_state() const;
   void set_is_assumed_state(bool is_assumed_state);
   bool get_supports_position() const;
   void set_supports_position(bool supports_position);
   bool get_supports_tilt() const;
   void set_supports_tilt(bool supports_tilt);
-  const std::string &get_device_class() const;
-  void set_device_class(const std::string &device_class);
 
  protected:
   bool is_assumed_state_{false};
   bool supports_position_{false};
   bool supports_tilt_{false};
-  std::string device_class_{};
 };
 
 }  // namespace cover

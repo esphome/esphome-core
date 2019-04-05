@@ -42,7 +42,7 @@ bool ListEntitiesIterator::on_cover(cover::Cover *cover) {
   // bool supports_tilt = 7;
   buffer.encode_bool(7, traits.get_supports_tilt());
   // string device_class = 8;
-  buffer.encode_string(8, traits.get_device_class());
+  buffer.encode_string(8, cover->get_device_class());
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_COVER_RESPONSE);
 }
 #endif

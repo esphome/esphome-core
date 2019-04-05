@@ -90,8 +90,8 @@ inline float random_cubic_float() {
 }
 
 void FlickerLightEffect::apply() {
-  LightColorValues remote = this->state_->get_remote_values();
-  LightColorValues current = this->state_->get_current_values();
+  LightColorValues remote = this->state_->remote_values;
+  LightColorValues current = this->state_->current_values;
   LightColorValues out;
   const float alpha = this->alpha_;
   const float beta = 1.0f - alpha;

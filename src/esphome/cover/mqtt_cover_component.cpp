@@ -48,9 +48,11 @@ void MQTTCoverComponent::setup() {
 
 void MQTTCoverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT cover '%s':", this->cover_->get_name().c_str());
-  LOG_MQTT_COMPONENT(true, true)
   auto traits = this->cover_->get_traits();
-  if (traits.get_supports_position()) {
+  // no state topic for position
+  bool state_topic = !traits.get_supports_position();
+  LOG_MQTT_COMPONENT(state_topic, true)
+  if (!state_topic) {
     ESP_LOGCONFIG(TAG, "  Position State Topic: '%s'", this->get_position_state_topic().c_str());
     ESP_LOGCONFIG(TAG, "  Position Command Topic: '%s'", this->get_position_command_topic().c_str());
   }
@@ -80,17 +82,18 @@ bool MQTTCoverComponent::send_initial_state() { return this->publish_state(); }
 bool MQTTCoverComponent::is_internal() { return this->cover_->is_internal(); }
 bool MQTTCoverComponent::publish_state() {
   auto traits = this->cover_->get_traits();
-  const char *state_s = "unknown";
-  switch (this->cover_->state) {
-    case COVER_OPEN:
+  bool success = true;
+  if (!traits.get_supports_position()) {
+    const char *state_s = "unknown";
+    if (this->cover_->position == COVER_OPEN) {
       state_s = "open";
-      break;
-    case COVER_CLOSED:
+    } else if (this->cover_->position == COVER_CLOSED) {
       state_s = "closed";
-      break;
-  }
-  bool success = this->publish(this->get_state_topic_(), state_s);
-  if (traits.get_supports_position()) {
+    }
+
+    if (!this->publish(this->get_state_topic_(), state_s))
+      success = false;
+  } else {
     std::string pos = value_accuracy_to_string(roundf(this->cover_->position * 100), 0);
     if (!this->publish(this->get_position_state_topic(), pos))
       success = false;

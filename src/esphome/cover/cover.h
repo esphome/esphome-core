@@ -30,8 +30,8 @@ template<typename... Ts> class CoverPublishAction;
     if (traits_.get_is_assumed_state()) { \
       ESP_LOGCONFIG(TAG, prefix "  Assumed State: YES"); \
     } \
-    if (!traits_.get_device_class().empty()) { \
-      ESP_LOGCONFIG(TAG, prefix "  Device Class: '%s'", traits_.get_device_class().c_str()); \
+    if (!obj->get_device_class().empty()) { \
+      ESP_LOGCONFIG(TAG, prefix "  Device Class: '%s'", obj->get_device_class().c_str()); \
     } \
   }
 
@@ -72,12 +72,21 @@ struct CoverRestoreState {
   float tilt;
 
   CoverCall to_call(Cover *cover);
+  void apply(Cover *cover);
 } __attribute__((packed));
+
+enum CoverOperation : uint8_t {
+  COVER_OPERATION_IDLE = 0,
+  COVER_OPERATION_IS_OPENING,
+  COVER_OPERATION_IS_CLOSING,
+};
 
 class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
+  explicit Cover() : Cover("") {}
 
+  CoverOperation current_operation{COVER_OPERATION_IDLE};
   union {
     float position;
     ESPDEPRECATED("<cover>.state is deprecated, please use .position instead") float state;
@@ -98,21 +107,25 @@ class Cover : public Nameable {
   void set_mqtt(MQTTCoverComponent *mqtt);
 #endif
 
-  CoverTraits get_traits();
+  virtual CoverTraits get_traits() = 0;
   void set_device_class(const std::string &device_class);
+  std::string get_device_class() {
+    if (this->device_class_override_.has_value())
+      return *this->device_class_override_;
+    return this->device_class();
+  }
 
  protected:
   friend CoverCall;
 
   virtual void control(const CoverCall &call) = 0;
-
-  virtual CoverTraits traits() = 0;
+  virtual std::string device_class() { return ""; }
 
   optional<CoverRestoreState> restore_state_();
   uint32_t hash_base() override;
 
   CallbackManager<void()> state_callback_{};
-  std::string device_class_override_{};
+  optional<std::string> device_class_override_{};
 
 #ifdef USE_MQTT_COVER
   MQTTCoverComponent *mqtt_{nullptr};

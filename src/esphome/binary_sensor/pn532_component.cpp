@@ -130,7 +130,7 @@ void PN532Component::loop() {
   // const uint8_t sel_res = read[5];
   const uint8_t nfcid_length = read[6];
   const uint8_t *nfcid = &read[7];
-  if (read.size() < 7 + nfcid_length) {
+  if (read.size() < 7U + nfcid_length) {
     // oops, pn532 returned invalid data
     return;
   }

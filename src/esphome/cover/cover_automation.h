@@ -65,6 +65,7 @@ template<typename... Ts> class CoverPublishAction : public Action<Ts...> {
 
   TEMPLATABLE_VALUE(float, state)
   TEMPLATABLE_VALUE(float, tilt)
+  // TODO: current_operation
 
  protected:
   Cover *cover_;
@@ -88,5 +89,7 @@ template<typename... Ts> class CoverIsClosedCondition : public Condition<Ts...> 
 }  // namespace cover
 
 ESPHOME_NAMESPACE_END
+
+#endif //USE_COVER
 
 #endif //ESPHOME_CORE_COVER_AUTOMATION_H

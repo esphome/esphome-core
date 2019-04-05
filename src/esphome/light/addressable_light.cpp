@@ -118,14 +118,13 @@ bool AddressableLight::is_effect_active() const { return this->effect_active_; }
 
 void AddressableLight::set_effect_active(bool effect_active) { this->effect_active_ = effect_active; }
 void AddressableLight::write_state(LightState *state) {
-  LightColorValues value = state->get_current_values();
-  auto max_brightness = static_cast<uint8_t>(roundf(value.get_brightness() * value.get_state() * 255.0f));
+  auto val = state->current_values;
+  auto max_brightness = static_cast<uint8_t>(roundf(val.get_brightness() * val.get_state() * 255.0f));
   this->correction_.set_local_brightness(max_brightness);
 
   if (this->is_effect_active())
     return;
 
-  auto val = state->get_current_values();
   // don't use LightState helper, gamma correction+brightness is handled by ESPColorView
   ESPColor color = ESPColor(uint8_t(roundf(val.get_red() * 255.0f)), uint8_t(roundf(val.get_green() * 255.0f)),
                             uint8_t(roundf(val.get_blue() * 255.0f)),

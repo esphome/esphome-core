@@ -120,13 +120,6 @@ void CoverCall::validate_() {
   }
 }
 void Cover::set_device_class(const std::string &device_class) { this->device_class_override_ = device_class; }
-CoverTraits Cover::get_traits() {
-  auto traits = this->traits();
-  if (!this->device_class_override_.empty()) {
-    traits.set_device_class(this->device_class_override_);
-  }
-  return traits;
-}
 CoverCall Cover::make_call() { return CoverCall(this); }
 void Cover::open() {
   auto call = this->make_call();
@@ -170,6 +163,11 @@ CoverCall CoverRestoreState::to_call(Cover *cover) {
   if (traits.get_supports_tilt())
     call.set_tilt(this->tilt);
   return call;
+}
+void CoverRestoreState::apply(Cover *cover) {
+  cover->position = this->position;
+  cover->tilt = this->position;
+  cover->publish_state();
 }
 
 }  // namespace cover
