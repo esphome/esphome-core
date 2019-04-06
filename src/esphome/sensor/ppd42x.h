@@ -7,7 +7,6 @@
 
 #include "esphome/component.h"
 #include "esphome/sensor/sensor.h"
-#include "esphome/uart_component.h"
 #include "esphome/helpers.h"
 
 ESPHOME_NAMESPACE_BEGIN
@@ -58,16 +57,16 @@ class PPD42XComponent : public Component {
   /// Helper function to convert the specified pl_xx_x duration in µs to pcs/L.
   static float us_to_pl(uint32_t sample_length, uint32_t time_pm);
 
-  
+
   /// Helper function to convert the specified distance in meters to the pl_10_0 duration in µs.
   uint32_t timeout_us_{30000};
-  uint32_t starttime_ {0};
-  uint32_t lowpulseoccupancy_02_5_ {0};
-  uint32_t lowpulseoccupancy_10_0_ {0};
+  uint32_t starttime_{0};
+  uint32_t lowpulseoccupancy_02_5_{0};
+  uint32_t lowpulseoccupancy_10_0_{0};
   GPIOPin *pl_02_5_pin_;
   GPIOPin *pl_10_0_pin_;
   
-  const PPD42XType type_;  
+  const PPD42XType type_;
   PPD42XSensor *pl_02_5_sensor_{nullptr};
   PPD42XSensor *pl_10_0_sensor_{nullptr};
 };
