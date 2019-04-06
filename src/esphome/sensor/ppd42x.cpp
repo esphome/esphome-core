@@ -41,8 +41,7 @@ void PPD42XComponent::parse_data_() {
     case PPD42X_TYPE: {
       float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_);
       float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_);
-      ESP_LOGD(TAG,
-               "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L", pl_02_5_concentration,
+      ESP_LOGD(TAG, "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L", pl_02_5_concentration,
                pl_10_0_concentration);
       if (this->pl_02_5_sensor_ != nullptr)
         this->pl_02_5_sensor_->publish_state(pl_02_5_concentration);
@@ -53,9 +52,8 @@ void PPD42XComponent::parse_data_() {
     case PPD42X_TYPE_NS: {
       float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_);
       float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_);
-      ESP_LOGD(TAG,
-               "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L",
-               pl_02_5_concentration, pl_10_0_concentration);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L", pl_02_5_concentration,
+               pl_10_0_concentration);
       if (this->pl_02_5_sensor_ != nullptr)
         this->pl_02_5_sensor_->publish_state(pl_02_5_concentration);
       if (this->pl_10_0_sensor_ != nullptr)
