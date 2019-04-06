@@ -15,7 +15,7 @@ ESPHOME_NAMESPACE_BEGIN
 namespace sensor {
 
 enum PPD42XType {
-  PPD42X_TYPE___ = 0,
+  PPD42X_TYPE = 0,
   PPD42X_TYPE_NS,
 };
 
