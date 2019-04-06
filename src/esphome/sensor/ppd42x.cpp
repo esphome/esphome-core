@@ -39,8 +39,8 @@ float PPD42XComponent::get_setup_priority() const { return setup_priority::HARDW
 void PPD42XComponent::parse_data_() {
   switch (this->type_) {
     case PPD42X_TYPE: {
-      uint16_t pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_) ;
-      uint16_t pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_) ;
+      float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_) ;
+      float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_) ;
       ESP_LOGD(TAG,
                "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L",
                pl_02_5_concentration, pl_10_0_concentration);
@@ -51,8 +51,8 @@ void PPD42XComponent::parse_data_() {
       break;
     }
     case PPD42X_TYPE_NS: {
-      uint16_t pl_02_5_concentration = 0;
-      uint16_t pl_10_0_concentration = 0;
+      float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_);
+      float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_);
       ESP_LOGD(TAG,
                "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L",
                pl_02_5_concentration, pl_10_0_concentration);
