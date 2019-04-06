@@ -38,7 +38,7 @@ float PPD42XComponent::get_setup_priority() const { return setup_priority::HARDW
 
 void PPD42XComponent::parse_data_() {
   switch (this->type_) {
-    case PPD42X_TYPE___: {
+    case PPD42X_TYPE: {
       uint16_t pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_) ;
       uint16_t pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_) ;
       ESP_LOGD(TAG,
