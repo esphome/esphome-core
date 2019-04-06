@@ -68,10 +68,10 @@ void PPD42XComponent::parse_data_() {
 }
 
 
-PPD42XSensor *PPD42XComponent::make_pl_02_5_sensor(const std::string &name, GPIOPin *pl_pin) {
+PPD42XSensor *PPD42XComponent::make_pl_02_5_sensor(const std::string &name, GPIOPin pl_pin) {
   return this->pl_02_5_sensor_ = new PPD42XSensor(name, pl_pin, PPD42X_SENSOR_TYPE_PM_02_5);
 }
-PPD42XSensor *PPD42XComponent::make_pl_10_0_sensor(const std::string &name, GPIOPin *pl_pin) {
+PPD42XSensor *PPD42XComponent::make_pl_10_0_sensor(const std::string &name, GPIOPin pl_pin) {
   return this->pl_10_0_sensor_ = new PPD42XSensor(name, pl_pin, PPD42X_SENSOR_TYPE_PM_10_0);
 }
 PPD42XComponent::PPD42XComponent(PPD42XType type) :  type_(type) {}
@@ -113,7 +113,7 @@ int8_t PPD42XSensor::accuracy_decimals() {
 }
 void PPD42XComponent::set_timeout_us(uint32_t timeout_us) { this->timeout_us_ = timeout_us; }
 
-PPD42XSensor::PPD42XSensor(const std::string &name, GPIOPin *pl_pin, PPD42XSensorType type) : Sensor(name), pl_pin_(pl_pin), type_(type) {}
+PPD42XSensor::PPD42XSensor(const std::string &name, GPIOPin pl_pin, PPD42XSensorType type) : Sensor(name), pl_pin_(pl_pin), type_(type) {}
 
 }  // namespace sensor
 
