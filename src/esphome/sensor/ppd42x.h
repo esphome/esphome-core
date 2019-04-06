@@ -43,7 +43,7 @@ class PPD42XSensor : public sensor::Sensor {
 class PPD42XComponent : public Component {
  public:
   PPD42XComponent(PPD42XType type);
-
+  void set_timeout_us(uint32_t timeout_us);
   void loop() override;
   float get_setup_priority() const override;
   void dump_config() override;
@@ -57,7 +57,7 @@ class PPD42XComponent : public Component {
   void parse_data_();
   /// Helper function to convert the specified pl_xx_x duration in µs to pcs/L.
   static float us_to_pl(uint32_t sample_length, uint32_t time_pm);
-  void set_timeout_us(uint32_t timeout_us);
+
   
   /// Helper function to convert the specified distance in meters to the pl_10_0 duration in µs.
   uint32_t timeout_us_{30000};
