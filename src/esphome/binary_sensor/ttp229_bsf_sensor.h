@@ -16,7 +16,7 @@ namespace binary_sensor {
 class TTP229BSFChannel : public binary_sensor::BinarySensor {
  public:
   TTP229BSFChannel(const std::string &name, int channel_num = 0);
-  void process(const uint16_t *data);
+  void process(const uint16_t data);
 
  protected:
   int channel_ = 0;
@@ -35,9 +35,6 @@ class TTP229BSFComponent : public Component {
   GPIOPin *sdo_pin_;
   GPIOPin *scl_pin_;
   std::vector<TTP229BSFChannel *> channels_{};
-  uint16_t lasttouched_{0};
-  uint16_t currtouched_{0};
-  void process_(uint16_t *data);
   bool get_bit_();
   uint16_t read_data_(uint8_t num_bits);
 };

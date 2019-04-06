@@ -14,7 +14,7 @@ TTP229BSFChannel::TTP229BSFChannel(const std::string &name, int channel_num) : B
   channel_ = channel_num;
 }
 
-void TTP229BSFChannel::process(const uint16_t *data) { this->publish_state(*data & (1 << this->channel_)); }
+void TTP229BSFChannel::process(const uint16_t data) { this->publish_state(data & (1 << this->channel_)); }
 
 TTP229BSFComponent::TTP229BSFComponent(GPIOPin *sdo_pin, GPIOPin *scl_pin) : sdo_pin_(sdo_pin), scl_pin_(scl_pin) {}
 
@@ -39,12 +39,6 @@ TTP229BSFChannel *TTP229BSFComponent::add_channel(binary_sensor::TTP229BSFChanne
   return channel;
 }
 
-void TTP229BSFComponent::process_(uint16_t *data) {
-  for (auto *channel : this->channels_) {
-    channel->process(data);
-  }
-}
-
 bool TTP229BSFComponent::get_bit_() {
   this->scl_pin_->digital_write(false);
   delayMicroseconds(2);  // 500KHz
@@ -59,17 +53,15 @@ uint16_t TTP229BSFComponent::read_data_(uint8_t num_bits) {
   for (uint8_t i = 0; i < num_bits; i++)
     if (get_bit_())
       val |= 1 << i;
-  delay(2);
   return ~val;
 }
 
 void TTP229BSFComponent::loop() {
-  this->currtouched_ = this->read_data_(16);
-  if (this->currtouched_ != this->lasttouched_) {
-    this->process_(&currtouched_);
+  uint16_t touched = 0;
+  touched = this->read_data_(16);
+  for (auto *channel : this->channels_) {
+    channel->process(touched);
   }
-  // reset touchsensor state
-  this->lasttouched_ = this->currtouched_;
 }
 
 }  // namespace binary_sensor
