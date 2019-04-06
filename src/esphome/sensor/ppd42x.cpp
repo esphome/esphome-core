@@ -30,11 +30,10 @@ void PPD42XComponent::loop() {
     // last transmission too long ago
     this->starttime_ = now;
     parse_data_();
-  }  
+  }
 }
 
 float PPD42XComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
-
 
 void PPD42XComponent::parse_data_() {
   switch (this->type_) {
