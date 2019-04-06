@@ -116,6 +116,7 @@
 #include "esphome/sensor/mqtt_subscribe_sensor.h"
 #include "esphome/sensor/ms5611.h"
 #include "esphome/sensor/pmsx003.h"
+#include "esphome/sensor/ppd42x.h"
 #include "esphome/sensor/pulse_counter.h"
 #include "esphome/sensor/rotary_encoder.h"
 #include "esphome/sensor/sensor.h"
@@ -125,7 +126,6 @@
 #include "esphome/sensor/total_daily_energy.h"
 #include "esphome/sensor/tsl2561_sensor.h"
 #include "esphome/sensor/ultrasonic_sensor.h"
-#include "esphome/sensor/ppd42x_sensor.h"
 #include "esphome/sensor/uptime_sensor.h"
 #include "esphome/sensor/wifi_signal_sensor.h"
 #include "esphome/sensor/sds011_component.h"
@@ -811,19 +811,8 @@ class Application {
 #ifdef USE_PMSX003
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
 #endif
-#ifdef USE_PPD42X_SENSOR
-  /** Create an PPD42x particle sensor.
-   *
-   * This can for example be an PPD42 particle sensor. It listens during a short periode for impulses from one
-   * pin or two pins (P1 and P2). The time between the UP and DOWN is then (with some maths) converted to a measurement
-   * in pcs/L. You need to specify the PM10_0 pin (where particule > 10.0  pcs/L will be sent to) and the PM2_5 pin
-   * (where particule > 2.5  pcs/L will be sent to). Note that in order to not block indefinitely if we don't receive UP
-   * , this class has a default timeout of around 30s. You can change that using the configuration file ( mandatory).
-   *
-   * @param friendly_name The friendly name for this sensor advertised to Home Assistant.
-   * @param update_interval The time in ms between updates, defaults to 60 seconds.
-   */
-  sensor::Ppd42xSensorComponent *make_ppd42x_sensor(const std::string &friendly_name, sensor::PPD42XType type);
+#ifdef USE_PPD42X
+  sensor::PPD42XComponent *make_ppd42x(sensor::PPD42XType type);
 #endif
 
 #ifdef USE_TOTAL_DAILY_ENERGY_SENSOR

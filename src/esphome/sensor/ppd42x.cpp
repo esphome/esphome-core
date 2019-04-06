@@ -10,7 +10,7 @@ ESPHOME_NAMESPACE_BEGIN
 namespace sensor {
 
 static const char *TAG = "sensor.ppd42x";
-void Ppd42xSensorComponent::setup() {
+void PPD42XComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up PPD42X Sensor...");
   this->starttime_ = millis();
   this->pm_02_5_pin_->setup();
@@ -69,20 +69,19 @@ void PPD42XComponent::parse_data_() {
 
 
 PPD42XSensor *PPD42XComponent::make_pm_02_5_sensor(const std::string &name, GPIOPin *pm_pin) {
-  return this->pm_02_5_sensor_ = new PPD42XSensor(name, pm_pin, PPD42X_SENSOR_TYPE_PM_02_5);
+  return this->pm_02_5_sensor_ = new PPD42XSensor(name, *pm_pin, PPD42X_SENSOR_TYPE_PM_02_5);
 }
 PPD42XSensor *PPD42XComponent::make_pm_10_0_sensor(const std::string &name, GPIOPin *pm_pin) {
-  return this->pm_10_0_sensor_ = new PPD42XSensor(name, pm_pin, PPD42X_SENSOR_TYPE_PM_10_0);
+  return this->pm_10_0_sensor_ = new PPD42XSensor(name, *pm_pin, PPD42X_SENSOR_TYPE_PM_10_0);
 }
-PPD42XComponent::PPD42XComponent(PPD42XType type) : type_(type) {}
+PPD42XComponent::PPD42XComponent(PPD42XType type) :  type_(type) {}
 void PPD42XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "PPD42X:");
   LOG_SENSOR("  ", "PM02.5", this->pm_02_5_sensor_);
   LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
   ESP_LOGCONFIG(TAG, "  Timeout: %u µs", this->timeout_us_);
-  LOG_UPDATE_INTERVAL(this);
 }
-float Ppd42xSensorComponent::us_to_pl(uint32_t sample_length, uint32_t time_pm) {
+float PPD42XComponent::us_to_pl(uint32_t sample_length, uint32_t time_pm) {
   float ratio = time_pm / (sample_length * 10.0f);
   return 1.1f * powf(ratio, 3) - 3.8f * powf(ratio, 2) + 520.0f * ratio + 0.62f;
 }
@@ -112,9 +111,9 @@ int8_t PPD42XSensor::accuracy_decimals() {
 
   return 0;
 }
-void Ppd42xSensorComponent::set_timeout_us(uint32_t timeout_us) { this->timeout_us_ = timeout_us; }
+void PPD42XComponent::set_timeout_us(uint32_t timeout_us) { this->timeout_us_ = timeout_us; }
 
-PPD42XSensor::PPD42XSensor(const std::string &name, GPIOPin *pm_pin, PPD42XSensorType type) : Sensor(name), GPIOPin(*pm_pin), type_(type) {}
+PPD42XSensor::PPD42XSensor(const std::string &name, GPIOPin pm_pin, PPD42XSensorType type) : Sensor(name), pm_pin_(pm_pin), type_(type) {}
 
 }  // namespace sensor
 

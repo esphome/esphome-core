@@ -29,7 +29,7 @@ enum PPD42XSensorType {
 
 class PPD42XSensor : public sensor::Sensor {
  public:
-  PPD42XSensor(const std::string &name, PPD42XSensorType type);
+  PPD42XSensor(const std::string &name, GPIOPin pm_pin, PPD42XSensorType type);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -37,6 +37,8 @@ class PPD42XSensor : public sensor::Sensor {
 
  protected:
   const PPD42XSensorType type_;
+  const GPIOPin pm_pin_;
+  const std::string name_;
 };
 
 class PPD42XComponent : public Component {
@@ -46,22 +48,29 @@ class PPD42XComponent : public Component {
   void loop() override;
   float get_setup_priority() const override;
   void dump_config() override;
+  void setup() override;
+  void get_update_interval();
 
   PPD42XSensor *make_pm_02_5_sensor(const std::string &name, GPIOPin *pm_pin);
   PPD42XSensor *make_pm_10_0_sensor(const std::string &name, GPIOPin *pm_pin);
 
  protected:
   void parse_data_();
-  const PPD42XType type_;
-  PPD42XSensor *pm_02_5_sensor_{nullptr};
-  PPD42XSensor *pm_10_0_sensor_{nullptr};
   /// Helper function to convert the specified pm_xx_x duration in µs to pcs/L.
-  static float us_to_pm(uint32_t sample_length, uint32_t time_pm);
+  static float us_to_pl(uint32_t sample_length, uint32_t time_pm);
+  void set_timeout_us(uint32_t timeout_us);
+  
   /// Helper function to convert the specified distance in meters to the pm_10_0 duration in µs.
   uint32_t timeout_us_{30000};
   uint32_t starttime_ {0};
   uint32_t lowpulseoccupancy_02_5_ {0};
   uint32_t lowpulseoccupancy_10_0_ {0};
+  GPIOPin *pm_02_5_pin_;
+  GPIOPin *pm_10_0_pin_;
+  
+  const PPD42XType type_;  
+  PPD42XSensor *pm_02_5_sensor_{nullptr};
+  PPD42XSensor *pm_10_0_sensor_{nullptr};
 };
 
 }  // namespace sensor
