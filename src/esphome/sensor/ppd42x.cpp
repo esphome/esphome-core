@@ -70,7 +70,9 @@ PPD42XSensor *PPD42XComponent::make_pl_02_5_sensor(const std::string &name, GPIO
 PPD42XSensor *PPD42XComponent::make_pl_10_0_sensor(const std::string &name, GPIOPin pl_pin) {
   return this->pl_10_0_sensor_ = new PPD42XSensor(name, pl_pin, PPD42X_SENSOR_TYPE_PM_10_0);
 }
-PPD42XComponent::PPD42XComponent(PPD42XType type) : type_(type) {}
+PPD42XComponent::PPD42XComponent(GPIOOutputPin &pl_02_5, GPIOOutputPin &pl_10_0,
+                                 PPD42XType type) : pl_02_5_pin_(pl_02_5), pl_10_0_pin_(pl_10_0),
+                                 type_(type) {}
 void PPD42XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "PPD42X:");
   LOG_SENSOR("  ", "PM02.5", this->pl_02_5_sensor_);

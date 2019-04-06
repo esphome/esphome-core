@@ -41,7 +41,8 @@ class PPD42XSensor : public sensor::Sensor {
 
 class PPD42XComponent : public Component {
  public:
-  PPD42XComponent(PPD42XType type);
+  PPD42XComponent(const GPIOOutputPin &pl_02_5, const GPIOOutputPin &pl_10_0,
+                  PPD42XType type);
   void set_timeout_us(uint32_t timeout_us);
   void loop() override;
   float get_setup_priority() const override;

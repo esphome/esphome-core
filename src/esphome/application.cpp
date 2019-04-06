@@ -1089,8 +1089,12 @@ sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, senso
 }
 #endif
 #ifdef USE_PPD42X
-sensor::PPD42XComponent *Application::make_ppd42x(sensor::PPD42XType type) {
-  return this->register_component(new PPD42XComponent(type));
+sensor::PPD42XComponent *Application::make_ppd42x(const GPIOInputPin &pl_02_5,
+                                                  const GPIOInputPin &pl_10_0,
+                                                  sensor::PPD42XType type) {
+  return this->register_component(new PPD42XComponent(const GPIOInputPin &pl_02_5,
+                                                      const GPIOInputPin &pl_10_0,
+                                                      type));
 }
 #endif
 
