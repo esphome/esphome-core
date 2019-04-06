@@ -29,7 +29,7 @@ enum PPD42XSensorType {
 
 class PPD42XSensor : public sensor::Sensor {
  public:
-  PPD42XSensor(const std::string &name, GPIOPin *pl_pin, PPD42XSensorType type);
+  PPD42XSensor(const std::string &name, GPIOPin pl_pin, PPD42XSensorType type);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -50,8 +50,8 @@ class PPD42XComponent : public Component {
   void setup() override;
   void get_update_interval();
 
-  PPD42XSensor *make_pl_02_5_sensor(const std::string &name, GPIOPin *pl_pin);
-  PPD42XSensor *make_pl_10_0_sensor(const std::string &name, GPIOPin *pl_pin);
+  PPD42XSensor *make_pl_02_5_sensor(const std::string &name, GPIOPin pl_pin);
+  PPD42XSensor *make_pl_10_0_sensor(const std::string &name, GPIOPin pl_pin);
 
  protected:
   void parse_data_();

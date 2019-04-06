@@ -42,7 +42,7 @@ void PPD42XComponent::parse_data_() {
       float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_) ;
       float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_) ;
       ESP_LOGD(TAG,
-               "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L",
+               "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L",
                pl_02_5_concentration, pl_10_0_concentration);
       if (this->pl_02_5_sensor_ != nullptr)
         this->pl_02_5_sensor_->publish_state(pl_02_5_concentration);
@@ -54,7 +54,7 @@ void PPD42XComponent::parse_data_() {
       float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_);
       float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_);
       ESP_LOGD(TAG,
-               "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L",
+               "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L",
                pl_02_5_concentration, pl_10_0_concentration);
       if (this->pl_02_5_sensor_ != nullptr)
         this->pl_02_5_sensor_->publish_state(pl_02_5_concentration);
@@ -69,10 +69,10 @@ void PPD42XComponent::parse_data_() {
 
 
 PPD42XSensor *PPD42XComponent::make_pl_02_5_sensor(const std::string &name, GPIOPin *pl_pin) {
-  return this->pl_02_5_sensor_ = new PPD42XSensor(name, *pl_pin, PPD42X_SENSOR_TYPE_PM_02_5);
+  return this->pl_02_5_sensor_ = new PPD42XSensor(name, pl_pin, PPD42X_SENSOR_TYPE_PM_02_5);
 }
 PPD42XSensor *PPD42XComponent::make_pl_10_0_sensor(const std::string &name, GPIOPin *pl_pin) {
-  return this->pl_10_0_sensor_ = new PPD42XSensor(name, *pl_pin, PPD42X_SENSOR_TYPE_PM_10_0);
+  return this->pl_10_0_sensor_ = new PPD42XSensor(name, pl_pin, PPD42X_SENSOR_TYPE_PM_10_0);
 }
 PPD42XComponent::PPD42XComponent(PPD42XType type) :  type_(type) {}
 void PPD42XComponent::dump_config() {
