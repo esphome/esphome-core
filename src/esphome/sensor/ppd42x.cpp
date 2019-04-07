@@ -11,7 +11,7 @@ namespace sensor {
 
 static const char *TAG = "sensor.ppd42x";
 
-PPD42XComponent::PPD42XComponent(PPD42XType type, uint32_t update_interval, uint32_t time_out) 
+PPD42XComponent::PPD42XComponent(PPD42XType type, uint32_t update_interval, uint32_t time_out)
     : ctype_(type), ui_(update_interval), timeout_ms_(time_out) {}
 
 void PPD42XComponent::loop() {
