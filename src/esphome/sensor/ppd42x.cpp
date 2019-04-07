@@ -139,7 +139,6 @@ void PPD42XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "PPD42X:");
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
   LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
-
 }
 
 std::string PPD42XSensor::unit_of_measurement() {
