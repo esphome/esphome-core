@@ -38,12 +38,12 @@ class PPD42XSensor : public sensor::Sensor {
  protected:
   const PPD42XSensorType type_;
   const GPIOInputPin pl_;
-};
+}; // class PPD42XSensor
 
 class PPD42XComponent : public Component {
  public:
-  PPD42XComponent(uint32_t update_interval, PPD42XType type);
-
+  PPD42XComponent(PPD42XType type, uint32_t update_interval);
+  void set_timeout_us(uint32_t timeout_us);
   void loop() override;
   float get_setup_priority() const override;
   void dump_config() override;
@@ -52,17 +52,20 @@ class PPD42XComponent : public Component {
   PPD42XSensor *make_pl_10_0_sensor(const std::string &name, const GPIOInputPin &pl);
 
  protected:
-  optional<bool> check_byte_();
   void parse_data_();
-  uint16_t get_16_bit_uint_(uint8_t start_index);
+  static float us_to_pl(uint32_t sample_length, uint32_t time_pm);
 
-  uint8_t data_[64];
-  uint8_t data_index_{0};
+  uint32_t timeout_us_{30000};
+  uint32_t starttime_{0};
+  uint32_t lowpulseoccupancy_02_5_{0};
+  uint32_t lowpulseoccupancy_10_0_{0};
+
   uint32_t last_transmission_{0};
+  uint32_t ui_{60000};
   const PPD42XType type_;
-  PPD42XSensor *pm_2_5_sensor_{nullptr};
-  PPD42XSensor *pm_10_0_sensor_{nullptr};
-};
+  PPD42XSensor *pl_02_5_sensor_{nullptr};
+  PPD42XSensor *pl_10_0_sensor_{nullptr};
+}; // class PPD42XComponent
 
 }  // namespace sensor
 

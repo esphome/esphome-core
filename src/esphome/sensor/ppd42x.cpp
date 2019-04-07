@@ -13,132 +13,77 @@ static const char *TAG = "sensor.ppd42x";
 
 void PPD42XComponent::loop() {
   const uint32_t now = millis();
-  if (now - this->last_transmission_ >= 500) {
-    // last transmission too long ago. Reset RX index.
-    this->data_index_ = 0;
-  }
+  uint32_t duration_pl_02_5 =
+      pulseIn(this->pl_02_5_pin_->get_pin(), uint8_t(!this->pl_02_5_pin_->is_inverted()), this->timeout_us_);
+  uint32_t duration_pl_10_0 =
+      pulseIn(this->pl_10_0_pin_->get_pin(), uint8_t(!this->pl_10_0_pin_->is_inverted()), this->timeout_us_);
+  this->lowpulseoccupancy_02_5_ = this->lowpulseoccupancy_02_5_ + duration_pl_02_5;
+  this->lowpulseoccupancy_10_0_ = this->lowpulseoccupancy_10_0_ + duration_pl_10_0;
 
-  if (this->available() == 0)
-    return;
-
-  this->last_transmission_ = now;
-  while (this->available() != 0) {
-    this->read_byte(&this->data_[this->data_index_]);
-    auto check = this->check_byte_();
-    if (!check.has_value()) {
-      // finished
-      this->parse_data_();
-      this->data_index_ = 0;
-    } else if (!*check) {
-      // wrong data
-      this->data_index_ = 0;
-    } else {
-      // next byte
-      this->data_index_++;
-    }
+  if (now - this->starttime_ > this->timeout_us_) {
+    // last transmission too long ago
+    this->starttime_ = now;
+    parse_data_();
   }
 }
 float PPD42XComponent::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
-optional<bool> PPD42XComponent::check_byte_() {
-  uint8_t index = this->data_index_;
-  uint8_t byte = this->data_[index];
-
-  if (index == 0)
-    return byte == 0x42;
-
-  if (index == 1)
-    return byte == 0x4D;
-
-  if (index == 2)
-    return true;
-
-  uint16_t payload_length = this->get_16_bit_uint_(2);
-  if (index == 3) {
-    bool length_matches = false;
-    switch (this->type_) {
-      case PPD42X_TYPE:
-        length_matches = payload_length == 28 || payload_length == 20;
-        break;
-      case PPD42X_TYPE_NJ:
-        length_matches = payload_length == 28;
-        break;
-      case PPD42X_TYPE_NS:
-        length_matches = payload_length == 36;
-        break;
-    }
-
-    if (!length_matches) {
-      ESP_LOGW(TAG, "PPD42X length %u doesn't match. Are you using the correct PPD42X type?", payload_length);
-      return false;
-    }
-    return true;
-  }
-
-  // start (16bit) + length (16bit) + DATA (payload_length-2 bytes) + checksum (16bit)
-  uint8_t total_size = 4 + payload_length;
-
-  if (index < total_size - 1)
-    return true;
-
-  // checksum is without checksum bytes
-  uint16_t checksum = 0;
-  for (uint8_t i = 0; i < total_size - 2; i++)
-    checksum += this->data_[i];
-
-  uint16_t check = this->get_16_bit_uint_(total_size - 2);
-  if (checksum != check) {
-    ESP_LOGW(TAG, "PPD42X checksum mismatch! 0x%02X!=0x%02X", checksum, check);
-    return false;
-  }
-
-  return {};
-}
 
 void PPD42XComponent::parse_data_() {
   switch (this->type_) {
     case PPD42X_TYPE: {
-      uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      uint16_t pm_10_0_concentration = this->get_16_bit_uint_(14);
-      ESP_LOGD(TAG, "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L", pm_2_5_concentration,
-               pm_10_0_concentration);
-      if (this->pm_2_5_sensor_ != nullptr)
-        this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
-      if (this->pm_10_0_sensor_ != nullptr)
-        this->pm_10_0_sensor_->publish_state(pm_10_0_concentration);
-      break;
-    }
-    case PPD42X_TYPE_NJ: {
-      uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u pcs/L ", pm_2_5_concentration);
-      if (this->pm_2_5_sensor_ != nullptr)
-        this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
+      float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_);
+      float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L", pl_02_5_concentration,
+               pl_10_0_concentration);
+      if (this->pl_02_5_sensor_ != nullptr)
+        this->pl_02_5_sensor_->publish_state(pl_02_5_concentration);
+      if (this->pl_10_0_sensor_ != nullptr)
+        this->pl_10_0_sensor_->publish_state(pl_10_0_concentration);
       break;
     }
     case PPD42X_TYPE_NS: {
-      uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u pcs/L ", pm_2_5_concentration);
-      if (this->pm_2_5_sensor_ != nullptr)
-        this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
+      float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_);
+      float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L", pl_02_5_concentration,
+               pl_10_0_concentration);
+      if (this->pl_02_5_sensor_ != nullptr)
+        this->pl_02_5_sensor_->publish_state(pl_02_5_concentration);
+      if (this->pl_10_0_sensor_ != nullptr)
+        this->pl_10_0_sensor_->publish_state(pl_10_0_concentration);
       break;
     }
   }
-
-  this->status_clear_warning();
+    case PPD42X_TYPE_NJ: {
+      float pl_02_5_concentration = us_to_pl(this->lowpulseoccupancy_02_5_, this->timeout_us_);
+      float pl_10_0_concentration = us_to_pl(this->lowpulseoccupancy_10_0_, this->timeout_us_);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration %f pcs/L, PM10.0 Concentration: %f pcs/L", pl_02_5_concentration,
+               pl_10_0_concentration);
+      if (this->pl_02_5_sensor_ != nullptr)
+        this->pl_02_5_sensor_->publish_state(pl_02_5_concentration);
+      if (this->pl_10_0_sensor_ != nullptr)
+        this->pl_10_0_sensor_->publish_state(pl_10_0_concentration);
+      break;
+    }
+  }
+}
+float PPD42XComponent::us_to_pl(uint32_t sample_length, uint32_t time_pm) {
+  float ratio = time_pm / (sample_length * 10.0f);
+  return 1.1f * powf(ratio, 3) - 3.8f * powf(ratio, 2) + 520.0f * ratio + 0.62f;
 }
 uint16_t PPD42XComponent::get_16_bit_uint_(uint8_t start_index) {
   return (uint16_t(this->data_[start_index]) << 8) | uint16_t(this->data_[start_index + 1]);
 }
 PPD42XSensor *PPD42XComponent::make_pl_02_5_sensor(const std::string &name, const GPIOInputPin &pl) {
-  return this->pm_2_5_sensor_ = new PPD42XSensor(name, pl, PPD42X_SENSOR_TYPE_PM_02_5);
+  return this->pl_02_5_sensor_ = new PPD42XSensor(name, pl, PPD42X_SENSOR_TYPE_PM_02_5);
 }
 PPD42XSensor *PPD42XComponent::make_pl_10_0_sensor(const std::string &name) {
-  return this->pm_10_0_sensor_ = new PPD42XSensor(name, pl, PPD42X_SENSOR_TYPE_PM_10_0);
+  return this->pl_10_0_sensor_ = new PPD42XSensor(name, pl, PPD42X_SENSOR_TYPE_PM_10_0);
 }
-PPD42XComponent::PPD42XComponent( PPD42XType type) :  type_(type) {}
+PPD42XComponent::PPD42XComponent(PPD42XType type, uint32_t update_interval) : type_(type), ui_(update_interval) {}
 void PPD42XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "PPD42X:");
-  LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
-  LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
+  LOG_SENSOR("  ", "PM2.5", this->pl_02_5_sensor_);
+  LOG_SENSOR("  ", "PM10.0", this->pl_10_0_sensor_);
 }
 
 std::string PPD42XSensor::unit_of_measurement() {
@@ -167,6 +112,8 @@ int8_t PPD42XSensor::accuracy_decimals() {
 
   return 0;
 }
+void PPD42XComponent::set_timeout_us(uint32_t timeout_us) { this->timeout_us_ = timeout_us; }
+
 PPD42XSensor::PPD42XSensor(const std::string &name, GPIOInputPin pl, PPD42XSensorType type) 
                           : Sensor(name), pl_(pl), type_(type) {}
 
