@@ -29,15 +29,16 @@ enum PPD42XSensorType {
 
 class PPD42XSensor : public sensor::Sensor {
  public:
-  PPD42XSensor(const std::string &name, GPIOInputPin &pl, PPD42XSensorType type);
+  PPD42XSensor(const std::string &name, GPIOInputPin *pl, PPD42XSensorType type);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
   int8_t accuracy_decimals() override;
+  GPIOInputPin *pl_pin_;
 
  protected:
-  const PPD42XSensorType type_;
-  const GPIOInputPin pl_;
+  const PPD42XSensorType stype_;
+ 
 }; // class PPD42XSensor
 
 class PPD42XComponent : public Component {
@@ -48,8 +49,8 @@ class PPD42XComponent : public Component {
   float get_setup_priority() const override;
   void dump_config() override;
 
-  PPD42XSensor *make_pl_02_5_sensor(const std::string &name, const GPIOInputPin &pl);
-  PPD42XSensor *make_pl_10_0_sensor(const std::string &name, const GPIOInputPin &pl);
+  PPD42XSensor *make_pl_02_5_sensor(const std::string &name, GPIOInputPin *pl);
+  PPD42XSensor *make_pl_10_0_sensor(const std::string &name, GPIOInputPin *pl);
 
  protected:
   void parse_data_();
@@ -62,7 +63,7 @@ class PPD42XComponent : public Component {
 
   uint32_t last_transmission_{0};
   uint32_t ui_{60000};
-  const PPD42XType type_;
+  const PPD42XType ctype_;
   PPD42XSensor *pl_02_5_sensor_{nullptr};
   PPD42XSensor *pl_10_0_sensor_{nullptr};
 }; // class PPD42XComponent
