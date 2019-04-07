@@ -14,19 +14,22 @@ static const char *TAG = "sensor.ppd42x";
 PPD42XComponent::PPD42XComponent(PPD42XType type, uint32_t update_interval, uint32_t time_out) 
     : ctype_(type), ui_(update_interval), timeout_ms_(time_out) {}
 
-void PPD42XComponent::update() {
+void PPD42XComponent::loop() {
   const uint32_t now = millis();
-  uint32_t duration_pl_02_5 = pulseIn(this->pl_02_5_sensor_->pl_pin_->get_pin(),
-                                      uint8_t(!this->pl_02_5_sensor_->pl_pin_->is_inverted()), this->timeout_ms_);
-  uint32_t duration_pl_10_0 = pulseIn(this->pl_10_0_sensor_->pl_pin_->get_pin(),
-                                      uint8_t(!this->pl_10_0_sensor_->pl_pin_->is_inverted()), this->timeout_ms_);
-  this->lowpulseoccupancy_02_5_ = this->lowpulseoccupancy_02_5_ + duration_pl_02_5;
-  this->lowpulseoccupancy_10_0_ = this->lowpulseoccupancy_10_0_ + duration_pl_10_0;
+  if(){ ((now - this->starttime_) > this->ui_)
 
-  if ((now - this->starttime_) > this->timeout_ms_) {
-    // last transmission too long ago
-    this->starttime_ = now;
-    parse_data_();
+    uint32_t duration_pl_02_5 = pulseIn(this->pl_02_5_sensor_->pl_pin_->get_pin(),
+                                        uint8_t(!this->pl_02_5_sensor_->pl_pin_->is_inverted()), this->timeout_ms_);
+    uint32_t duration_pl_10_0 = pulseIn(this->pl_10_0_sensor_->pl_pin_->get_pin(),
+                                        uint8_t(!this->pl_10_0_sensor_->pl_pin_->is_inverted()), this->timeout_ms_);
+    this->lowpulseoccupancy_02_5_ = this->lowpulseoccupancy_02_5_ + duration_pl_02_5;
+    this->lowpulseoccupancy_10_0_ = this->lowpulseoccupancy_10_0_ + duration_pl_10_0;
+
+    if ((now - this->starttime_) > this->timeout_ms_) {
+      // last transmission too long ago
+      this->starttime_ = now;
+      parse_data_();
+    }
   }
 }
 
