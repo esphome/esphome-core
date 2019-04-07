@@ -13,10 +13,10 @@ static const char *TAG = "sensor.ppd42x";
 
 void PPD42XComponent::loop() {
   const uint32_t now = millis();
-  const GPIOInputPin pina = this->pl_02_5_sensor_->pl
+  const GPIOInputPin pina = this->pl_02_5_sensor_->pl_
   uint32_t duration_pl_02_5 =
       pulseIn(pina->get_pin(), uint8_t(!pina->is_inverted()), this->timeout_us_);
-  const GPIOInputPin pinb = this->pl_10_0_sensor_->pl    
+  const GPIOInputPin pinb = this->pl_10_0_sensor_->pl_
   uint32_t duration_pl_10_0 =
       pulseIn(pinb->get_pin(), uint8_t(!pinb->is_inverted()), this->timeout_us_);
   this->lowpulseoccupancy_02_5_ = this->lowpulseoccupancy_02_5_ + duration_pl_02_5;
