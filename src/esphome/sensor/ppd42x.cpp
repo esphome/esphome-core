@@ -99,9 +99,8 @@ void PPD42XComponent::parse_data_() {
     case PPD42X_TYPE: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
       uint16_t pm_10_0_concentration = this->get_16_bit_uint_(14);
-      ESP_LOGD(TAG,
-               "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L",
-               pm_2_5_concentration, pm_10_0_concentration);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L", pm_2_5_concentration,
+               pm_10_0_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       if (this->pm_10_0_sensor_ != nullptr)
@@ -110,8 +109,7 @@ void PPD42XComponent::parse_data_() {
     }
     case PPD42X_TYPE_NJ: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u pcs/L ", pm_2_5_concentration
-               );
+      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u pcs/L ", pm_2_5_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       break;
@@ -157,7 +155,8 @@ std::string PPD42XSensor::icon() {
     case PPD42X_SENSOR_TYPE_PM_2_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
       // Not the ideal icon, but I can't find a better one.
-      return ICON_CHEMICAL_WEAPON;  }
+      return ICON_CHEMICAL_WEAPON;
+  }
   return "";
 }
 int8_t PPD42XSensor::accuracy_decimals() {
