@@ -43,7 +43,7 @@ class PPD42XSensor : public sensor::Sensor {
 
 class PPD42XComponent : public Component {
  public:
-  PPD42XComponent(PPD42XType type, uint32_t update_interval);
+  PPD42XComponent(PPD42XType type, uint32_t update_interval, uint32_t time_out);
   void set_timeout_us(uint32_t timeout_us);
   void loop() override;
   float get_setup_priority() const override;
@@ -56,13 +56,13 @@ class PPD42XComponent : public Component {
   void parse_data_();
   static float us_to_pl(uint32_t sample_length, uint32_t time_pm);
 
-  uint32_t timeout_us_{30000};
+  uint32_t timeout_ms_{30};
   uint32_t starttime_{0};
   uint32_t lowpulseoccupancy_02_5_{0};
   uint32_t lowpulseoccupancy_10_0_{0};
 
   uint32_t last_transmission_{0};
-  uint32_t ui_{60000};
+  uint32_t ui_{0};
   const PPD42XType ctype_;
   PPD42XSensor *pl_02_5_sensor_{nullptr};
   PPD42XSensor *pl_10_0_sensor_{nullptr};
