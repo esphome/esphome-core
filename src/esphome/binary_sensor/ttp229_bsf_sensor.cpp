@@ -14,7 +14,7 @@ TTP229BSFChannel::TTP229BSFChannel(const std::string &name, int channel_num) : B
   channel_ = channel_num;
 }
 
-void TTP229BSFChannel::process(const uint16_t data) { this->publish_state(data & (1 << this->channel_)); }
+void TTP229BSFChannel::process(uint16_t data) { this->publish_state(data & (1 << this->channel_)); }
 
 TTP229BSFComponent::TTP229BSFComponent(GPIOPin *sdo_pin, GPIOPin *scl_pin) : sdo_pin_(sdo_pin), scl_pin_(scl_pin) {}
 
@@ -58,7 +58,7 @@ uint16_t TTP229BSFComponent::read_data_(uint8_t num_bits) {
 
 void TTP229BSFComponent::loop() {
   uint16_t touched = 0;
-  //check datavalid if sdo is high
+  // check datavalid if sdo is high
   if (this->sdo_pin_->digital_read()) {
     touched = this->read_data_(16);
     for (auto *channel : this->channels_) {

@@ -16,7 +16,7 @@ namespace binary_sensor {
 class TTP229BSFChannel : public binary_sensor::BinarySensor {
  public:
   TTP229BSFChannel(const std::string &name, int channel_num = 0);
-  void process(const uint16_t data);
+  void process(uint16_t data);
 
  protected:
   int channel_ = 0;
