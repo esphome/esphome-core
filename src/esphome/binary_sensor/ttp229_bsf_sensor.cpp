@@ -58,9 +58,12 @@ uint16_t TTP229BSFComponent::read_data_(uint8_t num_bits) {
 
 void TTP229BSFComponent::loop() {
   uint16_t touched = 0;
-  touched = this->read_data_(16);
-  for (auto *channel : this->channels_) {
-    channel->process(touched);
+  //check datavalid if sdo is high
+  if (this->sdo_pin_->digital_read()) {
+    touched = this->read_data_(16);
+    for (auto *channel : this->channels_) {
+      channel->process(touched);
+    }
   }
 }
 
