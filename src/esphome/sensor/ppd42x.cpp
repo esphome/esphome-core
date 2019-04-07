@@ -116,7 +116,7 @@ int8_t PPD42XSensor::accuracy_decimals() {
 }
 void PPD42XComponent::set_timeout_us(uint32_t timeout_us) { this->timeout_us_ = timeout_us; }
 
-PPD42XSensor::PPD42XSensor(const std::string &name, GPIOInputPin *pl, PPD42XSensorType type) 
+PPD42XSensor::PPD42XSensor(const std::string &name, GPIOInputPin *pl, PPD42XSensorType type)
     : Sensor(name), pl_pin_(pl), stype_(type) {}
 }  // namespace sensor
 
