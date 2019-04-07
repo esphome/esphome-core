@@ -56,13 +56,13 @@ optional<bool> PPD42XComponent::check_byte_() {
   if (index == 3) {
     bool length_matches = false;
     switch (this->type_) {
-      case PPD42X_TYPE_X003:
+      case PPD42X_TYPE_:
         length_matches = payload_length == 28 || payload_length == 20;
         break;
-      case PPD42X_TYPE_5003T:
+      case PPD42X_TYPE_NJ:
         length_matches = payload_length == 28;
         break;
-      case PPD42X_TYPE_5003ST:
+      case PPD42X_TYPE_NS:
         length_matches = payload_length == 36;
         break;
     }
@@ -96,50 +96,31 @@ optional<bool> PPD42XComponent::check_byte_() {
 
 void PPD42XComponent::parse_data_() {
   switch (this->type_) {
-    case PPD42X_TYPE_X003: {
-      uint16_t pm_1_0_concentration = this->get_16_bit_uint_(10);
+    case PPD42X_TYPE_: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
       uint16_t pm_10_0_concentration = this->get_16_bit_uint_(14);
       ESP_LOGD(TAG,
                "Got PM1.0 Concentration: %u µg/m^3, PM2.5 Concentration %u µg/m^3, PM10.0 Concentration: %u µg/m^3",
                pm_1_0_concentration, pm_2_5_concentration, pm_10_0_concentration);
-      if (this->pm_1_0_sensor_ != nullptr)
-        this->pm_1_0_sensor_->publish_state(pm_1_0_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       if (this->pm_10_0_sensor_ != nullptr)
         this->pm_10_0_sensor_->publish_state(pm_10_0_concentration);
       break;
     }
-    case PPD42X_TYPE_5003T: {
+    case PPD42X_TYPE_NJ: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      float temperature = this->get_16_bit_uint_(24) / 10.0f;
-      float humidity = this->get_16_bit_uint_(26) / 10.0f;
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%%", pm_2_5_concentration,
-               temperature, humidity);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3 ", pm_2_5_concentration
+               );
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
-      if (this->temperature_sensor_ != nullptr)
-        this->temperature_sensor_->publish_state(temperature);
-      if (this->humidity_sensor_ != nullptr)
-        this->humidity_sensor_->publish_state(humidity);
       break;
     }
-    case PPD42X_TYPE_5003ST: {
+    case PPD42X_TYPE_NS: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      uint16_t formaldehyde = this->get_16_bit_uint_(28);
-      float temperature = this->get_16_bit_uint_(30) / 10.0f;
-      float humidity = this->get_16_bit_uint_(32) / 10.0f;
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3, Temperature: %.1f°C, Humidity: %.1f%% Formaldehyde: %u µg/m^3",
-               pm_2_5_concentration, temperature, humidity, formaldehyde);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3 ", pm_2_5_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
-      if (this->temperature_sensor_ != nullptr)
-        this->temperature_sensor_->publish_state(temperature);
-      if (this->humidity_sensor_ != nullptr)
-        this->humidity_sensor_->publish_state(humidity);
-      if (this->formaldehyde_sensor_ != nullptr)
-        this->formaldehyde_sensor_->publish_state(formaldehyde);
       break;
     }
   }
@@ -149,74 +130,41 @@ void PPD42XComponent::parse_data_() {
 uint16_t PPD42XComponent::get_16_bit_uint_(uint8_t start_index) {
   return (uint16_t(this->data_[start_index]) << 8) | uint16_t(this->data_[start_index + 1]);
 }
-PPD42XSensor *PPD42XComponent::make_pm_1_0_sensor(const std::string &name) {
-  return this->pm_1_0_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_PM_1_0);
-}
 PPD42XSensor *PPD42XComponent::make_pm_2_5_sensor(const std::string &name) {
   return this->pm_2_5_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_PM_2_5);
 }
 PPD42XSensor *PPD42XComponent::make_pm_10_0_sensor(const std::string &name) {
   return this->pm_10_0_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_PM_10_0);
 }
-PPD42XSensor *PPD42XComponent::make_temperature_sensor(const std::string &name) {
-  return this->temperature_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_TEMPERATURE);
-}
-PPD42XSensor *PPD42XComponent::make_humidity_sensor(const std::string &name) {
-  return this->humidity_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_HUMIDITY);
-}
-PPD42XSensor *PPD42XComponent::make_formaldehyde_sensor(const std::string &name) {
-  return this->formaldehyde_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_FORMALDEHYDE);
-}
 PPD42XComponent::PPD42XComponent(UARTComponent *parent, PPD42XType type) : UARTDevice(parent), type_(type) {}
 void PPD42XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "PPD42X:");
-  LOG_SENSOR("  ", "PM1.0", this->pm_1_0_sensor_);
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
   LOG_SENSOR("  ", "PM10.0", this->pm_10_0_sensor_);
-  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
-  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
-  LOG_SENSOR("  ", "Formaldehyde", this->formaldehyde_sensor_);
+
 }
 
 std::string PPD42XSensor::unit_of_measurement() {
   switch (this->type_) {
-    case PPD42X_SENSOR_TYPE_PM_1_0:
     case PPD42X_SENSOR_TYPE_PM_2_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
-    case PPD42X_SENSOR_TYPE_FORMALDEHYDE:
       return UNIT_MICROGRAMS_PER_CUBIC_METER;
-    case PPD42X_SENSOR_TYPE_TEMPERATURE:
-      return UNIT_C;
-    case PPD42X_SENSOR_TYPE_HUMIDITY:
-      return UNIT_PERCENT;
   }
   return "";
 }
 std::string PPD42XSensor::icon() {
   switch (this->type_) {
-    case PPD42X_SENSOR_TYPE_PM_1_0:
     case PPD42X_SENSOR_TYPE_PM_2_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
-    case PPD42X_SENSOR_TYPE_FORMALDEHYDE:
       // Not the ideal icon, but I can't find a better one.
-      return ICON_CHEMICAL_WEAPON;
-    case PPD42X_SENSOR_TYPE_TEMPERATURE:
-      return ICON_EMPTY;
-    case PPD42X_SENSOR_TYPE_HUMIDITY:
-      return ICON_WATER_PERCENT;
   }
   return "";
 }
 int8_t PPD42XSensor::accuracy_decimals() {
   switch (this->type_) {
-    case PPD42X_SENSOR_TYPE_PM_1_0:
     case PPD42X_SENSOR_TYPE_PM_2_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
-    case PPD42X_SENSOR_TYPE_FORMALDEHYDE:
       return 0;
-    case PPD42X_SENSOR_TYPE_TEMPERATURE:
-    case PPD42X_SENSOR_TYPE_HUMIDITY:
-      return 1;
   }
 
   return 0;
