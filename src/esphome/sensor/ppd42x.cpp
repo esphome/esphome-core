@@ -16,7 +16,7 @@ PPD42XComponent::PPD42XComponent(PPD42XType type, uint32_t update_interval, uint
 
 void PPD42XComponent::loop() {
   const uint32_t now = millis();
-  if(){ ((now - this->starttime_) > this->ui_)
+  if ((now - this->starttime_) > this->ui_) {
 
     uint32_t duration_pl_02_5 = pulseIn(this->pl_02_5_sensor_->pl_pin_->get_pin(),
                                         uint8_t(!this->pl_02_5_sensor_->pl_pin_->is_inverted()), this->timeout_ms_);
