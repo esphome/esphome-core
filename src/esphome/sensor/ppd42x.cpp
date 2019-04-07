@@ -100,8 +100,8 @@ void PPD42XComponent::parse_data_() {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
       uint16_t pm_10_0_concentration = this->get_16_bit_uint_(14);
       ESP_LOGD(TAG,
-               "Got PM1.0 Concentration: %u µg/m^3, PM2.5 Concentration %u µg/m^3, PM10.0 Concentration: %u µg/m^3",
-               pm_1_0_concentration, pm_2_5_concentration, pm_10_0_concentration);
+               "Got PM2.5 Concentration %u pcs/L, PM10.0 Concentration: %u pcs/L",
+               pm_2_5_concentration, pm_10_0_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       if (this->pm_10_0_sensor_ != nullptr)
@@ -110,7 +110,7 @@ void PPD42XComponent::parse_data_() {
     }
     case PPD42X_TYPE_NJ: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3 ", pm_2_5_concentration
+      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u pcs/L ", pm_2_5_concentration
                );
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
@@ -118,7 +118,7 @@ void PPD42XComponent::parse_data_() {
     }
     case PPD42X_TYPE_NS: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
-      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u µg/m^3 ", pm_2_5_concentration);
+      ESP_LOGD(TAG, "Got PM2.5 Concentration: %u pcs/L ", pm_2_5_concentration);
       if (this->pm_2_5_sensor_ != nullptr)
         this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
       break;
