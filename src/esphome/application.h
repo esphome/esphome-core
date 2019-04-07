@@ -812,7 +812,7 @@ class Application {
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
 #endif
 #ifdef USE_PPD42X
-  sensor::PPD42XComponent *make_ppd42x(sensor::PPD42XType type, uint32_t update_interval = 60000);
+  sensor::PPD42XComponent *make_ppd42x(sensor::PPD42XType type, uint32_t update_interval = 60000, time_out = 30000);
 #endif
 
 #ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
