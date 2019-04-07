@@ -57,19 +57,19 @@ template<typename... Ts> class ControlAction : public Action<Ts...> {
 
   void play(Ts... x) override {
     auto call = this->cover_->make_call();
-    if (this->stop_.has_value() )
+    if (this->stop_.has_value())
       call.set_stop(this->stop_.value(x...));
-    if (this->position_.has_value() )
+    if (this->position_.has_value())
       call.set_position(this->position_.value(x...));
-    if (this->tilt_.has_value() )
+    if (this->tilt_.has_value())
       call.set_tilt(this->tilt_.value(x...));
     call.perform();
     this->play_next(x...);
   }
 
- TEMPLATABLE_VALUE(bool, stop)
- TEMPLATABLE_VALUE(float, position)
- TEMPLATABLE_VALUE(float, tilt)
+  TEMPLATABLE_VALUE(bool, stop)
+  TEMPLATABLE_VALUE(float, position)
+  TEMPLATABLE_VALUE(float, tilt)
 
  protected:
   Cover *cover_;
@@ -101,6 +101,7 @@ template<typename... Ts> class CoverIsOpenCondition : public Condition<Ts...> {
  public:
   CoverIsOpenCondition(Cover *cover) : cover_(cover) {}
   bool check(Ts... x) override { return this->cover_->is_fully_open(); }
+
  protected:
   Cover *cover_;
 };
@@ -108,6 +109,7 @@ template<typename... Ts> class CoverIsClosedCondition : public Condition<Ts...> 
  public:
   CoverIsClosedCondition(Cover *cover) : cover_(cover) {}
   bool check(Ts... x) override { return this->cover_->is_fully_closed(); }
+
  protected:
   Cover *cover_;
 };
@@ -116,6 +118,6 @@ template<typename... Ts> class CoverIsClosedCondition : public Condition<Ts...> 
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_COVER
+#endif  // USE_COVER
 
-#endif //ESPHOME_CORE_COVER_AUTOMATION_H
+#endif  // ESPHOME_CORE_COVER_AUTOMATION_H

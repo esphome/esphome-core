@@ -297,7 +297,9 @@ template<typename T, typename... X> class TemplatableValue {
   }
 
   optional<T> optional_value(X... x) {
-    if (!this->has_value()) { return {}; }
+    if (!this->has_value()) {
+      return {};
+    }
     return this->value(x...);
   }
 

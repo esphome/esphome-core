@@ -22,30 +22,14 @@ class EndstopCover : public Cover, public Component {
   void dump_config() override;
   float get_setup_priority() const override;
 
-  Trigger<> *get_open_trigger() const {
-    return this->open_trigger_;
-  }
-  Trigger<> *get_close_trigger() const {
-    return this->close_trigger_;
-  }
-  Trigger<> *get_stop_trigger() const {
-    return this->stop_trigger_;
-  }
-  void set_open_endstop(binary_sensor::BinarySensor *open_endstop) {
-    this->open_endstop_ = open_endstop;
-  }
-  void set_close_endstop(binary_sensor::BinarySensor *close_endstop) {
-    this->close_endstop_ = close_endstop;
-  }
-  void set_open_duration(uint32_t open_duration) {
-    this->open_duration_ = open_duration;
-  }
-  void set_close_duration(uint32_t close_duration) {
-    this->close_duration_ = close_duration;
-  }
-  void set_max_duration(uint32_t max_duration) {
-    this->max_duration_ = max_duration;
-  }
+  Trigger<> *get_open_trigger() const { return this->open_trigger_; }
+  Trigger<> *get_close_trigger() const { return this->close_trigger_; }
+  Trigger<> *get_stop_trigger() const { return this->stop_trigger_; }
+  void set_open_endstop(binary_sensor::BinarySensor *open_endstop) { this->open_endstop_ = open_endstop; }
+  void set_close_endstop(binary_sensor::BinarySensor *close_endstop) { this->close_endstop_ = close_endstop; }
+  void set_open_duration(uint32_t open_duration) { this->open_duration_ = open_duration; }
+  void set_close_duration(uint32_t close_duration) { this->close_duration_ = close_duration; }
+  void set_max_duration(uint32_t max_duration) { this->max_duration_ = max_duration; }
 
   CoverTraits get_traits() override;
 
@@ -76,10 +60,10 @@ class EndstopCover : public Cover, public Component {
   float target_position_{0};
 };
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ENDSTOP_COVER
+#endif  // USE_ENDSTOP_COVER
 
-#endif //ESPHOME_CORE_ENDSTOP_COVER_H
+#endif  // ESPHOME_CORE_ENDSTOP_COVER_H

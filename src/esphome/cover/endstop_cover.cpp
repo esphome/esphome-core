@@ -94,9 +94,7 @@ void EndstopCover::dump_config() {
   LOG_BINARY_SENSOR("  ", "Close Endstop", this->close_endstop_);
   ESP_LOGCONFIG(TAG, "  Close Duration: %.1fs", this->close_duration_ / 1e3f);
 }
-float EndstopCover::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float EndstopCover::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void EndstopCover::stop_prev_trigger_() {
   if (this->prev_command_trigger_ != nullptr) {
     this->prev_command_trigger_->stop();
@@ -106,10 +104,12 @@ void EndstopCover::stop_prev_trigger_() {
 bool EndstopCover::is_at_target_() const {
   switch (this->current_operation) {
     case COVER_OPERATION_OPENING:
-      if (this->target_position_ == COVER_OPEN) return this->is_open_();
+      if (this->target_position_ == COVER_OPEN)
+        return this->is_open_();
       return this->position >= this->target_position_;
     case COVER_OPERATION_CLOSING:
-      if (this->target_position_ == COVER_CLOSED) return this->is_closed_();
+      if (this->target_position_ == COVER_CLOSED)
+        return this->is_closed_();
       return this->position <= this->target_position_;
     case COVER_OPERATION_IDLE:
     default:
@@ -172,8 +172,8 @@ void EndstopCover::recompute_position_() {
   this->last_recompute_time_ = now;
 }
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_ENDSTOP_COVER
+#endif  // USE_ENDSTOP_COVER

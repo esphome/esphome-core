@@ -44,9 +44,7 @@ void TimeBasedCover::loop() {
     this->last_publish_time_ = now;
   }
 }
-float TimeBasedCover::get_setup_priority() const {
-  return setup_priority::HARDWARE_LATE;
-}
+float TimeBasedCover::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 CoverTraits TimeBasedCover::get_traits() {
   auto traits = CoverTraits();
   traits.set_supports_position(true);
@@ -142,8 +140,8 @@ void TimeBasedCover::recompute_position_() {
   this->last_recompute_time_ = now;
 }
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TIME_BASED_COVER
+#endif  // USE_TIME_BASED_COVER

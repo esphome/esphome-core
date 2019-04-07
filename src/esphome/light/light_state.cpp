@@ -38,18 +38,14 @@ void LightState::set_immediately_(const LightColorValues &target) {
   this->next_write_ = true;
 }
 
-LightColorValues LightState::get_current_values() {
-  return this->current_values;
-}
+LightColorValues LightState::get_current_values() { return this->current_values; }
 
 void LightState::publish_state() {
   this->remote_values_callback_.call();
   this->next_write_ = true;
 }
 
-LightColorValues LightState::get_remote_values() {
-  return this->remote_values;
-}
+LightColorValues LightState::get_remote_values() { return this->remote_values; }
 
 std::string LightState::get_effect_name() {
   if (this->active_effect_index_ > 0)
@@ -164,9 +160,7 @@ void LightState::add_effects(const std::vector<LightEffect *> effects) {
 }
 LightCall LightState::turn_on() { return this->make_call().set_state(true); }
 LightCall LightState::turn_off() { return this->make_call().set_state(false); }
-LightCall LightState::toggle() {
-  return this->make_call().set_state(!this->remote_values.is_on());
-}
+LightCall LightState::toggle() { return this->make_call().set_state(!this->remote_values.is_on()); }
 LightCall LightState::make_call() { return LightCall(this); }
 uint32_t LightState::hash_base() { return 1114400283; }
 void LightState::dump_config() {
@@ -277,8 +271,8 @@ void LightCall::perform() {
     }
 
     if (this->red_.has_value() || this->green_.has_value() || this->blue_.has_value()) {
-      ESP_LOGD(TAG, "  Red=%.0f%%, Green=%.0f%%, Blue=%.0f%%",
-               v.get_red() * 100.0f, v.get_green() * 100.0f, v.get_blue() * 100.0f);
+      ESP_LOGD(TAG, "  Red=%.0f%%, Green=%.0f%%, Blue=%.0f%%", v.get_red() * 100.0f, v.get_green() * 100.0f,
+               v.get_blue() * 100.0f);
     }
     if (this->white_.has_value()) {
       ESP_LOGD(TAG, "  White Value: %.0f%%", v.get_white() * 100.0f);
@@ -389,11 +383,11 @@ LightColorValues LightCall::validate_() {
   }
 
 #define VALIDATE_RANGE_(name_, upper_name) \
-  if (name_ ## _.has_value()) { \
-    auto val = *name_ ## _; \
+  if (name_##_.has_value()) { \
+    auto val = *name_##_; \
     if (val < 0.0f || val > 1.0f) { \
       ESP_LOGW(TAG, "'%s' - %s value %.2f is out of range [0.0 - 1.0]!", name, upper_name, val); \
-      name_ ## _ = clamp(0.0f, 1.0f, val); \
+      name_##_ = clamp(0.0f, 1.0f, val); \
     } \
   }
 #define VALIDATE_RANGE(name, upper_name) VALIDATE_RANGE_(name, upper_name)
@@ -631,7 +625,8 @@ LightCall &LightCall::set_color_temperature(float color_temperature) {
   return *this;
 }
 LightCall &LightCall::set_effect(optional<std::string> effect) {
-  if (effect.has_value()) this->set_effect(*effect);
+  if (effect.has_value())
+    this->set_effect(*effect);
   return *this;
 }
 LightCall &LightCall::set_effect(uint32_t effect_number) {
@@ -685,8 +680,7 @@ void LightState::current_values_as_rgbw(float *red, float *green, float *blue, f
 }
 void LightState::current_values_as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red,
                                          float *green, float *blue, float *cold_white, float *warm_white) {
-  this->current_values.as_rgbww(color_temperature_cw, color_temperature_ww, red, green, blue, cold_white,
-                                      warm_white);
+  this->current_values.as_rgbww(color_temperature_cw, color_temperature_ww, red, green, blue, cold_white, warm_white);
   *red = gamma_correct(*red, this->gamma_correct_);
   *green = gamma_correct(*green, this->gamma_correct_);
   *blue = gamma_correct(*blue, this->gamma_correct_);
@@ -703,8 +697,10 @@ void LightState::add_new_remote_values_callback(light_send_callback_t &&send_cal
   this->remote_values_callback_.add(std::move(send_callback));
 }
 LightEffect *LightState::get_active_effect_() {
-  if (this->active_effect_index_ == 0) return nullptr;
-  else return this->effects_[this->active_effect_index_ - 1];
+  if (this->active_effect_index_ == 0)
+    return nullptr;
+  else
+    return this->effects_[this->active_effect_index_ - 1];
 }
 
 }  // namespace light

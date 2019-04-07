@@ -20,22 +20,13 @@ class TimeBasedCover : public Cover, public Component {
   void dump_config() override;
   float get_setup_priority() const override;
 
-  Trigger<> *get_open_trigger() const {
-    return this->open_trigger_;
-  }
-  Trigger<> *get_close_trigger() const {
-    return this->close_trigger_;
-  }
-  Trigger<> *get_stop_trigger() const {
-    return this->stop_trigger_;
-  }
-  void set_open_duration(uint32_t open_duration) {
-    this->open_duration_ = open_duration;
-  }
-  void set_close_duration(uint32_t close_duration) {
-    this->close_duration_ = close_duration;
-  }
+  Trigger<> *get_open_trigger() const { return this->open_trigger_; }
+  Trigger<> *get_close_trigger() const { return this->close_trigger_; }
+  Trigger<> *get_stop_trigger() const { return this->stop_trigger_; }
+  void set_open_duration(uint32_t open_duration) { this->open_duration_ = open_duration; }
+  void set_close_duration(uint32_t close_duration) { this->close_duration_ = close_duration; }
   CoverTraits get_traits() override;
+
  protected:
   void control(const CoverCall &call) override;
   void stop_prev_trigger_();
@@ -58,10 +49,10 @@ class TimeBasedCover : public Cover, public Component {
   float target_position_{0};
 };
 
-} // namespace cover
+}  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_TIME_BASED_COVER
+#endif  // USE_TIME_BASED_COVER
 
-#endif //ESPHOME_CORE_TIME_BASED_COVER_H
+#endif  // ESPHOME_CORE_TIME_BASED_COVER_H
