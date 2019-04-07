@@ -154,7 +154,7 @@ std::string PPD42XSensor::icon() {
   switch (this->type_) {
     case PPD42X_SENSOR_TYPE_PM_2_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
-      // Not the ideal icon, but I can't find a better one.
+      // Not the ideal icon, but Otto can't find a better one ;)
       return ICON_CHEMICAL_WEAPON;
   }
   return "";
