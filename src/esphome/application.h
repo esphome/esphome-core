@@ -812,9 +812,7 @@ class Application {
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
 #endif
 #ifdef USE_PPD42X
-  sensor::PPD42XComponent *make_ppd42x(const GPIOOutputPin &pl_02_5,
-                                       const GPIOOutputPin &pl_10_0,
-                                       sensor::PPD42XType type);
+  sensor::PPD42XComponent *make_pmsx003(UARTComponent *parent, sensor::PPD42XType type);
 #endif
 
 #ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
