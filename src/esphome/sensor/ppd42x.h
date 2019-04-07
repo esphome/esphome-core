@@ -40,7 +40,7 @@ class PPD42XSensor : public sensor::Sensor {
 
 };  // class PPD42XSensor
 
-class PPD42XComponent : public , PollingComponent {
+class PPD42XComponent : public PollingComponent {
  public:
   PPD42XComponent(PPD42XType type, uint32_t update_interval, uint32_t time_out);
   void set_timeout_us(uint32_t timeout_us);
