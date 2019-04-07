@@ -12,8 +12,7 @@ namespace sensor {
 static const char *TAG = "sensor.ppd42x";
 
 PPD42XComponent::PPD42XComponent(PPD42XType type, uint32_t update_interval, uint32_t time_out) 
-    : ctype_(type), ui_(update_interval), time_out_ms_(time_out) {}
-
+    : ctype_(type), ui_(update_interval), timeout_ms_(time_out) {}
 
 void PPD42XComponent::update() {
   const uint32_t now = millis();
@@ -83,7 +82,6 @@ PPD42XSensor *PPD42XComponent::make_pl_02_5_sensor(const std::string &name, GPIO
 PPD42XSensor *PPD42XComponent::make_pl_10_0_sensor(const std::string &name, GPIOInputPin *pl) {
   return this->pl_10_0_sensor_ = new PPD42XSensor(name, pl, PPD42X_SENSOR_TYPE_PM_10_0);
 }
-
 
 void PPD42XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "PPD42X:");

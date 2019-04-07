@@ -45,7 +45,7 @@ class PPD42XComponent : public Component {
  public:
   PPD42XComponent(PPD42XType type, uint32_t update_interval, uint32_t time_out);
   void set_timeout_us(uint32_t timeout_us);
-  void loop() override;
+  void update() override;
   float get_setup_priority() const override;
   void dump_config() override;
 
