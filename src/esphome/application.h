@@ -40,6 +40,7 @@
 #include "esphome/binary_sensor/template_binary_sensor.h"
 #include "esphome/binary_sensor/mpr121_sensor.h"
 #include "esphome/binary_sensor/ttp229_lsf_sensor.h"
+#include "esphome/binary_sensor/ttp229_bsf_sensor.h"
 #include "esphome/cover/cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
@@ -429,6 +430,10 @@ class Application {
 
 #ifdef USE_TTP229_LSF
   binary_sensor::TTP229LSFComponent *make_ttp229_lsf(uint8_t address = 0x57);
+#endif
+
+#ifdef USE_TTP229_BSF
+  binary_sensor::TTP229BSFComponent *make_ttp229_bsf(const GPIOInputPin &sdo_pin, const GPIOOutputPin &scl_pin);
 #endif
 
   /*   ____  _____ _   _ ____   ___  ____

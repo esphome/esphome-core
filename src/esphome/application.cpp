@@ -1169,6 +1169,14 @@ binary_sensor::TTP229LSFComponent *Application::make_ttp229_lsf(uint8_t address)
 }
 #endif
 
+#ifdef USE_TTP229_BSF
+binary_sensor::TTP229BSFComponent *Application::make_ttp229_bsf(const GPIOInputPin &sdo_pin,
+                                                                const GPIOOutputPin &scl_pin) {
+  auto *ttp229_bsf = new binary_sensor::TTP229BSFComponent(sdo_pin.copy(), scl_pin.copy());
+  return this->register_component(ttp229_bsf);
+}
+#endif
+
 #ifdef USE_ULN2003
 stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
                                             const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d) {
