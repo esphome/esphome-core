@@ -38,7 +38,7 @@ class PPD42XSensor : public sensor::Sensor {
 
  protected:
   const PPD42XSensorType stype_;
- 
+
 };  // class PPD42XSensor
 
 class PPD42XComponent : public Component {
