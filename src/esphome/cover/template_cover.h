@@ -43,12 +43,7 @@ class TemplateCover : public Cover, public Component {
  protected:
   void control(const CoverCall &call) override;
   CoverTraits get_traits() override;
-  void stop_prev_trigger_() {
-    if (this->prev_command_trigger_ != nullptr) {
-      this->prev_command_trigger_->stop();
-      this->prev_command_trigger_ = nullptr;
-    }
-  }
+  void stop_prev_trigger_();
 
   TemplateCoverRestoreMode restore_mode_{TemplateCoverRestoreMode::RESTORE};
   optional<std::function<optional<float>()>> state_f_;

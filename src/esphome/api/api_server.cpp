@@ -989,7 +989,7 @@ void APIConnection::on_cover_command_request_(const CoverCommandRequest &req) {
     auto tilt = *req.get_tilt();
     call.set_tilt(tilt);
   }
-  if (call.get_stop()) {
+  if (req.get_stop()) {
     call.set_command_stop();
   }
   call.perform();

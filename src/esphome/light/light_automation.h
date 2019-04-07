@@ -44,7 +44,7 @@ template<typename... Ts> class LightControlAction : public Action<Ts...> {
   TEMPLATABLE_VALUE(std::string, effect)
 
   void play(Ts... x) override {
-    auto call = this->state_->make_call();
+    auto call = this->parent_->make_call();
     call.set_state(this->state_.optional_value(x...));
     call.set_brightness(this->brightness_.optional_value(x...));
     call.set_red(this->red_.optional_value(x...));

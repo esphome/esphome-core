@@ -1090,10 +1090,6 @@ class Application {
   void register_cover(cover::Cover *cover);
 #endif
 
-#ifdef USE_TEMPLATE_COVER
-  cover::TemplateCover *make_template_cover(const std::string &name);
-#endif
-
 #ifdef USE_A4988
   stepper::A4988 *make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin);
 #endif

@@ -86,9 +86,9 @@ void TemplateCover::control(const CoverCall &call) {
     this->stop_prev_trigger_();
 
     if (pos < this->position) {
-      this->current_operation = COVER_OPERATION_IS_CLOSING;
+      this->current_operation = COVER_OPERATION_CLOSING;
     } else if (pos > this->position) {
-      this->current_operation = COVER_OPERATION_IS_OPENING;
+      this->current_operation = COVER_OPERATION_OPENING;
     }
 
     if (pos == COVER_OPEN) {
@@ -129,6 +129,12 @@ Trigger<float> *TemplateCover::get_tilt_trigger() const { return this->tilt_trig
 void TemplateCover::set_tilt_lambda(std::function<optional<float>()> &&tilt_f) { this->tilt_f_ = std::move(tilt_f); }
 void TemplateCover::set_has_position(bool has_position) { this->has_position_ = has_position; }
 void TemplateCover::set_has_tilt(bool has_tilt) { this->has_tilt_ = has_tilt; }
+void TemplateCover::stop_prev_trigger_() {
+  if (this->prev_command_trigger_ != nullptr) {
+    this->prev_command_trigger_->stop();
+    this->prev_command_trigger_ = nullptr;
+  }
+}
 
 }  // namespace cover
 

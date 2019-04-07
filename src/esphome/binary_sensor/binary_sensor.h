@@ -205,9 +205,9 @@ template<typename... Ts> class BinarySensorCondition : public Condition<Ts...> {
 
  protected:
   BinarySensor *parent_;
+  bool state_;
   uint32_t last_state_time_{0};
   uint32_t for_time_{0};
-  bool state_;
 };
 
 template<typename... Ts> class BinarySensorPublishAction : public Action<Ts...> {

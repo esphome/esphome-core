@@ -3,6 +3,7 @@
 #ifdef USE_COVER
 
 #include "esphome/cover/cover.h"
+#include "esphome/log.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
@@ -20,6 +21,18 @@ const char *cover_command_to_str(float pos) {
     return "CLOSE";
   } else {
     return "UNKNOWN";
+  }
+}
+const char *cover_operation_to_str(CoverOperation op) {
+  switch (op) {
+    case COVER_OPERATION_IDLE:
+      return "IDLE";
+    case COVER_OPERATION_OPENING:
+      return "OPENING";
+    case COVER_OPERATION_CLOSING:
+      return "CLOSING";
+    default:
+      return "UNKNOWN";
   }
 }
 
@@ -119,6 +132,11 @@ void CoverCall::validate_() {
     }
   }
 }
+CoverCall &CoverCall::set_stop(bool stop) {
+  this->stop_ = stop;
+  return *this;
+}
+bool CoverCall::get_stop() const { return this->stop_; }
 void Cover::set_device_class(const std::string &device_class) { this->device_class_override_ = device_class; }
 CoverCall Cover::make_call() { return CoverCall(this); }
 void Cover::open() {
@@ -137,16 +155,39 @@ void Cover::stop() {
   call.perform();
 }
 void Cover::add_on_state_callback(std::function<void()> &&f) { this->state_callback_.add(std::move(f)); }
-void Cover::publish_state() {
+void Cover::publish_state(bool save) {
   this->position = clamp(0.0f, 1.0f, this->position);
   this->tilt = clamp(0.0f, 1.0f, this->tilt);
 
+  ESP_LOGD(TAG, "'%s' - Publishing:", this->name_.c_str());
+  auto traits = this->get_traits();
+  if (traits.get_supports_position()) {
+    ESP_LOGD(TAG, "  Position: %.0f%%", this->position * 100.0f);
+  } else {
+    if (this->position == COVER_OPEN) {
+      ESP_LOGD(TAG, "  State: OPEN");
+    } else if (this->position == COVER_CLOSED) {
+      ESP_LOGD(TAG, "  State: CLOSED");
+    } else {
+      ESP_LOGD(TAG, "  State: UNKNOWN");
+    }
+  }
+  if (traits.get_supports_tilt()) {
+    ESP_LOGD(TAG, "  Tilt: %.0f%%", this->tilt * 100.0f);
+  }
+  ESP_LOGD(TAG, "  Current Operation: %s", cover_operation_to_str(this->current_operation));
+
   this->state_callback_.call();
 
-  CoverRestoreState save;
-  save.position = this->position;
-  save.tilt = this->tilt;
-  this->rtc_.save(&save);
+  if (save) {
+    CoverRestoreState restore;
+    memset(&restore, 0, sizeof(restore));
+    restore.position = this->position;
+    if (traits.get_supports_tilt()) {
+      restore.tilt = this->tilt;
+    }
+    this->rtc_.save(&restore);
+  }
 }
 optional<CoverRestoreState> Cover::restore_state_() {
   this->rtc_ = global_preferences.make_preference<CoverRestoreState>(this->get_object_id_hash());
@@ -155,6 +196,15 @@ optional<CoverRestoreState> Cover::restore_state_() {
     return {};
   return recovered;
 }
+Cover::Cover() : Cover("") {}
+std::string Cover::get_device_class() {
+  if (this->device_class_override_.has_value())
+    return *this->device_class_override_;
+  return this->device_class();
+}
+bool Cover::is_fully_open() const { return this->position == COVER_OPEN; }
+bool Cover::is_fully_closed() const { return this->position == COVER_CLOSED; }
+std::string Cover::device_class() { return ""; }
 
 CoverCall CoverRestoreState::to_call(Cover *cover) {
   auto call = cover->make_call();
