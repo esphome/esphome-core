@@ -128,13 +128,13 @@ void PPD42XComponent::parse_data_() {
 uint16_t PPD42XComponent::get_16_bit_uint_(uint8_t start_index) {
   return (uint16_t(this->data_[start_index]) << 8) | uint16_t(this->data_[start_index + 1]);
 }
-PPD42XSensor *PPD42XComponent::make_pm_2_5_sensor(const std::string &name) {
-  return this->pm_2_5_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_PM_2_5);
+PPD42XSensor *PPD42XComponent::make_pl_02_5_sensor(const std::string &name, const GPIOInputPin &pl) {
+  return this->pm_2_5_sensor_ = new PPD42XSensor(name, pl, PPD42X_SENSOR_TYPE_PM_02_5);
 }
-PPD42XSensor *PPD42XComponent::make_pm_10_0_sensor(const std::string &name) {
-  return this->pm_10_0_sensor_ = new PPD42XSensor(name, PPD42X_SENSOR_TYPE_PM_10_0);
+PPD42XSensor *PPD42XComponent::make_pl_10_0_sensor(const std::string &name) {
+  return this->pm_10_0_sensor_ = new PPD42XSensor(name, pl, PPD42X_SENSOR_TYPE_PM_10_0);
 }
-PPD42XComponent::PPD42XComponent(UARTComponent *parent, PPD42XType type) : UARTDevice(parent), type_(type) {}
+PPD42XComponent::PPD42XComponent( PPD42XType type) :  type_(type) {}
 void PPD42XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "PPD42X:");
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
@@ -143,15 +143,15 @@ void PPD42XComponent::dump_config() {
 
 std::string PPD42XSensor::unit_of_measurement() {
   switch (this->type_) {
-    case PPD42X_SENSOR_TYPE_PM_2_5:
+    case PPD42X_SENSOR_TYPE_PM_02_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
-      return UNIT_MICROGRAMS_PER_CUBIC_METER;
+      return UNIT_PARTICLES_PER_LITER;
   }
   return "";
 }
 std::string PPD42XSensor::icon() {
   switch (this->type_) {
-    case PPD42X_SENSOR_TYPE_PM_2_5:
+    case PPD42X_SENSOR_TYPE_PM_02_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
       // Not the ideal icon, but Otto can't find a better one ;)
       return ICON_CHEMICAL_WEAPON;
@@ -160,14 +160,15 @@ std::string PPD42XSensor::icon() {
 }
 int8_t PPD42XSensor::accuracy_decimals() {
   switch (this->type_) {
-    case PPD42X_SENSOR_TYPE_PM_2_5:
+    case PPD42X_SENSOR_TYPE_PM_02_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
       return 0;
   }
 
   return 0;
 }
-PPD42XSensor::PPD42XSensor(const std::string &name, PPD42XSensorType type) : Sensor(name), type_(type) {}
+PPD42XSensor::PPD42XSensor(const std::string &name, GPIOInputPin pl, PPD42XSensorType type) 
+                          : Sensor(name), pl_(pl), type_(type) {}
 
 }  // namespace sensor
 

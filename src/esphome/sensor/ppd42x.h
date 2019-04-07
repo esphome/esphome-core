@@ -21,15 +21,15 @@ enum PPD42XType {
 };
 
 enum PPD42XSensorType {
-  /// PM2.5 concentration in µg/m^3, PPD42, PPD42NJ, PPD42NS
-  PPD42X_SENSOR_TYPE_PM_2_5,
-  /// PM10.0 concentration in µg/m^3, PPD42X
+  /// PM2.5 concentration in pcs/L, PPD42, PPD42NJ, PPD42NS
+  PPD42X_SENSOR_TYPE_PM_02_5,
+  /// PM10.0 concentration in pcs/L, PPD42X
   PPD42X_SENSOR_TYPE_PM_10_0,
 };
 
 class PPD42XSensor : public sensor::Sensor {
  public:
-  PPD42XSensor(const std::string &name, PPD42XSensorType type);
+  PPD42XSensor(const std::string &name, GPIOInputPin &pl, PPD42XSensorType type);
 
   std::string unit_of_measurement() override;
   std::string icon() override;
@@ -37,18 +37,19 @@ class PPD42XSensor : public sensor::Sensor {
 
  protected:
   const PPD42XSensorType type_;
+  const GPIOInputPin pl_;
 };
 
-class PPD42XComponent : public UARTDevice, public Component {
+class PPD42XComponent : public Component {
  public:
-  PPD42XComponent(UARTComponent *parent, PPD42XType type);
+  PPD42XComponent(uint32_t update_interval, PPD42XType type);
 
   void loop() override;
   float get_setup_priority() const override;
   void dump_config() override;
 
-  PPD42XSensor *make_pm_2_5_sensor(const std::string &name);
-  PPD42XSensor *make_pm_10_0_sensor(const std::string &name);
+  PPD42XSensor *make_pl_02_5_sensor(const std::string &name, const GPIOInputPin &pl);
+  PPD42XSensor *make_pl_10_0_sensor(const std::string &name, const GPIOInputPin &pl);
 
  protected:
   optional<bool> check_byte_();
