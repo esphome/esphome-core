@@ -1088,11 +1088,10 @@ sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, senso
   return this->register_component(new PMSX003Component(parent, type));
 }
 #endif
+
 #ifdef USE_PPD42X
 sensor::PPD42XComponent *Application::make_pmsx003(UARTComponent *parent, sensor::PPD42XType type) {
   return this->register_component(new PPD42XComponent(parent, type));
-}
-#endif
 }
 #endif
 
