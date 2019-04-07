@@ -56,7 +56,7 @@ optional<bool> PPD42XComponent::check_byte_() {
   if (index == 3) {
     bool length_matches = false;
     switch (this->type_) {
-      case PPD42X_TYPE_:
+      case PPD42X_TYPE:
         length_matches = payload_length == 28 || payload_length == 20;
         break;
       case PPD42X_TYPE_NJ:
@@ -96,7 +96,7 @@ optional<bool> PPD42XComponent::check_byte_() {
 
 void PPD42XComponent::parse_data_() {
   switch (this->type_) {
-    case PPD42X_TYPE_: {
+    case PPD42X_TYPE: {
       uint16_t pm_2_5_concentration = this->get_16_bit_uint_(12);
       uint16_t pm_10_0_concentration = this->get_16_bit_uint_(14);
       ESP_LOGD(TAG,
@@ -157,7 +157,7 @@ std::string PPD42XSensor::icon() {
     case PPD42X_SENSOR_TYPE_PM_2_5:
     case PPD42X_SENSOR_TYPE_PM_10_0:
       // Not the ideal icon, but I can't find a better one.
-  }
+      return ICON_CHEMICAL_WEAPON;  }
   return "";
 }
 int8_t PPD42XSensor::accuracy_decimals() {
