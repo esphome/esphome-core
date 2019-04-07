@@ -39,7 +39,7 @@ class PPD42XSensor : public sensor::Sensor {
  protected:
   const PPD42XSensorType stype_;
  
-}; // class PPD42XSensor
+};  // class PPD42XSensor
 
 class PPD42XComponent : public Component {
  public:
@@ -66,7 +66,7 @@ class PPD42XComponent : public Component {
   const PPD42XType ctype_;
   PPD42XSensor *pl_02_5_sensor_{nullptr};
   PPD42XSensor *pl_10_0_sensor_{nullptr};
-}; // class PPD42XComponent
+};  // class PPD42XComponent
 
 }  // namespace sensor
 
