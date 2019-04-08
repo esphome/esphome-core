@@ -98,7 +98,7 @@ cover::Cover *StoringController::get_cover_by_key(uint32_t key) {
 }
 void StoringUpdateListenerController::register_cover(cover::Cover *obj) {
   StoringController::register_cover(obj);
-  obj->add_on_publish_state_callback([this, obj](bool state) { this->on_cover_update(obj); });
+  obj->add_on_state_callback([this, obj]() { this->on_cover_update(obj); });
 }
 void StoringUpdateListenerController::on_cover_update(cover::Cover *obj) {}
 #endif

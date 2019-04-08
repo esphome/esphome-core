@@ -761,14 +761,6 @@ void Application::register_cover(cover::Cover *cover) {
 }
 #endif
 
-#ifdef USE_TEMPLATE_COVER
-TemplateCover *Application::make_template_cover(const std::string &name) {
-  auto *cover = this->register_component(new TemplateCover(name));
-  this->register_cover(cover);
-  return cover;
-}
-#endif
-
 #ifdef USE_REMOTE_TRANSMITTER
 remote::RemoteTransmitterComponent *Application::make_remote_transmitter_component(const GPIOOutputPin &output) {
   return this->register_component(new remote::RemoteTransmitterComponent(output.copy()));
@@ -1163,6 +1155,12 @@ sensor::APDS9960 *Application::make_apds9960(uint32_t update_interval) {
 #ifdef USE_MPR121
 binary_sensor::MPR121Component *Application::make_mpr121(uint8_t address) {
   return this->register_component(new MPR121Component(this->i2c_, address));
+}
+#endif
+
+#ifdef USE_TTP229_LSF
+binary_sensor::TTP229LSFComponent *Application::make_ttp229_lsf(uint8_t address) {
+  return this->register_component(new TTP229LSFComponent(this->i2c_, address));
 }
 #endif
 

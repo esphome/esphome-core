@@ -72,38 +72,6 @@ void MQTTFanComponent::setup() {
   auto f = std::bind(&MQTTFanComponent::publish_state, this);
   this->state_->add_on_state_callback([this, f]() { this->defer("send", f); });
 }
-void MQTTFanComponent::set_custom_oscillation_command_topic(const std::string &topic) {
-  this->custom_oscillation_command_topic_ = topic;
-}
-void MQTTFanComponent::set_custom_oscillation_state_topic(const std::string &topic) {
-  this->custom_oscillation_state_topic_ = topic;
-}
-void MQTTFanComponent::set_custom_speed_command_topic(const std::string &topic) {
-  this->custom_speed_command_topic_ = topic;
-}
-void MQTTFanComponent::set_custom_speed_state_topic(const std::string &topic) {
-  this->custom_speed_state_topic_ = topic;
-}
-const std::string MQTTFanComponent::get_oscillation_command_topic() const {
-  if (this->custom_oscillation_command_topic_.empty())
-    return this->get_default_topic_for_("oscillation/command");
-  return this->custom_oscillation_command_topic_;
-}
-const std::string MQTTFanComponent::get_oscillation_state_topic() const {
-  if (this->custom_oscillation_state_topic_.empty())
-    return this->get_default_topic_for_("oscillation/state");
-  return this->custom_oscillation_state_topic_;
-}
-const std::string MQTTFanComponent::get_speed_command_topic() const {
-  if (this->custom_speed_command_topic_.empty())
-    return this->get_default_topic_for_("speed/command");
-  return this->custom_speed_command_topic_;
-}
-const std::string MQTTFanComponent::get_speed_state_topic() const {
-  if (this->custom_speed_state_topic_.empty())
-    return this->get_default_topic_for_("speed/state");
-  return this->custom_speed_state_topic_;
-}
 bool MQTTFanComponent::send_initial_state() { return this->publish_state(); }
 std::string MQTTFanComponent::friendly_name() const { return this->state_->get_name(); }
 void MQTTFanComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {

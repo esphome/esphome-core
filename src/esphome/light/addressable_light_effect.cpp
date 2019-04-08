@@ -27,7 +27,7 @@ AddressableLight *AddressableLightEffect::get_addressable_() const {
 AddressableLightEffect::AddressableLightEffect(const std::string &name) : LightEffect(name) {}
 
 void AddressableLightEffect::apply() {
-  LightColorValues color = this->state_->get_remote_values();
+  LightColorValues color = this->state_->remote_values;
   // not using any color correction etc. that will be handled by the addressable layer
   ESPColor current_color =
       ESPColor(static_cast<uint8_t>(color.get_red() * 255), static_cast<uint8_t>(color.get_green() * 255),

@@ -33,8 +33,16 @@ bool ListEntitiesIterator::on_cover(cover::Cover *cover) {
   buffer.encode_nameable(cover);
   // string unique_id = 4;
   buffer.encode_string(4, get_default_unique_id("cover", cover));
+  auto traits = cover->get_traits();
+
   // bool assumed_state = 5;
-  buffer.encode_bool(5, cover->assumed_state());
+  buffer.encode_bool(5, traits.get_is_assumed_state());
+  // bool supports_position = 6;
+  buffer.encode_bool(6, traits.get_supports_position());
+  // bool supports_tilt = 7;
+  buffer.encode_bool(7, traits.get_supports_tilt());
+  // string device_class = 8;
+  buffer.encode_string(8, cover->get_device_class());
   return this->client_->send_buffer(APIMessageType::LIST_ENTITIES_COVER_RESPONSE);
 }
 #endif

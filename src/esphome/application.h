@@ -39,10 +39,13 @@
 #include "esphome/binary_sensor/status_binary_sensor.h"
 #include "esphome/binary_sensor/template_binary_sensor.h"
 #include "esphome/binary_sensor/mpr121_sensor.h"
+#include "esphome/binary_sensor/ttp229_lsf_sensor.h"
 #include "esphome/climate/bang_bang_climate.h"
 #include "esphome/climate/climate_device.h"
 #include "esphome/climate/mqtt_climate_component.h"
 #include "esphome/cover/cover.h"
+#include "esphome/cover/endstop_cover.h"
+#include "esphome/cover/time_based_cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
 #include "esphome/display/display.h"
@@ -427,6 +430,10 @@ class Application {
 
 #ifdef USE_MPR121
   binary_sensor::MPR121Component *make_mpr121(uint8_t address = 0x5A);
+#endif
+
+#ifdef USE_TTP229_LSF
+  binary_sensor::TTP229LSFComponent *make_ttp229_lsf(uint8_t address = 0x57);
 #endif
 
   /*   ____  _____ _   _ ____   ___  ____
@@ -1085,10 +1092,6 @@ class Application {
    */
 #ifdef USE_COVER
   void register_cover(cover::Cover *cover);
-#endif
-
-#ifdef USE_TEMPLATE_COVER
-  cover::TemplateCover *make_template_cover(const std::string &name);
 #endif
 
 #ifdef USE_A4988

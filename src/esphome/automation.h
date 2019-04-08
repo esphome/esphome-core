@@ -10,6 +10,15 @@
 
 ESPHOME_NAMESPACE_BEGIN
 
+#define TEMPLATABLE_VALUE_(type, name) \
+ protected: \
+  TemplatableValue<type, Ts...> name##_{}; \
+\
+ public: \
+  template<typename V> void set_##name(V value_) { this->name##_ = value_; }
+
+#define TEMPLATABLE_VALUE(type, name) TEMPLATABLE_VALUE_(type, name)
+
 template<typename... Ts> class Condition {
  public:
   virtual bool check(Ts... x) = 0;
