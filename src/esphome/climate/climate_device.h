@@ -36,23 +36,38 @@ class ClimateCall {
 
   /// Set the mode of the climate device.
   ClimateCall &set_mode(ClimateMode mode);
+  /// Set the mode of the climate device.
+  ClimateCall &set_mode(optional<ClimateMode> mode);
   /// Set the mode of the climate device based on a string.
   ClimateCall &set_mode(const std::string &mode);
   /// Set the target temperature of the climate device.
   ClimateCall &set_target_temperature(float target_temperature);
+  /// Set the target temperature of the climate device.
+  ClimateCall &set_target_temperature(optional<float> target_temperature);
   /** Set the low point target temperature of the climate device
    *
    * For climate devices with two point target temperature control
    */
   ClimateCall &set_target_temperature_low(float target_temperature_low);
+  /** Set the low point target temperature of the climate device
+   *
+   * For climate devices with two point target temperature control
+   */
+  ClimateCall &set_target_temperature_low(optional<float> target_temperature_low);
   /** Set the high point target temperature of the climate device
    *
    * For climate devices with two point target temperature control
    */
   ClimateCall &set_target_temperature_high(float target_temperature_high);
+  /** Set the high point target temperature of the climate device
+   *
+   * For climate devices with two point target temperature control
+   */
+  ClimateCall &set_target_temperature_high(optional<float> target_temperature_high);
   ClimateCall &set_away(bool away);
+  ClimateCall &set_away(optional<bool> away);
 
-  void perform() const;
+  void perform();
 
   const optional<ClimateMode> &get_mode() const;
   const optional<float> &get_target_temperature() const;
@@ -61,6 +76,8 @@ class ClimateCall {
   const optional<bool> &get_away() const;
 
  protected:
+  void validate_();
+
   ClimateDevice *const parent_;
   optional<ClimateMode> mode_;
   optional<float> target_temperature_;
@@ -68,6 +85,24 @@ class ClimateCall {
   optional<float> target_temperature_high_;
   optional<bool> away_;
 };
+
+/// Struct used to save the state of the climate device in restore memory.
+struct ClimateDeviceRestoreState {
+  ClimateMode mode;
+  bool away;
+  union {
+    float target_temperature;
+    struct {
+      float target_temperature_low;
+      float target_temperature_high;
+    };
+  };
+
+  /// Convert this struct to a climate call that can be performed.
+  ClimateCall to_call(ClimateDevice *climate);
+  /// Apply these settings to the climate device.
+  void apply(ClimateDevice *climate);
+} __attribute__((packed));
 
 /**
  * ClimateDevice - This is the base class for all climate integrations. Each integration
@@ -125,7 +160,7 @@ class ClimateDevice : public Nameable {
    * for more info.
    * @return A new ClimateCall instance targeting this climate device.
    */
-  ClimateCall make_call() { return ClimateCall(this); }
+  ClimateCall make_call();
 
   /** Publish the state of the climate device, to be called from integrations.
    *
@@ -146,12 +181,9 @@ class ClimateDevice : public Nameable {
   void set_mqtt(MQTTClimateComponent *mqtt);
 #endif
 
-  template<typename... Ts>
-  ControlAction<Ts...> *make_control_action();
-
-  void set_visual_min_temperature_override(const optional<float> &visual_min_temperature_override);
-  void set_visual_max_temperature_override(const optional<float> &visual_max_temperature_override);
-  void set_visual_temperature_step_override(const optional<float> &visual_temperature_step_override);
+  void set_visual_min_temperature_override(float visual_min_temperature_override);
+  void set_visual_max_temperature_override(float visual_max_temperature_override);
+  void set_visual_temperature_step_override(float visual_temperature_step_override);
 
  protected:
   friend ClimateCall;
@@ -173,14 +205,8 @@ class ClimateDevice : public Nameable {
    * @param call The ClimateCall instance encoding all attribute changes.
    */
   virtual void control(const ClimateCall &call) = 0;
-  /** Restore the state of the climate device, call this from your setup() method.
-   *
-   * If a state can be recovered, this will build a ClimateCall and call control().
-   * Otherwise, false is returned and the integration must fallback to some default values.
-   *
-   * @return Whether the state was recovered.
-   */
-  bool restore_state_();
+  /// Restore the state of the climate device, call this from your setup() method.
+  optional<ClimateDeviceRestoreState> restore_state_();
   /** Internal method to save the state of the climate device to recover memory. This is automatically
    * called from publish_state()
    */
@@ -198,12 +224,6 @@ class ClimateDevice : public Nameable {
   MQTTClimateComponent *mqtt_{nullptr};
 #endif
 };
-
-
-template<typename... Ts>
-ControlAction<Ts...> *ClimateDevice::make_control_action() {
-  return new ControlAction<Ts...>(this);
-}
 
 }  // namespace climate
 

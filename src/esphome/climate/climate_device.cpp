@@ -11,8 +11,9 @@ namespace climate {
 
 static const char *TAG = "climate.climate";
 
-void ClimateCall::perform() const {
+void ClimateCall::perform() {
   ESP_LOGD(TAG, "'%s' - Setting", this->parent_->get_name().c_str());
+  this->validate_();
   if (this->mode_.has_value()) {
     const char *mode_s = climate_mode_to_string(*this->mode_);
     ESP_LOGD(TAG, "  Mode: %s", mode_s);
@@ -21,22 +22,71 @@ void ClimateCall::perform() const {
     ESP_LOGD(TAG, "  Target Temperature: %.2f", *this->target_temperature_);
   }
   if (this->target_temperature_low_.has_value()) {
-    ESP_LOGD(TAG, "  Target Temperature Min: %.2f", *this->target_temperature_low_);
+    ESP_LOGD(TAG, "  Target Temperature Low: %.2f", *this->target_temperature_low_);
   }
   if (this->target_temperature_high_.has_value()) {
-    ESP_LOGD(TAG, "  Target Temperature Max: %.2f", *this->target_temperature_high_);
+    ESP_LOGD(TAG, "  Target Temperature High: %.2f", *this->target_temperature_high_);
   }
   if (this->away_.has_value()) {
     ESP_LOGD(TAG, "  Away Mode: %s", ONOFF(*this->away_));
   }
   this->parent_->control(*this);
 }
-ClimateCall &ClimateCall::set_mode(ClimateMode mode) {
-  if (this->parent_->get_traits().supports_mode(mode)) {
-    this->mode_ = mode;
-  } else {
-    ESP_LOGW(TAG, "'%s' - Mode %s is not supported", this->parent_->get_name().c_str(), climate_mode_to_string(mode));
+void ClimateCall::validate_() {
+  auto traits = this->parent_->get_traits();
+  if (this->mode_.has_value()) {
+    auto mode = *this->mode_;
+    if (!traits.supports_mode(mode)) {
+      ESP_LOGW(TAG, "  Mode %s is not supported by this device!",
+               climate_mode_to_string(mode));
+      this->mode_.reset();
+    }
   }
+  if (this->target_temperature_.has_value()) {
+    auto target = *this->target_temperature_;
+    if (traits.get_supports_two_point_target_temperature()) {
+      ESP_LOGW(TAG, "  Cannot set target temperature for climate device "
+                    "with two-point target temperature!");
+      this->target_temperature_.reset();
+    } else if (isnan(target)) {
+      ESP_LOGW(TAG, "  Target temperature must not be NAN!");
+      this->target_temperature_.reset();
+    }
+  }
+  if (this->target_temperature_low_.has_value() || this->target_temperature_high_.has_value()) {
+    if (!traits.get_supports_two_point_target_temperature()) {
+      ESP_LOGW(TAG, "  Cannot set low/high target temperature for this device!");
+      this->target_temperature_low_.reset();
+      this->target_temperature_high_.reset();
+    }
+  }
+  if (this->target_temperature_low_.has_value() && isnan(*this->target_temperature_low_)) {
+    ESP_LOGW(TAG, "  Target temperature low must not be NAN!");
+    this->target_temperature_low_.reset();
+  }
+  if (this->target_temperature_high_.has_value() && isnan(*this->target_temperature_high_)) {
+    ESP_LOGW(TAG, "  Target temperature low must not be NAN!");
+    this->target_temperature_high_.reset();
+  }
+  if (this->target_temperature_low_.has_value() && this->target_temperature_high_.has_value()) {
+    float low = *this->target_temperature_low_;
+    float high = *this->target_temperature_high_;
+    if (low > high) {
+      ESP_LOGW(TAG, "  Target temperature low %.2f must be smaller than target temperature high %.2f!",
+               low, high);
+      this->target_temperature_low_.reset();
+      this->target_temperature_high_.reset();
+    }
+  }
+  if (this->away_.has_value()) {
+    if (!traits.get_supports_away()) {
+      ESP_LOGW(TAG, "  Cannot set away mode for this device!");
+      this->away_.reset();
+    }
+  }
+}
+ClimateCall &ClimateCall::set_mode(ClimateMode mode) {
+  this->mode_ = mode;
   return *this;
 }
 ClimateCall &ClimateCall::set_mode(const std::string &mode) {
@@ -54,27 +104,15 @@ ClimateCall &ClimateCall::set_mode(const std::string &mode) {
   return *this;
 }
 ClimateCall &ClimateCall::set_target_temperature(float target_temperature) {
-  if (!this->parent_->get_traits().get_supports_two_point_target_temperature()) {
-    this->target_temperature_ = target_temperature;
-  } else {
-    ESP_LOGW(TAG, "'%s' - Climate device has two set point target temperature!", this->parent_->get_name().c_str());
-  }
+  this->target_temperature_ = target_temperature;
   return *this;
 }
 ClimateCall &ClimateCall::set_target_temperature_low(float target_temperature_low) {
-  if (this->parent_->get_traits().get_supports_two_point_target_temperature()) {
-    this->target_temperature_low_ = target_temperature_low;
-  } else {
-    ESP_LOGW(TAG, "'%s' - Climate device has single point target temperature!", this->parent_->get_name().c_str());
-  }
+  this->target_temperature_low_ = target_temperature_low;
   return *this;
 }
 ClimateCall &ClimateCall::set_target_temperature_high(float target_temperature_high) {
-  if (this->parent_->get_traits().get_supports_two_point_target_temperature()) {
-    this->target_temperature_high_ = target_temperature_high;
-  } else {
-    ESP_LOGW(TAG, "'%s' - Climate device has single point target temperature!", this->parent_->get_name().c_str());
-  }
+  this->target_temperature_high_ = target_temperature_high;
   return *this;
 }
 const optional<ClimateMode> &ClimateCall::get_mode() const { return this->mode_; }
@@ -83,11 +121,27 @@ const optional<float> &ClimateCall::get_target_temperature_low() const { return 
 const optional<float> &ClimateCall::get_target_temperature_high() const { return this->target_temperature_high_; }
 const optional<bool> &ClimateCall::get_away() const { return this->away_; }
 ClimateCall &ClimateCall::set_away(bool away) {
-  if (this->parent_->get_traits().get_supports_away()) {
-    this->away_ = away;
-  } else {
-    ESP_LOGW(TAG, "'%s' - Climate device does not support away mode!", this->parent_->get_name().c_str());
-  }
+  this->away_ = away;
+  return *this;
+}
+ClimateCall &ClimateCall::set_away(optional<bool> away) {
+  this->away_ = away;
+  return *this;
+}
+ClimateCall &ClimateCall::set_target_temperature_high(optional<float> target_temperature_high) {
+  this->target_temperature_high_ = target_temperature_high;
+  return *this;
+}
+ClimateCall &ClimateCall::set_target_temperature_low(optional<float> target_temperature_low) {
+  this->target_temperature_low_ = target_temperature_low;
+  return *this;
+}
+ClimateCall &ClimateCall::set_target_temperature(optional<float> target_temperature) {
+  this->target_temperature_ = target_temperature;
+  return *this;
+}
+ClimateCall &ClimateCall::set_mode(optional<ClimateMode> mode) {
+  this->mode_ = mode;
   return *this;
 }
 
@@ -95,39 +149,12 @@ void ClimateDevice::add_on_state_callback(std::function<void()> &&callback) {
   this->state_callback_.add(std::move(callback));
 }
 
-/// Struct used to save the state of the climate device in restore memory.
-struct ClimateDeviceRestoreState {
-  ClimateMode mode;
-  union {
-    float target_temperature;
-    struct {
-      float target_temperature_low;
-      float target_temperature_high;
-    };
-  };
-  bool away;
-} __attribute__((packed));
-
-bool ClimateDevice::restore_state_() {
+optional<ClimateDeviceRestoreState> ClimateDevice::restore_state_() {
   this->rtc_ = global_preferences.make_preference<ClimateDeviceRestoreState>(this->get_object_id_hash());
   ClimateDeviceRestoreState recovered;
   if (!this->rtc_.load(&recovered))
-    return false;
-
-  auto call = this->make_call();
-  auto traits = this->get_traits();
-  call.set_mode(recovered.mode);
-  if (traits.get_supports_two_point_target_temperature()) {
-    call.set_target_temperature_low(recovered.target_temperature_low);
-    call.set_target_temperature_high(recovered.target_temperature_high);
-  } else {
-    call.set_target_temperature(recovered.target_temperature);
-  }
-  if (traits.get_supports_away()) {
-    call.set_away(recovered.away);
-  }
-  call.perform();
-  return true;
+    return {};
+  return recovered;
 }
 void ClimateDevice::save_state_() {
   ClimateDeviceRestoreState state{};
@@ -192,17 +219,48 @@ MQTTClimateComponent *ClimateDevice::get_mqtt() const { return this->mqtt_; }
 void ClimateDevice::set_mqtt(MQTTClimateComponent *mqtt) { this->mqtt_ = mqtt; }
 #endif
 
-void ClimateDevice::set_visual_min_temperature_override(const optional<float> &visual_min_temperature_override) {
-  visual_min_temperature_override_ = visual_min_temperature_override;
+void ClimateDevice::set_visual_min_temperature_override(float visual_min_temperature_override) {
+  this->visual_min_temperature_override_ = visual_min_temperature_override;
 }
-void ClimateDevice::set_visual_max_temperature_override(const optional<float> &visual_max_temperature_override) {
-  visual_max_temperature_override_ = visual_max_temperature_override;
+void ClimateDevice::set_visual_max_temperature_override(float visual_max_temperature_override) {
+  this->visual_max_temperature_override_ = visual_max_temperature_override;
 }
-void ClimateDevice::set_visual_temperature_step_override(const optional<float> &visual_temperature_step_override) {
-  visual_temperature_step_override_ = visual_temperature_step_override;
+void ClimateDevice::set_visual_temperature_step_override(float visual_temperature_step_override) {
+  this->visual_temperature_step_override_ = visual_temperature_step_override;
 }
 ClimateDevice::ClimateDevice(const std::string &name) : Nameable(name) {}
 ClimateDevice::ClimateDevice() : ClimateDevice("") {}
+ClimateCall ClimateDevice::make_call() { return ClimateCall(this); }
+
+ClimateCall ClimateDeviceRestoreState::to_call(ClimateDevice *climate) {
+  auto call = climate->make_call();
+  auto traits = climate->get_traits();
+  call.set_mode(this->mode);
+  if (traits.get_supports_two_point_target_temperature()) {
+    call.set_target_temperature_low(this->target_temperature_low);
+    call.set_target_temperature_high(this->target_temperature_high);
+  } else {
+    call.set_target_temperature(this->target_temperature);
+  }
+  if (traits.get_supports_away()) {
+    call.set_away(this->away);
+  }
+  return call;
+}
+void ClimateDeviceRestoreState::apply(ClimateDevice *climate) {
+  auto traits = climate->get_traits();
+  climate->mode = this->mode;
+  if (traits.get_supports_two_point_target_temperature()) {
+    climate->target_temperature_low = this->target_temperature_low;
+    climate->target_temperature_high = this->target_temperature_high;
+  } else {
+    climate->target_temperature = this->target_temperature;
+  }
+  if (traits.get_supports_away()) {
+    climate->away = this->away;
+  }
+  climate->publish_state();
+}
 
 }  // namespace climate
 

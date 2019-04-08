@@ -167,7 +167,7 @@ bool ListEntitiesIterator::on_climate(climate::ClimateDevice *climate) {
   // bool supports_two_point_target_temperature = 6;
   buffer.encode_bool(6, traits.get_supports_two_point_target_temperature());
   // repeated ClimateMode supported_modes = 7;
-  for (auto mode : {climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_AUTO, climate::CLIMATE_MODE_COOL, climate::CLIMATE_MODE_HEAT}) {
+  for (auto mode : {climate::CLIMATE_MODE_AUTO, climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_COOL, climate::CLIMATE_MODE_HEAT}) {
     if (traits.supports_mode(mode))
       buffer.encode_uint32(7, mode, true);
   }

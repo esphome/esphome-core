@@ -15,9 +15,8 @@ namespace climate {
 
 struct BangBangClimateTargetTempConfig {
  public:
-  BangBangClimateTargetTempConfig() {}
-  BangBangClimateTargetTempConfig(float default_temperature_low, float default_temperature_high)
-      : default_temperature_low(default_temperature_low), default_temperature_high(default_temperature_high) {}
+  BangBangClimateTargetTempConfig();
+  BangBangClimateTargetTempConfig(float default_temperature_low, float default_temperature_high);
 
   float default_temperature_low{NAN};
   float default_temperature_high{NAN};
@@ -28,12 +27,12 @@ class BangBangClimate : public ClimateDevice, public Component {
   BangBangClimate(const std::string &name);
   void setup() override;
 
-  void set_sensor(sensor::Sensor *sensor) { sensor_ = sensor; }
-  Trigger<> *get_idle_trigger() const { return idle_trigger_; }
-  Trigger<> *get_cool_trigger() const { return cool_trigger_; }
-  void set_supports_cool(bool supports_cool) { supports_cool_ = supports_cool; }
-  Trigger<> *get_heat_trigger() const { return heat_trigger_; }
-  void set_supports_heat(bool supports_heat) { supports_heat_ = supports_heat; }
+  void set_sensor(sensor::Sensor *sensor);
+  Trigger<> *get_idle_trigger() const;
+  Trigger<> *get_cool_trigger() const;
+  void set_supports_cool(bool supports_cool);
+  Trigger<> *get_heat_trigger() const;
+  void set_supports_heat(bool supports_heat);
   void set_normal_config(const BangBangClimateTargetTempConfig &normal_config);
   void set_away_config(const BangBangClimateTargetTempConfig &away_config);
 

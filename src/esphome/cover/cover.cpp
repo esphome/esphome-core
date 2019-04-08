@@ -216,7 +216,7 @@ CoverCall CoverRestoreState::to_call(Cover *cover) {
 }
 void CoverRestoreState::apply(Cover *cover) {
   cover->position = this->position;
-  cover->tilt = this->position;
+  cover->tilt = this->tilt;
   cover->publish_state();
 }
 

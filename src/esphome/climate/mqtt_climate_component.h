@@ -22,28 +22,23 @@ class MQTTClimateComponent : public mqtt::MQTTComponent {
   std::string component_type() const override;
   void setup() override;
 
-  void set_custom_current_temperature_state_topic(const std::string &custom_current_temperature_state_topic);
-  void set_custom_mode_state_topic(const std::string &custom_mode_state_topic);
-  void set_custom_mode_command_topic(const std::string &custom_mode_command_topic);
-  void set_custom_target_temperature_state_topic(const std::string &custom_target_temperature_state_topic);
-  void set_custom_target_temperature_command_topic(const std::string &custom_target_temperature_command_topic);
+  MQTT_COMPONENT_CUSTOM_TOPIC(current_temperature, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(mode, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(mode, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(target_temperature, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(target_temperature, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(target_temperature_low, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(target_temperature_low, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(target_temperature_high, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(target_temperature_high, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(away, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(away, command)
 
  protected:
-  const std::string get_current_temperature_state_topic() const;
-  const std::string get_mode_state_topic() const;
-  const std::string get_mode_command_topic() const;
-  const std::string get_target_temperature_state_topic() const;
-  const std::string get_target_temperature_command_topic() const;
 
   std::string friendly_name() const override;
 
   bool publish_state_();
-
-  std::string custom_current_temperature_state_topic_;
-  std::string custom_mode_state_topic_;
-  std::string custom_mode_command_topic_;
-  std::string custom_target_temperature_state_topic_;
-  std::string custom_target_temperature_command_topic_;
 
   ClimateDevice *device_;
 };
