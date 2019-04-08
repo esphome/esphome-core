@@ -26,10 +26,10 @@ enum ClimateMode : uint8_t {
 /// Convert the given ClimateMode to a human-readable string.
 const char *climate_mode_to_string(ClimateMode mode);
 
-} // namespace climate
+}  // namespace climate
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CLIMATE
+#endif  // USE_CLIMATE
 
-#endif //ESPHOME_CORE_CLIMATE_MODE_H
+#endif  // ESPHOME_CORE_CLIMATE_MODE_H

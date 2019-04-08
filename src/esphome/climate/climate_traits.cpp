@@ -13,11 +13,16 @@ static const char *TAG = "climate.traits";
 
 bool ClimateTraits::supports_mode(ClimateMode mode) const {
   switch (mode) {
-    case CLIMATE_MODE_OFF: return true;
-    case CLIMATE_MODE_AUTO: return this->supports_auto_mode_;
-    case CLIMATE_MODE_COOL: return this->supports_cool_mode_;
-    case CLIMATE_MODE_HEAT: return this->supports_heat_mode_;
-    default: return false;
+    case CLIMATE_MODE_OFF:
+      return true;
+    case CLIMATE_MODE_AUTO:
+      return this->supports_auto_mode_;
+    case CLIMATE_MODE_COOL:
+      return this->supports_cool_mode_;
+    case CLIMATE_MODE_HEAT:
+      return this->supports_heat_mode_;
+    default:
+      return false;
   }
 }
 bool ClimateTraits::get_supports_current_temperature() const { return supports_current_temperature_; }
@@ -33,9 +38,13 @@ void ClimateTraits::set_supports_cool_mode(bool supports_cool_mode) { supports_c
 void ClimateTraits::set_supports_heat_mode(bool supports_heat_mode) { supports_heat_mode_ = supports_heat_mode; }
 void ClimateTraits::set_supports_away(bool supports_away) { supports_away_ = supports_away; }
 float ClimateTraits::get_visual_min_temperature() const { return visual_min_temperature_; }
-void ClimateTraits::set_visual_min_temperature(float visual_min_temperature) { visual_min_temperature_ = visual_min_temperature; }
+void ClimateTraits::set_visual_min_temperature(float visual_min_temperature) {
+  visual_min_temperature_ = visual_min_temperature;
+}
 float ClimateTraits::get_visual_max_temperature() const { return visual_max_temperature_; }
-void ClimateTraits::set_visual_max_temperature(float visual_max_temperature) { visual_max_temperature_ = visual_max_temperature; }
+void ClimateTraits::set_visual_max_temperature(float visual_max_temperature) {
+  visual_max_temperature_ = visual_max_temperature;
+}
 float ClimateTraits::get_visual_temperature_step() const { return visual_temperature_step_; }
 int8_t ClimateTraits::get_temperature_accuracy_decimals() const {
   // use printf %g to find number of digits based on temperature step

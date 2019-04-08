@@ -37,8 +37,7 @@ void ClimateCall::validate_() {
   if (this->mode_.has_value()) {
     auto mode = *this->mode_;
     if (!traits.supports_mode(mode)) {
-      ESP_LOGW(TAG, "  Mode %s is not supported by this device!",
-               climate_mode_to_string(mode));
+      ESP_LOGW(TAG, "  Mode %s is not supported by this device!", climate_mode_to_string(mode));
       this->mode_.reset();
     }
   }
@@ -72,8 +71,7 @@ void ClimateCall::validate_() {
     float low = *this->target_temperature_low_;
     float high = *this->target_temperature_high_;
     if (low > high) {
-      ESP_LOGW(TAG, "  Target temperature low %.2f must be smaller than target temperature high %.2f!",
-               low, high);
+      ESP_LOGW(TAG, "  Target temperature low %.2f must be smaller than target temperature high %.2f!", low, high);
       this->target_temperature_low_.reset();
       this->target_temperature_high_.reset();
     }

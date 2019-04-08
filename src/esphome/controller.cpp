@@ -132,9 +132,7 @@ void StoringUpdateListenerController::register_climate(climate::ClimateDevice *o
   StoringController::register_climate(obj);
   obj->add_on_state_callback([this, obj]() { this->on_climate_update(obj); });
 }
-void StoringUpdateListenerController::on_climate_update(climate::ClimateDevice *obj) {
-
-}
+void StoringUpdateListenerController::on_climate_update(climate::ClimateDevice *obj) {}
 #endif
 
 ESPHOME_NAMESPACE_END

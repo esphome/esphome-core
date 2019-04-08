@@ -23,8 +23,8 @@ const char *climate_mode_to_string(ClimateMode mode) {
   }
 }
 
-} // namespace climate
+}  // namespace climate
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_CLIMATE
+#endif  // USE_CLIMATE

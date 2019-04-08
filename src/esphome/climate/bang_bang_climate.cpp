@@ -61,8 +61,7 @@ void BangBangClimate::compute_state_() {
   }
 
   // auto mode, compute target mode
-  if (isnan(this->current_temperature) ||
-      isnan(this->target_temperature_low) || isnan(this->target_temperature_high)) {
+  if (isnan(this->current_temperature) || isnan(this->target_temperature_low) || isnan(this->target_temperature_high)) {
     // if any control values are nan, go to OFF (idle) mode
     this->switch_to_mode_(CLIMATE_MODE_OFF);
     return;
@@ -145,8 +144,10 @@ void BangBangClimate::set_away_config(const BangBangClimateTargetTempConfig &awa
   this->away_config_ = away_config;
 }
 BangBangClimate::BangBangClimate(const std::string &name)
-  : ClimateDevice(name), idle_trigger_(new Trigger<>()), cool_trigger_(new Trigger<>()),
-    heat_trigger_(new Trigger<>()) {}
+    : ClimateDevice(name),
+      idle_trigger_(new Trigger<>()),
+      cool_trigger_(new Trigger<>()),
+      heat_trigger_(new Trigger<>()) {}
 void BangBangClimate::set_sensor(sensor::Sensor *sensor) { this->sensor_ = sensor; }
 Trigger<> *BangBangClimate::get_idle_trigger() const { return this->idle_trigger_; }
 Trigger<> *BangBangClimate::get_cool_trigger() const { return this->cool_trigger_; }
@@ -158,8 +159,8 @@ BangBangClimateTargetTempConfig::BangBangClimateTargetTempConfig() {}
 BangBangClimateTargetTempConfig::BangBangClimateTargetTempConfig(float default_temperature_low,
                                                                  float default_temperature_high)
     : default_temperature_low(default_temperature_low), default_temperature_high(default_temperature_high) {}
-} // namespace climate
+}  // namespace climate
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BANG_BANG_CLIMATE
+#endif  // USE_BANG_BANG_CLIMATE

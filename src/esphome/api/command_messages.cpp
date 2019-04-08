@@ -389,30 +389,31 @@ bool ClimateCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
       return false;
   }
 }
-APIMessageType ClimateCommandRequest::message_type() const {
-  return APIMessageType::CLIMATE_COMMAND_REQUEST;
-}
-uint32_t ClimateCommandRequest::get_key() const {
-  return this->key_;
-}
+APIMessageType ClimateCommandRequest::message_type() const { return APIMessageType::CLIMATE_COMMAND_REQUEST; }
+uint32_t ClimateCommandRequest::get_key() const { return this->key_; }
 optional<climate::ClimateMode> ClimateCommandRequest::get_mode() const {
-  if (!this->has_mode_) return {};
+  if (!this->has_mode_)
+    return {};
   return this->mode_;
 }
 optional<float> ClimateCommandRequest::get_target_temperature() const {
-  if (!this->has_target_temperature_) return {};
+  if (!this->has_target_temperature_)
+    return {};
   return this->target_temperature_;
 }
 optional<float> ClimateCommandRequest::get_target_temperature_low() const {
-  if (!this->has_target_temperature_low_) return {};
+  if (!this->has_target_temperature_low_)
+    return {};
   return this->target_temperature_low_;
 }
 optional<float> ClimateCommandRequest::get_target_temperature_high() const {
-  if (!this->has_target_temperature_high_) return {};
+  if (!this->has_target_temperature_high_)
+    return {};
   return this->target_temperature_high_;
 }
 optional<bool> ClimateCommandRequest::get_away() const {
-  if (!this->has_away_) return {};
+  if (!this->has_away_)
+    return {};
   return this->away_;
 }
 #endif

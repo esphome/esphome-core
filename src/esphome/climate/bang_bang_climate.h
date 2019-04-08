@@ -90,10 +90,10 @@ class BangBangClimate : public ClimateDevice, public Component {
   BangBangClimateTargetTempConfig away_config_{};
 };
 
-} // namespace climate
+}  // namespace climate
 
 ESPHOME_NAMESPACE_END
 
-#endif //USE_BANG_BANG_CLIMATE
+#endif  // USE_BANG_BANG_CLIMATE
 
-#endif //ESPHOME_CORE_BANG_BANG_CLIMATE_H
+#endif  // ESPHOME_CORE_BANG_BANG_CLIMATE_H
