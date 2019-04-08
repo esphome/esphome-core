@@ -62,17 +62,26 @@ void LambdaLightEffect::apply() {
 
 void StrobeLightEffect::apply() {
   const uint32_t now = millis();
+  if (now - this->last_switch_ < this->colors_[this->at_color_].duration)
+    return;
 
-  if (now - this->last_switch_ > this->colors_[this->at_color_].duration) {
-    this->at_color_ = (this->at_color_ + 1) % this->colors_.size();
-    auto call = this->state_->turn_on();
-    call.from_light_color_values(this->colors_[this->at_color_].color);
-    call.set_publish(false);
-    call.set_save(false);
-    call.set_transition_length_if_supported(0);
-    call.perform();
-    this->last_switch_ = now;
+  // Switch to next color
+  this->at_color_ = (this->at_color_ + 1) % this->colors_.size();
+  auto color = this->colors_[this->at_color_].color;
+
+  auto call = this->state_->turn_on();
+  call.from_light_color_values(this->colors_[this->at_color_].color);
+
+  if (!color.is_on()) {
+    // Don't turn the light off, otherwise the light effect will be stopped
+    call.set_brightness_if_supported(0.0f);
+    call.set_state(true);
   }
+  call.set_publish(false);
+  call.set_save(false);
+  call.set_transition_length_if_supported(0);
+  call.perform();
+  this->last_switch_ = now;
 }
 StrobeLightEffect::StrobeLightEffect(const std::string &name) : LightEffect(name) {
   this->colors_.reserve(2);

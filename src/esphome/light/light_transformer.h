@@ -31,6 +31,8 @@ class LightTransformer {
   /// The values that should be set after this transformation is complete.
   virtual LightColorValues get_end_values();
 
+  virtual bool publish_at_end() = 0;
+
  protected:
   /// Get the completion of this transformer, 0 to 1.
   float get_progress_();
@@ -51,6 +53,9 @@ class LightTransitionTransformer : public LightTransformer {
                              const LightColorValues &target_values);
 
   LightColorValues get_values() override;
+
+  bool publish_at_end() override;
+  ;
 };
 
 class LightFlashTransformer : public LightTransformer {
@@ -61,6 +66,9 @@ class LightFlashTransformer : public LightTransformer {
   LightColorValues get_values() override;
 
   LightColorValues get_end_values() override;
+
+  bool publish_at_end() override;
+  ;
 };
 
 }  // namespace light

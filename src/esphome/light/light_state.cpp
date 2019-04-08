@@ -19,6 +19,7 @@ static const char *TAG = "light.state";
 
 void LightState::start_transition_(const LightColorValues &target, uint32_t length) {
   this->transformer_ = make_unique<LightTransitionTransformer>(millis(), length, this->current_values, target);
+  this->remote_values = this->transformer_->get_remote_values();
 }
 
 void LightState::start_flash_(const LightColorValues &target, uint32_t length) {
@@ -28,6 +29,7 @@ void LightState::start_flash_(const LightColorValues &target, uint32_t length) {
   if (this->transformer_ != nullptr)
     end_colors = this->transformer_->get_end_values();
   this->transformer_ = make_unique<LightFlashTransformer>(millis(), length, end_colors, target);
+  this->remote_values = this->transformer_->get_remote_values();
 }
 
 LightState::LightState(const std::string &name, LightOutput *output) : Nameable(name), output_(output) {}
@@ -135,9 +137,9 @@ void LightState::loop() {
   if (this->transformer_ != nullptr) {
     if (this->transformer_->is_finished()) {
       this->remote_values = this->current_values = this->transformer_->get_end_values();
+      if (this->transformer_->publish_at_end())
+        this->publish_state();
       this->transformer_ = nullptr;
-      // Publish state at end of a transformer
-      this->publish_state();
     } else {
       this->current_values = this->transformer_->get_values();
       this->remote_values = this->transformer_->get_remote_values();
@@ -166,7 +168,7 @@ uint32_t LightState::hash_base() { return 1114400283; }
 void LightState::dump_config() {
   ESP_LOGCONFIG(TAG, "Light '%s'", this->get_name().c_str());
   if (this->get_traits().has_brightness()) {
-    ESP_LOGCONFIG(TAG, "  Default Transition Length: %u ms", this->default_transition_length_);
+    ESP_LOGCONFIG(TAG, "  Default Transition Length: %.1fs", this->default_transition_length_ / 1e3f);
     ESP_LOGCONFIG(TAG, "  Gamma Correct: %.2f", this->gamma_correct_);
   }
   if (this->get_traits().has_color_temperature()) {
@@ -282,14 +284,14 @@ void LightCall::perform() {
   if (this->has_flash_()) {
     // FLASH
     if (this->publish_) {
-      ESP_LOGD(TAG, "  Flash Length: %u ms", *this->flash_length_);
+      ESP_LOGD(TAG, "  Flash Length: %.1fs", *this->flash_length_ / 1e3f);
     }
 
     this->parent_->start_flash_(v, *this->flash_length_);
   } else if (this->has_transition_()) {
     // TRANSITION
     if (this->publish_) {
-      ESP_LOGD(TAG, "  Transition Length: %u ms", *this->transition_length_);
+      ESP_LOGD(TAG, "  Transition Length: %.1fs", *this->transition_length_ / 1e3f);
     }
 
     // Special case: Transition and effect can be set when turning off
@@ -355,7 +357,7 @@ LightColorValues LightCall::validate_() {
   }
 
   // Transition length possible check
-  if (this->transition_length_.has_value() && *this->transition_length_ != 0 && !traits.has_color_temperature()) {
+  if (this->transition_length_.has_value() && *this->transition_length_ != 0 && !traits.has_brightness()) {
     ESP_LOGW(TAG, "'%s' - This light does not support transitions!", name);
     this->transition_length_.reset();
   }
@@ -441,7 +443,7 @@ LightColorValues LightCall::validate_() {
     this->effect_.reset();
   }
 
-  if (this->has_effect_() && (this->has_transition_() || this->has_effect_())) {
+  if (this->has_effect_() && (this->has_transition_() || this->has_flash_())) {
     ESP_LOGW(TAG, "'%s' - Effect cannot be used together with transition/flash!", name);
     this->transition_length_.reset();
     this->flash_length_.reset();
