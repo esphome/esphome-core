@@ -8,6 +8,7 @@
 #include "esphome/switch_/switch.h"
 #include "esphome/cover/cover.h"
 #include "esphome/text_sensor/text_sensor.h"
+#include "esphome/climate/climate_device.h"
 #include "esphome/defines.h"
 
 ESPHOME_NAMESPACE_BEGIN
@@ -41,6 +42,10 @@ class Controller {
 
 #ifdef USE_TEXT_SENSOR
   virtual void register_text_sensor(text_sensor::TextSensor *obj);
+#endif
+
+#ifdef USE_CLIMATE
+  virtual void register_climate(climate::ClimateDevice *obj);
 #endif
 };
 
@@ -89,6 +94,12 @@ class StoringController : public Controller {
   text_sensor::TextSensor *get_text_sensor_by_key(uint32_t key);
 #endif
 
+#ifdef USE_CLIMATE
+  void register_climate(climate::ClimateDevice *obj) override;
+
+  climate::ClimateDevice *get_climate_by_key(uint32_t key);
+#endif
+
 #ifdef USE_BINARY_SENSOR
   std::vector<binary_sensor::BinarySensor *> binary_sensors_;
 #endif
@@ -115,6 +126,10 @@ class StoringController : public Controller {
 
 #ifdef USE_TEXT_SENSOR
   std::vector<text_sensor::TextSensor *> text_sensors_;
+#endif
+
+#ifdef USE_CLIMATE
+  std::vector<climate::ClimateDevice *> climates_;
 #endif
 };
 
@@ -159,6 +174,12 @@ class StoringUpdateListenerController : public StoringController {
   void register_text_sensor(text_sensor::TextSensor *obj) override;
 
   virtual void on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) = 0;
+#endif
+
+#ifdef USE_CLIMATE
+  void register_climate(climate::ClimateDevice *obj) override;
+
+  virtual void on_climate_update(climate::ClimateDevice *obj);
 #endif
 };
 

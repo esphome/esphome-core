@@ -47,6 +47,11 @@ bool InitialStateIterator::on_text_sensor(text_sensor::TextSensor *text_sensor) 
   return this->client_->send_text_sensor_state(text_sensor, text_sensor->state);
 }
 #endif
+#ifdef USE_CLIMATE
+bool InitialStateIterator::on_climate(climate::ClimateDevice *climate) {
+  return this->client_->send_climate_state(climate);
+}
+#endif
 InitialStateIterator::InitialStateIterator(APIServer *server, APIConnection *client)
     : ComponentIterator(server), client_(client) {}
 

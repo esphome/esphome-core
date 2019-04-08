@@ -67,6 +67,9 @@ class APIConnection {
 #ifdef USE_ESP32_CAMERA
   void send_camera_state(std::shared_ptr<CameraImage> image);
 #endif
+#ifdef USE_CLIMATE
+  bool send_climate_state(climate::ClimateDevice *climate);
+#endif
   bool send_log_message(int level, const char *tag, const char *line);
   bool send_disconnect_request(const char *reason);
   bool send_ping_request();
@@ -109,6 +112,9 @@ class APIConnection {
 #endif
 #ifdef USE_SWITCH
   void on_switch_command_request_(const SwitchCommandRequest &req);
+#endif
+#ifdef USE_CLIMATE
+  void on_climate_command_request_(const ClimateCommandRequest &req);
 #endif
   void on_subscribe_service_calls_request_(const SubscribeServiceCallsRequest &req);
   void on_subscribe_home_assistant_states_request_(const SubscribeHomeAssistantStatesRequest &req);
@@ -181,6 +187,9 @@ class APIServer : public Component, public StoringUpdateListenerController {
 #endif
 #ifdef USE_TEXT_SENSOR
   void on_text_sensor_update(text_sensor::TextSensor *obj, std::string state) override;
+#endif
+#ifdef USE_CLIMATE
+  void on_climate_update(climate::ClimateDevice *obj) override;
 #endif
   void send_service_call(ServiceCallResponse &call);
   template<typename... Ts> HomeAssistantServiceCallAction<Ts...> *make_home_assistant_service_call_action();
