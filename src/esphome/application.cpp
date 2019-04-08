@@ -758,14 +758,6 @@ void Application::register_cover(cover::Cover *cover) {
 }
 #endif
 
-#ifdef USE_TEMPLATE_COVER
-TemplateCover *Application::make_template_cover(const std::string &name) {
-  auto *cover = this->register_component(new TemplateCover(name));
-  this->register_cover(cover);
-  return cover;
-}
-#endif
-
 #ifdef USE_REMOTE_TRANSMITTER
 remote::RemoteTransmitterComponent *Application::make_remote_transmitter_component(const GPIOOutputPin &output) {
   return this->register_component(new remote::RemoteTransmitterComponent(output.copy()));

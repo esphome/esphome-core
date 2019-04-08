@@ -517,8 +517,8 @@ void APIConnection::on_hello_request_(const HelloRequest &req) {
   auto buffer = this->get_buffer();
   // uint32 api_version_major = 1; -> 1
   buffer.encode_uint32(1, 1);
-  // uint32 api_version_minor = 2; -> 0
-  buffer.encode_uint32(2, 0);
+  // uint32 api_version_minor = 2; -> 1
+  buffer.encode_uint32(2, 1);
 
   // string server_info = 3;
   buffer.encode_string(3, get_app_name() + " (esphome v" ESPHOME_VERSION ")");
@@ -789,15 +789,29 @@ bool APIConnection::send_cover_state(cover::Cover *cover) {
     return false;
 
   auto buffer = this->get_buffer();
+  auto traits = cover->get_traits();
   // fixed32 key = 1;
   buffer.encode_fixed32(1, cover->get_object_id_hash());
-  // enum CoverState {
+  // enum LegacyCoverState {
   //   OPEN = 0;
   //   CLOSED = 1;
   // }
-  // CoverState state = 2;
-  uint32_t state = (cover->state == cover::COVER_OPEN) ? 0 : 1;
+  // LegacyCoverState legacy_state = 2;
+  uint32_t state = (cover->position == cover::COVER_OPEN) ? 0 : 1;
   buffer.encode_uint32(2, state);
+  // float position = 3;
+  buffer.encode_float(3, cover->position);
+  if (traits.get_supports_tilt()) {
+    // float tilt = 4;
+    buffer.encode_float(4, cover->tilt);
+  }
+  // enum CoverCurrentOperation {
+  //   IDLE = 0;
+  //   IS_OPENING = 1;
+  //   IS_CLOSING = 2;
+  // }
+  // CoverCurrentOperation current_operation = 5;
+  buffer.encode_uint32(5, cover->current_operation);
   return this->send_buffer(APIMessageType::COVER_STATE_RESPONSE);
 }
 #endif
@@ -835,8 +849,8 @@ bool APIConnection::send_light_state(light::LightState *light) {
     return false;
 
   auto buffer = this->get_buffer();
-  light::LightTraits traits = light->get_traits();
-  light::LightColorValues values = light->get_remote_values();
+  auto traits = light->get_traits();
+  auto values = light->remote_values;
 
   // fixed32 key = 1;
   buffer.encode_fixed32(1, light->get_object_id_hash());
@@ -952,21 +966,33 @@ void APIConnection::on_cover_command_request_(const CoverCommandRequest &req) {
   if (cover == nullptr)
     return;
 
-  if (req.get_command().has_value()) {
-    switch (*req.get_command()) {
-      case cover::COVER_COMMAND_OPEN:
-        cover->open();
+  auto call = cover->make_call();
+  if (req.get_legacy_command().has_value()) {
+    auto cmd = *req.get_legacy_command();
+    switch (cmd) {
+      case LEGACY_COVER_COMMAND_OPEN:
+        call.set_command_open();
         break;
-      case cover::COVER_COMMAND_CLOSE:
-        cover->close();
+      case LEGACY_COVER_COMMAND_CLOSE:
+        call.set_command_close();
         break;
-      case cover::COVER_COMMAND_STOP:
-        cover->stop();
-        break;
-      default:
+      case LEGACY_COVER_COMMAND_STOP:
+        call.set_command_stop();
         break;
     }
   }
+  if (req.get_position().has_value()) {
+    auto pos = *req.get_position();
+    call.set_position(pos);
+  }
+  if (req.get_tilt().has_value()) {
+    auto tilt = *req.get_tilt();
+    call.set_tilt(tilt);
+  }
+  if (req.get_stop()) {
+    call.set_command_stop();
+  }
+  call.perform();
 }
 #endif
 

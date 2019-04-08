@@ -512,7 +512,7 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
         call.set_effect(effect);
       }
 
-      this->defer([call]() { call.perform(); });
+      this->defer([call]() mutable { call.perform(); });
       request->send(200);
     } else if (match.method == "turn_off") {
       auto call = obj->turn_off();
@@ -520,7 +520,7 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
         auto length = (uint32_t) request->getParam("transition")->value().toFloat() * 1000;
         call.set_transition_length(length);
       }
-      this->defer([call]() { call.perform(); });
+      this->defer([call]() mutable { call.perform(); });
       request->send(200);
     } else {
       request->send(404);
@@ -532,7 +532,7 @@ void WebServer::handle_light_request(AsyncWebServerRequest *request, UrlMatch ma
 std::string WebServer::light_json(light::LightState *obj) {
   return build_json([obj](JsonObject &root) {
     root["id"] = "light-" + obj->get_object_id();
-    root["state"] = obj->get_remote_values().get_state() == 1.0 ? "ON" : "OFF";
+    root["state"] = obj->remote_values.is_on() ? "ON" : "OFF";
     obj->dump_json(root);
   });
 }

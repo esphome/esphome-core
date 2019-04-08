@@ -19,10 +19,15 @@ class MQTTCoverComponent : public mqtt::MQTTComponent {
   void setup() override;
   void send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) override;
 
+  MQTT_COMPONENT_CUSTOM_TOPIC(position, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(position, state)
+  MQTT_COMPONENT_CUSTOM_TOPIC(tilt, command)
+  MQTT_COMPONENT_CUSTOM_TOPIC(tilt, state)
+
   bool send_initial_state() override;
   bool is_internal() override;
 
-  bool publish_state(cover::CoverState state);
+  bool publish_state();
 
   void dump_config() override;
 

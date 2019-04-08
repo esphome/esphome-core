@@ -296,6 +296,13 @@ template<typename T, typename... X> class TemplatableValue {
     return this->value_;
   }
 
+  optional<T> optional_value(X... x) {
+    if (!this->has_value()) {
+      return {};
+    }
+    return this->value(x...);
+  }
+
  protected:
   enum {
     EMPTY,

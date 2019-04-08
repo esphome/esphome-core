@@ -41,6 +41,7 @@
 #include "esphome/binary_sensor/mpr121_sensor.h"
 #include "esphome/binary_sensor/ttp229_lsf_sensor.h"
 #include "esphome/cover/cover.h"
+#include "esphome/cover/endstop_cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
 #include "esphome/display/display.h"
@@ -1087,10 +1088,6 @@ class Application {
    */
 #ifdef USE_COVER
   void register_cover(cover::Cover *cover);
-#endif
-
-#ifdef USE_TEMPLATE_COVER
-  cover::TemplateCover *make_template_cover(const std::string &name);
 #endif
 
 #ifdef USE_A4988
