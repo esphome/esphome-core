@@ -39,18 +39,18 @@ class SM16716OutputComponent : public Component {
 
   /// Manually set the total number of channels. Defaults to 3.
   void set_num_channels(uint8_t num_channels);
-  
+
   /// Manually set the number of chips. Defaults to 1.
   void set_num_chips(uint8_t num_chips);
 
   /// Setup the SM16716.
   void setup() override;
-  
+
   void dump_config() override;
-  
+
   /// HARDWARE setup_priority
   float get_setup_priority() const override;
-  
+
   /// Send new values if they were updated.
   void loop() override;
 
