@@ -176,7 +176,7 @@ class ClimateDevice : public Nameable {
    */
   ClimateTraits get_traits();
 
-#ifdef USE_MQTT_COVER
+#ifdef USE_MQTT_CLIMATE
   MQTTClimateComponent *get_mqtt() const;
   void set_mqtt(MQTTClimateComponent *mqtt);
 #endif
