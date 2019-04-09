@@ -20,9 +20,8 @@ namespace output {
 
 static const char *TAG = "output.sm16716";
 
-SM16716OutputComponent::SM16716OutputComponent(GPIOPin *pin_data, GPIOPin *pin_clock, uint8_t num_channels,
-                                               uint8_t num_chips, bool update)
-    : pin_data_(pin_data), pin_clock_(pin_clock), num_channels_(num_channels), num_chips_(num_chips), update_(update) {}
+SM16716OutputComponent::SM16716OutputComponent(GPIOPin *pin_data, GPIOPin *pin_clock)
+    : pin_data_(pin_data), pin_clock_(pin_clock) {}
 
 void SM16716OutputComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SM16716OutputComponent...");
@@ -34,8 +33,8 @@ void SM16716OutputComponent::setup() {
 }
 void SM16716OutputComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "SM16716:");
-  LOG_PIN("  DATA Pin: ", this->pin_data_);
-  LOG_PIN("  CLOCK Pin: ", this->pin_clock_);
+  LOG_PIN("  Data Pin: ", this->pin_data_);
+  LOG_PIN("  Clock Pin: ", this->pin_clock_);
   ESP_LOGCONFIG(TAG, "  Total number of channels: %u", this->num_channels_);
   ESP_LOGCONFIG(TAG, "  Number of chips: %u", this->num_chips_);
 }
@@ -50,15 +49,14 @@ void SM16716OutputComponent::loop() {
   }
 
   // send 25 bits (1 start bit plus 24 data bits) for each chip
-  uint8_t index = 0;
-  while (index < this->num_channels_) {
+  for (uint8_t index = 0; index < this->num_channels_; index++)
+  {
     // send a start bit initially and after every 3 channels
     if (index % 3 == 0) {
       this->write_bit_(true);
     }
 
     this->write_byte_(this->pwm_amounts_[index]);
-    index++;
   }
 
   // send a blank 25 bits to signal the end
@@ -83,7 +81,7 @@ SM16716OutputComponent::Channel *SM16716OutputComponent::create_channel(uint8_t 
 float SM16716OutputComponent::get_setup_priority() const { return setup_priority::HARDWARE; }
 
 void SM16716OutputComponent::set_channel_value_(uint8_t channel, uint8_t value) {
-  ESP_LOGV(TAG, "set channels %u to %u", channel, value);
+  ESP_LOGVV(TAG, "set channels %u to %u", channel, value);
   uint8_t index = this->num_channels_ - channel - 1;
   if (this->pwm_amounts_[index] != value) {
     this->update_ = true;
@@ -98,18 +96,16 @@ void SM16716OutputComponent::write_bit_(bool value) {
 }
 
 void SM16716OutputComponent::write_byte_(uint8_t data) {
-  shiftOut(this->pin_data_->get_pin(), this->pin_clock_->get_pin(), MSBFIRST, data);
+  uint8_t mask;
+
+  for (mask = 0x80; mask; mask >>= 1) {
+    this->write_bit_(data & mask);
+  }
 }
 
 void SM16716OutputComponent::set_num_channels(uint8_t num_channels) { this->num_channels_ = num_channels; }
 
-uint8_t SM16716OutputComponent::get_num_channels() const { return this->num_channels_; }
-
 void SM16716OutputComponent::set_num_chips(uint8_t num_chips) { this->num_chips_ = num_chips; }
-
-uint8_t SM16716OutputComponent::get_num_chips() const { return this->num_chips_; }
-
-void SM16716OutputComponent::set_update(bool update) { this->update_ = update; }
 
 SM16716OutputComponent::Channel::Channel(SM16716OutputComponent *parent, uint8_t channel)
     : FloatOutput(), parent_(parent), channel_(channel) {}

@@ -224,11 +224,6 @@
 #define USE_OUTPUT
 #endif
 #endif
-#ifdef USE_SM16716_OUTPUT
-#ifndef USE_OUTPUT
-#define USE_OUTPUT
-#endif
-#endif
 
 #ifdef USE_APDS9960
 #ifndef USE_SENSOR

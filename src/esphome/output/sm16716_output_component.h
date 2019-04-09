@@ -24,8 +24,7 @@ class SM16716OutputComponent : public Component {
    * @param update Update/reset duty data at boot (driver will keep
    *               configuration after powercycle)
    */
-  SM16716OutputComponent(GPIOPin *pin_data, GPIOPin *pin_clock, uint8_t num_channels = 3, uint8_t num_chips = 1,
-                         bool update = true);
+  SM16716OutputComponent(GPIOPin *pin_data, GPIOPin *pin_clock);
 
   /** Get a SM16716 output channel.
    *
@@ -40,21 +39,18 @@ class SM16716OutputComponent : public Component {
 
   /// Manually set the total number of channels. Defaults to 3.
   void set_num_channels(uint8_t num_channels);
+  
   /// Manually set the number of chips. Defaults to 1.
   void set_num_chips(uint8_t num_chips);
-  /// Manually set duty data update on boot. Defaults is true.
-  void set_update(bool update);
-
-  // ========== INTERNAL METHODS ==========
-  // (In most use cases you won't need these)
-  uint8_t get_num_channels() const;
-  uint8_t get_num_chips() const;
 
   /// Setup the SM16716.
   void setup() override;
+  
   void dump_config() override;
+  
   /// HARDWARE setup_priority
   float get_setup_priority() const override;
+  
   /// Send new values if they were updated.
   void loop() override;
 
@@ -76,10 +72,10 @@ class SM16716OutputComponent : public Component {
 
   GPIOPin *pin_data_;
   GPIOPin *pin_clock_;
-  uint8_t num_channels_;
-  uint8_t num_chips_;
+  uint8_t num_channels_{3};
+  uint8_t num_chips_{1};
   std::vector<uint8_t> pwm_amounts_;
-  bool update_;
+  bool update_{true};
 };
 
 }  // namespace output
