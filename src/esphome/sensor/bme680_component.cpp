@@ -39,6 +39,9 @@ const float BME680_GAS_LOOKUP_TABLE_1[16] PROGMEM = {0.0, 0.0, 0.0,  0.0,  0.0, 
 const float BME680_GAS_LOOKUP_TABLE_2[16] PROGMEM = {0.0,  0.0, 0.0, 0.0, 0.1, 0.7, 0.0, -0.8,
                                                      -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
+static const float HUMIDITY_BASELINE = 40.0f;
+static const float HUMIDITY_WEIGHTING = 0.25f;
+
 static const char *oversampling_to_str(BME680Oversampling oversampling) {
   switch (oversampling) {
     case BME680_OVERSAMPLING_NONE:
@@ -303,6 +306,8 @@ uint8_t BME680Component::calc_heater_duration_(uint16_t duration) {
 }
 void BME680Component::read_data_() {
   uint8_t data[15];
+  uint32_t gas_baseline = 0;
+  uint8_t gas_samples = 0;
   if (!this->read_bytes(BME680_REGISTER_FIELD0, data, 15)) {
     this->status_set_warning();
     return;
@@ -318,16 +323,28 @@ void BME680Component::read_data_() {
   float pressure = this->calc_pressure_(raw_pressure);
   float humidity = this->calc_humidity_(raw_humidity);
   float gas_resistance = NAN;
+  float air_quality = NAN;
   if (data[14] & 0x20) {
     gas_resistance = this->calc_gas_resistance_(raw_gas, gas_range);
   }
+  // Allow 5 mins to get gas baseline
+  if (gas_samples < 5) {
+    gas_baseline = uint32_t((gas_baseline + gas_resistance) / 2);
+    gas_samples++;
+    if (gas_samples == 5) {
+      this->calibration_.gas_baseline = gas_baseline;
+    }
+  } else {
+    air_quality = this->calc_air_quality_(gas_resistance, humidity);
+  }
 
-  ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%% gas_resistance=%.1fΩ", temperature, pressure,
-           humidity, gas_resistance);
+  ESP_LOGD(TAG, "Got temperature=%.1f°C pressure=%.1fhPa humidity=%.1f%% gas_resistance=%.1fΩ air_quality=%.1f", temperature, pressure,
+           humidity, gas_resistance, air_quality);
   this->temperature_sensor_->publish_state(temperature);
   this->pressure_sensor_->publish_state(pressure);
   this->humidity_sensor_->publish_state(humidity);
   this->gas_resistance_sensor_->publish_state(gas_resistance);
+  this->air_quality_sensor_->publish_state(air_quality);
   this->status_clear_warning();
 }
 
@@ -449,6 +466,29 @@ uint32_t BME680Component::calc_gas_resistance_(uint16_t raw_gas, uint8_t range) 
 
   return static_cast<uint32_t>(calc_gas_res);
 }
+float BME680Component::calc_air_quality_(uint32_t gas_resistance, float humidity) {
+  uint16_t gas_offset = 0;
+  float gas_score = 0;
+  float humidity_offset = 0;
+  float humidity_score = 0;
+
+  gas_offset = this->calibration_.gas_baseline - gas_resistance;
+  humidity_offset = HUMIDITY_BASELINE - humidity;
+
+  if (humidity_offset > 0) {
+    humidity_score = (100.0f - HUMIDITY_BASELINE - humidity_offset) / (100.0f - HUMIDITY_BASELINE) * (HUMIDITY_WEIGHTING * 100.0f);
+  } else {
+    humidity_score = (HUMIDITY_BASELINE + humidity_offset) / HUMIDITY_BASELINE * (HUMIDITY_WEIGHTING * 100.0f);
+  }
+
+  if (gas_offset > 0) {
+    gas_score = (gas_resistance / this->calibration_.gas_baseline) * (100.0f - (HUMIDITY_WEIGHTING * 100.0f));
+  } else {
+    gas_score = 100.0f - (HUMIDITY_WEIGHTING * 100.0f);
+  }
+
+  return humidity_score + gas_score;
+}
 uint32_t BME680Component::calc_meas_duration_() {
   uint32_t tph_dur;  // Calculate in us
   uint32_t meas_cycles;
@@ -474,17 +514,20 @@ uint32_t BME680Component::calc_meas_duration_() {
 }
 BME680Component::BME680Component(I2CComponent *parent, const std::string &temperature_name,
                                  const std::string &pressure_name, const std::string &humidity_name,
-                                 const std::string &gas_resistance_name, uint8_t address, uint32_t update_interval)
+                                 const std::string &gas_resistance_name, const std::string &air_quality_name,
+                                 uint8_t address, uint32_t update_interval)
     : PollingComponent(update_interval),
       I2CDevice(parent, address),
       temperature_sensor_(new BME680TemperatureSensor(temperature_name, this)),
       pressure_sensor_(new BME680PressureSensor(pressure_name, this)),
       humidity_sensor_(new BME680HumiditySensor(humidity_name, this)),
-      gas_resistance_sensor_(new BME680GasResistanceSensor(gas_resistance_name, this)) {}
+      gas_resistance_sensor_(new BME680GasResistanceSensor(gas_resistance_name, this)),
+      air_quality_sensor_(new BME680AirQualitySensor(air_quality_name, this)) {}
 BME680TemperatureSensor *BME680Component::get_temperature_sensor() const { return this->temperature_sensor_; }
 BME680PressureSensor *BME680Component::get_pressure_sensor() const { return this->pressure_sensor_; }
 BME680HumiditySensor *BME680Component::get_humidity_sensor() const { return this->humidity_sensor_; }
 BME680GasResistanceSensor *BME680Component::get_gas_resistance_sensor() const { return this->gas_resistance_sensor_; }
+BME680AirQualitySensor *BME680Component::get_air_quality_sensor() const { return this->air_quality_sensor_; }
 void BME680Component::set_temperature_oversampling(BME680Oversampling temperature_oversampling) {
   this->temperature_oversampling_ = temperature_oversampling;
 }

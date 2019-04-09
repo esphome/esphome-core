@@ -330,6 +330,7 @@ extern const char ICON_LIGHTBULB[];
 extern const char ICON_BATTERY[];
 extern const char ICON_FLOWER[];
 extern const char ICON_CHEMICAL_WEAPON[];
+extern const char ICON_AIR_FILTER[];
 
 extern const char UNIT_C[];
 extern const char UNIT_PERCENT[];
@@ -347,6 +348,7 @@ extern const char UNIT_DEGREES[];
 extern const char UNIT_K[];
 extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 extern const char UNIT_MICROGRAMS_PER_CUBIC_METER[];
+extern const char UNIT_EMPTY[];
 
 template<typename... Ts> SensorInRangeCondition<Ts...> *Sensor::make_sensor_in_range_condition() {
   return new SensorInRangeCondition<Ts...>(this);

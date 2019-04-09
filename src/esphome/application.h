@@ -675,7 +675,8 @@ class Application {
 #ifdef USE_BME680
   sensor::BME680Component *make_bme680_sensor(const std::string &temperature_name, const std::string &pressure_name,
                                               const std::string &humidity_name, const std::string &gas_resistance_name,
-                                              uint8_t address = 0x76, uint32_t update_interval = 60000);
+                                              const std::string &air_quality_name, uint8_t address = 0x76, 
+                                              uint32_t update_interval = 60000);
 #endif
 
 #ifdef USE_SHT3XD

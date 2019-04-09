@@ -160,6 +160,8 @@ const char UNIT_K[] = "K";
 const char UNIT_MICROSIEMENS_PER_CENTIMETER[] = "µS/cm";
 const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m³";
 const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
+const char ICON_AIR_FILTER[] = "mdi:air-filter";
+const char UNIT_EMPTY[] = "";
 
 SensorStateTrigger::SensorStateTrigger(Sensor *parent) {
   parent->add_on_state_callback([this](float value) { this->trigger(value); });

@@ -72,18 +72,20 @@ struct BME680CalibrationData {
 
   float tfine;
   uint8_t ambient_temperature;
+  uint32_t gas_baseline;
 };
 
 using BME680TemperatureSensor = sensor::EmptyPollingParentSensor<1, ICON_EMPTY, UNIT_C>;
 using BME680PressureSensor = sensor::EmptyPollingParentSensor<1, ICON_GAUGE, UNIT_HPA>;
 using BME680HumiditySensor = sensor::EmptyPollingParentSensor<1, ICON_WATER_PERCENT, UNIT_PERCENT>;
 using BME680GasResistanceSensor = sensor::EmptyPollingParentSensor<1, ICON_GAS_CYLINDER, UNIT_OHM>;
+using BME680AirQualitySensor = sensor::EmptyPollingParentSensor<1, ICON_AIR_FILTER, UNIT_EMPTY>;
 
 class BME680Component : public PollingComponent, public I2CDevice {
  public:
   BME680Component(I2CComponent *parent, const std::string &temperature_name, const std::string &pressure_name,
-                  const std::string &humidity_name, const std::string &gas_resistance_name, uint8_t address = 0x76,
-                  uint32_t update_interval = 60000);
+                  const std::string &humidity_name, const std::string &gas_resistance_name, 
+                  const std::string &air_quality_name, uint8_t address = 0x76, uint32_t update_interval = 60000);
 
   /// Set the temperature oversampling value. Defaults to 16X.
   void set_temperature_oversampling(BME680Oversampling temperature_oversampling);
@@ -116,6 +118,7 @@ class BME680Component : public PollingComponent, public I2CDevice {
   BME680PressureSensor *get_pressure_sensor() const;
   BME680HumiditySensor *get_humidity_sensor() const;
   BME680GasResistanceSensor *get_gas_resistance_sensor() const;
+  BME680AirQualitySensor *get_air_quality_sensor() const;
 
  protected:
   /// Calculate the heater resistance value to send to the BME680 register.
@@ -135,6 +138,8 @@ class BME680Component : public PollingComponent, public I2CDevice {
   uint32_t calc_gas_resistance_(uint16_t raw_gas, uint8_t range);
   /// Calculate how long the sensor will take until we can retrieve data.
   uint32_t calc_meas_duration_();
+  // Calculate the Indoor Air Quality index.
+  float calc_air_quality_(uint32_t gas_resistance, float humidity);
 
   BME680CalibrationData calibration_;
   BME680Oversampling temperature_oversampling_{BME680_OVERSAMPLING_16X};
@@ -148,6 +153,7 @@ class BME680Component : public PollingComponent, public I2CDevice {
   BME680PressureSensor *pressure_sensor_;
   BME680HumiditySensor *humidity_sensor_;
   BME680GasResistanceSensor *gas_resistance_sensor_;
+  BME680AirQualitySensor *air_quality_sensor_;
 };
 
 }  // namespace sensor

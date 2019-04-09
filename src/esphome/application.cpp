@@ -637,14 +637,16 @@ sensor::BMP280Component *Application::make_bmp280_sensor(const std::string &temp
 sensor::BME680Component *Application::make_bme680_sensor(const std::string &temperature_name,
                                                          const std::string &pressure_name,
                                                          const std::string &humidity_name,
-                                                         const std::string &gas_resistance_name, uint8_t address,
+                                                         const std::string &gas_resistance_name,
+                                                         const std::string &air_quality_name, uint8_t address,
                                                          uint32_t update_interval) {
   auto *bme680 = this->register_component(new BME680Component(
-      this->i2c_, temperature_name, pressure_name, humidity_name, gas_resistance_name, address, update_interval));
+      this->i2c_, temperature_name, pressure_name, humidity_name, gas_resistance_name, air_quality_name, address, update_interval));
   this->register_sensor(bme680->get_temperature_sensor());
   this->register_sensor(bme680->get_pressure_sensor());
   this->register_sensor(bme680->get_humidity_sensor());
   this->register_sensor(bme680->get_gas_resistance_sensor());
+  this->register_sensor(bme680->get_air_quality_sensor());
   return bme680;
 }
 #endif
