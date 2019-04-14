@@ -125,6 +125,8 @@
 #define USE_CSE7766
 #define USE_PMSX003
 #define USE_PPD42X
+#define USE_ENDSTOP_COVER
+#define USE_TIME_BASED_COVER
 #define USE_STEPPER
 #define USE_A4988
 #define USE_ULN2003
