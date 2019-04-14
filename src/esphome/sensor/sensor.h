@@ -347,6 +347,7 @@ extern const char UNIT_DEGREES[];
 extern const char UNIT_K[];
 extern const char UNIT_MICROSIEMENS_PER_CENTIMETER[];
 extern const char UNIT_MICROGRAMS_PER_CUBIC_METER[];
+extern const char UNIT_PARTICLES_PER_LITER[];
 
 template<typename... Ts> SensorInRangeCondition<Ts...> *Sensor::make_sensor_in_range_condition() {
   return new SensorInRangeCondition<Ts...>(this);
