@@ -13,18 +13,32 @@ ESPHOME_NAMESPACE_BEGIN
 namespace api {
 
 #ifdef USE_COVER
+enum LegacyCoverCommand {
+  LEGACY_COVER_COMMAND_OPEN = 0,
+  LEGACY_COVER_COMMAND_CLOSE = 1,
+  LEGACY_COVER_COMMAND_STOP = 2,
+};
+
 class CoverCommandRequest : public APIMessage {
  public:
   bool decode_varint(uint32_t field_id, uint32_t value) override;
   bool decode_32bit(uint32_t field_id, uint32_t value) override;
   APIMessageType message_type() const override;
   uint32_t get_key() const;
-  optional<cover::CoverCommand> get_command() const;
+  optional<LegacyCoverCommand> get_legacy_command() const;
+  optional<float> get_position() const;
+  optional<float> get_tilt() const;
+  bool get_stop() const { return this->stop_; }
 
  protected:
   uint32_t key_{0};
-  bool has_state_{false};
-  cover::CoverCommand command_{cover::COVER_COMMAND_OPEN};
+  bool has_legacy_command_{false};
+  LegacyCoverCommand legacy_command_{LEGACY_COVER_COMMAND_OPEN};
+  bool has_position_{false};
+  float position_{0.0f};
+  bool has_tilt_{false};
+  float tilt_{0.0f};
+  bool stop_{false};
 };
 #endif
 
@@ -118,6 +132,34 @@ class CameraImageRequest : public APIMessage {
  protected:
   bool single_{false};
   bool stream_{false};
+};
+#endif
+
+#ifdef USE_CLIMATE
+class ClimateCommandRequest : public APIMessage {
+ public:
+  bool decode_varint(uint32_t field_id, uint32_t value) override;
+  bool decode_32bit(uint32_t field_id, uint32_t value) override;
+  APIMessageType message_type() const override;
+  uint32_t get_key() const;
+  optional<climate::ClimateMode> get_mode() const;
+  optional<float> get_target_temperature() const;
+  optional<float> get_target_temperature_low() const;
+  optional<float> get_target_temperature_high() const;
+  optional<bool> get_away() const;
+
+ protected:
+  uint32_t key_{0};
+  bool has_mode_{false};
+  climate::ClimateMode mode_{climate::CLIMATE_MODE_OFF};
+  bool has_target_temperature_{false};
+  float target_temperature_{0.0f};
+  bool has_target_temperature_low_{false};
+  float target_temperature_low_{0.0f};
+  bool has_target_temperature_high_{false};
+  float target_temperature_high_{0.0f};
+  bool has_away_{false};
+  bool away_{false};
 };
 #endif
 

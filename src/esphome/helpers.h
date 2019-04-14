@@ -98,6 +98,9 @@ const char *build_json(const json_build_t &f, size_t *length);
 
 std::string build_json(const json_build_t &f);
 
+/// Compare string a to string b (ignoring case) and return whether they are equal.
+bool str_equals_case_insensitive(const std::string &a, const std::string &b);
+
 /// Parse a JSON string and run the provided json parse function if it's valid.
 void parse_json(const std::string &data, const json_parse_t &f);
 
@@ -294,6 +297,13 @@ template<typename T, typename... X> class TemplatableValue {
     }
     // return value also when empty
     return this->value_;
+  }
+
+  optional<T> optional_value(X... x) {
+    if (!this->has_value()) {
+      return {};
+    }
+    return this->value(x...);
   }
 
  protected:

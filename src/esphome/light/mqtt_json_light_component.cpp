@@ -32,13 +32,14 @@ LightState *MQTTJSONLightComponent::get_state() const { return this->state_; }
 std::string MQTTJSONLightComponent::friendly_name() const { return this->state_->get_name(); }
 void MQTTJSONLightComponent::send_discovery(JsonObject &root, mqtt::SendDiscoveryConfig &config) {
   root["schema"] = "json";
-  if (this->state_->get_traits().has_brightness())
+  auto traits = this->state_->get_traits();
+  if (traits.has_brightness())
     root["brightness"] = true;
-  if (this->state_->get_traits().has_rgb())
+  if (traits.has_rgb())
     root["rgb"] = true;
-  if (this->state_->get_traits().has_color_temperature())
+  if (traits.has_color_temperature())
     root["color_temp"] = true;
-  if (this->state_->get_traits().has_rgb_white_value())
+  if (traits.has_rgb_white_value())
     root["white_value"] = true;
   if (this->state_->supports_effects()) {
     root["effect"] = true;

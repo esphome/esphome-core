@@ -26,6 +26,20 @@ struct SendDiscoveryConfig {
     ESP_LOGCONFIG(TAG, "  Command Topic: '%s'", this->get_command_topic_().c_str()); \
   }
 
+#define MQTT_COMPONENT_CUSTOM_TOPIC_(name, type) \
+ protected: \
+  std::string custom_##name##_##type##_topic_{}; \
+\
+ public: \
+  void set_custom_##name##_##type##_topic(const std::string &topic) { this->custom_##name##_##type##_topic_ = topic; } \
+  const std::string get_##name##_##type##_topic() const { \
+    if (this->custom_##name##_##type##_topic_.empty()) \
+      return this->get_default_topic_for_(#name "/" #type); \
+    return this->custom_##name##_##type##_topic_; \
+  }
+
+#define MQTT_COMPONENT_CUSTOM_TOPIC(name, type) MQTT_COMPONENT_CUSTOM_TOPIC_(name, type)
+
 /** MQTTComponent is the base class for all components that interact with MQTT to expose
  * certain functionality or data from actuators or sensors to clients.
  *

@@ -431,6 +431,9 @@ uint32_t fnv1_hash(const std::string &str) {
   }
   return hash;
 }
+bool str_equals_case_insensitive(const std::string &a, const std::string &b) {
+  return strcasecmp(a.c_str(), b.c_str()) == 0;
+}
 
 template<uint32_t> uint32_t reverse_bits(uint32_t x) {
   return uint32_t(reverse_bits_16(x & 0xFFFF) << 16) | uint32_t(reverse_bits_16(x >> 16));

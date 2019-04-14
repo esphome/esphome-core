@@ -13,18 +13,29 @@ namespace api {
 bool CoverCommandRequest::decode_varint(uint32_t field_id, uint32_t value) {
   switch (field_id) {
     case 2:
-      // bool has_state = 2;
-      this->has_state_ = value;
+      // bool has_legacy_command = 2;
+      this->has_legacy_command_ = value;
       return true;
     case 3:
-      // enum CoverCommand {
+      // enum LegacyCoverCommand {
       //   OPEN = 0;
       //   CLOSE = 1;
       //   STOP = 2;
       // }
-      // CoverCommand command = 3;
-      this->command_ = static_cast<cover::CoverCommand>(value);
+      // LegacyCoverCommand legacy_command_ = 3;
+      this->legacy_command_ = static_cast<LegacyCoverCommand>(value);
       return true;
+    case 4:
+      // bool has_position = 4;
+      this->has_position_ = value;
+      return true;
+    case 6:
+      // bool has_tilt = 6;
+      this->has_tilt_ = value;
+      return true;
+    case 8:
+      // bool stop = 8;
+      this->stop_ = value;
     default:
       return false;
   }
@@ -35,16 +46,34 @@ bool CoverCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
       // fixed32 key = 1;
       this->key_ = value;
       return true;
+    case 5:
+      // float position = 5;
+      this->position_ = as_float(value);
+      return true;
+    case 7:
+      // float tilt = 7;
+      this->tilt_ = as_float(value);
+      return true;
     default:
       return false;
   }
 }
 APIMessageType CoverCommandRequest::message_type() const { return APIMessageType ::COVER_COMMAND_REQUEST; }
 uint32_t CoverCommandRequest::get_key() const { return this->key_; }
-optional<cover::CoverCommand> CoverCommandRequest::get_command() const {
-  if (!this->has_state_)
+optional<LegacyCoverCommand> CoverCommandRequest::get_legacy_command() const {
+  if (!this->has_legacy_command_)
     return {};
-  return this->command_;
+  return this->legacy_command_;
+}
+optional<float> CoverCommandRequest::get_position() const {
+  if (!this->has_position_)
+    return {};
+  return this->position_;
+}
+optional<float> CoverCommandRequest::get_tilt() const {
+  if (!this->has_tilt_)
+    return {};
+  return this->tilt_;
 }
 #endif
 
@@ -301,6 +330,92 @@ bool CameraImageRequest::decode_varint(uint32_t field_id, uint32_t value) {
   }
 }
 APIMessageType CameraImageRequest::message_type() const { return APIMessageType::CAMERA_IMAGE_REQUEST; }
+#endif
+
+#ifdef USE_CLIMATE
+bool ClimateCommandRequest::decode_varint(uint32_t field_id, uint32_t value) {
+  switch (field_id) {
+    case 2:
+      // bool has_mode = 2;
+      this->has_mode_ = value;
+      return true;
+    case 3:
+      // ClimateMode mode = 3;
+      this->mode_ = static_cast<climate::ClimateMode>(value);
+      return true;
+    case 4:
+      // bool has_target_temperature = 4;
+      this->has_target_temperature_ = value;
+      return true;
+    case 6:
+      // bool has_target_temperature_low = 6;
+      this->has_target_temperature_low_ = value;
+      return true;
+    case 8:
+      // bool has_target_temperature_high = 8;
+      this->has_target_temperature_high_ = value;
+      return true;
+    case 10:
+      // bool has_away = 10;
+      this->has_away_ = value;
+      return true;
+    case 11:
+      // bool away = 11;
+      this->away_ = value;
+      return true;
+    default:
+      return false;
+  }
+}
+bool ClimateCommandRequest::decode_32bit(uint32_t field_id, uint32_t value) {
+  switch (field_id) {
+    case 1:
+      // fixed32 key = 1;
+      this->key_ = value;
+      return true;
+    case 5:
+      // float target_temperature = 5;
+      this->target_temperature_ = as_float(value);
+      return true;
+    case 7:
+      // float target_temperature_low = 7;
+      this->target_temperature_low_ = as_float(value);
+      return true;
+    case 9:
+      // float target_temperature_high = 9;
+      this->target_temperature_high_ = as_float(value);
+      return true;
+    default:
+      return false;
+  }
+}
+APIMessageType ClimateCommandRequest::message_type() const { return APIMessageType::CLIMATE_COMMAND_REQUEST; }
+uint32_t ClimateCommandRequest::get_key() const { return this->key_; }
+optional<climate::ClimateMode> ClimateCommandRequest::get_mode() const {
+  if (!this->has_mode_)
+    return {};
+  return this->mode_;
+}
+optional<float> ClimateCommandRequest::get_target_temperature() const {
+  if (!this->has_target_temperature_)
+    return {};
+  return this->target_temperature_;
+}
+optional<float> ClimateCommandRequest::get_target_temperature_low() const {
+  if (!this->has_target_temperature_low_)
+    return {};
+  return this->target_temperature_low_;
+}
+optional<float> ClimateCommandRequest::get_target_temperature_high() const {
+  if (!this->has_target_temperature_high_)
+    return {};
+  return this->target_temperature_high_;
+}
+optional<bool> ClimateCommandRequest::get_away() const {
+  if (!this->has_away_)
+    return {};
+  return this->away_;
+}
 #endif
 
 }  // namespace api

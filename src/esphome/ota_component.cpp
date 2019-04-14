@@ -10,13 +10,9 @@
 #include "esphome/util.h"
 
 #include <cstdio>
-#ifndef USE_NEW_OTA
-#include <ArduinoOTA.h>
-#else
 #include <MD5Builder.h>
 #ifdef ARDUINO_ARCH_ESP32
 #include <Update.h>
-#endif
 #endif
 #include <StreamString.h>
 
@@ -24,97 +20,14 @@ ESPHOME_NAMESPACE_BEGIN
 
 static const char *TAG = "ota";
 
-#ifdef USE_NEW_OTA
 uint8_t OTA_VERSION_1_0 = 1;
-#endif
 
 void OTAComponent::setup() {
   this->server_ = new WiFiServer(this->port_);
   this->server_->begin();
 
-#ifdef USE_NEW_OTA
 #ifdef ARDUINO_ARCH_ESP32
   add_shutdown_hook([this](const char *cause) { this->server_->close(); });
-#endif
-#else
-  ArduinoOTA.setHostname(get_app_name().c_str());
-  ArduinoOTA.setPort(this->port_);
-  switch (this->auth_type_) {
-    case PLAINTEXT: {
-      ArduinoOTA.setPassword(this->password_.c_str());
-      break;
-    }
-#if ARDUINO > 20300
-    case HASH: {
-      ArduinoOTA.setPasswordHash(this->password_.c_str());
-      break;
-    }
-#endif
-    case OPEN: {
-    }
-    default:
-      break;
-  }
-
-  ArduinoOTA.onStart([this]() {
-    ESP_LOGI(TAG, "OTA starting...");
-    this->ota_triggered_ = true;
-    this->at_ota_progress_message_ = 0;
-#ifdef ARDUINO_ARCH_ESP8266
-    global_preferences.prevent_write(true);
-#endif
-    this->status_set_warning();
-#ifdef USE_STATUS_LED
-    global_state |= STATUS_LED_WARNING;
-#endif
-  });
-  ArduinoOTA.onEnd([&]() {
-    ESP_LOGI(TAG, "OTA update finished!");
-    this->status_clear_warning();
-    delay(100);
-    run_safe_shutdown_hooks("ota");
-  });
-  ArduinoOTA.onProgress([this](uint progress, uint total) {
-    tick_status_led();
-    if (this->at_ota_progress_message_++ % 8 != 0)
-      return;  // only print every 8th message
-    float percentage = float(progress) * 100 / float(total);
-    ESP_LOGD(TAG, "OTA in progress: %0.1f%%", percentage);
-  });
-  ArduinoOTA.onError([this](ota_error_t error) {
-    ESP_LOGE(TAG, "Error[%u]: ", error);
-    switch (error) {
-      case OTA_AUTH_ERROR: {
-        ESP_LOGE(TAG, "  Auth Failed");
-        break;
-      }
-      case OTA_BEGIN_ERROR: {
-        ESP_LOGE(TAG, "  Begin Failed");
-        break;
-      }
-      case OTA_CONNECT_ERROR: {
-        ESP_LOGE(TAG, "  Connect Failed");
-        break;
-      }
-      case OTA_RECEIVE_ERROR: {
-        ESP_LOGE(TAG, "  Receive Failed");
-        break;
-      }
-      case OTA_END_ERROR: {
-        ESP_LOGE(TAG, "  End Failed");
-        break;
-      }
-      default:
-        ESP_LOGE(TAG, "  Unknown Error");
-    }
-    this->ota_triggered_ = false;
-    this->status_clear_warning();
-    this->status_momentary_error("onerror", 5000);
-#ifdef ARDUINO_ARCH_ESP8266
-    global_preferences.prevent_write(false);
-#endif
-  });
-  ArduinoOTA.begin();
 #endif
 
   if (this->has_safe_mode_) {
@@ -136,15 +49,7 @@ void OTAComponent::dump_config() {
 }
 
 void OTAComponent::loop() {
-#ifdef USE_NEW_OTA
   this->handle_();
-#else
-  do {
-    ArduinoOTA.handle();
-    tick_status_led();
-    yield();
-  } while (this->ota_triggered_);
-#endif
 
   if (this->has_safe_mode_ && (millis() - this->safe_mode_start_time_) > this->safe_mode_enable_time_) {
     this->has_safe_mode_ = false;
@@ -154,7 +59,6 @@ void OTAComponent::loop() {
   }
 }
 
-#ifdef USE_NEW_OTA
 void OTAComponent::handle_() {
   OTAResponseTypes error_code = OTA_RESPONSE_ERROR_UNKNOWN;
   bool update_started = false;
@@ -390,17 +294,21 @@ error:
     this->client_.flush();
   }
   this->client_.stop();
+
 #ifdef ARDUINO_ARCH_ESP32
   if (update_started) {
     Update.abort();
   }
 #endif
+
 #ifdef ARDUINO_ARCH_ESP8266
   if (update_started) {
     Update.end();
   }
 #endif
+
   this->status_momentary_error("onerror", 5000);
+
 #ifdef ARDUINO_ARCH_ESP8266
   global_preferences.prevent_write(false);
 #endif
@@ -453,22 +361,10 @@ size_t OTAComponent::wait_receive_(uint8_t *buf, size_t bytes, bool check_discon
 
   return bytes;
 }
-#endif
 
 OTAComponent::OTAComponent(uint16_t port) : port_(port) {}
 
-#ifdef USE_NEW_OTA
 void OTAComponent::set_auth_password(const std::string &password) { this->password_ = password; }
-#else
-void OTAComponent::set_auth_plaintext_password(const std::string &password) {
-  this->auth_type_ = PLAINTEXT;
-  this->password_ = password;
-}
-void OTAComponent::set_auth_password_hash(const std::string &hash) {
-  this->auth_type_ = HASH;
-  this->password_ = hash;
-}
-#endif
 
 float OTAComponent::get_setup_priority() const { return setup_priority::MQTT_CLIENT + 1.0f; }
 uint16_t OTAComponent::get_port() const { return this->port_; }

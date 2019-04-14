@@ -193,6 +193,16 @@ void APIServer::on_text_sensor_update(text_sensor::TextSensor *obj, std::string 
     c->send_text_sensor_state(obj, state);
 }
 #endif
+
+#ifdef USE_CLIMATE
+void APIServer::on_climate_update(climate::ClimateDevice *obj) {
+  if (obj->is_internal())
+    return;
+  for (auto *c : this->clients_)
+    c->send_climate_state(obj);
+}
+#endif
+
 float APIServer::get_setup_priority() const { return setup_priority::WIFI - 1.0f; }
 void APIServer::set_port(uint16_t port) { this->port_ = port; }
 APIServer *global_api_server = nullptr;
@@ -398,6 +408,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::LIST_ENTITIES_TEXT_SENSOR_RESPONSE:
     case APIMessageType::LIST_ENTITIES_SERVICE_RESPONSE:
     case APIMessageType::LIST_ENTITIES_CAMERA_RESPONSE:
+    case APIMessageType::LIST_ENTITIES_CLIMATE_RESPONSE:
     case APIMessageType::LIST_ENTITIES_DONE_RESPONSE:
       // Invalid
       break;
@@ -415,6 +426,7 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
     case APIMessageType::SWITCH_STATE_RESPONSE:
     case APIMessageType::TEXT_SENSOR_STATE_RESPONSE:
     case APIMessageType::CAMERA_IMAGE_RESPONSE:
+    case APIMessageType::CLIMATE_STATE_RESPONSE:
       // Invalid
       break;
     case APIMessageType::SUBSCRIBE_LOGS_REQUEST: {
@@ -455,6 +467,14 @@ void APIConnection::read_message_(uint32_t size, uint32_t type, uint8_t *msg) {
       SwitchCommandRequest req;
       req.decode(msg, size);
       this->on_switch_command_request_(req);
+#endif
+      break;
+    }
+    case APIMessageType::CLIMATE_COMMAND_REQUEST: {
+#ifdef USE_CLIMATE
+      ClimateCommandRequest req;
+      req.decode(msg, size);
+      this->on_climate_command_request_(req);
 #endif
       break;
     }
@@ -517,8 +537,8 @@ void APIConnection::on_hello_request_(const HelloRequest &req) {
   auto buffer = this->get_buffer();
   // uint32 api_version_major = 1; -> 1
   buffer.encode_uint32(1, 1);
-  // uint32 api_version_minor = 2; -> 0
-  buffer.encode_uint32(2, 0);
+  // uint32 api_version_minor = 2; -> 1
+  buffer.encode_uint32(2, 1);
 
   // string server_info = 3;
   buffer.encode_string(3, get_app_name() + " (esphome v" ESPHOME_VERSION ")");
@@ -789,15 +809,29 @@ bool APIConnection::send_cover_state(cover::Cover *cover) {
     return false;
 
   auto buffer = this->get_buffer();
+  auto traits = cover->get_traits();
   // fixed32 key = 1;
   buffer.encode_fixed32(1, cover->get_object_id_hash());
-  // enum CoverState {
+  // enum LegacyCoverState {
   //   OPEN = 0;
   //   CLOSED = 1;
   // }
-  // CoverState state = 2;
-  uint32_t state = (cover->state == cover::COVER_OPEN) ? 0 : 1;
+  // LegacyCoverState legacy_state = 2;
+  uint32_t state = (cover->position == cover::COVER_OPEN) ? 0 : 1;
   buffer.encode_uint32(2, state);
+  // float position = 3;
+  buffer.encode_float(3, cover->position);
+  if (traits.get_supports_tilt()) {
+    // float tilt = 4;
+    buffer.encode_float(4, cover->tilt);
+  }
+  // enum CoverCurrentOperation {
+  //   IDLE = 0;
+  //   IS_OPENING = 1;
+  //   IS_CLOSING = 2;
+  // }
+  // CoverCurrentOperation current_operation = 5;
+  buffer.encode_uint32(5, cover->current_operation);
   return this->send_buffer(APIMessageType::COVER_STATE_RESPONSE);
 }
 #endif
@@ -835,8 +869,8 @@ bool APIConnection::send_light_state(light::LightState *light) {
     return false;
 
   auto buffer = this->get_buffer();
-  light::LightTraits traits = light->get_traits();
-  light::LightColorValues values = light->get_remote_values();
+  auto traits = light->get_traits();
+  auto values = light->remote_values;
 
   // fixed32 key = 1;
   buffer.encode_fixed32(1, light->get_object_id_hash());
@@ -912,6 +946,38 @@ bool APIConnection::send_text_sensor_state(text_sensor::TextSensor *text_sensor,
 }
 #endif
 
+#ifdef USE_CLIMATE
+bool APIConnection::send_climate_state(climate::ClimateDevice *climate) {
+  if (!this->state_subscription_)
+    return false;
+
+  auto buffer = this->get_buffer();
+  auto traits = climate->get_traits();
+  // fixed32 key = 1;
+  buffer.encode_fixed32(1, climate->get_object_id_hash());
+  // ClimateMode mode = 2;
+  buffer.encode_uint32(2, static_cast<uint32_t>(climate->mode));
+  // float current_temperature = 3;
+  if (traits.get_supports_current_temperature()) {
+    buffer.encode_float(3, climate->current_temperature);
+  }
+  if (traits.get_supports_two_point_target_temperature()) {
+    // float target_temperature_low = 5;
+    buffer.encode_float(5, climate->target_temperature_low);
+    // float target_temperature_high = 6;
+    buffer.encode_float(6, climate->target_temperature_high);
+  } else {
+    // float target_temperature = 4;
+    buffer.encode_float(4, climate->target_temperature);
+  }
+  // bool away = 7;
+  if (traits.get_supports_away()) {
+    buffer.encode_bool(7, climate->away);
+  }
+  return this->send_buffer(APIMessageType::CLIMATE_STATE_RESPONSE);
+}
+#endif
+
 bool APIConnection::send_log_message(int level, const char *tag, const char *line) {
   if (this->log_subscription_ < level)
     return false;
@@ -952,21 +1018,33 @@ void APIConnection::on_cover_command_request_(const CoverCommandRequest &req) {
   if (cover == nullptr)
     return;
 
-  if (req.get_command().has_value()) {
-    switch (*req.get_command()) {
-      case cover::COVER_COMMAND_OPEN:
-        cover->open();
+  auto call = cover->make_call();
+  if (req.get_legacy_command().has_value()) {
+    auto cmd = *req.get_legacy_command();
+    switch (cmd) {
+      case LEGACY_COVER_COMMAND_OPEN:
+        call.set_command_open();
         break;
-      case cover::COVER_COMMAND_CLOSE:
-        cover->close();
+      case LEGACY_COVER_COMMAND_CLOSE:
+        call.set_command_close();
         break;
-      case cover::COVER_COMMAND_STOP:
-        cover->stop();
-        break;
-      default:
+      case LEGACY_COVER_COMMAND_STOP:
+        call.set_command_stop();
         break;
     }
   }
+  if (req.get_position().has_value()) {
+    auto pos = *req.get_position();
+    call.set_position(pos);
+  }
+  if (req.get_tilt().has_value()) {
+    auto tilt = *req.get_tilt();
+    call.set_tilt(tilt);
+  }
+  if (req.get_stop()) {
+    call.set_command_stop();
+  }
+  call.perform();
 }
 #endif
 
@@ -1019,6 +1097,28 @@ void APIConnection::on_switch_command_request_(const SwitchCommandRequest &req) 
   } else {
     a_switch->turn_off();
   }
+}
+#endif
+
+#ifdef USE_CLIMATE
+void APIConnection::on_climate_command_request_(const ClimateCommandRequest &req) {
+  ESP_LOGVV(TAG, "on_climate_command_request_");
+  climate::ClimateDevice *climate = this->parent_->get_climate_by_key(req.get_key());
+  if (climate == nullptr)
+    return;
+
+  auto call = climate->make_call();
+  if (req.get_mode().has_value())
+    call.set_mode(*req.get_mode());
+  if (req.get_target_temperature().has_value())
+    call.set_target_temperature(*req.get_target_temperature());
+  if (req.get_target_temperature_low().has_value())
+    call.set_target_temperature_low(*req.get_target_temperature_low());
+  if (req.get_target_temperature_high().has_value())
+    call.set_target_temperature_high(*req.get_target_temperature_high());
+  if (req.get_away().has_value())
+    call.set_away(*req.get_away());
+  call.perform();
 }
 #endif
 

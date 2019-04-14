@@ -18,12 +18,7 @@ bool InitialStateIterator::on_binary_sensor(binary_sensor::BinarySensor *binary_
 }
 #endif
 #ifdef USE_COVER
-bool InitialStateIterator::on_cover(cover::Cover *cover) {
-  if (!cover->has_state())
-    return true;
-
-  return this->client_->send_cover_state(cover);
-}
+bool InitialStateIterator::on_cover(cover::Cover *cover) { return this->client_->send_cover_state(cover); }
 #endif
 #ifdef USE_FAN
 bool InitialStateIterator::on_fan(fan::FanState *fan) { return this->client_->send_fan_state(fan); }
@@ -50,6 +45,11 @@ bool InitialStateIterator::on_text_sensor(text_sensor::TextSensor *text_sensor) 
     return true;
 
   return this->client_->send_text_sensor_state(text_sensor, text_sensor->state);
+}
+#endif
+#ifdef USE_CLIMATE
+bool InitialStateIterator::on_climate(climate::ClimateDevice *climate) {
+  return this->client_->send_climate_state(climate);
 }
 #endif
 InitialStateIterator::InitialStateIterator(APIServer *server, APIConnection *client)

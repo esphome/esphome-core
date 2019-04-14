@@ -45,6 +45,9 @@ class InitialStateIterator : public ComponentIterator {
 #ifdef USE_TEXT_SENSOR
   bool on_text_sensor(text_sensor::TextSensor *text_sensor) override;
 #endif
+#ifdef USE_CLIMATE
+  bool on_climate(climate::ClimateDevice *climate) override;
+#endif
  protected:
   APIConnection *client_;
 };

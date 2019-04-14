@@ -23,14 +23,155 @@ using light_send_callback_t = std::function<void()>;
 
 class LightEffect;
 class LightOutput;
-
-template<typename... Ts> class ToggleAction;
-template<typename... Ts> class TurnOffAction;
-template<typename... Ts> class TurnOnAction;
+class LightState;
 
 #ifdef USE_MQTT_LIGHT
 class MQTTJSONLightComponent;
 #endif
+
+class LightCall {
+ public:
+  LightCall(LightState *parent) : parent_(parent) {}
+
+  /// Set the binary ON/OFF state of the light.
+  LightCall &set_state(optional<bool> state);
+  /// Set the binary ON/OFF state of the light.
+  LightCall &set_state(bool state);
+  /** Set the transition length of this call in milliseconds.
+   *
+   * This argument is ignored for starting flashes and effects.
+   *
+   * Defaults to the default transition length defined in the light configuration.
+   */
+  LightCall &set_transition_length(optional<uint32_t> transition_length);
+  /** Set the transition length of this call in milliseconds.
+   *
+   * This argument is ignored for starting flashes and effects.
+   *
+   * Defaults to the default transition length defined in the light configuration.
+   */
+  LightCall &set_transition_length(uint32_t transition_length);
+  /// Set the transition length property if the light supports transitions.
+  LightCall &set_transition_length_if_supported(uint32_t transition_length);
+  /// Start and set the flash length of this call in milliseconds.
+  LightCall &set_flash_length(optional<uint32_t> flash_length);
+  /// Start and set the flash length of this call in milliseconds.
+  LightCall &set_flash_length(uint32_t flash_length);
+  /// Set the target brightness of the light from 0.0 (fully off) to 1.0 (fully on)
+  LightCall &set_brightness(optional<float> brightness);
+  /// Set the target brightness of the light from 0.0 (fully off) to 1.0 (fully on)
+  LightCall &set_brightness(float brightness);
+  /// Set the brightness property if the light supports brightness.
+  LightCall &set_brightness_if_supported(float brightness);
+  /** Set the red RGB value of the light from 0.0 to 1.0.
+   *
+   * Note that this only controls the color of the light, not its brightness.
+   */
+  LightCall &set_red(optional<float> red);
+  /** Set the red RGB value of the light from 0.0 to 1.0.
+   *
+   * Note that this only controls the color of the light, not its brightness.
+   */
+  LightCall &set_red(float red);
+  /// Set the red property if the light supports RGB.
+  LightCall &set_red_if_supported(float red);
+  /** Set the green RGB value of the light from 0.0 to 1.0.
+   *
+   * Note that this only controls the color of the light, not its brightness.
+   */
+  LightCall &set_green(optional<float> green);
+  /** Set the green RGB value of the light from 0.0 to 1.0.
+   *
+   * Note that this only controls the color of the light, not its brightness.
+   */
+  LightCall &set_green(float green);
+  /// Set the green property if the light supports RGB.
+  LightCall &set_green_if_supported(float green);
+  /** Set the blue RGB value of the light from 0.0 to 1.0.
+   *
+   * Note that this only controls the color of the light, not its brightness.
+   */
+  LightCall &set_blue(optional<float> blue);
+  /** Set the blue RGB value of the light from 0.0 to 1.0.
+   *
+   * Note that this only controls the color of the light, not its brightness.
+   */
+  LightCall &set_blue(float blue);
+  /// Set the blue property if the light supports RGB.
+  LightCall &set_blue_if_supported(float blue);
+  /// Set the white value value of the light from 0.0 to 1.0 for RGBW[W] lights.
+  LightCall &set_white(optional<float> white);
+  /// Set the white value value of the light from 0.0 to 1.0 for RGBW[W] lights.
+  LightCall &set_white(float white);
+  /// Set the white property if the light supports RGB.
+  LightCall &set_white_if_supported(float white);
+  /// Set the color temperature of the light in mireds for CWWW or RGBWW lights.
+  LightCall &set_color_temperature(optional<float> color_temperature);
+  /// Set the color temperature of the light in mireds for CWWW or RGBWW lights.
+  LightCall &set_color_temperature(float color_temperature);
+  /// Set the color_temperature property if the light supports color temperature.
+  LightCall &set_color_temperature_if_supported(float color_temperature);
+  /// Set the effect of the light by its name.
+  LightCall &set_effect(optional<std::string> effect);
+  /// Set the effect of the light by its name.
+  LightCall &set_effect(const std::string &effect);
+  /// Set the effect of the light by its internal index number (only for internal use).
+  LightCall &set_effect(uint32_t effect_number);
+  LightCall &set_effect(optional<uint32_t> effect_number);
+  /// Set whether this light call should trigger a publish state.
+  LightCall &set_publish(bool publish);
+  /// Set whether this light call should trigger a save state to recover them at startup..
+  LightCall &set_save(bool save);
+
+  /** Set the RGB color of the light by RGB values.
+   *
+   * Please note that this only changes the color of the light, not the brightness.
+   *
+   * @param red The red color value from 0.0 to 1.0.
+   * @param green The green color value from 0.0 to 1.0.
+   * @param blue The blue color value from 0.0 to 1.0.
+   * @return The light call for chaining setters.
+   */
+  LightCall &set_rgb(float red, float green, float blue);
+  /** Set the RGBW color of the light by RGB values.
+   *
+   * Please note that this only changes the color of the light, not the brightness.
+   *
+   * @param red The red color value from 0.0 to 1.0.
+   * @param green The green color value from 0.0 to 1.0.
+   * @param blue The blue color value from 0.0 to 1.0.
+   * @param white The white color value from 0.0 to 1.0.
+   * @return The light call for chaining setters.
+   */
+  LightCall &set_rgbw(float red, float green, float blue, float white);
+  LightCall &parse_color_json(JsonObject &root);
+  LightCall &parse_json(JsonObject &root);
+  LightCall &from_light_color_values(const LightColorValues &values);
+
+  void perform();
+
+ protected:
+  /// Validate all properties and return the target light color values.
+  LightColorValues validate_();
+
+  bool has_transition_() { return this->transition_length_.has_value(); }
+  bool has_flash_() { return this->flash_length_.has_value(); }
+  bool has_effect_() { return this->effect_.has_value(); }
+
+  LightState *parent_;
+  optional<bool> state_;
+  optional<uint32_t> transition_length_;
+  optional<uint32_t> flash_length_;
+  optional<float> brightness_;
+  optional<float> red_;
+  optional<float> green_;
+  optional<float> blue_;
+  optional<float> white_;
+  optional<float> color_temperature_;
+  optional<uint32_t> effect_;
+  bool publish_{true};
+  bool save_{true};
+};
 
 /** This class represents the communication layer between the front-end MQTT layer and the
  * hardware output layer.
@@ -40,105 +181,13 @@ class LightState : public Nameable, public Component {
   /// Construct this LightState using the provided traits and name.
   LightState(const std::string &name, LightOutput *output);
 
-  /// Start an effect with the given index
-  void start_effect(uint32_t effect_index);
-
-  /// Stop the current effect (if one is active).
-  void stop_effect();
-
-  /** Start a linear transition to the provided target values for a specific amount of time.
-   *
-   * If this light doesn't support transition (see set_traits()), sets the target values immediately.
-   *
-   * @param target The target color.
-   * @param length The transition length in ms.
-   */
-  void start_transition(const LightColorValues &target, uint32_t length);
-
-  /** Start a flash for the specified amount of time.
-   *
-   * Resets to the values that were active when the flash was started after length ms.
-   *
-   * @param target The target flash color.
-   * @param length The flash length in ms.
-   */
-  void start_flash(const LightColorValues &target, uint32_t length);
-
-  /// Set the color values immediately.
-  void set_immediately(const LightColorValues &target);
-
-  /// Set the color values immediately without sending the new state.
-  void set_immediately_without_sending(const LightColorValues &target);
-
-  void current_values_as_binary(bool *binary);
-
-  void current_values_as_brightness(float *brightness);
-
-  void current_values_as_rgb(float *red, float *green, float *blue);
-
-  void current_values_as_rgbw(float *red, float *green, float *blue, float *white);
-
-  void current_values_as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green,
-                               float *blue, float *cold_white, float *warm_white);
-
-  void current_values_as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white,
-                              float *warm_white);
-
   LightTraits get_traits();
 
-  template<typename... Ts> ToggleAction<Ts...> *make_toggle_action();
-  template<typename... Ts> TurnOffAction<Ts...> *make_turn_off_action();
-  template<typename... Ts> TurnOnAction<Ts...> *make_turn_on_action();
-
-  class StateCall {
-   public:
-    StateCall(LightState *state);
-    LightState::StateCall &set_state(bool state);
-    LightState::StateCall &set_state(optional<bool> state);
-    LightState::StateCall &set_transition_length(uint32_t transition_length);
-    LightState::StateCall &set_transition_length(optional<uint32_t> transition_length);
-    LightState::StateCall &set_flash_length(uint32_t flash_length);
-    LightState::StateCall &set_flash_length(optional<uint32_t> flash_length);
-    LightState::StateCall &set_brightness(float brightness);
-    LightState::StateCall &set_brightness(optional<float> brightness);
-    LightState::StateCall &set_rgb(float red, float green, float blue);
-    LightState::StateCall &set_rgbw(float red, float green, float blue, float white);
-    LightState::StateCall &set_red(float red);
-    LightState::StateCall &set_red(optional<float> red);
-    LightState::StateCall &set_green(float green);
-    LightState::StateCall &set_green(optional<float> green);
-    LightState::StateCall &set_blue(float blue);
-    LightState::StateCall &set_blue(optional<float> blue);
-    LightState::StateCall &set_white(float white);
-    LightState::StateCall &set_white(optional<float> white);
-    LightState::StateCall &set_color_temperature(float color_temperature);
-    LightState::StateCall &set_color_temperature(optional<float> color_temperature);
-    LightState::StateCall &set_effect(const std::string &effect);
-    LightState::StateCall &set_effect(optional<std::string> effect);
-    LightState::StateCall &set_effect(uint32_t effect_index);
-    LightState::StateCall &parse_color_json(JsonObject &root);
-    LightState::StateCall &parse_json(JsonObject &root);
-
-    void perform() const;
-
-   protected:
-    LightState *state_;
-    optional<bool> binary_state_;
-    optional<float> brightness_;
-    optional<float> red_;
-    optional<float> green_;
-    optional<float> blue_;
-    optional<float> white_;
-    optional<float> color_temperature_;
-    optional<uint32_t> transition_length_;
-    optional<uint32_t> flash_length_;
-    optional<uint32_t> effect_;
-  };
-
-  LightState::StateCall turn_on();
-  LightState::StateCall turn_off();
-  LightState::StateCall toggle();
-  LightState::StateCall make_call();
+  /// Make a light state call
+  LightCall turn_on();
+  LightCall turn_off();
+  LightCall toggle();
+  LightCall make_call();
 
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
@@ -149,22 +198,39 @@ class LightState : public Nameable, public Component {
   /// Shortly after HARDWARE.
   float get_setup_priority() const override;
 
-  /// Applies the effect, transformer and then returns the current values.
+  /** The current values of the light as outputted to the light.
+   *
+   * These values represent the "real" state of the light - During transitions this
+   * property will be changed continuously (in contrast to .remote_values, where they
+   * are constant during transitions).
+   *
+   * This property is read-only for users. Any changes to it will be ignored.
+   */
+  LightColorValues current_values;
+
+  /// Deprecated method to access current_values.
+  ESPDEPRECATED("get_current_values() is deprecated, please use .current_values instead.")
   LightColorValues get_current_values();
 
-  /// Return the values that should be reported to the remote.
+  /// Deprecated method to access remote_values.
+  ESPDEPRECATED("get_remote_values() is deprecated, please use .remote_values instead.")
   LightColorValues get_remote_values();
 
-  /// Causes the callback defined by add_send_callback() to trigger.
-  void send_values();
+  /** The remote color values reported to the frontend.
+   *
+   * These are different from the "current" values: For example transitions will
+   * continuously change the "current" values. But the remote values will immediately
+   * switch to the target value for a transition, reducing the number of packets sent.
+   *
+   * This property is read-only for users. Any changes to it will be ignored.
+   */
+  LightColorValues remote_values;
 
+  /// Publish the currently active state to the frontend.
+  void publish_state();
+
+  /// Get the light output associated with this object.
   LightOutput *get_output() const;
-
-  /// Manually set a transformer, it's recommended to use start_flash and start_transition instead.
-  void set_transformer(std::unique_ptr<LightTransformer> transformer);
-
-  /// Lazily get the last current values. Returns the values last returned by get_current_values().
-  const LightColorValues &get_current_values_lazy();
 
   /// Return the name of the current effect, or if no effect is active "None".
   std::string get_effect_name();
@@ -188,14 +254,12 @@ class LightState : public Nameable, public Component {
   /// Dump the state of this light as JSON.
   void dump_json(JsonObject &root);
 
-  /// Defaults to 1 second (1000 ms).
-  uint32_t get_default_transition_length() const;
   /// Set the default transition length, i.e. the transition length when no transition is provided.
   void set_default_transition_length(uint32_t default_transition_length);
 
-  float get_gamma_correct() const;
   /// Set the gamma correction factor
   void set_gamma_correct(float gamma_correct);
+  float get_gamma_correct() const { return this->gamma_correct_; }
 
   const std::vector<LightEffect *> &get_effects() const;
 
@@ -206,20 +270,66 @@ class LightState : public Nameable, public Component {
   void set_mqtt(MQTTJSONLightComponent *mqtt);
 #endif
 
+  void current_values_as_binary(bool *binary);
+
+  void current_values_as_brightness(float *brightness);
+
+  void current_values_as_rgb(float *red, float *green, float *blue);
+
+  void current_values_as_rgbw(float *red, float *green, float *blue, float *white);
+
+  void current_values_as_rgbww(float color_temperature_cw, float color_temperature_ww, float *red, float *green,
+                               float *blue, float *cold_white, float *warm_white);
+
+  void current_values_as_cwww(float color_temperature_cw, float color_temperature_ww, float *cold_white,
+                              float *warm_white);
+
  protected:
+  friend LightOutput;
+  friend LightCall;
+
   uint32_t hash_base() override;
 
+  /// Internal method to start an effect with the given index
+  void start_effect_(uint32_t effect_index);
+  /// Internal method to stop the current effect (if one is active).
+  void stop_effect_();
+  /// Internal method to start a transition to the target color with the given length.
+  void start_transition_(const LightColorValues &target, uint32_t length);
+
+  /// Internal method to start a flash for the specified amount of time.
+  void start_flash_(const LightColorValues &target, uint32_t length);
+
+  /// Internal method to set the color values to target immediately (with no transition).
+  void set_immediately_(const LightColorValues &target);
+
+  /// Internal method to start a transformer.
+  void set_transformer_(std::unique_ptr<LightTransformer> transformer);
+
+  LightEffect *get_active_effect_();
+
+  /// Object used to store the persisted values of the light.
   ESPPreferenceObject rtc_;
+  /// Default transition length for all transitions in ms.
   uint32_t default_transition_length_{1000};
-  LightEffect *active_effect_{nullptr};
-  optional<uint32_t> active_effect_index_{};
+  /// Value for storing the index of the currently active effect. 0 if no effect is active
+  uint32_t active_effect_index_{};
+  /// The currently active transformer for this light (transition/flash).
   std::unique_ptr<LightTransformer> transformer_{nullptr};
-  LightColorValues values_{};
-  LightColorValues remote_values_{};
+  /** Callback to call when new values for the frontend are available.
+   *
+   * "Remote values" are light color values that are reported to the frontend and have a lower
+   * publish frequency than the "real" color values. For example, during transitions the current
+   * color value may change continuously, but the remote values will be reported as the target values
+   * starting with the beginning of the transition.
+   */
   CallbackManager<void()> remote_values_callback_{};
   LightOutput *output_;  ///< Store the output to allow effects to have more access.
+  /// Whether the light value should be written in the next cycle.
   bool next_write_{true};
+  /// Gamma correction factor for the light.
   float gamma_correct_{2.8f};
+  /// List of effects for this light.
   std::vector<LightEffect *> effects_;
 #ifdef USE_MQTT_LIGHT
   MQTTJSONLightComponent *mqtt_{nullptr};
@@ -237,127 +347,12 @@ class LightOutput {
   virtual void write_state(LightState *state) = 0;
 };
 
-template<typename... Ts> class ToggleAction : public Action<Ts...> {
- public:
-  explicit ToggleAction(LightState *state);
-
-  template<typename V> void set_transition_length(V value) { this->transition_length_ = value; }
-
-  void play(Ts... x) override;
-
- protected:
-  LightState *state_;
-  TemplatableValue<uint32_t, Ts...> transition_length_;
-};
-
-template<typename... Ts> class TurnOffAction : public Action<Ts...> {
- public:
-  explicit TurnOffAction(LightState *state);
-
-  template<typename V> void set_transition_length(V value) { this->transition_length_ = value; }
-
-  void play(Ts... x) override;
-
- protected:
-  LightState *state_;
-  TemplatableValue<uint32_t, Ts...> transition_length_;
-};
-
-template<typename... Ts> class TurnOnAction : public Action<Ts...> {
- public:
-  explicit TurnOnAction(LightState *state) : state_(state) {}
-
-  template<typename V> void set_transition_length(V value) { this->transition_length_ = value; }
-  template<typename V> void set_flash_length(V value) { this->flash_length_ = value; }
-  template<typename V> void set_brightness(V value) { this->brightness_ = value; }
-  template<typename V> void set_red(V value) { this->red_ = value; }
-  template<typename V> void set_green(V value) { this->green_ = value; }
-  template<typename V> void set_blue(V value) { this->blue_ = value; }
-  template<typename V> void set_white(V value) { this->white_ = value; }
-  template<typename V> void set_color_temperature(V value) { this->color_temperature_ = value; }
-  template<typename V> void set_effect(V value) { this->effect_ = value; }
-
-  void play(Ts... x) override;
-
- protected:
-  LightState *state_;
-  TemplatableValue<float, Ts...> brightness_;
-  TemplatableValue<float, Ts...> red_;
-  TemplatableValue<float, Ts...> green_;
-  TemplatableValue<float, Ts...> blue_;
-  TemplatableValue<float, Ts...> white_;
-  TemplatableValue<float, Ts...> color_temperature_;
-  TemplatableValue<uint32_t, Ts...> transition_length_;
-  TemplatableValue<uint32_t, Ts...> flash_length_;
-  TemplatableValue<std::string, Ts...> effect_;
-};
-
-// =============== TEMPLATE DEFINITIONS ===============
-template<typename... Ts> ToggleAction<Ts...> *LightState::make_toggle_action() { return new ToggleAction<Ts...>(this); }
-template<typename... Ts> TurnOffAction<Ts...> *LightState::make_turn_off_action() {
-  return new TurnOffAction<Ts...>(this);
-}
-template<typename... Ts> TurnOnAction<Ts...> *LightState::make_turn_on_action() {
-  return new TurnOnAction<Ts...>(this);
-}
-
-template<typename... Ts> ToggleAction<Ts...>::ToggleAction(LightState *state) : state_(state) {}
-
-template<typename... Ts> void ToggleAction<Ts...>::play(Ts... x) {
-  auto call = this->state_->toggle();
-  if (this->transition_length_.has_value()) {
-    call.set_transition_length(this->transition_length_.value(x...));
-  }
-  call.perform();
-  this->play_next(x...);
-}
-template<typename... Ts> TurnOffAction<Ts...>::TurnOffAction(LightState *state) : state_(state) {}
-template<typename... Ts> void TurnOffAction<Ts...>::play(Ts... x) {
-  auto call = this->state_->turn_off();
-  if (this->transition_length_.has_value()) {
-    call.set_transition_length(this->transition_length_.value(x...));
-  }
-  call.perform();
-  this->play_next(x...);
-}
-template<typename... Ts> void TurnOnAction<Ts...>::play(Ts... x) {
-  auto call = this->state_->turn_on();
-  if (this->brightness_.has_value()) {
-    call.set_brightness(this->brightness_.value(x...));
-  }
-  if (this->red_.has_value()) {
-    call.set_red(this->red_.value(x...));
-  }
-  if (this->green_.has_value()) {
-    call.set_green(this->green_.value(x...));
-  }
-  if (this->blue_.has_value()) {
-    call.set_blue(this->blue_.value(x...));
-  }
-  if (this->white_.has_value()) {
-    call.set_white(this->white_.value(x...));
-  }
-  if (this->color_temperature_.has_value()) {
-    call.set_color_temperature(this->color_temperature_.value(x...));
-  }
-  if (this->effect_.has_value()) {
-    call.set_effect(this->effect_.value(x...));
-  }
-  if (this->flash_length_.has_value()) {
-    call.set_flash_length(this->flash_length_.value(x...));
-  }
-  if (this->transition_length_.has_value()) {
-    call.set_transition_length(this->transition_length_.value(x...));
-  }
-  call.perform();
-  this->play_next(x...);
-}
-
 }  // namespace light
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/light/mqtt_json_light_component.h"
+#include "esphome/light/light_automation.h"
 
 #endif  // USE_LIGHT
 

@@ -98,7 +98,7 @@ cover::Cover *StoringController::get_cover_by_key(uint32_t key) {
 }
 void StoringUpdateListenerController::register_cover(cover::Cover *obj) {
   StoringController::register_cover(obj);
-  obj->add_on_publish_state_callback([this, obj](bool state) { this->on_cover_update(obj); });
+  obj->add_on_state_callback([this, obj]() { this->on_cover_update(obj); });
 }
 void StoringUpdateListenerController::on_cover_update(cover::Cover *obj) {}
 #endif
@@ -117,6 +117,22 @@ void StoringUpdateListenerController::register_text_sensor(text_sensor::TextSens
   StoringController::register_text_sensor(obj);
   obj->add_on_state_callback([this, obj](std::string state) { this->on_text_sensor_update(obj, state); });
 }
+#endif
+#ifdef USE_CLIMATE
+void Controller::register_climate(climate::ClimateDevice *obj) {}
+void StoringController::register_climate(climate::ClimateDevice *obj) { this->climates_.push_back(obj); }
+climate::ClimateDevice *StoringController::get_climate_by_key(uint32_t key) {
+  for (auto *c : this->climates_) {
+    if (c->get_object_id_hash() == key && !c->is_internal())
+      return c;
+  }
+  return nullptr;
+}
+void StoringUpdateListenerController::register_climate(climate::ClimateDevice *obj) {
+  StoringController::register_climate(obj);
+  obj->add_on_state_callback([this, obj]() { this->on_climate_update(obj); });
+}
+void StoringUpdateListenerController::on_climate_update(climate::ClimateDevice *obj) {}
 #endif
 
 ESPHOME_NAMESPACE_END

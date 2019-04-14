@@ -8,21 +8,15 @@
 #include "esphome/component.h"
 #include "esphome/helpers.h"
 #include "esphome/automation.h"
+#include "esphome/cover/cover_traits.h"
+#include "esphome/esppreferences.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
 namespace cover {
 
-enum CoverState {
-  COVER_OPEN = 0,
-  COVER_CLOSED,
-};
-
-enum CoverCommand {
-  COVER_COMMAND_OPEN = 0,
-  COVER_COMMAND_CLOSE,
-  COVER_COMMAND_STOP,
-};
+const extern float COVER_OPEN;
+const extern float COVER_CLOSED;
 
 template<typename... Ts> class OpenAction;
 template<typename... Ts> class CloseAction;
@@ -32,8 +26,12 @@ template<typename... Ts> class CoverPublishAction;
 #define LOG_COVER(prefix, type, obj) \
   if (obj != nullptr) { \
     ESP_LOGCONFIG(TAG, prefix type " '%s'", obj->get_name().c_str()); \
-    if (obj->assumed_state()) { \
+    auto traits_ = obj->get_traits(); \
+    if (traits_.get_is_assumed_state()) { \
       ESP_LOGCONFIG(TAG, prefix "  Assumed State: YES"); \
+    } \
+    if (!obj->get_device_class().empty()) { \
+      ESP_LOGCONFIG(TAG, prefix "  Device Class: '%s'", obj->get_device_class().c_str()); \
     } \
   }
 
@@ -41,134 +39,172 @@ template<typename... Ts> class CoverPublishAction;
 class MQTTCoverComponent;
 #endif
 
+class Cover;
+
+class CoverCall {
+ public:
+  CoverCall(Cover *parent);
+
+  /// Set the command as a string, "STOP", "OPEN", "CLOSE".
+  CoverCall &set_command(const char *command);
+  /// Set the command to open the cover.
+  CoverCall &set_command_open();
+  /// Set the command to close the cover.
+  CoverCall &set_command_close();
+  /// Set the command to stop the cover.
+  CoverCall &set_command_stop();
+  /// Set the call to a certain target position.
+  CoverCall &set_position(float position);
+  /// Set the call to a certain target tilt.
+  CoverCall &set_tilt(float tilt);
+  /// Set whether this cover call should stop the cover.
+  CoverCall &set_stop(bool stop);
+
+  /// Perform the cover call.
+  void perform();
+
+  const optional<float> &get_position() const;
+  bool get_stop() const;
+  const optional<float> &get_tilt() const;
+
+ protected:
+  void validate_();
+
+  Cover *parent_;
+  bool stop_{false};
+  optional<float> position_{};
+  optional<float> tilt_{};
+};
+
+/// Struct used to store the restored state of a cover
+struct CoverRestoreState {
+  float position;
+  float tilt;
+
+  /// Convert this struct to a cover call that can be performed.
+  CoverCall to_call(Cover *cover);
+  /// Apply these settings to the cover
+  void apply(Cover *cover);
+} __attribute__((packed));
+
+/// Enum encoding the current operation of a cover.
+enum CoverOperation : uint8_t {
+  /// The cover is currently idle (not moving)
+  COVER_OPERATION_IDLE = 0,
+  /// The cover is currently opening.
+  COVER_OPERATION_OPENING,
+  /// The cover is currently closing.
+  COVER_OPERATION_CLOSING,
+};
+
+const char *cover_operation_to_str(CoverOperation op);
+
+/** Base class for all cover devices.
+ *
+ * Covers currently have three properties:
+ *  - position - The current position of the cover from 0.0 (fully closed) to 1.0 (fully open).
+ *    For covers with only binary OPEN/CLOSED position this will always be either 0.0 or 1.0
+ *  - tilt - The tilt value of the cover from 0.0 (closed) to 1.0 (closed)
+ *  - current_operation - The operation the cover is currently performing, this can
+ *    be one of IDLE, OPENING and CLOSING.
+ *
+ * For users: All cover operations must be performed over the .make_call() interface.
+ * To command a cover, use .make_call() to create a call object, set all properties
+ * you wish to set, and activate the command with .perform().
+ * For reading out the current values of the cover, use the public .position, .tilt etc
+ * properties (these are read-only for users)
+ *
+ * For integrations: Integrations must implement two methods: control() and get_traits().
+ * Control will be called with the arguments supplied by the user and should be used
+ * to control all values of the cover. Also implement get_traits() to return what operations
+ * the cover supports.
+ */
 class Cover : public Nameable {
  public:
   explicit Cover(const std::string &name);
+  explicit Cover();
 
+  /// The current operation of the cover (idle, opening, closing).
+  CoverOperation current_operation{COVER_OPERATION_IDLE};
+  union {
+    /** The position of the cover from 0.0 (fully closed) to 1.0 (fully open).
+     *
+     * For binary covers this is always equals to 0.0 or 1.0 (see also COVER_OPEN and
+     * COVER_CLOSED constants).
+     */
+    float position;
+    ESPDEPRECATED("<cover>.state is deprecated, please use .position instead") float state;
+  };
+  /// The current tilt value of the cover from 0.0 to 1.0.
+  float tilt{COVER_OPEN};
+
+  /// Construct a new cover call used to control the cover.
+  CoverCall make_call();
+  /** Open the cover.
+   *
+   * This is a legacy method and may be removed later, please use `.make_call()` instead.
+   */
   void open();
+  /** Close the cover.
+   *
+   * This is a legacy method and may be removed later, please use `.make_call()` instead.
+   */
   void close();
+  /** Stop the cover.
+   *
+   * This is a legacy method and may be removed later, please use `.make_call()` instead.
+   */
   void stop();
 
-  void add_on_publish_state_callback(std::function<void(CoverState)> &&f);
+  void add_on_state_callback(std::function<void()> &&f);
 
-  void publish_state(CoverState state);
-
-  template<typename... Ts> OpenAction<Ts...> *make_open_action();
-  template<typename... Ts> CloseAction<Ts...> *make_close_action();
-  template<typename... Ts> StopAction<Ts...> *make_stop_action();
-  template<typename... Ts> CoverPublishAction<Ts...> *make_cover_publish_action();
-
-  /** Return whether this cover is optimistic - i.e. if both the OPEN/CLOSE actions should be displayed in
-   * Home Assistant because the real state is unknown.
+  /** Publish the current state of the cover.
    *
-   * Defaults to false.
+   * First set the .position, .tilt, etc values and then call this method
+   * to publish the state of the cover.
+   *
+   * @param save Whether to save the updated values in RTC area.
    */
-  virtual bool assumed_state();
-
-  CoverState state{COVER_OPEN};
-
-  bool has_state() const;
+  void publish_state(bool save = true);
 
 #ifdef USE_MQTT_COVER
   MQTTCoverComponent *get_mqtt() const;
   void set_mqtt(MQTTCoverComponent *mqtt);
 #endif
 
- protected:
-  virtual void write_command(CoverCommand command) = 0;
+  virtual CoverTraits get_traits() = 0;
+  void set_device_class(const std::string &device_class);
+  std::string get_device_class();
 
+  /// Helper method to check if the cover is fully open. Equivalent to comparing .position against 1.0
+  bool is_fully_open() const;
+  /// Helper method to check if the cover is fully closed. Equivalent to comparing .position against 0.0
+  bool is_fully_closed() const;
+
+ protected:
+  friend CoverCall;
+
+  virtual void control(const CoverCall &call) = 0;
+  virtual std::string device_class();
+
+  optional<CoverRestoreState> restore_state_();
   uint32_t hash_base() override;
 
-  CallbackManager<void(CoverState)> state_callback_{};
-  Deduplicator<CoverState> dedup_;
+  CallbackManager<void()> state_callback_{};
+  optional<std::string> device_class_override_{};
 
 #ifdef USE_MQTT_COVER
   MQTTCoverComponent *mqtt_{nullptr};
 #endif
+  ESPPreferenceObject rtc_;
 };
-
-template<typename... Ts> class OpenAction : public Action<Ts...> {
- public:
-  explicit OpenAction(Cover *cover);
-
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-};
-
-template<typename... Ts> class CloseAction : public Action<Ts...> {
- public:
-  explicit CloseAction(Cover *cover);
-
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-};
-
-template<typename... Ts> class StopAction : public Action<Ts...> {
- public:
-  explicit StopAction(Cover *cover);
-
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-};
-
-template<typename... Ts> class CoverPublishAction : public Action<Ts...> {
- public:
-  CoverPublishAction(Cover *cover);
-  template<typename V> void set_state(V value) { this->state_ = value; }
-  void play(Ts... x) override;
-
- protected:
-  Cover *cover_;
-  TemplatableValue<CoverState, Ts...> state_;
-};
-
-// =============== TEMPLATE DEFINITIONS ===============
-
-template<typename... Ts> OpenAction<Ts...>::OpenAction(Cover *cover) : cover_(cover) {}
-template<typename... Ts> void OpenAction<Ts...>::play(Ts... x) {
-  this->cover_->open();
-  this->play_next(x...);
-}
-
-template<typename... Ts> CloseAction<Ts...>::CloseAction(Cover *cover) : cover_(cover) {}
-template<typename... Ts> void CloseAction<Ts...>::play(Ts... x) {
-  this->cover_->close();
-  this->play_next(x...);
-}
-
-template<typename... Ts> StopAction<Ts...>::StopAction(Cover *cover) : cover_(cover) {}
-
-template<typename... Ts> void StopAction<Ts...>::play(Ts... x) {
-  this->cover_->stop();
-  this->play_next(x...);
-}
-
-template<typename... Ts> OpenAction<Ts...> *Cover::make_open_action() { return new OpenAction<Ts...>(this); }
-
-template<typename... Ts> CloseAction<Ts...> *Cover::make_close_action() { return new CloseAction<Ts...>(this); }
-template<typename... Ts> StopAction<Ts...> *Cover::make_stop_action() { return new StopAction<Ts...>(this); }
-
-template<typename... Ts> CoverPublishAction<Ts...>::CoverPublishAction(Cover *cover) : cover_(cover) {}
-template<typename... Ts> void CoverPublishAction<Ts...>::play(Ts... x) {
-  auto val = this->state_.value(x...);
-  this->cover_->publish_state(val);
-  this->play_next(x...);
-}
-template<typename... Ts> CoverPublishAction<Ts...> *Cover::make_cover_publish_action() {
-  return new CoverPublishAction<Ts...>(this);
-}
 
 }  // namespace cover
 
 ESPHOME_NAMESPACE_END
 
 #include "esphome/cover/mqtt_cover_component.h"
+#include "esphome/cover/cover_automation.h"
 
 #endif  // USE_COVER
 

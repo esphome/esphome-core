@@ -84,7 +84,7 @@ template<typename T> class optional {  // NOLINT
 
   value_type &operator*() { return value_; }
 
-  operator safe_bool() const { return has_value() ? &optional::this_type_does_not_support_comparisons : 0; }
+  operator safe_bool() const { return has_value() ? &optional::this_type_does_not_support_comparisons : nullptr; }
 
   bool has_value() const { return has_value_; }
 
