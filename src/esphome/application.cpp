@@ -48,9 +48,6 @@ using namespace esphome::text_sensor;
 #ifdef USE_STEPPER
 using namespace esphome::stepper;
 #endif
-#ifdef USE_CLIMATE
-using namespace esphome::climate;
-#endif
 
 static const char *TAG = "application";
 
@@ -435,7 +432,6 @@ sensor::UltrasonicSensorComponent *Application::make_ultrasonic_sensor(const std
   return ultrasonic;
 }
 #endif
-
 #ifdef USE_WIFI_SIGNAL_SENSOR
 sensor::WiFiSignalSensor *Application::make_wifi_signal_sensor(const std::string &name, uint32_t update_interval) {
   auto *wifi = this->register_component(new WiFiSignalSensor(name, update_interval));
@@ -758,6 +754,14 @@ void Application::register_cover(cover::Cover *cover) {
     cover->set_mqtt(this->register_component(new MQTTCoverComponent(cover)));
   }
 #endif
+}
+#endif
+
+#ifdef USE_TEMPLATE_COVER
+TemplateCover *Application::make_template_cover(const std::string &name) {
+  auto *cover = this->register_component(new TemplateCover(name));
+  this->register_cover(cover);
+  return cover;
 }
 #endif
 
@@ -1085,6 +1089,13 @@ sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, senso
 }
 #endif
 
+#ifdef USE_PPD42X
+sensor::PPD42XComponent *Application::make_ppd42x(sensor::PPD42XType type, uint32_t update_interval,
+                                                  uint32_t time_out) {
+  return this->register_component(new PPD42XComponent(type, time_out, update_interval));
+}
+#endif
+
 #ifdef USE_A4988
 stepper::A4988 *Application::make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin) {
   return this->register_component(new A4988(step_pin.copy(), dir_pin.copy()));
@@ -1158,12 +1169,6 @@ binary_sensor::MPR121Component *Application::make_mpr121(uint8_t address) {
 }
 #endif
 
-#ifdef USE_TTP229_LSF
-binary_sensor::TTP229LSFComponent *Application::make_ttp229_lsf(uint8_t address) {
-  return this->register_component(new TTP229LSFComponent(this->i2c_, address));
-}
-#endif
-
 #ifdef USE_ULN2003
 stepper::ULN2003 *Application::make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b,
                                             const GPIOOutputPin &pin_c, const GPIOOutputPin &pin_d) {
@@ -1194,18 +1199,6 @@ io::MCP23017 *Application::make_mcp23017_component(uint8_t address) {
 #ifdef USE_SDS011
 sensor::SDS011Component *Application::make_sds011(UARTComponent *parent) {
   return this->register_component(new SDS011Component(parent));
-}
-#endif
-
-#ifdef USE_CLIMATE
-void Application::register_climate(climate::ClimateDevice *climate) {
-  for (auto *controller : this->controllers_)
-    controller->register_climate(climate);
-#ifdef USE_MQTT_CLIMATE
-  if (this->mqtt_client_ != nullptr) {
-    climate->set_mqtt(this->register_component(new climate::MQTTClimateComponent(climate)));
-  }
-#endif
 }
 #endif
 

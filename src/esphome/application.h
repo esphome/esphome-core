@@ -39,13 +39,7 @@
 #include "esphome/binary_sensor/status_binary_sensor.h"
 #include "esphome/binary_sensor/template_binary_sensor.h"
 #include "esphome/binary_sensor/mpr121_sensor.h"
-#include "esphome/binary_sensor/ttp229_lsf_sensor.h"
-#include "esphome/climate/bang_bang_climate.h"
-#include "esphome/climate/climate_device.h"
-#include "esphome/climate/mqtt_climate_component.h"
 #include "esphome/cover/cover.h"
-#include "esphome/cover/endstop_cover.h"
-#include "esphome/cover/time_based_cover.h"
 #include "esphome/cover/mqtt_cover_component.h"
 #include "esphome/cover/template_cover.h"
 #include "esphome/display/display.h"
@@ -122,6 +116,7 @@
 #include "esphome/sensor/mqtt_subscribe_sensor.h"
 #include "esphome/sensor/ms5611.h"
 #include "esphome/sensor/pmsx003.h"
+#include "esphome/sensor/ppd42x.h"
 #include "esphome/sensor/pulse_counter.h"
 #include "esphome/sensor/rotary_encoder.h"
 #include "esphome/sensor/sensor.h"
@@ -430,10 +425,6 @@ class Application {
 
 #ifdef USE_MPR121
   binary_sensor::MPR121Component *make_mpr121(uint8_t address = 0x5A);
-#endif
-
-#ifdef USE_TTP229_LSF
-  binary_sensor::TTP229LSFComponent *make_ttp229_lsf(uint8_t address = 0x57);
 #endif
 
   /*   ____  _____ _   _ ____   ___  ____
@@ -820,6 +811,10 @@ class Application {
 #ifdef USE_PMSX003
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
 #endif
+#ifdef USE_PPD42X
+  sensor::PPD42XComponent *make_ppd42x(sensor::PPD42XType type, uint32_t update_interval = 60000,
+                                       uint32_t time_out = 30000);
+#endif
 
 #ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
   sensor::TotalDailyEnergy *make_total_daily_energy_sensor(const std::string &name, time::RealTimeClockComponent *time,
@@ -1094,6 +1089,10 @@ class Application {
   void register_cover(cover::Cover *cover);
 #endif
 
+#ifdef USE_TEMPLATE_COVER
+  cover::TemplateCover *make_template_cover(const std::string &name);
+#endif
+
 #ifdef USE_A4988
   stepper::A4988 *make_a4988(const GPIOOutputPin &step_pin, const GPIOOutputPin &dir_pin);
 #endif
@@ -1101,10 +1100,6 @@ class Application {
 #ifdef USE_ULN2003
   stepper::ULN2003 *make_uln2003(const GPIOOutputPin &pin_a, const GPIOOutputPin &pin_b, const GPIOOutputPin &pin_c,
                                  const GPIOOutputPin &pin_d);
-#endif
-
-#ifdef USE_CLIMATE
-  void register_climate(climate::ClimateDevice *climate);
 #endif
 
   /*   _   _ _____ _     ____  _____ ____  ____
