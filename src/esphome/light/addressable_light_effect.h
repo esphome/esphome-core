@@ -22,8 +22,6 @@ class AddressableLightEffect : public LightEffect {
 
  protected:
   AddressableLight *get_addressable_() const;
-
-  HighFrequencyLoopRequester high_freq_;
 };
 
 class AddressableLambdaLightEffect : public AddressableLightEffect {

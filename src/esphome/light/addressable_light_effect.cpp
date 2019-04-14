@@ -11,13 +11,11 @@ namespace light {
 void AddressableLightEffect::start_internal() {
   this->get_addressable_()->set_effect_active(true);
   this->get_addressable_()->clear_effect_data();
-  this->high_freq_.start();
   this->start();
 }
 
 void AddressableLightEffect::stop() {
   this->get_addressable_()->set_effect_active(false);
-  this->high_freq_.stop();
 }
 
 AddressableLight *AddressableLightEffect::get_addressable_() const {
