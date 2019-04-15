@@ -98,6 +98,7 @@
 #include "esphome/sensor/bme680_component.h"
 #include "esphome/sensor/bmp085_component.h"
 #include "esphome/sensor/bmp280_component.h"
+#include "esphome/sensor/ccs811_component.h"
 #include "esphome/sensor/cse7766.h"
 #include "esphome/sensor/custom_sensor.h"
 #include "esphome/sensor/dallas_component.h"
@@ -795,6 +796,10 @@ class Application {
 #ifdef USE_HOMEASSISTANT_BINARY_SENSOR
   binary_sensor::HomeassistantBinarySensor *make_homeassistant_binary_sensor(const std::string &name,
                                                                              std::string entity_id);
+#endif
+
+#ifdef USE_CCS811_SENSOR
+  sensor::CCS811Component *make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, uint32_t update_interval = 3000);
 #endif
 
 #ifdef USE_CSE7766

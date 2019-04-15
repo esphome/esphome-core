@@ -147,6 +147,7 @@ const char UNIT_OHM[] = "Ω";
 const char ICON_GAS_CYLINDER[] = "mdi:gas-cylinder";
 const char ICON_PERIODIC_TABLE_CO2[] = "mdi:periodic-table-co2";
 const char UNIT_PPM[] = "ppm";
+const char UNIT_PPB[] = "ppb";
 const char UNIT_A[] = "A";
 const char UNIT_W[] = "W";
 const char ICON_MAGNET[] = "mdi:magnet";
@@ -160,6 +161,7 @@ const char UNIT_K[] = "K";
 const char UNIT_MICROSIEMENS_PER_CENTIMETER[] = "µS/cm";
 const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m³";
 const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
+const char ICON_RADIATOR[] = "mdi:radiator";
 
 SensorStateTrigger::SensorStateTrigger(Sensor *parent) {
   parent->add_on_state_callback([this](float value) { this->trigger(value); });

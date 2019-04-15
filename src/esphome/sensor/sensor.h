@@ -330,6 +330,7 @@ extern const char ICON_LIGHTBULB[];
 extern const char ICON_BATTERY[];
 extern const char ICON_FLOWER[];
 extern const char ICON_CHEMICAL_WEAPON[];
+extern const char ICON_RADIATOR[];
 
 extern const char UNIT_C[];
 extern const char UNIT_PERCENT[];
@@ -340,6 +341,7 @@ extern const char UNIT_M_PER_S_SQUARED[];
 extern const char UNIT_LX[];
 extern const char UNIT_OHM[];
 extern const char UNIT_PPM[];
+extern const char UNIT_PPB[];
 extern const char UNIT_A[];
 extern const char UNIT_W[];
 extern const char UNIT_UT[];

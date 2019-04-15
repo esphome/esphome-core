@@ -1073,6 +1073,16 @@ text_sensor::TemplateTextSensor *Application::make_template_text_sensor(const st
 }
 #endif
 
+#ifdef USE_CCS811_SENSOR
+sensor::CCS811Component *Application::make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, uint32_t update_interval) {
+  auto* ccs811 = this->register_component(new sensor::CCS811Component(this->i2c_, eco2_name, tvoc_name, update_interval));
+  this->register_sensor(ccs811->get_eco2_sensor());
+  this->register_sensor(ccs811->get_tvoc_sensor());
+  return ccs811;
+}
+
+#endif
+
 #ifdef USE_CSE7766
 sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent, uint32_t update_interval) {
   return this->register_component(new sensor::CSE7766Component(parent, update_interval));
