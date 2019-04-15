@@ -993,6 +993,10 @@ HomeAssistantTime *Application::make_homeassistant_time_component() {
 }
 #endif
 
+#ifdef USE_GPS_COMPONENT
+GPSComponent *Application::make_gps_component(UARTComponent *parent) { return this->register_component(new GPSComponent(parent)); }
+#endif
+
 #ifdef USE_HLW8012
 sensor::HLW8012Component *Application::make_hlw8012(const GPIOOutputPin &sel_pin, uint8_t cf_pin, uint8_t cf1_pin,
                                                     uint32_t update_interval) {

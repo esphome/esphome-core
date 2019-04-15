@@ -151,6 +151,7 @@
 #include "esphome/time/rtc_component.h"
 #include "esphome/time/sntp_component.h"
 #include "esphome/time/homeassistant_time.h"
+#include "esphome/time/gps_component.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
@@ -767,6 +768,10 @@ class Application {
 
 #ifdef USE_HOMEASSISTANT_TIME
   time::HomeAssistantTime *make_homeassistant_time_component();
+#endif
+
+#ifdef USE_GPS_COMPONENT
+  time::GPSComponent *make_gps_component(UARTComponent *parent);
 #endif
 
 #ifdef USE_HLW8012
