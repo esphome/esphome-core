@@ -8,23 +8,27 @@
 #include "esphome/component.h"
 #include "esphome/sensor/sensor.h"
 #include "esphome/i2c_component.h"
+#include "esphome/switch_/switch.h"
 #include "SparkFunCCS811.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
+using namespace switch_;
 namespace sensor {
 
 using CCS811eCO2Sensor = sensor::EmptyPollingParentSensor<0, ICON_GAS_CYLINDER, UNIT_PPM>;
 using CCS811TVOCSensor = sensor::EmptyPollingParentSensor<0, ICON_RADIATOR, UNIT_PPB>;
 constexpr uint8_t SENSOR_ADDR = 0x5A;
 
-class CCS811Component : public PollingComponent, public I2CDevice {
+class CCS811Component : public Switch, public PollingComponent, public I2CDevice {
  public:
   /// Construct the CCS811Component using the provided address and update interval.
   CCS811Component(I2CComponent *parent,
                   const std::string &eco2_name, const std::string &tvoc_name,
                   uint32_t update_interval = 30000);
 
+  void write_state(bool state) override;
+  
   /// Setup the sensor and test for a connection.
   void setup() override;
   /// Schedule temperature+pressure readings.
@@ -32,7 +36,7 @@ class CCS811Component : public PollingComponent, public I2CDevice {
 
   void dump_config() override;
   float get_setup_priority() const override;
-
+  void publish_baseline();
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Get the internal temperature sensor used to expose the temperature as a sensor object.
