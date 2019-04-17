@@ -36,7 +36,7 @@ class CCS811Component : public Switch, public PollingComponent, public I2CDevice
 
   void dump_config() override;
   float get_setup_priority() const override;
-  void publish_baseline();
+
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Get the internal temperature sensor used to expose the temperature as a sensor object.

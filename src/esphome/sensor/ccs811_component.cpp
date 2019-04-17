@@ -26,8 +26,15 @@ void CCS811Component::setup() {
 }
 
 void CCS811Component::write_state(bool state) {
-  ESP_LOGCONFIG(TAG, "State changed");
-  publish_state(state);
+  ESP_LOGCONFIG(TAG, "Baseline publish requested ...");
+  if (state) {
+    uint16_t baseline = this->sensor.getBaseline();
+    char baseline_str [6];
+    sprintf(baseline_str, "%u", baseline);
+    mqtt::global_mqtt_client->publish("baseline", baseline_str);
+    ESP_LOGCONFIG(TAG, "Baseline %s published!", baseline_str);
+  }
+  publish_state(false);
 }
 
 void CCS811Component::update() {
@@ -40,14 +47,6 @@ void CCS811Component::update() {
     this->tvoc_->publish_state(tvoc);
     ESP_LOGCONFIG(TAG, "%s: %u ppb", this->tvoc_->get_name().c_str(), tvoc);
   }
-}
-
-void CCS811Component::publish_baseline() {
-  uint16_t baseline = this->sensor.getBaseline();
-  char baseline_str [6];
-  sprintf(baseline_str, "%u", baseline);
-  mqtt::global_mqtt_client->publish("topic", baseline_str);
-  ESP_LOGCONFIG(TAG, "Baseline %s published", baseline_str);
 }
 
 void CCS811Component::dump_config() {
