@@ -9,6 +9,7 @@
 #include "esphome/sensor/sensor.h"
 #include "esphome/i2c_component.h"
 #include "esphome/switch_/switch.h"
+#include "esphome/time/sntp_component.h"
 #include "SparkFunCCS811.h"
 
 ESPHOME_NAMESPACE_BEGIN
@@ -48,6 +49,7 @@ class CCS811Component : public Switch, public PollingComponent, public I2CDevice
   CCS811eCO2Sensor *eco2_{nullptr};
   CCS811TVOCSensor *tvoc_{nullptr};
   CCS811 sensor = CCS811(SENSOR_ADDR);
+  bool measurment, subscribe, ignore_switch;
 };
 
 } // namespace sensor

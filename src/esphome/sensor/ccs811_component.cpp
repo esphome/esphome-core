@@ -23,14 +23,50 @@ CCS811Component::CCS811Component(I2CComponent *parent, const std::string &eco2_n
 void CCS811Component::setup() {
   auto returnCode = this->sensor.begin();
   ESP_LOGCONFIG(TAG, "Setting up CCS811... Return code: %d", returnCode);
+  ESP_LOGCONFIG(TAG, "Started warming up!");
+  
+  // Wait 30s to warm up
+  this->measurment = false;
+  this->ignore_switch = true;
+  this->set_timeout(30000, [this](){
+    ESP_LOGCONFIG(TAG, "Warming up finished!");
+    
+    // Allow subscribe for baseline
+    this->subscribe = true;
+    
+    // Wait 20s to baseline
+    this->set_timeout(20000, [this]() {
+      ESP_LOGCONFIG(TAG, "Baseline not found! Waiting for baseline set!");
+      this->subscribe = false;
+      this->ignore_switch = false;
+    });
+    
+    mqtt::global_mqtt_client->subscribe("baseline2",
+      [this](const std::string &topic, std::string payload) {
+      if (this->subscribe) {
+        ESP_LOGCONFIG(TAG, "Baseline found!");
+
+        // Disallow subscribe for baseline
+        this->subscribe = false;
+        this->ignore_switch = false;
+        this->measurment = true;
+
+        // Recv and set baseline
+        uint16_t baseline = atoi(payload.c_str());
+        this->sensor.setBaseline(baseline);
+        ESP_LOGCONFIG(TAG, "Baseline %u restored!", baseline);
+      }
+    });
+  });
 }
 
 void CCS811Component::write_state(bool state) {
   ESP_LOGCONFIG(TAG, "Baseline publish requested ...");
-  if (state) {
+  if (state && !ignore_switch) {
+    this->measurment = true;
     uint16_t baseline = this->sensor.getBaseline();
-    char baseline_str [6];
-    sprintf(baseline_str, "%u", baseline);
+    char baseline_str [10] = {0};
+    sprintf(baseline_str, "%u", (unsigned)baseline);
     mqtt::global_mqtt_client->publish("baseline", baseline_str);
     ESP_LOGCONFIG(TAG, "Baseline %s published!", baseline_str);
   }
@@ -38,7 +74,10 @@ void CCS811Component::write_state(bool state) {
 }
 
 void CCS811Component::update() {
-  if (this->sensor.dataAvailable()) {
+  if (measurment == false) {
+    this->eco2_->publish_state(-1);
+    this->tvoc_->publish_state(-1);
+  } else if (this->sensor.dataAvailable()) {
     this->sensor.readAlgorithmResults();
     const unsigned eco2 = this->sensor.getCO2();
     const unsigned tvoc = this->sensor.getTVOC();
