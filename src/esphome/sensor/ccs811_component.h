@@ -21,6 +21,14 @@ using CCS811eCO2Sensor = sensor::EmptyPollingParentSensor<0, ICON_GAS_CYLINDER, 
 using CCS811TVOCSensor = sensor::EmptyPollingParentSensor<0, ICON_RADIATOR, UNIT_PPB>;
 constexpr uint8_t SENSOR_ADDR = 0x5A;
 
+enum class CCS811State {
+  INITIALIZING,
+  WARMING_UP,
+  SEARCHING_FOR_BASELINE,
+  WAINTING_FOR_BASELINE_SETTING,
+  MEASURING
+};
+
 class CCS811Component : public Switch, public PollingComponent, public I2CDevice {
  public:
   /// Construct the CCS811Component using the provided address and update interval.
@@ -49,7 +57,10 @@ class CCS811Component : public Switch, public PollingComponent, public I2CDevice
   CCS811eCO2Sensor *eco2_{nullptr};
   CCS811TVOCSensor *tvoc_{nullptr};
   CCS811 sensor = CCS811(SENSOR_ADDR);
-  bool measurment, subscribe, ignore_switch;
+  void setState(CCS811State state);
+  void publishBaseline();
+
+  volatile CCS811State state;
 };
 
 } // namespace sensor

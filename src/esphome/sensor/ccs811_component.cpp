@@ -14,6 +14,18 @@ static const char *TAG = "sensor.ccs811";
 constexpr uint8_t MEAS_MODE = 0x01;
 constexpr uint8_t ALG_RESULT_DAT = 0x02;
 constexpr uint8_t DRIVE_MODE = 0x01 << 4;
+constexpr auto BASELINE_TIMEOUT_NAME = "BASELINE_TIMEOUT";
+
+const char* CCS811StateToString(CCS811State state) {
+  switch (state) {
+    case CCS811State::INITIALIZING:                  return "INITIALIZING";
+    case CCS811State::WARMING_UP:                    return "WARMING_UP";
+    case CCS811State::SEARCHING_FOR_BASELINE:        return "SEARCHING_FOR_BASELINE";
+    case CCS811State::WAINTING_FOR_BASELINE_SETTING: return "WAINTING_FOR_BASELINE_SETTING";
+    case CCS811State::MEASURING:                     return "MEASURING";
+    default:                                         return "UNKNOWN";
+  }
+}
 
 CCS811Component::CCS811Component(I2CComponent *parent, const std::string &eco2_name,
                                  const std::string &tvoc_name, uint32_t update_interval)
@@ -21,70 +33,78 @@ CCS811Component::CCS811Component(I2CComponent *parent, const std::string &eco2_n
     eco2_(new CCS811eCO2Sensor(eco2_name, this)), tvoc_(new CCS811TVOCSensor(tvoc_name, this)) {}
 
 void CCS811Component::setup() {
-  auto returnCode = this->sensor.begin();
-  ESP_LOGCONFIG(TAG, "Setting up CCS811... Return code: %d", returnCode);
-  ESP_LOGCONFIG(TAG, "Started warming up!");
+  setState(CCS811State::INITIALIZING);
+  auto returnCode = sensor.begin();
+  ESP_LOGCONFIG(TAG, "Initializing of CCS811 finished with return code: %d!", returnCode);
   
   // Wait 30s to warm up
-  this->measurment = false;
-  this->ignore_switch = true;
-  this->set_timeout(30000, [this](){
+  setState(CCS811State::WARMING_UP);
+  set_timeout(30000, [this](){
     ESP_LOGCONFIG(TAG, "Warming up finished!");
     
     // Allow subscribe for baseline
-    this->subscribe = true;
+    setState(CCS811State::SEARCHING_FOR_BASELINE);
     
-    // Wait 20s to baseline
-    this->set_timeout(20000, [this]() {
-      ESP_LOGCONFIG(TAG, "Baseline not found! Waiting for baseline set!");
-      this->subscribe = false;
-      this->ignore_switch = false;
+    // Set 20s baseline searching timeout
+    set_timeout(BASELINE_TIMEOUT_NAME, 20000, [this]() {
+      ESP_LOGCONFIG(TAG, "Baseline not found! Waiting for baseline setting!");
+      setState(CCS811State::WAINTING_FOR_BASELINE_SETTING);
     });
-    
-    mqtt::global_mqtt_client->subscribe("baseline2",
-      [this](const std::string &topic, std::string payload) {
-      if (this->subscribe) {
-        ESP_LOGCONFIG(TAG, "Baseline found!");
 
-        // Disallow subscribe for baseline
-        this->subscribe = false;
-        this->ignore_switch = false;
-        this->measurment = true;
-
+    mqtt::global_mqtt_client->subscribe("baseline", [this](const std::string &topic, std::string payload){
+      if (state == CCS811State::SEARCHING_FOR_BASELINE) {
+        ESP_LOGCONFIG(TAG, "Baseline found! Baseline is being setting!");
+        cancel_timeout(BASELINE_TIMEOUT_NAME);
         // Recv and set baseline
         uint16_t baseline = atoi(payload.c_str());
-        this->sensor.setBaseline(baseline);
-        ESP_LOGCONFIG(TAG, "Baseline %u restored!", baseline);
+        sensor.setBaseline(baseline);
+        ESP_LOGCONFIG(TAG, "Baseline %u set!", baseline);
+        setState(CCS811State::MEASURING);
       }
     });
   });
 }
 
-void CCS811Component::write_state(bool state) {
-  ESP_LOGCONFIG(TAG, "Baseline publish requested ...");
-  if (state && !ignore_switch) {
-    this->measurment = true;
-    uint16_t baseline = this->sensor.getBaseline();
-    char baseline_str [10] = {0};
-    sprintf(baseline_str, "%u", (unsigned)baseline);
-    mqtt::global_mqtt_client->publish("baseline", baseline_str);
-    ESP_LOGCONFIG(TAG, "Baseline %s published!", baseline_str);
+void CCS811Component::setState(CCS811State _state) {
+  if (state != _state) {
+    ESP_LOGCONFIG(TAG, "Changing state from %s to %s!", CCS811StateToString(state), CCS811StateToString(_state));
+    state = _state;
   }
+}
+
+void CCS811Component::write_state(bool state) {
+  if (state) publishBaseline();
   publish_state(false);
 }
 
+void CCS811Component::publishBaseline() {
+  if (state == CCS811State::MEASURING || state == CCS811State::WAINTING_FOR_BASELINE_SETTING) {
+    setState(CCS811State::MEASURING);
+    // Publish baseline
+    uint16_t baseline = sensor.getBaseline();
+    char baseline_str [10] = {0};
+    sprintf(baseline_str, "%u", (unsigned)baseline);
+    mqtt::global_mqtt_client->publish("baseline", std::string(baseline_str), 0, true);
+    ESP_LOGCONFIG(TAG, "Baseline %s published!", baseline_str);
+  } else {
+    ESP_LOGCONFIG(TAG, "Publish baseline disabled!");
+  }
+}
+
 void CCS811Component::update() {
-  if (measurment == false) {
-    this->eco2_->publish_state(-1);
-    this->tvoc_->publish_state(-1);
-  } else if (this->sensor.dataAvailable()) {
-    this->sensor.readAlgorithmResults();
-    const unsigned eco2 = this->sensor.getCO2();
-    const unsigned tvoc = this->sensor.getTVOC();
-    this->eco2_->publish_state(eco2);
-    ESP_LOGCONFIG(TAG, "%s: %u ppm", this->eco2_->get_name().c_str(), eco2);
-    this->tvoc_->publish_state(tvoc);
-    ESP_LOGCONFIG(TAG, "%s: %u ppb", this->tvoc_->get_name().c_str(), tvoc);
+  if (state != CCS811State::MEASURING) {
+    eco2_->publish_state(-1);
+    tvoc_->publish_state(-1);
+  } else { 
+    if (sensor.dataAvailable()) {
+      sensor.readAlgorithmResults();
+      const unsigned eco2 = sensor.getCO2();
+      const unsigned tvoc = sensor.getTVOC();
+      eco2_->publish_state(eco2);
+      ESP_LOGCONFIG(TAG, "%s: %u ppm", eco2_->get_name().c_str(), eco2);
+      tvoc_->publish_state(tvoc);
+      ESP_LOGCONFIG(TAG, "%s: %u ppb", tvoc_->get_name().c_str(), tvoc);
+    }
   }
 }
 
@@ -98,10 +118,10 @@ float CCS811Component::get_setup_priority() const {
 }
 
 CCS811eCO2Sensor *CCS811Component::get_eco2_sensor() const {
-  return this->eco2_;
+  return eco2_;
 }
 CCS811TVOCSensor *CCS811Component::get_tvoc_sensor() const {
-  return this->tvoc_;
+  return tvoc_;
 }
 
 } // namespace sensor
