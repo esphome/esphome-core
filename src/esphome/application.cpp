@@ -1086,7 +1086,7 @@ sensor::CCS811Component *Application::make_ccs811_sensor(const std::string &eco2
   this->register_sensor(ccs811->get_eco2_sensor());
   this->register_sensor(ccs811->get_tvoc_sensor());
   this->register_text_sensor(ccs811->get_status_label());
-  this->register_switch(ccs811);
+  this->register_switch(ccs811->get_baseline_switch());
   return ccs811;
 }
 
