@@ -1074,10 +1074,18 @@ text_sensor::TemplateTextSensor *Application::make_template_text_sensor(const st
 #endif
 
 #ifdef USE_CCS811_SENSOR
-sensor::CCS811Component *Application::make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, uint32_t update_interval) {
-  auto* ccs811 = this->register_component(new sensor::CCS811Component(this->i2c_, eco2_name, tvoc_name, update_interval));
+sensor::CCS811Component *Application::make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, const std::string &switch_name, const std::string &status_name, const std::string &baseline_topic, uint32_t update_interval, uint8_t address) {
+  CCS811Component::InitStruct init_struct = {
+    .eco2_name = eco2_name, 
+    .tvoc_name = tvoc_name,
+    .switch_name = switch_name,
+    .status_name = status_name,
+    .baseline_topic = baseline_topic
+  };
+  auto* ccs811 = this->register_component(new sensor::CCS811Component(this->i2c_, init_struct, update_interval, address));
   this->register_sensor(ccs811->get_eco2_sensor());
   this->register_sensor(ccs811->get_tvoc_sensor());
+  this->register_text_sensor(ccs811->get_status_label());
   this->register_switch(ccs811);
   return ccs811;
 }

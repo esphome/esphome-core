@@ -162,6 +162,8 @@ const char UNIT_MICROSIEMENS_PER_CENTIMETER[] = "µS/cm";
 const char UNIT_MICROGRAMS_PER_CUBIC_METER[] = "µg/m³";
 const char ICON_CHEMICAL_WEAPON[] = "mdi:chemical-weapon";
 const char ICON_RADIATOR[] = "mdi:radiator";
+const char ICON_INFO[] = "mdi:information";
+const char ICON_CLOUD_UPLOAD[] = "mdi:cloud-upload";
 
 SensorStateTrigger::SensorStateTrigger(Sensor *parent) {
   parent->add_on_state_callback([this](float value) { this->trigger(value); });

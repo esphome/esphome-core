@@ -331,6 +331,8 @@ extern const char ICON_BATTERY[];
 extern const char ICON_FLOWER[];
 extern const char ICON_CHEMICAL_WEAPON[];
 extern const char ICON_RADIATOR[];
+extern const char ICON_INFO[];
+extern const char ICON_CLOUD_UPLOAD[];
 
 extern const char UNIT_C[];
 extern const char UNIT_PERCENT[];

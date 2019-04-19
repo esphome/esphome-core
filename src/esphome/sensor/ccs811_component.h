@@ -9,19 +9,18 @@
 #include "esphome/sensor/sensor.h"
 #include "esphome/i2c_component.h"
 #include "esphome/switch_/switch.h"
-#include "esphome/time/sntp_component.h"
+#include "esphome/text_sensor/text_sensor.h"
 #include "SparkFunCCS811.h"
 
 ESPHOME_NAMESPACE_BEGIN
 
-using namespace switch_;
 namespace sensor {
 
 using CCS811eCO2Sensor = sensor::EmptyPollingParentSensor<0, ICON_GAS_CYLINDER, UNIT_PPM>;
 using CCS811TVOCSensor = sensor::EmptyPollingParentSensor<0, ICON_RADIATOR, UNIT_PPB>;
 constexpr uint8_t SENSOR_ADDR = 0x5A;
 
-enum class CCS811State {
+enum class CCS811Status {
   INITIALIZING,
   WARMING_UP,
   SEARCHING_FOR_BASELINE,
@@ -29,12 +28,18 @@ enum class CCS811State {
   MEASURING
 };
 
-class CCS811Component : public Switch, public PollingComponent, public I2CDevice {
+class CCS811Component : public switch_::Switch, public PollingComponent, public I2CDevice {
  public:
+  struct InitStruct {
+    const std::string &eco2_name;
+    const std::string &tvoc_name;
+    const std::string &switch_name;
+    const std::string &status_name;
+    const std::string &baseline_topic;
+  };
+
   /// Construct the CCS811Component using the provided address and update interval.
-  CCS811Component(I2CComponent *parent,
-                  const std::string &eco2_name, const std::string &tvoc_name,
-                  uint32_t update_interval = 30000);
+  CCS811Component(I2CComponent *parent, InitStruct names, uint32_t update_interval, uint8_t address);
 
   void write_state(bool state) override;
   
@@ -49,18 +54,20 @@ class CCS811Component : public Switch, public PollingComponent, public I2CDevice
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
   /// Get the internal temperature sensor used to expose the temperature as a sensor object.
-  CCS811eCO2Sensor *get_eco2_sensor() const;
+  CCS811eCO2Sensor *get_eco2_sensor();
   /// Get the internal pressure sensor used to expose the pressure as a sensor object.
-  CCS811TVOCSensor *get_tvoc_sensor() const;
+  CCS811TVOCSensor *get_tvoc_sensor();
+  text_sensor::TextSensor *get_status_label();
 
  protected:
-  CCS811eCO2Sensor *eco2_{nullptr};
-  CCS811TVOCSensor *tvoc_{nullptr};
-  CCS811 sensor = CCS811(SENSOR_ADDR);
-  void setState(CCS811State state);
+  volatile CCS811Status status;
+  CCS811 sensor_handle;
+  CCS811eCO2Sensor eco2_;
+  CCS811TVOCSensor tvoc_;
+  text_sensor::TextSensor status_label;
+  const std::string baseline_mqtt_topic;
+  void setStatus(CCS811Status status);
   void publishBaseline();
-
-  volatile CCS811State state;
 };
 
 } // namespace sensor

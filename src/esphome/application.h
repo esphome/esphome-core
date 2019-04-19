@@ -799,7 +799,9 @@ class Application {
 #endif
 
 #ifdef USE_CCS811_SENSOR
-  sensor::CCS811Component *make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, uint32_t update_interval = 3000);
+  sensor::CCS811Component *make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, 
+                                              const std::string &switch_name, const std::string &status_name, 
+                                              const std::string &baseline_topic, uint32_t update_interval, uint8_t address);
 #endif
 
 #ifdef USE_CSE7766
