@@ -46,11 +46,8 @@ class CCS811Component : public PollingComponent, public I2CDevice {
   /// Schedule temperature+pressure readings.
   void update() override;
 
-  void dump_config() override {
-    //TODO
-    ESP_LOGCONFIG(TAG, "CONFIG TODO");
-  }
-  
+  void dump_config() override;
+
   float get_setup_priority() const override {
     return setup_priority::HARDWARE_LATE;
   }

@@ -37,54 +37,62 @@ const char* CCS811StatusToHumanReadable(CCS811Status status) {
 void CCS811Component::setup() {
   setStatus(CCS811Status::INITIALIZING);
   auto returnCode = sensor_handle.begin();
-  ESP_LOGCONFIG(CCS811Component::TAG, "Initializing of CCS811 finished with return code: %d!", returnCode);
-  
+  ESP_LOGI(CCS811Component::TAG, "Initializing of CCS811 finished with return code: %d!", returnCode);
+
   // Wait 30s to warm up
   setStatus(CCS811Status::WARMING_UP);
   set_timeout(30000, [this](){
-    ESP_LOGCONFIG(CCS811Component::TAG, "Warming up finished!");
-    
+    ESP_LOGD(CCS811Component::TAG, "Warming up finished!");
+
     // Allow subscribe for baseline
     setStatus(CCS811Status::SEARCHING_FOR_BASELINE);
-    
+
     // Set 20s baseline searching timeout
     set_timeout(BASELINE_TIMEOUT_NAME, 20000, [this]() {
-      ESP_LOGCONFIG(CCS811Component::TAG, "Baseline not found! Waiting for baseline setting!");
+      ESP_LOGD(CCS811Component::TAG, "Baseline not found! Waiting for baseline setting!");
       setStatus(CCS811Status::WAITING_FOR_BASELINE_SETTING);
     });
 
     mqtt::global_mqtt_client->subscribe(baseline_mqtt_topic, [this](const std::string &topic, std::string payload){
       if (status == CCS811Status::SEARCHING_FOR_BASELINE) {
-        ESP_LOGCONFIG(CCS811Component::TAG, "Baseline found! Baseline is being setting!");
+        ESP_LOGD(CCS811Component::TAG, "Baseline found! Baseline is being setting!");
         cancel_timeout(BASELINE_TIMEOUT_NAME);
         // Recv and set baseline
         uint16_t baseline = atoi(payload.c_str());
         sensor_handle.setBaseline(baseline);
-        ESP_LOGCONFIG(CCS811Component::TAG, "Baseline %u set from topic %s!", baseline, topic.c_str());
+        ESP_LOGD(CCS811Component::TAG, "Baseline %u set from topic %s!", baseline, topic.c_str());
         setStatus(CCS811Status::MEASURING);
       }
     });
   });
 }
 
+void CCS811Component::dump_config() {
+  ESP_LOGCONFIG(CCS811Component::TAG, "CCS811:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with CCS811 failed!");
+  }
+  ESP_LOGCONFIG(CCS811Component::TAG, "%s: %u ppm", eco2_.get_name().c_str(), eco2);
+  ESP_LOGCONFIG(CCS811Component::TAG, "%s: %u ppb", tvoc_.get_name().c_str(), tvoc);
+}
+
 void CCS811Component::update() {
   if (status != CCS811Status::MEASURING) {
     eco2_.publish_state(-1);
     tvoc_.publish_state(-1);
-  } else { 
+  } else {
     if (sensor_handle.dataAvailable()) {
       sensor_handle.readAlgorithmResults();
       const unsigned eco2 = sensor_handle.getCO2();
       const unsigned tvoc = sensor_handle.getTVOC();
       eco2_.publish_state(eco2);
-      ESP_LOGCONFIG(CCS811Component::TAG, "%s: %u ppm", eco2_.get_name().c_str(), eco2);
       tvoc_.publish_state(tvoc);
-      ESP_LOGCONFIG(CCS811Component::TAG, "%s: %u ppb", tvoc_.get_name().c_str(), tvoc);
     }
   }
 }
 
-CCS811Component::BaselineSwitch::BaselineSwitch(const std::string& switch_name, CCS811Component* super): 
+CCS811Component::BaselineSwitch::BaselineSwitch(const std::string& switch_name, CCS811Component* super):
   switch_::Switch(switch_name), super(super) {}
 
 void CCS811Component::BaselineSwitch::write_state(bool state) {
