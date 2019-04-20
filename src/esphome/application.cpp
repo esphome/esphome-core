@@ -1075,7 +1075,7 @@ text_sensor::TemplateTextSensor *Application::make_template_text_sensor(const st
 
 #ifdef USE_CCS811_SENSOR
 sensor::CCS811Component *Application::make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, const std::string &switch_name, const std::string &status_name, const std::string &baseline_topic, uint32_t update_interval, uint8_t address) {
-  CCS811Component::InitStruct init_struct = {
+  CCS811Component::init_struct init_struct = {
     .eco2_name = eco2_name, 
     .tvoc_name = tvoc_name,
     .switch_name = switch_name,

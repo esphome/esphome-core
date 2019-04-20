@@ -31,7 +31,7 @@ class CCS811Component : public PollingComponent, public I2CDevice {
   constexpr static auto TAG = "sensor.ccs811";
 
  public:
-  struct InitStruct {
+  struct init_struct {
     const std::string &eco2_name;
     const std::string &tvoc_name;
     const std::string &switch_name;
@@ -40,7 +40,7 @@ class CCS811Component : public PollingComponent, public I2CDevice {
   };
 
   /// Construct the CCS811Component using the provided address and update interval.
-  CCS811Component(I2CComponent *parent, InitStruct names, uint32_t update_interval, uint8_t address);
+  CCS811Component(I2CComponent *parent, init_struct names, uint32_t update_interval, uint8_t address);
   /// Setup the sensor and test for a connection.
   void setup() override;
   /// Schedule temperature+pressure readings.
@@ -58,24 +58,24 @@ class CCS811Component : public PollingComponent, public I2CDevice {
   CCS811eCO2Sensor *get_eco2_sensor() {return &eco2_;}
   /// Get the internal pressure sensor used to expose the pressure as a sensor object.
   CCS811TVOCSensor *get_tvoc_sensor() {return &tvoc_;}
-  text_sensor::TextSensor *get_status_label() {return &status_label;}
-  switch_::Switch *get_baseline_switch() {return &baseline_switch;}
+  text_sensor::TextSensor *get_status_label() {return &status_label_;}
+  switch_::Switch *get_baseline_switch() {return &baseline_switch_;}
 
  protected:
-  volatile CCS811Status status;
-  CCS811 sensor_handle;
+  volatile CCS811Status status_;
+  CCS811 sensor_handle_;
   CCS811eCO2Sensor eco2_;
   CCS811TVOCSensor tvoc_;
-  text_sensor::TextSensor status_label;
+  text_sensor::TextSensor status_label_;
   struct BaselineSwitch : public switch_::Switch {
     CCS811Component* super;
     BaselineSwitch(const std::string&, CCS811Component*);
     void write_state(bool state) override;
-  } baseline_switch;
+  } baseline_switch_;
   friend struct BaselineSwitch;
-  const std::string baseline_mqtt_topic;
-  void setStatus(CCS811Status status);
-  void publishBaseline();
+  const std::string baseline_mqtt_topic_;
+  void set_status_(CCS811Status status_);
+  void publish_baseline_();
 };
 
 } // namespace sensor
