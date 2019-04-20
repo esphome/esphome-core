@@ -10,6 +10,7 @@
 #include "esphome/i2c_component.h"
 #include "esphome/switch_/switch.h"
 #include "esphome/text_sensor/text_sensor.h"
+#include "esphome/time/rtc_component.h"
 #include "SparkFunCCS811.h"
 
 ESPHOME_NAMESPACE_BEGIN
@@ -21,6 +22,7 @@ using CCS811TVOCSensor = sensor::EmptyPollingParentSensor<0, ICON_RADIATOR, UNIT
 
 enum class CCS811Status {
   INITIALIZING,
+  SEARCHING_FOR_LAST_ACTIVITY_TIME,
   WARMING_UP,
   SEARCHING_FOR_BASELINE,
   WAITING_FOR_BASELINE_SETTING,
@@ -31,16 +33,16 @@ class CCS811Component : public PollingComponent, public I2CDevice {
   constexpr static auto TAG = "sensor.ccs811";
 
  public:
-  struct init_struct {
+  struct InitStruct {
     const std::string &eco2_name;
     const std::string &tvoc_name;
     const std::string &switch_name;
     const std::string &status_name;
-    const std::string &baseline_topic;
+    const std::string &save_topic;
   };
 
   /// Construct the CCS811Component using the provided address and update interval.
-  CCS811Component(I2CComponent *parent, init_struct names, uint32_t update_interval, uint8_t address);
+  CCS811Component(I2CComponent *parent, InitStruct init_struct, uint32_t update_interval, uint8_t address, time::RealTimeClockComponent *time);
   /// Setup the sensor and test for a connection.
   void setup() override;
   /// Schedule temperature+pressure readings.
@@ -73,8 +75,12 @@ class CCS811Component : public PollingComponent, public I2CDevice {
     void write_state(bool state) override;
   } baseline_switch_;
   friend struct BaselineSwitch;
-  const std::string baseline_mqtt_topic_;
+  const std::string baseline_topic_;
+  const std::string last_activity_time_topic_;
+  time::RealTimeClockComponent *time_;
   void set_status_(CCS811Status status_);
+  void arrange_warm_up_();
+  void arrange_baseline_();
   void publish_baseline_();
 };
 

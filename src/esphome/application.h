@@ -801,7 +801,8 @@ class Application {
 #ifdef USE_CCS811_SENSOR
   sensor::CCS811Component *make_ccs811_sensor(const std::string &eco2_name, const std::string &tvoc_name, 
                                               const std::string &switch_name, const std::string &status_name, 
-                                              const std::string &baseline_topic, uint32_t update_interval, uint8_t address);
+                                              const std::string &save_topic, uint32_t update_interval, 
+                                              uint8_t address, time::RealTimeClockComponent *time);
 #endif
 
 #ifdef USE_CSE7766
