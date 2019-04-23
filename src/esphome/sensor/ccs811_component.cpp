@@ -10,7 +10,7 @@
 constexpr auto BASELINE_TIMEOUT_NAME = "BASELINE_TIMEOUT";
 constexpr auto LAST_ACTICITY_TIME_TIMEOUT_NAME = "LAST_ACTICITY_TIME_TIMEOUT_NAME";
 constexpr auto MQTT_SUBSCRIBE_TIMEOUT_SEC = 5;
-constexpr auto WARM_UP_TIMEOUT_SEC = 1800; // 30 minutes
+constexpr auto WARM_UP_TIMEOUT_SEC = 30; // 30 minutes
 constexpr auto BASELINE_TOPIC_SUFFIX = "/baseline";
 constexpr auto LAST_ACTIVITY_TIME_TOPIC_SUFFIX = "/time";
 
@@ -63,7 +63,10 @@ void CCS811Component::update() {
 
   // Renew last activity time
   auto now_struct = this->time_->now().to_c_tm();
-  mqtt::global_mqtt_client->publish(this->last_activity_time_topic_, to_string(mktime(&now_struct)), 0, true);
+  const std::string time = to_string(mktime(&now_struct));
+  mqtt::global_mqtt_client->publish(this->last_activity_time_topic_, time, 0, true);
+  ESP_LOGD(CCS811Component::TAG, "%s: %u ppm", this->eco2_.get_name().c_str(), this->sensor_handle_.getCO2());
+  ESP_LOGD(CCS811Component::TAG, "%s: %u ppb", this->tvoc_.get_name().c_str(), this->sensor_handle_.getTVOC());
 }
 
 void CCS811Component::dump_config() {
@@ -134,16 +137,16 @@ void CCS811Component::arrange_warm_up_() {
       time_t now = mktime(&now_struct);
       long last_activity = atol(payload.c_str());
 
-      auto remains_to_warmup = WARM_UP_TIMEOUT_SEC - (now - last_activity);
-      if (remains_to_warmup <= 0) {
-        ESP_LOGCONFIG(CCS811Component::TAG, "Warming up finished!");
+      auto difference = now - last_activity;
+      if (difference <= 1000000000) {
+        ESP_LOGCONFIG(CCS811Component::TAG, "No need for warming!");
         this->arrange_baseline_();
       }
       else {
         ESP_LOGCONFIG(CCS811Component::TAG, "Sensor is being warming up ...");
         this->set_status_(CCS811Status::WARMING_UP);
 
-        this->set_timeout(remains_to_warmup * 1000, [this](){
+        this->set_timeout(WARM_UP_TIMEOUT_SEC * 1000, [this](){
           ESP_LOGCONFIG(CCS811Component::TAG, "Warming up finished!");
           this->arrange_baseline_();
         });
