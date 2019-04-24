@@ -9,8 +9,9 @@
 
 constexpr auto BASELINE_TIMEOUT_NAME = "BASELINE_TIMEOUT";
 constexpr auto LAST_ACTICITY_TIME_TIMEOUT_NAME = "LAST_ACTICITY_TIME_TIMEOUT_NAME";
-constexpr auto MQTT_SUBSCRIBE_TIMEOUT_SEC = 5;
-constexpr auto WARM_UP_TIMEOUT_SEC = 30; // 30 minutes
+constexpr auto MQTT_SUBSCRIBE_TIMEOUT_SEC = 15;
+constexpr auto LAST_ACTIVITY_DIFFERENCE = 300;
+constexpr auto WARM_UP_TIMEOUT_SEC = 1800; // 30 minutes
 constexpr auto BASELINE_TOPIC_SUFFIX = "/baseline";
 constexpr auto LAST_ACTIVITY_TIME_TOPIC_SUFFIX = "/time";
 
@@ -117,7 +118,7 @@ void CCS811Component::set_status_(CCS811Status status) {
 void CCS811Component::arrange_warm_up_() {
   this->set_status_(CCS811Status::SEARCHING_FOR_LAST_ACTIVITY_TIME);
 
-  this->set_timeout(LAST_ACTICITY_TIME_TIMEOUT_NAME, 3 * MQTT_SUBSCRIBE_TIMEOUT_SEC * 1000, [this]() {
+  this->set_timeout(LAST_ACTICITY_TIME_TIMEOUT_NAME, MQTT_SUBSCRIBE_TIMEOUT_SEC * 1000, [this]() {
     ESP_LOGCONFIG(CCS811Component::TAG, "Last activity time not found! Warming up for 30 minutes!");
     this->set_status_(CCS811Status::WARMING_UP);
 
@@ -138,7 +139,7 @@ void CCS811Component::arrange_warm_up_() {
       long last_activity = atol(payload.c_str());
 
       auto difference = now - last_activity;
-      if (difference <= 300) {
+      if (difference <= LAST_ACTIVITY_DIFFERENCE) {
         ESP_LOGCONFIG(CCS811Component::TAG, "No need of warming up!");
         this->arrange_baseline_();
       }
