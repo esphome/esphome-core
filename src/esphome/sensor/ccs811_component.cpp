@@ -117,7 +117,7 @@ void CCS811Component::set_status_(CCS811Status status) {
 void CCS811Component::arrange_warm_up_() {
   this->set_status_(CCS811Status::SEARCHING_FOR_LAST_ACTIVITY_TIME);
 
-  this->set_timeout(LAST_ACTICITY_TIME_TIMEOUT_NAME, MQTT_SUBSCRIBE_TIMEOUT_SEC * 1000, [this]() {
+  this->set_timeout(LAST_ACTICITY_TIME_TIMEOUT_NAME, 3 * MQTT_SUBSCRIBE_TIMEOUT_SEC * 1000, [this]() {
     ESP_LOGCONFIG(CCS811Component::TAG, "Last activity time not found! Warming up for 30 minutes!");
     this->set_status_(CCS811Status::WARMING_UP);
 
@@ -138,12 +138,12 @@ void CCS811Component::arrange_warm_up_() {
       long last_activity = atol(payload.c_str());
 
       auto difference = now - last_activity;
-      if (difference <= 1000000000) {
-        ESP_LOGCONFIG(CCS811Component::TAG, "No need for warming!");
+      if (difference <= 300) {
+        ESP_LOGCONFIG(CCS811Component::TAG, "No need of warming up!");
         this->arrange_baseline_();
       }
       else {
-        ESP_LOGCONFIG(CCS811Component::TAG, "Sensor is being warming up ...");
+        ESP_LOGCONFIG(CCS811Component::TAG, "Sensor is being warmed up ...");
         this->set_status_(CCS811Status::WARMING_UP);
 
         this->set_timeout(WARM_UP_TIMEOUT_SEC * 1000, [this](){
@@ -166,7 +166,7 @@ void CCS811Component::arrange_baseline_() {
 
   mqtt::global_mqtt_client->subscribe(this->baseline_topic_, [this](const std::string &topic, std::string payload){
     if (this->status_ == CCS811Status::SEARCHING_FOR_BASELINE) {
-      ESP_LOGD(CCS811Component::TAG, "Baseline found! Baseline is being setting!");
+      ESP_LOGD(CCS811Component::TAG, "Baseline found! Baseline is being set!");
       this->cancel_timeout(BASELINE_TIMEOUT_NAME);
 
       // Recv and set baseline
