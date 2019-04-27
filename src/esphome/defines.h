@@ -108,6 +108,7 @@
 #define USE_HX711
 #define USE_TCS34725
 #define USE_MAX7219
+#define USE_TM1637
 #define USE_LCD_DISPLAY
 #define USE_LCD_DISPLAY_PCF8574
 #define USE_SSD1306
