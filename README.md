@@ -2,6 +2,13 @@
 
 [![ESPHome Core Logo](https://esphome.io/_images/logo-core.png)](https://esphome.io/)
 
+> 🚨 This repository is no longer used 🚨
+>
+> Starting with v1.13.0 of ESPHome, the core codebase has merged into the python codebase.
+>
+> Please create all patches against https://github.com/esphome/esphome.
+> See https://github.com/esphome/feature-requests/issues/97 for more info.
+
 This is the source of the C++ library that powers [ESPHome](https://esphome.io/)
 
 For issues, please go to [the issue tracker](https://github.com/esphome/issues/issues).
