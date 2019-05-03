@@ -386,6 +386,12 @@ switch_::GPIOSwitch *Application::make_gpio_switch(const std::string &friendly_n
 }
 #endif
 
+#ifdef USE_BINARY_SENSOR_MAP
+sensor::BinarySensorMap *Application::make_binary_sensor_map(const std::string &name) {
+  return this->register_component(new BinarySensorMap(name));
+}
+#endif
+
 const std::string &Application::get_name() const { return this->name_; }
 
 #ifdef USE_FAN
