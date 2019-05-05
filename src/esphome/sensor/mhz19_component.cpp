@@ -27,6 +27,7 @@ uint8_t mhz19_checksum(const uint8_t *command) {
 
 void MHZ19Component::update() {
   uint8_t response[MHZ19_RESPONSE_LENGTH];
+repeat:
   if (!this->mhz19_write_command_(MHZ19_COMMAND_GET_PPM, response)) {
     ESP_LOGW(TAG, "Reading data from MHZ19 failed!");
     this->status_set_warning();
@@ -34,10 +35,18 @@ void MHZ19Component::update() {
   }
 
   if (response[0] != 0xFF || response[1] != 0x86) {
-    ESP_LOGW(TAG, "Invalid preamble from MHZ19!");
+    ESP_LOGW(TAG, "Invalid preamble from MHZ19! [%0x %0x %0x %0x %0x %0x %0x %0x %0x]",
+      response[0], response[1], response[2], response[3], response[4],
+      response[5], response[6], response[7], response[8]);
     this->status_set_warning();
-    return;
+    if (++this->cleanup_rx_buffer > 2) {
+        /* try to recover and give up on it if several attemprs were no successful until the next update cycle */
+        this->cleanup_rx_buffer = 0;
+        return;
+    }
+    goto repeat;
   }
+  this->cleanup_rx_buffer = 0;
 
   /* Sensor reports U(15000) during boot, ingnore reported CO2 until it boots */
   uint16_t u = (response[6] << 8) + response[7];
@@ -91,6 +100,19 @@ void MHZ19Component::update() {
 
 bool MHZ19Component::mhz19_write_command_(const uint8_t *command, uint8_t *response) {
   this->flush();
+
+  /*
+   * UART0 in NodeMCU v2, sometimes on boot has junk in RX buffer,
+   * check for it and drain all of it before sending commands to sensor
+   */
+  if (this->cleanup_rx_buffer) {
+    for (int i = 0; this->available(); i++) {
+      uint8_t junk;
+      this->read_byte(&junk);
+      ESP_LOGD(TAG, "junk in RX[%d]: %0x", i, junk);
+    }
+  }
+
   this->write_array(command, MHZ19_REQUEST_LENGTH);
   this->write_byte(mhz19_checksum(command));
 

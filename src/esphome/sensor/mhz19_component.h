@@ -35,6 +35,7 @@ class MHZ19Component : public PollingComponent, public UARTDevice {
   MHZ19CO2Sensor *co2_sensor_;
   bool model_b;
   bool abc_disabled;
+  int cleanup_rx_buffer;
 };
 
 }  // namespace sensor
