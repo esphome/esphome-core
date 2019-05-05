@@ -45,6 +45,13 @@ void MHZ19Component::update() {
     return;
   }
 
+  /* MH-Z19B(s == 0) and MH-Z19(s != 0) */
+  uint8_t s = response[5];
+  if (response[5] == 0 && this->model_b == false) {
+    ESP_LOGD(TAG, "MH-Z19B detected");
+    this->model_b = true;
+  }
+
   uint8_t checksum = mhz19_checksum(response);
   if (response[8] != checksum) {
     ESP_LOGW(TAG, "MHZ19 Checksum doesn't match: 0x%02X!=0x%02X", response[8], checksum);
@@ -81,7 +88,7 @@ MHZ19TemperatureSensor *MHZ19Component::make_temperature_sensor(const std::strin
 MHZ19CO2Sensor *MHZ19Component::get_co2_sensor() const { return this->co2_sensor_; }
 float MHZ19Component::get_setup_priority() const { return setup_priority::HARDWARE_LATE; }
 void MHZ19Component::dump_config() {
-  ESP_LOGCONFIG(TAG, "MH-Z19:");
+  ESP_LOGCONFIG(TAG, "MH-Z19%s:", this->model_b ? "B:" : "");
   LOG_SENSOR("  ", "CO2", this->co2_sensor_);
   LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
 }

@@ -33,6 +33,7 @@ class MHZ19Component : public PollingComponent, public UARTDevice {
 
   MHZ19TemperatureSensor *temperature_sensor_{nullptr};
   MHZ19CO2Sensor *co2_sensor_;
+  bool model_b;
 };
 
 }  // namespace sensor
