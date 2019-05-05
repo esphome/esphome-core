@@ -38,6 +38,13 @@ void MHZ19Component::update() {
     return;
   }
 
+  /* Sensor reports U(15000) during boot, ingnore reported CO2 until it boots */
+  uint16_t u = (response[6] << 8) + response[7];
+  if (u == 15000) {
+    ESP_LOGD(TAG, "Sensor is booting");
+    return;
+  }
+
   uint8_t checksum = mhz19_checksum(response);
   if (response[8] != checksum) {
     ESP_LOGW(TAG, "MHZ19 Checksum doesn't match: 0x%02X!=0x%02X", response[8], checksum);
