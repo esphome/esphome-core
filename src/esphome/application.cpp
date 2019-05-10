@@ -435,7 +435,6 @@ sensor::UltrasonicSensorComponent *Application::make_ultrasonic_sensor(const std
   return ultrasonic;
 }
 #endif
-
 #ifdef USE_WIFI_SIGNAL_SENSOR
 sensor::WiFiSignalSensor *Application::make_wifi_signal_sensor(const std::string &name, uint32_t update_interval) {
   auto *wifi = this->register_component(new WiFiSignalSensor(name, update_interval));
@@ -1082,6 +1081,13 @@ sensor::CSE7766Component *Application::make_cse7766(UARTComponent *parent, uint3
 #ifdef USE_PMSX003
 sensor::PMSX003Component *Application::make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type) {
   return this->register_component(new PMSX003Component(parent, type));
+}
+#endif
+
+#ifdef USE_PPD42X
+sensor::PPD42XComponent *Application::make_ppd42x(sensor::PPD42XType type, uint32_t update_interval,
+                                                  uint32_t time_out) {
+  return this->register_component(new PPD42XComponent(type, time_out, update_interval));
 }
 #endif
 

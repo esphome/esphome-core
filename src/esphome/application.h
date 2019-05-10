@@ -122,6 +122,7 @@
 #include "esphome/sensor/mqtt_subscribe_sensor.h"
 #include "esphome/sensor/ms5611.h"
 #include "esphome/sensor/pmsx003.h"
+#include "esphome/sensor/ppd42x.h"
 #include "esphome/sensor/pulse_counter.h"
 #include "esphome/sensor/rotary_encoder.h"
 #include "esphome/sensor/sensor.h"
@@ -819,6 +820,10 @@ class Application {
 
 #ifdef USE_PMSX003
   sensor::PMSX003Component *make_pmsx003(UARTComponent *parent, sensor::PMSX003Type type);
+#endif
+#ifdef USE_PPD42X
+  sensor::PPD42XComponent *make_ppd42x(sensor::PPD42XType type, uint32_t update_interval = 60000,
+                                       uint32_t time_out = 30000);
 #endif
 
 #ifdef USE_TOTAL_DAILY_ENERGY_SENSOR
