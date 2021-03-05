@@ -2,7 +2,7 @@
 
 ESPHome-Core is the C++ framework that powers the whole ESPHome project.
 
-For a detailed guide, please see https://esphome.io/eguides/contributing.html#contributing-to-esphomelib
+For a detailed guide, please see https://esphome.io/guides/contributing.html#contributing-to-esphomelib
 
 Things to note when contributing:
  - Please test your changes :)
